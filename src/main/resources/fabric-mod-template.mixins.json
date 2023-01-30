@@ -1,0 +1,9 @@
+{
+  "package": "dev.isxander.fabricmodtemplate.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+
+  ]
+}

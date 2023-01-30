@@ -1,0 +1,29 @@
+[versions]
+loom = "1.0.+"
+loom_quiltflower = "1.8.+"
+minotaur = "2.5.+"
+cursegradle = "2.+"
+github_release = "2.+"
+machete = "1.+"
+grgit = "5.0.+"
+
+minecraft = "1.19.3"
+yarn = "4"
+fabric_loader = "0.14.12"
+fabric_api = "0.69.1+1.19.3"
+
+[libraries]
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
+
+fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
+
+[plugins]
+loom = { id = "fabric-loom", version.ref = "loom" }
+loom_quiltflower = { id = "io.github.juuxel.loom-quiltflower", version.ref = "loom_quiltflower" }
+
+minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
+cursegradle = { id = "me.hypherionmc.cursegradle", version.ref = "cursegradle" }
+github_release = { id = "com.github.breadmoirai.github-release", version.ref = "github_release" }
+machete = { id = "io.github.p03w.machete", version.ref = "machete" }
+grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }
