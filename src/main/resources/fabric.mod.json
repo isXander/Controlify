@@ -18,7 +18,7 @@
 
   },
   "mixins": [
-    "fabric-mod-template.mixins.json"
+    "controlify.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.0",

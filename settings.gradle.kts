@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FabricModTemplate"
+rootProject.name = "Controlify"
 

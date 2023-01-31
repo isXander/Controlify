@@ -1,16 +1,16 @@
 [versions]
-loom = "1.0.+"
+loom = "1.1.+"
 loom_quiltflower = "1.8.+"
-minotaur = "2.5.+"
+minotaur = "2.6.+"
 cursegradle = "2.+"
 github_release = "2.+"
 machete = "1.+"
 grgit = "5.0.+"
 
-minecraft = "1.19.3"
-yarn = "4"
-fabric_loader = "0.14.12"
-fabric_api = "0.69.1+1.19.3"
+minecraft = "23w04a"
+quilt_mappings = "10"
+fabric_loader = "0.14.13"
+fabric_api = "0.73.1+1.19.4"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }

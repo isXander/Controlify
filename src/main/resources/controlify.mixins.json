@@ -1,0 +1,16 @@
+{
+  "package": "dev.isxander.controlify.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+  ],
+  "client": [
+    "AbstractSliderButtonMixin",
+    "KeyboardHandlerMixin",
+    "MinecraftMixin",
+    "MouseHandlerMixin",
+    "ScreenAccessor",
+    "ScreenMixin"
+  ]
+}
