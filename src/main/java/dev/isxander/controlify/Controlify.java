@@ -1,10 +1,10 @@
 package dev.isxander.controlify;
 
 import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
-import dev.isxander.controlify.controller.AxesState;
-import dev.isxander.controlify.controller.ButtonState;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.event.ControlifyEvents;
+import dev.isxander.controlify.ingame.InGameInputHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
@@ -13,13 +13,14 @@ public class Controlify {
     private static Controlify instance = null;
 
     private Controller currentController;
+    private InGameInputHandler inGameInputHandler;
     private InputMode currentInputMode;
 
     public void onInitializeInput() {
         // find already connected controllers
         for (int i = 0; i < GLFW.GLFW_JOYSTICK_LAST; i++) {
             if (GLFW.glfwJoystickPresent(i)) {
-                currentController = Controller.byId(i);
+                setCurrentController(Controller.byId(i));
                 System.out.println("Connected: " + currentController.name());
                 this.setCurrentInputMode(InputMode.CONTROLLER);
             }
@@ -29,23 +30,21 @@ public class Controlify {
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             System.out.println("Event: " + event);
             if (event == GLFW.GLFW_CONNECTED) {
-                currentController = Controller.byId(jid);
+                setCurrentController(Controller.byId(jid));
                 System.out.println("Connected: " + currentController.name());
                 this.setCurrentInputMode(InputMode.CONTROLLER);
             } else if (event == GLFW.GLFW_DISCONNECTED) {
                 Controller.CONTROLLERS.remove(jid);
-                currentController = Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null);
+                setCurrentController(Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null));
                 System.out.println("Disconnected: " + jid);
                 this.setCurrentInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
             }
         });
 
-        ClientTickEvents.START_CLIENT_TICK.register(client -> {
-            updateControllers();
-        });
+        ClientTickEvents.START_CLIENT_TICK.register(this::updateControllers);
     }
 
-    public void updateControllers() {
+    public void updateControllers(Minecraft client) {
         for (Controller controller : Controller.CONTROLLERS.values()) {
             controller.updateState();
         }
@@ -55,8 +54,31 @@ public class Controlify {
         if (state.hasAnyInput())
             this.setCurrentInputMode(InputMode.CONTROLLER);
 
-        Minecraft client = Minecraft.getInstance();
-        if (client.screen != null && currentController != null) ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
+        if (currentController == null) {
+            this.setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            return;
+        }
+
+        if (client.screen != null) {
+            ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
+        } else {
+            this.getInGameInputHandler().inputTick();
+        }
+    }
+
+    public Controller getCurrentController() {
+        return currentController;
+    }
+
+    public void setCurrentController(Controller controller) {
+        if (this.currentController == controller) return;
+
+        this.currentController = controller;
+        this.inGameInputHandler = new InGameInputHandler(controller);
+    }
+
+    public InGameInputHandler getInGameInputHandler() {
+        return inGameInputHandler;
     }
 
     public InputMode getCurrentInputMode() {
@@ -64,7 +86,10 @@ public class Controlify {
     }
 
     public void setCurrentInputMode(InputMode currentInputMode) {
+        if (this.currentInputMode == currentInputMode) return;
+
         this.currentInputMode = currentInputMode;
+        ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
     }
 
     public static Controlify getInstance() {

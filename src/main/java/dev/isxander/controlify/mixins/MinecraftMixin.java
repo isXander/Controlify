@@ -13,4 +13,9 @@ public class MinecraftMixin {
     private void onInputInitialized(CallbackInfo ci) {
         Controlify.getInstance().onInitializeInput();
     }
+
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
+    private void doPlayerLook(boolean tick, CallbackInfo ci) {
+        Controlify.getInstance().getInGameInputHandler().processPlayerLook();
+    }
 }

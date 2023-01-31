@@ -26,6 +26,7 @@ repositories {
             includeGroup("maven.modrinth")
         }
     }
+    maven("https://jitpack.io")
 }
 
 val minecraftVersion = libs.versions.minecraft.get()
@@ -39,6 +40,10 @@ dependencies {
     modImplementation(libs.fabric.loader)
 
     modImplementation(libs.fabric.api)
+
+    implementation(libs.mixin.extras)
+    annotationProcessor(libs.mixin.extras)
+    include(libs.mixin.extras)
 }
 
 tasks {

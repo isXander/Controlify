@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller;
 
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.event.ControlifyEvents;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
@@ -10,12 +11,16 @@ import java.util.Objects;
 
 public final class Controller {
     public static final Map<Integer, Controller> CONTROLLERS = new HashMap<>();
+
     private final int id;
     private final String guid;
     private final String name;
     private final boolean gamepad;
+
     private ControllerState state = ControllerState.EMPTY;
     private ControllerState prevState = ControllerState.EMPTY;
+
+    private final ControllerBindings bindings = new ControllerBindings(this);
 
     public Controller(int id, String guid, String name, boolean gamepad) {
         this.id = id;
@@ -47,6 +52,12 @@ public final class Controller {
                 .rightTriggerDeadZone(0.1f);
         ButtonState buttonState = ButtonState.fromController(this);
         state = new ControllerState(axesState, buttonState);
+
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(this);
+    }
+
+    public ControllerBindings bindings() {
+        return bindings;
     }
 
     public boolean connected() {
@@ -89,7 +100,7 @@ public final class Controller {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(guid);
     }
 
     @Override
