@@ -3,16 +3,17 @@ package dev.isxander.controlify.bindings;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class ControllerBinding {
     private final Controller controller;
     private Bind bind;
     private final Bind defaultBind;
-    private final String id;
+    private final ResourceLocation id;
     private final Component name, description;
     private final KeyMapping override;
 
-    public ControllerBinding(Controller controller, Bind defaultBind, String id, Component description, KeyMapping override) {
+    public ControllerBinding(Controller controller, Bind defaultBind, ResourceLocation id, Component description, KeyMapping override) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.id = id;
@@ -21,7 +22,7 @@ public class ControllerBinding {
         this.override = override;
     }
 
-    public ControllerBinding(Controller controller, Bind defaultBind, String id, KeyMapping override) {
+    public ControllerBinding(Controller controller, Bind defaultBind, ResourceLocation id, KeyMapping override) {
         this(controller, defaultBind, id, Component.empty(), override);
     }
 
@@ -49,7 +50,7 @@ public class ControllerBinding {
         return defaultBind;
     }
 
-    public String id() {
+    public ResourceLocation id() {
         return id;
     }
 
