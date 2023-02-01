@@ -5,12 +5,14 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
 
 public class InGameInputHandler {
     private final Controller controller;
     private final Minecraft minecraft;
+
+    private final Input controllerInput, keyboardInput;
 
     private double accumulatedDX, accumulatedDY;
     private double deltaTime;
@@ -19,11 +21,14 @@ public class InGameInputHandler {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
 
+        this.controllerInput = new ControllerPlayerMovement(controller);
+        this.keyboardInput = new KeyboardInput(minecraft.options);
+
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
             if (minecraft.player != null) {
                 minecraft.player.input = mode == InputMode.CONTROLLER
-                        ? new ControllerPlayerMovement(controller)
-                        : new KeyboardInput(minecraft.options);
+                        ? this.controllerInput
+                        : this.keyboardInput;
             }
         });
     }
@@ -55,15 +60,28 @@ public class InGameInputHandler {
         var delta = time - deltaTime;
         deltaTime = time;
 
-        var sensitivity = controller.config().lookSensitivity * 8f + 2f;
-        var sensCubed = sensitivity * sensitivity * sensitivity;
+        var hsensitivity = controller.config().horizontalLookSensitivity * 8.0 + 2.0;
+        var hsensCubed = hsensitivity * hsensitivity * hsensitivity;
+        var vsensitivity = controller.config().verticalLookSensitivity * 8.0 + 2.0;
+        var vsensCubed = vsensitivity * vsensitivity * vsensitivity;
 
         var dx = accumulatedDX * delta;
         var dy = accumulatedDY * delta;
-        accumulatedDX -= dx * 20; // 20 is how quickly the camera will slow down
-        accumulatedDY -= dy * 20;
+
+        // drag
+        if (accumulatedDX > 0) {
+            accumulatedDX -= Math.min(dx * 20, accumulatedDX);
+        } else if (accumulatedDX < 0) {
+            accumulatedDX -= Math.max(dx * 20, accumulatedDX);
+        }
+        if (accumulatedDY > 0) {
+            accumulatedDY -= Math.min(dy * 20, accumulatedDY);
+        } else if (accumulatedDY < 0) {
+            accumulatedDY -= Math.max(dy * 20, accumulatedDY);
+        }
+
 
         if (minecraft.player != null)
-            minecraft.player.turn(dx * sensCubed, dy * sensCubed);
+            minecraft.player.turn(dx * hsensCubed, dy * vsensCubed);
     }
 }

@@ -11,7 +11,16 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.*;
 
 public class ControllerBindings {
-    public final ControllerBinding JUMP, SNEAK, ATTACK, USE, SPRINT, NEXT_SLOT, PREV_SLOT, PAUSE, INVENTORY, CHANGE_PERSPECTIVE, OPEN_CHAT;
+    public final ControllerBinding
+            JUMP, SNEAK,
+            ATTACK, USE,
+            SPRINT,
+            NEXT_SLOT, PREV_SLOT,
+            PAUSE,
+            INVENTORY,
+            CHANGE_PERSPECTIVE,
+            OPEN_CHAT,
+            GUI_PRESS, GUI_BACK;
 
     private final Map<ResourceLocation, ControllerBinding> registry = new HashMap<>();
 
@@ -29,6 +38,8 @@ public class ControllerBindings {
         register(INVENTORY = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "inventory"), options.keyInventory));
         register(CHANGE_PERSPECTIVE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "change_perspective"), options.keyTogglePerspective));
         register(OPEN_CHAT = new ControllerBinding(controller, Bind.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat));
+        register(GUI_PRESS = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "gui_press"), null));
+        register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back"), null));
 
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 

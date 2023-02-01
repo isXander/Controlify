@@ -5,7 +5,8 @@ import dev.isxander.controlify.config.ControlifyConfig;
 public class ControllerConfig {
     public static final ControllerConfig DEFAULT = new ControllerConfig();
 
-    public float lookSensitivity = 1f;
+    public float horizontalLookSensitivity = 1f;
+    public float verticalLookSensitivity = 0.9f;
 
     public float leftStickDeadzone = 0.2f;
     public float rightStickDeadzone = 0.2f;
@@ -24,6 +25,8 @@ public class ControllerConfig {
     }
 
     public void overwrite(ControllerConfig from) {
+        this.horizontalLookSensitivity = from.horizontalLookSensitivity;
+        this.verticalLookSensitivity = from.verticalLookSensitivity;
         this.leftStickDeadzone = from.leftStickDeadzone;
         this.rightStickDeadzone = from.rightStickDeadzone;
         this.leftTriggerDeadzone = from.leftTriggerDeadzone;
