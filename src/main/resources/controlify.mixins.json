@@ -7,14 +7,15 @@
   ],
   "client": [
     "compat.screen.vanilla.AbstractContainerEventHandlerMixin",
+    "compat.screen.vanilla.AbstractSelectionListMixin",
     "compat.screen.vanilla.AbstractSliderButtonMixin",
-    "core.ClientPacketListenerMixin",
     "compat.screen.vanilla.ContainerObjectSelectionListEntryMixin",
+    "compat.screen.vanilla.ScreenAccessor",
+    "compat.screen.vanilla.ScreenMixin",
+    "core.ClientPacketListenerMixin",
     "core.KeyboardHandlerMixin",
-    "feature.bind.KeyMappingAccessor",
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
-    "compat.screen.vanilla.ScreenAccessor",
-    "compat.screen.vanilla.ScreenMixin"
+    "feature.bind.KeyMappingAccessor"
   ]
 }
