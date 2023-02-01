@@ -6,13 +6,15 @@
   "mixins": [
   ],
   "client": [
-    "AbstractSliderButtonMixin",
-    "ClientPacketListenerMixin",
-    "KeyboardHandlerMixin",
-    "KeyMappingAccessor",
-    "MinecraftMixin",
-    "MouseHandlerMixin",
-    "ScreenAccessor",
-    "ScreenMixin"
+    "compat.screen.vanilla.AbstractContainerEventHandlerMixin",
+    "compat.screen.vanilla.AbstractSliderButtonMixin",
+    "core.ClientPacketListenerMixin",
+    "compat.screen.vanilla.ContainerObjectSelectionListEntryMixin",
+    "core.KeyboardHandlerMixin",
+    "feature.bind.KeyMappingAccessor",
+    "core.MinecraftMixin",
+    "core.MouseHandlerMixin",
+    "compat.screen.vanilla.ScreenAccessor",
+    "compat.screen.vanilla.ScreenMixin"
   ]
 }

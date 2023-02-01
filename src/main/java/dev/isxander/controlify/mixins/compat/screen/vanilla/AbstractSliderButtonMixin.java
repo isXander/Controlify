@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins;
+package dev.isxander.controlify.mixins.compat.screen.vanilla;
 
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
@@ -23,7 +23,7 @@ public class AbstractSliderButtonMixin implements ComponentProcessorProvider {
     );
 
     @Override
-    public ComponentProcessor<AbstractSliderButton> componentProcessor() {
+    public ComponentProcessor componentProcessor() {
         return controlify$processor;
     }
 }

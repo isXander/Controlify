@@ -33,7 +33,7 @@ public enum Bind {
     Bind(BiFunction<ControllerState, Controller, Boolean> state, String identifier) {
         this.state = state;
         this.identifier = identifier;
-        this.textureLocation = new ResourceLocation("controlify", "textures/gui/buttons/" + identifier + ".png");
+        this.textureLocation = new ResourceLocation("controlify", "textures/gui/buttons/xbox/" + identifier + ".png");
     }
 
     Bind(Function<ControllerState, Boolean> state, String identifier) {

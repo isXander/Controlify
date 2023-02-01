@@ -1,6 +1,10 @@
 {
   "controlify.gui.group.config": "Config",
   "controlify.gui.group.config.tooltip": "Adjust the controller configuration.",
+  "controlify.gui.horizontal_look_sensitivity": "Horizontal Look Sensitivity",
+  "controlify.gui.horizontal_look_sensitivity.tooltip": "How fast the camera moves horizontally when looking around.",
+  "controlify.gui.vertical_look_sensitivity": "Vertical Look Sensitivity",
+  "controlify.gui.vertical_look_sensitivity.tooltip": "How fast the camera moves vertically when looking around.",
   "controlify.gui.left_stick_deadzone": "Left Stick Deadzone",
   "controlify.gui.left_stick_deadzone.tooltip": "How far the left joystick needs to be pushed before registering input.",
   "controlify.gui.right_stick_deadzone": "Right Stick Deadzone",
@@ -9,5 +13,24 @@
   "controlify.gui.left_trigger_threshold": "Left Trigger Threshold",
   "controlify.gui.left_trigger_threshold.tooltip": "How far the left trigger needs to be pushed before registering as pressed.",
   "controlify.gui.right_trigger_threshold": "Right Trigger Threshold",
-  "controlify.gui.right_trigger_threshold.tooltip": "How far the right trigger needs to be pushed before registering as pressed."
+  "controlify.gui.right_trigger_threshold.tooltip": "How far the right trigger needs to be pushed before registering as pressed.",
+
+  "controlify.gui.group.controls": "Controls",
+  "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
+  "controlify.gui.bind_input_awaiting": "Press any button",
+
+  "controlify.binding.controlify.jump": "Jump",
+  "controlify.binding.controlify.sneak": "Sneak",
+  "controlify.binding.controlify.attack": "Attack",
+  "controlify.binding.controlify.use": "Use",
+  "controlify.binding.controlify.sprint": "Sprint",
+  "controlify.binding.controlify.next_slot": "Next Hotbar Slot",
+  "controlify.binding.controlify.prev_slot": "Previous Hotbar Slot",
+  "controlify.binding.controlify.pause": "Pause Game",
+  "controlify.binding.controlify.inventory": "Open Inventory",
+  "controlify.binding.controlify.change_perspective": "Change Perspective",
+  "controlify.binding.controlify.open_chat": "Open Chat",
+  "controlify.binding.controlify.gui_press": "GUI Press",
+  "controlify.binding.controlify.gui_back": "GUI Back",
+  "controlify.binding.controlify.drop": "Drop Item"
 }

@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins;
+package dev.isxander.controlify.mixins.compat.screen.vanilla;
 
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;

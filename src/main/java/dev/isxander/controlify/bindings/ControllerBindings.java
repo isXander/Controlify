@@ -5,7 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
-import dev.isxander.controlify.mixins.KeyMappingAccessor;
+import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +17,7 @@ public class ControllerBindings {
             JUMP, SNEAK,
             ATTACK, USE,
             SPRINT,
+            DROP,
             NEXT_SLOT, PREV_SLOT,
             PAUSE,
             INVENTORY,
@@ -24,7 +25,7 @@ public class ControllerBindings {
             OPEN_CHAT,
             GUI_PRESS, GUI_BACK;
 
-    private final Map<ResourceLocation, ControllerBinding> registry = new HashMap<>();
+    private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
     public ControllerBindings(Controller controller) {
         var options = Minecraft.getInstance().options;
@@ -34,6 +35,7 @@ public class ControllerBindings {
         register(ATTACK = new ControllerBinding(controller, Bind.RIGHT_TRIGGER, new ResourceLocation("controlify", "attack"), options.keyAttack));
         register(USE = new ControllerBinding(controller, Bind.LEFT_TRIGGER, new ResourceLocation("controlify", "use"), options.keyUse));
         register(SPRINT = new ControllerBinding(controller, Bind.LEFT_STICK, new ResourceLocation("controlify", "sprint"), options.keySprint));
+        register(DROP = new ControllerBinding(controller, Bind.DPAD_DOWN, new ResourceLocation("controlify", "drop"), options.keyDrop));
         register(NEXT_SLOT = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "next_slot"), null));
         register(PREV_SLOT = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "prev_slot"), null));
         register(PAUSE = new ControllerBinding(controller, Bind.START, new ResourceLocation("controlify", "pause"), null));
@@ -42,6 +44,7 @@ public class ControllerBindings {
         register(OPEN_CHAT = new ControllerBinding(controller, Bind.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat));
         register(GUI_PRESS = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "gui_press"), null));
         register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back"), null));
+
 
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 

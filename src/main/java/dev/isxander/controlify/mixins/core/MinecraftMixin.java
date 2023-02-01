@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins;
+package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.Controlify;
 import net.minecraft.client.Minecraft;

@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins;
+package dev.isxander.controlify.mixins.compat.screen.vanilla;
 
 import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
 import dev.isxander.controlify.compatibility.screen.ScreenProcessor;

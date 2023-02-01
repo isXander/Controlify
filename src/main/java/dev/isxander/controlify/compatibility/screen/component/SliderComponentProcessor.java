@@ -8,15 +8,17 @@ import org.lwjgl.glfw.GLFW;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class SliderComponentProcessor extends ComponentProcessor<AbstractSliderButton> {
+public class SliderComponentProcessor implements ComponentProcessor {
     private final Supplier<Boolean> canChangeValueGetter;
     private final Consumer<Boolean> canChangeValueSetter;
+
+    private final AbstractSliderButton component;
 
     private static final int SLIDER_CHANGE_DELAY = 1;
     private int lastSliderChange = SLIDER_CHANGE_DELAY;
 
     public SliderComponentProcessor(AbstractSliderButton component, Supplier<Boolean> canChangeValueGetter, Consumer<Boolean> canChangeValueSetter) {
-        super(component);
+        this.component = component;
         this.canChangeValueGetter = canChangeValueGetter;
         this.canChangeValueSetter = canChangeValueSetter;
     }

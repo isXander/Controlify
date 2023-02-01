@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins;
+package dev.isxander.controlify.mixins.feature.bind;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;

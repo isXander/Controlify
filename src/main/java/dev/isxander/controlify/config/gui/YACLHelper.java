@@ -1,5 +1,6 @@
 package dev.isxander.controlify.config.gui;
 
+import dev.isxander.controlify.bindings.Bind;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
@@ -68,6 +69,17 @@ public class YACLHelper {
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build());
             category.group(configGroup.build());
+
+            var controlsGroup = OptionGroup.createBuilder()
+                    .name(Component.translatable("controlify.gui.group.controls"));
+            for (var control : controller.bindings().registry().values()) {
+                controlsGroup.option(Option.createBuilder(Bind.class)
+                        .name(control.name())
+                        .binding(control.defaultBind(), control::currentBind, control::setCurrentBind)
+                        .controller(BindButtonController::new)
+                        .build());
+            }
+            category.group(controlsGroup.build());
 
             yacl.category(category.build());
         }

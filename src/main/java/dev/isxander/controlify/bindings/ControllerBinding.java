@@ -17,7 +17,7 @@ public class ControllerBinding {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.id = id;
-        this.name = Component.translatable("controlify.binding." + id);
+        this.name = Component.translatable("controlify.binding." + id.getNamespace() + "." + id.getPath());
         this.description = description;
         this.override = override;
     }

@@ -50,6 +50,7 @@ public class ControlifyConfig {
 
         for (var controller : Controller.CONTROLLERS.values()) {
             // `add` replaces if already existing
+            // TODO: find a better way to identify controllers, GUID will report the same for multiple controllers of the same model
             configCopy.add(controller.guid(), generateControllerConfig(controller));
         }
 

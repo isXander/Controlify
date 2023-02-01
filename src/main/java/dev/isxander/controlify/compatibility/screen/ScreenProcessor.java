@@ -3,17 +3,22 @@ package dev.isxander.controlify.compatibility.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
+import dev.isxander.controlify.compatibility.screen.component.CustomFocus;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.mixins.ScreenAccessor;
+import dev.isxander.controlify.mixins.compat.screen.vanilla.ScreenAccessor;
 import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+
 public class ScreenProcessor {
-    private static final int REPEAT_DELAY = 5;
-    private static final int INITIAL_REPEAT_DELAY = 20;
+    private static final int REPEAT_DELAY = 3;
 
     public final Screen screen;
     private int lastMoved = 0;
@@ -28,15 +33,16 @@ public class ScreenProcessor {
     }
 
     protected void handleComponentNavigation(Controller controller) {
-        if (screen.getFocused() != null) {
-            var focused = screen.getFocused();
+        var focusTree = getFocusTree();
+        while (!focusTree.isEmpty()) {
+            var focused = focusTree.poll();
             var processor = ComponentProcessorProvider.provide(focused);
             if (processor.overrideControllerNavigation(this, controller)) return;
         }
 
         var accessor = (ScreenAccessor) screen;
 
-        boolean repeatEventAvailable = ++lastMoved > INITIAL_REPEAT_DELAY;
+        boolean repeatEventAvailable = ++lastMoved >= REPEAT_DELAY;
 
         var axes = controller.state().axes();
         var prevAxes = controller.prevState().axes();
@@ -67,14 +73,15 @@ public class ScreenProcessor {
             if (path != null) {
                 accessor.invokeChangeFocus(path);
                 ComponentProcessorProvider.provide(path.component()).onNavigateTo(this, controller);
-                lastMoved = repeatEventAvailable ? INITIAL_REPEAT_DELAY - REPEAT_DELAY : 0;
+                lastMoved = 0;
             }
         }
     }
 
     protected void handleButtons(Controller controller) {
-        if (screen.getFocused() != null) {
-            var focused = screen.getFocused();
+        var focusTree = getFocusTree();
+        while (!focusTree.isEmpty()) {
+            var focused = focusTree.poll();
             var processor = ComponentProcessorProvider.provide(focused);
             if (processor.overrideControllerButtons(this, controller)) return;
         }
@@ -93,5 +100,19 @@ public class ScreenProcessor {
             if (path != null)
                 accessor.invokeChangeFocus(path);
         }
+    }
+
+    protected Queue<GuiEventListener> getFocusTree() {
+        if (screen.getFocused() == null) return new ArrayDeque<>();
+
+        var tree = new ArrayDeque<GuiEventListener>();
+        var focused = screen.getFocused();
+        tree.add(focused);
+        while (focused instanceof CustomFocus customFocus) {
+            focused = customFocus.getCustomFocus();
+            tree.addFirst(focused);
+        }
+
+        return tree;
     }
 }
