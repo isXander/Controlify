@@ -79,12 +79,9 @@ public class ScreenProcessor {
             if (processor.overrideControllerButtons(this, controller)) return;
         }
 
-        var buttons = controller.state().buttons();
-        var prevButtons = controller.prevState().buttons();
-
-        if (buttons.a() && !prevButtons.a())
+        if (controller.bindings().GUI_PRESS.justPressed())
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
-        if (buttons.b() && !prevButtons.b())
+        if (controller.bindings().GUI_BACK.justPressed())
             screen.onClose();
     }
 

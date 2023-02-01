@@ -2,7 +2,6 @@ package dev.isxander.controlify.compatibility.screen.component;
 
 import dev.isxander.controlify.compatibility.screen.ScreenProcessor;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import org.lwjgl.glfw.GLFW;
 
@@ -53,9 +52,7 @@ public class SliderComponentProcessor extends ComponentProcessor<AbstractSliderB
     public boolean overrideControllerButtons(ScreenProcessor screen, Controller controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
-        var buttons = controller.state().buttons();
-        var prevButtons = controller.prevState().buttons();
-        if (buttons.b() && !prevButtons.b()) {
+        if (controller.bindings().GUI_BACK.justPressed()) {
             this.canChangeValueSetter.accept(false);
             return true;
         }
