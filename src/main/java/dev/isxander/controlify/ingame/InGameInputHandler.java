@@ -55,7 +55,7 @@ public class InGameInputHandler {
         var delta = time - deltaTime;
         deltaTime = time;
 
-        var sensitivity = 1f * 8f + 2f;
+        var sensitivity = controller.config().lookSensitivity * 8f + 2f;
         var sensCubed = sensitivity * sensitivity * sensitivity;
 
         var dx = accumulatedDX * delta;

@@ -19,9 +19,9 @@ public class ControlifyEvents {
         }
     });
 
-    public static final Event<ControllerBindRegistry> CONTROLLER_BIND_REGISTRY = EventFactory.createArrayBacked(ControllerBindRegistry.class, callbacks -> bindings -> {
+    public static final Event<ControllerBindRegistry> CONTROLLER_BIND_REGISTRY = EventFactory.createArrayBacked(ControllerBindRegistry.class, callbacks -> (bindings, controller) -> {
         for (ControllerBindRegistry callback : callbacks) {
-            callback.onRegisterControllerBinds(bindings);
+            callback.onRegisterControllerBinds(bindings, controller);
         }
     });
 
@@ -37,6 +37,6 @@ public class ControlifyEvents {
 
     @FunctionalInterface
     public interface ControllerBindRegistry {
-        void onRegisterControllerBinds(ControllerBindings bindings);
+        void onRegisterControllerBinds(ControllerBindings bindings, Controller controller);
     }
 }

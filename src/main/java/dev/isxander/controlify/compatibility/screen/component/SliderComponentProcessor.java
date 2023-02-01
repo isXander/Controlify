@@ -62,4 +62,9 @@ public class SliderComponentProcessor extends ComponentProcessor<AbstractSliderB
 
         return false;
     }
+
+    @Override
+    public void onNavigateTo(ScreenProcessor screen, Controller controller) {
+        this.canChangeValueSetter.accept(false);
+    }
 }

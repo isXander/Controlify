@@ -5,6 +5,8 @@ import dev.isxander.controlify.config.ControlifyConfig;
 public class ControllerConfig {
     public static final ControllerConfig DEFAULT = new ControllerConfig();
 
+    public float lookSensitivity = 1f;
+
     public float leftStickDeadzone = 0.2f;
     public float rightStickDeadzone = 0.2f;
 

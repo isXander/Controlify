@@ -4,7 +4,6 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.mixins.ScreenAccessor;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
@@ -28,7 +27,7 @@ public class ScreenProcessor {
         handleButtons(controller);
     }
 
-    private void handleComponentNavigation(Controller controller) {
+    protected void handleComponentNavigation(Controller controller) {
         if (screen.getFocused() != null) {
             var focused = screen.getFocused();
             var processor = ComponentProcessorProvider.provide(focused);
@@ -67,12 +66,13 @@ public class ScreenProcessor {
             ComponentPath path = screen.nextFocusPath(event);
             if (path != null) {
                 accessor.invokeChangeFocus(path);
+                ComponentProcessorProvider.provide(path.component()).onNavigateTo(this, controller);
                 lastMoved = repeatEventAvailable ? INITIAL_REPEAT_DELAY - REPEAT_DELAY : 0;
             }
         }
     }
 
-    private void handleButtons(Controller controller) {
+    protected void handleButtons(Controller controller) {
         if (screen.getFocused() != null) {
             var focused = screen.getFocused();
             var processor = ComponentProcessorProvider.provide(focused);

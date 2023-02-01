@@ -23,4 +23,7 @@ public class ComponentProcessor<T extends GuiEventListener> {
     public boolean overrideControllerButtons(ScreenProcessor screen, Controller controller) {
         return false;
     }
+
+    public void onNavigateTo(ScreenProcessor screen, Controller controller) {
+    }
 }
