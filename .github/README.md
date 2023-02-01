@@ -27,6 +27,22 @@ there are a few things you can do:
 - Find/create controller diagrams & buttons for each major controller brand.
 - Add built-in support for common mod GUIs (contact me for a how-to).
 
+## Why another?
+
+Yes, mods like [Midnight Controls](https://modrinth.com/mod/midnight-controls) already exist. However due to the fact it
+was forked from a now abandoned project, its codebase is a mess and adding compatibility for it ultimately drove me to
+create this mod!
+
+### Containerised Controllers
+
+This mod is built around the fact that each controller is completely separate, with it's own configuration, bindings etc.
+This means it will be trivial to add support for split-screen play in the future.
+
+### Built for mod compatibility
+
+GUI operation has been abstracted into a simple API, which allows other mods to easily add support for their own GUIs,
+without convoluted support throughout the whole mod's codebase, making it difficult for third parties to integrate.
+
 ## What is to come?
 
 You can see the [project board](https://github.com/users/isXander/projects/3) which has a list of planned features.
