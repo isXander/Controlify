@@ -1,6 +1,8 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.KeyMappingAccessor;
@@ -44,6 +46,7 @@ public class ControllerBindings {
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 
         ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::imitateVanillaClick);
+        ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
     public BindingSupplier register(ControllerBinding binding) {
@@ -76,6 +79,9 @@ public class ControllerBindings {
     }
 
     private void imitateVanillaClick(Controller controller) {
+        if (Controlify.getInstance().getCurrentInputMode() != InputMode.CONTROLLER)
+            return;
+
         for (var binding : registry().values()) {
             KeyMapping vanillaKey = binding.override();
             if (vanillaKey == null) continue;
