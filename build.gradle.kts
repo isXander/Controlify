@@ -13,12 +13,13 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.0.0+1.19.3"
+version = "1.0.0+1.19.4"
 
 repositories {
     mavenCentral()
     maven("https://maven.terraformersmc.com")
     maven("https://maven.isxander.dev/releases")
+    maven("https://maven.isxander.dev/snapshots")
     maven("https://maven.quiltmc.org/repository/release")
     maven("https://api.modrinth.com/maven") {
         name = "Modrinth"
@@ -40,6 +41,8 @@ dependencies {
     modImplementation(libs.fabric.loader)
 
     modImplementation(libs.fabric.api)
+    modImplementation(libs.yet.another.config.lib)
+    modImplementation(libs.mod.menu)
 
     implementation(libs.mixin.extras)
     annotationProcessor(libs.mixin.extras)

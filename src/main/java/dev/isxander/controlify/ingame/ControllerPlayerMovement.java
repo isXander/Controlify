@@ -1,6 +1,7 @@
 package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.controller.Controller;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 
 public class ControllerPlayerMovement extends Input {
@@ -12,6 +13,18 @@ public class ControllerPlayerMovement extends Input {
 
     @Override
     public void tick(boolean slowDown, float f) {
+        if (Minecraft.getInstance().screen != null) {
+            this.up = false;
+            this.down = false;
+            this.left = false;
+            this.right = false;
+            this.leftImpulse = 0;
+            this.forwardImpulse = 0;
+            this.jumping = false;
+            this.shiftKeyDown = false;
+            return;
+        }
+
         var axes = controller.state().axes();
 
         this.up = axes.leftStickY() < 0;

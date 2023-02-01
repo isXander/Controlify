@@ -5,6 +5,7 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.player.KeyboardInput;
 
 public class InGameInputHandler {
@@ -35,6 +36,18 @@ public class InGameInputHandler {
         }
 
         processPlayerLook();
+
+        if (controller.bindings().PAUSE.justPressed()) {
+            minecraft.pauseGame(false);
+        }
+        if (minecraft.player != null) {
+            if (controller.bindings().NEXT_SLOT.justPressed()) {
+                minecraft.player.getInventory().swapPaint(-1);
+            }
+            if (controller.bindings().PREV_SLOT.justPressed()) {
+                minecraft.player.getInventory().swapPaint(1);
+            }
+        }
     }
 
     public void processPlayerLook() {

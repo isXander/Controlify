@@ -21,6 +21,7 @@ public final class Controller {
     private ControllerState prevState = ControllerState.EMPTY;
 
     private final ControllerBindings bindings = new ControllerBindings(this);
+    private final ControllerConfig config = new ControllerConfig();
 
     public Controller(int id, String guid, String name, boolean gamepad) {
         this.id = id;
@@ -46,10 +47,10 @@ public final class Controller {
         prevState = state;
 
         AxesState axesState = AxesState.fromController(this)
-                .leftJoystickDeadZone(0.2f, 0.2f)
-                .rightJoystickDeadZone(0.2f, 0.2f)
-                .leftTriggerDeadZone(0.1f)
-                .rightTriggerDeadZone(0.1f);
+                .leftJoystickDeadZone(config().leftStickDeadzone, config().leftStickDeadzone)
+                .rightJoystickDeadZone(config().rightStickDeadzone, config().rightStickDeadzone)
+                .leftTriggerDeadZone(config().leftTriggerDeadzone)
+                .rightTriggerDeadZone(config().rightTriggerDeadzone);
         ButtonState buttonState = ButtonState.fromController(this);
         state = new ControllerState(axesState, buttonState);
 
@@ -87,27 +88,21 @@ public final class Controller {
         return gamepad;
     }
 
+    public ControllerConfig config() {
+        return config;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Controller) obj;
-        return this.id == that.id &&
-                Objects.equals(this.guid, that.guid) &&
-                Objects.equals(this.name, that.name) &&
-                this.gamepad == that.gamepad;
+        return Objects.equals(this.guid, that.guid);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(guid);
-    }
-
-    @Override
-    public String toString() {
-        return "Controller[" +
-                "id=" + id + ", " +
-                "name=" + name + ']';
     }
 
     public static Controller byId(int id) {

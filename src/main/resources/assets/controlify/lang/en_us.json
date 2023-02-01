@@ -1,0 +1,13 @@
+{
+  "controlify.gui.group.config": "Config",
+  "controlify.gui.group.config.tooltip": "Adjust the controller configuration.",
+  "controlify.gui.left_stick_deadzone": "Left Stick Deadzone",
+  "controlify.gui.left_stick_deadzone.tooltip": "How far the left joystick needs to be pushed before registering input.",
+  "controlify.gui.right_stick_deadzone": "Right Stick Deadzone",
+  "controlify.gui.right_stick_deadzone.tooltip": "How far the right joystick needs to be pushed before registering input.",
+  "controlify.gui.stickdrift_warning": "Warning: Setting this too low will cause stickdrift! This is where the internals of your controller become mis-calibrated and register small amounts of input when there shouldn't be.",
+  "controlify.gui.left_trigger_threshold": "Left Trigger Threshold",
+  "controlify.gui.left_trigger_threshold.tooltip": "How far the left trigger needs to be pushed before registering as pressed.",
+  "controlify.gui.right_trigger_threshold": "Right Trigger Threshold",
+  "controlify.gui.right_trigger_threshold.tooltip": "How far the right trigger needs to be pushed before registering as pressed."
+}

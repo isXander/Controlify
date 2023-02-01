@@ -1,6 +1,7 @@
 package dev.isxander.controlify;
 
 import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
+import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.event.ControlifyEvents;
@@ -26,6 +27,9 @@ public class Controlify {
             }
         }
 
+        // load after initial controller discovery
+        ControlifyConfig.load();
+
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             System.out.println("Event: " + event);
@@ -33,6 +37,9 @@ public class Controlify {
                 setCurrentController(Controller.byId(jid));
                 System.out.println("Connected: " + currentController.name());
                 this.setCurrentInputMode(InputMode.CONTROLLER);
+
+                ControlifyConfig.load(); // load config again if a configuration already exists for this controller
+                ControlifyConfig.save(); // save config if it doesn't exist
             } else if (event == GLFW.GLFW_DISCONNECTED) {
                 Controller.CONTROLLERS.remove(jid);
                 setCurrentController(Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null));
@@ -41,10 +48,10 @@ public class Controlify {
             }
         });
 
-        ClientTickEvents.START_CLIENT_TICK.register(this::updateControllers);
+        ClientTickEvents.START_CLIENT_TICK.register(this::tick);
     }
 
-    public void updateControllers(Minecraft client) {
+    public void tick(Minecraft client) {
         for (Controller controller : Controller.CONTROLLERS.values()) {
             controller.updateState();
         }

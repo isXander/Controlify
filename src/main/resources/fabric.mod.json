@@ -17,6 +17,9 @@
   "entrypoints": {
     "preLaunch": [
       "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
+    ],
+    "modmenu": [
+      "dev.isxander.controlify.config.gui.ModMenuIntegration"
     ]
   },
   "mixins": [

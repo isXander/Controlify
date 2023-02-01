@@ -1,6 +1,7 @@
 package dev.isxander.controlify.event;
 
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
@@ -18,6 +19,12 @@ public class ControlifyEvents {
         }
     });
 
+    public static final Event<ControllerBindRegistry> CONTROLLER_BIND_REGISTRY = EventFactory.createArrayBacked(ControllerBindRegistry.class, callbacks -> bindings -> {
+        for (ControllerBindRegistry callback : callbacks) {
+            callback.onRegisterControllerBinds(bindings);
+        }
+    });
+
     @FunctionalInterface
     public interface InputModeChanged {
         void onInputModeChanged(InputMode mode);
@@ -26,5 +33,10 @@ public class ControlifyEvents {
     @FunctionalInterface
     public interface ControllerStateUpdate {
         void onControllerStateUpdate(Controller controller);
+    }
+
+    @FunctionalInterface
+    public interface ControllerBindRegistry {
+        void onRegisterControllerBinds(ControllerBindings bindings);
     }
 }
