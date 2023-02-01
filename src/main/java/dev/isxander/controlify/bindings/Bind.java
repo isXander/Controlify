@@ -18,6 +18,7 @@ public enum Bind {
     RIGHT_STICK(state -> state.buttons().rightStick(), "right_stick"),
     START(state -> state.buttons().start(), "start"),
     BACK(state -> state.buttons().back(), "back"),
+    GUIDE(state -> state.buttons().guide(), "guide"), // the middle button
     DPAD_UP(state -> state.buttons().dpadUp(), "dpad_up"),
     DPAD_DOWN(state -> state.buttons().dpadDown(), "dpad_down"),
     DPAD_LEFT(state -> state.buttons().dpadLeft(), "dpad_left"),
