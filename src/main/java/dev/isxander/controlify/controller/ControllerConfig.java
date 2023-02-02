@@ -6,8 +6,8 @@ public class ControllerConfig {
     public float horizontalLookSensitivity = 1f;
     public float verticalLookSensitivity = 0.9f;
 
-    public float leftStickDeadzone = 0.1f;
-    public float rightStickDeadzone = 0.1f;
+    public float leftStickDeadzone = 0.2f;
+    public float rightStickDeadzone = 0.2f;
 
     // not sure if triggers need deadzones
     public float leftTriggerDeadzone = 0.0f;
@@ -17,6 +17,8 @@ public class ControllerConfig {
     public float rightTriggerActivationThreshold = 0.5f;
 
     public int screenRepeatNavigationDelay = 4;
+
+    public float virtualMouseSensitivity = 1f;
 
     public String customName = null;
 }
