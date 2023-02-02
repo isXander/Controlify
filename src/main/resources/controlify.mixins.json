@@ -20,6 +20,7 @@
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
     "feature.bind.KeyMappingAccessor",
+    "feature.settingsbutton.ControlsScreenMixin",
     "feature.virtualmouse.GameRendererMixin",
     "feature.virtualmouse.KeyboardHandlerAccessor",
     "feature.virtualmouse.MinecraftMixin",
