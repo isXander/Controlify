@@ -11,8 +11,8 @@ public record AxesState(
 
     public AxesState leftJoystickDeadZone(float deadZoneX, float deadZoneY) {
         return new AxesState(
-                Math.abs(leftStickX) < deadZoneX ? 0 : leftStickX,
-                Math.abs(leftStickY) < deadZoneY ? 0 : leftStickY,
+                deadzone(leftStickX, deadZoneX),
+                deadzone(leftStickY, deadZoneY),
                 rightStickX, rightStickY, leftTrigger, rightTrigger
         );
     }
@@ -20,8 +20,8 @@ public record AxesState(
     public AxesState rightJoystickDeadZone(float deadZoneX, float deadZoneY) {
         return new AxesState(
                 leftStickX, leftStickY,
-                Math.abs(rightStickX) < deadZoneX ? 0 : rightStickX,
-                Math.abs(rightStickY) < deadZoneY ? 0 : rightStickY,
+                deadzone(rightStickX, deadZoneX),
+                deadzone(rightStickY, deadZoneY),
                 leftTrigger, rightTrigger
         );
     }
@@ -29,7 +29,7 @@ public record AxesState(
     public AxesState leftTriggerDeadZone(float deadZone) {
         return new AxesState(
                 leftStickX, leftStickY, rightStickX, rightStickY,
-                Math.abs(leftTrigger) < deadZone ? 0 : leftTrigger,
+                deadzone(leftTrigger, deadZone),
                 rightTrigger
         );
     }
@@ -38,8 +38,12 @@ public record AxesState(
         return new AxesState(
                 leftStickX, leftStickY, rightStickX, rightStickY,
                 leftTrigger,
-                Math.abs(rightTrigger) < deadZone ? 0 : rightTrigger
+                deadzone(rightTrigger, deadZone)
         );
+    }
+
+    private float deadzone(float value, float deadzone) {
+        return (value - Math.copySign(Math.min(deadzone, Math.abs(value)), value)) / (1 - deadzone);
     }
 
     public static AxesState fromController(Controller controller) {
