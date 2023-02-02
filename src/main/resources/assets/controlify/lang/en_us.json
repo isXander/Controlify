@@ -1,10 +1,19 @@
 {
+  "controlify.gui.category.global": "Global",
+  "controlify.gui.current_controller": "Current Controller",
+  "controlify.gui.current_controller.tooltip": "In Controlify's infancy, only one controller can be used at a time, this selects which one you want to use.",
+  "controlify.gui.vmouse_screens": "Virtual Mouse Screens",
+  "controlify.gui.vmouse_screens.tooltip": "A list of Screen class names that require virtual mouse to operate, this is usually due to the screen not being compatible with controller input.",
+  "controlify.gui.vmouse_screens.placeholder": "Screen class name here...",
+
   "controlify.gui.group.config": "Config",
   "controlify.gui.group.config.tooltip": "Adjust the controller configuration.",
   "controlify.gui.horizontal_look_sensitivity": "Horizontal Look Sensitivity",
   "controlify.gui.horizontal_look_sensitivity.tooltip": "How fast the camera moves horizontally when looking around.",
   "controlify.gui.vertical_look_sensitivity": "Vertical Look Sensitivity",
   "controlify.gui.vertical_look_sensitivity.tooltip": "How fast the camera moves vertically when looking around.",
+  "controlify.gui.screen_repeat_navi_delay": "Screen Repeat Navigation Delay",
+  "controlify.gui.screen_repeat_navi_delay.tooltip": "How the delay is for navigation to start repeating if you hold the stick.",
   "controlify.gui.left_stick_deadzone": "Left Stick Deadzone",
   "controlify.gui.left_stick_deadzone.tooltip": "How far the left joystick needs to be pushed before registering input.",
   "controlify.gui.right_stick_deadzone": "Right Stick Deadzone",
@@ -19,6 +28,17 @@
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.bind_input_awaiting": "Press any button",
 
+  "controlify.gui.format.ticks": "%s ticks",
+
+  "controlify.toast.vmouse_enabled.title": "Virtual Mouse Enabled",
+  "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",
+  "controlify.toast.vmouse_disabled.title": "Virtual Mouse Disabled",
+  "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
+  "controlify.toast.controller_connected.title": "Controller Connected",
+  "controlify.toast.controller_connected.description": "A new controller has just been connected. You can switch to it in Controlify settings.",
+  "controlify.toast.controller_disconnected.title": "Controller Disconnected",
+  "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
+
   "controlify.binding.controlify.jump": "Jump",
   "controlify.binding.controlify.sneak": "Sneak",
   "controlify.binding.controlify.attack": "Attack",
@@ -32,5 +52,9 @@
   "controlify.binding.controlify.open_chat": "Open Chat",
   "controlify.binding.controlify.gui_press": "GUI Press",
   "controlify.binding.controlify.gui_back": "GUI Back",
-  "controlify.binding.controlify.drop": "Drop Item"
+  "controlify.binding.controlify.drop": "Drop Item",
+  "controlify.binding.controlify.vmouse_lclick": "Virtual Mouse LClick",
+  "controlify.binding.controlify.vmouse_rclick": "Virtual Mouse RClick",
+  "controlify.binding.controlify.vmouse_mclick": "Virtual Mouse MClick",
+  "controlify.binding.controlify.vmouse_escape": "Virtual Mouse Key Escape"
 }

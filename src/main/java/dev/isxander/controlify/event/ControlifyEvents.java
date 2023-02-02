@@ -25,6 +25,12 @@ public class ControlifyEvents {
         }
     });
 
+    public static final Event<VirtualMouseToggled> VIRTUAL_MOUSE_TOGGLED = EventFactory.createArrayBacked(VirtualMouseToggled.class, callbacks -> enabled -> {
+        for (VirtualMouseToggled callback : callbacks) {
+            callback.onVirtualMouseToggled(enabled);
+        }
+    });
+
     @FunctionalInterface
     public interface InputModeChanged {
         void onInputModeChanged(InputMode mode);
@@ -38,5 +44,10 @@ public class ControlifyEvents {
     @FunctionalInterface
     public interface ControllerBindRegistry {
         void onRegisterControllerBinds(ControllerBindings bindings, Controller controller);
+    }
+
+    @FunctionalInterface
+    public interface VirtualMouseToggled {
+        void onVirtualMouseToggled(boolean enabled);
     }
 }

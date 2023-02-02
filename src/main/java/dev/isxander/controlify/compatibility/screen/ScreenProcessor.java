@@ -2,12 +2,13 @@ package dev.isxander.controlify.compatibility.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
 import dev.isxander.controlify.compatibility.screen.component.CustomFocus;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.compat.screen.vanilla.ScreenAccessor;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
@@ -15,21 +16,30 @@ import net.minecraft.client.gui.screens.Screen;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
-public class ScreenProcessor {
-    private static final int REPEAT_DELAY = 3;
-
-    public final Screen screen;
+public class ScreenProcessor<T extends Screen> {
+    public final T screen;
     private int lastMoved = 0;
 
-    public ScreenProcessor(Screen screen) {
+    public ScreenProcessor(T screen) {
         this.screen = screen;
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
     }
 
     public void onControllerUpdate(Controller controller) {
         handleComponentNavigation(controller);
         handleButtons(controller);
+    }
+
+    public void onInputModeChanged(InputMode mode) {
+        switch (mode) {
+            case KEYBOARD_MOUSE -> ((ScreenAccessor) screen).invokeClearFocus();
+            case CONTROLLER -> {
+                if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+                    setInitialFocus();
+                }
+            }
+        }
     }
 
     protected void handleComponentNavigation(Controller controller) {
@@ -42,7 +52,7 @@ public class ScreenProcessor {
 
         var accessor = (ScreenAccessor) screen;
 
-        boolean repeatEventAvailable = ++lastMoved >= REPEAT_DELAY;
+        boolean repeatEventAvailable = ++lastMoved >= controller.config().screenRepeatNavigationDelay;
 
         var axes = controller.state().axes();
         var prevAxes = controller.prevState().axes();
@@ -93,13 +103,28 @@ public class ScreenProcessor {
     }
 
     public void onWidgetRebuild() {
-        // initial focus
-        if (screen.getFocused() == null && Controlify.getInstance().getCurrentInputMode() == InputMode.CONTROLLER) {
+        setInitialFocus();
+    }
+
+    public void onVirtualMouseToggled(boolean enabled) {
+        if (enabled) {
+            ((ScreenAccessor) screen).invokeClearFocus();
+        } else {
+            setInitialFocus();
+        }
+    }
+
+    protected void setInitialFocus() {
+        if (screen.getFocused() == null && Controlify.instance().currentInputMode() == InputMode.CONTROLLER && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
             var accessor = (ScreenAccessor) screen;
             ComponentPath path = screen.nextFocusPath(accessor.invokeCreateArrowEvent(ScreenDirection.DOWN));
             if (path != null)
                 accessor.invokeChangeFocus(path);
         }
+    }
+
+    public boolean forceVirtualMouse() {
+        return false;
     }
 
     protected Queue<GuiEventListener> getFocusTree() {
@@ -110,7 +135,9 @@ public class ScreenProcessor {
         tree.add(focused);
         while (focused instanceof CustomFocus customFocus) {
             focused = customFocus.getCustomFocus();
-            tree.addFirst(focused);
+
+            if (focused != null)
+                tree.addFirst(focused);
         }
 
         return tree;

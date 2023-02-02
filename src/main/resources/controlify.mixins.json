@@ -12,10 +12,17 @@
     "compat.screen.vanilla.ContainerObjectSelectionListEntryMixin",
     "compat.screen.vanilla.ScreenAccessor",
     "compat.screen.vanilla.ScreenMixin",
+    "compat.screen.vanilla.SelectWorldScreenAccessor",
+    "compat.screen.vanilla.SelectWorldScreenMixin",
+    "compat.screen.vanilla.WorldSelectionListEntryMixin",
     "core.ClientPacketListenerMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
-    "feature.bind.KeyMappingAccessor"
+    "feature.bind.KeyMappingAccessor",
+    "feature.virtualmouse.GameRendererMixin",
+    "feature.virtualmouse.KeyboardHandlerAccessor",
+    "feature.virtualmouse.MinecraftMixin",
+    "feature.virtualmouse.MouseHandlerAccessor"
   ]
 }

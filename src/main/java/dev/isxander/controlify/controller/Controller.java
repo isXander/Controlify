@@ -11,6 +11,7 @@ import java.util.Objects;
 
 public final class Controller {
     public static final Map<Integer, Controller> CONTROLLERS = new HashMap<>();
+    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false);
 
     private final int id;
     private final String guid;
@@ -21,7 +22,7 @@ public final class Controller {
     private ControllerState prevState = ControllerState.EMPTY;
 
     private final ControllerBindings bindings = new ControllerBindings(this);
-    private final ControllerConfig config = new ControllerConfig();
+    private ControllerConfig config = new ControllerConfig();
 
     public Controller(int id, String guid, String name, boolean gamepad) {
         this.id = id;
@@ -81,6 +82,8 @@ public final class Controller {
     }
 
     public String name() {
+        if (config().customName != null)
+            return config().customName;
         return name;
     }
 
@@ -90,6 +93,10 @@ public final class Controller {
 
     public ControllerConfig config() {
         return config;
+    }
+
+    public void setConfig(ControllerConfig config) {
+        this.config = config;
     }
 
     @Override

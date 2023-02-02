@@ -10,14 +10,14 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 public interface ComponentProcessor {
     ComponentProcessor EMPTY = new ComponentProcessor(){};
 
-    default boolean overrideControllerNavigation(ScreenProcessor screen, Controller controller) {
+    default boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller controller) {
         return false;
     }
 
-    default boolean overrideControllerButtons(ScreenProcessor screen, Controller controller) {
+    default boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller controller) {
         return false;
     }
 
-    default void onNavigateTo(ScreenProcessor screen, Controller controller) {
+    default void onNavigateTo(ScreenProcessor<?> screen, Controller controller) {
     }
 }

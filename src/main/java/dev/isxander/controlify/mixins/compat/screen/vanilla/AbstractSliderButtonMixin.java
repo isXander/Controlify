@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.screen.vanilla;
 
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
-import dev.isxander.controlify.compatibility.screen.component.SliderComponentProcessor;
+import dev.isxander.controlify.compatibility.vanilla.SliderComponentProcessor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

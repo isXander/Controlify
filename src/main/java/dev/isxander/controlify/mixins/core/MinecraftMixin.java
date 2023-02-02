@@ -11,11 +11,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin {
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
     private void onInputInitialized(CallbackInfo ci) {
-        Controlify.getInstance().onInitializeInput();
+        Controlify.instance().onInitializeInput();
     }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
-        Controlify.getInstance().getInGameInputHandler().processPlayerLook();
+        Controlify.instance().inGameInputHandler().processPlayerLook();
     }
 }

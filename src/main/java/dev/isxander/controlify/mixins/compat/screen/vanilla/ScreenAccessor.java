@@ -14,4 +14,7 @@ public interface ScreenAccessor {
 
     @Invoker
     void invokeChangeFocus(ComponentPath path);
+
+    @Invoker
+    void invokeClearFocus();
 }

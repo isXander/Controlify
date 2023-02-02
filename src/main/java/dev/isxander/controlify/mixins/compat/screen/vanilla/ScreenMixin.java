@@ -12,10 +12,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Screen.class)
 public class ScreenMixin implements ScreenProcessorProvider {
     @Unique
-    private final ScreenProcessor controlify$processor = new ScreenProcessor((Screen) (Object) this);
+    private final ScreenProcessor<Screen> controlify$processor = new ScreenProcessor<>((Screen) (Object) this);
 
     @Override
-    public ScreenProcessor screenProcessor() {
+    public ScreenProcessor<Screen> screenProcessor() {
         return controlify$processor;
     }
 

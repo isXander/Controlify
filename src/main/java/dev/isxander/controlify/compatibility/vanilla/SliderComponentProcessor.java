@@ -1,6 +1,7 @@
-package dev.isxander.controlify.compatibility.screen.component;
+package dev.isxander.controlify.compatibility.vanilla;
 
 import dev.isxander.controlify.compatibility.screen.ScreenProcessor;
+import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import org.lwjgl.glfw.GLFW;
@@ -24,7 +25,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor screen, Controller controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         var canSliderChange = ++lastSliderChange > SLIDER_CHANGE_DELAY;
@@ -51,7 +52,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor screen, Controller controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         if (controller.bindings().GUI_BACK.justPressed()) {
@@ -63,7 +64,8 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public void onNavigateTo(ScreenProcessor screen, Controller controller) {
+    public void onNavigateTo(ScreenProcessor<?> screen, Controller controller) {
+        System.out.println("navigated!");
         this.canChangeValueSetter.accept(false);
     }
 }
