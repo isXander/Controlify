@@ -12,6 +12,8 @@
   "controlify.gui.horizontal_look_sensitivity.tooltip": "How fast the camera moves horizontally when looking around.",
   "controlify.gui.vertical_look_sensitivity": "Vertical Look Sensitivity",
   "controlify.gui.vertical_look_sensitivity.tooltip": "How fast the camera moves vertically when looking around.",
+  "controlify.gui.vmouse_sensitivity": "Virtual Mouse Sensitivity",
+  "controlify.gui.vmouse_sensitivity.tooltip": "How fast the virtual mouse moves.",
   "controlify.gui.screen_repeat_navi_delay": "Screen Repeat Navigation Delay",
   "controlify.gui.screen_repeat_navi_delay.tooltip": "How the delay is for navigation to start repeating if you hold the stick.",
   "controlify.gui.left_stick_deadzone": "Left Stick Deadzone",
@@ -29,6 +31,8 @@
   "controlify.gui.bind_input_awaiting": "Press any button",
 
   "controlify.gui.format.ticks": "%s ticks",
+
+  "controlify.gui.button": "Controller Settings...",
 
   "controlify.toast.vmouse_enabled.title": "Virtual Mouse Enabled",
   "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",
@@ -56,5 +60,6 @@
   "controlify.binding.controlify.vmouse_lclick": "Virtual Mouse LClick",
   "controlify.binding.controlify.vmouse_rclick": "Virtual Mouse RClick",
   "controlify.binding.controlify.vmouse_mclick": "Virtual Mouse MClick",
-  "controlify.binding.controlify.vmouse_escape": "Virtual Mouse Key Escape"
+  "controlify.binding.controlify.vmouse_escape": "Virtual Mouse Key Escape",
+  "controlify.binding.controlify.vmouse_toggle": "Toggle Virtual Mouse"
 }

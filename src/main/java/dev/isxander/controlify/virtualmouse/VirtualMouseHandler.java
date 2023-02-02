@@ -45,8 +45,8 @@ public class VirtualMouseHandler {
 
         // quadratic function to make small movements smaller
         // abs to keep sign
-        targetX += leftStickX * Mth.abs(leftStickX) * 20f;
-        targetY += leftStickY * Mth.abs(leftStickY) * 20f;
+        targetX += leftStickX * Mth.abs(leftStickX) * 20f * controller.config().virtualMouseSensitivity;
+        targetY += leftStickY * Mth.abs(leftStickY) * 20f * controller.config().virtualMouseSensitivity;
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
@@ -153,12 +153,6 @@ public class VirtualMouseHandler {
         }
 
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
-        minecraft.getToasts().addToast(SystemToast.multiline(
-                minecraft,
-                SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                Component.translatable("controlify.toast.vmouse_enabled.title"),
-                Component.translatable("controlify.toast.vmouse_enabled.description")
-        ));
     }
 
     public void disableVirtualMouse() {
@@ -171,12 +165,6 @@ public class VirtualMouseHandler {
         targetY = currentY = minecraft.mouseHandler.ypos();
 
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(false);
-        minecraft.getToasts().addToast(SystemToast.multiline(
-                minecraft,
-                SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                Component.translatable("controlify.toast.vmouse_disabled.title"),
-                Component.translatable("controlify.toast.vmouse_disabled.description")
-        ));
     }
 
     private void setMousePosition() {
@@ -204,9 +192,23 @@ public class VirtualMouseHandler {
             screens.remove(screenName);
             disableVirtualMouse();
             Controlify.instance().hideMouse(true);
+
+            minecraft.getToasts().addToast(SystemToast.multiline(
+                    minecraft,
+                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                    Component.translatable("controlify.toast.vmouse_disabled.title"),
+                    Component.translatable("controlify.toast.vmouse_disabled.description")
+            ));
         } else {
             screens.add(screenName);
             enableVirtualMouse();
+
+            minecraft.getToasts().addToast(SystemToast.multiline(
+                    minecraft,
+                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                    Component.translatable("controlify.toast.vmouse_enabled.title"),
+                    Component.translatable("controlify.toast.vmouse_enabled.description")
+            ));
         }
 
         Controlify.instance().config().save();
