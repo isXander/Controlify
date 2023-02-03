@@ -47,7 +47,7 @@ public enum Bind {
     }
 
     public ResourceLocation textureLocation(Controller controller) {
-        return new ResourceLocation("controlify", "textures/gui/buttons/" + controller.config().theme.id(controller) + "/" + identifier + ".png");
+        return new ResourceLocation("controlify", "textures/gui/buttons/" + controller.config().theme.id() + "/" + identifier + ".png");
     }
 
     public static Bind fromIdentifier(String identifier) {

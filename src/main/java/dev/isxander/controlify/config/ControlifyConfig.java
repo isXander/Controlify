@@ -3,7 +3,6 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerConfig;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -93,7 +92,7 @@ public class ControlifyConfig {
     }
 
     private void applyControllerConfig(Controller controller, JsonObject object) {
-        controller.setConfig(GSON.fromJson(object.getAsJsonObject("config"), ControllerConfig.class));
+        controller.setConfig(GSON.fromJson(object.getAsJsonObject("config"), Controller.ControllerConfig.class));
         controller.bindings().fromJson(object.getAsJsonObject("bindings"));
     }
 

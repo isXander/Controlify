@@ -2,19 +2,17 @@ package dev.isxander.controlify.config.gui;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.Bind;
-import dev.isxander.controlify.bindings.ControllerTheme;
 import dev.isxander.controlify.config.GlobalSettings;
+import dev.isxander.controlify.controller.ControllerTheme;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.yacl.api.*;
+import dev.isxander.yacl.gui.controllers.TickBoxController;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingListController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
 import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
-import dev.isxander.yacl.gui.controllers.string.StringController;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 
 public class YACLHelper {
@@ -33,13 +31,6 @@ public class YACLHelper {
                         .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
                         .controller(opt -> new CyclingListController<>(opt, Controller.CONTROLLERS.values().stream().filter(Controller::connected).toList(), c -> Component.literal(c.name())))
                         .instant(true)
-                        .build())
-                .option(ListOption.createBuilder(String.class)
-                        .name(Component.translatable("controlify.gui.vmouse_screens"))
-                        .tooltip(Component.translatable("controlify.gui.vmouse_screens.tooltip"))
-                        .binding(GlobalSettings.DEFAULT.virtualMouseScreens, () -> controlify.config().globalSettings().virtualMouseScreens, v -> controlify.config().globalSettings().virtualMouseScreens = v)
-                        .controller(StringController::new)
-                        .initial(Language.getInstance().getOrDefault("controlify.gui.vmouse_screens.placeholder"))
                         .build());
 
         yacl.category(globalCategory.build());
@@ -51,7 +42,7 @@ public class YACLHelper {
             category.name(Component.literal(customName == null ? controller.name() : customName));
 
             var config = controller.config();
-            var def = ControllerConfig.DEFAULT;
+            var def = controller.defaultConfig();
             var configGroup = OptionGroup.createBuilder()
                     .name(Component.translatable("controlify.gui.group.config"))
                     .tooltip(Component.translatable("controlify.gui.group.config.tooltip"))
@@ -108,7 +99,7 @@ public class YACLHelper {
                     .option(Option.createBuilder(ControllerTheme.class)
                             .name(Component.translatable("controlify.gui.controller_theme"))
                             .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
-                            .binding(def.theme, () -> config.theme, v -> config.theme = v)
+                            .binding(controller.type().theme(), () -> config.theme, v -> config.theme = v)
                             .controller(EnumController::new)
                             .instant(true)
                             .build());

@@ -48,8 +48,8 @@ public class Controlify {
 
         controllerHIDService.start();
 
-        // load after initial controller discovery
-        config().load();
+        config().load(); // load after initial controller discovery
+        config().save(); // save new controller configs if they don't exist
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
@@ -148,7 +148,8 @@ public class Controlify {
         this.currentInputMode = currentInputMode;
 
         var minecraft = Minecraft.getInstance();
-        hideMouse(currentInputMode == InputMode.CONTROLLER);
+        if (!minecraft.mouseHandler.isMouseGrabbed())
+            hideMouse(currentInputMode == InputMode.CONTROLLER);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
         }
@@ -170,7 +171,7 @@ public class Controlify {
             if (hide && !virtualMouseHandler().isVirtualMouseEnabled()) {
                 // stop mouse hovering over last element before hiding cursor but don't actually move it
                 // so when the user switches back to mouse it will be in the same place
-                mouseHandlerAccessor.invokeOnMove(minecraft.getWindow().getWindow(), 0, 0);
+                mouseHandlerAccessor.invokeOnMove(minecraft.getWindow().getWindow(), -50, -50);
             }
         }
     }

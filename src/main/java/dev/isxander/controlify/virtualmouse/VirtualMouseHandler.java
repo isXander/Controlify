@@ -102,7 +102,8 @@ public class VirtualMouseHandler {
                 GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
         } else if (virtualMouseEnabled) {
             disableVirtualMouse();
-            minecraft.mouseHandler.grabMouse();
+
+            minecraft.mouseHandler.grabMouse(); // re-grab mouse after vmouse disable
         }
     }
 
@@ -127,7 +128,7 @@ public class VirtualMouseHandler {
         var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
         matrices.pushPose();
-        matrices.translate(scaledX, scaledY, 0);
+        matrices.translate(scaledX, scaledY, 1000f);
         matrices.scale(0.5f, 0.5f, 0.5f);
 
         GuiComponent.blit(matrices, -16, -16, 0, 0, 32, 32, 32, 32);
@@ -157,6 +158,9 @@ public class VirtualMouseHandler {
 
     public void disableVirtualMouse() {
         if (!virtualMouseEnabled) return;
+
+        // make sure minecraft doesn't think the mouse is grabbed when it isn't
+        ((MouseHandlerAccessor) minecraft.mouseHandler).setMouseGrabbed(false);
 
         GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
         setMousePosition();

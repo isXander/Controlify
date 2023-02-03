@@ -24,6 +24,7 @@
     "feature.virtualmouse.GameRendererMixin",
     "feature.virtualmouse.KeyboardHandlerAccessor",
     "feature.virtualmouse.MinecraftMixin",
-    "feature.virtualmouse.MouseHandlerAccessor"
+    "feature.virtualmouse.MouseHandlerAccessor",
+    "feature.virtualmouse.MouseHandlerMixin"
   ]
 }

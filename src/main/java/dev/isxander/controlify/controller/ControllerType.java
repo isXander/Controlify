@@ -3,7 +3,6 @@ package dev.isxander.controlify.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.bindings.ControllerTheme;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 
 import java.io.InputStreamReader;

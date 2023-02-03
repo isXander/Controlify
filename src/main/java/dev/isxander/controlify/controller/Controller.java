@@ -1,7 +1,6 @@
 package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.bindings.ControllerTheme;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import dev.isxander.controlify.event.ControlifyEvents;
 import org.hid4java.HidDevice;
@@ -27,7 +26,7 @@ public final class Controller {
     private ControllerState prevState = ControllerState.EMPTY;
 
     private final ControllerBindings bindings = new ControllerBindings(this);
-    private ControllerConfig config = new ControllerConfig();
+    private ControllerConfig config, defaultConfig;
 
     public Controller(int joystickId, String guid, String name, boolean gamepad, String uid, ControllerType type) {
         this.joystickId = joystickId;
@@ -36,6 +35,8 @@ public final class Controller {
         this.gamepad = gamepad;
         this.uid = uid;
         this.type = type;
+        this.config = new ControllerConfig();
+        this.defaultConfig = new ControllerConfig();
     }
 
     public ControllerState state() {
@@ -110,6 +111,10 @@ public final class Controller {
         return config;
     }
 
+    public ControllerConfig defaultConfig() {
+        return defaultConfig;
+    }
+
     public void setConfig(ControllerConfig config) {
         this.config = config;
     }
@@ -150,4 +155,26 @@ public final class Controller {
         return controller;
     }
 
+    public class ControllerConfig {
+        public float horizontalLookSensitivity = 1f;
+        public float verticalLookSensitivity = 0.9f;
+
+        public float leftStickDeadzone = 0.2f;
+        public float rightStickDeadzone = 0.2f;
+
+        // not sure if triggers need deadzones
+        public float leftTriggerDeadzone = 0.0f;
+        public float rightTriggerDeadzone = 0.0f;
+
+        public float leftTriggerActivationThreshold = 0.5f;
+        public float rightTriggerActivationThreshold = 0.5f;
+
+        public int screenRepeatNavigationDelay = 4;
+
+        public float virtualMouseSensitivity = 1f;
+
+        public ControllerTheme theme = type().theme();
+
+        public String customName = null;
+    }
 }

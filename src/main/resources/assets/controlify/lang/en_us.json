@@ -41,11 +41,10 @@
   "controlify.toast.vmouse_disabled.title": "Virtual Mouse Disabled",
   "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
   "controlify.toast.controller_connected.title": "Controller Connected",
-  "controlify.toast.controller_connected.description": "A new controller has just been connected. You can switch to it in Controlify settings.",
+  "controlify.toast.controller_connected.description": "A new '%s' controller named has just been connected. You can switch to your other controller in Controlify settings.",
   "controlify.toast.controller_disconnected.title": "Controller Disconnected",
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
 
-  "controlify.controller_theme.auto": "Auto",
   "controlify.controller_theme.xbox_one": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
 
