@@ -5,6 +5,7 @@ import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
@@ -24,19 +25,28 @@ public class Controlify {
     private InGameInputHandler inGameInputHandler;
     private VirtualMouseHandler virtualMouseHandler;
     private InputMode currentInputMode;
+    private ControllerHIDService controllerHIDService;
 
     private final ControlifyConfig config = new ControlifyConfig();
 
     public void onInitializeInput() {
         Minecraft minecraft = Minecraft.getInstance();
 
+        inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controllers
+        controllerHIDService = new ControllerHIDService();
+
         // find already connected controllers
         for (int i = 0; i < GLFW.GLFW_JOYSTICK_LAST; i++) {
             if (GLFW.glfwJoystickPresent(i)) {
-                setCurrentController(Controller.byId(i));
-                LOGGER.info("Controller found: " + currentController.name());
+                int jid = i;
+                controllerHIDService.awaitNextDevice(device -> {
+                    setCurrentController(Controller.create(jid, device));
+                    LOGGER.info("Controller found: " + currentController.name());
+                });
             }
         }
+
+        controllerHIDService.start();
 
         // load after initial controller discovery
         config().load();
@@ -44,31 +54,36 @@ public class Controlify {
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
-                setCurrentController(Controller.byId(jid));
-                LOGGER.info("Controller connected: " + currentController.name());
-                this.setCurrentInputMode(InputMode.CONTROLLER);
+                controllerHIDService.awaitNextDevice(device -> {
+                    setCurrentController(Controller.create(jid, device));
+                    LOGGER.info("Controller connected: " + currentController.name() + " (" + device.getPath() + ")");
+                    this.setCurrentInputMode(InputMode.CONTROLLER);
 
-                config().load(); // load config again if a configuration already exists for this controller
-                config().save(); // save config if it doesn't exist
+                    config().load(); // load config again if a configuration already exists for this controller
+                    config().save(); // save config if it doesn't exist
 
-                minecraft.getToasts().addToast(SystemToast.multiline(
-                        minecraft,
-                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                        Component.translatable("controlify.toast.controller_connected.title"),
-                        Component.translatable("controlify.toast.controller_connected.description")
-                ));
+                    minecraft.getToasts().addToast(SystemToast.multiline(
+                            minecraft,
+                            SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                            Component.translatable("controlify.toast.controller_connected.title"),
+                            Component.translatable("controlify.toast.controller_connected.description")
+                    ));
+                });
+
             } else if (event == GLFW.GLFW_DISCONNECTED) {
                 var controller = Controller.CONTROLLERS.remove(jid);
-                setCurrentController(Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null));
-                LOGGER.info("Controller disconnected: " + controller.name());
-                this.setCurrentInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
+                if (controller != null) {
+                    setCurrentController(Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null));
+                    LOGGER.info("Controller disconnected: " + controller.name());
+                    this.setCurrentInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
 
-                minecraft.getToasts().addToast(SystemToast.multiline(
-                        minecraft,
-                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                        Component.translatable("controlify.toast.controller_disconnected.title"),
-                        Component.translatable("controlify.toast.controller_disconnected.description", controller.name())
-                ));
+                    minecraft.getToasts().addToast(SystemToast.multiline(
+                            minecraft,
+                            SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                            Component.translatable("controlify.toast.controller_disconnected.title"),
+                            Component.translatable("controlify.toast.controller_disconnected.description", controller.name())
+                    ));
+                }
             }
         });
 

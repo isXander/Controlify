@@ -1,5 +1,7 @@
 package dev.isxander.controlify.controller;
 
+import dev.isxander.controlify.bindings.ControllerTheme;
+
 public class ControllerConfig {
     public static final ControllerConfig DEFAULT = new ControllerConfig();
 
@@ -19,6 +21,8 @@ public class ControllerConfig {
     public int screenRepeatNavigationDelay = 4;
 
     public float virtualMouseSensitivity = 1f;
+
+    public ControllerTheme theme = ControllerTheme.AUTO;
 
     public String customName = null;
 }

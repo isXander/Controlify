@@ -1,7 +1,10 @@
 package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.bindings.ControllerTheme;
+import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import dev.isxander.controlify.event.ControlifyEvents;
+import org.hid4java.HidDevice;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
@@ -11,12 +14,14 @@ import java.util.Objects;
 
 public final class Controller {
     public static final Map<Integer, Controller> CONTROLLERS = new HashMap<>();
-    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false);
+    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false, "DUMMY", ControllerType.UNKNOWN);
 
-    private final int id;
+    private final int joystickId;
     private final String guid;
     private final String name;
     private final boolean gamepad;
+    private final String uid;
+    private final ControllerType type;
 
     private ControllerState state = ControllerState.EMPTY;
     private ControllerState prevState = ControllerState.EMPTY;
@@ -24,11 +29,13 @@ public final class Controller {
     private final ControllerBindings bindings = new ControllerBindings(this);
     private ControllerConfig config = new ControllerConfig();
 
-    public Controller(int id, String guid, String name, boolean gamepad) {
-        this.id = id;
+    public Controller(int joystickId, String guid, String name, boolean gamepad, String uid, ControllerType type) {
+        this.joystickId = joystickId;
         this.guid = guid;
         this.name = name;
         this.gamepad = gamepad;
+        this.uid = uid;
+        this.type = type;
     }
 
     public ControllerState state() {
@@ -63,22 +70,30 @@ public final class Controller {
     }
 
     public boolean connected() {
-        return GLFW.glfwJoystickPresent(id);
+        return GLFW.glfwJoystickPresent(joystickId);
     }
 
     GLFWGamepadState getGamepadState() {
         GLFWGamepadState state = GLFWGamepadState.create();
         if (gamepad)
-            GLFW.glfwGetGamepadState(id, state);
+            GLFW.glfwGetGamepadState(joystickId, state);
         return state;
     }
 
     public int id() {
-        return id;
+        return joystickId;
     }
 
     public String guid() {
         return guid;
+    }
+
+    public String uid() {
+        return uid;
+    }
+
+    public ControllerType type() {
+        return type;
     }
 
     public String name() {
@@ -112,7 +127,7 @@ public final class Controller {
         return Objects.hash(guid);
     }
 
-    public static Controller byId(int id) {
+    public static Controller create(int id, HidDevice device) {
         if (id > GLFW.GLFW_JOYSTICK_LAST)
             throw new IllegalArgumentException("Invalid joystick id: " + id);
         if (CONTROLLERS.containsKey(id))
@@ -120,10 +135,16 @@ public final class Controller {
 
         String guid = GLFW.glfwGetJoystickGUID(id);
         boolean gamepad = GLFW.glfwJoystickIsGamepad(id);
-        String name = gamepad ? GLFW.glfwGetGamepadName(id) : GLFW.glfwGetJoystickName(id);
-        if (name == null) name = Integer.toString(id);
+        String fallbackName = gamepad ? GLFW.glfwGetGamepadName(id) : GLFW.glfwGetJoystickName(id);
+        String uid = device.getPath();
+        ControllerType type = ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId()));
+        String name = type != ControllerType.UNKNOWN || fallbackName == null ? type.friendlyName() : fallbackName;
+        int tries = 1;
+        while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equals)) {
+            name = type.friendlyName() + " (" + tries++ + ")";
+        }
 
-        Controller controller = new Controller(id, guid, name, gamepad);
+        Controller controller = new Controller(id, guid, name, gamepad, uid, type);
         CONTROLLERS.put(id, controller);
 
         return controller;

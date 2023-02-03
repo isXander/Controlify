@@ -1,0 +1,30 @@
+// THIS FILE IS PARSED BY LENIENT GSON PARSER AND IS NOT JSON5 COMPLIANT!
+{
+  "xbox_one": {
+    "vendor": 1118, // 0x45e
+    "friendly_name": "Xbox One Controller",
+    "product": [
+      767,  // 0x2ff
+      746,  // 0x2ea
+      2834, // 0xb12
+      733,  // 0x2dd
+      739,  // 0x2e3
+      742,  // 0x2e6
+      765,  // 0x2fd
+      721,  // 0x2d1
+      649,  // 0x289
+      514,  // 0x202
+      645,  // 0x285
+      648   // 0x288
+    ]
+  },
+  "dualshock4": {
+    "vendor": 1356, // 0x54c
+    "friendly_name": "PS4 Controller",
+    "product": [
+      1476, // 0x5c4
+      2508, // 0x9cc
+      2976  // 0xba0
+    ]
+  }
+}

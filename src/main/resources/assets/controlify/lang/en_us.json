@@ -25,6 +25,8 @@
   "controlify.gui.left_trigger_threshold.tooltip": "How far the left trigger needs to be pushed before registering as pressed.",
   "controlify.gui.right_trigger_threshold": "Right Trigger Threshold",
   "controlify.gui.right_trigger_threshold.tooltip": "How far the right trigger needs to be pushed before registering as pressed.",
+  "controlify.gui.controller_theme": "Controller Theme",
+  "controlify.gui.controller_theme.tooltip": "The theme to use for rendering controller buttons.",
 
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
@@ -42,6 +44,10 @@
   "controlify.toast.controller_connected.description": "A new controller has just been connected. You can switch to it in Controlify settings.",
   "controlify.toast.controller_disconnected.title": "Controller Disconnected",
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
+
+  "controlify.controller_theme.auto": "Auto",
+  "controlify.controller_theme.xbox_one": "Xbox",
+  "controlify.controller_theme.dualshock4": "PS4",
 
   "controlify.binding.controlify.jump": "Jump",
   "controlify.binding.controlify.sneak": "Sneak",

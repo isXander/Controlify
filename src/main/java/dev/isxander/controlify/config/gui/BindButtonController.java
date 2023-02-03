@@ -19,9 +19,11 @@ import org.lwjgl.glfw.GLFW;
 
 public class BindButtonController implements Controller<Bind> {
     private final Option<Bind> option;
+    private final dev.isxander.controlify.controller.Controller controller;
 
-    public BindButtonController(Option<Bind> option) {
+    public BindButtonController(Option<Bind> option, dev.isxander.controlify.controller.Controller controller) {
         this.option = option;
+        this.controller = controller;
     }
 
     @Override
@@ -52,7 +54,7 @@ public class BindButtonController implements Controller<Bind> {
             if (awaitingControllerInput) {
                 textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
             } else {
-                ButtonRenderer.drawButton(control.option().pendingValue(), matrices, getDimension().xLimit() - ButtonRenderer.BUTTON_SIZE / 2, getDimension().centerY(), ButtonRenderer.BUTTON_SIZE);
+                ButtonRenderer.drawButton(control.option().pendingValue(), control.controller, matrices, getDimension().xLimit() - ButtonRenderer.BUTTON_SIZE / 2, getDimension().centerY(), ButtonRenderer.BUTTON_SIZE);
             }
         }
 

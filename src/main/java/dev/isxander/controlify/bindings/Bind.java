@@ -28,12 +28,10 @@ public enum Bind {
 
     private final BiFunction<ControllerState, Controller, Boolean> state;
     private final String identifier;
-    private final ResourceLocation textureLocation;
 
     Bind(BiFunction<ControllerState, Controller, Boolean> state, String identifier) {
         this.state = state;
         this.identifier = identifier;
-        this.textureLocation = new ResourceLocation("controlify", "textures/gui/buttons/xbox/" + identifier + ".png");
     }
 
     Bind(Function<ControllerState, Boolean> state, String identifier) {
@@ -48,8 +46,8 @@ public enum Bind {
         return identifier;
     }
 
-    public ResourceLocation textureLocation() {
-        return textureLocation;
+    public ResourceLocation textureLocation(Controller controller) {
+        return new ResourceLocation("controlify", "textures/gui/buttons/" + controller.config().theme.id(controller) + "/" + identifier + ".png");
     }
 
     public static Bind fromIdentifier(String identifier) {

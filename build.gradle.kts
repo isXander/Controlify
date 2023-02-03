@@ -47,6 +47,13 @@ dependencies {
     implementation(libs.mixin.extras)
     annotationProcessor(libs.mixin.extras)
     include(libs.mixin.extras)
+
+    implementation(libs.hid4java)
+    include(libs.hid4java)
+}
+
+machete {
+
 }
 
 tasks {

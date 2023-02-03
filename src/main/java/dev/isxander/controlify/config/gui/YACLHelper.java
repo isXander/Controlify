@@ -2,11 +2,13 @@ package dev.isxander.controlify.config.gui;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.ControllerTheme;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingListController;
+import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
 import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
 import dev.isxander.yacl.gui.controllers.string.StringController;
@@ -102,6 +104,13 @@ public class YACLHelper {
                             .tooltip(Component.translatable("controlify.gui.right_trigger_threshold.tooltip"))
                             .binding(def.rightTriggerActivationThreshold, () -> config.rightTriggerActivationThreshold, v -> config.rightTriggerActivationThreshold = v)
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                            .build())
+                    .option(Option.createBuilder(ControllerTheme.class)
+                            .name(Component.translatable("controlify.gui.controller_theme"))
+                            .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
+                            .binding(def.theme, () -> config.theme, v -> config.theme = v)
+                            .controller(EnumController::new)
+                            .instant(true)
                             .build());
             category.group(configGroup.build());
 
@@ -111,7 +120,7 @@ public class YACLHelper {
                 controlsGroup.option(Option.createBuilder(Bind.class)
                         .name(control.name())
                         .binding(control.defaultBind(), control::currentBind, control::setCurrentBind)
-                        .controller(BindButtonController::new)
+                        .controller(opt -> new BindButtonController(opt, controller))
                         .build());
             }
             category.group(controlsGroup.build());

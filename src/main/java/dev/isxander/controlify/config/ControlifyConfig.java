@@ -57,7 +57,7 @@ public class ControlifyConfig {
         for (var controller : Controller.CONTROLLERS.values()) {
             // `add` replaces if already existing
             // TODO: find a better way to identify controllers, GUID will report the same for multiple controllers of the same model
-            newControllerData.add(controller.guid(), generateControllerConfig(controller));
+            newControllerData.add(controller.uid(), generateControllerConfig(controller));
         }
 
         controllerData = newControllerData;
@@ -84,7 +84,7 @@ public class ControlifyConfig {
         JsonObject controllers = object.getAsJsonObject("controllers");
         if (controllers != null) {
             for (var controller : Controller.CONTROLLERS.values()) {
-                var settings = controllers.getAsJsonObject(controller.guid());
+                var settings = controllers.getAsJsonObject(controller.uid());
                 if (settings != null) {
                     applyControllerConfig(controller, settings);
                 }
