@@ -17,10 +17,12 @@ public class ControlifyConfig {
             .serializeNulls()
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+            .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
             .create();
 
     private JsonObject controllerData = new JsonObject();
     private GlobalSettings globalSettings = new GlobalSettings();
+    private boolean firstLaunch;
 
     public void save() {
         Controlify.LOGGER.info("Saving Controlify config...");
@@ -37,6 +39,7 @@ public class ControlifyConfig {
         Controlify.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
+            firstLaunch = true;
             save();
             return;
         }
@@ -55,8 +58,7 @@ public class ControlifyConfig {
 
         for (var controller : Controller.CONTROLLERS.values()) {
             // `add` replaces if already existing
-            // TODO: find a better way to identify controllers, GUID will report the same for multiple controllers of the same model
-            newControllerData.add(controller.uid(), generateControllerConfig(controller));
+            newControllerData.add(controller.uid().toString(), generateControllerConfig(controller));
         }
 
         controllerData = newControllerData;
@@ -82,12 +84,19 @@ public class ControlifyConfig {
 
         JsonObject controllers = object.getAsJsonObject("controllers");
         if (controllers != null) {
+            this.controllerData = controllers;
             for (var controller : Controller.CONTROLLERS.values()) {
-                var settings = controllers.getAsJsonObject(controller.uid());
-                if (settings != null) {
-                    applyControllerConfig(controller, settings);
-                }
+                loadOrCreateControllerData(controller);
             }
+        }
+    }
+
+    public void loadOrCreateControllerData(Controller controller) {
+        var uid = controller.uid().toString();
+        if (controllerData.has(uid)) {
+            applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
+        } else {
+            save();
         }
     }
 
@@ -98,5 +107,9 @@ public class ControlifyConfig {
 
     public GlobalSettings globalSettings() {
         return globalSettings;
+    }
+
+    public boolean isFirstLaunch() {
+        return firstLaunch;
     }
 }

@@ -180,20 +180,21 @@ public class VirtualMouseHandler {
     }
 
     public boolean requiresVirtualMouse() {
-        return Controlify.instance().currentInputMode() == InputMode.CONTROLLER
-                && minecraft.screen != null
-                && (ScreenProcessorProvider.provide(minecraft.screen).forceVirtualMouse()
-                || Controlify.instance().config().globalSettings().virtualMouseScreens.contains(minecraft.screen.getClass().getName())
-                    );
+        var isController = Controlify.instance().currentInputMode() == InputMode.CONTROLLER;
+        var hasScreen = minecraft.screen != null;
+        var forceVirtualMouse = hasScreen && ScreenProcessorProvider.provide(minecraft.screen).forceVirtualMouse();
+        var screenIsVMouseScreen = hasScreen && Controlify.instance().config().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
+
+        return isController && hasScreen && (forceVirtualMouse || screenIsVMouseScreen);
     }
 
     public void toggleVirtualMouse() {
         if (minecraft.screen == null) return;
 
         var screens = Controlify.instance().config().globalSettings().virtualMouseScreens;
-        var screenName = minecraft.screen.getClass().getName();
-        if (screens.contains(screenName)) {
-            screens.remove(screenName);
+        var screenClass = minecraft.screen.getClass();
+        if (screens.contains(screenClass)) {
+            screens.remove(screenClass);
             disableVirtualMouse();
             Controlify.instance().hideMouse(true);
 
@@ -204,7 +205,7 @@ public class VirtualMouseHandler {
                     Component.translatable("controlify.toast.vmouse_disabled.description")
             ));
         } else {
-            screens.add(screenName);
+            screens.add(screenClass);
             enableVirtualMouse();
 
             minecraft.getToasts().addToast(SystemToast.multiline(

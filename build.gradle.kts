@@ -30,6 +30,10 @@ repositories {
     maven("https://jitpack.io")
 }
 
+loom {
+    accessWidenerPath.set(file("src/main/resources/controlify.accesswidener"))
+}
+
 val minecraftVersion = libs.versions.minecraft.get()
 
 dependencies {
@@ -50,10 +54,6 @@ dependencies {
 
     implementation(libs.hid4java)
     include(libs.hid4java)
-}
-
-machete {
-
 }
 
 tasks {

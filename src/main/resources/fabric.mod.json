@@ -25,6 +25,7 @@
   "mixins": [
     "controlify.mixins.json"
   ],
+  "accessWidener": "controlify.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.0",
     "minecraft": "~1.19.4-",

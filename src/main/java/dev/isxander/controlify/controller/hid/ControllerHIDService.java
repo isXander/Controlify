@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.hid;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerType;
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
 
@@ -35,7 +36,7 @@ public class ControllerHIDService implements HidServicesListener {
         services.start();
     }
 
-    public void awaitNextDevice(Consumer<HidDevice> consumer) {
+    public void awaitNextController(Consumer<HidDevice> consumer) {
         deviceQueue.add(consumer);
     }
 
@@ -46,6 +47,8 @@ public class ControllerHIDService implements HidServicesListener {
         if (isController(device)) {
             if (deviceQueue.peek() != null) {
                 deviceQueue.poll().accept(event.getHidDevice());
+            } else {
+                Controlify.LOGGER.error("Unhandled controller: " + ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())).friendlyName());
             }
         }
     }

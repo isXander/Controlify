@@ -2,9 +2,9 @@
   "controlify.gui.category.global": "Global",
   "controlify.gui.current_controller": "Current Controller",
   "controlify.gui.current_controller.tooltip": "In Controlify's infancy, only one controller can be used at a time, this selects which one you want to use.",
-  "controlify.gui.vmouse_screens": "Virtual Mouse Screens",
-  "controlify.gui.vmouse_screens.tooltip": "A list of Screen class names that require virtual mouse to operate, this is usually due to the screen not being compatible with controller input.",
-  "controlify.gui.vmouse_screens.placeholder": "Screen class name here...",
+  "controlify.gui.out_of_focus_input": "Out of Focus Input",
+  "controlify.gui.out_of_focus_input.tooltip": "If enabled, Controlify will still receive input even if the game window is not focused.",
+  "controlify.gui.open_issue_tracker": "Open Issue Tracker",
 
   "controlify.gui.group.config": "Config",
   "controlify.gui.group.config.tooltip": "Adjust the controller configuration.",
@@ -21,10 +21,8 @@
   "controlify.gui.right_stick_deadzone": "Right Stick Deadzone",
   "controlify.gui.right_stick_deadzone.tooltip": "How far the right joystick needs to be pushed before registering input.",
   "controlify.gui.stickdrift_warning": "Warning: Setting this too low will cause stickdrift! This is where the internals of your controller become mis-calibrated and register small amounts of input when there shouldn't be.",
-  "controlify.gui.left_trigger_threshold": "Left Trigger Threshold",
-  "controlify.gui.left_trigger_threshold.tooltip": "How far the left trigger needs to be pushed before registering as pressed.",
-  "controlify.gui.right_trigger_threshold": "Right Trigger Threshold",
-  "controlify.gui.right_trigger_threshold.tooltip": "How far the right trigger needs to be pushed before registering as pressed.",
+  "controlify.gui.button_activation_threshold": "Button Activation Threshold",
+  "controlify.gui.button_activation_threshold.tooltip": "How far a button needs to be pushed before registering as pressed.",
   "controlify.gui.controller_theme": "Controller Theme",
   "controlify.gui.controller_theme.tooltip": "The theme to use for rendering controller buttons.",
 
@@ -33,6 +31,10 @@
   "controlify.gui.bind_input_awaiting": "Press any button",
 
   "controlify.gui.format.ticks": "%s ticks",
+  "controlify.gui.format.open": "OPEN URL",
+
+  "controlify.gui.error.title": "Could not open Controlify settings",
+  "controlify.gui.error.message": "You cannot change Controlify setttings when you have no controllers connected. Please connect a controller first.",
 
   "controlify.gui.button": "Controller Settings...",
 
@@ -48,6 +50,10 @@
   "controlify.controller_theme.xbox_one": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
 
+  "controlify.binding.controlify.walk_forward": "Walk Forward",
+  "controlify.binding.controlify.walk_backward": "Walk Backward",
+  "controlify.binding.controlify.strafe_left": "Strafe Left",
+  "controlify.binding.controlify.strafe_right": "Strafe Right",
   "controlify.binding.controlify.jump": "Jump",
   "controlify.binding.controlify.sneak": "Sneak",
   "controlify.binding.controlify.attack": "Attack",
@@ -61,10 +67,19 @@
   "controlify.binding.controlify.open_chat": "Open Chat",
   "controlify.binding.controlify.gui_press": "GUI Press",
   "controlify.binding.controlify.gui_back": "GUI Back",
+  "controlify.binding.controlify.gui_next_tab": "GUI Next Tab",
+  "controlify.binding.controlify.gui_prev_tab": "GUI Previous Tab",
   "controlify.binding.controlify.drop": "Drop Item",
   "controlify.binding.controlify.vmouse_lclick": "Virtual Mouse LClick",
   "controlify.binding.controlify.vmouse_rclick": "Virtual Mouse RClick",
   "controlify.binding.controlify.vmouse_mclick": "Virtual Mouse MClick",
   "controlify.binding.controlify.vmouse_escape": "Virtual Mouse Key Escape",
-  "controlify.binding.controlify.vmouse_toggle": "Toggle Virtual Mouse"
+  "controlify.binding.controlify.vmouse_shift": "Virtual Mouse Key Shift",
+  "controlify.binding.controlify.vmouse_toggle": "Toggle Virtual Mouse",
+  "controlify.binding.controlify.toggle_debug_menu": "Toggle F3 Menu",
+
+  "controlify.beta.title": "Controlify Beta Notice",
+  "controlify.beta.message": "You are currently using Controlify Beta.\n\nThis mod is a work in progress and will contain many bugs. Please, if you spot a bug in this mod or have a suggestion to make it even better, please create an issue on the %s!\n\nYou can always find the link to the issue tracker in Controlify's settings menu.",
+  "controlify.beta.message.link": "issue tracker",
+  "controlify.beta.button": "Open Issue Tracker..."
 }

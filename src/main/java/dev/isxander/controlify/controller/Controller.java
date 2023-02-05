@@ -7,19 +7,21 @@ import org.hid4java.HidDevice;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 public final class Controller {
     public static final Map<Integer, Controller> CONTROLLERS = new HashMap<>();
-    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false, "DUMMY", ControllerType.UNKNOWN);
+    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false, UUID.randomUUID(), ControllerType.UNKNOWN);
 
     private final int joystickId;
     private final String guid;
     private final String name;
     private final boolean gamepad;
-    private final String uid;
+    private final UUID uid;
     private final ControllerType type;
 
     private ControllerState state = ControllerState.EMPTY;
@@ -28,7 +30,7 @@ public final class Controller {
     private final ControllerBindings bindings = new ControllerBindings(this);
     private ControllerConfig config, defaultConfig;
 
-    public Controller(int joystickId, String guid, String name, boolean gamepad, String uid, ControllerType type) {
+    public Controller(int joystickId, String guid, String name, boolean gamepad, UUID uid, ControllerType type) {
         this.joystickId = joystickId;
         this.guid = guid;
         this.name = name;
@@ -62,8 +64,10 @@ public final class Controller {
                 .rightTriggerDeadZone(config().rightTriggerDeadzone);
         ButtonState buttonState = ButtonState.fromController(this);
         state = new ControllerState(axesState, buttonState);
+    }
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(this);
+    public void consumeButtonState() {
+        this.state = new ControllerState(state().axes(), ButtonState.EMPTY);
     }
 
     public ControllerBindings bindings() {
@@ -89,7 +93,7 @@ public final class Controller {
         return guid;
     }
 
-    public String uid() {
+    public UUID uid() {
         return uid;
     }
 
@@ -141,7 +145,7 @@ public final class Controller {
         String guid = GLFW.glfwGetJoystickGUID(id);
         boolean gamepad = GLFW.glfwJoystickIsGamepad(id);
         String fallbackName = gamepad ? GLFW.glfwGetGamepadName(id) : GLFW.glfwGetJoystickName(id);
-        String uid = device.getPath();
+        UUID uid = UUID.nameUUIDFromBytes(device.getPath().getBytes(StandardCharsets.UTF_8));
         ControllerType type = ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId()));
         String name = type != ControllerType.UNKNOWN || fallbackName == null ? type.friendlyName() : fallbackName;
         int tries = 1;
@@ -166,8 +170,7 @@ public final class Controller {
         public float leftTriggerDeadzone = 0.0f;
         public float rightTriggerDeadzone = 0.0f;
 
-        public float leftTriggerActivationThreshold = 0.5f;
-        public float rightTriggerActivationThreshold = 0.5f;
+        public float buttonActivationThreshold = 0.5f;
 
         public int screenRepeatNavigationDelay = 4;
 

@@ -34,16 +34,19 @@ public class InGameInputHandler {
     }
 
     public void inputTick() {
-        var axes = controller.state().axes();
-        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
-            accumulatedDX += axes.rightStickX();
-            accumulatedDY += axes.rightStickY();
-        }
+        handlePlayerLookInput();
+        handleKeybinds();
+    }
 
-        processPlayerLook();
+    protected void handleKeybinds() {
+        if (Minecraft.getInstance().screen != null && !Minecraft.getInstance().screen.passEvents)
+            return;
 
         if (controller.bindings().PAUSE.justPressed()) {
             minecraft.pauseGame(false);
+        }
+        if (controller.bindings().TOGGLE_DEBUG_MENU.justPressed()) {
+            minecraft.options.renderDebug = !minecraft.options.renderDebug;
         }
         if (minecraft.player != null) {
             if (controller.bindings().NEXT_SLOT.justPressed()) {
@@ -53,6 +56,16 @@ public class InGameInputHandler {
                 minecraft.player.getInventory().swapPaint(1);
             }
         }
+    }
+
+    protected void handlePlayerLookInput() {
+        var axes = controller.state().axes();
+        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
+            accumulatedDX += axes.rightStickX();
+            accumulatedDY += axes.rightStickY();
+        }
+
+        processPlayerLook();
     }
 
     public void processPlayerLook() {

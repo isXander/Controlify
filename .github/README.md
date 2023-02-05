@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/isXander/FabricModTemplate/1.19/src/main/resources/icon.png" alt="Icon">
+<img src="https://raw.githubusercontent.com/isXander/Controlify/1.19.x/dev/src/main/resources/icon.png" alt="Icon">
 
 # Control-ify
 

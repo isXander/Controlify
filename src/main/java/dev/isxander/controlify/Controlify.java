@@ -36,37 +36,36 @@ public class Controlify {
         controllerHIDService = new ControllerHIDService();
 
         // find already connected controllers
-        for (int i = 0; i < GLFW.GLFW_JOYSTICK_LAST; i++) {
+        for (int i = 0; i <= GLFW.GLFW_JOYSTICK_LAST; i++) {
             if (GLFW.glfwJoystickPresent(i)) {
                 int jid = i;
-                controllerHIDService.awaitNextDevice(device -> {
+                controllerHIDService.awaitNextController(device -> {
                     setCurrentController(Controller.create(jid, device));
                     LOGGER.info("Controller found: " + currentController.name());
+                    config().loadOrCreateControllerData(currentController);
                 });
             }
         }
 
         controllerHIDService.start();
 
-        config().load(); // load after initial controller discovery
-        config().save(); // save new controller configs if they don't exist
+        config().load();
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
-                controllerHIDService.awaitNextDevice(device -> {
+                controllerHIDService.awaitNextController(device -> {
                     setCurrentController(Controller.create(jid, device));
-                    LOGGER.info("Controller connected: " + currentController.name() + " (" + device.getPath() + ")");
+                    LOGGER.info("Controller connected: " + currentController.name());
                     this.setCurrentInputMode(InputMode.CONTROLLER);
 
-                    config().load(); // load config again if a configuration already exists for this controller
-                    config().save(); // save config if it doesn't exist
+                    config().loadOrCreateControllerData(currentController);
 
                     minecraft.getToasts().addToast(SystemToast.multiline(
                             minecraft,
                             SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
                             Component.translatable("controlify.toast.controller_connected.title"),
-                            Component.translatable("controlify.toast.controller_connected.description")
+                            Component.translatable("controlify.toast.controller_connected.description", currentController.name())
                     ));
                 });
 
@@ -98,6 +97,8 @@ public class Controlify {
         }
 
         ControllerState state = currentController == null ? ControllerState.EMPTY : currentController.state();
+        if (!config().globalSettings().outOfFocusInput && !client.isWindowActive())
+            state = ControllerState.EMPTY;
 
         if (state.hasAnyInput())
             this.setCurrentInputMode(InputMode.CONTROLLER);
@@ -108,12 +109,13 @@ public class Controlify {
         }
 
         if (client.screen != null) {
-            if (!this.virtualMouseHandler().isVirtualMouseEnabled())
-                ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
+            ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
         } else {
             this.inGameInputHandler().inputTick();
         }
         this.virtualMouseHandler().handleControllerInput(currentController);
+
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
     }
 
     public ControlifyConfig config() {

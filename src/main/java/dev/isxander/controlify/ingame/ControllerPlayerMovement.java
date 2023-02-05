@@ -25,25 +25,23 @@ public class ControllerPlayerMovement extends Input {
             return;
         }
 
-        var axes = controller.state().axes();
+        var bindings = controller.bindings();
 
-        this.up = axes.leftStickY() < 0;
-        this.down = axes.leftStickY() > 0;
-        this.left = axes.leftStickX() < 0;
-        this.right = axes.leftStickX() > 0;
-        this.leftImpulse = -axes.leftStickX();
-        this.forwardImpulse = -axes.leftStickY();
+        this.forwardImpulse = bindings.WALK_FORWARD.state() - bindings.WALK_BACKWARD.state();
+        this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
+
+        // .1 to prevent using boat turning absolute hell with left/right left/right
+        this.up = bindings.WALK_FORWARD.state() > 0.1;
+        this.down = bindings.WALK_BACKWARD.state() > 0.1;
+        this.left = bindings.WALK_LEFT.state() > 0.1;
+        this.right = bindings.WALK_RIGHT.state() > 0.1;
 
         if (slowDown) {
             this.leftImpulse *= f;
             this.forwardImpulse *= f;
         }
 
-        var bindings = controller.bindings();
-
         this.jumping = bindings.JUMP.held();
-        if (bindings.SNEAK.justPressed()) {
-            this.shiftKeyDown = !this.shiftKeyDown;
-        }
+        this.shiftKeyDown = bindings.SNEAK.held();
     }
 }

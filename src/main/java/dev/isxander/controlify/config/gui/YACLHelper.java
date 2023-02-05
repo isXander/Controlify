@@ -1,28 +1,41 @@
 package dev.isxander.controlify.config.gui;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerTheme;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.yacl.api.*;
+import dev.isxander.yacl.gui.controllers.ActionController;
 import dev.isxander.yacl.gui.controllers.TickBoxController;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingListController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
 import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 public class YACLHelper {
     public static Screen generateConfigScreen(Screen parent) {
+        if (Controlify.instance().currentController() == null) {
+            return new AlertScreen(
+                    () -> Minecraft.getInstance().setScreen(parent),
+                    Component.translatable("controlify.gui.error.title").withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
+                    Component.translatable("controlify.gui.error.message").withStyle(ChatFormatting.RED)
+            );
+        }
+
         var controlify = Controlify.instance();
 
         var yacl = YetAnotherConfigLib.createBuilder()
                 .title(Component.literal("Controlify"))
                 .save(() -> controlify.config().save());
 
+        var globalSettings = Controlify.instance().config().globalSettings();
         var globalCategory = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.category.global"))
                 .option(Option.createBuilder(Controller.class)
@@ -31,6 +44,17 @@ public class YACLHelper {
                         .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
                         .controller(opt -> new CyclingListController<>(opt, Controller.CONTROLLERS.values().stream().filter(Controller::connected).toList(), c -> Component.literal(c.name())))
                         .instant(true)
+                        .build())
+                .option(Option.createBuilder(boolean.class)
+                        .name(Component.translatable("controlify.gui.out_of_focus_input"))
+                        .tooltip(Component.translatable("controlify.gui.out_of_focus_input.tooltip"))
+                        .binding(GlobalSettings.DEFAULT.outOfFocusInput, () -> globalSettings.outOfFocusInput, v -> globalSettings.outOfFocusInput = v)
+                        .controller(TickBoxController::new)
+                        .build())
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.open_issue_tracker"))
+                        .action((screen, button) -> Util.getPlatform().openUri("https://github.com/isxander/controlify/issues"))
+                        .controller(opt -> new ActionController(opt, Component.translatable("controlify.gui.format.open")))
                         .build());
 
         yacl.category(globalCategory.build());
@@ -85,15 +109,9 @@ public class YACLHelper {
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build())
                     .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.left_trigger_threshold"))
-                            .tooltip(Component.translatable("controlify.gui.left_trigger_threshold.tooltip"))
-                            .binding(def.leftTriggerActivationThreshold, () -> config.leftTriggerActivationThreshold, v -> config.leftTriggerActivationThreshold = v)
-                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
-                    .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.right_trigger_threshold"))
-                            .tooltip(Component.translatable("controlify.gui.right_trigger_threshold.tooltip"))
-                            .binding(def.rightTriggerActivationThreshold, () -> config.rightTriggerActivationThreshold, v -> config.rightTriggerActivationThreshold = v)
+                            .name(Component.translatable("controlify.gui.button_activation_threshold"))
+                            .tooltip(Component.translatable("controlify.gui.button_activation_threshold.tooltip"))
+                            .binding(def.buttonActivationThreshold, () -> config.buttonActivationThreshold, v -> config.buttonActivationThreshold = v)
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build())
                     .option(Option.createBuilder(ControllerTheme.class)
@@ -108,10 +126,12 @@ public class YACLHelper {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(Component.translatable("controlify.gui.group.controls"));
             for (var control : controller.bindings().registry().values()) {
-                controlsGroup.option(Option.createBuilder(Bind.class)
+                controlsGroup.option(Option.createBuilder(IBind.class)
                         .name(control.name())
                         .binding(control.defaultBind(), control::currentBind, control::setCurrentBind)
                         .controller(opt -> new BindButtonController(opt, controller))
+                        .tooltip(control.description())
+                        .instant(true)
                         .build());
             }
             category.group(controlsGroup.build());

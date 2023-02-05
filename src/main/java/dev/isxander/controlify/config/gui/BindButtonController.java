@@ -2,6 +2,7 @@ package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.compatibility.screen.ScreenProcessor;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
 import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
@@ -17,23 +18,27 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-public class BindButtonController implements Controller<Bind> {
-    private final Option<Bind> option;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+public class BindButtonController implements Controller<IBind> {
+    private final Option<IBind> option;
     private final dev.isxander.controlify.controller.Controller controller;
 
-    public BindButtonController(Option<Bind> option, dev.isxander.controlify.controller.Controller controller) {
+    public BindButtonController(Option<IBind> option, dev.isxander.controlify.controller.Controller controller) {
         this.option = option;
         this.controller = controller;
     }
 
     @Override
-    public Option<Bind> option() {
+    public Option<IBind> option() {
         return this.option;
     }
 
     @Override
     public Component formatValue() {
-        return Component.literal(option().pendingValue().identifier());
+        return Component.empty();
     }
 
     @Override
@@ -42,8 +47,9 @@ public class BindButtonController implements Controller<Bind> {
     }
 
     public static class BindButtonWidget extends ControllerWidget<BindButtonController> implements ComponentProcessorProvider, ComponentProcessor {
-        private boolean awaitingControllerInput = false;
+        private boolean awaitingControllerInput = false, skipFirstTickInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
+        private final Set<Bind> pressedBinds = new LinkedHashSet<>();
 
         public BindButtonWidget(BindButtonController control, YACLScreen screen, Dimension<Integer> dim) {
             super(control, screen, dim);
@@ -52,9 +58,17 @@ public class BindButtonController implements Controller<Bind> {
         @Override
         protected void drawValueText(PoseStack matrices, int mouseX, int mouseY, float delta) {
             if (awaitingControllerInput) {
-                textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
+                if (pressedBinds.isEmpty()) {
+                    textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
+                } else {
+                    var bind = IBind.create(pressedBinds);
+                    var plusSize = 2 + textRenderer.width("+");
+                    bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width() - getXPadding() - plusSize, getDimension().centerY(), control.controller);
+                    textRenderer.drawShadow(matrices, "+", getDimension().xLimit() - getXPadding() - plusSize, getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
+                }
             } else {
-                ButtonRenderer.drawButton(control.option().pendingValue(), control.controller, matrices, getDimension().xLimit() - ButtonRenderer.BUTTON_SIZE / 2, getDimension().centerY(), ButtonRenderer.BUTTON_SIZE);
+                var bind = control.option().pendingValue();
+                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY(), control.controller);
             }
         }
 
@@ -84,24 +98,32 @@ public class BindButtonController implements Controller<Bind> {
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor screen, dev.isxander.controlify.controller.Controller controller) {
-            if (!awaitingControllerInput || !isFocused()) return false;
-
-            for (var bind : Bind.values()) {
-                boolean stateNow = bind.state(controller.state(), controller);
-                boolean stateBefore = bind.state(controller.prevState(), controller);
-                if (stateNow && !stateBefore) {
-                    control.option().requestSet(bind);
-                    awaitingControllerInput = false;
-                    return true;
-                }
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller controller) {
+            if (controller.bindings().GUI_PRESS.justPressed()) {
+                return awaitingControllerInput = true;
             }
 
-            return false;
+            if (!awaitingControllerInput) return false;
+
+            if (pressedBinds.stream().anyMatch(bind -> !bind.held(controller.state(), controller))) {
+                // finished
+                awaitingControllerInput = false;
+                control.option().requestSet(IBind.create(pressedBinds));
+                pressedBinds.clear();
+            } else {
+                for (var bind : Bind.values()) {
+                    if (bind.held(controller.state(), controller) && !bind.held(controller.prevState(), controller)) {
+                        pressedBinds.add(bind);
+                    }
+                }
+                control.controller.consumeButtonState();
+            }
+
+            return true;
         }
 
         @Override
-        public boolean overrideControllerNavigation(ScreenProcessor screen, dev.isxander.controlify.controller.Controller controller) {
+        public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller controller) {
             return awaitingControllerInput;
         }
 
@@ -115,7 +137,7 @@ public class BindButtonController implements Controller<Bind> {
             if (awaitingControllerInput)
                 return textRenderer.width(awaitingText);
 
-            return ButtonRenderer.BUTTON_SIZE;
+            return control.option().pendingValue().drawSize().width();
         }
     }
 }

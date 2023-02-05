@@ -27,8 +27,12 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     public void onControllerUpdate(Controller controller) {
-        handleComponentNavigation(controller);
-        handleButtons(controller);
+        if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+            handleComponentNavigation(controller);
+            handleButtons(controller);
+        } else {
+            handleVMouseNavigation(controller);
+        }
     }
 
     public void onInputModeChanged(InputMode mode) {
@@ -43,6 +47,9 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     protected void handleComponentNavigation(Controller controller) {
+        if (screen.getFocused() == null)
+            setInitialFocus();
+
         var focusTree = getFocusTree();
         while (!focusTree.isEmpty()) {
             var focused = focusTree.poll();
@@ -100,6 +107,10 @@ public class ScreenProcessor<T extends Screen> {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
         if (controller.bindings().GUI_BACK.justPressed())
             screen.onClose();
+    }
+
+    protected void handleVMouseNavigation(Controller controller) {
+
     }
 
     public void onWidgetRebuild() {
