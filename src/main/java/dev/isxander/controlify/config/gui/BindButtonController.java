@@ -47,7 +47,7 @@ public class BindButtonController implements Controller<IBind> {
     }
 
     public static class BindButtonWidget extends ControllerWidget<BindButtonController> implements ComponentProcessorProvider, ComponentProcessor {
-        private boolean awaitingControllerInput = false, skipFirstTickInput = false;
+        private boolean awaitingControllerInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
         private final Set<Bind> pressedBinds = new LinkedHashSet<>();
 

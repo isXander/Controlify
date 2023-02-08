@@ -3,12 +3,15 @@ package dev.isxander.controlify.ingame;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
+import net.minecraft.client.player.LocalPlayer;
 
 public class ControllerPlayerMovement extends Input {
     private final Controller controller;
+    private final LocalPlayer player;
 
-    public ControllerPlayerMovement(Controller controller) {
+    public ControllerPlayerMovement(Controller controller, LocalPlayer player) {
         this.controller = controller;
+        this.player = player;
     }
 
     @Override
@@ -42,6 +45,13 @@ public class ControllerPlayerMovement extends Input {
         }
 
         this.jumping = bindings.JUMP.held();
-        this.shiftKeyDown = bindings.SNEAK.held();
+
+        if (player.getAbilities().flying || !controller.config().toggleSneak) {
+            this.shiftKeyDown = bindings.SNEAK.held();
+        } else {
+            if (bindings.SNEAK.justPressed()) {
+                this.shiftKeyDown = !this.shiftKeyDown;
+            }
+        }
     }
 }

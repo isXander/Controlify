@@ -151,7 +151,7 @@ public class Controlify {
 
         var minecraft = Minecraft.getInstance();
         if (!minecraft.mouseHandler.isMouseGrabbed())
-            hideMouse(currentInputMode == InputMode.CONTROLLER);
+            hideMouse(currentInputMode == InputMode.CONTROLLER, true);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
         }
@@ -159,7 +159,7 @@ public class Controlify {
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
     }
 
-    public void hideMouse(boolean hide) {
+    public void hideMouse(boolean hide, boolean moveMouse) {
         var minecraft = Minecraft.getInstance();
         GLFW.glfwSetInputMode(
                 minecraft.getWindow().getWindow(),
@@ -170,7 +170,7 @@ public class Controlify {
         );
         if (minecraft.screen != null) {
             var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
-            if (hide && !virtualMouseHandler().isVirtualMouseEnabled()) {
+            if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
                 // stop mouse hovering over last element before hiding cursor but don't actually move it
                 // so when the user switches back to mouse it will be in the same place
                 mouseHandlerAccessor.invokeOnMove(minecraft.getWindow().getWindow(), -50, -50);

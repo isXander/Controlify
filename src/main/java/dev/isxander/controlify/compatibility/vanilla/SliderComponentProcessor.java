@@ -64,7 +64,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public void onNavigateTo(ScreenProcessor<?> screen, Controller controller) {
+    public void onFocusGained(ScreenProcessor<?> screen, Controller controller) {
         System.out.println("navigated!");
         this.canChangeValueSetter.accept(false);
     }

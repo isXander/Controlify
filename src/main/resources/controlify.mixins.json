@@ -6,6 +6,7 @@
   "mixins": [
   ],
   "client": [
+    "compat.screen.vanilla.AbstractButtonMixin",
     "compat.screen.vanilla.AbstractContainerEventHandlerMixin",
     "compat.screen.vanilla.AbstractSelectionListMixin",
     "compat.screen.vanilla.AbstractSliderButtonMixin",
@@ -22,6 +23,9 @@
     "compat.screen.vanilla.SelectWorldScreenMixin",
     "compat.screen.vanilla.ServerSelectionListEntryMixin",
     "compat.screen.vanilla.WorldSelectionListEntryMixin",
+    "compat.screen.yacl.CyclingControllerElementMixin",
+    "compat.screen.yacl.SliderControllerElementMixin",
+    "compat.screen.yacl.YACLScreenMixin",
     "core.ClientPacketListenerMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",

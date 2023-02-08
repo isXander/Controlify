@@ -19,7 +19,7 @@ import java.util.*;
 
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
-    private int lastMoved = 0;
+    protected int lastMoved = 0;
 
     public ScreenProcessor(T screen) {
         this.screen = screen;
@@ -51,6 +51,7 @@ public class ScreenProcessor<T extends Screen> {
             setInitialFocus();
 
         var focusTree = getFocusTree();
+        var focuses = List.copyOf(focusTree);
         while (!focusTree.isEmpty()) {
             var focused = focusTree.poll();
             var processor = ComponentProcessorProvider.provide(focused);
@@ -89,8 +90,12 @@ public class ScreenProcessor<T extends Screen> {
             ComponentPath path = screen.nextFocusPath(event);
             if (path != null) {
                 accessor.invokeChangeFocus(path);
-                ComponentProcessorProvider.provide(path.component()).onNavigateTo(this, controller);
                 lastMoved = 0;
+
+                var newFocusTree = getFocusTree();
+                while (!newFocusTree.isEmpty() && !focuses.contains(newFocusTree.peek())) {
+                    ComponentProcessorProvider.provide(newFocusTree.poll()).onFocusGained(this, controller);
+                }
             }
         }
     }

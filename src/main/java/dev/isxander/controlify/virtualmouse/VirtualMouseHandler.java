@@ -22,6 +22,9 @@ public class VirtualMouseHandler {
 
     private double targetX, targetY;
     private double currentX, currentY;
+
+    private double scrollX, scrollY;
+
     private final Minecraft minecraft;
     private boolean virtualMouseEnabled;
 
@@ -50,6 +53,8 @@ public class VirtualMouseHandler {
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
+
+        scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
 
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
         var keyboardHandler = (KeyboardHandlerAccessor) minecraft.keyboardHandler;
@@ -83,12 +88,27 @@ public class VirtualMouseHandler {
 
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
-        if (targetX == currentX && targetY == currentY) return; // don't need to needlessly update mouse position
 
-        currentX = Mth.lerp(minecraft.getDeltaFrameTime(), currentX, targetX);
-        currentY = Mth.lerp(minecraft.getDeltaFrameTime(), currentY, targetY);
+        if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
+            currentX = Mth.lerp(minecraft.getDeltaFrameTime(), currentX, targetX);
+            currentY = Mth.lerp(minecraft.getDeltaFrameTime(), currentY, targetY);
 
-        ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+        } else {
+            currentX = targetX;
+            currentY = targetY;
+        }
+
+        if (Math.abs(scrollX) >= 0.01 || Math.abs(scrollY) >= 0.01) {
+            var currentScrollY = scrollY * Minecraft.getInstance().getDeltaFrameTime();
+            scrollY -= currentScrollY;
+            var currentScrollX = scrollX * Minecraft.getInstance().getDeltaFrameTime();
+            scrollX -= currentScrollX;
+
+            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnScroll(minecraft.getWindow().getWindow(), currentScrollX, currentScrollY);
+        } else {
+            scrollX = scrollY = 0;
+        }
     }
 
     public void onScreenChanged() {
@@ -141,7 +161,6 @@ public class VirtualMouseHandler {
     public void enableVirtualMouse() {
         if (virtualMouseEnabled) return;
 
-        setMousePosition();
         GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         virtualMouseEnabled = true;
 
@@ -152,6 +171,7 @@ public class VirtualMouseHandler {
             targetX = currentX = minecraft.mouseHandler.xpos();
             targetY = currentY = minecraft.mouseHandler.ypos();
         }
+        setMousePosition();
 
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
     }
@@ -162,6 +182,7 @@ public class VirtualMouseHandler {
         // make sure minecraft doesn't think the mouse is grabbed when it isn't
         ((MouseHandlerAccessor) minecraft.mouseHandler).setMouseGrabbed(false);
 
+        Controlify.instance().hideMouse(true, true);
         GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
         setMousePosition();
         virtualMouseEnabled = false;
@@ -196,7 +217,7 @@ public class VirtualMouseHandler {
         if (screens.contains(screenClass)) {
             screens.remove(screenClass);
             disableVirtualMouse();
-            Controlify.instance().hideMouse(true);
+            Controlify.instance().hideMouse(true, false);
 
             minecraft.getToasts().addToast(SystemToast.multiline(
                     minecraft,

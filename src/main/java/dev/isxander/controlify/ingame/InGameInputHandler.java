@@ -21,7 +21,7 @@ public class InGameInputHandler {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
 
-        this.controllerInput = new ControllerPlayerMovement(controller);
+        this.controllerInput = new ControllerPlayerMovement(controller, minecraft.player);
         this.keyboardInput = new KeyboardInput(minecraft.options);
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
@@ -44,9 +44,6 @@ public class InGameInputHandler {
 
         if (controller.bindings().PAUSE.justPressed()) {
             minecraft.pauseGame(false);
-        }
-        if (controller.bindings().TOGGLE_DEBUG_MENU.justPressed()) {
-            minecraft.options.renderDebug = !minecraft.options.renderDebug;
         }
         if (minecraft.player != null) {
             if (controller.bindings().NEXT_SLOT.justPressed()) {
@@ -73,9 +70,9 @@ public class InGameInputHandler {
         var delta = time - deltaTime;
         deltaTime = time;
 
-        var hsensitivity = controller.config().horizontalLookSensitivity * 8.0 + 2.0;
+        var hsensitivity = controller.config().horizontalLookSensitivity * 9.6 + 2.0;
         var hsensCubed = hsensitivity * hsensitivity * hsensitivity;
-        var vsensitivity = controller.config().verticalLookSensitivity * 8.0 + 2.0;
+        var vsensitivity = controller.config().verticalLookSensitivity * 9.6 + 2.0;
         var vsensCubed = vsensitivity * vsensitivity * vsensitivity;
 
         var dx = accumulatedDX * delta;
@@ -92,7 +89,6 @@ public class InGameInputHandler {
         } else if (accumulatedDY < 0) {
             accumulatedDY -= Math.max(dy * 20, accumulatedDY);
         }
-
 
         if (minecraft.player != null)
             minecraft.player.turn(dx * hsensCubed, dy * vsensCubed);

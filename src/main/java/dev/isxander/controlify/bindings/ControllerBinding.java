@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 public class ControllerBinding {
     private final Controller controller;
@@ -18,18 +19,22 @@ public class ControllerBinding {
     private final IBind defaultBind;
     private final ResourceLocation id;
     private final Component name, description;
-    private final KeyMapping override;
+    private final KeyMappingOverride override;
 
     private static final Map<Controller, Set<Bind>> pressedBinds = new HashMap<>();
 
-    public ControllerBinding(Controller controller, IBind defaultBind, ResourceLocation id, KeyMapping override) {
+    public ControllerBinding(Controller controller, IBind defaultBind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.id = id;
         this.name = Component.translatable("controlify.binding." + id.getNamespace() + "." + id.getPath());
         var descKey = "controlify.binding." + id.getNamespace() + "." + id.getPath() + ".desc";
         this.description = Language.getInstance().has(descKey) ? Component.translatable(descKey) : Component.empty();
-        this.override = override;
+        this.override = override != null ? new KeyMappingOverride(override, toggleOverride) : null;
+    }
+
+    public ControllerBinding(Controller controller, IBind defaultBind, ResourceLocation id) {
+        this(controller, defaultBind, id, null, () -> false);
     }
 
     public float state() {
@@ -86,7 +91,7 @@ public class ControllerBinding {
         return description;
     }
 
-    public KeyMapping override() {
+    public KeyMappingOverride override() {
         return override;
     }
 
@@ -113,5 +118,8 @@ public class ControllerBinding {
         } else {
             return Set.of((Bind) bind);
         }
+    }
+
+    public record KeyMappingOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
     }
 }

@@ -26,45 +26,50 @@ public class ControllerBindings {
             OPEN_CHAT,
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
-            VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_MCLICK, VMOUSE_ESCAPE, VMOUSE_SHIFT, VMOUSE_TOGGLE,
-            TOGGLE_DEBUG_MENU;
+            VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_MCLICK, VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN, VMOUSE_ESCAPE, VMOUSE_SHIFT, VMOUSE_TOGGLE,
+            PICK_BLOCK;
 
     private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
+    private final Controller controller;
+
     public ControllerBindings(Controller controller) {
+        this.controller = controller;
         var options = Minecraft.getInstance().options;
 
-        register(WALK_FORWARD = new ControllerBinding(controller, Bind.LEFT_STICK_FORWARD, new ResourceLocation("controlify", "walk_forward"), null));
-        register(WALK_BACKWARD = new ControllerBinding(controller, Bind.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "walk_backward"), null));
-        register(WALK_LEFT = new ControllerBinding(controller, Bind.LEFT_STICK_LEFT, new ResourceLocation("controlify", "strafe_left"), null));
-        register(WALK_RIGHT = new ControllerBinding(controller, Bind.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "strafe_right"), null));
-        register(JUMP = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "jump"), options.keyJump));
-        register(SNEAK = new ControllerBinding(controller, Bind.RIGHT_STICK_PRESS, new ResourceLocation("controlify", "sneak"), options.keyShift));
-        register(ATTACK = new ControllerBinding(controller, Bind.RIGHT_TRIGGER, new ResourceLocation("controlify", "attack"), options.keyAttack));
-        register(USE = new ControllerBinding(controller, Bind.LEFT_TRIGGER, new ResourceLocation("controlify", "use"), options.keyUse));
-        register(SPRINT = new ControllerBinding(controller, Bind.LEFT_STICK_PRESS, new ResourceLocation("controlify", "sprint"), options.keySprint));
-        register(DROP = new ControllerBinding(controller, Bind.DPAD_DOWN, new ResourceLocation("controlify", "drop"), options.keyDrop));
-        register(NEXT_SLOT = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "next_slot"), null));
-        register(PREV_SLOT = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "prev_slot"), null));
-        register(PAUSE = new ControllerBinding(controller, Bind.START, new ResourceLocation("controlify", "pause"), null));
-        register(INVENTORY = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "inventory"), options.keyInventory));
-        register(CHANGE_PERSPECTIVE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "change_perspective"), options.keyTogglePerspective));
-        register(OPEN_CHAT = new ControllerBinding(controller, Bind.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat));
-        register(GUI_PRESS = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "gui_press"), null));
-        register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back"), null));
-        register(GUI_NEXT_TAB = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "gui_next_tab"), null));
-        register(GUI_PREV_TAB = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "gui_prev_tab"), null));
-        register(VMOUSE_LCLICK = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "vmouse_lclick"), null));
-        register(VMOUSE_RCLICK = new ControllerBinding(controller, Bind.X_BUTTON, new ResourceLocation("controlify", "vmouse_rclick"), null));
-        register(VMOUSE_MCLICK = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "vmouse_mclick"), null));
-        register(VMOUSE_ESCAPE = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "vmouse_escape"), null));
-        register(VMOUSE_SHIFT = new ControllerBinding(controller, Bind.LEFT_STICK_PRESS, new ResourceLocation("controlify", "vmouse_shift"), null));
-        register(VMOUSE_TOGGLE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "vmouse_toggle"), null));
-        register(TOGGLE_DEBUG_MENU = new ControllerBinding(controller, new CompoundBind(Bind.BACK, Bind.START), new ResourceLocation("controlify", "toggle_debug_menu"), null));
+        register(WALK_FORWARD = new ControllerBinding(controller, Bind.LEFT_STICK_FORWARD, new ResourceLocation("controlify", "walk_forward")));
+        register(WALK_BACKWARD = new ControllerBinding(controller, Bind.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "walk_backward")));
+        register(WALK_LEFT = new ControllerBinding(controller, Bind.LEFT_STICK_LEFT, new ResourceLocation("controlify", "strafe_left")));
+        register(WALK_RIGHT = new ControllerBinding(controller, Bind.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "strafe_right")));
+        register(JUMP = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "jump"), options.keyJump, () -> false));
+        register(SNEAK = new ControllerBinding(controller, Bind.RIGHT_STICK_PRESS, new ResourceLocation("controlify", "sneak"), options.keyShift, () -> controller.config().toggleSneak));
+        register(ATTACK = new ControllerBinding(controller, Bind.RIGHT_TRIGGER, new ResourceLocation("controlify", "attack"), options.keyAttack, () -> false));
+        register(USE = new ControllerBinding(controller, Bind.LEFT_TRIGGER, new ResourceLocation("controlify", "use"), options.keyUse, () -> false));
+        register(SPRINT = new ControllerBinding(controller, Bind.LEFT_STICK_PRESS, new ResourceLocation("controlify", "sprint"), options.keySprint, () -> controller.config().toggleSprint));
+        register(DROP = new ControllerBinding(controller, Bind.DPAD_DOWN, new ResourceLocation("controlify", "drop"), options.keyDrop, () -> false));
+        register(NEXT_SLOT = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "next_slot")));
+        register(PREV_SLOT = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "prev_slot")));
+        register(PAUSE = new ControllerBinding(controller, Bind.START, new ResourceLocation("controlify", "pause")));
+        register(INVENTORY = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "inventory"), options.keyInventory, () -> false));
+        register(CHANGE_PERSPECTIVE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "change_perspective"), options.keyTogglePerspective, () -> false));
+        register(OPEN_CHAT = new ControllerBinding(controller, Bind.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat, () -> false));
+        register(GUI_PRESS = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "gui_press")));
+        register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back")));
+        register(GUI_NEXT_TAB = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "gui_next_tab")));
+        register(GUI_PREV_TAB = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "gui_prev_tab")));
+        register(VMOUSE_LCLICK = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "vmouse_lclick")));
+        register(VMOUSE_RCLICK = new ControllerBinding(controller, Bind.X_BUTTON, new ResourceLocation("controlify", "vmouse_rclick")));
+        register(VMOUSE_MCLICK = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "vmouse_mclick")));
+        register(VMOUSE_SCROLL_UP = new ControllerBinding(controller, Bind.RIGHT_STICK_FORWARD, new ResourceLocation("controlify", "vmouse_scroll_up")));
+        register(VMOUSE_SCROLL_DOWN = new ControllerBinding(controller, Bind.RIGHT_STICK_BACKWARD, new ResourceLocation("controlify", "vmouse_scroll_down")));
+        register(VMOUSE_ESCAPE = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "vmouse_escape")));
+        register(VMOUSE_SHIFT = new ControllerBinding(controller, Bind.LEFT_STICK_PRESS, new ResourceLocation("controlify", "vmouse_shift")));
+        register(VMOUSE_TOGGLE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "vmouse_toggle")));
+        register(PICK_BLOCK = new ControllerBinding(controller, Bind.DPAD_LEFT, new ResourceLocation("controlify", "pick_block"), options.keyPickItem, () -> false));
 
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::imitateVanillaClick);
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
@@ -97,7 +102,13 @@ public class ControllerBindings {
         }
     }
 
-    private void imitateVanillaClick(Controller controller) {
+    public void onControllerUpdate(Controller controller) {
+        if (controller != this.controller) return;
+
+        imitateVanillaClick();
+    }
+
+    private void imitateVanillaClick() {
         ControllerBinding.clearPressedBinds(controller);
 
         if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER)
@@ -106,12 +117,20 @@ public class ControllerBindings {
             return;
 
         for (var binding : registry().values()) {
-            KeyMapping vanillaKey = binding.override();
-            if (vanillaKey == null) continue;
+            var override = binding.override();
+            if (override == null) continue;
 
-            var vanillaKeyCode = ((KeyMappingAccessor) vanillaKey).getKey();
+            var accessor = (KeyMappingAccessor) override.keyMapping();
+            var vanillaKeyCode = accessor.getKey();
 
-            KeyMapping.set(vanillaKeyCode, binding.held());
+            if (override.toggleable().getAsBoolean()) {
+                if (binding.justPressed()) {
+                    // must set field directly to avoid ToggleKeyMapping breaking things
+                    accessor.setIsDown(!accessor.getIsDown());
+                }
+            } else {
+                KeyMapping.set(vanillaKeyCode, binding.held());
+            }
             if (binding.justPressed()) KeyMapping.click(vanillaKeyCode);
         }
     }

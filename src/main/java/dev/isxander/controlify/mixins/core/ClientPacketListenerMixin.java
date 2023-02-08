@@ -24,6 +24,6 @@ public class ClientPacketListenerMixin {
     @Inject(method = "handleLogin", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;", opcode = Opcodes.ASTORE, shift = At.Shift.AFTER))
     private void useControllerInput(ClientboundLoginPacket packet, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER && minecraft.player != null)
-            minecraft.player.input = new ControllerPlayerMovement(Controlify.instance().currentController());
+            minecraft.player.input = new ControllerPlayerMovement(Controlify.instance().currentController(), minecraft.player);
     }
 }

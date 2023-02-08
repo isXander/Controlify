@@ -7,11 +7,13 @@ import dev.isxander.controlify.controller.ControllerTheme;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
+import dev.isxander.yacl.gui.controllers.BooleanController;
 import dev.isxander.yacl.gui.controllers.TickBoxController;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingListController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
 import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
+import dev.isxander.yacl.gui.controllers.string.StringController;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -62,14 +64,14 @@ public class YACLHelper {
         for (var controller : Controller.CONTROLLERS.values()) {
             var category = ConfigCategory.createBuilder();
 
-            var customName = controller.config().customName;
-            category.name(Component.literal(customName == null ? controller.name() : customName));
+            category.name(Component.literal(controller.name()));
 
             var config = controller.config();
             var def = controller.defaultConfig();
-            var configGroup = OptionGroup.createBuilder()
-                    .name(Component.translatable("controlify.gui.group.config"))
-                    .tooltip(Component.translatable("controlify.gui.group.config.tooltip"))
+
+            var basicGroup = OptionGroup.createBuilder()
+                    .name(Component.translatable("controlify.gui.group.basic"))
+                    .tooltip(Component.translatable("controlify.gui.group.basic.tooltip"))
                     .option(Option.createBuilder(float.class)
                             .name(Component.translatable("controlify.gui.horizontal_look_sensitivity"))
                             .tooltip(Component.translatable("controlify.gui.horizontal_look_sensitivity.tooltip"))
@@ -82,12 +84,43 @@ public class YACLHelper {
                             .binding(def.verticalLookSensitivity, () -> config.verticalLookSensitivity, v -> config.verticalLookSensitivity = v)
                             .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build())
+                    .option(Option.createBuilder(boolean.class)
+                            .name(Component.translatable("controlify.gui.toggle_sprint"))
+                            .tooltip(Component.translatable("controlify.gui.toggle_sprint.tooltip"))
+                            .binding(def.toggleSprint, () -> config.toggleSprint, v -> config.toggleSprint = v)
+                            .controller(opt -> new BooleanController(opt, v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold")), false))
+                            .build())
+                    .option(Option.createBuilder(boolean.class)
+                            .name(Component.translatable("controlify.gui.toggle_sneak"))
+                            .tooltip(Component.translatable("controlify.gui.toggle_sneak.tooltip"))
+                            .binding(def.toggleSneak, () -> config.toggleSneak, v -> config.toggleSneak = v)
+                            .controller(opt -> new BooleanController(opt, v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold")), false))
+                            .build())
                     .option(Option.createBuilder(float.class)
                             .name(Component.translatable("controlify.gui.vmouse_sensitivity"))
                             .tooltip(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
                             .binding(def.virtualMouseSensitivity, () -> config.virtualMouseSensitivity, v -> config.virtualMouseSensitivity = v)
                             .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build())
+                    .option(Option.createBuilder(ControllerTheme.class)
+                            .name(Component.translatable("controlify.gui.controller_theme"))
+                            .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
+                            .binding(controller.type().theme(), () -> config.theme, v -> config.theme = v)
+                            .controller(EnumController::new)
+                            .instant(true)
+                            .build())
+                    .option(Option.createBuilder(String.class)
+                            .name(Component.translatable("controlify.gui.custom_name"))
+                            .tooltip(Component.translatable("controlify.gui.custom_name.tooltip"))
+                            .binding(def.customName == null ? "" : def.customName, () -> config.customName == null ? "" : config.customName, v -> config.customName = (v.equals("") ? null : v))
+                            .controller(StringController::new)
+                            .build());
+            category.group(basicGroup.build());
+
+            var advancedGroup = OptionGroup.createBuilder()
+                    .name(Component.translatable("controlify.gui.group.advanced"))
+                    .tooltip(Component.translatable("controlify.gui.group.advanced.tooltip"))
+                    .collapsed(true)
                     .option(Option.createBuilder(int.class)
                             .name(Component.translatable("controlify.gui.screen_repeat_navi_delay"))
                             .tooltip(Component.translatable("controlify.gui.screen_repeat_navi_delay.tooltip"))
@@ -113,15 +146,8 @@ public class YACLHelper {
                             .tooltip(Component.translatable("controlify.gui.button_activation_threshold.tooltip"))
                             .binding(def.buttonActivationThreshold, () -> config.buttonActivationThreshold, v -> config.buttonActivationThreshold = v)
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
-                    .option(Option.createBuilder(ControllerTheme.class)
-                            .name(Component.translatable("controlify.gui.controller_theme"))
-                            .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
-                            .binding(controller.type().theme(), () -> config.theme, v -> config.theme = v)
-                            .controller(EnumController::new)
-                            .instant(true)
                             .build());
-            category.group(configGroup.build());
+            category.group(advancedGroup.build());
 
             var controlsGroup = OptionGroup.createBuilder()
                     .name(Component.translatable("controlify.gui.group.controls"));

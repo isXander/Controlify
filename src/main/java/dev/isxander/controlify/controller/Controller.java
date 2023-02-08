@@ -178,6 +178,9 @@ public final class Controller {
 
         public ControllerTheme theme = type().theme();
 
+        public boolean toggleSprint = true;
+        public boolean toggleSneak = true;
+
         public String customName = null;
     }
 }

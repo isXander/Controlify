@@ -9,4 +9,10 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 public interface KeyMappingAccessor {
     @Accessor
     InputConstants.Key getKey();
+
+    @Accessor
+    void setIsDown(boolean down);
+
+    @Accessor
+    boolean getIsDown();
 }
