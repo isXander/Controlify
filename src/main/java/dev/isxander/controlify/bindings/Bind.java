@@ -36,7 +36,8 @@ public enum Bind implements IBind {
     RIGHT_STICK_FORWARD((state, controller) -> -Math.min(0, state.axes().rightStickY()), "right_stick_up"),
     RIGHT_STICK_BACKWARD((state, controller) -> Math.max(0, state.axes().rightStickY()), "right_stick_down"),
     RIGHT_STICK_LEFT((state, controller) -> -Math.min(0, state.axes().rightStickX()), "right_stick_left"),
-    RIGHT_STICK_RIGHT((state, controller) -> Math.max(0, state.axes().rightStickX()), "right_stick_right");
+    RIGHT_STICK_RIGHT((state, controller) -> Math.max(0, state.axes().rightStickX()), "right_stick_right"),
+    NONE((state, controller) -> 0f, "none");
 
     private final BiFunction<ControllerState, Controller, Float> state;
     private final String identifier;
@@ -57,11 +58,14 @@ public enum Bind implements IBind {
 
     @Override
     public void draw(PoseStack matrices, int x, int centerY, Controller controller) {
-        ButtonRenderer.drawButton(this, controller, matrices, x, centerY);
+        if (this != NONE)
+            ButtonRenderer.drawButton(this, controller, matrices, x, centerY);
     }
 
     @Override
     public ButtonRenderer.DrawSize drawSize() {
+        if (this == NONE) return new ButtonRenderer.DrawSize(0, 0);
+
         return new ButtonRenderer.DrawSize(22, 22);
     }
 

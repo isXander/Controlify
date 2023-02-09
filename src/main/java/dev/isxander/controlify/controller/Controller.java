@@ -182,5 +182,7 @@ public final class Controller {
         public boolean toggleSneak = true;
 
         public String customName = null;
+
+        public boolean showGuide = true;
     }
 }

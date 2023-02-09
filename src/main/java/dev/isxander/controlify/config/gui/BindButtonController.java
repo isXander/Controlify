@@ -3,11 +3,9 @@ package dev.isxander.controlify.config.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.Bind;
 import dev.isxander.controlify.bindings.IBind;
-import dev.isxander.controlify.compatibility.screen.ScreenProcessor;
-import dev.isxander.controlify.compatibility.screen.component.ComponentProcessor;
-import dev.isxander.controlify.compatibility.screen.component.ComponentProcessorProvider;
-import dev.isxander.controlify.event.ControlifyEvents;
-import dev.isxander.controlify.gui.ButtonRenderer;
+import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.screenop.component.ComponentProcessor;
+import dev.isxander.controlify.screenop.component.ComponentProcessorProvider;
 import dev.isxander.yacl.api.Controller;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.utils.Dimension;
@@ -18,7 +16,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -113,7 +110,16 @@ public class BindButtonController implements Controller<IBind> {
             } else {
                 for (var bind : Bind.values()) {
                     if (bind.held(controller.state(), controller) && !bind.held(controller.prevState(), controller)) {
-                        pressedBinds.add(bind);
+                        if (bind == Bind.GUIDE) { // FIXME: guide cannot be used as reserve because Windows hooks into xbox button to open game bar, maybe START?
+                            if (pressedBinds.isEmpty()) {
+                                awaitingControllerInput = false;
+                                control.option().requestSet(IBind.create(Bind.NONE));
+                                pressedBinds.clear();
+                                return true;
+                            }
+                        } else {
+                            pressedBinds.add(bind);
+                        }
                     }
                 }
                 control.controller.consumeButtonState();

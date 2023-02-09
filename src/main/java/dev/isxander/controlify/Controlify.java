@@ -1,12 +1,13 @@
 package dev.isxander.controlify;
 
 import com.mojang.logging.LogUtils;
-import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.event.ControlifyEvents;
+import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
@@ -23,6 +24,7 @@ public class Controlify {
 
     private Controller currentController;
     private InGameInputHandler inGameInputHandler;
+    public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputMode currentInputMode;
     private ControllerHIDService controllerHIDService;
@@ -131,10 +133,17 @@ public class Controlify {
         this.currentController = controller;
 
         this.inGameInputHandler = new InGameInputHandler(this.currentController != null ? controller : Controller.DUMMY);
+        if (Minecraft.getInstance().player != null) {
+            this.inGameButtonGuide = new InGameButtonGuide(this.currentController != null ? controller : Controller.DUMMY, Minecraft.getInstance().player);
+        }
     }
 
     public InGameInputHandler inGameInputHandler() {
         return inGameInputHandler;
+    }
+
+    public InGameButtonGuide inGameButtonGuide() {
+        return inGameButtonGuide;
     }
 
     public VirtualMouseHandler virtualMouseHandler() {
@@ -154,6 +163,12 @@ public class Controlify {
             hideMouse(currentInputMode == InputMode.CONTROLLER, true);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
+        }
+        if (Minecraft.getInstance().player != null) {
+            if (currentInputMode == InputMode.KEYBOARD_MOUSE)
+                this.inGameButtonGuide = null;
+            else
+                this.inGameButtonGuide = new InGameButtonGuide(this.currentController != null ? currentController : Controller.DUMMY, Minecraft.getInstance().player);
         }
 
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);

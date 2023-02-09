@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.compatibility.screen.ScreenProcessorProvider;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;

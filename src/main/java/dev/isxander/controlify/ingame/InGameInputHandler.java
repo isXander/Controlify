@@ -12,8 +12,6 @@ public class InGameInputHandler {
     private final Controller controller;
     private final Minecraft minecraft;
 
-    private final Input controllerInput, keyboardInput;
-
     private double accumulatedDX, accumulatedDY;
     private double deltaTime;
 
@@ -21,14 +19,11 @@ public class InGameInputHandler {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
 
-        this.controllerInput = new ControllerPlayerMovement(controller, minecraft.player);
-        this.keyboardInput = new KeyboardInput(minecraft.options);
-
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
             if (minecraft.player != null) {
                 minecraft.player.input = mode == InputMode.CONTROLLER
-                        ? this.controllerInput
-                        : this.keyboardInput;
+                        ? new ControllerPlayerMovement(controller, minecraft.player)
+                        : new KeyboardInput(minecraft.options);
             }
         });
     }
@@ -53,13 +48,16 @@ public class InGameInputHandler {
                 minecraft.player.getInventory().swapPaint(1);
             }
         }
+        if (controller.bindings().TOGGLE_HUD_VISIBILITY.justPressed()) {
+            minecraft.options.hideGui = !minecraft.options.hideGui;
+        }
     }
 
     protected void handlePlayerLookInput() {
         var axes = controller.state().axes();
         if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
-            accumulatedDX += axes.rightStickX();
-            accumulatedDY += axes.rightStickY();
+            accumulatedDX += axes.rightStickX() * Math.abs(axes.rightStickX());
+            accumulatedDY += axes.rightStickY() * Math.abs(axes.rightStickY());
         }
 
         processPlayerLook();

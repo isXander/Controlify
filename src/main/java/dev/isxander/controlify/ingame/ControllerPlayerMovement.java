@@ -9,6 +9,8 @@ public class ControllerPlayerMovement extends Input {
     private final Controller controller;
     private final LocalPlayer player;
 
+    private boolean shiftToggled = false;
+
     public ControllerPlayerMovement(Controller controller, LocalPlayer player) {
         this.controller = controller;
         this.player = player;
@@ -16,7 +18,7 @@ public class ControllerPlayerMovement extends Input {
 
     @Override
     public void tick(boolean slowDown, float f) {
-        if (Minecraft.getInstance().screen != null) {
+        if (Minecraft.getInstance().screen != null || player == null) {
             this.up = false;
             this.down = false;
             this.left = false;
@@ -46,12 +48,10 @@ public class ControllerPlayerMovement extends Input {
 
         this.jumping = bindings.JUMP.held();
 
-        if (player.getAbilities().flying || !controller.config().toggleSneak) {
+        if (player.getAbilities().flying || player.isInWater() || !controller.config().toggleSneak) {
             this.shiftKeyDown = bindings.SNEAK.held();
         } else {
-            if (bindings.SNEAK.justPressed()) {
-                this.shiftKeyDown = !this.shiftKeyDown;
-            }
+            this.shiftKeyDown = Minecraft.getInstance().options.keyShift.isDown();
         }
     }
 }

@@ -27,7 +27,9 @@ public class ControllerBindings {
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_MCLICK, VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN, VMOUSE_ESCAPE, VMOUSE_SHIFT, VMOUSE_TOGGLE,
-            PICK_BLOCK;
+            PICK_BLOCK,
+            TOGGLE_HUD_VISIBILITY,
+            SHOW_PLAYER_LIST;
 
     private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
@@ -57,6 +59,9 @@ public class ControllerBindings {
         register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back")));
         register(GUI_NEXT_TAB = new ControllerBinding(controller, Bind.RIGHT_BUMPER, new ResourceLocation("controlify", "gui_next_tab")));
         register(GUI_PREV_TAB = new ControllerBinding(controller, Bind.LEFT_BUMPER, new ResourceLocation("controlify", "gui_prev_tab")));
+        register(PICK_BLOCK = new ControllerBinding(controller, Bind.DPAD_LEFT, new ResourceLocation("controlify", "pick_block"), options.keyPickItem, () -> false));
+        register(TOGGLE_HUD_VISIBILITY = new ControllerBinding(controller, Bind.NONE, new ResourceLocation("controlify", "toggle_hud_visibility")));
+        register(SHOW_PLAYER_LIST = new ControllerBinding(controller, Bind.DPAD_RIGHT, new ResourceLocation("controlify", "show_player_list"), options.keyPlayerList, () -> false));
         register(VMOUSE_LCLICK = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "vmouse_lclick")));
         register(VMOUSE_RCLICK = new ControllerBinding(controller, Bind.X_BUTTON, new ResourceLocation("controlify", "vmouse_rclick")));
         register(VMOUSE_MCLICK = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "vmouse_mclick")));
@@ -65,7 +70,6 @@ public class ControllerBindings {
         register(VMOUSE_ESCAPE = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "vmouse_escape")));
         register(VMOUSE_SHIFT = new ControllerBinding(controller, Bind.LEFT_STICK_PRESS, new ResourceLocation("controlify", "vmouse_shift")));
         register(VMOUSE_TOGGLE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "vmouse_toggle")));
-        register(PICK_BLOCK = new ControllerBinding(controller, Bind.DPAD_LEFT, new ResourceLocation("controlify", "pick_block"), options.keyPickItem, () -> false));
 
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 

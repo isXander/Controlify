@@ -18,6 +18,7 @@ public class CompoundBind implements IBind {
 
     CompoundBind(Bind... binds) {
         this.binds = new LinkedHashSet<>(Arrays.asList(binds));
+        if (this.binds.contains(Bind.NONE)) throw new IllegalArgumentException("Cannot have NONE in a compound bind!");
     }
 
     public Set<Bind> binds() {
