@@ -96,7 +96,7 @@ public class BindButtonController implements Controller<IBind> {
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller controller) {
-            if (controller.bindings().GUI_PRESS.justPressed()) {
+            if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
                 return awaitingControllerInput = true;
             }
 
