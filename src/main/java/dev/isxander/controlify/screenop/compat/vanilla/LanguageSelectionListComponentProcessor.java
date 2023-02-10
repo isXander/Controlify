@@ -1,9 +1,9 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.component.ComponentProcessor;
+import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.mixins.compat.screenop.vanilla.OptionsSubScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.vanilla.OptionsSubScreenAccessor;
 import net.minecraft.client.Minecraft;
 
 public class LanguageSelectionListComponentProcessor implements ComponentProcessor {

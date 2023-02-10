@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.compat.screenop.vanilla;
+package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;

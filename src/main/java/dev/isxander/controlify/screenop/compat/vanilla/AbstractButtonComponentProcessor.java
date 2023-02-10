@@ -1,7 +1,7 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.component.ComponentProcessor;
+import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;

@@ -2,7 +2,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.mixins.compat.screenop.vanilla.CreativeModeInventoryScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTabs;
 

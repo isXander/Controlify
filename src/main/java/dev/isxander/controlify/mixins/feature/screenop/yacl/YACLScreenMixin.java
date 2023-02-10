@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.compat.screenop.yacl;
+package dev.isxander.controlify.mixins.feature.screenop.yacl;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;

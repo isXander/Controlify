@@ -1,7 +1,7 @@
-package dev.isxander.controlify.mixins.compat.screenop.vanilla;
+package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
-import dev.isxander.controlify.screenop.component.ComponentProcessor;
-import dev.isxander.controlify.screenop.component.ComponentProcessorProvider;
+import dev.isxander.controlify.screenop.ComponentProcessor;
+import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.LanguageSelectionListComponentProcessor;
 import net.minecraft.client.gui.screens.LanguageSelectScreen;
 import org.spongepowered.asm.mixin.Final;

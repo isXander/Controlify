@@ -1,6 +1,6 @@
-package dev.isxander.controlify.mixins.compat.screenop.vanilla;
+package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
-import dev.isxander.controlify.screenop.component.CustomFocus;
+import dev.isxander.controlify.screenop.CustomFocus;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.jetbrains.annotations.Nullable;

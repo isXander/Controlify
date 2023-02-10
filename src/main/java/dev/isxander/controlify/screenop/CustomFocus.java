@@ -1,4 +1,4 @@
-package dev.isxander.controlify.screenop.component;
+package dev.isxander.controlify.screenop;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
 

@@ -2,11 +2,9 @@ package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.screenop.component.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.component.CustomFocus;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
-import dev.isxander.controlify.mixins.compat.screenop.vanilla.ScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;

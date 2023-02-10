@@ -2,6 +2,7 @@ package dev.isxander.controlify.virtualmouse;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -9,15 +10,23 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.joml.RoundingMode;
+import org.joml.Vector2d;
+import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Comparator;
+import java.util.Set;
+
 public class VirtualMouseHandler {
+    private static final boolean DEBUG_SNAPPING = FabricLoader.getInstance().isDevelopmentEnvironment();
     private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
 
     private double targetX, targetY;
@@ -28,8 +37,16 @@ public class VirtualMouseHandler {
     private final Minecraft minecraft;
     private boolean virtualMouseEnabled;
 
+    private Set<SnapPoint> snapPoints;
+    private SnapPoint snappedPoint, lastSnappedPoint;
+
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
+
+        if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour)
+            snapPoints = snapBehaviour.getSnapPoints();
+        else
+            snapPoints = Set.of();
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
     }
@@ -45,6 +62,24 @@ public class VirtualMouseHandler {
 
         var leftStickX = controller.state().axes().leftStickX();
         var leftStickY = controller.state().axes().leftStickY();
+        var prevLeftStickX = controller.prevState().axes().leftStickX();
+        var prevLeftStickY = controller.prevState().axes().leftStickY();
+
+        if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
+            snapPoints = snapBehaviour.getSnapPoints();
+        } else {
+            snapPoints = Set.of();
+        }
+        if (!snapPoints.contains(snappedPoint))
+            snappedPoint = null;
+
+        // if just released stick, snap to nearest snap point
+        if (leftStickX == 0 && leftStickY == 0) {
+            if ((prevLeftStickX != 0 || prevLeftStickY != 0))
+                snapToClosestPoint();
+        } else {
+            snappedPoint = null;
+        }
 
         // quadratic function to make small movements smaller
         // abs to keep sign
@@ -82,8 +117,6 @@ public class VirtualMouseHandler {
         } else if (controller.bindings().VMOUSE_ESCAPE.justReleased()) {
             keyboardHandler.invokeKeyPress(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_RELEASE, 0);
         }
-
-        // TODO: scrolling with right stick
     }
 
     public void updateMouse() {
@@ -108,6 +141,32 @@ public class VirtualMouseHandler {
             ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnScroll(minecraft.getWindow().getWindow(), currentScrollX, currentScrollY);
         } else {
             scrollX = scrollY = 0;
+        }
+    }
+
+    private void snapToClosestPoint() {
+        var window = minecraft.getWindow();
+        var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+        var target = new Vector2d(targetX, targetY).mul(scaleFactor);
+
+        if (lastSnappedPoint != null) {
+            if (lastSnappedPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)) > lastSnappedPoint.range() * lastSnappedPoint.range() * scaleFactor.x()) {
+                lastSnappedPoint = null;
+            }
+        }
+
+        var closestSnapPoint = snapPoints.stream()
+                .filter(snapPoint -> snapPoint != lastSnappedPoint) // don't snap to the point currently over snapped point
+                .map(snapPoint -> new Pair<>(snapPoint, snapPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)))) // map with distance to current pos
+                .filter(point -> point.getSecond() <= point.getFirst().range() * point.getFirst().range() * scaleFactor.x()) // filter out of range options
+                .min(Comparator.comparingLong(Pair::getSecond)) // find the closest point
+                .orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
+
+        if (closestSnapPoint != null) {
+            snappedPoint = lastSnappedPoint = closestSnapPoint;
+
+            targetX = snappedPoint.position().x() / scaleFactor.x();
+            targetY = snappedPoint.position().y() / scaleFactor.y();
         }
     }
 
@@ -139,6 +198,12 @@ public class VirtualMouseHandler {
 
     public void renderVirtualMouse(PoseStack matrices) {
         if (!virtualMouseEnabled) return;
+
+        if (DEBUG_SNAPPING) {
+            for (var snapPoint : snapPoints) {
+                GuiComponent.fill(matrices, snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint == snappedPoint ? 0xFF00FF00 : snapPoint == lastSnappedPoint ? 0xFFFFFF00 : 0xFFFF0000);
+            }
+        }
 
         RenderSystem.setShaderTexture(0, CURSOR_TEXTURE);
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
