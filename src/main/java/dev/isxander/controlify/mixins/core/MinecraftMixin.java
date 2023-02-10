@@ -16,6 +16,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftMixin {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
+    @Shadow public abstract float getDeltaFrameTime();
+
+    @Shadow public abstract float getFrameTime();
+
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
     private void onInputInitialized(CallbackInfo ci) {
         Controlify.instance().onInitializeInput();
@@ -23,7 +27,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
-        Controlify.instance().inGameInputHandler().processPlayerLook();
+        Controlify.instance().inGameInputHandler().processPlayerLook(getFrameTime());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))

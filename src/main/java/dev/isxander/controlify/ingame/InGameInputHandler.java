@@ -5,14 +5,13 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
 
 public class InGameInputHandler {
     private final Controller controller;
     private final Minecraft minecraft;
 
-    private double accumulatedDX, accumulatedDY;
+    private double lookInputX, lookInputY;
     private double deltaTime;
 
     public InGameInputHandler(Controller controller) {
@@ -56,39 +55,15 @@ public class InGameInputHandler {
     protected void handlePlayerLookInput() {
         var axes = controller.state().axes();
         if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
-            accumulatedDX += axes.rightStickX() * Math.abs(axes.rightStickX());
-            accumulatedDY += axes.rightStickY() * Math.abs(axes.rightStickY());
+            lookInputX = axes.rightStickX() * Math.abs(axes.rightStickX()) * controller.config().horizontalLookSensitivity;
+            lookInputY = axes.rightStickY() * Math.abs(axes.rightStickY()) * controller.config().verticalLookSensitivity;
         }
 
-        processPlayerLook();
+        processPlayerLook(1f);
     }
 
-    public void processPlayerLook() {
-        var time = Blaze3D.getTime();
-        var delta = time - deltaTime;
-        deltaTime = time;
-
-        var hsensitivity = controller.config().horizontalLookSensitivity * 9.6 + 2.0;
-        var hsensCubed = hsensitivity * hsensitivity * hsensitivity;
-        var vsensitivity = controller.config().verticalLookSensitivity * 9.6 + 2.0;
-        var vsensCubed = vsensitivity * vsensitivity * vsensitivity;
-
-        var dx = accumulatedDX * delta;
-        var dy = accumulatedDY * delta;
-
-        // drag
-        if (accumulatedDX > 0) {
-            accumulatedDX -= Math.min(dx * 20, accumulatedDX);
-        } else if (accumulatedDX < 0) {
-            accumulatedDX -= Math.max(dx * 20, accumulatedDX);
-        }
-        if (accumulatedDY > 0) {
-            accumulatedDY -= Math.min(dy * 20, accumulatedDY);
-        } else if (accumulatedDY < 0) {
-            accumulatedDY -= Math.max(dy * 20, accumulatedDY);
-        }
-
+    public void processPlayerLook(float deltaTime) {
         if (minecraft.player != null)
-            minecraft.player.turn(dx * hsensCubed, dy * vsensCubed);
+            minecraft.player.turn(lookInputX * 15f * deltaTime, lookInputY * 15f * deltaTime);
     }
 }
