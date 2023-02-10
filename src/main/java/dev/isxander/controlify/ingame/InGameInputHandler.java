@@ -1,6 +1,5 @@
 package dev.isxander.controlify.ingame;
 
-import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
@@ -12,7 +11,6 @@ public class InGameInputHandler {
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY;
-    private double deltaTime;
 
     public InGameInputHandler(Controller controller) {
         this.controller = controller;

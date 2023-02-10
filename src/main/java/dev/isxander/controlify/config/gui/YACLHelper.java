@@ -164,6 +164,10 @@ public class YACLHelper {
                         .controller(opt -> new BindButtonController(opt, controller))
                         .tooltip(control.description())
                         .instant(true)
+                        .listener((opt, bind) -> { // yacl instant options have a bug where they don't save
+                            opt.applyValue();
+                            controlify.config().save();
+                        })
                         .build());
             }
             category.group(controlsGroup.build());
