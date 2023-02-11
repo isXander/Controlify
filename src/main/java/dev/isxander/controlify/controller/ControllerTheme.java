@@ -5,7 +5,8 @@ import net.minecraft.network.chat.Component;
 
 public enum ControllerTheme implements NameableEnum {
     XBOX_ONE("xbox"),
-    DUALSHOCK4("dualshock4");
+    DUALSHOCK4("dualshock4"),
+    DUALSHOCK3("dualshock3");
 
     private final String id;
 

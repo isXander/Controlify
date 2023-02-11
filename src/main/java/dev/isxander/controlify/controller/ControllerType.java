@@ -13,7 +13,8 @@ public enum ControllerType {
     UNKNOWN("Unknown Controller", ControllerTheme.XBOX_ONE),
     XBOX_ONE("Xbox Controller", ControllerTheme.XBOX_ONE),
     XBOX_360("Xbox 360 Controller", ControllerTheme.XBOX_ONE),
-    DUALSHOCK4("PS4 Controller", ControllerTheme.DUALSHOCK4);
+    DUALSHOCK4("PS4 Controller", ControllerTheme.DUALSHOCK4),
+    DUALSHOCK3("PS3 Controller", ControllerTheme.DUALSHOCK3);
 
     private static final Gson GSON = new GsonBuilder().setLenient().create();
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
