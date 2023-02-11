@@ -31,7 +31,7 @@
     "vendor": 1356, // 0x54c
     "friendly_name": "PS3 Controller",
     "product": [
-      0268 // 0x268
+      616 // 0x268
     ]
   }
 }
