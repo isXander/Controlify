@@ -41,7 +41,6 @@ public class ControllerHIDService implements HidServicesListener {
             Controlify.LOGGER.error("Failed to start controller HID service!", e);
             disabled = true;
         }
-        disabled = true;
     }
 
     public void awaitNextController(Consumer<HidDevice> consumer) {
