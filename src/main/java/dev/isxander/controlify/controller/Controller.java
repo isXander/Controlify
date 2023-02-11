@@ -2,8 +2,8 @@ package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
-import dev.isxander.controlify.event.ControlifyEvents;
 import org.hid4java.HidDevice;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
@@ -15,13 +15,13 @@ import java.util.UUID;
 
 public final class Controller {
     public static final Map<Integer, Controller> CONTROLLERS = new HashMap<>();
-    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false, UUID.randomUUID(), ControllerType.UNKNOWN);
+    public static final Controller DUMMY = new Controller(-1, "DUMMY", "DUMMY", false, UUID.randomUUID().toString(), ControllerType.UNKNOWN);
 
     private final int joystickId;
     private final String guid;
     private final String name;
     private final boolean gamepad;
-    private final UUID uid;
+    private final String uid;
     private final ControllerType type;
 
     private ControllerState state = ControllerState.EMPTY;
@@ -30,7 +30,7 @@ public final class Controller {
     private final ControllerBindings bindings = new ControllerBindings(this);
     private ControllerConfig config, defaultConfig;
 
-    public Controller(int joystickId, String guid, String name, boolean gamepad, UUID uid, ControllerType type) {
+    public Controller(int joystickId, String guid, String name, boolean gamepad, String uid, ControllerType type) {
         this.joystickId = joystickId;
         this.guid = guid;
         this.name = name;
@@ -93,7 +93,7 @@ public final class Controller {
         return guid;
     }
 
-    public UUID uid() {
+    public String uid() {
         return uid;
     }
 
@@ -136,7 +136,7 @@ public final class Controller {
         return Objects.hash(guid);
     }
 
-    public static Controller create(int id, HidDevice device) {
+    public static Controller create(int id, @Nullable HidDevice device) {
         if (id > GLFW.GLFW_JOYSTICK_LAST)
             throw new IllegalArgumentException("Invalid joystick id: " + id);
         if (CONTROLLERS.containsKey(id))
@@ -145,8 +145,8 @@ public final class Controller {
         String guid = GLFW.glfwGetJoystickGUID(id);
         boolean gamepad = GLFW.glfwJoystickIsGamepad(id);
         String fallbackName = gamepad ? GLFW.glfwGetGamepadName(id) : GLFW.glfwGetJoystickName(id);
-        UUID uid = UUID.nameUUIDFromBytes(device.getPath().getBytes(StandardCharsets.UTF_8));
-        ControllerType type = ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId()));
+        String uid = device != null ? UUID.nameUUIDFromBytes(device.getPath().getBytes(StandardCharsets.UTF_8)).toString() : "unidentified-" + UUID.randomUUID();
+        ControllerType type = device != null ? ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())) : ControllerType.UNKNOWN;
         String name = type != ControllerType.UNKNOWN || fallbackName == null ? type.friendlyName() : fallbackName;
         int tries = 1;
         while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equals)) {

@@ -58,7 +58,7 @@ public class ControlifyConfig {
 
         for (var controller : Controller.CONTROLLERS.values()) {
             // `add` replaces if already existing
-            newControllerData.add(controller.uid().toString(), generateControllerConfig(controller));
+            newControllerData.add(controller.uid(), generateControllerConfig(controller));
         }
 
         controllerData = newControllerData;
@@ -92,7 +92,7 @@ public class ControlifyConfig {
     }
 
     public void loadOrCreateControllerData(Controller controller) {
-        var uid = controller.uid().toString();
+        var uid = controller.uid();
         if (controllerData.has(uid)) {
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
         } else {

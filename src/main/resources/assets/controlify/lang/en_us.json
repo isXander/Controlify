@@ -46,7 +46,7 @@
   "controlify.gui.format.open": "OPEN URL",
 
   "controlify.gui.error.title": "Could not open Controlify settings",
-  "controlify.gui.error.message": "You cannot change Controlify setttings when you have no controllers connected. Please connect a controller first.",
+  "controlify.gui.error.message": "You cannot change Controlify settings when you have no controllers connected. Please connect a controller first.",
 
   "controlify.gui.button": "Controller Settings...",
 
@@ -114,5 +114,8 @@
   "controlify.beta.title": "Controlify Beta Notice",
   "controlify.beta.message": "You are currently using Controlify Beta.\n\nThis mod is a work in progress and will contain many bugs. Please, if you spot a bug in this mod or have a suggestion to make it even better, please create an issue on the %s!\n\nYou can always find the link to the issue tracker in Controlify's settings menu.",
   "controlify.beta.message.link": "issue tracker",
-  "controlify.beta.button": "Open Issue Tracker..."
+  "controlify.beta.button": "Open Issue Tracker...",
+
+  "controlify.error.hid": "Controller Detection Disabled",
+  "controlify.error.hid.desc": "Controlify could not start the controller detection system used to identify and distinguish between multiple controllers. This means controller config will not be able to be saved between play sessions. This is likely due to a system fault and you should check logs for further information."
 }

@@ -21,6 +21,8 @@ public class ControllerHIDService implements HidServicesListener {
     private final HidServicesSpecification specification;
     private final Queue<Consumer<HidDevice>> deviceQueue;
 
+    private boolean disabled = false;
+
     public ControllerHIDService() {
         this.deviceQueue = new ArrayDeque<>();
 
@@ -30,13 +32,23 @@ public class ControllerHIDService implements HidServicesListener {
     }
 
     public void start() {
-        var services = HidManager.getHidServices(specification);
-        services.addHidServicesListener(this);
+        try {
+            var services = HidManager.getHidServices(specification);
+            services.addHidServicesListener(this);
 
-        services.start();
+            services.start();
+        } catch (HidException e) {
+            Controlify.LOGGER.error("Failed to start controller HID service!", e);
+            disabled = true;
+        }
+        disabled = true;
     }
 
     public void awaitNextController(Consumer<HidDevice> consumer) {
+        if (disabled) {
+            consumer.accept(null);
+            return;
+        }
         deviceQueue.add(consumer);
     }
 
@@ -46,7 +58,7 @@ public class ControllerHIDService implements HidServicesListener {
 
         if (isController(device)) {
             if (deviceQueue.peek() != null) {
-                deviceQueue.poll().accept(event.getHidDevice());
+                deviceQueue.poll().accept(device);
             } else {
                 Controlify.LOGGER.error("Unhandled controller: " + ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())).friendlyName());
             }
@@ -57,6 +69,10 @@ public class ControllerHIDService implements HidServicesListener {
         var isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
         var isController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
         return isGenericDesktopControlOrGameControl && isController;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
     }
 
     @Override

@@ -150,6 +150,10 @@ public class Controlify {
         return virtualMouseHandler;
     }
 
+    public ControllerHIDService controllerHIDService() {
+        return controllerHIDService;
+    }
+
     public InputMode currentInputMode() {
         return currentInputMode;
     }

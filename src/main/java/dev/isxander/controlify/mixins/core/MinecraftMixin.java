@@ -1,10 +1,15 @@
 package dev.isxander.controlify.mixins.core;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.screen.BetaNoticeScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.resources.ReloadInstance;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +25,8 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract float getFrameTime();
 
+    @Shadow public abstract ToastComponent getToasts();
+
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
     private void onInputInitialized(CallbackInfo ci) {
         Controlify.instance().onInitializeInput();
@@ -34,5 +41,15 @@ public abstract class MinecraftMixin {
     private void showBetaScreen(GameConfig args, CallbackInfo ci) {
         if (Controlify.instance().config().isFirstLaunch())
             setScreen(new BetaNoticeScreen());
+    }
+
+    @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;createReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/server/packs/resources/ReloadInstance;"))
+    private ReloadInstance onReloadResources(ReloadInstance resourceReload) {
+        resourceReload.done().thenRun(() -> {
+            if (Controlify.instance().controllerHIDService().isDisabled()) {
+                getToasts().addToast(SystemToast.multiline((Minecraft) (Object) this, SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING, Component.translatable("controlify.error.hid"), Component.translatable("controlify.error.hid.desc")));
+            }
+        });
+        return resourceReload;
     }
 }
