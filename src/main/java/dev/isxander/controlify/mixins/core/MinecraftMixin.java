@@ -23,8 +23,6 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract float getDeltaFrameTime();
 
-    @Shadow public abstract float getFrameTime();
-
     @Shadow public abstract ToastComponent getToasts();
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
@@ -34,7 +32,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
-        Controlify.instance().inGameInputHandler().processPlayerLook(getFrameTime());
+        Controlify.instance().inGameInputHandler().processPlayerLook(getDeltaFrameTime());
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))

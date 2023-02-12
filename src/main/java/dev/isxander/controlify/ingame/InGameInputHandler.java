@@ -55,13 +55,14 @@ public class InGameInputHandler {
         if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
             lookInputX = axes.rightStickX() * Math.abs(axes.rightStickX()) * controller.config().horizontalLookSensitivity;
             lookInputY = axes.rightStickY() * Math.abs(axes.rightStickY()) * controller.config().verticalLookSensitivity;
+        } else {
+            lookInputX = lookInputY = 0;
         }
-
-        processPlayerLook(1f);
     }
 
     public void processPlayerLook(float deltaTime) {
-        if (minecraft.player != null)
-            minecraft.player.turn(lookInputX * 15f * deltaTime, lookInputY * 15f * deltaTime);
+        if (minecraft.player != null) {
+            minecraft.player.turn(lookInputX * 50f * deltaTime, lookInputY * 50f * deltaTime);
+        }
     }
 }
