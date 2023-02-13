@@ -24,7 +24,7 @@ public abstract class ScreenMixin implements ISnapBehaviour {
                 .map(AbstractWidget.class::cast)
                 .map(widget -> new SnapPoint(
                         new Vector2i(widget.getX() + widget.getWidth() / 2, widget.getY() + widget.getHeight() / 2),
-                        Math.min(widget.getWidth(), widget.getHeight()) + 5
+                        Math.min(widget.getWidth(), widget.getHeight()) / 2 + 10
                 ))
                 .collect(Collectors.toSet());
     }

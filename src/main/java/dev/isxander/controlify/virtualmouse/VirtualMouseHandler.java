@@ -38,7 +38,8 @@ public class VirtualMouseHandler {
     private boolean virtualMouseEnabled;
 
     private Set<SnapPoint> snapPoints;
-    private SnapPoint snappedPoint, lastSnappedPoint;
+    private SnapPoint lastSnappedPoint;
+    private boolean snapping;
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
@@ -70,21 +71,21 @@ public class VirtualMouseHandler {
         } else {
             snapPoints = Set.of();
         }
-        if (!snapPoints.contains(snappedPoint))
-            snappedPoint = null;
 
         // if just released stick, snap to nearest snap point
         if (leftStickX == 0 && leftStickY == 0) {
             if ((prevLeftStickX != 0 || prevLeftStickY != 0))
                 snapToClosestPoint();
         } else {
-            snappedPoint = null;
+            snapping = false;
         }
+
+        var sensitivity = !snapping ? controller.config().virtualMouseSensitivity : 2f;
 
         // quadratic function to make small movements smaller
         // abs to keep sign
-        targetX += leftStickX * Mth.abs(leftStickX) * 20f * controller.config().virtualMouseSensitivity;
-        targetY += leftStickY * Mth.abs(leftStickY) * 20f * controller.config().virtualMouseSensitivity;
+        targetX += leftStickX * Mth.abs(leftStickX) * 20f * sensitivity;
+        targetY += leftStickY * Mth.abs(leftStickY) * 20f * sensitivity;
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
@@ -150,23 +151,24 @@ public class VirtualMouseHandler {
         var target = new Vector2d(targetX, targetY).mul(scaleFactor);
 
         if (lastSnappedPoint != null) {
-            if (lastSnappedPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)) > lastSnappedPoint.range() * lastSnappedPoint.range() * scaleFactor.x()) {
+            if (lastSnappedPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)) > (long) lastSnappedPoint.range() * lastSnappedPoint.range()) {
                 lastSnappedPoint = null;
             }
         }
 
         var closestSnapPoint = snapPoints.stream()
-                .filter(snapPoint -> snapPoint != lastSnappedPoint) // don't snap to the point currently over snapped point
+                .filter(snapPoint -> !snapPoint.equals(lastSnappedPoint)) // don't snap to the point currently over snapped point
                 .map(snapPoint -> new Pair<>(snapPoint, snapPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)))) // map with distance to current pos
-                .filter(point -> point.getSecond() <= point.getFirst().range() * point.getFirst().range() * scaleFactor.x()) // filter out of range options
+                .filter(point -> point.getSecond() <= (long) point.getFirst().range() * point.getFirst().range()) // filter out of range options
                 .min(Comparator.comparingLong(Pair::getSecond)) // find the closest point
                 .orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
 
         if (closestSnapPoint != null) {
-            snappedPoint = lastSnappedPoint = closestSnapPoint;
+            lastSnappedPoint = closestSnapPoint;
+            snapping = false;
 
-            targetX = snappedPoint.position().x() / scaleFactor.x();
-            targetY = snappedPoint.position().y() / scaleFactor.y();
+            targetX = closestSnapPoint.position().x() / scaleFactor.x();
+            targetY = closestSnapPoint.position().y() / scaleFactor.y();
         }
     }
 
@@ -201,7 +203,8 @@ public class VirtualMouseHandler {
 
         if (DEBUG_SNAPPING) {
             for (var snapPoint : snapPoints) {
-                GuiComponent.fill(matrices, snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint == snappedPoint ? 0xFF00FF00 : snapPoint == lastSnappedPoint ? 0xFFFFFF00 : 0xFFFF0000);
+                GuiComponent.fill(matrices, snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
+                GuiComponent.fill(matrices, snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);
             }
         }
 

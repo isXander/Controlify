@@ -31,7 +31,7 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
             int x = leftPos + getTabX(tab);
             int y = topPos + (topRow ? -28 : imageHeight - 4);
 
-            points.add(new SnapPoint(new Vector2i(x + 13, y + 16), 38));
+            points.add(new SnapPoint(new Vector2i(x + 13, y + 16), 18));
         }
 
         if (canScroll()) {
