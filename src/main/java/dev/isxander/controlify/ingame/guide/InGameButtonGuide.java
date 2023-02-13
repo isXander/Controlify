@@ -35,7 +35,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     }
 
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
-        if (!controller.config().showGuide || minecraft.screen != null)
+        if (!controller.config().showGuide || minecraft.screen != null || minecraft.options.renderDebug)
             return;
 
         {
@@ -110,6 +110,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     }
 
     private void registerDefaultActions() {
+        var options = Minecraft.getInstance().options;
         registerGuideAction((client, player, level, hitResult, controller) -> {
             if (player.getAbilities().flying)
                 return Optional.of(new GuideAction(controller.bindings().JUMP, Component.translatable("controlify.guide.fly_up"), ActionLocation.LEFT));
@@ -147,6 +148,20 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
             return Optional.empty();
         });
         registerGuideAction((client, player, level, hitResult, controller) -> {
+            if (!options.keySprint.isDown()) {
+                if (!player.input.getMoveVector().equals(Vec2.ZERO)) {
+                    if (player.isUnderWater())
+                        return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.start_swimming"), ActionLocation.LEFT));
+                    return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.start_sprinting"), ActionLocation.LEFT));
+                }
+            } else if (controller.config().toggleSprint) {
+                if (player.isUnderWater())
+                    return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.stop_swimming"), ActionLocation.LEFT));
+                return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.stop_sprinting"), ActionLocation.LEFT));
+            }
+            return Optional.empty();
+        });
+        registerGuideAction((client, player, level, hitResult, controller) -> {
             if (client.screen == null)
                 return Optional.of(new GuideAction(controller.bindings().INVENTORY, Component.translatable("controlify.guide.inventory"), ActionLocation.RIGHT));
             return Optional.empty();
@@ -168,6 +183,11 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         registerGuideAction((client, player, level, hitResult, controller) -> {
             if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
                 return Optional.of(new GuideAction(controller.bindings().DROP, Component.translatable("controlify.guide.drop"), ActionLocation.RIGHT));
+            return Optional.empty();
+        });
+        registerGuideAction((client, player, level, hitResult, controller) -> {
+            if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
+                return Optional.of(new GuideAction(controller.bindings().SWAP_HANDS, Component.translatable("controlify.guide.swap_hands"), ActionLocation.RIGHT));
             return Optional.empty();
         });
         registerGuideAction((client, player, level, hitResult, controller) -> {
