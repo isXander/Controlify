@@ -1,6 +1,7 @@
 package dev.isxander.controlify;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.Controller;
@@ -14,9 +15,13 @@ import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 public class Controlify {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -31,6 +36,8 @@ public class Controlify {
 
     private final ControlifyConfig config = new ControlifyConfig();
 
+    private final Queue<Controller> calibrationQueue = new ArrayDeque<>();
+
     public void onInitializeInput() {
         Minecraft minecraft = Minecraft.getInstance();
 
@@ -44,7 +51,10 @@ public class Controlify {
                 controllerHIDService.awaitNextController(device -> {
                     setCurrentController(Controller.create(jid, device));
                     LOGGER.info("Controller found: " + currentController.name());
-                    config().loadOrCreateControllerData(currentController);
+
+                    if (!config().loadOrCreateControllerData(currentController)) {
+                        calibrationQueue.add(currentController);
+                    }
                 });
             }
         }
@@ -61,7 +71,9 @@ public class Controlify {
                     LOGGER.info("Controller connected: " + currentController.name());
                     this.setCurrentInputMode(InputMode.CONTROLLER);
 
-                    config().loadOrCreateControllerData(currentController);
+                    if (!config().loadOrCreateControllerData(currentController)) {
+                        calibrationQueue.add(currentController);
+                    }
 
                     minecraft.getToasts().addToast(SystemToast.multiline(
                             minecraft,
@@ -94,6 +106,24 @@ public class Controlify {
     }
 
     public void tick(Minecraft client) {
+        var minecraft = Minecraft.getInstance();
+        if (minecraft.getOverlay() == null) {
+            if (!calibrationQueue.isEmpty()) {
+                Screen screen = minecraft.screen;
+                while (!calibrationQueue.isEmpty()) {
+                    screen = new ControllerDeadzoneCalibrationScreen(calibrationQueue.poll(), screen);
+                }
+                minecraft.setScreen(screen);
+
+                minecraft.getToasts().addToast(SystemToast.multiline(
+                        minecraft,
+                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                        Component.translatable("controlify.toast.controller_calibration.title"),
+                        Component.translatable("controlify.toast.controller_calibration.description")
+                ));
+            }
+        }
+
         for (Controller controller : Controller.CONTROLLERS.values()) {
             controller.updateState();
         }

@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import org.hid4java.HidDevice;
@@ -57,17 +58,18 @@ public final class Controller {
 
         prevState = state;
 
-        AxesState axesState = AxesState.fromController(this)
+        AxesState rawAxesState = AxesState.fromController(this);
+        AxesState axesState = rawAxesState
                 .leftJoystickDeadZone(config().leftStickDeadzone, config().leftStickDeadzone)
                 .rightJoystickDeadZone(config().rightStickDeadzone, config().rightStickDeadzone)
                 .leftTriggerDeadZone(config().leftTriggerDeadzone)
                 .rightTriggerDeadZone(config().rightTriggerDeadzone);
         ButtonState buttonState = ButtonState.fromController(this);
-        state = new ControllerState(axesState, buttonState);
+        state = new ControllerState(axesState, rawAxesState, buttonState);
     }
 
     public void consumeButtonState() {
-        this.state = new ControllerState(state().axes(), ButtonState.EMPTY);
+        this.state = new ControllerState(state().axes(), state().rawAxes(), ButtonState.EMPTY);
     }
 
     public ControllerBindings bindings() {
@@ -147,13 +149,15 @@ public final class Controller {
         String fallbackName = gamepad ? GLFW.glfwGetGamepadName(id) : GLFW.glfwGetJoystickName(id);
         String uid = device != null ? UUID.nameUUIDFromBytes(device.getPath().getBytes(StandardCharsets.UTF_8)).toString() : "unidentified-" + UUID.randomUUID();
         ControllerType type = device != null ? ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())) : ControllerType.UNKNOWN;
-        String name = type != ControllerType.UNKNOWN || fallbackName == null ? type.friendlyName() : fallbackName;
+        String ogName = type != ControllerType.UNKNOWN || fallbackName == null ? type.friendlyName() : fallbackName;
+        String name = ogName;
         int tries = 1;
         while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equals)) {
-            name = type.friendlyName() + " (" + tries++ + ")";
+            name = ogName + " (" + tries++ + ")";
         }
 
         Controller controller = new Controller(id, guid, name, gamepad, uid, type);
+
         CONTROLLERS.put(id, controller);
 
         return controller;

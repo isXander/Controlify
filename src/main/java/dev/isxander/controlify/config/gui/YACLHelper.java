@@ -5,6 +5,7 @@ import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerTheme;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
 import dev.isxander.yacl.gui.controllers.BooleanController;
@@ -152,6 +153,12 @@ public class YACLHelper {
                             .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                             .binding(def.rightStickDeadzone, () -> config.rightStickDeadzone, v -> config.rightStickDeadzone = v)
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                            .build())
+                    .option(ButtonOption.createBuilder()
+                            .name(Component.translatable("controlify.gui.auto_calibration"))
+                            .tooltip(Component.translatable("controlify.gui.auto_calibration.tooltip"))
+                            .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerDeadzoneCalibrationScreen(controller, screen)))
+                            .controller(ActionController::new)
                             .build())
                     .option(Option.createBuilder(float.class)
                             .name(Component.translatable("controlify.gui.button_activation_threshold"))

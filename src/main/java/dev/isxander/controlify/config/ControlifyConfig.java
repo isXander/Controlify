@@ -91,12 +91,14 @@ public class ControlifyConfig {
         }
     }
 
-    public void loadOrCreateControllerData(Controller controller) {
+    public boolean loadOrCreateControllerData(Controller controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
+            return true;
         } else {
             save();
+            return false;
         }
     }
 
