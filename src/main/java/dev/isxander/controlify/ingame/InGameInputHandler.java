@@ -62,7 +62,7 @@ public class InGameInputHandler {
 
     public void processPlayerLook(float deltaTime) {
         if (minecraft.player != null) {
-            minecraft.player.turn(lookInputX * 50f * deltaTime, lookInputY * 50f * deltaTime);
+            minecraft.player.turn(lookInputX * 65f * deltaTime, lookInputY * 65f * deltaTime);
         }
     }
 }
