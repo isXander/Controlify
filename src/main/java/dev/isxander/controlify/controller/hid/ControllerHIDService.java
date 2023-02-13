@@ -38,7 +38,7 @@ public class ControllerHIDService implements HidServicesListener {
 
             services.start();
         } catch (HidException e) {
-            Controlify.LOGGER.error("Failed to start controller HID service!", e);
+            Controlify.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
             disabled = true;
         }
     }
