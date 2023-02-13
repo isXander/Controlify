@@ -106,10 +106,10 @@ public class VirtualMouseHandler {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_MCLICK.justPressed()) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_MCLICK.justReleased()) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_MIDDLE, GLFW.GLFW_RELEASE, 0);
+        if (controller.bindings().VMOUSE_SHIFT_CLICK.justPressed()) {
+            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
+        } else if (controller.bindings().VMOUSE_SHIFT_CLICK.justReleased()) {
+            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
 
         if (controller.bindings().VMOUSE_ESCAPE.justPressed()) {

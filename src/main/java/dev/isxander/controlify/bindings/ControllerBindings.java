@@ -23,10 +23,11 @@ public class ControllerBindings {
             PAUSE,
             INVENTORY,
             CHANGE_PERSPECTIVE,
+            SWAP_HANDS,
             OPEN_CHAT,
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
-            VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_MCLICK, VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN, VMOUSE_ESCAPE, VMOUSE_SHIFT, VMOUSE_TOGGLE,
+            VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK, VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN, VMOUSE_ESCAPE, VMOUSE_SHIFT, VMOUSE_TOGGLE,
             PICK_BLOCK,
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST;
@@ -54,6 +55,7 @@ public class ControllerBindings {
         register(PAUSE = new ControllerBinding(controller, Bind.START, new ResourceLocation("controlify", "pause")));
         register(INVENTORY = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "inventory"), options.keyInventory, () -> false));
         register(CHANGE_PERSPECTIVE = new ControllerBinding(controller, Bind.BACK, new ResourceLocation("controlify", "change_perspective"), options.keyTogglePerspective, () -> false));
+        register(SWAP_HANDS = new ControllerBinding(controller, Bind.X_BUTTON, new ResourceLocation("controlify", "swap_hands"), options.keySwapOffhand, () -> false));
         register(OPEN_CHAT = new ControllerBinding(controller, Bind.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat, () -> false));
         register(GUI_PRESS = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "gui_press")));
         register(GUI_BACK = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "gui_back")));
@@ -64,7 +66,7 @@ public class ControllerBindings {
         register(SHOW_PLAYER_LIST = new ControllerBinding(controller, Bind.DPAD_RIGHT, new ResourceLocation("controlify", "show_player_list"), options.keyPlayerList, () -> false));
         register(VMOUSE_LCLICK = new ControllerBinding(controller, Bind.A_BUTTON, new ResourceLocation("controlify", "vmouse_lclick")));
         register(VMOUSE_RCLICK = new ControllerBinding(controller, Bind.X_BUTTON, new ResourceLocation("controlify", "vmouse_rclick")));
-        register(VMOUSE_MCLICK = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "vmouse_mclick")));
+        register(VMOUSE_SHIFT_CLICK = new ControllerBinding(controller, Bind.Y_BUTTON, new ResourceLocation("controlify", "vmouse_shift_click")));
         register(VMOUSE_SCROLL_UP = new ControllerBinding(controller, Bind.RIGHT_STICK_FORWARD, new ResourceLocation("controlify", "vmouse_scroll_up")));
         register(VMOUSE_SCROLL_DOWN = new ControllerBinding(controller, Bind.RIGHT_STICK_BACKWARD, new ResourceLocation("controlify", "vmouse_scroll_down")));
         register(VMOUSE_ESCAPE = new ControllerBinding(controller, Bind.B_BUTTON, new ResourceLocation("controlify", "vmouse_escape")));
