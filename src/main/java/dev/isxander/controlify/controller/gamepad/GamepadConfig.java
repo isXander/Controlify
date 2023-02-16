@@ -18,7 +18,7 @@ public class GamepadConfig extends ControllerConfig {
             case 1 -> leftStickDeadzoneY = deadzone;
             case 2 -> rightStickDeadzoneX = deadzone;
             case 3 -> rightStickDeadzoneY = deadzone;
-            default -> throw new IllegalArgumentException("Unknown axis: " + axis);
+            default -> {}
         }
     }
 
