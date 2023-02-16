@@ -87,7 +87,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         leftGuides.clear();
         rightGuides.clear();
 
-        if (!controller.config().showGuide)
+        if (!controller.config().showGuide || minecraft.screen != null)
             return;
 
         for (var actionPredicate : guidePredicates) {
