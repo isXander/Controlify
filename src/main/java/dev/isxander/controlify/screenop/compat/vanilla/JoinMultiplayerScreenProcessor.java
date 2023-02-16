@@ -1,7 +1,7 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
-import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
@@ -15,7 +15,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
     }
 
     @Override
-    protected void handleButtons(Controller controller) {
+    protected void handleButtons(Controller<?, ?> controller) {
         if (screen.getFocused() instanceof Button && controller.bindings().GUI_BACK.justPressed()) {
             screen.setFocused(list);
         }

@@ -17,7 +17,7 @@ import net.minecraft.world.phys.*;
 import java.util.*;
 
 public class InGameButtonGuide implements ButtonGuideRegistry {
-    private final Controller controller;
+    private final Controller<?, ?> controller;
     private final LocalPlayer player;
     private final Minecraft minecraft = Minecraft.getInstance();
 
@@ -26,7 +26,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     private final List<GuideAction> leftGuides = new ArrayList<>();
     private final List<GuideAction> rightGuides = new ArrayList<>();
 
-    public InGameButtonGuide(Controller controller, LocalPlayer localPlayer) {
+    public InGameButtonGuide(Controller<?, ?> controller, LocalPlayer localPlayer) {
         this.controller = controller;
         this.player = localPlayer;
 

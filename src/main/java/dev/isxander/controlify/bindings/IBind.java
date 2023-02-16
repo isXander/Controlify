@@ -1,38 +1,45 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.gui.ButtonRenderer;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.gui.DrawSize;
 
-import java.util.Collection;
-
-public interface IBind {
-    float state(ControllerState state, Controller controller);
-    default boolean held(ControllerState state, Controller controller) {
-        return state(state, controller) > controller.config().buttonActivationThreshold;
+public interface IBind<S extends ControllerState> {
+    float state(S state);
+    default boolean held(S state, Controller<S, ?> controller) {
+        return state(state) > controller.config().buttonActivationThreshold;
     }
 
-    void draw(PoseStack matrices, int x, int centerY, Controller controller);
-    ButtonRenderer.DrawSize drawSize();
+    void draw(PoseStack matrices, int x, int centerY, Controller<S, ?> controller);
+    DrawSize drawSize();
 
-    JsonElement toJson();
+    JsonObject toJson();
 
-    static IBind fromJson(JsonElement json) {
-        if (json.isJsonArray()) {
-            return new CompoundBind(json.getAsJsonArray().asList().stream().map(element -> Bind.fromIdentifier(element.getAsString())).toArray(Bind[]::new));
-        } else {
-            return Bind.fromIdentifier(json.getAsString());
+    @SuppressWarnings("unchecked")
+    static <T extends ControllerState> IBind<T> fromJson(JsonObject json, Controller<T, ?> controller) {
+        var type = json.get("type").getAsString();
+        if (type.equals(EmptyBind.BIND_ID))
+            return new EmptyBind<>();
+
+        if (controller instanceof GamepadController && type.equals(GamepadBind.BIND_ID)) {
+            return (IBind<T>) GamepadBind.fromJson(json);
+        } else if (controller instanceof JoystickController joystick) {
+            return (IBind<T>) switch (type) {
+                case JoystickButtonBind.BIND_ID -> JoystickButtonBind.fromJson(json, joystick);
+                case JoystickHatBind.BIND_ID -> JoystickHatBind.fromJson(json, joystick);
+                case JoystickAxisBind.BIND_ID -> JoystickAxisBind.fromJson(json, joystick);
+                default -> {
+                    Controlify.LOGGER.error("Unknown bind type: " + type);
+                    yield new EmptyBind<>();
+                }
+            };
         }
-    }
 
-    static IBind create(Collection<Bind> binds) {
-        if (binds.size() == 1) return binds.stream().findAny().orElseThrow();
-        return new CompoundBind(binds.toArray(new Bind[0]));
-    }
-    static IBind create(Bind... binds) {
-        if (binds.length == 1) return binds[0];
-        return new CompoundBind(binds);
+        Controlify.LOGGER.error("Could not parse bind for controller: " + controller.name());
+        return new EmptyBind<>();
     }
 }

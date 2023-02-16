@@ -6,12 +6,10 @@ import net.minecraft.client.player.Input;
 import net.minecraft.client.player.LocalPlayer;
 
 public class ControllerPlayerMovement extends Input {
-    private final Controller controller;
+    private final Controller<?, ?> controller;
     private final LocalPlayer player;
 
-    private boolean shiftToggled = false;
-
-    public ControllerPlayerMovement(Controller controller, LocalPlayer player) {
+    public ControllerPlayerMovement(Controller<?, ?> controller, LocalPlayer player) {
         this.controller = controller;
         this.player = player;
     }

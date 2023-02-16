@@ -23,7 +23,7 @@ public class ScreenProcessor<T extends Screen> {
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
     }
 
-    public void onControllerUpdate(Controller controller) {
+    public void onControllerUpdate(Controller<?, ?> controller) {
         if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
             handleComponentNavigation(controller);
             handleButtons(controller);
@@ -43,7 +43,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleComponentNavigation(Controller controller) {
+    protected void handleComponentNavigation(Controller<?, ?> controller) {
         if (screen.getFocused() == null)
             setInitialFocus();
 
@@ -59,28 +59,17 @@ public class ScreenProcessor<T extends Screen> {
 
         boolean repeatEventAvailable = ++lastMoved >= controller.config().screenRepeatNavigationDelay;
 
-        var axes = controller.state().axes();
-        var prevAxes = controller.prevState().axes();
-        var buttons = controller.state().buttons();
-        var prevButtons = controller.prevState().buttons();
+        var bindings = controller.bindings();
 
         FocusNavigationEvent.ArrowNavigation event = null;
-        if (axes.leftStickX() > 0.5f && (repeatEventAvailable || prevAxes.leftStickX() <= 0.5f)) {
+        if (bindings.GUI_NAVI_RIGHT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_RIGHT.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
-        } else if (axes.leftStickX() < -0.5f && (repeatEventAvailable || prevAxes.leftStickX() >= -0.5f)) {
+        } else if (bindings.GUI_NAVI_LEFT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_LEFT.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
-        } else if (axes.leftStickY() < -0.5f && (repeatEventAvailable || prevAxes.leftStickY() >= -0.5f)) {
+        } else if (bindings.GUI_NAVI_UP.held() && (repeatEventAvailable || !bindings.GUI_NAVI_UP.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
-        } else if (axes.leftStickY() > 0.5f && (repeatEventAvailable || prevAxes.leftStickY() <= 0.5f)) {
+        } else if (bindings.GUI_NAVI_DOWN.held() && (repeatEventAvailable || !bindings.GUI_NAVI_DOWN.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
-        } else if (buttons.dpadUp() && (repeatEventAvailable || !prevButtons.dpadUp())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
-        } else if (buttons.dpadDown() && (repeatEventAvailable || !prevButtons.dpadDown())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
-        } else if (buttons.dpadLeft() && (repeatEventAvailable || !prevButtons.dpadLeft())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
-        } else if (buttons.dpadRight() && (repeatEventAvailable || !prevButtons.dpadRight())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
         }
 
         if (event != null) {
@@ -97,7 +86,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleButtons(Controller controller) {
+    protected void handleButtons(Controller<?, ?> controller) {
         var focusTree = getFocusTree();
         while (!focusTree.isEmpty()) {
             var focused = focusTree.poll();
@@ -111,7 +100,7 @@ public class ScreenProcessor<T extends Screen> {
             screen.onClose();
     }
 
-    protected void handleVMouseNavigation(Controller controller) {
+    protected void handleVMouseNavigation(Controller<?, ?> controller) {
 
     }
 

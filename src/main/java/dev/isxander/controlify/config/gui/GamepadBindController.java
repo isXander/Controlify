@@ -1,8 +1,10 @@
 package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.GamepadBind;
 import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
@@ -16,20 +18,17 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+public class GamepadBindController implements Controller<IBind<GamepadState>> {
+    private final Option<IBind<GamepadState>> option;
+    private final GamepadController controller;
 
-public class BindButtonController implements Controller<IBind> {
-    private final Option<IBind> option;
-    private final dev.isxander.controlify.controller.Controller controller;
-
-    public BindButtonController(Option<IBind> option, dev.isxander.controlify.controller.Controller controller) {
+    public GamepadBindController(Option<IBind<GamepadState>> option, GamepadController controller) {
         this.option = option;
         this.controller = controller;
     }
 
     @Override
-    public Option<IBind> option() {
+    public Option<IBind<GamepadState>> option() {
         return this.option;
     }
 
@@ -43,26 +42,18 @@ public class BindButtonController implements Controller<IBind> {
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<BindButtonController> implements ComponentProcessorProvider, ComponentProcessor {
+    public static class BindButtonWidget extends ControllerWidget<GamepadBindController> implements ComponentProcessorProvider, ComponentProcessor {
         private boolean awaitingControllerInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
-        private final Set<Bind> pressedBinds = new LinkedHashSet<>();
 
-        public BindButtonWidget(BindButtonController control, YACLScreen screen, Dimension<Integer> dim) {
+        public BindButtonWidget(GamepadBindController control, YACLScreen screen, Dimension<Integer> dim) {
             super(control, screen, dim);
         }
 
         @Override
         protected void drawValueText(PoseStack matrices, int mouseX, int mouseY, float delta) {
             if (awaitingControllerInput) {
-                if (pressedBinds.isEmpty()) {
-                    textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
-                } else {
-                    var bind = IBind.create(pressedBinds);
-                    var plusSize = 2 + textRenderer.width("+");
-                    bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width() - getXPadding() - plusSize, getDimension().centerY(), control.controller);
-                    textRenderer.drawShadow(matrices, "+", getDimension().xLimit() - getXPadding() - plusSize, getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
-                }
+                textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
             } else {
                 var bind = control.option().pendingValue();
                 bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY(), control.controller);
@@ -95,41 +86,31 @@ public class BindButtonController implements Controller<IBind> {
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
+            if (controller != control.controller) return true;
+
             if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
                 return awaitingControllerInput = true;
             }
 
             if (!awaitingControllerInput) return false;
 
-            if (pressedBinds.stream().anyMatch(bind -> !bind.held(controller.state(), controller))) {
-                // finished
-                awaitingControllerInput = false;
-                control.option().requestSet(IBind.create(pressedBinds));
-                pressedBinds.clear();
-            } else {
-                for (var bind : Bind.values()) {
-                    if (bind.held(controller.state(), controller) && !bind.held(controller.prevState(), controller)) {
-                        if (bind == Bind.GUIDE) { // FIXME: guide cannot be used as reserve because Windows hooks into xbox button to open game bar, maybe START?
-                            if (pressedBinds.isEmpty()) {
-                                awaitingControllerInput = false;
-                                control.option().requestSet(IBind.create(Bind.NONE));
-                                pressedBinds.clear();
-                                return true;
-                            }
-                        } else {
-                            pressedBinds.add(bind);
-                        }
-                    }
+            var gamepad = control.controller;
+
+            for (var bind : GamepadBind.values()) {
+                if (bind.held(gamepad.state(), gamepad) && !bind.held(gamepad.prevState(), gamepad)) {
+                    control.option().requestSet(bind);
+                    awaitingControllerInput = false;
+                    gamepad.consumeButtonState();
+                    return true;
                 }
-                control.controller.consumeButtonState();
             }
 
-            return true;
+            return false;
         }
 
         @Override
-        public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller controller) {
+        public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
             return awaitingControllerInput;
         }
 

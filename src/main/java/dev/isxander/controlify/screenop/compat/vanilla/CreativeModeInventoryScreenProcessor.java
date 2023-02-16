@@ -1,7 +1,7 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
-import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -12,7 +12,7 @@ public class CreativeModeInventoryScreenProcessor extends ScreenProcessor<Creati
     }
 
     @Override
-    protected void handleVMouseNavigation(Controller controller) {
+    protected void handleVMouseNavigation(Controller<?, ?> controller) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {

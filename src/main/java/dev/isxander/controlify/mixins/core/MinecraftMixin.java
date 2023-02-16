@@ -25,9 +25,16 @@ public abstract class MinecraftMixin {
 
     @Shadow public abstract ToastComponent getToasts();
 
+    @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;createReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/server/packs/resources/ReloadInstance;"))
+    private ReloadInstance onInputInitialized(ReloadInstance resourceReload) {
+        // Controllers need to be initialized extremely late due to the data-driven nature of controllers.
+        resourceReload.done().thenRun(() -> Controlify.instance().initializeControllers());
+        return resourceReload;
+    }
+
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
     private void onInputInitialized(CallbackInfo ci) {
-        Controlify.instance().onInitializeInput();
+        Controlify.instance().initializeControlify();
     }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))

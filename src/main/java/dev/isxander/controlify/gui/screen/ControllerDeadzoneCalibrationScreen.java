@@ -11,12 +11,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-import java.math.RoundingMode;
-
 public class ControllerDeadzoneCalibrationScreen extends Screen {
     private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
 
-    protected final Controller controller;
+    protected final Controller<?, ?> controller;
     private final Screen parent;
 
     private MultiLineLabel waitLabel, infoLabel, completeLabel;
@@ -26,7 +24,7 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
 
-    public ControllerDeadzoneCalibrationScreen(Controller controller, Screen parent) {
+    public ControllerDeadzoneCalibrationScreen(Controller<?, ?> controller, Screen parent) {
         super(Component.translatable("controlify.calibration.title"));
         this.controller = controller;
         this.parent = parent;
@@ -110,42 +108,20 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
     }
 
     private void useCurrentStateAsDeadzone() {
-        var rawAxes = controller.state().rawAxes();
+        var axes = controller.state().axes();
 
-        var minDeadzoneLS = Math.max(rawAxes.leftStickX(), rawAxes.leftStickY()) + 0.08f;
-        var deadzoneLS = (float)Mth.clamp(0.05 * Math.ceil(minDeadzoneLS / 0.05), 0, 0.95);
-
-        var minDeadzoneRS = Math.max(rawAxes.rightStickX(), rawAxes.rightStickY()) + 0.08f;
-        var deadzoneRS = (float)Mth.clamp(0.05 * Math.ceil(minDeadzoneRS / 0.05), 0, 0.95);
-
-        controller.config().leftStickDeadzone = deadzoneLS;
-        controller.config().rightStickDeadzone = deadzoneRS;
+        for (int i = 0; i < axes.size(); i++) {
+            var axis = axes.get(i);
+            var minDeadzone = axis + 0.08f;
+            controller.config().setDeadzone(i, (float)Mth.clamp(0.05 * Math.ceil(minDeadzone / 0.05), 0, 0.95));
+        }
     }
 
     private boolean stateChanged() {
         var amt = 0.0001f;
-
-        var lsX = controller.state().rawAxes().leftStickX();
-        var prevLsX = controller.prevState().rawAxes().leftStickX();
-        if (Math.abs(lsX - prevLsX) > amt)
-            return true;
-
-        var lsY = controller.state().rawAxes().leftStickY();
-        var prevLsY = controller.prevState().rawAxes().leftStickY();
-        if (Math.abs(lsY - prevLsY) > amt)
-            return true;
-
-        var rsX = controller.state().rawAxes().rightStickX();
-        var prevRsX = controller.prevState().rawAxes().rightStickX();
-        if (Math.abs(rsX - prevRsX) > amt)
-            return true;
-
-        var rsY = controller.state().rawAxes().rightStickY();
-        var prevRsY = controller.prevState().rawAxes().rightStickY();
-        if (Math.abs(rsY - prevRsY) > amt)
-            return true;
-
-        return false;
+        
+        return controller.state().axes().stream()
+                .anyMatch(axis -> Math.abs(axis - controller.prevState().axes().get(controller.state().axes().indexOf(axis))) > amt);
     }
 
     @Override

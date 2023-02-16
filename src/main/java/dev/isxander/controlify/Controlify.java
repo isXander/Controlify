@@ -1,17 +1,18 @@
 package dev.isxander.controlify;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -27,7 +28,7 @@ public class Controlify {
     public static final Logger LOGGER = LogUtils.getLogger();
     private static Controlify instance = null;
 
-    private Controller currentController;
+    private Controller<?, ?> currentController;
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
@@ -36,12 +37,15 @@ public class Controlify {
 
     private final ControlifyConfig config = new ControlifyConfig();
 
-    private final Queue<Controller> calibrationQueue = new ArrayDeque<>();
+    private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
 
-    public void onInitializeInput() {
+    public void initializeControllers() {
+        LOGGER.info("Discovering and initializing controllers...");
+
         Minecraft minecraft = Minecraft.getInstance();
 
-        inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controllers
+        config().load();
+
         controllerHIDService = new ControllerHIDService();
 
         // find already connected controllers
@@ -49,7 +53,7 @@ public class Controlify {
             if (GLFW.glfwJoystickPresent(i)) {
                 int jid = i;
                 controllerHIDService.awaitNextController(device -> {
-                    setCurrentController(Controller.create(jid, device));
+                    setCurrentController(Controller.createOrGet(jid, device));
                     LOGGER.info("Controller found: " + currentController.name());
 
                     if (!config().loadOrCreateControllerData(currentController)) {
@@ -61,13 +65,11 @@ public class Controlify {
 
         controllerHIDService.start();
 
-        config().load();
-
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
                 controllerHIDService.awaitNextController(device -> {
-                    setCurrentController(Controller.create(jid, device));
+                    setCurrentController(Controller.createOrGet(jid, device));
                     LOGGER.info("Controller connected: " + currentController.name());
                     this.setCurrentInputMode(InputMode.CONTROLLER);
 
@@ -82,11 +84,10 @@ public class Controlify {
                             Component.translatable("controlify.toast.controller_connected.description", currentController.name())
                     ));
                 });
-
             } else if (event == GLFW.GLFW_DISCONNECTED) {
                 var controller = Controller.CONTROLLERS.remove(jid);
                 if (controller != null) {
-                    setCurrentController(Controller.CONTROLLERS.values().stream().filter(Controller::connected).findFirst().orElse(null));
+                    setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
                     LOGGER.info("Controller disconnected: " + controller.name());
                     this.setCurrentInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
 
@@ -100,9 +101,12 @@ public class Controlify {
             }
         });
 
-        this.virtualMouseHandler = new VirtualMouseHandler();
-
         ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+    }
+
+    public void initializeControlify() {
+        this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
+        this.virtualMouseHandler = new VirtualMouseHandler();
     }
 
     public void tick(Minecraft client) {
@@ -124,7 +128,7 @@ public class Controlify {
             }
         }
 
-        for (Controller controller : Controller.CONTROLLERS.values()) {
+        for (var controller : Controller.CONTROLLERS.values()) {
             controller.updateState();
         }
 
@@ -154,11 +158,11 @@ public class Controlify {
         return config;
     }
 
-    public Controller currentController() {
+    public Controller<?, ?> currentController() {
         return currentController;
     }
 
-    public void setCurrentController(Controller controller) {
+    public void setCurrentController(Controller<?, ?> controller) {
         if (this.currentController == controller) return;
         this.currentController = controller;
 

@@ -1,9 +1,35 @@
 package dev.isxander.controlify.controller;
 
-public record ControllerState(AxesState axes, AxesState rawAxes, ButtonState buttons) {
-    public static final ControllerState EMPTY = new ControllerState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY);
+import java.util.List;
+import java.util.Set;
 
-    public boolean hasAnyInput() {
-        return !this.axes().equals(AxesState.EMPTY) || !this.buttons().equals(ButtonState.EMPTY);
-    }
+public interface ControllerState {
+    List<Float> axes();
+    List<Float> rawAxes();
+
+    List<Boolean> buttons();
+
+    boolean hasAnyInput();
+
+    ControllerState EMPTY = new ControllerState() {
+        @Override
+        public List<Float> axes() {
+            return List.of();
+        }
+
+        @Override
+        public List<Float> rawAxes() {
+            return List.of();
+        }
+
+        @Override
+        public List<Boolean> buttons() {
+            return List.of();
+        }
+
+        @Override
+        public boolean hasAnyInput() {
+            return false;
+        }
+    };
 }

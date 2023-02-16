@@ -1,8 +1,8 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import org.lwjgl.glfw.GLFW;
 
@@ -25,21 +25,19 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?, ?> controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         var canSliderChange = ++lastSliderChange > SLIDER_CHANGE_DELAY;
 
-        var axes = controller.state().axes();
-        var buttons = controller.state().buttons();
-        if (axes.leftStickX() > 0.5f || buttons.dpadRight()) {
+        if (controller.bindings().GUI_NAVI_RIGHT.held()) {
             if (canSliderChange) {
                 component.keyPressed(GLFW.GLFW_KEY_RIGHT, 0, 0);
                 lastSliderChange = 0;
             }
 
             return true;
-        } else if (axes.leftStickX() < -0.5f || buttons.dpadLeft()) {
+        } else if (controller.bindings().GUI_NAVI_LEFT.held()) {
             if (canSliderChange) {
                 component.keyPressed(GLFW.GLFW_KEY_LEFT, 0, 0);
                 lastSliderChange = 0;
@@ -52,7 +50,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         if (controller.bindings().GUI_BACK.justPressed()) {
@@ -64,7 +62,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public void onFocusGained(ScreenProcessor<?> screen, Controller controller) {
+    public void onFocusGained(ScreenProcessor<?> screen, Controller<?, ?> controller) {
         System.out.println("navigated!");
         this.canChangeValueSetter.accept(false);
     }

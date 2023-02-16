@@ -69,7 +69,7 @@ public class ControlifyConfig {
         return config;
     }
 
-    private JsonObject generateControllerConfig(Controller controller) {
+    private JsonObject generateControllerConfig(Controller<?, ?> controller) {
         JsonObject object = new JsonObject();
 
         object.add("config", GSON.toJsonTree(controller.config()));
@@ -91,19 +91,21 @@ public class ControlifyConfig {
         }
     }
 
-    public boolean loadOrCreateControllerData(Controller controller) {
+    public boolean loadOrCreateControllerData(Controller<?, ?> controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
+            Controlify.LOGGER.info("Loading controller data for " + uid);
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
             return true;
         } else {
+            Controlify.LOGGER.info("New controller found, creating controller data for " + uid);
             save();
             return false;
         }
     }
 
-    private void applyControllerConfig(Controller controller, JsonObject object) {
-        controller.setConfig(GSON.fromJson(object.getAsJsonObject("config"), Controller.ControllerConfig.class));
+    private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
+        controller.setConfig(GSON, object.getAsJsonObject("config"));
         controller.bindings().fromJson(object.getAsJsonObject("bindings"));
     }
 

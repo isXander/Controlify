@@ -3,8 +3,12 @@ package dev.isxander.controlify.config.gui;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
-import dev.isxander.controlify.controller.ControllerTheme;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
@@ -21,6 +25,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class YACLHelper {
     public static Screen generateConfigScreen(Screen parent) {
@@ -41,11 +49,11 @@ public class YACLHelper {
         var globalSettings = Controlify.instance().config().globalSettings();
         var globalCategory = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.category.global"))
-                .option(Option.createBuilder(Controller.class)
+                .option(Option.createBuilder((Class<Controller<?, ?>>) (Class<?>) Controller.class)
                         .name(Component.translatable("controlify.gui.current_controller"))
                         .tooltip(Component.translatable("controlify.gui.current_controller.tooltip"))
                         .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
-                        .controller(opt -> new CyclingListController<>(opt, Controller.CONTROLLERS.values().stream().filter(Controller::connected).toList(), c -> Component.literal(c.name())))
+                        .controller(opt -> new CyclingListController<>(opt, Controller.CONTROLLERS.values(), c -> Component.literal(c.name())))
                         .instant(true)
                         .build())
                 .option(Option.createBuilder(boolean.class)
@@ -114,14 +122,22 @@ public class YACLHelper {
                             .tooltip(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
                             .binding(def.virtualMouseSensitivity, () -> config.virtualMouseSensitivity, v -> config.virtualMouseSensitivity = v)
                             .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
-                    .option(Option.createBuilder(ControllerTheme.class)
-                            .name(Component.translatable("controlify.gui.controller_theme"))
-                            .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
-                            .binding(controller.type().theme(), () -> config.theme, v -> config.theme = v)
-                            .controller(EnumController::new)
-                            .instant(true)
-                            .build())
+                            .build());
+
+            if (controller instanceof GamepadController gamepad) {
+                var gamepadConfig = gamepad.config();
+                var defaultGamepadConfig = gamepad.defaultConfig();
+
+                basicGroup.option(Option.createBuilder(BuiltinGamepadTheme.class)
+                        .name(Component.translatable("controlify.gui.controller_theme"))
+                        .tooltip(Component.translatable("controlify.gui.controller_theme.tooltip"))
+                        .binding(defaultGamepadConfig.theme, () -> gamepadConfig.theme, v -> gamepadConfig.theme = v)
+                        .controller(EnumController::new)
+                        .instant(true)
+                        .build());
+            }
+
+            basicGroup
                     .option(Option.createBuilder(String.class)
                             .name(Component.translatable("controlify.gui.custom_name"))
                             .tooltip(Component.translatable("controlify.gui.custom_name.tooltip"))
@@ -139,21 +155,59 @@ public class YACLHelper {
                             .tooltip(Component.translatable("controlify.gui.screen_repeat_navi_delay.tooltip"))
                             .binding(def.screenRepeatNavigationDelay, () -> config.screenRepeatNavigationDelay, v -> config.screenRepeatNavigationDelay = v)
                             .controller(opt -> new IntegerSliderController(opt, 1, 20, 1, v -> Component.translatable("controlify.gui.format.ticks", v)))
-                            .build())
-                    .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.left_stick_deadzone"))
-                            .tooltip(Component.translatable("controlify.gui.left_stick_deadzone.tooltip"))
+                            .build());
+
+            if (controller instanceof GamepadController gamepad) {
+                var gpCfg = gamepad.config();
+                var gpCfgDef = gamepad.defaultConfig();
+                advancedGroup
+                        .option(Option.createBuilder(float.class)
+                                .name(Component.translatable("controlify.gui.left_stick_deadzone"))
+                                .tooltip(Component.translatable("controlify.gui.left_stick_deadzone.tooltip"))
+                                .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                                .binding(
+                                        Math.max(gpCfgDef.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
+                                        () -> Math.max(gpCfg.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
+                                        v -> gpCfg.leftStickDeadzoneX = gpCfg.leftStickDeadzoneY = v
+                                )
+                                .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                                .build())
+                        .option(Option.createBuilder(float.class)
+                                .name(Component.translatable("controlify.gui.right_stick_deadzone"))
+                                .tooltip(Component.translatable("controlify.gui.right_stick_deadzone.tooltip"))
+                                .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                                .binding(
+                                        Math.max(gpCfgDef.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
+                                        () -> Math.max(gpCfg.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
+                                        v -> gpCfg.rightStickDeadzoneX = gpCfg.rightStickDeadzoneY = v
+                                )
+                                .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                                .build());
+            } else if (controller instanceof JoystickController joystick) {
+                Collection<Integer> deadzoneAxes = IntStream.range(0, joystick.axisCount())
+                        .filter(i -> joystick.mapping().axis(i).requiresDeadzone())
+                        .boxed()
+                        .collect(Collectors.toMap(
+                                i -> joystick.mapping().axis(i).identifier(),
+                                i -> i,
+                                (x, y) -> x
+                        ))
+                        .values();
+                var jsCfg = joystick.config();
+                var jsCfgDef = joystick.defaultConfig();
+
+                for (int i : deadzoneAxes) {
+                    advancedGroup.option(Option.createBuilder(float.class)
+                            .name(Component.translatable("controlify.gui.joystick_axis_deadzone", joystick.mapping().axis(i).name()))
+                            .tooltip(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", joystick.mapping().axis(i).name()))
                             .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                            .binding(def.leftStickDeadzone, () -> config.leftStickDeadzone, v -> config.leftStickDeadzone = v)
+                            .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
-                    .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.right_stick_deadzone"))
-                            .tooltip(Component.translatable("controlify.gui.right_stick_deadzone.tooltip"))
-                            .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                            .binding(def.rightStickDeadzone, () -> config.rightStickDeadzone, v -> config.rightStickDeadzone = v)
-                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
+                            .build());
+                }
+            }
+
+            advancedGroup
                     .option(ButtonOption.createBuilder()
                             .name(Component.translatable("controlify.gui.auto_calibration"))
                             .tooltip(Component.translatable("controlify.gui.auto_calibration.tooltip"))
@@ -170,19 +224,26 @@ public class YACLHelper {
 
             var controlsGroup = OptionGroup.createBuilder()
                     .name(Component.translatable("controlify.gui.group.controls"));
-            for (var control : controller.bindings().registry().values()) {
-                controlsGroup.option(Option.createBuilder(IBind.class)
-                        .name(control.name())
-                        .binding(control.defaultBind(), control::currentBind, control::setCurrentBind)
-                        .controller(opt -> new BindButtonController(opt, controller))
-                        .tooltip(control.description())
-                        .instant(true)
-                        .listener((opt, bind) -> { // yacl instant options have a bug where they don't save
-                            opt.applyValue();
-                            controlify.config().save();
-                        })
-                        .build());
+            if (controller instanceof GamepadController gamepad) {
+                for (var binding : gamepad.bindings().registry().values()) {
+                    controlsGroup.option(Option.createBuilder((Class<IBind<GamepadState>>) (Class<?>) IBind.class)
+                            .name(binding.name())
+                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .controller(opt -> new GamepadBindController(opt, gamepad))
+                            .tooltip(binding.description())
+                            .build());
+                }
+            } else if (controller instanceof JoystickController joystick) {
+                for (var binding : joystick.bindings().registry().values()) {
+                    controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
+                            .name(binding.name())
+                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .controller(opt -> new JoystickBindController(opt, joystick))
+                            .tooltip(binding.description())
+                            .build());
+                }
             }
+
             category.group(controlsGroup.build());
 
             yacl.category(category.build());

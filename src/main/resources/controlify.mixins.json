@@ -4,6 +4,7 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "core.GLXMixin"
   ],
   "client": [
     "core.ClientPacketListenerMixin",

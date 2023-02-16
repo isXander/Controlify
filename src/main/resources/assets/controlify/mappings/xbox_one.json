@@ -1,0 +1,92 @@
+{
+  "axes": [
+    {
+      "ids": [0, 1],
+      "identifier": "left_stick",
+      "deadzone": true,
+      "rest": 0.0,
+      "axis_names": [
+        ["right", "left"],
+        ["down", "up"]
+      ]
+    },
+    {
+      "ids": [2, 3],
+      "identifier": "right_stick",
+      "deadzone": true,
+      "axis_names": [
+        ["right", "left"],
+        ["down", "up"]
+      ],
+      "rest": 0.0
+    },
+    {
+      "ids": [4],
+      "identifier": "left_trigger",
+      "deadzone": false,
+      "rest": 0.0,
+      "range": [0.0, 1.0],
+      "axis_names": [
+        ["down", "up"]
+      ]
+    },
+    {
+      "ids": [5],
+      "identifier": "right_trigger",
+      "deadzone": false,
+      "rest": 0.0,
+      "range": [0.0, 1.0],
+      "axis_names": [
+        ["down", "up"]
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "button": 0,
+      "name": "a"
+    },
+    {
+      "button": 1,
+      "name": "b"
+    },
+    {
+      "button": 2,
+      "name": "x"
+    },
+    {
+      "button": 3,
+      "name": "y"
+    },
+    {
+      "button": 4,
+      "name": "left_bumper"
+    },
+    {
+      "button": 5,
+      "name": "right_bumper"
+    },
+    {
+      "button": 6,
+      "name": "back"
+    },
+    {
+      "button": 7,
+      "name": "start"
+    },
+    {
+      "button": 8,
+      "name": "left_stick"
+    },
+    {
+      "button": 9,
+      "name": "right_stick"
+    }
+  ],
+  "hats": [
+    {
+      "hat": 0,
+      "name": "dpad"
+    }
+  ]
+}

@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @FunctionalInterface
 public interface ButtonActionSupplier {
-    Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller controller);
+    Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller<?, ?> controller);
 }

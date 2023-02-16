@@ -57,7 +57,12 @@ public class ControllerHIDService implements HidServicesListener {
 
         if (isController(device)) {
             if (deviceQueue.peek() != null) {
-                deviceQueue.poll().accept(device);
+                try {
+                    deviceQueue.poll().accept(device);
+                } catch (Throwable e) {
+                    Controlify.LOGGER.error("Failed to handle controller device attach event.", e);
+                }
+
             } else {
                 Controlify.LOGGER.error("Unhandled controller: " + ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())).friendlyName());
             }

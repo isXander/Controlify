@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
@@ -52,7 +52,7 @@ public class VirtualMouseHandler {
         ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
     }
 
-    public void handleControllerInput(Controller controller) {
+    public void handleControllerInput(Controller<?, ?> controller) {
         if (controller.bindings().VMOUSE_TOGGLE.justPressed()) {
             toggleVirtualMouse();
         }
@@ -61,10 +61,10 @@ public class VirtualMouseHandler {
             return;
         }
 
-        var leftStickX = controller.state().axes().leftStickX();
-        var leftStickY = controller.state().axes().leftStickY();
-        var prevLeftStickX = controller.prevState().axes().leftStickX();
-        var prevLeftStickY = controller.prevState().axes().leftStickY();
+        var impulseY = controller.bindings().VMOUSE_MOVE_DOWN.state() - controller.bindings().VMOUSE_MOVE_UP.state();
+        var impulseX = controller.bindings().VMOUSE_MOVE_RIGHT.state() - controller.bindings().VMOUSE_MOVE_LEFT.state();
+        var prevImpulseY = controller.bindings().VMOUSE_MOVE_DOWN.prevState() - controller.bindings().VMOUSE_MOVE_UP.prevState();
+        var prevImpulseX = controller.bindings().VMOUSE_MOVE_RIGHT.prevState() - controller.bindings().VMOUSE_MOVE_LEFT.prevState();
 
         if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
             snapPoints = snapBehaviour.getSnapPoints();
@@ -73,8 +73,8 @@ public class VirtualMouseHandler {
         }
 
         // if just released stick, snap to nearest snap point
-        if (leftStickX == 0 && leftStickY == 0) {
-            if ((prevLeftStickX != 0 || prevLeftStickY != 0))
+        if (impulseX == 0 && impulseY == 0) {
+            if ((prevImpulseX != 0 || prevImpulseY != 0))
                 snapToClosestPoint();
         } else {
             snapping = false;
@@ -84,8 +84,8 @@ public class VirtualMouseHandler {
 
         // quadratic function to make small movements smaller
         // abs to keep sign
-        targetX += leftStickX * Mth.abs(leftStickX) * 20f * sensitivity;
-        targetY += leftStickY * Mth.abs(leftStickY) * 20f * sensitivity;
+        targetX += impulseX * Mth.abs(impulseX) * 20f * sensitivity;
+        targetY += impulseY * Mth.abs(impulseY) * 20f * sensitivity;
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());

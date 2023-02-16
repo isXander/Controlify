@@ -1,6 +1,9 @@
 // THIS FILE IS PARSED BY LENIENT GSON PARSER AND IS NOT JSON5 COMPLIANT!
-{
-  "xbox_one": {
+[
+  {
+    "name": "Xbox One Controller",
+    "identifier": "xbox_one",
+
     "vendor": 1118, // 0x45e
     "product": [
       767,  // 0x2ff
@@ -17,7 +20,10 @@
       648   // 0x288
     ]
   },
-  "dualshock4": {
+  {
+    "name": "Dualshock 4 Controller",
+    "identifier": "dualshock4",
+
     "vendor": 1356, // 0x54c
     "product": [
       1476, // 0x5c4
@@ -25,10 +31,13 @@
       2976  // 0xba0
     ]
   },
-  "steam_deck": {
+  {
+    "name": "Steam Deck",
+    "identifier": "steam_deck",
+
     "vendor": 10462, // 0x28de
     "product": [
       4613 // 0x1205
     ]
   }
-}
+]

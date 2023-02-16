@@ -1,15 +1,16 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.gamepad;
 
 import dev.isxander.yacl.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 
-public enum ControllerTheme implements NameableEnum {
-    XBOX_ONE("xbox"),
+public enum BuiltinGamepadTheme implements NameableEnum {
+    DEFAULT("default"),
+    XBOX_ONE("xbox_one"),
     DUALSHOCK4("dualshock4");
 
     private final String id;
 
-    ControllerTheme(String id) {
+    BuiltinGamepadTheme(String id) {
         this.id = id;
     }
 
@@ -19,6 +20,6 @@ public enum ControllerTheme implements NameableEnum {
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("controlify.controller_theme." + name().toLowerCase());
+        return Component.translatable("controlify.controller_theme." + id().toLowerCase());
     }
 }

@@ -45,12 +45,12 @@ public class ControlifyEvents {
 
     @FunctionalInterface
     public interface ControllerStateUpdate {
-        void onControllerStateUpdate(Controller controller);
+        void onControllerStateUpdate(Controller<?, ?> controller);
     }
 
     @FunctionalInterface
     public interface ControllerBindRegistry {
-        void onRegisterControllerBinds(ControllerBindings bindings, Controller controller);
+        void onRegisterControllerBinds(ControllerBindings<?> bindings, Controller<?, ?> controller);
     }
 
     @FunctionalInterface

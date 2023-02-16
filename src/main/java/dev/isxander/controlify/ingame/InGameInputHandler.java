@@ -7,12 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 
 public class InGameInputHandler {
-    private final Controller controller;
+    private final Controller<?, ?> controller;
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY;
 
-    public InGameInputHandler(Controller controller) {
+    public InGameInputHandler(Controller<?, ?> controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
 
@@ -51,10 +51,12 @@ public class InGameInputHandler {
     }
 
     protected void handlePlayerLookInput() {
-        var axes = controller.state().axes();
+        var impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
+        var impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
+
         if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
-            lookInputX = axes.rightStickX() * Math.abs(axes.rightStickX()) * controller.config().horizontalLookSensitivity;
-            lookInputY = axes.rightStickY() * Math.abs(axes.rightStickY()) * controller.config().verticalLookSensitivity;
+            lookInputX = impulseX * Math.abs(impulseX) * controller.config().horizontalLookSensitivity;
+            lookInputY = impulseY * Math.abs(impulseY) * controller.config().verticalLookSensitivity;
         } else {
             lookInputX = lookInputY = 0;
         }
