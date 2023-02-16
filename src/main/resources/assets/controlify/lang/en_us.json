@@ -67,6 +67,7 @@
   "controlify.toast.controller_calibration.title": "New controller detected",
   "controlify.toast.controller_calibration.description": "A new controller(s) has been detected, you must calibrate before you use it!",
 
+  "controlify.controller_theme.default": "Default",
   "controlify.controller_theme.xbox_one": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
   "controlify.controller_theme.steam_deck": "Steam Deck",
