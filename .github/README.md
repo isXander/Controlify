@@ -33,6 +33,31 @@ Yes, mods like [Midnight Controls](https://modrinth.com/mod/midnight-controls) a
 was forked from a now abandoned project, its codebase is a mess and adding compatibility for it ultimately drove me to
 create this mod!
 
+## Features
+
+### Controller identification
+
+Controlify has the ability to identify the make and model of your controller automatically,
+and displays relevant button textures for your controller. This is also customizable, and 
+resource packs can add their own controller textures.
+
+### Joystick support
+
+You can connect any joystick and create your own mappings for it, allowing you to display custom
+textures for your joystick. These mappings are powered through resourcepacks, allowing creators
+to create mappings for everyone.
+
+### Container cursor
+
+Just like in bedrock edition, you can move a cursor across your inventory, and interact
+with it in a controller-friendly way.
+
+### Button guide
+
+The button guide is a simple overlay in-game that displays the buttons you can press
+based on your player's state and look direction. This is useful for new players, who
+have not yet memorised the controls.
+
 ### Containerised Controllers
 
 This mod is built around the fact that each controller is completely separate, with it's own configuration, bindings etc.
@@ -42,6 +67,11 @@ This means it will be trivial to add support for split-screen play in the future
 
 GUI operation has been abstracted into a simple API, which allows other mods to easily add support for their own GUIs,
 without convoluted support throughout the whole mod's codebase, making it difficult for third parties to integrate.
+
+### Automatic controller deadzone calibration
+
+The deadzone values of your controller are automatically calibrated, 
+meaning you don't have to worry about it.
 
 ## What is to come?
 
