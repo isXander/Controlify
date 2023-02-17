@@ -13,7 +13,6 @@ import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
-import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -29,14 +28,14 @@ public class Controlify {
     public static final Logger LOGGER = LogUtils.getLogger();
     private static Controlify instance = null;
 
-    private Controller<?, ?> currentController;
+    private Controller<?, ?> currentController = Controller.DUMMY;
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputMode currentInputMode;
     private ControllerHIDService controllerHIDService;
 
-    private final ControlifyConfig config = new ControlifyConfig();
+    private final ControlifyConfig config = new ControlifyConfig(this);
 
     private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
 
@@ -57,15 +56,24 @@ public class Controlify {
             if (GLFW.glfwJoystickPresent(i)) {
                 int jid = i;
                 controllerHIDService.awaitNextController(device -> {
-                    setCurrentController(Controller.createOrGet(jid, device));
-                    LOGGER.info("Controller found: " + currentController.name());
+                    var controller = Controller.createOrGet(jid, device);
+                    LOGGER.info("Controller found: " + controller.name());
 
-                    if (!config().loadOrCreateControllerData(currentController)) {
-                        calibrationQueue.add(currentController);
+                    if (config().currentControllerUid().equals(controller.uid()))
+                        setCurrentController(controller);
+
+                    if (!config().loadOrCreateControllerData(controller)) {
+                        calibrationQueue.add(controller);
                     }
                 });
             }
         }
+
+        controllerHIDService.setOnQueueEmptyEvent(() -> {
+            if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
+                this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+            }
+        });
 
         controllerHIDService.start();
 
@@ -73,9 +81,14 @@ public class Controlify {
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
                 controllerHIDService.awaitNextController(device -> {
-                    setCurrentController(Controller.createOrGet(jid, device));
-                    LOGGER.info("Controller connected: " + currentController.name());
-                    this.setCurrentInputMode(InputMode.CONTROLLER);
+                    var firstController = Controller.CONTROLLERS.values().isEmpty();
+                    var controller = Controller.createOrGet(jid, device);
+                    LOGGER.info("Controller connected: " + controller.name());
+
+                    if (firstController) {
+                        this.setCurrentController(controller);
+                        this.setCurrentInputMode(InputMode.CONTROLLER);
+                    }
 
                     if (!config().loadOrCreateControllerData(currentController)) {
                         calibrationQueue.add(currentController);
@@ -187,6 +200,12 @@ public class Controlify {
 
         if (this.currentController == controller) return;
         this.currentController = controller;
+
+        LOGGER.info("Updated current controller to " + controller.name() + "(" + controller.uid() + ")");
+
+        if (!config().currentControllerUid().equals(controller.uid())) {
+            config().save();
+        }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
         if (Minecraft.getInstance().player != null) {

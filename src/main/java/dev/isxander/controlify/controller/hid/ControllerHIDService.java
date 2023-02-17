@@ -20,6 +20,7 @@ public class ControllerHIDService implements HidServicesListener {
 
     private final HidServicesSpecification specification;
     private final Queue<Consumer<HidDevice>> deviceQueue;
+    private Runnable onQueueEmpty = () -> {};
 
     private boolean disabled = false;
 
@@ -59,6 +60,10 @@ public class ControllerHIDService implements HidServicesListener {
             if (deviceQueue.peek() != null) {
                 try {
                     deviceQueue.poll().accept(device);
+
+                    if (deviceQueue.isEmpty()) {
+                        onQueueEmpty.run();
+                    }
                 } catch (Throwable e) {
                     Controlify.LOGGER.error("Failed to handle controller device attach event.", e);
                 }
@@ -73,6 +78,10 @@ public class ControllerHIDService implements HidServicesListener {
         var isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
         var isController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
         return isGenericDesktopControlOrGameControl && isController;
+    }
+
+    public void setOnQueueEmptyEvent(Runnable runnable) {
+        this.onQueueEmpty = runnable;
     }
 
     public boolean isDisabled() {

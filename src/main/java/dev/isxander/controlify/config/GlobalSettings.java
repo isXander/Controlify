@@ -1,6 +1,7 @@
 package dev.isxander.controlify.config;
 
 import com.google.common.collect.Lists;
+import dev.isxander.controlify.Controlify;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import java.util.List;

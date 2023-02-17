@@ -68,7 +68,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
         @Override
         public String uid() {
-            return "DUMMY";
+            return "NONE";
         }
 
         @Override

@@ -20,9 +20,16 @@ public class ControlifyConfig {
             .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
             .create();
 
+    private final Controlify controlify;
+
+    private String currentControllerUid;
     private JsonObject controllerData = new JsonObject();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
+
+    public ControlifyConfig(Controlify controlify) {
+        this.controlify = controlify;
+    }
 
     public void save() {
         Controlify.LOGGER.info("Saving Controlify config...");
@@ -46,8 +53,8 @@ public class ControlifyConfig {
 
         try {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to load config!", e);
+        } catch (Exception e) {
+            Controlify.LOGGER.error("Failed to load Controlify config!", e);
         }
     }
 
@@ -63,8 +70,8 @@ public class ControlifyConfig {
 
         controllerData = newControllerData;
         config.add("controllers", controllerData);
-
         config.add("global", GSON.toJsonTree(globalSettings));
+        config.addProperty("current_controller", currentControllerUid = controlify.currentController().uid());
 
         return config;
     }
@@ -88,6 +95,12 @@ public class ControlifyConfig {
             for (var controller : Controller.CONTROLLERS.values()) {
                 loadOrCreateControllerData(controller);
             }
+        }
+
+        if (object.has("current_controller")) {
+            currentControllerUid = object.get("current_controller").getAsString();
+        } else {
+            currentControllerUid = controlify.currentController().uid();
         }
     }
 
@@ -121,5 +134,9 @@ public class ControlifyConfig {
 
     public boolean isFirstLaunch() {
         return firstLaunch;
+    }
+
+    public String currentControllerUid() {
+        return currentControllerUid;
     }
 }
