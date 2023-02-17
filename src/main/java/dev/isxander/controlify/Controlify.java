@@ -1,5 +1,6 @@
 package dev.isxander.controlify;
 
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
@@ -38,6 +39,9 @@ public class Controlify {
     private final ControlifyConfig config = new ControlifyConfig();
 
     private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
+
+    private int consecutiveInputSwitches = 0;
+    private double lastInputSwitchTime = 0;
 
     public void initializeControllers() {
         LOGGER.info("Discovering and initializing controllers...");
@@ -139,6 +143,18 @@ public class Controlify {
         if (state.hasAnyInput())
             this.setCurrentInputMode(InputMode.CONTROLLER);
 
+        if (consecutiveInputSwitches > 20) {
+            LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
+            minecraft.getToasts().addToast(SystemToast.multiline(
+                    minecraft,
+                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                    Component.translatable("controlify.toast.faulty_input.title"),
+                    Component.translatable("controlify.toast.faulty_input.description")
+            ));
+            this.setCurrentController(null);
+            consecutiveInputSwitches = 0;
+        }
+
         if (currentController == null) {
             this.setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
             return;
@@ -159,16 +175,22 @@ public class Controlify {
     }
 
     public Controller<?, ?> currentController() {
+        if (currentController == null)
+            return Controller.DUMMY;
+
         return currentController;
     }
 
     public void setCurrentController(Controller<?, ?> controller) {
+        if (controller == null)
+            controller = Controller.DUMMY;
+
         if (this.currentController == controller) return;
         this.currentController = controller;
 
-        this.inGameInputHandler = new InGameInputHandler(this.currentController != null ? controller : Controller.DUMMY);
+        this.inGameInputHandler = new InGameInputHandler(controller);
         if (Minecraft.getInstance().player != null) {
-            this.inGameButtonGuide = new InGameButtonGuide(this.currentController != null ? controller : Controller.DUMMY, Minecraft.getInstance().player);
+            this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
         }
     }
 
@@ -208,6 +230,13 @@ public class Controlify {
             else
                 this.inGameButtonGuide = new InGameButtonGuide(this.currentController != null ? currentController : Controller.DUMMY, Minecraft.getInstance().player);
         }
+
+        if (Blaze3D.getTime() - lastInputSwitchTime < 20) {
+            consecutiveInputSwitches++;
+        } else {
+            consecutiveInputSwitches = 0;
+        }
+        lastInputSwitchTime = Blaze3D.getTime();
 
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
     }

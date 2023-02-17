@@ -51,9 +51,6 @@
   "controlify.gui.format.hold_toggle.toggle": "Toggle",
   "controlify.gui.format.open": "OPEN URL",
 
-  "controlify.gui.error.title": "Could not open Controlify settings",
-  "controlify.gui.error.message": "You cannot change Controlify settings when you have no controllers connected. Please connect a controller first.",
-
   "controlify.gui.button": "Controller Settings...",
 
   "controlify.toast.vmouse_enabled.title": "Virtual Mouse Enabled",
@@ -66,6 +63,8 @@
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
   "controlify.toast.controller_calibration.title": "New controller detected",
   "controlify.toast.controller_calibration.description": "A new controller(s) has been detected, you must calibrate before you use it!",
+  "controlify.toast.faulty_input.title": "Controller disabled",
+  "controlify.toast.faulty_input.description": "Your controller has been disabled because Controlify detected it was causing you problems using keyboard and mouse input. This is likely due to setting your deadzone values too low or your joystick is not mapped properly, making the controller think it is always giving input.",
 
   "controlify.controller_theme.default": "Default",
   "controlify.controller_theme.xbox_one": "Xbox",
@@ -163,19 +162,17 @@
   "controlify.joystick_mapping.xbox_one.axis.right_trigger.up": "Up",
   "controlify.joystick_mapping.xbox_one.axis.right_trigger.down": "Down",
   "controlify.joystick_mapping.xbox_one.button.a": "A",
-    "controlify.joystick_mapping.xbox_one.button.b": "B",
-    "controlify.joystick_mapping.xbox_one.button.x": "X",
-    "controlify.joystick_mapping.xbox_one.button.y": "Y",
-    "controlify.joystick_mapping.xbox_one.button.left_bumper": "Left Bumper",
-    "controlify.joystick_mapping.xbox_one.button.right_bumper": "Right Bumper",
-    "controlify.joystick_mapping.xbox_one.button.left_stick": "Left Stick Press",
-    "controlify.joystick_mapping.xbox_one.button.right_stick": "Right Stick Press",
-    "controlify.joystick_mapping.xbox_one.button.back": "Back",
-    "controlify.joystick_mapping.xbox_one.button.start": "Start",
-    "controlify.joystick_mapping.xbox_one.button.guide": "Guide",
+  "controlify.joystick_mapping.xbox_one.button.b": "B",
+  "controlify.joystick_mapping.xbox_one.button.x": "X",
+  "controlify.joystick_mapping.xbox_one.button.y": "Y",
+  "controlify.joystick_mapping.xbox_one.button.left_bumper": "Left Bumper",
+  "controlify.joystick_mapping.xbox_one.button.right_bumper": "Right Bumper",
+  "controlify.joystick_mapping.xbox_one.button.left_stick": "Left Stick Press",
+  "controlify.joystick_mapping.xbox_one.button.right_stick": "Right Stick Press",
+  "controlify.joystick_mapping.xbox_one.button.back": "Back",
+  "controlify.joystick_mapping.xbox_one.button.start": "Start",
+  "controlify.joystick_mapping.xbox_one.button.guide": "Guide",
   "controlify.joystick_mapping.xbox_one.hat.dpad": "D-Pad",
-
-
 
   "controlify.calibration.title": "Controller Calibration for '%s'",
   "controlify.calibration.info": "This process will optimize settings for your controller to prevent stick drift. Stick drift happens in your controller thumbsticks and outputs slightly wrong values when you aren't touching them at all. Deadzones are used to prevent this.\n\nThis will only take a few seconds.",

@@ -1,5 +1,6 @@
 package dev.isxander.controlify.config.gui;
 
+import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
@@ -28,19 +29,12 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class YACLHelper {
     public static Screen generateConfigScreen(Screen parent) {
-        if (Controlify.instance().currentController() == null) {
-            return new AlertScreen(
-                    () -> Minecraft.getInstance().setScreen(parent),
-                    Component.translatable("controlify.gui.error.title").withStyle(ChatFormatting.RED, ChatFormatting.BOLD),
-                    Component.translatable("controlify.gui.error.message").withStyle(ChatFormatting.RED)
-            );
-        }
-
         var controlify = Controlify.instance();
 
         var yacl = YetAnotherConfigLib.createBuilder()
@@ -54,7 +48,7 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.current_controller"))
                         .tooltip(Component.translatable("controlify.gui.current_controller.tooltip"))
                         .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
-                        .controller(opt -> new CyclingListController<>(opt, Controller.CONTROLLERS.values(), c -> Component.literal(c.name())))
+                        .controller(opt -> new CyclingListController<>(opt, Iterables.concat(List.of(Controller.DUMMY), Controller.CONTROLLERS.values()), c -> Component.literal(c == Controller.DUMMY ? "Disabled" : c.name())))
                         .instant(true)
                         .build())
                 .option(Option.createBuilder(boolean.class)
