@@ -125,7 +125,10 @@ public class ControllerBindings<T extends ControllerState> {
     public void fromJson(JsonObject json) {
         for (var binding : registry().values()) {
             var bind = json.get(binding.id().toString()).getAsJsonObject();
-            if (bind == null) continue;
+            if (bind == null) {
+                Controlify.LOGGER.warn("Unknown control: " + binding.id() + " in config file. Skipping!");
+                continue;
+            }
             binding.setCurrentBind(IBind.fromJson(bind, controller));
         }
     }

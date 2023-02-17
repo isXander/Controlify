@@ -32,14 +32,10 @@ public interface IBind<S extends ControllerState> {
                 case JoystickButtonBind.BIND_ID -> JoystickButtonBind.fromJson(json, joystick);
                 case JoystickHatBind.BIND_ID -> JoystickHatBind.fromJson(json, joystick);
                 case JoystickAxisBind.BIND_ID -> JoystickAxisBind.fromJson(json, joystick);
-                default -> {
-                    Controlify.LOGGER.error("Unknown bind type: " + type);
-                    yield new EmptyBind<>();
-                }
+                default -> throw new IllegalStateException("Unknown bind type for joystick: " + type);
             };
         }
 
-        Controlify.LOGGER.error("Could not parse bind for controller: " + controller.name());
-        return new EmptyBind<>();
+        throw new IllegalStateException("Unknown controller type: " + controller.getClass().getName());
     }
 }

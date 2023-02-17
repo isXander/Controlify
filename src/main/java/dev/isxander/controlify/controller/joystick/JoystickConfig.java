@@ -6,17 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class JoystickConfig extends ControllerConfig {
-    private final Map<String, Float> deadzones;
+    private Map<String, Float> deadzones;
 
     private transient JoystickController controller;
 
     public JoystickConfig(JoystickController controller) {
-        this.controller = controller;
-        deadzones = new HashMap<>();
-        for (int i = 0; i < controller.axisCount(); i++) {
-            if (controller.mapping().axis(i).requiresDeadzone())
-                deadzones.put(controller.mapping().axis(i).identifier(), 0.2f);
-        }
+        setup(controller);
     }
 
     @Override
@@ -35,7 +30,14 @@ public class JoystickConfig extends ControllerConfig {
         return deadzones.getOrDefault(controller.mapping().axis(axis).identifier(), 0.2f);
     }
 
-    void setController(JoystickController controller) {
+    void setup(JoystickController controller) {
         this.controller = controller;
+        if (this.deadzones == null) {
+            deadzones = new HashMap<>();
+            for (int i = 0; i < controller.axisCount(); i++) {
+                if (controller.mapping().axis(i).requiresDeadzone())
+                    deadzones.put(controller.mapping().axis(i).identifier(), 0.2f);
+            }
+        }
     }
 }

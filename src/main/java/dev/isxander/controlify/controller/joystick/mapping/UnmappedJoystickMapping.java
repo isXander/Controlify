@@ -24,35 +24,35 @@ public class UnmappedJoystickMapping implements JoystickMapping {
     private record UnmappedAxis(int axis) implements Axis {
 
         @Override
-            public String identifier() {
+        public String identifier() {
                 return "axis-" + axis;
-            }
-
-            @Override
-            public Component name() {
-                return Component.translatable("controlify.joystick_mapping.unmapped.axis", axis + 1);
-            }
-
-            @Override
-            public boolean requiresDeadzone() {
-                return true;
-            }
-
-            @Override
-            public float modifyAxis(float value) {
-                return value;
-            }
-
-            @Override
-            public boolean isAxisResting(float value) {
-                return value == 0;
-            }
-
-            @Override
-            public Component getDirectionName(int axis, JoystickAxisBind.AxisDirection direction) {
-                return Component.translatable("controlify.joystick_mapping.unmapped.axis_direction." + direction.name().toLowerCase());
-            }
         }
+
+        @Override
+        public Component name() {
+            return Component.translatable("controlify.joystick_mapping.unmapped.axis", axis + 1);
+        }
+
+        @Override
+        public boolean requiresDeadzone() {
+            return true;
+        }
+
+        @Override
+        public float modifyAxis(float value) {
+            return value;
+        }
+
+        @Override
+        public boolean isAxisResting(float value) {
+            return value == 0;
+        }
+
+        @Override
+        public String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction) {
+            return direction.name().toLowerCase();
+        }
+    }
 
     private record UnmappedButton(int button) implements Button {
         @Override

@@ -72,7 +72,7 @@ public enum GamepadBind implements IBind<GamepadState> {
     public void draw(PoseStack matrices, int x, int centerY, Controller<GamepadState, ?> controller) {
         ResourceLocation texture;
         if (((GamepadConfig)controller.config()).theme == BuiltinGamepadTheme.DEFAULT) {
-            texture = new ResourceLocation("controlify", "textures/gui/gamepad_buttons/" + controller.type().identifier() + "/" + identifier + ".png");
+            texture = new ResourceLocation("controlify", "textures/gui/gamepad/" + controller.type().identifier() + "/" + identifier + ".png");
         } else {
             texture = textureLocations.get(((GamepadConfig)controller.config()).theme);
         }

@@ -64,6 +64,6 @@ public class JoystickController extends AbstractController<JoystickState, Joysti
     @Override
     public void setConfig(Gson gson, JsonElement json) {
         super.setConfig(gson, json);
-        this.config.setController(this);
+        this.config.setup(this);
     }
 }

@@ -133,9 +133,8 @@ public class DataJoystickMapping implements JoystickMapping {
         }
 
         @Override
-        public Component getDirectionName(int axis, JoystickAxisBind.AxisDirection direction) {
-            var directionId = axisNames().get(ids.indexOf(axis)).get(direction.ordinal());
-            return Component.translatable("controlify.joystick_mapping." + typeId()  + ".axis." + identifier() + "." + directionId);
+        public String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction) {
+            return this.axisNames().get(ids.indexOf(axis)).get(direction.ordinal());
         }
     }
 
@@ -144,6 +143,8 @@ public class DataJoystickMapping implements JoystickMapping {
         public Component name() {
             return Component.translatable("controlify.joystick_mapping." + typeId() + ".button." + identifier());
         }
+
+
     }
 
     private record HatMapping(String identifier, String typeId) implements Hat {

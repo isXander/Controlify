@@ -27,6 +27,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -190,7 +191,8 @@ public class YACLHelper {
                         .collect(Collectors.toMap(
                                 i -> joystick.mapping().axis(i).identifier(),
                                 i -> i,
-                                (x, y) -> x
+                                (x, y) -> x,
+                                LinkedHashMap::new
                         ))
                         .values();
                 var jsCfg = joystick.config();

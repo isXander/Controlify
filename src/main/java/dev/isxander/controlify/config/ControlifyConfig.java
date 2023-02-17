@@ -105,8 +105,14 @@ public class ControlifyConfig {
     }
 
     private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
-        controller.setConfig(GSON, object.getAsJsonObject("config"));
-        controller.bindings().fromJson(object.getAsJsonObject("bindings"));
+        try {
+            controller.setConfig(GSON, object.getAsJsonObject("config"));
+            controller.bindings().fromJson(object.getAsJsonObject("bindings"));
+        } catch (Exception e) {
+            Controlify.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
+            controller.resetConfig();
+            save();
+        }
     }
 
     public GlobalSettings globalSettings() {

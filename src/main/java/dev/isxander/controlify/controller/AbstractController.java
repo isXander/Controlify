@@ -98,6 +98,11 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     }
 
     @Override
+    public void resetConfig() {
+        this.config = defaultConfig();
+    }
+
+    @Override
     public void setConfig(Gson gson, JsonElement json) {
         C newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
         if (newConfig != null) {

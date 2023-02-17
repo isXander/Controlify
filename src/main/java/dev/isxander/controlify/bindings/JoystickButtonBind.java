@@ -1,13 +1,16 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -29,19 +32,20 @@ public class JoystickButtonBind implements IBind<JoystickState> {
 
     @Override
     public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        var font = Minecraft.getInstance().font;
+        if (controller != joystick) return;
 
-        font.drawShadow(matrices, getTempButtonName(), x + 1.5f, centerY - font.lineHeight / 2f, 0xFFFFFF);
+        String type = joystick.type().identifier();
+        String button = joystick.mapping().button(buttonIndex).identifier();
+        var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/button_" + button + ".png");
+
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        GuiComponent.blit(matrices, x, centerY - 11, 0, 0, 22, 22, 22, 22);
     }
 
     @Override
     public DrawSize drawSize() {
-        var font = Minecraft.getInstance().font;
-        return new DrawSize(font.width(getTempButtonName()) + 3, font.lineHeight);
-    }
-
-    private Component getTempButtonName() {
-        return joystick.mapping().button(buttonIndex).name();
+        return new DrawSize(22, 22);
     }
 
     @Override

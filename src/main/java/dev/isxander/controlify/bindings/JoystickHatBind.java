@@ -1,13 +1,16 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -31,21 +34,30 @@ public class JoystickHatBind implements IBind<JoystickState> {
 
     @Override
     public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        var font = Minecraft.getInstance().font;
-        font.drawShadow(matrices, getTempButtonName(), x + 1.5f, centerY - font.lineHeight / 2f, 0xFFFFFF);
+        if (controller != joystick) return;
+
+        String type = joystick.type().identifier();
+        String button = joystick.mapping().button(hatIndex).identifier();
+        String direction = "centered";
+        if (hatState.isUp())
+            direction = "up";
+        else if (hatState.isDown())
+            direction = "down";
+        else if (hatState.isLeft())
+            direction = "left";
+        else if (hatState.isRight())
+            direction = "right";
+
+        var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/hat" + button + "_" + direction + ".png");
+
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        GuiComponent.blit(matrices, x, centerY - 11, 0, 0, 22, 22, 22, 22);
     }
 
     @Override
     public DrawSize drawSize() {
-        var font = Minecraft.getInstance().font;
-        return new DrawSize(font.width(getTempButtonName()) + 3, font.lineHeight);
-    }
-
-    private Component getTempButtonName() {
-        return Component.empty()
-                .append(joystick.mapping().hat(hatIndex).name())
-                .append(" ")
-                .append(hatState.getDisplayName());
+        return new DrawSize(22, 22);
     }
 
     @Override

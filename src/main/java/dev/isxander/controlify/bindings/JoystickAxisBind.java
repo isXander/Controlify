@@ -1,13 +1,18 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
 
@@ -35,22 +40,32 @@ public class JoystickAxisBind implements IBind<JoystickState> {
 
     @Override
     public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        var font = Minecraft.getInstance().font;
-        font.drawShadow(matrices, getTempButtonName(), x + 1.5f, centerY - font.lineHeight / 2f, 0xFFFFFF);
+        if (controller != joystick) return;
+        JoystickMapping mapping = joystick.mapping();
+
+        String type = joystick.type().identifier();
+        String axis = mapping.axis(axisIndex).identifier();
+        String direction = mapping.axis(axisIndex).getDirectionIdentifier(axisIndex, this.direction);
+        var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/axis_" + axis + "_" + direction + ".png");
+
+        RenderSystem.setShaderTexture(0, texture);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        GuiComponent.blit(matrices, x, centerY - 11, 0, 0, 22, 22, 22, 22);
+
+        if (mapping instanceof UnmappedJoystickMapping) {
+            var text = Integer.toString(axisIndex + 1);
+            var font = Minecraft.getInstance().font;
+            GuiComponent.drawCenteredString(matrices, font, text, x + 11, centerY - font.lineHeight / 2, 0xFFFFFF);
+        }
     }
 
     @Override
     public DrawSize drawSize() {
-        var font = Minecraft.getInstance().font;
-        return new DrawSize(font.width(getTempButtonName()) + 3, font.lineHeight);
-    }
+        int width = 22;
+        if (joystick.mapping() instanceof UnmappedJoystickMapping)
+            width = Math.max(width, Minecraft.getInstance().font.width(Integer.toString(axisIndex + 1)));
 
-    private Component getTempButtonName() {
-        var axis = joystick.mapping().axis(axisIndex);
-        return Component.empty()
-                .append(axis.name())
-                .append(" ")
-                .append(axis.getDirectionName(axisIndex, direction));
+        return new DrawSize(width, 22);
     }
 
     @Override

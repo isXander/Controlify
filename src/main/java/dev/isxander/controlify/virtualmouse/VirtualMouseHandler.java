@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
@@ -26,7 +27,6 @@ import java.util.Comparator;
 import java.util.Set;
 
 public class VirtualMouseHandler {
-    private static final boolean DEBUG_SNAPPING = FabricLoader.getInstance().isDevelopmentEnvironment();
     private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
 
     private double targetX, targetY;
@@ -201,7 +201,7 @@ public class VirtualMouseHandler {
     public void renderVirtualMouse(PoseStack matrices) {
         if (!virtualMouseEnabled) return;
 
-        if (DEBUG_SNAPPING) {
+        if (DebugProperties.DEBUG_SNAPPING) {
             for (var snapPoint : snapPoints) {
                 GuiComponent.fill(matrices, snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
                 GuiComponent.fill(matrices, snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);

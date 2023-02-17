@@ -21,7 +21,7 @@ public interface JoystickMapping {
 
         boolean isAxisResting(float value);
 
-        Component getDirectionName(int axis, JoystickAxisBind.AxisDirection direction);
+        String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction);
     }
 
     interface Button {

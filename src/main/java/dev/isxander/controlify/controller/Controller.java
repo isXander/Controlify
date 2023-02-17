@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.debug.DebugProperties;
 import org.hid4java.HidDevice;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -24,6 +25,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     C config();
     C defaultConfig();
+    void resetConfig();
     void setConfig(Gson gson, JsonElement json);
 
     ControllerType type();
@@ -39,7 +41,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
             return CONTROLLERS.get(joystickId);
         }
 
-        if (GLFW.glfwJoystickIsGamepad(joystickId)) {
+        if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {
             GamepadController controller = new GamepadController(joystickId, device);
             CONTROLLERS.put(joystickId, controller);
             return controller;
@@ -92,6 +94,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public ControllerConfig defaultConfig() {
             return config;
+        }
+
+        @Override
+        public void resetConfig() {
+
         }
 
         @Override
