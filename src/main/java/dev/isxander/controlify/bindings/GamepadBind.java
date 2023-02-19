@@ -12,19 +12,18 @@ import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public class GamepadBind implements IBind<GamepadState> {
     private final Function<GamepadState, Float> stateSupplier;
     private final String identifier;
     private final GamepadController gamepad;
-    private final ResourceLocation defaultTexture;
 
     public GamepadBind(Function<GamepadState, Float> stateSupplier, String identifier, GamepadController gamepad) {
         this.stateSupplier = stateSupplier;
         this.identifier = identifier;
         this.gamepad = gamepad;
-        this.defaultTexture = new ResourceLocation("controlify", "textures/gui/gamepad_buttons/" + gamepad.config().theme.id() + "/" + identifier + ".png");
     }
 
     @Override
@@ -65,8 +64,22 @@ public class GamepadBind implements IBind<GamepadState> {
     }
 
     private ResourceLocation getTexture(BuiltinGamepadTheme theme) {
+        String themeId = theme.id();
         if (theme == BuiltinGamepadTheme.DEFAULT)
-            return defaultTexture;
-        return new ResourceLocation("controlify", "textures/gui/gamepad_buttons/" + theme.id() + "/" + identifier + ".png");
+            themeId = gamepad.type().identifier();
+        return new ResourceLocation("controlify", "textures/gui/gamepad/" + themeId + "/" + identifier + ".png");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GamepadBind that = (GamepadBind) o;
+        return identifier.equals(that.identifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifier);
     }
 }
