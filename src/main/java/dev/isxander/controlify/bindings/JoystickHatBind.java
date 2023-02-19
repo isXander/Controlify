@@ -33,9 +33,7 @@ public class JoystickHatBind implements IBind<JoystickState> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        if (controller != joystick) return;
-
+    public void draw(PoseStack matrices, int x, int centerY) {
         String type = joystick.type().identifier();
         String button = joystick.mapping().button(hatIndex).identifier();
         String direction = "centered";
@@ -67,6 +65,11 @@ public class JoystickHatBind implements IBind<JoystickState> {
         object.addProperty("hat", hatIndex);
         object.addProperty("state", hatState.name());
         return object;
+    }
+
+    @Override
+    public Controller<JoystickState, ?> controller() {
+        return joystick;
     }
 
     @Override

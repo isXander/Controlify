@@ -26,9 +26,9 @@ public class ControlifyEvents {
         }
     });
 
-    public static final Event<ButtonGuideRegistryEvent> BUTTON_GUIDE_REGISTRY = EventFactory.createArrayBacked(ButtonGuideRegistryEvent.class, callbacks -> registry -> {
+    public static final Event<ButtonGuideRegistryEvent> BUTTON_GUIDE_REGISTRY = EventFactory.createArrayBacked(ButtonGuideRegistryEvent.class, callbacks -> (bindings, registry) -> {
         for (ButtonGuideRegistryEvent callback : callbacks) {
-            callback.onRegisterButtonGuide(registry);
+            callback.onRegisterButtonGuide(bindings, registry);
         }
     });
 
@@ -55,7 +55,7 @@ public class ControlifyEvents {
 
     @FunctionalInterface
     public interface ButtonGuideRegistryEvent {
-        void onRegisterButtonGuide(ButtonGuideRegistry registry);
+        void onRegisterButtonGuide(ControllerBindings<?> bindings, ButtonGuideRegistry registry);
     }
 
     @FunctionalInterface

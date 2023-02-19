@@ -54,6 +54,9 @@ dependencies {
 
     implementation(libs.hid4java)
     include(libs.hid4java)
+
+    implementation(libs.quilt.json5)
+    include(libs.quilt.json5)
 }
 
 tasks {

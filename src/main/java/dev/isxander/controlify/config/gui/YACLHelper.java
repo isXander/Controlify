@@ -10,6 +10,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
@@ -66,6 +67,10 @@ public class YACLHelper {
         yacl.category(globalCategory.build());
 
         for (var controller : Controller.CONTROLLERS.values()) {
+//            if (controller instanceof JoystickController joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
+//                // PlaceholderCategory for onboarding
+//            }
+
             var category = ConfigCategory.createBuilder();
 
             category.name(Component.literal(controller.name()));

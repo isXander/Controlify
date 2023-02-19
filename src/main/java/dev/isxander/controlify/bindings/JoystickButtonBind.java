@@ -31,9 +31,7 @@ public class JoystickButtonBind implements IBind<JoystickState> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        if (controller != joystick) return;
-
+    public void draw(PoseStack matrices, int x, int centerY) {
         String type = joystick.type().identifier();
         String button = joystick.mapping().button(buttonIndex).identifier();
         var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/button_" + button + ".png");
@@ -54,6 +52,11 @@ public class JoystickButtonBind implements IBind<JoystickState> {
         object.addProperty("type", BIND_ID);
         object.addProperty("button", buttonIndex);
         return object;
+    }
+
+    @Override
+    public Controller<JoystickState, ?> controller() {
+        return joystick;
     }
 
     @Override

@@ -1,43 +1,42 @@
-// THIS FILE IS PARSED BY LENIENT GSON PARSER AND IS NOT JSON5 COMPLIANT!
 [
-//  {
-//    "name": "Xbox One Controller",
-//    "identifier": "xbox_one",
-//
-//    "vendor": 1118, // 0x45e
-//    "product": [
-//      767,  // 0x2ff
-//      746,  // 0x2ea
-//      2834, // 0xb12
-//      733,  // 0x2dd
-//      739,  // 0x2e3
-//      742,  // 0x2e6
-//      765,  // 0x2fd
-//      721,  // 0x2d1
-//      649,  // 0x289
-//      514,  // 0x202
-//      645,  // 0x285
-//      648   // 0x288
-//    ]
-//  },
+  {
+    "name": "Xbox One Controller",
+    "identifier": "xbox_one",
+
+    "vendor": 0x45e,
+    "product": [
+      0x2ff,
+      0x2ea,
+      0xb12,
+      0x2dd,
+      0x2e3,
+      0x2e6,
+      0x2fd,
+      0x2d1,
+      0x289,
+      0x202,
+      0x285,
+      0x288,
+    ]
+  },
   {
     "name": "Dualshock 4 Controller",
     "identifier": "dualshock4",
 
-    "vendor": 1356, // 0x54c
+    "vendor": 0x54c,
     "product": [
-      1476, // 0x5c4
-      2508, // 0x9cc
-      2976  // 0xba0
+      0x5c4,
+      0x9cc,
+      0xba0,
     ]
   },
   {
     "name": "Steam Deck",
     "identifier": "steam_deck",
 
-    "vendor": 10462, // 0x28de
+    "vendor": 0x28de,
     "product": [
-      4613 // 0x1205
+      0x1205,
     ]
   }
 ]

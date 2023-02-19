@@ -15,7 +15,12 @@ public class EmptyBind<T extends ControllerState> implements IBind<T> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY, Controller<T, ?> controller) {
+    public boolean held(T state) {
+        return false;
+    }
+
+    @Override
+    public void draw(PoseStack matrices, int x, int centerY) {
 
     }
 
@@ -29,6 +34,11 @@ public class EmptyBind<T extends ControllerState> implements IBind<T> {
         JsonObject object = new JsonObject();
         object.addProperty("type", BIND_ID);
         return object;
+    }
+
+    @Override
+    public Controller<T, ?> controller() {
+        return null;
     }
 
     @Override

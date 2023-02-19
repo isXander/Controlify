@@ -39,8 +39,7 @@ public class JoystickAxisBind implements IBind<JoystickState> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY, Controller<JoystickState, ?> controller) {
-        if (controller != joystick) return;
+    public void draw(PoseStack matrices, int x, int centerY) {
         JoystickMapping mapping = joystick.mapping();
 
         String type = joystick.type().identifier();
@@ -75,6 +74,11 @@ public class JoystickAxisBind implements IBind<JoystickState> {
         object.addProperty("axis", axisIndex);
         object.addProperty("direction", direction.name());
         return object;
+    }
+
+    @Override
+    public Controller<JoystickState, ?> controller() {
+        return joystick;
     }
 
     @Override

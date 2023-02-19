@@ -3,19 +3,20 @@ package dev.isxander.controlify.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.IoSupplier;
+import org.apache.commons.io.function.IOSupplier;
+import org.quiltmc.json5.JsonReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ControllerType {
     public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown");
@@ -45,27 +46,60 @@ public class ControllerType {
 
         typeMap = new HashMap<>();
         try {
-            List<IoSupplier<InputStream>> dbs = Minecraft.getInstance().getResourceManager().listPacks()
-                    .map(pack -> pack.getResource(PackType.CLIENT_RESOURCES, hidDbLocation))
-                    .filter(Objects::nonNull)
-                    .toList();
+            List<PackResources> packs = Minecraft.getInstance().getResourceManager().listPacks().toList();
 
-            for (var supplier : dbs) {
-                try (var hidDb = supplier.get()) {
-                    var json = GSON.fromJson(new InputStreamReader(hidDb), JsonArray.class);
-                    for (var typeElement : json) {
-                        var typeObject = typeElement.getAsJsonObject();
+            for (var pack : packs) {
+                String packName = pack.packId();
+                IoSupplier<InputStream> isSupplier = pack.getResource(PackType.CLIENT_RESOURCES, hidDbLocation);
+                if (isSupplier == null) continue;
+                Controlify.LOGGER.info("Loading controller HID DB from pack " + packName);
 
-                        ControllerType type = new ControllerType(typeObject.get("name").getAsString(), typeObject.get("identifier").getAsString());
+                try (var hidDb = isSupplier.get()) {
+                    JsonReader reader = JsonReader.json5(new InputStreamReader(hidDb));
 
-                        int vendorId = typeObject.get("vendor").getAsInt();
-                        for (var productIdEntry : typeObject.getAsJsonArray("product")) {
-                            int productId = productIdEntry.getAsInt();
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        String friendlyName = null;
+                        String identifier = null;
+                        int vendorId = -1;
+                        Set<Integer> productIds = new HashSet<>();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String name = reader.nextName();
+
+                            switch (name) {
+                                case "name" -> friendlyName = reader.nextString();
+                                case "identifier" -> identifier = reader.nextString();
+                                case "vendor" -> vendorId = reader.nextInt();
+                                case "product" -> {
+                                    reader.beginArray();
+                                    while (reader.hasNext()) {
+                                        productIds.add(reader.nextInt());
+                                    }
+                                    reader.endArray();
+                                }
+                                default -> {
+                                    Controlify.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
+                                    reader.skipValue();
+                                }
+                            }
+                        }
+                        reader.endObject();
+
+                        if (friendlyName == null || identifier == null || vendorId == -1 || productIds.isEmpty()) {
+                            Controlify.LOGGER.warn("Invalid entry in HID DB. Skipping...");
+                            continue;
+                        }
+
+                        var type = new ControllerType(friendlyName, identifier);
+                        for (int productId : productIds) {
                             typeMap.put(new HIDIdentifier(vendorId, productId), type);
                         }
                     }
+                    reader.endArray();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Controlify.LOGGER.error("Failed to load HID DB from pack " + packName, e);
                 }
             }
         } catch (Exception e) {

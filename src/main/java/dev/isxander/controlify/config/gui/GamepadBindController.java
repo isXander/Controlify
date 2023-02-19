@@ -2,6 +2,7 @@ package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.GamepadBind;
+import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
@@ -56,7 +57,7 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
                 textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
             } else {
                 var bind = control.option().pendingValue();
-                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY(), control.controller);
+                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY());
             }
         }
 
@@ -97,8 +98,9 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
 
             var gamepad = control.controller;
 
-            for (var bind : GamepadBind.values()) {
-                if (bind.held(gamepad.state(), gamepad) && !bind.held(gamepad.prevState(), gamepad)) {
+            for (var bindType : GamepadBinds.values()) {
+                GamepadBind bind = bindType.forGamepad(gamepad);
+                if (bind.held(gamepad.state()) && !bind.held(gamepad.prevState())) {
                     control.option().requestSet(bind);
                     awaitingControllerInput = false;
                     gamepad.consumeButtonState();

@@ -59,7 +59,7 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
                 textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
             } else {
                 var bind = control.option().pendingValue();
-                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY(), control.controller);
+                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY());
             }
         }
 

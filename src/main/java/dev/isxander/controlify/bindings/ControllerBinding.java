@@ -38,11 +38,12 @@ public class ControllerBinding<T extends ControllerState> {
         this(controller, defaultBind, id, null, () -> false);
     }
 
-    public ControllerBinding(Controller<T, ?> controller, GamepadBind defaultBind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
-        this(controller, controller instanceof GamepadController ? (IBind<T>) defaultBind : new EmptyBind<>(), id, override, toggleOverride);
+    @SuppressWarnings("unchecked")
+    public ControllerBinding(Controller<T, ?> controller, GamepadBinds defaultBind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+        this(controller, controller instanceof GamepadController gamepad ? (IBind<T>) defaultBind.forGamepad(gamepad) : new EmptyBind<>(), id, override, toggleOverride);
     }
 
-    public ControllerBinding(Controller<T, ?> controller, GamepadBind defaultBind, ResourceLocation id) {
+    public ControllerBinding(Controller<T, ?> controller, GamepadBinds defaultBind, ResourceLocation id) {
         this(controller, defaultBind, id, null, () -> false);
     }
 
@@ -55,11 +56,11 @@ public class ControllerBinding<T extends ControllerState> {
     }
 
     public boolean held() {
-        return bind.held(controller.state(), controller);
+        return bind.held(controller.state());
     }
 
     public boolean prevHeld() {
-        return bind.held(controller.prevState(), controller);
+        return bind.held(controller.prevState());
     }
 
     public boolean justPressed() {
@@ -106,6 +107,10 @@ public class ControllerBinding<T extends ControllerState> {
 
     public Component description() {
         return description;
+    }
+
+    public boolean unbound() {
+        return bind instanceof EmptyBind;
     }
 
     public KeyMappingOverride override() {

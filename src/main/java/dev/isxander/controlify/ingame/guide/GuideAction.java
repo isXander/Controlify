@@ -4,9 +4,9 @@ import dev.isxander.controlify.bindings.ControllerBinding;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public record GuideAction(ControllerBinding binding, Component name, ActionLocation location,
+public record GuideAction(ControllerBinding<?> binding, Component name, ActionLocation location,
                           ActionPriority priority) implements Comparable<GuideAction> {
-    public GuideAction(ControllerBinding binding, Component name, ActionLocation location) {
+    public GuideAction(ControllerBinding<?> binding, Component name, ActionLocation location) {
         this(binding, name, location, ActionPriority.NORMAL);
     }
 

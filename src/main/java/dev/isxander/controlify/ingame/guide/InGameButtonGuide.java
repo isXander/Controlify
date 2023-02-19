@@ -1,10 +1,12 @@
 package dev.isxander.controlify.ingame.guide;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.ControllerBinding;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
@@ -21,7 +23,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     private final LocalPlayer player;
     private final Minecraft minecraft = Minecraft.getInstance();
 
-    private final List<ButtonActionSupplier> guidePredicates = new ArrayList<>();
+    private final List<GuideActionSupplier> guidePredicates = new ArrayList<>();
 
     private final List<GuideAction> leftGuides = new ArrayList<>();
     private final List<GuideAction> rightGuides = new ArrayList<>();
@@ -31,7 +33,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         this.player = localPlayer;
 
         registerDefaultActions();
-        ControlifyEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(this);
+        ControlifyEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(controller.bindings(), this);
     }
 
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
@@ -49,7 +51,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
                 int x = 4;
                 int y = 3 + offset;
 
-                bind.draw(poseStack, x, y, controller);
+                bind.draw(poseStack, x, y);
 
                 int textX = x + drawSize.width() + 2;
                 int textY = y - minecraft.font.lineHeight / 2;
@@ -71,7 +73,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
                 int x = width - 4 - drawSize.width();
                 int y = 3 + offset;
 
-                bind.draw(poseStack, x, y, controller);
+                bind.draw(poseStack, x, y);
 
                 int textX = x - minecraft.font.width(action.name()) - 2;
                 int textY = y - minecraft.font.lineHeight / 2;
@@ -92,7 +94,11 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
 
         for (var actionPredicate : guidePredicates) {
             var action = actionPredicate.supply(Minecraft.getInstance(), player, minecraft.level, calculateHitResult(), controller);
-            if (action.isPresent()) {
+            if (action.isEmpty())
+                continue;
+
+            GuideAction guideAction = action.get();
+            if (!guideAction.binding().unbound()) {
                 if (action.get().location() == ActionLocation.LEFT)
                     leftGuides.add(action.get());
                 else
@@ -105,94 +111,97 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     }
 
     @Override
-    public void registerGuideAction(ButtonActionSupplier supplier) {
-        guidePredicates.add(supplier);
+    public void registerGuideAction(ControllerBinding<?> binding, ActionLocation location, GuideActionNameSupplier supplier) {
+        guidePredicates.add(new GuideActionSupplier(binding, location, supplier));
     }
 
     private void registerDefaultActions() {
         var options = Minecraft.getInstance().options;
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().JUMP, ActionLocation.LEFT, (client, player, level, hitResult, controller) -> {
             if (player.getAbilities().flying)
-                return Optional.of(new GuideAction(controller.bindings().JUMP, Component.translatable("controlify.guide.fly_up"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("controlify.guide.fly_up"));
 
             if (player.isOnGround())
-                return Optional.of(new GuideAction(controller.bindings().JUMP, Component.translatable("key.jump"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("key.jump"));
 
             if (player.isInWater())
-                return Optional.of(new GuideAction(controller.bindings().JUMP, Component.translatable("controlify.guide.swim_up"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("controlify.guide.swim_up"));
 
             if (!player.isOnGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
                 var chestStack = player.getItemBySlot(EquipmentSlot.CHEST);
                 if (chestStack.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(chestStack))
-                    return Optional.of(new GuideAction(controller.bindings().JUMP, Component.translatable("controlify.guide.start_elytra"), ActionLocation.LEFT));
+                    return Optional.of(Component.translatable("controlify.guide.start_elytra"));
             }
 
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().SNEAK, ActionLocation.LEFT, (client, player, level, hitResult, controller) -> {
             if (player.getVehicle() != null)
-                return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.dismount"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("controlify.guide.dismount"));
             if (player.getAbilities().flying)
-                return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.fly_down"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("controlify.guide.fly_down"));
             if (player.isInWater())
-                return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.swim_down"), ActionLocation.LEFT));
+                return Optional.of(Component.translatable("controlify.guide.swim_down"));
             if (controller.config().toggleSneak) {
                 if (player.input.shiftKeyDown)
-                    return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.stop_sneaking"), ActionLocation.LEFT));
+                    return Optional.of(Component.translatable("controlify.guide.stop_sneaking"));
                 else
-                    return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.start_sneaking"), ActionLocation.LEFT));
+                    return Optional.of(Component.translatable("controlify.guide.start_sneaking"));
             } else {
                 if (!player.input.shiftKeyDown)
-                    return Optional.of(new GuideAction(controller.bindings().SNEAK, Component.translatable("controlify.guide.sneak"), ActionLocation.LEFT));
+                    return Optional.of(Component.translatable("controlify.guide.sneak"));
             }
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().SPRINT, ActionLocation.LEFT, (client, player, level, hitResult, controller) -> {
             if (!options.keySprint.isDown()) {
                 if (!player.input.getMoveVector().equals(Vec2.ZERO)) {
                     if (player.isUnderWater())
-                        return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.start_swimming"), ActionLocation.LEFT));
-                    return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.start_sprinting"), ActionLocation.LEFT));
+                        return Optional.of(Component.translatable("controlify.guide.start_swimming"));
+                    return Optional.of(Component.translatable("controlify.guide.start_sprinting"));
                 }
             } else if (controller.config().toggleSprint) {
                 if (player.isUnderWater())
-                    return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.stop_swimming"), ActionLocation.LEFT));
-                return Optional.of(new GuideAction(controller.bindings().SPRINT, Component.translatable("controlify.guide.stop_sprinting"), ActionLocation.LEFT));
+                    return Optional.of(Component.translatable("controlify.guide.stop_swimming"));
+                return Optional.of(Component.translatable("controlify.guide.stop_sprinting"));
             }
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().INVENTORY, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (client.screen == null)
-                return Optional.of(new GuideAction(controller.bindings().INVENTORY, Component.translatable("controlify.guide.inventory"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.inventory"));
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().ATTACK, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (hitResult.getType() == HitResult.Type.ENTITY)
-                return Optional.of(new GuideAction(controller.bindings().ATTACK, Component.translatable("controlify.guide.attack"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.attack"));
             if (hitResult.getType() == HitResult.Type.BLOCK)
-                return Optional.of(new GuideAction(controller.bindings().ATTACK, Component.translatable("controlify.guide.break"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.break"));
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().USE, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (hitResult.getType() == HitResult.Type.ENTITY)
-                return Optional.of(new GuideAction(controller.bindings().USE, Component.translatable("controlify.guide.interact"), ActionLocation.RIGHT));
+                if (player.isSpectator())
+                    return Optional.of(Component.translatable("controlify.guide.spectate"));
+                else
+                    return Optional.of(Component.translatable("controlify.guide.interact"));
             if (hitResult.getType() == HitResult.Type.BLOCK || player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
-                return Optional.of(new GuideAction(controller.bindings().USE, Component.translatable("controlify.guide.use"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.use"));
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().DROP, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
-                return Optional.of(new GuideAction(controller.bindings().DROP, Component.translatable("controlify.guide.drop"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.drop"));
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().SWAP_HANDS, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
-                return Optional.of(new GuideAction(controller.bindings().SWAP_HANDS, Component.translatable("controlify.guide.swap_hands"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.swap_hands"));
             return Optional.empty();
         });
-        registerGuideAction((client, player, level, hitResult, controller) -> {
+        registerGuideAction(controller.bindings().PICK_BLOCK, ActionLocation.RIGHT, (client, player, level, hitResult, controller) -> {
             if (hitResult.getType() == HitResult.Type.BLOCK && player.isCreative())
-                return Optional.of(new GuideAction(controller.bindings().PICK_BLOCK, Component.translatable("controlify.guide.pick_block"), ActionLocation.RIGHT));
+                return Optional.of(Component.translatable("controlify.guide.pick_block"));
             return Optional.empty();
         });
     }
@@ -223,4 +232,10 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         }
     }
 
+    private record GuideActionSupplier(ControllerBinding<?> binding, ActionLocation location, GuideActionNameSupplier nameSupplier) {
+        public Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller<?, ?> controller) {
+            return nameSupplier.supply(client, player, level, hitResult, controller)
+                    .map(name -> new GuideAction(binding, name, location));
+        }
+    }
 }
