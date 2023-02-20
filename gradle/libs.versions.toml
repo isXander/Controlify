@@ -16,6 +16,7 @@ yet_another_config_lib = "2.3.0+beta.2+update.1.19.4-SNAPSHOT"
 mod_menu = "6.1.0-alpha.1"
 hid4java = "0.7.0"
 quilt_json5 = "1.0.3"
+sodium = "0.4.10+build.209"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -27,6 +28,7 @@ yet_another_config_lib = { module = "dev.isxander:yet-another-config-lib", versi
 mod_menu = { module = "com.terraformersmc:modmenu", version.ref = "mod_menu" }
 hid4java = { module = "org.hid4java:hid4java", version.ref = "hid4java" }
 quilt_json5 = { module = "org.quiltmc:quilt-json5", version.ref = "quilt_json5" }
+sodium = { module = "me.jellysquid.mods:sodium-fabric", version.ref = "sodium" }
 
 [plugins]
 loom = { id = "fabric-loom", version.ref = "loom" }

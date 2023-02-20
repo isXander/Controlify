@@ -1,4 +1,4 @@
-package dev.isxander.controlify.screenop.compat.yacl;
+package dev.isxander.controlify.compatibility.yacl;
 
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ScreenProcessor;

@@ -115,8 +115,8 @@
   "controlify.binding.controlify.gui_navi_up": "GUI Navi Up",
   "controlify.binding.controlify.gui_navi_left": "GUI Navi Left",
   "controlify.binding.controlify.gui_navi_right": "GUI Navi Right",
-  "controlify.binding.controlify.yacl_cycle_opt_forward": "YACL Cycle Option Forward",
-  "controlify.binding.controlify.yacl_cycle_opt_backward": "YACL Cycle Option Backward",
+  "controlify.binding.controlify.cycle_opt_forward": "Cycle Option Forward",
+  "controlify.binding.controlify.cycle_opt_backward": "Cycle Option Backward",
 
   "controlify.guide.inventory": "Open Inventory",
   "controlify.guide.swim_up": "Swim Up",

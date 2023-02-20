@@ -28,6 +28,7 @@ repositories {
         }
     }
     maven("https://jitpack.io")
+    maven("https://maven.flashyreese.me/snapshots")
 }
 
 loom {
@@ -52,11 +53,16 @@ dependencies {
     annotationProcessor(libs.mixin.extras)
     include(libs.mixin.extras)
 
+    // used to identify controller connections
     implementation(libs.hid4java)
     include(libs.hid4java)
 
+    // used to parse hiddb.json5
     implementation(libs.quilt.json5)
     include(libs.quilt.json5)
+
+    // sodium compat
+    modImplementation(libs.sodium)
 }
 
 tasks {

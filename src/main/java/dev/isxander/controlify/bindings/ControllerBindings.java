@@ -38,7 +38,7 @@ public class ControllerBindings<T extends ControllerState> {
             VMOUSE_ESCAPE, VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
-            YACL_CYCLE_OPT_FORWARD, YACL_CYCLE_OPT_BACKWARD;
+            CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
     private final Map<ResourceLocation, ControllerBinding<T>> registry = new LinkedHashMap<>();
 
@@ -92,8 +92,8 @@ public class ControllerBindings<T extends ControllerState> {
         register(GUI_NAVI_DOWN = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "gui_navi_down")));
         register(GUI_NAVI_LEFT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_LEFT, new ResourceLocation("controlify", "gui_navi_left")));
         register(GUI_NAVI_RIGHT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "gui_navi_right")));
-        register(YACL_CYCLE_OPT_FORWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_RIGHT, new ResourceLocation("controlify", "yacl_cycle_opt_forward")));
-        register(YACL_CYCLE_OPT_BACKWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_LEFT, new ResourceLocation("controlify", "yacl_cycle_opt_backward")));
+        register(CYCLE_OPT_FORWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_RIGHT, new ResourceLocation("controlify", "cycle_opt_forward")));
+        register(CYCLE_OPT_BACKWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_LEFT, new ResourceLocation("controlify", "cycle_opt_backward")));
 
         ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
 

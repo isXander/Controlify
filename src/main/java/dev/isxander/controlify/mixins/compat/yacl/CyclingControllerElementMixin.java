@@ -1,8 +1,8 @@
-package dev.isxander.controlify.mixins.feature.screenop.yacl;
+package dev.isxander.controlify.mixins.compat.yacl;
 
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.compat.yacl.CyclingControllerElementComponentProcessor;
+import dev.isxander.controlify.compatibility.yacl.CyclingControllerElementComponentProcessor;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingControllerElement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
