@@ -3,8 +3,9 @@ package dev.isxander.controlify.controller.joystick;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.controller.AbstractController;
-import dev.isxander.controlify.controller.joystick.mapping.DataJoystickMapping;
+import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import org.hid4java.HidDevice;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -23,7 +24,7 @@ public class JoystickController extends AbstractController<JoystickState, Joysti
         this.buttonCount = GLFW.glfwGetJoystickButtons(joystickId).capacity();
         this.hatCount = GLFW.glfwGetJoystickHats(joystickId).capacity();
 
-        this.mapping = Objects.requireNonNull(DataJoystickMapping.fromType(type()));
+        this.mapping = Objects.requireNonNull(RPJoystickMapping.fromType(type()));
         
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);
@@ -47,6 +48,11 @@ public class JoystickController extends AbstractController<JoystickState, Joysti
 
     public JoystickMapping mapping() {
         return mapping;
+    }
+
+    @Override
+    public boolean canBeUsed() {
+        return !(mapping() instanceof UnmappedJoystickMapping);
     }
 
     public int axisCount() {

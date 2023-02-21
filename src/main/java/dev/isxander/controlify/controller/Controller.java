@@ -34,6 +34,10 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     void updateState();
 
+    default boolean canBeUsed() {
+        return true;
+    }
+
     Map<Integer, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
     static Controller<?, ?> createOrGet(int joystickId, @Nullable HidDevice device) {

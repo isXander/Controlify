@@ -56,7 +56,11 @@ public class ControllerType {
             e.printStackTrace();
         }
 
-        return typeMap.getOrDefault(hid, UNKNOWN);
+        var type = typeMap.getOrDefault(hid, UNKNOWN);
+        if (type == UNKNOWN) {
+            Controlify.LOGGER.warn("Controller type unknown! Please report the make and model of your controller and give the following details: " + hid);
+        }
+        return type;
     }
 
     private static void readControllerIdFiles(JsonReader reader) throws IOException {

@@ -15,17 +15,15 @@ import net.minecraft.world.phys.Vec2;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-public class DataJoystickMapping implements JoystickMapping {
+public class RPJoystickMapping implements JoystickMapping {
     private static final Gson gson = new Gson();
 
     private final Map<Integer, AxisMapping> axisMappings;
     private final Map<Integer, ButtonMapping> buttonMappings;
     private final Map<Integer, HatMapping> hatMappings;
 
-    public DataJoystickMapping(JsonObject object, ControllerType type) {
+    public RPJoystickMapping(JsonObject object, ControllerType type) {
         axisMappings = new HashMap<>();
         object.getAsJsonArray("axes").forEach(element -> {
             var axis = element.getAsJsonObject();
@@ -106,7 +104,7 @@ public class DataJoystickMapping implements JoystickMapping {
         }
 
         try (var reader = resource.get().openAsReader()) {
-            return new DataJoystickMapping(gson.fromJson(reader, JsonObject.class), type);
+            return new RPJoystickMapping(gson.fromJson(reader, JsonObject.class), type);
         } catch (Exception e) {
             Controlify.LOGGER.error("Failed to load joystick mapping for controller: '" + type.identifier() + "'", e);
             return UnmappedJoystickMapping.INSTANCE;
