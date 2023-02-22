@@ -25,6 +25,7 @@
   "mixins": [
     "controlify.mixins.json"
   ],
+  "icon": "icon.png",
   "accessWidener": "controlify.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.0",
