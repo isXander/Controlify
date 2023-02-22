@@ -6,26 +6,15 @@ import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import org.spongepowered.asm.mixin.*;
 
 @Pseudo
-@Mixin(targets = "me.jellysquid.mods.sodium.client.gui.options.control.CyclingControl$CyclingControlElement")
-public abstract class CycleControlElementMixin<T extends Enum<T>> extends ControlElementMixin<T> implements ComponentProcessorProvider {
-    @Shadow private int currentIndex;
-    @Final @Shadow private T[] allowedValues;
+@Mixin(targets = "me.jellysquid.mods.sodium.client.gui.options.control.CyclingControl$CyclingControlElement", remap = false)
+public abstract class CycleControlElementMixin implements ComponentProcessorProvider {
+    @Shadow public abstract void cycleControl(boolean reverse);
 
     @Unique private final ComponentProcessor controlify$componentProcessor
-            = new CycleControlProcessor(this::cycle);
+            = new CycleControlProcessor(this::cycleControl);
 
     @Override
     public ComponentProcessor componentProcessor() {
         return controlify$componentProcessor;
-    }
-
-    private void cycle(boolean backwards) {
-        if (backwards) {
-            this.currentIndex = (this.currentIndex - 1 + this.allowedValues.length) % this.allowedValues.length;
-        } else {
-            this.currentIndex = (this.option.getValue().ordinal() + 1) % this.allowedValues.length;
-        }
-        this.option.setValue(this.allowedValues[this.currentIndex]);
-        this.playClickSound();
     }
 }

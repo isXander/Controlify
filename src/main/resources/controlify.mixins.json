@@ -4,15 +4,12 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "compat.sodium.ControlElementMixin",
     "compat.sodium.CycleControlElementMixin",
-    "compat.sodium.FlatButtonWidgetMixin",
     "compat.sodium.SliderControlElementMixin",
     "compat.sodium.TickBoxControlElementMixin",
     "core.GLXMixin"
   ],
   "client": [
-    "compat.sodium.AbstractWidgetMixin",
     "compat.sodium.SodiumOptionsGUIAccessor",
     "compat.sodium.SodiumOptionsGUIMixin",
     "core.ClientPacketListenerMixin",

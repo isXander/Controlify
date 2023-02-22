@@ -43,7 +43,7 @@ public class JoystickController extends AbstractController<JoystickState, Joysti
     @Override
     public void updateState() {
         prevState = state;
-        state = JoystickState.fromJoystick(this);
+        state = JoystickState.fromJoystick(this, joystickId);
     }
 
     public JoystickMapping mapping() {

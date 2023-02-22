@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class AbstractController<S extends ControllerState, C extends ControllerConfig> implements Controller<S, C> {
-    private final int joystickId;
+    protected final int joystickId;
     protected String name;
     private final String uid;
     private final String guid;
@@ -45,11 +45,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         setName(name);
 
         this.bindings = new ControllerBindings<>(this);
-    }
-
-    @Override
-    public int joystickId() {
-        return this.joystickId;
     }
 
     public String name() {

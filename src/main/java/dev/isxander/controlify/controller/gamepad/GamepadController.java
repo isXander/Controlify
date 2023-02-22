@@ -49,7 +49,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
     GLFWGamepadState getGamepadState() {
         GLFWGamepadState state = GLFWGamepadState.create();
-        GLFW.glfwGetGamepadState(joystickId(), state);
+        GLFW.glfwGetGamepadState(joystickId, state);
         return state;
     }
 

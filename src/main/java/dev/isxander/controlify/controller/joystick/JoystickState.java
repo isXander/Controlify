@@ -24,7 +24,7 @@ public class JoystickState implements ControllerState {
     private final List<Boolean> buttons;
     private final List<HatState> hats;
 
-    private JoystickState(JoystickMapping mapping, List<Float> axes, List<Float> rawAxes, List<Boolean> buttons, List<HatState> hats) {
+    protected JoystickState(JoystickMapping mapping, List<Float> axes, List<Float> rawAxes, List<Boolean> buttons, List<HatState> hats) {
         this.mapping = mapping;
         this.axes = axes;
         this.rawAxes = rawAxes;
@@ -58,8 +58,8 @@ public class JoystickState implements ControllerState {
                 || hats().stream().anyMatch(hat -> hat != HatState.CENTERED);
     }
 
-    public static JoystickState fromJoystick(JoystickController joystick) {
-        FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystick.joystickId());
+    public static JoystickState fromJoystick(JoystickController joystick, int joystickId) {
+        FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystickId);
         List<Float> axes = new ArrayList<>();
         List<Float> rawAxes = new ArrayList<>();
         if (axesBuffer != null) {
@@ -76,7 +76,7 @@ public class JoystickState implements ControllerState {
             }
         }
 
-        ByteBuffer buttonBuffer = GLFW.glfwGetJoystickButtons(joystick.joystickId());
+        ByteBuffer buttonBuffer = GLFW.glfwGetJoystickButtons(joystickId);
         List<Boolean> buttons = new ArrayList<>();
         if (buttonBuffer != null) {
             while (buttonBuffer.hasRemaining()) {
@@ -84,7 +84,7 @@ public class JoystickState implements ControllerState {
             }
         }
 
-        ByteBuffer hatBuffer = GLFW.glfwGetJoystickHats(joystick.joystickId());
+        ByteBuffer hatBuffer = GLFW.glfwGetJoystickHats(joystickId);
         List<JoystickState.HatState> hats = new ArrayList<>();
         if (hatBuffer != null) {
             while (hatBuffer.hasRemaining()) {

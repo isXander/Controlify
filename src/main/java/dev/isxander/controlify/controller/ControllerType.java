@@ -10,27 +10,11 @@ import org.quiltmc.json5.JsonReader;
 import java.io.IOException;
 import java.util.*;
 
-public class ControllerType {
+public record ControllerType(String friendlyName, String identifier) {
     public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown");
 
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
-
-    private final String friendlyName;
-    private final String identifier;
-
-    private ControllerType(String friendlyName, String identifier) {
-        this.friendlyName = friendlyName;
-        this.identifier = identifier;
-    }
-
-    public String friendlyName() {
-        return friendlyName;
-    }
-
-    public String identifier() {
-        return identifier;
-    }
 
     public static ControllerType getTypeForHID(HIDIdentifier hid) {
         if (typeMap != null) return typeMap.getOrDefault(hid, UNKNOWN);

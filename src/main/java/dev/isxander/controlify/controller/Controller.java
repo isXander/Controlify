@@ -15,7 +15,6 @@ import java.util.Map;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
     String uid();
-    int joystickId();
     String guid();
 
     ControllerBindings<S> bindings();
@@ -73,11 +72,6 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public String uid() {
             return "NONE";
-        }
-
-        @Override
-        public int joystickId() {
-            return -1;
         }
 
         @Override
