@@ -67,6 +67,10 @@ public class Controlify {
             }
         }
 
+        if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
+            this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+        }
+
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
