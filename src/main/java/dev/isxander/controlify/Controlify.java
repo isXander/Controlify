@@ -50,57 +50,45 @@ public class Controlify {
         config().load();
 
         controllerHIDService = new ControllerHIDService();
+        controllerHIDService.start();
 
         // find already connected controllers
-        for (int i = 0; i <= GLFW.GLFW_JOYSTICK_LAST; i++) {
-            if (GLFW.glfwJoystickPresent(i)) {
-                int jid = i;
-                controllerHIDService.awaitNextController(device -> {
-                    var controller = Controller.createOrGet(jid, device);
-                    LOGGER.info("Controller found: " + controller.name());
+        for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
+            if (GLFW.glfwJoystickPresent(jid)) {
+                var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                LOGGER.info("Controller found: " + controller.name());
 
-                    if (config().currentControllerUid().equals(controller.uid()))
-                        setCurrentController(controller);
+                if (config().currentControllerUid().equals(controller.uid()))
+                    setCurrentController(controller);
 
-                    if (!config().loadOrCreateControllerData(controller)) {
-                        calibrationQueue.add(controller);
-                    }
-                });
+                if (!config().loadOrCreateControllerData(controller)) {
+                    calibrationQueue.add(controller);
+                }
             }
         }
-
-        controllerHIDService.setOnQueueEmptyEvent(() -> {
-            if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
-                this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
-            }
-        });
-
-        controllerHIDService.start();
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
-                controllerHIDService.awaitNextController(device -> {
-                    var firstController = Controller.CONTROLLERS.values().isEmpty();
-                    var controller = Controller.createOrGet(jid, device);
-                    LOGGER.info("Controller connected: " + controller.name());
+                var firstController = Controller.CONTROLLERS.values().isEmpty();
+                var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                LOGGER.info("Controller connected: " + controller.name());
 
-                    if (firstController) {
-                        this.setCurrentController(controller);
-                        this.setCurrentInputMode(InputMode.CONTROLLER);
-                    }
+                if (firstController) {
+                    this.setCurrentController(controller);
+                    this.setCurrentInputMode(InputMode.CONTROLLER);
+                }
 
-                    if (!config().loadOrCreateControllerData(currentController)) {
-                        calibrationQueue.add(currentController);
-                    }
+                if (!config().loadOrCreateControllerData(currentController)) {
+                    calibrationQueue.add(currentController);
+                }
 
-                    minecraft.getToasts().addToast(SystemToast.multiline(
-                            minecraft,
-                            SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                            Component.translatable("controlify.toast.controller_connected.title"),
-                            Component.translatable("controlify.toast.controller_connected.description", currentController.name())
-                    ));
-                });
+                minecraft.getToasts().addToast(SystemToast.multiline(
+                        minecraft,
+                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                        Component.translatable("controlify.toast.controller_connected.title"),
+                        Component.translatable("controlify.toast.controller_connected.description", currentController.name())
+                ));
             } else if (event == GLFW.GLFW_DISCONNECTED) {
                 var controller = Controller.CONTROLLERS.remove(jid);
                 if (controller != null) {

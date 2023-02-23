@@ -4,10 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
-import org.hid4java.HidDevice;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -39,18 +38,18 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     Map<Integer, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
-    static Controller<?, ?> createOrGet(int joystickId, @Nullable HidDevice device) {
+    static Controller<?, ?> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         if (CONTROLLERS.containsKey(joystickId)) {
             return CONTROLLERS.get(joystickId);
         }
 
         if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {
-            GamepadController controller = new GamepadController(joystickId, device);
+            GamepadController controller = new GamepadController(joystickId, hidInfo);
             CONTROLLERS.put(joystickId, controller);
             return controller;
         }
 
-        JoystickController controller = new JoystickController(joystickId, device);
+        JoystickController controller = new JoystickController(joystickId, hidInfo);
         CONTROLLERS.put(joystickId, controller);
         return controller;
     }

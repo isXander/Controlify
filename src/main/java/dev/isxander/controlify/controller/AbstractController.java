@@ -5,9 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.hid.HIDIdentifier;
-import org.hid4java.HidDevice;
-import org.jetbrains.annotations.Nullable;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -23,7 +21,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final ControllerBindings<S> bindings;
     protected C config, defaultConfig;
 
-    public AbstractController(int joystickId, @Nullable HidDevice hidDevice) {
+    public AbstractController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         if (joystickId > GLFW.GLFW_JOYSTICK_LAST || joystickId < 0)
             throw new IllegalArgumentException("Joystick ID " + joystickId + " is out of range!");
         if (!GLFW.glfwJoystickPresent(joystickId))
@@ -32,13 +30,12 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
 
-        if (hidDevice != null) {
-            this.uid = UUID.nameUUIDFromBytes(hidDevice.getPath().getBytes()).toString();
-            this.type = ControllerType.getTypeForHID(new HIDIdentifier(hidDevice.getVendorId(), hidDevice.getProductId()));
+        if (hidInfo.path().isPresent()) {
+            this.uid = UUID.nameUUIDFromBytes(hidInfo.path().get().getBytes()).toString();
         } else {
             this.uid = "unidentified-guid-" + UUID.nameUUIDFromBytes(this.guid.getBytes());
-            this.type = ControllerType.UNKNOWN;
         }
+        this.type = hidInfo.type();
 
         var joystickName = GLFW.glfwGetJoystickName(joystickId);
         String name = type != ControllerType.UNKNOWN || joystickName == null ? type.friendlyName() : joystickName;

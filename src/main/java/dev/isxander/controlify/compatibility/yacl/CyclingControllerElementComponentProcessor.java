@@ -7,7 +7,6 @@ import dev.isxander.yacl.gui.controllers.cycling.CyclingControllerElement;
 
 public class CyclingControllerElementComponentProcessor implements ComponentProcessor {
     private final CyclingControllerElement cyclingController;
-    private int lastInput = 0;
     private boolean prevLeft, prevRight;
 
 
