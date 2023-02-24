@@ -3,7 +3,7 @@ name: Gradle CI
 on:
   push:
     branches:
-      - '*'
+      - '**'
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
@@ -12,7 +12,7 @@ on:
       - 'changelogs/**'
   pull_request:
     branches:
-      - '*'
+      - '**'
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
