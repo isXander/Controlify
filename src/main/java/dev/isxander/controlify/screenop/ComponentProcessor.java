@@ -2,7 +2,7 @@ package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.controller.Controller;
 
-public interface ComponentProcessor {
+public interface ComponentProcessor extends ComponentProcessorProvider {
     ComponentProcessor EMPTY = new ComponentProcessor(){};
 
     default boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?, ?> controller) {
@@ -14,5 +14,10 @@ public interface ComponentProcessor {
     }
 
     default void onFocusGained(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    }
+
+    @Override
+    default ComponentProcessor componentProcessor() {
+        return this;
     }
 }

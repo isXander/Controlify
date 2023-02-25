@@ -2,12 +2,9 @@ package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.*;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.yacl.api.Controller;
 import dev.isxander.yacl.api.Option;
@@ -18,8 +15,6 @@ import dev.isxander.yacl.gui.controllers.ControllerWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.ArrayList;
 
 public class JoystickBindController implements Controller<IBind<JoystickState>> {
     private final Option<IBind<JoystickState>> option;
@@ -45,7 +40,7 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<JoystickBindController> implements ComponentProcessorProvider, ComponentProcessor {
+    public static class BindButtonWidget extends ControllerWidget<JoystickBindController> implements ComponentProcessor {
         private boolean awaitingControllerInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
@@ -81,11 +76,6 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
             }
 
             return false;
-        }
-
-        @Override
-        public ComponentProcessor componentProcessor() {
-            return this;
         }
 
         @Override

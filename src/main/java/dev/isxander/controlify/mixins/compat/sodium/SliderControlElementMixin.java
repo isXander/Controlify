@@ -1,6 +1,5 @@
 package dev.isxander.controlify.mixins.compat.sodium;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.compatibility.sodium.SliderControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
@@ -8,9 +7,7 @@ import me.jellysquid.mods.sodium.client.gui.options.Option;
 import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
 import me.jellysquid.mods.sodium.client.util.Dim2i;
 import net.minecraft.util.Mth;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
 
 @Pseudo
 @Mixin(targets = "me.jellysquid.mods.sodium.client.gui.options.control.SliderControl$Button", remap = false)

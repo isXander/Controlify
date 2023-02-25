@@ -69,6 +69,10 @@ dependencies {
 
     // sodium compat
     modImplementation(libs.sodium)
+    // iris compat
+    modImplementation(files("libs/iris-5d0efad3.jar"))
+    modRuntimeOnly("org.anarres:jcpp:1.4.14")
+    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
 }
 
 tasks {

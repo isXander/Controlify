@@ -5,15 +5,19 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.event.ControlifyEvents;
+import dev.isxander.controlify.event.ControlifyClientEvents;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 public class ControllerBindings<T extends ControllerState> {
+    private static final Map<ResourceLocation, Function<ControllerBindings<?>, ControllerBinding<?>>> CUSTOM_BINDS = new LinkedHashMap<>();
+
     public final ControllerBinding<T>
             WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
             LOOK_UP, LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT,
@@ -41,7 +45,6 @@ public class ControllerBindings<T extends ControllerState> {
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
     private final Map<ResourceLocation, ControllerBinding<T>> registry = new LinkedHashMap<>();
-
     private final Controller<T, ?> controller;
 
     public ControllerBindings(Controller<T, ?> controller) {
@@ -95,15 +98,25 @@ public class ControllerBindings<T extends ControllerState> {
         register(CYCLE_OPT_FORWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_RIGHT, new ResourceLocation("controlify", "cycle_opt_forward")));
         register(CYCLE_OPT_BACKWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_LEFT, new ResourceLocation("controlify", "cycle_opt_backward")));
 
-        ControlifyEvents.CONTROLLER_BIND_REGISTRY.invoker().onRegisterControllerBinds(this, controller);
+        for (var constructor : CUSTOM_BINDS.values()) {
+            register((ControllerBinding<T>) constructor.apply(this));
+        }
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
-        ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
+        ControlifyClientEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
+        ControlifyClientEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
-    public BindingSupplier<T> register(ControllerBinding<T> binding) {
+    public ControllerBinding<T> register(ControllerBinding<T> binding) {
         registry.put(binding.id(), binding);
-        return controller -> controller.bindings().get(binding.id());
+        return binding;
+    }
+
+    private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id) {
+        return new ControllerBinding<>(controller, bind, id);
+    }
+
+    private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+        return new ControllerBinding<>(controller, bind, id, override, toggleOverride);
     }
 
     public ControllerBinding<T> get(ResourceLocation id) {
@@ -164,5 +177,15 @@ public class ControllerBindings<T extends ControllerState> {
             }
             if (binding.justPressed()) KeyMapping.click(vanillaKeyCode);
         }
+    }
+
+    public static BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
+        CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
+        return controller -> controller.bindings().get(id);
+    }
+
+    public static BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+        CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
+        return controller -> controller.bindings().get(id);
     }
 }

@@ -1,18 +1,18 @@
-package dev.isxander.controlify.compatibility.sodium;
+package dev.isxander.controlify.compatibility.iris;
 
 import dev.isxander.controlify.screenop.compat.AbstractSliderComponentProcessor;
 
 import java.util.function.Consumer;
 
-public class SliderControlProcessor extends AbstractSliderComponentProcessor {
+public class BaseOptionElementComponentProcessor extends AbstractSliderComponentProcessor {
     private final Consumer<Boolean> cycleMethod;
 
-    public SliderControlProcessor(Consumer<Boolean> cycleMethod) {
+    public BaseOptionElementComponentProcessor(Consumer<Boolean> cycleMethod) {
         this.cycleMethod = cycleMethod;
     }
 
     @Override
     protected void incrementSlider(boolean reverse) {
-        cycleMethod.accept(reverse);
+        this.cycleMethod.accept(reverse);
     }
 }

@@ -10,7 +10,6 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
-import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
@@ -24,7 +23,6 @@ import dev.isxander.yacl.gui.controllers.string.StringController;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.AlertScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 

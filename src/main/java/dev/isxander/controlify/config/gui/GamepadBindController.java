@@ -8,7 +8,6 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.yacl.api.Controller;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.utils.Dimension;
@@ -43,7 +42,7 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<GamepadBindController> implements ComponentProcessorProvider, ComponentProcessor {
+    public static class BindButtonWidget extends ControllerWidget<GamepadBindController> implements ComponentProcessor {
         private boolean awaitingControllerInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
@@ -79,11 +78,6 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
             }
 
             return false;
-        }
-
-        @Override
-        public ComponentProcessor componentProcessor() {
-            return this;
         }
 
         @Override

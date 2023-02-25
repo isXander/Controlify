@@ -4,6 +4,7 @@
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "compat.iris.BaseOptionElementWidgetMixin",
     "compat.sodium.CycleControlElementMixin",
     "compat.sodium.SliderControlElementMixin",
     "compat.sodium.TickBoxControlElementMixin",

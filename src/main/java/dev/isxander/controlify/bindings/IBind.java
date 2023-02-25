@@ -2,7 +2,6 @@ package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.JoystickController;

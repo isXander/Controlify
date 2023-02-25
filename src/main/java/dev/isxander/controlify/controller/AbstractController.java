@@ -56,7 +56,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     protected void setName(String name) {
         String uniqueName = name;
         int i = 0;
-        while (Controller.CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equalsIgnoreCase)) {
+        while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equalsIgnoreCase)) {
             uniqueName = name + " (" + i++ + ")";
         }
         this.name = uniqueName;

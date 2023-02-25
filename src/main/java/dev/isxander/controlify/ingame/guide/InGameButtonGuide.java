@@ -3,7 +3,7 @@ package dev.isxander.controlify.ingame.guide;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.ControllerBinding;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.event.ControlifyEvents;
+import dev.isxander.controlify.event.ControlifyClientEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -33,7 +33,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         this.player = localPlayer;
 
         registerDefaultActions();
-        ControlifyEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(controller.bindings(), this);
+        ControlifyClientEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(controller.bindings(), this);
     }
 
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {

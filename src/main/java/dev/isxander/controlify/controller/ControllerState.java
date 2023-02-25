@@ -1,7 +1,6 @@
 package dev.isxander.controlify.controller;
 
 import java.util.List;
-import java.util.Set;
 
 public interface ControllerState {
     List<Float> axes();

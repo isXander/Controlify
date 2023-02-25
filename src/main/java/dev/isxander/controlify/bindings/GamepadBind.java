@@ -5,7 +5,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
-import dev.isxander.controlify.controller.gamepad.GamepadConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.DrawSize;

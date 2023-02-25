@@ -6,7 +6,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 public final class GamepadState implements ControllerState {
     public static final GamepadState EMPTY = new GamepadState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY);

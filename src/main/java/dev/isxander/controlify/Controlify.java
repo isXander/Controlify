@@ -8,7 +8,7 @@ import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.event.ControlifyEvents;
+import dev.isxander.controlify.event.ControlifyClientEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
@@ -175,12 +175,13 @@ public class Controlify {
 
         if (client.screen != null) {
             ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
-        } else {
+        }
+        if (client.level != null) {
             this.inGameInputHandler().inputTick();
         }
         this.virtualMouseHandler().handleControllerInput(currentController);
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
+        ControlifyClientEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
     }
 
     public ControlifyConfig config() {
@@ -257,7 +258,7 @@ public class Controlify {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
-        ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
+        ControlifyClientEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {
