@@ -63,7 +63,7 @@ jobs:
       - name: Run auto test client
         uses: modmuss50/xvfb-action@v1
         with:
-          run: ./gradlew runTestmod --stracktrace --warning-mode=fail --no-daemon
+          run: ./gradlew runTestmod --stacktrace --warning-mode=fail --no-daemon
       - name: Upload test screenshots
         uses: actions/upload-artifact@v3
         if: always()
