@@ -2,7 +2,7 @@ package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 
@@ -16,7 +16,7 @@ public class InGameInputHandler {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
 
-        ControlifyClientEvents.INPUT_MODE_CHANGED.register(mode -> {
+        ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
             if (minecraft.player != null) {
                 minecraft.player.input = mode == InputMode.CONTROLLER
                         ? new ControllerPlayerMovement(controller, minecraft.player)

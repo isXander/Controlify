@@ -2,13 +2,16 @@ package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
@@ -18,13 +21,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class Controlify {
+public class Controlify implements ControlifyApi {
     public static final Logger LOGGER = LogUtils.getLogger();
     private static Controlify instance = null;
 
@@ -87,7 +91,7 @@ public class Controlify {
 
                     if (firstController) {
                         this.setCurrentController(controller);
-                        this.setCurrentInputMode(InputMode.CONTROLLER);
+                        this.setInputMode(InputMode.CONTROLLER);
                     }
 
                     if (!config().loadOrCreateControllerData(currentController)) {
@@ -106,7 +110,7 @@ public class Controlify {
                 if (controller != null) {
                     setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
                     LOGGER.info("Controller disconnected: " + controller.name());
-                    this.setCurrentInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
+                    this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
 
                     minecraft.getToasts().addToast(SystemToast.multiline(
                             minecraft,
@@ -154,7 +158,7 @@ public class Controlify {
             state = ControllerState.EMPTY;
 
         if (state.hasAnyInput())
-            this.setCurrentInputMode(InputMode.CONTROLLER);
+            this.setInputMode(InputMode.CONTROLLER);
 
         if (consecutiveInputSwitches > 20) {
             LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
@@ -169,7 +173,7 @@ public class Controlify {
         }
 
         if (currentController == null) {
-            this.setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            this.setInputMode(InputMode.KEYBOARD_MOUSE);
             return;
         }
 
@@ -181,14 +185,15 @@ public class Controlify {
         }
         this.virtualMouseHandler().handleControllerInput(currentController);
 
-        ControlifyClientEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
     }
 
     public ControlifyConfig config() {
         return config;
     }
 
-    public Controller<?, ?> currentController() {
+    @Override
+    public @NotNull Controller<?, ?> currentController() {
         if (currentController == null)
             return Controller.DUMMY;
 
@@ -230,11 +235,12 @@ public class Controlify {
         return controllerHIDService;
     }
 
-    public InputMode currentInputMode() {
+    public @NotNull InputMode currentInputMode() {
         return currentInputMode;
     }
 
-    public void setCurrentInputMode(InputMode currentInputMode) {
+    @Override
+    public void setInputMode(@NotNull InputMode currentInputMode) {
         if (this.currentInputMode == currentInputMode) return;
         this.currentInputMode = currentInputMode;
 
@@ -258,7 +264,7 @@ public class Controlify {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
-        ControlifyClientEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
+        ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {
@@ -283,5 +289,10 @@ public class Controlify {
     public static Controlify instance() {
         if (instance == null) instance = new Controlify();
         return instance;
+    }
+
+    @Override
+    public @NotNull ControlifyBindingsApi bindingsApi() {
+        return ControllerBindings.Api.INSTANCE;
     }
 }

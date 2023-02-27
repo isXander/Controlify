@@ -3,7 +3,7 @@ package dev.isxander.controlify.screenop;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -20,7 +20,7 @@ public class ScreenProcessor<T extends Screen> {
 
     public ScreenProcessor(T screen) {
         this.screen = screen;
-        ControlifyClientEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
     }
 
     public void onControllerUpdate(Controller<?, ?> controller) {

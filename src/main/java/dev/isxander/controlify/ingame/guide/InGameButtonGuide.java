@@ -1,9 +1,13 @@
 package dev.isxander.controlify.ingame.guide;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.api.buttonguide.ActionLocation;
+import dev.isxander.controlify.api.buttonguide.ActionPriority;
+import dev.isxander.controlify.api.buttonguide.ButtonGuideRegistry;
+import dev.isxander.controlify.api.buttonguide.GuideActionNameSupplier;
 import dev.isxander.controlify.bindings.ControllerBinding;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -33,7 +37,7 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         this.player = localPlayer;
 
         registerDefaultActions();
-        ControlifyClientEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(controller.bindings(), this);
+        ControlifyEvents.BUTTON_GUIDE_REGISTRY.invoker().onRegisterButtonGuide(controller.bindings(), this);
     }
 
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
@@ -112,7 +116,12 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
 
     @Override
     public void registerGuideAction(ControllerBinding<?> binding, ActionLocation location, GuideActionNameSupplier supplier) {
-        guidePredicates.add(new GuideActionSupplier(binding, location, supplier));
+        this.registerGuideAction(binding, location, ActionPriority.NORMAL, supplier);
+    }
+
+    @Override
+    public void registerGuideAction(ControllerBinding<?> binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier supplier) {
+        guidePredicates.add(new GuideActionSupplier(binding, location, priority, supplier));
     }
 
     private void registerDefaultActions() {
@@ -232,10 +241,10 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
         }
     }
 
-    private record GuideActionSupplier(ControllerBinding<?> binding, ActionLocation location, GuideActionNameSupplier nameSupplier) {
+    private record GuideActionSupplier(ControllerBinding<?> binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier nameSupplier) {
         public Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller<?, ?> controller) {
             return nameSupplier.supply(client, player, level, hitResult, controller)
-                    .map(name -> new GuideAction(binding, name, location));
+                    .map(name -> new GuideAction(binding, name, location, priority));
         }
     }
 }

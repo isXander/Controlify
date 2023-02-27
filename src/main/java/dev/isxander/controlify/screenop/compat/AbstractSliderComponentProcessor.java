@@ -4,6 +4,10 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 
+/**
+ * A component processor that handles incrementing and decrementing a slider.
+ * This uses {@link dev.isxander.controlify.bindings.ControllerBindings#CYCLE_OPT_FORWARD} and {@link dev.isxander.controlify.bindings.ControllerBindings#CYCLE_OPT_BACKWARD} to increment and decrement the slider.
+ */
 public abstract class AbstractSliderComponentProcessor implements ComponentProcessor {
     private int ticksSinceIncrement = 0;
     private boolean prevLeft, prevRight;

@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.virtualmouse.ISnapBehaviour;
-import dev.isxander.controlify.virtualmouse.SnapPoint;
+import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
+import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;

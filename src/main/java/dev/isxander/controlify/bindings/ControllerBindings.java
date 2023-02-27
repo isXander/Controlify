@@ -3,9 +3,10 @@ package dev.isxander.controlify.bindings;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -102,8 +103,8 @@ public class ControllerBindings<T extends ControllerState> {
             register((ControllerBinding<T>) constructor.apply(this));
         }
 
-        ControlifyClientEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
-        ControlifyClientEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
+        ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
     public ControllerBinding<T> register(ControllerBinding<T> binding) {
@@ -179,13 +180,17 @@ public class ControllerBindings<T extends ControllerState> {
         }
     }
 
-    public static BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
-        CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
-        return controller -> controller.bindings().get(id);
-    }
+    public static final class Api implements ControlifyBindingsApi {
+        public static final Api INSTANCE = new Api();
 
-    public static BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
-        CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
-        return controller -> controller.bindings().get(id);
+        public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
+            CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
+            return controller -> controller.bindings().get(id);
+        }
+
+        public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+            CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
+            return controller -> controller.bindings().get(id);
+        }
     }
 }

@@ -19,6 +19,6 @@ public class KeyboardHandlerMixin {
     @Inject(method = "m_unngxkoe", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;keyPress(JIIII)V"))
     private void onKeyboardInput(long window, int i, int j, int k, int m, CallbackInfo ci) {
         if (window == minecraft.getWindow().getWindow())
-            Controlify.instance().setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
     }
 }

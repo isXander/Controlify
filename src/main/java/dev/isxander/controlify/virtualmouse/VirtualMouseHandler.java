@@ -5,10 +5,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
+import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.event.ControlifyClientEvents;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import net.minecraft.client.Minecraft;
@@ -48,7 +50,7 @@ public class VirtualMouseHandler {
         else
             snapPoints = Set.of();
 
-        ControlifyClientEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
+        ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
     }
 
     public void handleControllerInput(Controller<?, ?> controller) {
@@ -240,7 +242,7 @@ public class VirtualMouseHandler {
         }
         setMousePosition();
 
-        ControlifyClientEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
     }
 
     public void disableVirtualMouse() {
@@ -256,7 +258,7 @@ public class VirtualMouseHandler {
         targetX = currentX = minecraft.mouseHandler.xpos();
         targetY = currentY = minecraft.mouseHandler.ypos();
 
-        ControlifyClientEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(false);
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(false);
     }
 
     private void setMousePosition() {

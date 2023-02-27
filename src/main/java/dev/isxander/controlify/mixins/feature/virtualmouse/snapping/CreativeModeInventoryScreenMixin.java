@@ -1,6 +1,6 @@
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.virtualmouse.SnapPoint;
+import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;

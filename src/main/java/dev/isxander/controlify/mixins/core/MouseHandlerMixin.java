@@ -19,20 +19,20 @@ public class MouseHandlerMixin {
     @Inject(method = "m_sljgmtqm", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onPress(JIII)V"))
     private void onMouseClickInput(long window, int button, int action, int modifiers, CallbackInfo ci) {
         if (window == minecraft.getWindow().getWindow())
-            Controlify.instance().setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
     }
 
     // m_swhlgdws is lambda for GLFW mouse move hook - do it outside of the `onMove` method due to fake inputs
     @Inject(method = "m_swhlgdws", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onMove(JDD)V"))
     private void onMouseMoveInput(long window, double x, double y, CallbackInfo ci) {
         if (window == minecraft.getWindow().getWindow())
-            Controlify.instance().setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
     }
 
     // m_qoshpwkl is lambda for GLFW mouse scroll hook - do it outside of the `onScroll` method due to fake inputs
     @Inject(method = "m_qoshpwkl", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onScroll(JDD)V"))
     private void onMouseScrollInput(long window, double scrollDeltaX, double scrollDeltaY, CallbackInfo ci) {
         if (window == minecraft.getWindow().getWindow())
-            Controlify.instance().setCurrentInputMode(InputMode.KEYBOARD_MOUSE);
+            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
     }
 }
