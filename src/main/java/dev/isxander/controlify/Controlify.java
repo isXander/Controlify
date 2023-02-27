@@ -36,7 +36,7 @@ public class Controlify implements ControlifyApi {
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
-    private InputMode currentInputMode;
+    private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
     private ControllerHIDService controllerHIDService;
 
     private final ControlifyConfig config = new ControlifyConfig(this);
@@ -289,10 +289,5 @@ public class Controlify implements ControlifyApi {
     public static Controlify instance() {
         if (instance == null) instance = new Controlify();
         return instance;
-    }
-
-    @Override
-    public @NotNull ControlifyBindingsApi bindingsApi() {
-        return ControllerBindings.Api.INSTANCE;
     }
 }

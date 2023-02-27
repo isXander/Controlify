@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.BindingSupplier;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
@@ -29,4 +30,8 @@ public interface ControlifyBindingsApi {
      * @return the binding supplier to fetch the binding for a specific controller.
      */
     BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride);
+
+    static ControlifyBindingsApi get() {
+        return ControllerBindings.Api.INSTANCE;
+    }
 }

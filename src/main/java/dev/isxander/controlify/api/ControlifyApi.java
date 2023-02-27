@@ -19,8 +19,6 @@ public interface ControlifyApi {
     @NotNull InputMode currentInputMode();
     void setInputMode(@NotNull InputMode mode);
 
-    @NotNull ControlifyBindingsApi bindingsApi();
-
     static ControlifyApi get() {
         return Controlify.instance();
     }

@@ -31,8 +31,26 @@ repositories {
     maven("https://maven.flashyreese.me/snapshots")
 }
 
+val testmod by sourceSets.registering {
+    compileClasspath += sourceSets.main.get().compileClasspath
+    runtimeClasspath += sourceSets.main.get().runtimeClasspath
+}
+
 loom {
     accessWidenerPath.set(file("src/main/resources/controlify.accesswidener"))
+
+    runs {
+        register("testmod") {
+            client()
+            ideConfigGenerated(true)
+            name("Test Mod")
+            source(testmod.get())
+        }
+
+        named("server") { ideConfigGenerated(false) }
+    }
+
+    createRemapConfigurations(testmod.get())
 }
 
 val minecraftVersion = libs.versions.minecraft.get()
@@ -73,6 +91,9 @@ dependencies {
     modImplementation(files("libs/iris-5d0efad3.jar"))
     modRuntimeOnly("org.anarres:jcpp:1.4.14")
     modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
+
+    // testmod
+    "testmodImplementation"(sourceSets.main.get().output)
 }
 
 tasks {
