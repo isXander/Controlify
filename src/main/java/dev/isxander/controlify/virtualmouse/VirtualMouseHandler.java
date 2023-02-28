@@ -233,7 +233,7 @@ public class VirtualMouseHandler {
         GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         virtualMouseEnabled = true;
 
-        if (minecraft.mouseHandler.xpos() == 0 && minecraft.mouseHandler.ypos() == 0) {
+        if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
             targetX = currentX = minecraft.getWindow().getScreenWidth() / 2f;
             targetY = currentY = minecraft.getWindow().getScreenHeight() / 2f;
         } else {
