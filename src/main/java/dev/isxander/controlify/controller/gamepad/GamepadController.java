@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.gamepad;
 
 import dev.isxander.controlify.controller.AbstractController;
-import org.hid4java.HidDevice;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
@@ -9,8 +9,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     private GamepadState state = GamepadState.EMPTY;
     private GamepadState prevState = GamepadState.EMPTY;
 
-    public GamepadController(int joystickId, HidDevice hidDevice) {
-        super(joystickId, hidDevice);
+    public GamepadController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
+        super(joystickId, hidInfo);
         if (!GLFW.glfwJoystickIsGamepad(joystickId))
             throw new IllegalArgumentException("Joystick " + joystickId + " is not a gamepad!");
 

@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller;
 
+import com.google.common.collect.ImmutableMap;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import net.minecraft.client.Minecraft;
@@ -16,8 +17,8 @@ public record ControllerType(String friendlyName, String identifier) {
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
 
-    public static ControllerType getTypeForHID(HIDIdentifier hid) {
-        if (typeMap != null) return typeMap.getOrDefault(hid, UNKNOWN);
+    public static void ensureTypeMapFilled() {
+        if (typeMap != null) return;
 
         typeMap = new HashMap<>();
         try {
@@ -39,12 +40,6 @@ public record ControllerType(String friendlyName, String identifier) {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        var type = typeMap.getOrDefault(hid, UNKNOWN);
-        if (type == UNKNOWN) {
-            Controlify.LOGGER.warn("Controller type unknown! Please report the make and model of your controller and give the following details: " + hid);
-        }
-        return type;
     }
 
     private static void readControllerIdFiles(JsonReader reader) throws IOException {
@@ -89,5 +84,10 @@ public record ControllerType(String friendlyName, String identifier) {
             }
         }
         reader.endArray();
+    }
+
+    public static ImmutableMap<HIDIdentifier, ControllerType> getTypeMap() {
+        ensureTypeMapFilled();
+        return ImmutableMap.copyOf(typeMap);
     }
 }

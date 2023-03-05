@@ -5,31 +5,18 @@ import dev.isxander.controlify.controller.ControllerType;
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
 
 public class ControllerHIDService implements HidServicesListener {
-    // https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-page
-    private static final Set<Integer> CONTROLLER_USAGE_IDS = Set.of(
-            0x04, // Joystick
-            0x05, // Gamepad
-            0x08  // Multi-axis Controller
-    );
-
     private final HidServicesSpecification specification;
-    private final Queue<Consumer<HidDevice>> deviceQueue;
-    private Runnable onQueueEmpty = () -> {};
 
+    private final Map<String, HIDIdentifier> unconsumedHIDs;
     private boolean disabled = false;
 
     public ControllerHIDService() {
-        this.deviceQueue = new ArrayDeque<>();
-
         this.specification = new HidServicesSpecification();
         specification.setAutoStart(false);
-        specification.setScanInterval(2000); // long interval, so we can guarantee this runs after GLFW hook
+        this.unconsumedHIDs = new LinkedHashMap<>();
     }
 
     public void start() {
@@ -44,44 +31,27 @@ public class ControllerHIDService implements HidServicesListener {
         }
     }
 
-    public void awaitNextController(Consumer<HidDevice> consumer) {
-        if (disabled) {
-            consumer.accept(null);
-            return;
+    public ControllerHIDInfo fetchType() {
+        var typeMap = ControllerType.getTypeMap();
+        for (var entry : unconsumedHIDs.entrySet()) {
+            var path = entry.getKey();
+            var hid = entry.getValue();
+            var type = typeMap.get(hid);
+            if (type != null) {
+                Controlify.LOGGER.info("identified controller type " + type);
+                unconsumedHIDs.remove(path);
+                return new ControllerHIDInfo(type, Optional.of(path));
+            }
         }
-        deviceQueue.add(consumer);
+
+        Controlify.LOGGER.warn("Controller type unknown! Please report the make and model of your controller and give the following details: " + unconsumedHIDs);
+        return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
     }
 
     @Override
     public void hidDeviceAttached(HidServicesEvent event) {
         var device = event.getHidDevice();
-
-        if (isController(device)) {
-            if (deviceQueue.peek() != null) {
-                try {
-                    deviceQueue.poll().accept(device);
-
-                    if (deviceQueue.isEmpty()) {
-                        onQueueEmpty.run();
-                    }
-                } catch (Throwable e) {
-                    Controlify.LOGGER.error("Failed to handle controller device attach event.", e);
-                }
-
-            } else {
-                Controlify.LOGGER.error("Unhandled controller: " + ControllerType.getTypeForHID(new HIDIdentifier(device.getVendorId(), device.getProductId())).friendlyName());
-            }
-        }
-    }
-
-    private boolean isController(HidDevice device) {
-        var isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
-        var isController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
-        return isGenericDesktopControlOrGameControl && isController;
-    }
-
-    public void setOnQueueEmptyEvent(Runnable runnable) {
-        this.onQueueEmpty = runnable;
+        unconsumedHIDs.put(device.getPath(), new HIDIdentifier(device.getVendorId(), device.getProductId()));
     }
 
     public boolean isDisabled() {
@@ -90,11 +60,14 @@ public class ControllerHIDService implements HidServicesListener {
 
     @Override
     public void hidDeviceDetached(HidServicesEvent event) {
-
+        unconsumedHIDs.remove(event.getHidDevice().getPath());
     }
 
     @Override
     public void hidFailure(HidServicesEvent event) {
 
+    }
+
+    public record ControllerHIDInfo(ControllerType type, Optional<String> path) {
     }
 }
