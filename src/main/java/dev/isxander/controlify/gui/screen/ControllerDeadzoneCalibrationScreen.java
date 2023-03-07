@@ -2,6 +2,7 @@ package dev.isxander.controlify.gui.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
@@ -104,6 +105,9 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
             calibrated = true;
             readyButton.active = true;
             readyButton.setMessage(Component.translatable("controlify.calibration.done"));
+
+            controller.config().calibrated = true;
+            Controlify.instance().config().save();
         }
     }
 

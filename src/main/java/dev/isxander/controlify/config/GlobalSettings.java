@@ -12,5 +12,6 @@ public class GlobalSettings {
             AbstractContainerScreen.class
     );
 
+    public boolean keyboardMovement = false;
     public boolean outOfFocusInput = false;
 }

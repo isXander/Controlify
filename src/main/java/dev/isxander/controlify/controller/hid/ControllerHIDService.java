@@ -9,6 +9,7 @@ import java.util.*;
 
 public class ControllerHIDService implements HidServicesListener {
     private final HidServicesSpecification specification;
+    private HidServices services;
 
     private final Map<String, HIDIdentifier> unconsumedHIDs;
     private boolean disabled = false;
@@ -21,7 +22,7 @@ public class ControllerHIDService implements HidServicesListener {
 
     public void start() {
         try {
-            var services = HidManager.getHidServices(specification);
+            services = HidManager.getHidServices(specification);
             services.addHidServicesListener(this);
 
             services.start();
@@ -32,6 +33,14 @@ public class ControllerHIDService implements HidServicesListener {
     }
 
     public ControllerHIDInfo fetchType() {
+        services.scan();
+        try {
+            // wait for scan to complete on separate thread
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         var typeMap = ControllerType.getTypeMap();
         for (var entry : unconsumedHIDs.entrySet()) {
             var path = entry.getKey();

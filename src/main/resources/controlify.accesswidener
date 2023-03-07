@@ -1,3 +1,5 @@
 accessWidener v2 named
 
 accessible class net/minecraft/client/gui/screens/LanguageSelectScreen$LanguageSelectionList
+accessible class net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance
+accessible method net/minecraft/client/gui/components/toasts/SystemToast <init> (Lnet/minecraft/client/gui/components/toasts/SystemToast$SystemToastIds;Lnet/minecraft/network/chat/Component;Ljava/util/List;I)V

@@ -21,6 +21,7 @@
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
     "feature.accessibility.LocalPlayerMixin",
+    "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.KeyMappingAccessor",
     "feature.guide.ClientPacketListenerMixin",
     "feature.guide.GuiMixin",

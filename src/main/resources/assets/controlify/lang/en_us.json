@@ -4,6 +4,8 @@
   "controlify.gui.current_controller.tooltip": "In Controlify's infancy, only one controller can be used at a time, this selects which one you want to use.",
   "controlify.gui.out_of_focus_input": "Out of Focus Input",
   "controlify.gui.out_of_focus_input.tooltip": "If enabled, Controlify will still receive input even if the game window is not focused.",
+  "controlify.gui.keyboard_movement": "Keyboard-like Movement",
+  "controlify.gui.keyboard_movement.tooltip": "Makes movement either on or off rather than being smooth with a thumbstick, this may help in cases where server anti-cheats are harsh.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
 
   "controlify.gui.group.basic": "Basic",
@@ -55,12 +57,10 @@
   "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",
   "controlify.toast.vmouse_disabled.title": "Virtual Mouse Disabled",
   "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
-  "controlify.toast.controller_connected.title": "Controller Connected",
-  "controlify.toast.controller_connected.description": "A controller named '%s' has just been connected. You can switch to your other controller in Controlify settings.",
+  "controlify.toast.ask_to_switch.title": "Switch Controller?",
+  "controlify.toast.ask_to_switch.description": "A new controller named '%s' has just been connected. Press any button to switch to it.",
   "controlify.toast.controller_disconnected.title": "Controller Disconnected",
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
-  "controlify.toast.controller_calibration.title": "New controller detected",
-  "controlify.toast.controller_calibration.description": "A new controller(s) has been detected, you must calibrate before you use it!",
   "controlify.toast.faulty_input.title": "Controller disabled",
   "controlify.toast.faulty_input.description": "Your controller has been disabled because Controlify detected it was causing you problems using keyboard and mouse input. This is likely due to setting your deadzone values too low or your joystick is not mapped properly, making the controller think it is always giving input.",
 

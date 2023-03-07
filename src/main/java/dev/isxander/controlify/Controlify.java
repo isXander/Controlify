@@ -3,8 +3,6 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
-import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
@@ -15,6 +13,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
@@ -32,6 +31,8 @@ public class Controlify implements ControlifyApi {
     public static final Logger LOGGER = LogUtils.getLogger();
     private static Controlify instance = null;
 
+    private final Minecraft minecraft = Minecraft.getInstance();
+
     private Controller<?, ?> currentController = Controller.DUMMY;
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
@@ -46,10 +47,12 @@ public class Controlify implements ControlifyApi {
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
 
+    private Controller<?, ?> switchableController = null;
+    private double askSwitchTime = 0;
+    private ToastUtils.ControlifyToast askSwitchToast = null;
+
     public void initializeControllers() {
         LOGGER.info("Discovering and initializing controllers...");
-
-        Minecraft minecraft = Minecraft.getInstance();
 
         config().load();
 
@@ -65,9 +68,7 @@ public class Controlify implements ControlifyApi {
                 if (config().currentControllerUid().equals(controller.uid()))
                     setCurrentController(controller);
 
-                if (!config().loadOrCreateControllerData(controller)) {
-                    calibrationQueue.add(controller);
-                }
+                config().loadOrCreateControllerData(controller);
             }
         }
 
@@ -78,39 +79,9 @@ public class Controlify implements ControlifyApi {
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             if (event == GLFW.GLFW_CONNECTED) {
-                var firstController = Controller.CONTROLLERS.values().isEmpty();
-                var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
-                LOGGER.info("Controller connected: " + controller.name());
-
-                if (firstController) {
-                    this.setCurrentController(controller);
-                    this.setInputMode(InputMode.CONTROLLER);
-                }
-
-                if (!config().loadOrCreateControllerData(currentController)) {
-                    calibrationQueue.add(currentController);
-                }
-
-                minecraft.getToasts().addToast(SystemToast.multiline(
-                        minecraft,
-                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                        Component.translatable("controlify.toast.controller_connected.title"),
-                        Component.translatable("controlify.toast.controller_connected.description", currentController.name())
-                ));
+                this.onControllerHotplugged(jid);
             } else if (event == GLFW.GLFW_DISCONNECTED) {
-                var controller = Controller.CONTROLLERS.remove(jid);
-                if (controller != null) {
-                    setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
-                    LOGGER.info("Controller disconnected: " + controller.name());
-                    this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
-
-                    minecraft.getToasts().addToast(SystemToast.multiline(
-                            minecraft,
-                            SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                            Component.translatable("controlify.toast.controller_disconnected.title"),
-                            Component.translatable("controlify.toast.controller_disconnected.description", controller.name())
-                    ));
-                }
+                this.onControllerDisconnect(jid);
             }
         });
 
@@ -131,13 +102,6 @@ public class Controlify implements ControlifyApi {
                     screen = new ControllerDeadzoneCalibrationScreen(calibrationQueue.poll(), screen);
                 }
                 minecraft.setScreen(screen);
-
-                minecraft.getToasts().addToast(SystemToast.multiline(
-                        minecraft,
-                        SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                        Component.translatable("controlify.toast.controller_calibration.title"),
-                        Component.translatable("controlify.toast.controller_calibration.description")
-                ));
             }
         }
 
@@ -146,20 +110,32 @@ public class Controlify implements ControlifyApi {
         }
 
         ControllerState state = currentController == null ? ControllerState.EMPTY : currentController.state();
+
+        if (switchableController != null && Blaze3D.getTime() - askSwitchTime <= 10000) {
+            if (switchableController.state().hasAnyInput()) {
+                this.setCurrentController(switchableController);
+                if (askSwitchToast != null) {
+                    askSwitchToast.remove();
+                    askSwitchToast = null;
+                }
+                switchableController = null;
+                state = ControllerState.EMPTY;
+            }
+        }
+
         if (!config().globalSettings().outOfFocusInput && !client.isWindowActive())
             state = ControllerState.EMPTY;
 
         if (state.hasAnyInput())
             this.setInputMode(InputMode.CONTROLLER);
 
-        if (consecutiveInputSwitches > 20) {
+        if (consecutiveInputSwitches > 500) {
             LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
-            minecraft.getToasts().addToast(SystemToast.multiline(
-                    minecraft,
-                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+            ToastUtils.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
-                    Component.translatable("controlify.toast.faulty_input.description")
-            ));
+                    Component.translatable("controlify.toast.faulty_input.description"),
+                    true
+            );
             this.setCurrentController(null);
             consecutiveInputSwitches = 0;
         }
@@ -184,6 +160,41 @@ public class Controlify implements ControlifyApi {
         return config;
     }
 
+    private void onControllerHotplugged(int jid) {
+        var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+        LOGGER.info("Controller connected: " + controller.name());
+
+        config().loadOrCreateControllerData(currentController);
+
+        this.askToSwitchController(controller);
+    }
+
+    private void onControllerDisconnect(int jid) {
+        var controller = Controller.CONTROLLERS.remove(jid);
+        if (controller != null) {
+            setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+            LOGGER.info("Controller disconnected: " + controller.name());
+            this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
+
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.controller_disconnected.title"),
+                    Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
+                    false
+            );
+        }
+    }
+
+    private void askToSwitchController(Controller<?, ?> controller) {
+        this.switchableController = controller;
+        this.askSwitchTime = Blaze3D.getTime();
+
+        askSwitchToast = ToastUtils.sendToast(
+                Component.translatable("controlify.toast.ask_to_switch.title"),
+                Component.translatable("controlify.toast.ask_to_switch.description", controller.name()),
+                true
+        );
+    }
+
     @Override
     public @NotNull Controller<?, ?> currentController() {
         if (currentController == null)
@@ -199,6 +210,10 @@ public class Controlify implements ControlifyApi {
         if (this.currentController == controller) return;
         this.currentController = controller;
 
+        if (switchableController == controller) {
+            switchableController = null;
+        }
+
         LOGGER.info("Updated current controller to " + controller.name() + "(" + controller.uid() + ")");
 
         if (!config().currentControllerUid().equals(controller.uid())) {
@@ -209,6 +224,9 @@ public class Controlify implements ControlifyApi {
         if (Minecraft.getInstance().player != null) {
             this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
         }
+
+        if (!controller.config().calibrated && controller != Controller.DUMMY)
+            calibrationQueue.add(controller);
     }
 
     public InGameInputHandler inGameInputHandler() {

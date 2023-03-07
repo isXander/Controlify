@@ -18,6 +18,8 @@ public abstract class ControllerConfig {
 
     public boolean showGuide = true;
 
+    public boolean calibrated = false;
+
     public abstract void setDeadzone(int axis, float deadzone);
     public abstract float getDeadzone(int axis);
 }
