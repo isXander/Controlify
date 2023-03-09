@@ -29,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -89,6 +90,8 @@ public class YACLHelper {
         var config = controller.config();
         var def = controller.defaultConfig();
 
+        Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
+
         var basicGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.basic"))
                 .tooltip(Component.translatable("controlify.gui.group.basic.tooltip"))
@@ -96,13 +99,13 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.horizontal_look_sensitivity"))
                         .tooltip(Component.translatable("controlify.gui.horizontal_look_sensitivity.tooltip"))
                         .binding(def.horizontalLookSensitivity, () -> config.horizontalLookSensitivity, v -> config.horizontalLookSensitivity = v)
-                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, percentFormatter))
                         .build())
                 .option(Option.createBuilder(float.class)
                         .name(Component.translatable("controlify.gui.vertical_look_sensitivity"))
                         .tooltip(Component.translatable("controlify.gui.vertical_look_sensitivity.tooltip"))
                         .binding(def.verticalLookSensitivity, () -> config.verticalLookSensitivity, v -> config.verticalLookSensitivity = v)
-                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, percentFormatter))
                         .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Component.translatable("controlify.gui.toggle_sprint"))
@@ -132,7 +135,13 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.vmouse_sensitivity"))
                         .tooltip(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
                         .binding(def.virtualMouseSensitivity, () -> config.virtualMouseSensitivity, v -> config.virtualMouseSensitivity = v)
-                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                        .controller(opt -> new FloatSliderController(opt, 0.1f, 2f, 0.05f, percentFormatter))
+                        .build())
+                .option(Option.createBuilder(float.class)
+                        .name(Component.translatable("controlify.gui.chat_screen_offset"))
+                        .tooltip(Component.translatable("controlify.gui.chat_screen_offset.tooltip"))
+                        .binding(def.chatKeyboardHeight, () -> config.chatKeyboardHeight, v -> config.chatKeyboardHeight = v)
+                        .controller(opt -> new FloatSliderController(opt, 0f, 0.8f, 0.1f, percentFormatter))
                         .build());
 
         if (controller instanceof GamepadController gamepad) {

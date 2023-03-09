@@ -65,10 +65,10 @@ public class Controlify implements ControlifyApi {
                 var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
                 LOGGER.info("Controller found: " + controller.name());
 
+                config().loadOrCreateControllerData(controller);
+
                 if (config().currentControllerUid().equals(controller.uid()))
                     setCurrentController(controller);
-
-                config().loadOrCreateControllerData(controller);
             }
         }
 

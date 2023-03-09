@@ -24,6 +24,8 @@
   "controlify.gui.show_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
   "controlify.gui.vmouse_sensitivity": "Virtual Mouse Sensitivity",
   "controlify.gui.vmouse_sensitivity.tooltip": "How fast the virtual mouse moves.",
+  "controlify.gui.chat_screen_offset": "On-screen keyboard height",
+  "controlify.gui.chat_screen_offset.tooltip": "How far up the system on-screen keyboard is. This shifts up the chat box so you can see the chat whilst typing.\nThis is extremely useful on the steamdeck.",
   "controlify.gui.controller_theme": "Controller Theme",
   "controlify.gui.controller_theme.tooltip": "The theme to use for rendering controller buttons.",
   "controlify.gui.custom_name": "Display Name",

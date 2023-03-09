@@ -36,6 +36,6 @@ public class CreateWorldScreenMixin implements ScreenProcessorProvider {
         if (newIndex < 0) newIndex = tabs.size() - 1;
         if (newIndex >= tabs.size()) newIndex = 0;
 
-        tabNavigationBar.selectTab(newIndex);
+        tabNavigationBar.selectTab(newIndex, true);
     }
 }

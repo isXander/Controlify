@@ -23,6 +23,8 @@
     "feature.accessibility.LocalPlayerMixin",
     "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.KeyMappingAccessor",
+    "feature.chatkbheight.ChatComponentMixin",
+    "feature.chatkbheight.ChatScreenMixin",
     "feature.guide.ClientPacketListenerMixin",
     "feature.guide.GuiMixin",
     "feature.screenop.vanilla.AbstractButtonMixin",

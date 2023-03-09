@@ -18,6 +18,8 @@ public abstract class ControllerConfig {
 
     public boolean showGuide = true;
 
+    public float chatKeyboardHeight = 0f;
+
     public boolean calibrated = false;
 
     public abstract void setDeadzone(int axis, float deadzone);
