@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(BaseOptionElementWidget.class)
+@Mixin(value = BaseOptionElementWidget.class, remap = false)
 public abstract class BaseOptionElementWidgetMixin implements ComponentProcessorProvider {
     @Shadow public abstract boolean applyPreviousValue();
     @Shadow public abstract boolean applyNextValue();
