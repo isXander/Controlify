@@ -1,3 +1,5 @@
+import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
+
 plugins {
     java
 
@@ -205,6 +207,10 @@ githubRelease {
     targetCommitish("1.19.x/dev")
     body(changelogText)
     releaseAssets(tasks["remapJar"].outputs.files)
+}
+
+tasks.getByName<GithubReleaseTask>("githubRelease") {
+    dependsOn("optimizeOutputsOfRemapJar")
 }
 
 publishing {
