@@ -239,3 +239,7 @@ publishing {
         }
     }
 }
+
+tasks.getByName("generateMetadataFileForModPublication") {
+    dependsOn("optimizeOutputsOfRemapJar")
+}
