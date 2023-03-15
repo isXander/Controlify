@@ -95,6 +95,9 @@ dependencies {
     modImplementation(libs.iris)
     modRuntimeOnly("org.anarres:jcpp:1.4.14")
     modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
+    // immediately-fast compat
+    modImplementation(libs.immediately.fast)
+    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)

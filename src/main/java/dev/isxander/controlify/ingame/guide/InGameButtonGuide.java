@@ -6,6 +6,7 @@ import dev.isxander.controlify.api.buttonguide.ActionPriority;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideRegistry;
 import dev.isxander.controlify.api.buttonguide.GuideActionNameSupplier;
 import dev.isxander.controlify.bindings.ControllerBinding;
+import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
@@ -43,6 +44,8 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
         if (!controller.config().showGuide || minecraft.screen != null || minecraft.options.renderDebug)
             return;
+
+        ControlifyCompat.ifBeginHudBatching();
 
         {
             var offset = 0;
@@ -87,6 +90,8 @@ public class InGameButtonGuide implements ButtonGuideRegistry {
                 offset += drawSize.height() + 2;
             }
         }
+
+        ControlifyCompat.ifEndHudBatching();
     }
 
     public void tick() {

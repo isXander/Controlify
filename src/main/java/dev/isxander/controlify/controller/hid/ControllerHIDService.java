@@ -36,7 +36,7 @@ public class ControllerHIDService implements HidServicesListener {
         services.scan();
         try {
             // wait for scan to complete on separate thread
-            Thread.sleep(200);
+            Thread.sleep(800);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
