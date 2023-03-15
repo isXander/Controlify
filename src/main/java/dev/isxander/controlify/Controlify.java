@@ -72,6 +72,10 @@ public class Controlify implements ControlifyApi {
             }
         }
 
+        if (Controller.CONTROLLERS.isEmpty()) {
+            LOGGER.info("No controllers found.");
+        }
+
         if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
             this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
         }

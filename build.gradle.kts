@@ -66,6 +66,10 @@ dependencies {
     listOf(
         "fabric-resource-loader-v0",
         "fabric-lifecycle-events-v1",
+
+        // sodium requirements
+        "fabric-rendering-data-attachment-v1",
+        "fabric-rendering-fluids-v1",
     ).forEach {
         modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
     }
@@ -88,7 +92,7 @@ dependencies {
     // sodium compat
     modImplementation(libs.sodium)
     // iris compat
-    modImplementation(files("libs/iris-5d0efad3.jar"))
+    modImplementation(libs.iris)
     modRuntimeOnly("org.anarres:jcpp:1.4.14")
     modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
 
@@ -155,10 +159,10 @@ if (modrinthId.isNotEmpty()) {
         versionNumber.set("${project.version}")
         versionType.set("release")
         uploadFile.set(tasks["remapJar"])
-        gameVersions.set(listOf("1.19.3"))
+        gameVersions.set(listOf("1.19.4"))
         loaders.set(listOf("fabric", "quilt"))
         changelog.set(changelogText)
-        syncBodyFrom.set(file("README.md").readText())
+        syncBodyFrom.set(file(".github/README.md").readText())
     }
 }
 
@@ -173,7 +177,7 @@ if (hasProperty("curseforge.token") && curseforgeId.isNotEmpty()) {
 
             id = curseforgeId
             releaseType = "release"
-            addGameVersion("1.19.3")
+            addGameVersion("1.19.4")
             addGameVersion("Fabric")
             addGameVersion("Java 17")
 

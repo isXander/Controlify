@@ -5,8 +5,11 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.components.tabs.Tab;
+import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,6 +33,8 @@ public class ScreenProcessor<T extends Screen> {
         } else {
             handleVMouseNavigation(controller);
         }
+
+        handleTabNavigation(controller);
     }
 
     public void onInputModeChanged(InputMode mode) {
@@ -102,6 +107,29 @@ public class ScreenProcessor<T extends Screen> {
 
     protected void handleVMouseNavigation(Controller<?, ?> controller) {
 
+    }
+
+    protected void handleTabNavigation(Controller<?, ?> controller) {
+        var nextTab = controller.bindings().GUI_NEXT_TAB.justPressed();
+        var prevTab = controller.bindings().GUI_PREV_TAB.justPressed();
+
+        if (nextTab || prevTab) {
+            screen.children().stream()
+                    .filter(child -> child instanceof TabNavigationBar)
+                    .map(TabNavigationBar.class::cast)
+                    .findAny()
+                    .ifPresent(navBar -> {
+                        var accessor = (TabNavigationBarAccessor) navBar;
+                        List<Tab> tabs = accessor.getTabs();
+                        int currentIndex = tabs.indexOf(accessor.getTabManager().getCurrentTab());
+
+                        int newIndex = currentIndex + (prevTab ? -1 : 1);
+                        if (newIndex < 0) newIndex = tabs.size() - 1;
+                        if (newIndex >= tabs.size()) newIndex = 0;
+
+                        navBar.selectTab(newIndex, true);
+                    });
+        }
     }
 
     public void onWidgetRebuild() {
