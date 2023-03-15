@@ -8,8 +8,8 @@
 ![Enviroment](https://img.shields.io/badge/Enviroment-Client-purple)
 [![Discord](https://img.shields.io/discord/780023008668287017?color=blue&logo=discord&label=Discord)](https://short.isxander.dev/discord)
 
-[![Modrinth](https://img.shields.io/modrinth/dt/<modid>?logo=modrinth&style=flat-square)](https://modrinth.com/mod/<modname-mr>)
-[![CurseForge](https://cf.way2muchnoise.eu/full_<modid-cf>_downloads.svg)](https://curseforge.com/minecraft/mc-mods/<modname-cf>)
+[![Modrinth](https://img.shields.io/modrinth/dt/DOUdJVEm?logo=modrinth&style=flat-square)](https://modrinth.com/mod/controlify)
+[![CurseForge](https://cf.way2muchnoise.eu/full_835847_downloads.svg)](https://curseforge.com/minecraft/mc-mods/controlify)
 
 [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/isxander)
 
