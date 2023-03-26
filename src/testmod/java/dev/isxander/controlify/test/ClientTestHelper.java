@@ -126,6 +126,11 @@ public class ClientTestHelper {
             public void updateState() {
 
             }
+
+            @Override
+            public void clearState() {
+
+            }
         };
     }
 
