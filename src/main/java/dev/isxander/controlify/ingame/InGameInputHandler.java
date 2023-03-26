@@ -6,6 +6,8 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileWeaponItem;
 
 public class InGameInputHandler {
     private final Controller<?, ?> controller;
@@ -63,9 +65,14 @@ public class InGameInputHandler {
         var impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
         var impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
 
-        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive()) {
+        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive() && minecraft.player != null) {
             lookInputX = impulseX * Math.abs(impulseX) * controller.config().horizontalLookSensitivity;
             lookInputY = impulseY * Math.abs(impulseY) * controller.config().verticalLookSensitivity;
+
+            if (controller.config().reduceBowSensitivity && minecraft.player.getUseItem().getItem() instanceof ProjectileWeaponItem) {
+                lookInputX *= Math.abs(impulseX) * 0.6;
+                lookInputY *= Math.abs(impulseY) * 0.6;
+            }
         } else {
             lookInputX = lookInputY = 0;
         }

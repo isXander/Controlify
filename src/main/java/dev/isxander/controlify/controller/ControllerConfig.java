@@ -21,6 +21,8 @@ public abstract class ControllerConfig {
 
     public float chatKeyboardHeight = 0f;
 
+    public boolean reduceBowSensitivity = true;
+
     public boolean calibrated = false;
 
     public abstract void setDeadzone(int axis, float deadzone);

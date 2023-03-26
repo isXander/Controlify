@@ -153,6 +153,12 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.chat_screen_offset.tooltip"))
                         .binding(def.chatKeyboardHeight, () -> config.chatKeyboardHeight, v -> config.chatKeyboardHeight = v)
                         .controller(opt -> new FloatSliderController(opt, 0f, 0.8f, 0.1f, percentFormatter))
+                        .build())
+                .option(Option.createBuilder(boolean.class)
+                        .name(Component.translatable("controlify.gui.reduce_bow_sensitivity"))
+                        .tooltip(Component.translatable("controlify.gui.reduce_bow_sensitivity.tooltip"))
+                        .binding(def.reduceBowSensitivity, () -> config.reduceBowSensitivity, v -> config.reduceBowSensitivity = v)
+                        .controller(TickBoxController::new)
                         .build());
 
         if (controller instanceof GamepadController gamepad) {

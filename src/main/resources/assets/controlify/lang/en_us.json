@@ -30,6 +30,8 @@
   "controlify.gui.chat_screen_offset.tooltip": "How far up the system on-screen keyboard is. This shifts up the chat box so you can see the chat whilst typing.\nThis is extremely useful on the steamdeck.",
   "controlify.gui.controller_theme": "Controller Theme",
   "controlify.gui.controller_theme.tooltip": "The theme to use for rendering controller buttons.",
+  "controlify.gui.reduce_bow_sensitivity": "Reduce Bow Sensitivity",
+    "controlify.gui.reduce_bow_sensitivity.tooltip": "Reduce the sensitivity of bow-like items when aiming.",
   "controlify.gui.custom_name": "Display Name",
   "controlify.gui.custom_name.tooltip": "Name to display for this controller throughout Minecraft.",
   "controlify.gui.group.advanced": "Advanced",
