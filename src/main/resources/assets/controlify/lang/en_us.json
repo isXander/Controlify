@@ -20,8 +20,10 @@
   "controlify.gui.toggle_sprint.tooltip": "How the state of the sprint button behaves.",
   "controlify.gui.auto_jump": "Auto Jump",
   "controlify.gui.auto_jump.tooltip": "If the player should automatically jump when you reach a block.",
-  "controlify.gui.show_guide": "Show Button Guide",
-  "controlify.gui.show_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
+  "controlify.gui.show_ingame_guide": "Show Ingame Button Guide",
+  "controlify.gui.show_ingame_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
+  "controlify.gui.show_screen_guide": "Show Screen Button Guide",
+  "controlify.gui.show_screen_guide.tooltip": "Show various helpers in GUIs to assist in using controller input.",
   "controlify.gui.vmouse_sensitivity": "Virtual Mouse Sensitivity",
   "controlify.gui.vmouse_sensitivity.tooltip": "How fast the virtual mouse moves.",
   "controlify.gui.chat_screen_offset": "On-screen keyboard height",
@@ -54,6 +56,8 @@
   "controlify.gui.format.open": "OPEN URL",
 
   "controlify.gui.button": "Controller Settings...",
+
+  "controlify.gui.controller_unavailable": "Controller unavailable and cannot be edited.",
 
   "controlify.toast.vmouse_enabled.title": "Virtual Mouse Enabled",
   "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",

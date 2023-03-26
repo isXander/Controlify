@@ -34,6 +34,7 @@ public class ControllerBindings<T extends ControllerState> {
             OPEN_CHAT,
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
+            GUI_ABSTRACT_ACTION_1, GUI_ABSTRACT_ACTION_2,
             PICK_BLOCK,
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST,
@@ -77,6 +78,8 @@ public class ControllerBindings<T extends ControllerState> {
         register(GUI_BACK = new ControllerBinding<>(controller, GamepadBinds.B_BUTTON, new ResourceLocation("controlify", "gui_back")));
         register(GUI_NEXT_TAB = new ControllerBinding<>(controller, GamepadBinds.RIGHT_BUMPER, new ResourceLocation("controlify", "gui_next_tab")));
         register(GUI_PREV_TAB = new ControllerBinding<>(controller, GamepadBinds.LEFT_BUMPER, new ResourceLocation("controlify", "gui_prev_tab")));
+        register(GUI_ABSTRACT_ACTION_1 = new ControllerBinding<>(controller, GamepadBinds.X_BUTTON, new ResourceLocation("controlify", "gui_abstract_action_1")));
+        register(GUI_ABSTRACT_ACTION_2 = new ControllerBinding<>(controller, GamepadBinds.Y_BUTTON, new ResourceLocation("controlify", "gui_abstract_action_2")));
         register(PICK_BLOCK = new ControllerBinding<>(controller, GamepadBinds.DPAD_LEFT, new ResourceLocation("controlify", "pick_block"), options.keyPickItem, () -> false));
         register(TOGGLE_HUD_VISIBILITY = new ControllerBinding<>(controller, new EmptyBind<>(), new ResourceLocation("controlify", "toggle_hud_visibility")));
         register(SHOW_PLAYER_LIST = new ControllerBinding<>(controller, GamepadBinds.DPAD_RIGHT, new ResourceLocation("controlify", "show_player_list"), options.keyPlayerList, () -> false));
@@ -138,6 +141,11 @@ public class ControllerBindings<T extends ControllerState> {
 
     public void fromJson(JsonObject json) {
         for (var binding : registry().values()) {
+            if (!json.has(binding.id().toString())) {
+                Controlify.LOGGER.warn("Missing control: " + binding.id() + " in config file. Skipping!");
+                continue;
+            }
+
             var bind = json.get(binding.id().toString()).getAsJsonObject();
             if (bind == null) {
                 Controlify.LOGGER.warn("Unknown control: " + binding.id() + " in config file. Skipping!");

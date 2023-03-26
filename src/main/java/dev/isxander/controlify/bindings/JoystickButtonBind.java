@@ -7,7 +7,6 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,10 +15,10 @@ import java.util.Objects;
 public class JoystickButtonBind implements IBind<JoystickState> {
     public static final String BIND_ID = "joystick_button";
 
-    private final JoystickController joystick;
+    private final JoystickController<?> joystick;
     private final int buttonIndex;
 
-    public JoystickButtonBind(JoystickController joystick, int buttonIndex) {
+    public JoystickButtonBind(JoystickController<?> joystick, int buttonIndex) {
         this.joystick = joystick;
         this.buttonIndex = buttonIndex;
     }
@@ -71,7 +70,7 @@ public class JoystickButtonBind implements IBind<JoystickState> {
         return Objects.hash(buttonIndex, joystick.uid());
     }
 
-    public static JoystickButtonBind fromJson(JsonObject object, JoystickController joystick) {
+    public static JoystickButtonBind fromJson(JsonObject object, JoystickController<?> joystick) {
         var buttonIndex = object.get("button").getAsInt();
         return new JoystickButtonBind(joystick, buttonIndex);
     }

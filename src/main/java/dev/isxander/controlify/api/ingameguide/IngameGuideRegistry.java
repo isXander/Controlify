@@ -1,13 +1,13 @@
-package dev.isxander.controlify.api.buttonguide;
+package dev.isxander.controlify.api.ingameguide;
 
 import dev.isxander.controlify.bindings.ControllerBinding;
 
 /**
  * Allows you to register your own actions to the button guide.
- * This should be called through {@link dev.isxander.controlify.api.event.ControlifyEvents#BUTTON_GUIDE_REGISTRY} as
+ * This should be called through {@link dev.isxander.controlify.api.event.ControlifyEvents#INGAME_GUIDE_REGISTRY} as
  * these should be called every time the guide is initialised.
  */
-public interface ButtonGuideRegistry {
+public interface IngameGuideRegistry {
     /**
      * Registers a new action to the button guide.
      *

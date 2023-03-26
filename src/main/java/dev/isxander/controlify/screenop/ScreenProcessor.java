@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -13,6 +14,8 @@ import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -20,6 +23,7 @@ import java.util.*;
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
     protected int lastMoved = 0;
+    protected final Minecraft minecraft = Minecraft.getInstance();
 
     public ScreenProcessor(T screen) {
         this.screen = screen;
@@ -101,8 +105,10 @@ public class ScreenProcessor<T extends Screen> {
 
         if (controller.bindings().GUI_PRESS.justPressed())
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
-        if (controller.bindings().GUI_BACK.justPressed())
+        if (controller.bindings().GUI_BACK.justPressed()) {
+            this.playClackSound();
             screen.onClose();
+        }
     }
 
     protected void handleVMouseNavigation(Controller<?, ?> controller) {
@@ -173,5 +179,9 @@ public class ScreenProcessor<T extends Screen> {
         }
 
         return tree;
+    }
+
+    protected void playClackSound() {
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 }

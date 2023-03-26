@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
 import org.lwjgl.glfw.GLFW;
 
@@ -14,7 +14,7 @@ import java.util.Map;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
     String uid();
-    String guid();
+    int joystickId();
 
     ControllerBindings<S> bindings();
 
@@ -31,26 +31,27 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     String name();
 
     void updateState();
+    void clearState();
 
     default boolean canBeUsed() {
         return true;
     }
 
-    Map<Integer, Controller<?, ?>> CONTROLLERS = new HashMap<>();
+    Map<String, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
     static Controller<?, ?> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
-        if (CONTROLLERS.containsKey(joystickId)) {
-            return CONTROLLERS.get(joystickId);
+        if (CONTROLLERS.containsKey(hidInfo.createControllerUID())) {
+            return CONTROLLERS.get(hidInfo.createControllerUID());
         }
 
         if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {
             GamepadController controller = new GamepadController(joystickId, hidInfo);
-            CONTROLLERS.put(joystickId, controller);
+            CONTROLLERS.put(controller.uid(), controller);
             return controller;
         }
 
-        JoystickController controller = new JoystickController(joystickId, hidInfo);
-        CONTROLLERS.put(joystickId, controller);
+        SingleJoystickController controller = new SingleJoystickController(joystickId, hidInfo);
+        CONTROLLERS.put(controller.uid(), controller);
         return controller;
     }
 
@@ -74,8 +75,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         }
 
         @Override
-        public String guid() {
-            return "DUMMY";
+        public int joystickId() {
+            return -1;
         }
 
         @Override
@@ -125,6 +126,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
         @Override
         public void updateState() {
+
+        }
+
+        @Override
+        public void clearState() {
 
         }
     };

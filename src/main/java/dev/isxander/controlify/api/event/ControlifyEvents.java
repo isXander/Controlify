@@ -3,7 +3,7 @@ package dev.isxander.controlify.api.event;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.api.buttonguide.ButtonGuideRegistry;
+import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -29,9 +29,9 @@ public final class ControlifyEvents {
     /**
      * Triggers when the button guide entries are being populated, so you can add more of your own.
      */
-    public static final Event<ButtonGuideRegistryEvent> BUTTON_GUIDE_REGISTRY = EventFactory.createArrayBacked(ButtonGuideRegistryEvent.class, callbacks -> (bindings, registry) -> {
-        for (ButtonGuideRegistryEvent callback : callbacks) {
-            callback.onRegisterButtonGuide(bindings, registry);
+    public static final Event<IngameGuideRegistryEvent> INGAME_GUIDE_REGISTRY = EventFactory.createArrayBacked(IngameGuideRegistryEvent.class, callbacks -> (bindings, registry) -> {
+        for (IngameGuideRegistryEvent callback : callbacks) {
+            callback.onRegisterIngameGuide(bindings, registry);
         }
     });
 
@@ -55,8 +55,8 @@ public final class ControlifyEvents {
     }
 
     @FunctionalInterface
-    public interface ButtonGuideRegistryEvent {
-        void onRegisterButtonGuide(ControllerBindings<?> bindings, ButtonGuideRegistry registry);
+    public interface IngameGuideRegistryEvent {
+        void onRegisterIngameGuide(ControllerBindings<?> bindings, IngameGuideRegistry registry);
     }
 
     @FunctionalInterface

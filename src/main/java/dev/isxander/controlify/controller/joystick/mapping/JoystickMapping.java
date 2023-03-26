@@ -21,6 +21,8 @@ public interface JoystickMapping {
 
         boolean isAxisResting(float value);
 
+        float restingValue();
+
         String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction);
     }
 

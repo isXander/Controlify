@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.guide;
+package dev.isxander.controlify.mixins.feature.guide.ingame;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;

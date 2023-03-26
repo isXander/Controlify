@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -58,7 +59,17 @@ public class JoystickState implements ControllerState {
                 || hats().stream().anyMatch(hat -> hat != HatState.CENTERED);
     }
 
-    public static JoystickState fromJoystick(JoystickController joystick, int joystickId) {
+    @Override
+    public String toString() {
+        return "JoystickState{" +
+                "axes=" + axes +
+                ", rawAxes=" + rawAxes +
+                ", buttons=" + buttons +
+                ", hats=" + hats +
+                '}';
+    }
+
+    public static JoystickState fromJoystick(JoystickController<?> joystick, int joystickId) {
         FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystickId);
         List<Float> axes = new ArrayList<>();
         List<Float> rawAxes = new ArrayList<>();
@@ -105,6 +116,40 @@ public class JoystickState implements ControllerState {
         }
 
         return new JoystickState(joystick.mapping(), axes, rawAxes, buttons, hats);
+    }
+
+    public static JoystickState empty(JoystickController<?> joystick) {
+        var axes = new ArrayList<Float>();
+        var buttons = new ArrayList<Boolean>();
+        var hats = new ArrayList<HatState>();
+
+        for (int i = 0; i < joystick.axisCount(); i++) {
+            axes.add(joystick.mapping().axis(i).restingValue());
+        }
+        for (int i = 0; i < joystick.buttonCount(); i++) {
+            buttons.add(false);
+        }
+        for (int i = 0; i < joystick.hatCount(); i++) {
+            hats.add(HatState.CENTERED);
+        }
+
+        return new JoystickState(joystick.mapping(), axes, axes, buttons, hats);
+    }
+
+    public static JoystickState merged(JoystickMapping mapping, Collection<JoystickState> states) {
+        var axes = new ArrayList<Float>();
+        var rawAxes = new ArrayList<Float>();
+        var buttons = new ArrayList<Boolean>();
+        var hats = new ArrayList<HatState>();
+
+        for (var state : states) {
+            axes.addAll(state.axes);
+            rawAxes.addAll(state.rawAxes);
+            buttons.addAll(state.buttons);
+            hats.addAll(state.hats);
+        }
+
+        return new JoystickState(mapping, axes, rawAxes, buttons, hats);
     }
 
     public enum HatState implements NameableEnum {

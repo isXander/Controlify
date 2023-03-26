@@ -18,11 +18,11 @@ import java.util.Objects;
 public class JoystickAxisBind implements IBind<JoystickState> {
     public static final String BIND_ID = "joystick_axis";
 
-    private final JoystickController joystick;
+    private final JoystickController<?> joystick;
     private final int axisIndex;
     private final AxisDirection direction;
 
-    public JoystickAxisBind(JoystickController joystick, int axisIndex, AxisDirection direction) {
+    public JoystickAxisBind(JoystickController<?> joystick, int axisIndex, AxisDirection direction) {
         this.joystick = joystick;
         this.axisIndex = axisIndex;
         this.direction = direction;
@@ -93,7 +93,7 @@ public class JoystickAxisBind implements IBind<JoystickState> {
         return Objects.hash(axisIndex, direction);
     }
 
-    public static JoystickAxisBind fromJson(JsonObject object, JoystickController joystick) {
+    public static JoystickAxisBind fromJson(JsonObject object, JoystickController<?> joystick) {
         var axisIndex = object.get("axis").getAsInt();
         var direction = AxisDirection.valueOf(object.get("direction").getAsString());
         return new JoystickAxisBind(joystick, axisIndex, direction);

@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.gui.DrawSize;
 
 public interface IBind<S extends ControllerState> {
@@ -28,7 +28,7 @@ public interface IBind<S extends ControllerState> {
 
         if (controller instanceof GamepadController gamepad && type.equals(GamepadBinds.BIND_ID)) {
             return GamepadBinds.fromJson(json).map(bind -> (IBind<T>) bind.forGamepad(gamepad)).orElse(new EmptyBind<>());
-        } else if (controller instanceof JoystickController joystick) {
+        } else if (controller instanceof SingleJoystickController joystick) {
             return (IBind<T>) switch (type) {
                 case JoystickButtonBind.BIND_ID -> JoystickButtonBind.fromJson(json, joystick);
                 case JoystickHatBind.BIND_ID -> JoystickHatBind.fromJson(json, joystick);

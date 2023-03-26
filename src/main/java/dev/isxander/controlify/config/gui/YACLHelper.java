@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.yacl.api.*;
@@ -79,13 +80,17 @@ public class YACLHelper {
     }
 
     private static ConfigCategory createControllerCategory(Controller<?, ?> controller) {
+        if (!controller.canBeUsed()) {
+            return PlaceholderCategory.createBuilder()
+                    .name(Component.literal(controller.name()))
+                    .tooltip(Component.translatable("controlify.gui.controller_unavailable"))
+                    .screen((minecraft, yacl) -> yacl)
+                    .build();
+        }
+
         var category = ConfigCategory.createBuilder();
 
         category.name(Component.literal(controller.name()));
-
-        if (!controller.canBeUsed()) {
-            category.tooltip(Component.translatable("controlify.gui.controller_unavailable"));
-        }
 
         var config = controller.config();
         var def = controller.defaultConfig();
@@ -126,9 +131,15 @@ public class YACLHelper {
                         .controller(BooleanController::new)
                         .build())
                 .option(Option.createBuilder(boolean.class)
-                        .name(Component.translatable("controlify.gui.show_guide"))
-                        .tooltip(Component.translatable("controlify.gui.show_guide.tooltip"))
-                        .binding(def.showGuide, () -> config.showGuide, v -> config.showGuide = v)
+                        .name(Component.translatable("controlify.gui.show_ingame_guide"))
+                        .tooltip(Component.translatable("controlify.gui.show_ingame_guide.tooltip"))
+                        .binding(def.showIngameGuide, () -> config.showIngameGuide, v -> config.showIngameGuide = v)
+                        .controller(TickBoxController::new)
+                        .build())
+                .option(Option.createBuilder(boolean.class)
+                        .name(Component.translatable("controlify.gui.show_screen_guide"))
+                        .tooltip(Component.translatable("controlify.gui.show_screen_guide.tooltip"))
+                        .binding(def.showScreenGuide, () -> config.showScreenGuide, v -> config.showScreenGuide = v)
                         .controller(TickBoxController::new)
                         .build())
                 .option(Option.createBuilder(float.class)
@@ -182,8 +193,8 @@ public class YACLHelper {
             var gpCfgDef = gamepad.defaultConfig();
             advancedGroup
                     .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.left_stick_deadzone"))
-                            .tooltip(Component.translatable("controlify.gui.left_stick_deadzone.tooltip"))
+                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.left_stick")))
+                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.left_stick")))
                             .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                             .binding(
                                     Math.max(gpCfgDef.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
@@ -193,8 +204,8 @@ public class YACLHelper {
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build())
                     .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.right_stick_deadzone"))
-                            .tooltip(Component.translatable("controlify.gui.right_stick_deadzone.tooltip"))
+                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.right_stick")))
+                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.right_stick")))
                             .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                             .binding(
                                     Math.max(gpCfgDef.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
@@ -203,7 +214,7 @@ public class YACLHelper {
                             )
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build());
-        } else if (controller instanceof JoystickController joystick) {
+        } else if (controller instanceof SingleJoystickController joystick) {
             Collection<Integer> deadzoneAxes = IntStream.range(0, joystick.axisCount())
                     .filter(i -> joystick.mapping().axis(i).requiresDeadzone())
                     .boxed()
@@ -254,7 +265,7 @@ public class YACLHelper {
                         .tooltip(binding.description())
                         .build());
             }
-        } else if (controller instanceof JoystickController joystick) {
+        } else if (controller instanceof JoystickController<?> joystick) {
             for (var binding : joystick.bindings().registry().values()) {
                 controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
                         .name(binding.name())

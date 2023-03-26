@@ -65,8 +65,8 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     }
 
     @Override
-    public String guid() {
-        return this.guid;
+    public int joystickId() {
+        return this.joystickId;
     }
 
     @Override

@@ -73,8 +73,8 @@ public class ClientTestHelper {
             }
 
             @Override
-            public String guid() {
-                return "FAKE";
+            public int joystickId() {
+                return -1;
             }
 
             @Override

@@ -45,7 +45,12 @@ public class UnmappedJoystickMapping implements JoystickMapping {
 
         @Override
         public boolean isAxisResting(float value) {
-            return value == 0;
+            return value == restingValue();
+        }
+
+        @Override
+        public float restingValue() {
+            return 0;
         }
 
         @Override

@@ -43,6 +43,11 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         state = new GamepadState(axesState, rawAxesState, buttonState);
     }
 
+    @Override
+    public void clearState() {
+        state = GamepadState.EMPTY;
+    }
+
     public void consumeButtonState() {
         this.state = new GamepadState(state().gamepadAxes(), state().rawGamepadAxes(), GamepadState.ButtonState.EMPTY);
     }

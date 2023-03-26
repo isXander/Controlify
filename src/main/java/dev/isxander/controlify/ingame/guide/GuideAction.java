@@ -1,7 +1,7 @@
 package dev.isxander.controlify.ingame.guide;
 
-import dev.isxander.controlify.api.buttonguide.ActionLocation;
-import dev.isxander.controlify.api.buttonguide.ActionPriority;
+import dev.isxander.controlify.api.ingameguide.ActionLocation;
+import dev.isxander.controlify.api.ingameguide.ActionPriority;
 import dev.isxander.controlify.bindings.ControllerBinding;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;

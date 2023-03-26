@@ -3,12 +3,17 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ControlifyConfig {
     public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("controlify.json");
@@ -24,6 +29,7 @@ public class ControlifyConfig {
 
     private String currentControllerUid;
     private JsonObject controllerData = new JsonObject();
+    private Map<String, CompoundJoystickInfo> compoundJoysticks = Map.of();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
 
@@ -69,9 +75,10 @@ public class ControlifyConfig {
         }
 
         controllerData = newControllerData;
-        config.add("controllers", controllerData);
-        config.add("global", GSON.toJsonTree(globalSettings));
         config.addProperty("current_controller", currentControllerUid = controlify.currentController().uid());
+        config.add("controllers", controllerData);
+        config.add("compound_joysticks", GSON.toJsonTree(compoundJoysticks.values().toArray(new CompoundJoystickInfo[0])));
+        config.add("global", GSON.toJsonTree(globalSettings));
 
         return config;
     }
@@ -96,6 +103,13 @@ public class ControlifyConfig {
                 loadOrCreateControllerData(controller);
             }
         }
+
+        this.compoundJoysticks = object
+                .getAsJsonArray("compound_joysticks")
+                .asList()
+                .stream()
+                .map(element -> GSON.fromJson(element, CompoundJoystickInfo.class))
+                .collect(Collectors.toMap(info -> info.type().identifier(), Function.identity()));
 
         if (object.has("current_controller")) {
             currentControllerUid = object.get("current_controller").getAsString();
@@ -126,6 +140,14 @@ public class ControlifyConfig {
             controller.resetConfig();
             save();
         }
+    }
+
+    public Optional<JsonObject> getLoadedControllerConfig(String uid) {
+        return Optional.ofNullable(controllerData.getAsJsonObject(uid));
+    }
+
+    public Map<String, CompoundJoystickInfo> getCompoundJoysticks() {
+        return compoundJoysticks;
     }
 
     public GlobalSettings globalSettings() {

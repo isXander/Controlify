@@ -3,6 +3,7 @@ package dev.isxander.controlify.config.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -18,9 +19,9 @@ import org.lwjgl.glfw.GLFW;
 
 public class JoystickBindController implements Controller<IBind<JoystickState>> {
     private final Option<IBind<JoystickState>> option;
-    private final JoystickController controller;
+    private final JoystickController<?> controller;
 
-    public JoystickBindController(Option<IBind<JoystickState>> option, JoystickController controller) {
+    public JoystickBindController(Option<IBind<JoystickState>> option, JoystickController<?> controller) {
         this.option = option;
         this.controller = controller;
     }

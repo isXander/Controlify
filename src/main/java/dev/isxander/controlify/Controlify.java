@@ -3,8 +3,10 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
@@ -16,8 +18,8 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -72,6 +74,8 @@ public class Controlify implements ControlifyApi {
             }
         }
 
+        checkCompoundJoysticks();
+
         if (Controller.CONTROLLERS.isEmpty()) {
             LOGGER.info("No controllers found.");
         }
@@ -82,19 +86,41 @@ public class Controlify implements ControlifyApi {
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
-            if (event == GLFW.GLFW_CONNECTED) {
-                this.onControllerHotplugged(jid);
-            } else if (event == GLFW.GLFW_DISCONNECTED) {
-                this.onControllerDisconnect(jid);
+            try {
+                if (event == GLFW.GLFW_CONNECTED) {
+                    this.onControllerHotplugged(jid);
+                } else if (event == GLFW.GLFW_DISCONNECTED) {
+                    this.onControllerDisconnect(jid);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
         ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+            try {
+                entrypoint.onControllersDiscovered(this);
+            } catch (Exception e) {
+                LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+            }
+        });
     }
 
     public void initializeControlify() {
+        LOGGER.info("Pre-initializing Controlify...");
+
         this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
         this.virtualMouseHandler = new VirtualMouseHandler();
+
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+            try {
+                entrypoint.onControlifyPreInit(this);
+            } catch (Exception e) {
+                LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+            }
+        });
     }
 
     public void tick(Minecraft client) {
@@ -109,8 +135,13 @@ public class Controlify implements ControlifyApi {
             }
         }
 
+        boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
+
         for (var controller : Controller.CONTROLLERS.values()) {
-            controller.updateState();
+            if (!outOfFocus)
+                controller.updateState();
+            else
+                controller.clearState();
         }
 
         ControllerState state = currentController == null ? ControllerState.EMPTY : currentController.state();
@@ -127,7 +158,7 @@ public class Controlify implements ControlifyApi {
             }
         }
 
-        if (!config().globalSettings().outOfFocusInput && !client.isWindowActive())
+        if (outOfFocus)
             state = ControllerState.EMPTY;
 
         if (state.hasAnyInput())
@@ -171,11 +202,14 @@ public class Controlify implements ControlifyApi {
         config().loadOrCreateControllerData(currentController);
 
         this.askToSwitchController(controller);
+
+        checkCompoundJoysticks();
     }
 
     private void onControllerDisconnect(int jid) {
-        var controller = Controller.CONTROLLERS.remove(jid);
-        if (controller != null) {
+        Controller.CONTROLLERS.values().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
+            Controller.CONTROLLERS.remove(controller.uid(), controller);
+
             setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
             LOGGER.info("Controller disconnected: " + controller.name());
             this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
@@ -185,7 +219,29 @@ public class Controlify implements ControlifyApi {
                     Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
                     false
             );
-        }
+        });
+
+        checkCompoundJoysticks();
+    }
+
+    private void checkCompoundJoysticks() {
+        config().getCompoundJoysticks().values().forEach(info -> {
+            try {
+                if (info.isLoaded() && !info.canBeUsed()) {
+                    LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
+                    Controller.CONTROLLERS.remove(info.type().identifier());
+                }
+
+                if (!info.isLoaded() && info.canBeUsed()) {
+                    LOGGER.info("Loading compound joystick " + info.type().identifier() + ".");
+                    CompoundJoystickController controller = info.attemptCreate().orElseThrow();
+                    Controller.CONTROLLERS.put(info.type().identifier(), controller);
+                    config().loadOrCreateControllerData(controller);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void askToSwitchController(Controller<?, ?> controller) {

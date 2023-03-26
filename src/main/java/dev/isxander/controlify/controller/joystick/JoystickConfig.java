@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.joystick;
 
 import dev.isxander.controlify.controller.ControllerConfig;
+import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,9 +9,10 @@ import java.util.Map;
 public class JoystickConfig extends ControllerConfig {
     private Map<String, Float> deadzones;
 
-    private transient JoystickController controller;
+    private transient JoystickController<?> controller;
 
-    public JoystickConfig(JoystickController controller) {
+    public JoystickConfig(JoystickController<?> controller) {
+        Validate.notNull(controller);
         setup(controller);
     }
 
@@ -30,7 +32,7 @@ public class JoystickConfig extends ControllerConfig {
         return deadzones.getOrDefault(controller.mapping().axis(axis).identifier(), 0.2f);
     }
 
-    void setup(JoystickController controller) {
+    void setup(JoystickController<?> controller) {
         this.controller = controller;
         if (this.deadzones == null) {
             deadzones = new HashMap<>();

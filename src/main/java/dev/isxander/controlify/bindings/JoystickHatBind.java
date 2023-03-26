@@ -7,7 +7,6 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,11 +15,11 @@ import java.util.Objects;
 public class JoystickHatBind implements IBind<JoystickState> {
     public static final String BIND_ID = "joystick_hat";
 
-    private final JoystickController joystick;
+    private final JoystickController<?> joystick;
     private final int hatIndex;
     private final JoystickState.HatState hatState;
 
-    public JoystickHatBind(JoystickController joystick, int hatIndex, JoystickState.HatState hatState) {
+    public JoystickHatBind(JoystickController<?> joystick, int hatIndex, JoystickState.HatState hatState) {
         this.joystick = joystick;
         this.hatIndex = hatIndex;
         this.hatState = hatState;
@@ -84,7 +83,7 @@ public class JoystickHatBind implements IBind<JoystickState> {
         return Objects.hash(hatIndex, hatState, joystick.uid());
     }
 
-    public static JoystickHatBind fromJson(JsonObject object, JoystickController joystick) {
+    public static JoystickHatBind fromJson(JsonObject object, JoystickController<?> joystick) {
         var hatIndex = object.get("hat").getAsInt();
         var hatState = JoystickState.HatState.valueOf(object.get("state").getAsString());
         return new JoystickHatBind(joystick, hatIndex, hatState);

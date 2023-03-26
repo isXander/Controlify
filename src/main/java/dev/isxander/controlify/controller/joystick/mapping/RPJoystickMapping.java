@@ -111,7 +111,7 @@ public class RPJoystickMapping implements JoystickMapping {
         }
     }
 
-    private record AxisMapping(List<Integer> ids, String identifier, Vec2 inpRange, Vec2 outRange, float restState, boolean requiresDeadzone, String typeId, List<List<String>> axisNames) implements Axis {
+    private record AxisMapping(List<Integer> ids, String identifier, Vec2 inpRange, Vec2 outRange, float restingValue, boolean requiresDeadzone, String typeId, List<List<String>> axisNames) implements Axis {
         @Override
         public float modifyAxis(float value) {
             if (inpRange() == null || outRange() == null)
@@ -122,7 +122,7 @@ public class RPJoystickMapping implements JoystickMapping {
 
         @Override
         public boolean isAxisResting(float value) {
-            return value == restState();
+            return value == restingValue();
         }
 
         @Override

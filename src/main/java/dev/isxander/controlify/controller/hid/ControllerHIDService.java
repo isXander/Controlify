@@ -36,7 +36,7 @@ public class ControllerHIDService implements HidServicesListener {
         services.scan();
         try {
             // wait for scan to complete on separate thread
-            Thread.sleep(800);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -78,5 +78,8 @@ public class ControllerHIDService implements HidServicesListener {
     }
 
     public record ControllerHIDInfo(ControllerType type, Optional<String> path) {
+        public String createControllerUID() {
+            return UUID.nameUUIDFromBytes(path().get().getBytes()).toString();
+        }
     }
 }
