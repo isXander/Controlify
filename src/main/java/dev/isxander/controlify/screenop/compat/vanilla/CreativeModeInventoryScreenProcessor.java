@@ -4,15 +4,18 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTabs;
 
-public class CreativeModeInventoryScreenProcessor extends ScreenProcessor<CreativeModeInventoryScreen> {
-    public CreativeModeInventoryScreenProcessor(CreativeModeInventoryScreen screen) {
-        super(screen);
+import java.util.function.Supplier;
+
+public class CreativeModeInventoryScreenProcessor extends AbstractContainerScreenProcessor<CreativeModeInventoryScreen> {
+    public CreativeModeInventoryScreenProcessor(CreativeModeInventoryScreen screen, Supplier<Slot> hoveredSlot, ClickSlotFunction clickSlotFunction) {
+        super(screen, hoveredSlot, clickSlotFunction);
     }
 
     @Override
-    protected void handleVMouseNavigation(Controller<?, ?> controller) {
+    protected void handleScreenVMouse(Controller<?, ?> controller) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
@@ -27,5 +30,7 @@ public class CreativeModeInventoryScreenProcessor extends ScreenProcessor<Creati
             if (newIndex < 0) newIndex = tabs.size() - 1;
             accessor.invokeSelectTab(tabs.get(newIndex));
         }
+
+        super.handleScreenVMouse(controller);
     }
 }

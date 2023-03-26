@@ -67,19 +67,25 @@ public class ControlifyAutoTestClient implements ClientModInitializer {
 
         boolean success = true;
         for (var test : preLoadTests) {
-            success &= wrapTest(test);
+            success &= wrapTestExecution(test);
         }
 
         waitForLoadingComplete();
 
         for (var test : postLoadTests) {
-            success &= wrapTest(test);
+            success &= wrapTestExecution(test);
         }
+
+        LOGGER.info("--------");
+        if (success)
+            LOGGER.info("\u001b[32mAll tests passed!");
+        else
+            LOGGER.error("\n\u001b[31mSome tests failed!");
 
         System.exit(success ? 0 : 1);
     }
 
-    private boolean wrapTest(Test test) {
+    private boolean wrapTestExecution(Test test) {
         LOGGER.info("\u001b[36mRunning test " + test.name() + "...");
         try {
             test.method().run();

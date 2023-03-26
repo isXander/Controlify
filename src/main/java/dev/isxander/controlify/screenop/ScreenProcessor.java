@@ -35,7 +35,7 @@ public class ScreenProcessor<T extends Screen> {
             handleComponentNavigation(controller);
             handleButtons(controller);
         } else {
-            handleVMouseNavigation(controller);
+            handleScreenVMouse(controller);
         }
 
         handleTabNavigation(controller);
@@ -111,7 +111,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleVMouseNavigation(Controller<?, ?> controller) {
+    protected void handleScreenVMouse(Controller<?, ?> controller) {
 
     }
 

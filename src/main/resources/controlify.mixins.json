@@ -32,6 +32,7 @@
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.screenop.vanilla.AbstractButtonMixin",
     "feature.screenop.vanilla.AbstractContainerEventHandlerMixin",
+    "feature.screenop.vanilla.AbstractContainerScreenMixin",
     "feature.screenop.vanilla.AbstractSelectionListMixin",
     "feature.screenop.vanilla.AbstractSliderButtonMixin",
     "feature.screenop.vanilla.ContainerObjectSelectionListEntryMixin",

@@ -66,7 +66,7 @@ public class ControllerBindings<T extends ControllerState> {
         register(ATTACK = new ControllerBinding<>(controller, GamepadBinds.RIGHT_TRIGGER, new ResourceLocation("controlify", "attack"), options.keyAttack, () -> false));
         register(USE = new ControllerBinding<>(controller, GamepadBinds.LEFT_TRIGGER, new ResourceLocation("controlify", "use"), options.keyUse, () -> false));
         register(SPRINT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_PRESS, new ResourceLocation("controlify", "sprint"), options.keySprint, () -> controller.config().toggleSprint));
-        register(DROP = new ControllerBinding<>(controller, GamepadBinds.DPAD_DOWN, new ResourceLocation("controlify", "drop"), options.keyDrop, () -> false));
+        register(DROP = new ControllerBinding<>(controller, GamepadBinds.DPAD_DOWN, new ResourceLocation("controlify", "drop")));
         register(NEXT_SLOT = new ControllerBinding<>(controller, GamepadBinds.RIGHT_BUMPER, new ResourceLocation("controlify", "next_slot")));
         register(PREV_SLOT = new ControllerBinding<>(controller, GamepadBinds.LEFT_BUMPER, new ResourceLocation("controlify", "prev_slot")));
         register(PAUSE = new ControllerBinding<>(controller, GamepadBinds.START, new ResourceLocation("controlify", "pause")));

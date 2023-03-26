@@ -5,6 +5,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.world.InteractionHand;
 
 public class InGameInputHandler {
     private final Controller<?, ?> controller;
@@ -31,7 +32,7 @@ public class InGameInputHandler {
     }
 
     protected void handleKeybinds() {
-        if (Minecraft.getInstance().screen != null && !Minecraft.getInstance().screen.passEvents)
+        if (Minecraft.getInstance().screen != null)
             return;
 
         if (controller.bindings().PAUSE.justPressed()) {
@@ -44,6 +45,14 @@ public class InGameInputHandler {
             if (controller.bindings().PREV_SLOT.justPressed()) {
                 minecraft.player.getInventory().swapPaint(1);
             }
+
+            if (!minecraft.player.isSpectator()) {
+                if (controller.bindings().DROP.justPressed()) {
+                    minecraft.player.drop(false);
+                    minecraft.player.swing(InteractionHand.MAIN_HAND);
+                }
+            }
+
         }
         if (controller.bindings().TOGGLE_HUD_VISIBILITY.justPressed()) {
             minecraft.options.hideGui = !minecraft.options.hideGui;
