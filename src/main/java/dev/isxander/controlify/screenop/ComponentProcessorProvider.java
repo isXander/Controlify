@@ -8,6 +8,10 @@ public interface ComponentProcessorProvider {
     static ComponentProcessor provide(GuiEventListener component) {
         if (component instanceof ComponentProcessorProvider provider)
             return provider.componentProcessor();
-        return ComponentProcessor.EMPTY;
+
+        return REGISTRY.get(component).orElse(ComponentProcessor.EMPTY);
+
     }
+
+    Registry<GuiEventListener, ComponentProcessor> REGISTRY = new Registry<>();
 }

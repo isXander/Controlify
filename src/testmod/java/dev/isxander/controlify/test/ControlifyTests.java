@@ -6,6 +6,10 @@ import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.BindingSupplier;
 import dev.isxander.controlify.bindings.GamepadBinds;
+import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,8 +19,9 @@ import static dev.isxander.controlify.test.ClientTestHelper.*;
 
 public class ControlifyTests {
     BindingSupplier binding = null;
+    boolean titleScreenProcessorPresent = false;
 
-    @Test.PreLoad("Binding registry test")
+    @Test.Entrypoint("Binding registry test")
     void bindingRegistryTest() {
         var registry = ControlifyBindingsApi.get();
         assertNotNull(registry, "Binding registry is null");
@@ -24,13 +29,14 @@ public class ControlifyTests {
         assertNotNull(binding, "Bind registry failed - BindingSupplier is null");
     }
 
-    @Test.PostLoad("BindingSupplier getter test")
+    @Test.TitleScreen("BindingSupplier getter test")
     void bindingSupplierGetterTest() {
-        var controller = createFakeController();
+        var controller = createAndUseDummyController();
         assertNotNull(binding.get(controller), "Bind registry failed - Bind for fake controller is null");
+        controller.finish();
     }
 
-    @Test.PostLoad("Input mode changed event test")
+    @Test.TitleScreen("Input mode changed event test")
     void checkInputModeChangedEvent() {
         var api = ControlifyApi.get();
 
@@ -41,5 +47,21 @@ public class ControlifyTests {
         api.setInputMode(InputMode.KEYBOARD_MOUSE);
 
         assertTrue(called.get(), "Input mode changed event was not called");
+    }
+
+    @Test.Entrypoint("Screen component registry setup test")
+    void setupScreenComponentRegistry() {
+        ScreenProcessorProvider.REGISTRY.register(TitleScreen.class, ts -> new ScreenProcessor<>(ts){
+            @Override
+            public void onWidgetRebuild() {
+                super.onWidgetRebuild();
+                titleScreenProcessorPresent = true;
+            }
+        });
+    }
+
+    @Test.TitleScreen("Screen component registry test")
+    void checkScreenComponentRegistry() {
+        assertTrue(titleScreenProcessorPresent, "Screen processor was not called");
     }
 }

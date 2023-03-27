@@ -1,7 +1,9 @@
-package dev.isxander.controlify.mixins.feature.screenop.vanilla;
+package dev.isxander.controlify.mixins.feature.screenop;
 
+import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,6 +23,13 @@ public class ScreenMixin implements ScreenProcessorProvider {
 
     @Inject(method = "rebuildWidgets", at = @At("RETURN"))
     private void onScreenInit(CallbackInfo ci) {
-        screenProcessor().onWidgetRebuild();
+        // cannot use screenProcessor() because it may be overriden by registry
+        ScreenProcessorProvider.provide((Screen) (Object) this).onWidgetRebuild();
+    }
+
+    @Inject(method = "init(Lnet/minecraft/client/Minecraft;II)V", at = @At("HEAD"))
+    private void clearRegistryCaches(Minecraft client, int width, int height, CallbackInfo ci) {
+        ScreenProcessorProvider.REGISTRY.clearCache();
+        ComponentProcessorProvider.REGISTRY.clearCache();
     }
 }

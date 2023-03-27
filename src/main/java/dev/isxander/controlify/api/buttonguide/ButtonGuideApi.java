@@ -12,7 +12,7 @@ import java.util.function.Function;
  * Adds a guide to a button. This does not invoke the button press on binding trigger, only renders the guide.
  * This should be called every time a button is initialised, like in {@link Screen#init()}
  */
-public interface ButtonGuideApi {
+public final class ButtonGuideApi {
     /**
      * Makes the button render the image of the binding specified.
      * This does not invoke the button press on binding trigger, only renders the guide.
@@ -23,7 +23,7 @@ public interface ButtonGuideApi {
      * @param position where the guide should be rendered relative to the button
      * @param renderPredicate whether the guide should be rendered
      */
-    static <T extends AbstractButton> void addGuideToButton(
+    public static <T extends AbstractButton> void addGuideToButton(
             T button,
             Function<ControllerBindings<?>, ControllerBinding<?>> binding,
             ButtonRenderPosition position,

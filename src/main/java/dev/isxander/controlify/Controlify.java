@@ -124,7 +124,6 @@ public class Controlify implements ControlifyApi {
     }
 
     public void tick(Minecraft client) {
-        var minecraft = Minecraft.getInstance();
         if (minecraft.getOverlay() == null) {
             if (!calibrationQueue.isEmpty()) {
                 Screen screen = minecraft.screen;

@@ -1,17 +1,13 @@
 package dev.isxander.controlify.test;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerConfig;
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.ControllerType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -52,86 +48,21 @@ public class ClientTestHelper {
         return submit(function).join();
     }
 
-    public static Controller<?, ?> createFakeController() {
-        return new Controller<>() {
-            private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
-            private final ControllerConfig config = new ControllerConfig() {
-                @Override
-                public void setDeadzone(int axis, float deadzone) {
+    public static void takeScreenshot(String name) {
+        AtomicBoolean returned = new AtomicBoolean(false);
+        submitAndWait(mc -> {
+            Screenshot.grab(mc.gameDirectory, name+".png", mc.getMainRenderTarget(), text -> returned.set(true));
+            return true;
+        });
+        waitFor("Screenshot to be taken", mc -> returned.get(), Duration.ofSeconds(2));
 
-                }
+    }
 
-                @Override
-                public float getDeadzone(int axis) {
-                    return 0;
-                }
-            };
-
-            @Override
-            public String uid() {
-                return "FAKE";
-            }
-
-            @Override
-            public int joystickId() {
-                return -1;
-            }
-
-            @Override
-            public ControllerBindings<ControllerState> bindings() {
-                return bindings;
-            }
-
-            @Override
-            public ControllerConfig config() {
-                return config;
-            }
-
-            @Override
-            public ControllerConfig defaultConfig() {
-                return config;
-            }
-
-            @Override
-            public void resetConfig() {
-
-            }
-
-            @Override
-            public void setConfig(Gson gson, JsonElement json) {
-
-            }
-
-            @Override
-            public ControllerType type() {
-                return ControllerType.UNKNOWN;
-            }
-
-            @Override
-            public String name() {
-                return "FAKE CONTROLLER";
-            }
-
-            @Override
-            public ControllerState state() {
-                return ControllerState.EMPTY;
-            }
-
-            @Override
-            public ControllerState prevState() {
-                return ControllerState.EMPTY;
-            }
-
-            @Override
-            public void updateState() {
-
-            }
-
-            @Override
-            public void clearState() {
-
-            }
-        };
+    public static FakeController createAndUseDummyController() {
+        var controller = new FakeController();
+        Controller.CONTROLLERS.put(controller.uid(), controller);
+        controller.use();
+        return controller;
     }
 
 }
