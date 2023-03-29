@@ -11,6 +11,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,7 +29,9 @@ public class ControlifyTests {
         assertNotNull(registry, "Binding registry is null");
         binding = registry.registerBind(
                 new ResourceLocation("controlify", "test_bind"),
-                builder -> builder.defaultBind(new EmptyBind<>())
+                builder -> builder
+                        .defaultBind(new EmptyBind<>())
+                        .category(Component.literal("Test"))
         );
         assertNotNull(binding, "Bind registry failed - BindingSupplier is null");
     }
