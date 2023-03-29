@@ -32,6 +32,7 @@
     "feature.guide.screen.AbstractButtonMixin",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
+    "feature.reacharound.GameRendererMixin",
     "feature.screenop.MinecraftMixin",
     "feature.screenop.ScreenMixin",
     "feature.screenop.vanilla.AbstractButtonMixin",

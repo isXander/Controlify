@@ -14,6 +14,7 @@ import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
+import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
 import dev.isxander.yacl.gui.controllers.BooleanController;
@@ -53,7 +54,14 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.current_controller.tooltip"))
                         .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
                         .controller(opt -> new CyclingListController<>(opt, Iterables.concat(List.of(Controller.DUMMY), Controller.CONTROLLERS.values().stream().filter(Controller::canBeUsed).toList()), c -> Component.literal(c == Controller.DUMMY ? "Disabled" : c.name())))
-                        .instant(true)
+                        .build())
+                .option(Option.createBuilder(ReachAroundMode.class)
+                        .name(Component.translatable("controlify.gui.reach_around"))
+                        .tooltip(Component.translatable("controlify.gui.reach_around.tooltip"))
+                        .tooltip(Component.translatable("controlify.gui.reach_around.tooltip.parity").withStyle(ChatFormatting.GRAY))
+                        .tooltip(state -> state == ReachAroundMode.EVERYWHERE ? Component.translatable("controlify.gui.reach_around.tooltip.warning").withStyle(ChatFormatting.RED) : Component.empty())
+                        .binding(GlobalSettings.DEFAULT.reachAround, () -> globalSettings.reachAround, v -> globalSettings.reachAround = v)
+                        .controller(EnumController::new)
                         .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Component.translatable("controlify.gui.out_of_focus_input"))
