@@ -11,6 +11,7 @@
     "core.GLXMixin"
   ],
   "client": [
+    "compat.fapi.KeyBindingRegistryImplAccessor",
     "compat.sodium.SodiumOptionsGUIAccessor",
     "compat.sodium.SodiumOptionsGUIMixin",
     "compat.yacl.CyclingControllerElementMixin",
@@ -23,6 +24,7 @@
     "feature.accessibility.LocalPlayerMixin",
     "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.KeyMappingAccessor",
+    "feature.bind.ToggleKeyMappingAccessor",
     "feature.chatkbheight.ChatComponentMixin",
     "feature.chatkbheight.ChatScreenMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",
@@ -30,6 +32,7 @@
     "feature.guide.screen.AbstractButtonMixin",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
+    "feature.screenop.MinecraftMixin",
     "feature.screenop.ScreenMixin",
     "feature.screenop.vanilla.AbstractButtonMixin",
     "feature.screenop.vanilla.AbstractContainerEventHandlerMixin",

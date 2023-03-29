@@ -31,7 +31,7 @@
   "controlify.gui.controller_theme": "Controller Theme",
   "controlify.gui.controller_theme.tooltip": "The theme to use for rendering controller buttons.",
   "controlify.gui.reduce_bow_sensitivity": "Reduce Bow Sensitivity",
-    "controlify.gui.reduce_bow_sensitivity.tooltip": "Reduce the sensitivity of bow-like items when aiming.",
+  "controlify.gui.reduce_bow_sensitivity.tooltip": "Reduce the sensitivity of bow-like items when aiming.",
   "controlify.gui.custom_name": "Display Name",
   "controlify.gui.custom_name.tooltip": "Name to display for this controller throughout Minecraft.",
   "controlify.gui.group.advanced": "Advanced",
@@ -127,6 +127,11 @@
   "controlify.binding.controlify.gui_navi_right": "GUI Navi Right",
   "controlify.binding.controlify.cycle_opt_forward": "Cycle Option Forward",
   "controlify.binding.controlify.cycle_opt_backward": "Cycle Option Backward",
+
+  "controlify.binding_category.gui": "GUI",
+  "controlify.binding_category.vmouse": "Virtual Mouse",
+
+  "controlify.custom_binding.vanilla_description": "Automatically generated key binding from Fabric API.",
 
   "controlify.guide.inventory": "Open Inventory",
   "controlify.guide.swim_up": "Swim Up",

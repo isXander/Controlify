@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(CreativeModeInventoryScreen.class)
 public interface CreativeModeInventoryScreenAccessor {
     @Accessor
-    CreativeModeTab getSelectedTab();
+    static CreativeModeTab getSelectedTab() {
+        throw new AssertionError();
+    }
 
     @Invoker
     void invokeSelectTab(CreativeModeTab tab);

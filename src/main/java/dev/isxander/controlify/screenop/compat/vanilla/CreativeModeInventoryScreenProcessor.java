@@ -20,13 +20,13 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
             var tabs = CreativeModeTabs.tabs();
-            int newIndex = tabs.indexOf(accessor.getSelectedTab()) + 1;
+            int newIndex = tabs.indexOf(CreativeModeInventoryScreenAccessor.getSelectedTab()) + 1;
             if (newIndex >= tabs.size()) newIndex = 0;
             accessor.invokeSelectTab(tabs.get(newIndex));
         }
         if (controller.bindings().GUI_PREV_TAB.justPressed()) {
             var tabs = CreativeModeTabs.tabs();
-            int newIndex = tabs.indexOf(accessor.getSelectedTab()) - 1;
+            int newIndex = tabs.indexOf(CreativeModeInventoryScreenAccessor.getSelectedTab()) - 1;
             if (newIndex < 0) newIndex = tabs.size() - 1;
             accessor.invokeSelectTab(tabs.get(newIndex));
         }

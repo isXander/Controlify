@@ -2,9 +2,11 @@ package dev.isxander.controlify.config.gui;
 
 import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControllerBinding;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
@@ -30,6 +32,7 @@ import net.minecraft.network.chat.Component;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -263,27 +266,38 @@ public class YACLHelper {
         var controlsGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
         if (controller instanceof GamepadController gamepad) {
-            for (var binding : gamepad.bindings().registry().values()) {
-                controlsGroup.option(Option.createBuilder((Class<IBind<GamepadState>>) (Class<?>) IBind.class)
-                        .name(binding.name())
-                        .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
-                        .controller(opt -> new GamepadBindController(opt, gamepad))
-                        .tooltip(binding.description())
-                        .build());
-            }
+            groupBindings(gamepad.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
+                controlsGroup.option(LabelOption.create(categoryName));
+                for (var binding : bindGroup) {
+                    controlsGroup.option(Option.createBuilder((Class<IBind<GamepadState>>) (Class<?>) IBind.class)
+                            .name(binding.name())
+                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .controller(opt -> new GamepadBindController(opt, gamepad))
+                            .tooltip(binding.description())
+                            .build());
+                }
+            });
         } else if (controller instanceof JoystickController<?> joystick) {
-            for (var binding : joystick.bindings().registry().values()) {
-                controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
-                        .name(binding.name())
-                        .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
-                        .controller(opt -> new JoystickBindController(opt, joystick))
-                        .tooltip(binding.description())
-                        .build());
-            }
+            groupBindings(joystick.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
+                controlsGroup.option(LabelOption.create(categoryName));
+                for (var binding : bindGroup) {
+                    controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
+                            .name(binding.name())
+                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .controller(opt -> new JoystickBindController(opt, joystick))
+                            .tooltip(binding.description())
+                            .build());
+                }
+            });
         }
 
         category.group(controlsGroup.build());
 
         return category.build();
+    }
+
+    private static <T extends ControllerState> Map<Component, List<ControllerBinding<T>>> groupBindings(Collection<ControllerBinding<T>> bindings) {
+        return bindings.stream()
+                .collect(Collectors.groupingBy(ControllerBinding::category, LinkedHashMap::new, Collectors.toList()));
     }
 }

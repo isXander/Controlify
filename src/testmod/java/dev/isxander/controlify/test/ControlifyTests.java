@@ -5,6 +5,7 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.BindingSupplier;
+import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -25,7 +26,10 @@ public class ControlifyTests {
     void bindingRegistryTest() {
         var registry = ControlifyBindingsApi.get();
         assertNotNull(registry, "Binding registry is null");
-        binding = registry.registerBind(GamepadBinds.A_BUTTON, new ResourceLocation("controlify", "test_bind"));
+        binding = registry.registerBind(
+                new ResourceLocation("controlify", "test_bind"),
+                builder -> builder.defaultBind(new EmptyBind<>())
+        );
         assertNotNull(binding, "Bind registry failed - BindingSupplier is null");
     }
 

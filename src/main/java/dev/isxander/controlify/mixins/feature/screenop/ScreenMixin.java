@@ -26,10 +26,4 @@ public class ScreenMixin implements ScreenProcessorProvider {
         // cannot use screenProcessor() because it may be overriden by registry
         ScreenProcessorProvider.provide((Screen) (Object) this).onWidgetRebuild();
     }
-
-    @Inject(method = "init(Lnet/minecraft/client/Minecraft;II)V", at = @At("HEAD"))
-    private void clearRegistryCaches(Minecraft client, int width, int height, CallbackInfo ci) {
-        ScreenProcessorProvider.REGISTRY.clearCache();
-        ComponentProcessorProvider.REGISTRY.clearCache();
-    }
 }

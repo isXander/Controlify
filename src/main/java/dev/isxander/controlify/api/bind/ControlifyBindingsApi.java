@@ -8,6 +8,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.UnaryOperator;
 
 /**
  * Handles registering new bindings for controllers.
@@ -15,6 +16,8 @@ import java.util.function.BooleanSupplier;
  * Should be called within {@link dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint#onControlifyPreInit(ControlifyApi)}
  */
 public interface ControlifyBindingsApi {
+    BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder);
+
     /**
      * Registers a custom binding for all available controllers.
      * If the controller is not a gamepad, the binding with be empty by default.
@@ -23,6 +26,7 @@ public interface ControlifyBindingsApi {
      * @param id the identifier for the binding, the namespace should be your modid.
      * @return the binding supplier to fetch the binding for a specific controller.
      */
+    @Deprecated
     BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id);
 
     /**
@@ -35,7 +39,10 @@ public interface ControlifyBindingsApi {
      * @param toggleOverride a supplier that returns true if the vanilla keybind should be treated as a {@link net.minecraft.client.ToggleKeyMapping}
      * @return the binding supplier to fetch the binding for a specific controller.
      */
+    @Deprecated
     BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride);
+
+    void excludeVanillaBind(KeyMapping... keyMapping);
 
     static ControlifyBindingsApi get() {
         return ControllerBindings.Api.INSTANCE;

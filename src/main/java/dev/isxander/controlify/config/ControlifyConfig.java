@@ -32,6 +32,7 @@ public class ControlifyConfig {
     private Map<String, CompoundJoystickInfo> compoundJoysticks = Map.of();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
+    private boolean dirty;
 
     public ControlifyConfig(Controlify controlify) {
         this.controlify = controlify;
@@ -43,6 +44,7 @@ public class ControlifyConfig {
         try {
             Files.deleteIfExists(CONFIG_PATH);
             Files.writeString(CONFIG_PATH, GSON.toJson(generateConfig()), StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING);
+            dirty = false;
         } catch (IOException e) {
             throw new IllegalStateException("Failed to save config!", e);
         }
@@ -61,6 +63,11 @@ public class ControlifyConfig {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
         } catch (Exception e) {
             Controlify.LOGGER.error("Failed to load Controlify config!", e);
+        }
+
+        if (dirty) {
+            Controlify.LOGGER.info("Config was dirty after load, saving...");
+            save();
         }
     }
 
@@ -100,7 +107,7 @@ public class ControlifyConfig {
         if (controllers != null) {
             this.controllerData = controllers;
             for (var controller : Controller.CONTROLLERS.values()) {
-                loadOrCreateControllerData(controller);
+                _loadOrCreateControllerData(controller);
             }
         }
 
@@ -119,6 +126,12 @@ public class ControlifyConfig {
     }
 
     public boolean loadOrCreateControllerData(Controller<?, ?> controller) {
+        boolean result = _loadOrCreateControllerData(controller);
+        saveIfDirty();
+        return result;
+    }
+
+    private boolean _loadOrCreateControllerData(Controller<?, ?> controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
             Controlify.LOGGER.info("Loading controller data for " + uid);
@@ -134,10 +147,17 @@ public class ControlifyConfig {
     private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
         try {
             controller.setConfig(GSON, object.getAsJsonObject("config"));
-            controller.bindings().fromJson(object.getAsJsonObject("bindings"));
+            dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
         } catch (Exception e) {
             Controlify.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
             controller.resetConfig();
+            save();
+        }
+    }
+
+    private void saveIfDirty() {
+        if (dirty) {
+            Controlify.LOGGER.info("Config is dirty. Saving...");
             save();
         }
     }

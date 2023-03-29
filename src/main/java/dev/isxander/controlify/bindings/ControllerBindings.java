@@ -4,20 +4,36 @@ import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
+import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
+import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.ToggleKeyMapping;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class ControllerBindings<T extends ControllerState> {
     private static final Map<ResourceLocation, Function<ControllerBindings<?>, ControllerBinding<?>>> CUSTOM_BINDS = new LinkedHashMap<>();
+    private static final Set<KeyMapping> EXCLUDED_VANILLA_BINDS = new HashSet<>();
+
+    public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
+    public static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
+    public static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
+    public static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
+    public static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
+    public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
+    public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
 
     public final ControllerBinding<T>
             WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
@@ -47,64 +63,270 @@ public class ControllerBindings<T extends ControllerState> {
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
     private final Map<ResourceLocation, ControllerBinding<T>> registry = new LinkedHashMap<>();
+
     private final Controller<T, ?> controller;
 
     public ControllerBindings(Controller<T, ?> controller) {
         this.controller = controller;
         var options = Minecraft.getInstance().options;
 
-        register(WALK_FORWARD = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_FORWARD, new ResourceLocation("controlify", "walk_forward")));
-        register(WALK_BACKWARD = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "walk_backward")));
-        register(WALK_LEFT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_LEFT, new ResourceLocation("controlify", "strafe_left")));
-        register(WALK_RIGHT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "strafe_right")));
-        register(LOOK_UP = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_FORWARD, new ResourceLocation("controlify", "look_up")));
-        register(LOOK_DOWN = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_BACKWARD, new ResourceLocation("controlify", "look_down")));
-        register(LOOK_LEFT = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_LEFT, new ResourceLocation("controlify", "look_left")));
-        register(LOOK_RIGHT = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_RIGHT, new ResourceLocation("controlify", "look_right")));
-        register(JUMP = new ControllerBinding<>(controller, GamepadBinds.A_BUTTON, new ResourceLocation("controlify", "jump"), options.keyJump, () -> false));
-        register(SNEAK = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_PRESS, new ResourceLocation("controlify", "sneak"), options.keyShift, () -> controller.config().toggleSneak));
-        register(ATTACK = new ControllerBinding<>(controller, GamepadBinds.RIGHT_TRIGGER, new ResourceLocation("controlify", "attack"), options.keyAttack, () -> false));
-        register(USE = new ControllerBinding<>(controller, GamepadBinds.LEFT_TRIGGER, new ResourceLocation("controlify", "use"), options.keyUse, () -> false));
-        register(SPRINT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_PRESS, new ResourceLocation("controlify", "sprint"), options.keySprint, () -> controller.config().toggleSprint));
-        register(DROP = new ControllerBinding<>(controller, GamepadBinds.DPAD_DOWN, new ResourceLocation("controlify", "drop")));
-        register(NEXT_SLOT = new ControllerBinding<>(controller, GamepadBinds.RIGHT_BUMPER, new ResourceLocation("controlify", "next_slot")));
-        register(PREV_SLOT = new ControllerBinding<>(controller, GamepadBinds.LEFT_BUMPER, new ResourceLocation("controlify", "prev_slot")));
-        register(PAUSE = new ControllerBinding<>(controller, GamepadBinds.START, new ResourceLocation("controlify", "pause")));
-        register(INVENTORY = new ControllerBinding<>(controller, GamepadBinds.Y_BUTTON, new ResourceLocation("controlify", "inventory"), options.keyInventory, () -> false));
-        register(CHANGE_PERSPECTIVE = new ControllerBinding<>(controller, GamepadBinds.BACK, new ResourceLocation("controlify", "change_perspective"), options.keyTogglePerspective, () -> false));
-        register(SWAP_HANDS = new ControllerBinding<>(controller, GamepadBinds.X_BUTTON, new ResourceLocation("controlify", "swap_hands"), options.keySwapOffhand, () -> false));
-        register(OPEN_CHAT = new ControllerBinding<>(controller, GamepadBinds.DPAD_UP, new ResourceLocation("controlify", "open_chat"), options.keyChat, () -> false));
-        register(GUI_PRESS = new ControllerBinding<>(controller, GamepadBinds.A_BUTTON, new ResourceLocation("controlify", "gui_press")));
-        register(GUI_BACK = new ControllerBinding<>(controller, GamepadBinds.B_BUTTON, new ResourceLocation("controlify", "gui_back")));
-        register(GUI_NEXT_TAB = new ControllerBinding<>(controller, GamepadBinds.RIGHT_BUMPER, new ResourceLocation("controlify", "gui_next_tab")));
-        register(GUI_PREV_TAB = new ControllerBinding<>(controller, GamepadBinds.LEFT_BUMPER, new ResourceLocation("controlify", "gui_prev_tab")));
-        register(GUI_ABSTRACT_ACTION_1 = new ControllerBinding<>(controller, GamepadBinds.X_BUTTON, new ResourceLocation("controlify", "gui_abstract_action_1")));
-        register(GUI_ABSTRACT_ACTION_2 = new ControllerBinding<>(controller, GamepadBinds.Y_BUTTON, new ResourceLocation("controlify", "gui_abstract_action_2")));
-        register(PICK_BLOCK = new ControllerBinding<>(controller, GamepadBinds.DPAD_LEFT, new ResourceLocation("controlify", "pick_block"), options.keyPickItem, () -> false));
-        register(TOGGLE_HUD_VISIBILITY = new ControllerBinding<>(controller, new EmptyBind<>(), new ResourceLocation("controlify", "toggle_hud_visibility")));
-        register(SHOW_PLAYER_LIST = new ControllerBinding<>(controller, GamepadBinds.DPAD_RIGHT, new ResourceLocation("controlify", "show_player_list"), options.keyPlayerList, () -> false));
-        register(VMOUSE_MOVE_UP = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_FORWARD, new ResourceLocation("controlify", "vmouse_move_up")));
-        register(VMOUSE_MOVE_DOWN = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "vmouse_move_down")));
-        register(VMOUSE_MOVE_LEFT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_LEFT, new ResourceLocation("controlify", "vmouse_move_left")));
-        register(VMOUSE_MOVE_RIGHT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "vmouse_move_right")));
-        register(VMOUSE_LCLICK = new ControllerBinding<>(controller, GamepadBinds.A_BUTTON, new ResourceLocation("controlify", "vmouse_lclick")));
-        register(VMOUSE_RCLICK = new ControllerBinding<>(controller, GamepadBinds.X_BUTTON, new ResourceLocation("controlify", "vmouse_rclick")));
-        register(VMOUSE_SHIFT_CLICK = new ControllerBinding<>(controller, GamepadBinds.Y_BUTTON, new ResourceLocation("controlify", "vmouse_shift_click")));
-        register(VMOUSE_SCROLL_UP = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_FORWARD, new ResourceLocation("controlify", "vmouse_scroll_up")));
-        register(VMOUSE_SCROLL_DOWN = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_BACKWARD, new ResourceLocation("controlify", "vmouse_scroll_down")));
-        register(VMOUSE_ESCAPE = new ControllerBinding<>(controller, GamepadBinds.B_BUTTON, new ResourceLocation("controlify", "vmouse_escape")));
-        register(VMOUSE_SHIFT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_PRESS, new ResourceLocation("controlify", "vmouse_shift")));
-        register(VMOUSE_TOGGLE = new ControllerBinding<>(controller, GamepadBinds.BACK, new ResourceLocation("controlify", "vmouse_toggle")));
-        register(GUI_NAVI_UP = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_FORWARD, new ResourceLocation("controlify", "gui_navi_up")));
-        register(GUI_NAVI_DOWN = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_BACKWARD, new ResourceLocation("controlify", "gui_navi_down")));
-        register(GUI_NAVI_LEFT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_LEFT, new ResourceLocation("controlify", "gui_navi_left")));
-        register(GUI_NAVI_RIGHT = new ControllerBinding<>(controller, GamepadBinds.LEFT_STICK_RIGHT, new ResourceLocation("controlify", "gui_navi_right")));
-        register(CYCLE_OPT_FORWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_RIGHT, new ResourceLocation("controlify", "cycle_opt_forward")));
-        register(CYCLE_OPT_BACKWARD = new ControllerBinding<>(controller, GamepadBinds.RIGHT_STICK_LEFT, new ResourceLocation("controlify", "cycle_opt_backward")));
+        register(WALK_FORWARD = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "walk_forward")
+                .defaultBind(GamepadBinds.LEFT_STICK_FORWARD)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(WALK_BACKWARD = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "walk_backward")
+                .defaultBind(GamepadBinds.LEFT_STICK_BACKWARD)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(WALK_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "strafe_left")
+                .defaultBind(GamepadBinds.LEFT_STICK_LEFT)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(WALK_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "strafe_right")
+                .defaultBind(GamepadBinds.LEFT_STICK_RIGHT)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(LOOK_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "look_up")
+                .defaultBind(GamepadBinds.RIGHT_STICK_FORWARD)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(LOOK_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "look_down")
+                .defaultBind(GamepadBinds.RIGHT_STICK_BACKWARD)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(LOOK_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "look_left")
+                .defaultBind(GamepadBinds.RIGHT_STICK_LEFT)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(LOOK_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "look_right")
+                .defaultBind(GamepadBinds.RIGHT_STICK_RIGHT)
+                .category(MOVEMENT_CATEGORY)
+                .build());
+        register(JUMP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "jump")
+                .defaultBind(GamepadBinds.A_BUTTON)
+                .category(MOVEMENT_CATEGORY)
+                .vanillaOverride(options.keyJump, () -> false)
+                .build());
+        register(SPRINT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "sprint")
+                .defaultBind(GamepadBinds.LEFT_STICK_PRESS)
+                .category(MOVEMENT_CATEGORY)
+                .vanillaOverride(options.keySprint, () -> controller.config().toggleSprint)
+                .build());
+        register(SNEAK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "sneak")
+                .defaultBind(GamepadBinds.RIGHT_STICK_PRESS)
+                .category(MOVEMENT_CATEGORY)
+                .vanillaOverride(options.keyShift, () -> controller.config().toggleSneak)
+                .build());
+        register(ATTACK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "attack")
+                .defaultBind(GamepadBinds.RIGHT_TRIGGER)
+                .category(GAMEPLAY_CATEGORY)
+                .vanillaOverride(options.keyAttack, () -> false)
+                .build());
+        register(USE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "use")
+                .defaultBind(GamepadBinds.LEFT_TRIGGER)
+                .category(GAMEPLAY_CATEGORY)
+                .vanillaOverride(options.keyUse, () -> false)
+                .build());
+        register(DROP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "drop")
+                .defaultBind(GamepadBinds.DPAD_DOWN)
+                .category(GAMEPLAY_CATEGORY)
+                .build());
+        register(NEXT_SLOT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "next_slot")
+                .defaultBind(GamepadBinds.RIGHT_BUMPER)
+                .category(INVENTORY_CATEGORY)
+                .build());
+        register(PREV_SLOT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "prev_slot")
+                .defaultBind(GamepadBinds.LEFT_BUMPER)
+                .category(INVENTORY_CATEGORY)
+                .build());
+        register(PAUSE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "pause")
+                .defaultBind(GamepadBinds.START)
+                .category(GAMEPLAY_CATEGORY)
+                .build());
+        register(INVENTORY = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "inventory")
+                .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .vanillaOverride(options.keyInventory, () -> false)
+                .build());
+        register(CHANGE_PERSPECTIVE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "change_perspective")
+                .defaultBind(GamepadBinds.BACK)
+                .category(GAMEPLAY_CATEGORY)
+                .vanillaOverride(options.keyTogglePerspective, () -> false)
+                .build());
+        register(SWAP_HANDS = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "swap_hands")
+                .defaultBind(GamepadBinds.X_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .vanillaOverride(options.keySwapOffhand, () -> false)
+                .build());
+        register(OPEN_CHAT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "open_chat")
+                .defaultBind(GamepadBinds.DPAD_UP)
+                .category(MISC_CATEGORY)
+                .vanillaOverride(options.keyChat, () -> false)
+                .build());
+        register(GUI_PRESS = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_press")
+                .defaultBind(GamepadBinds.A_BUTTON)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_BACK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_back")
+                .defaultBind(GamepadBinds.B_BUTTON)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_NEXT_TAB = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_next_tab")
+                .defaultBind(GamepadBinds.RIGHT_BUMPER)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_PREV_TAB = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_prev_tab")
+                .defaultBind(GamepadBinds.LEFT_BUMPER)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_ABSTRACT_ACTION_1 = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_abstract_action_1")
+                .defaultBind(GamepadBinds.X_BUTTON)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_ABSTRACT_ACTION_2 = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_abstract_action_1")
+                .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(GUI_CATEGORY)
+                .build());
+        register(PICK_BLOCK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "pick_block")
+                .defaultBind(GamepadBinds.DPAD_LEFT)
+                .category(GAMEPLAY_CATEGORY)
+                .vanillaOverride(options.keyPickItem, () -> false)
+                .build());
+        register(TOGGLE_HUD_VISIBILITY = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "toggle_hud_visibility")
+                .defaultBind(new EmptyBind<>())
+                .category(MISC_CATEGORY)
+                .build());
+        register(SHOW_PLAYER_LIST = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "show_player_list")
+                .defaultBind(GamepadBinds.DPAD_RIGHT)
+                .category(MISC_CATEGORY)
+                .vanillaOverride(options.keyPlayerList, () -> false)
+                .build());
+        register(VMOUSE_MOVE_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_move_up")
+                .defaultBind(GamepadBinds.LEFT_STICK_FORWARD)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_MOVE_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_move_down")
+                .defaultBind(GamepadBinds.LEFT_STICK_BACKWARD)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_MOVE_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_move_left")
+                .defaultBind(GamepadBinds.LEFT_STICK_LEFT)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_MOVE_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_move_right")
+                .defaultBind(GamepadBinds.LEFT_STICK_RIGHT)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_LCLICK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_lclick")
+                .defaultBind(GamepadBinds.A_BUTTON)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_RCLICK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_rclick")
+                .defaultBind(GamepadBinds.X_BUTTON)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_SHIFT_CLICK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_shift_click")
+                .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_SCROLL_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_scroll_up")
+                .defaultBind(GamepadBinds.RIGHT_STICK_FORWARD)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_SCROLL_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_scroll_down")
+                .defaultBind(GamepadBinds.RIGHT_STICK_BACKWARD)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_ESCAPE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_escape")
+                .defaultBind(GamepadBinds.B_BUTTON)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_SHIFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_shift")
+                .defaultBind(GamepadBinds.LEFT_STICK_PRESS)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(VMOUSE_TOGGLE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_toggle")
+                .defaultBind(GamepadBinds.BACK)
+                .category(VMOUSE_CATEGORY)
+                .build());
+        register(GUI_NAVI_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_navi_up")
+                .defaultBind(GamepadBinds.LEFT_STICK_FORWARD)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_NAVI_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_navi_down")
+                .defaultBind(GamepadBinds.LEFT_STICK_BACKWARD)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_NAVI_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_navi_left")
+                .defaultBind(GamepadBinds.LEFT_STICK_LEFT)
+                .category(GUI_CATEGORY)
+                .build());
+        register(GUI_NAVI_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "gui_navi_right")
+                .defaultBind(GamepadBinds.LEFT_STICK_RIGHT)
+                .category(GUI_CATEGORY)
+                .build());
+        register(CYCLE_OPT_FORWARD = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cycle_opt_forward")
+                .defaultBind(GamepadBinds.RIGHT_STICK_RIGHT)
+                .category(GUI_CATEGORY)
+                .build());
+        register(CYCLE_OPT_BACKWARD = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cycle_opt_backward")
+                .defaultBind(GamepadBinds.RIGHT_STICK_LEFT)
+                .category(GUI_CATEGORY)
+                .build());
 
         for (var constructor : CUSTOM_BINDS.values()) {
             register((ControllerBinding<T>) constructor.apply(this));
         }
+
+        registerModdedKeybinds();
 
         ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
@@ -115,10 +337,16 @@ public class ControllerBindings<T extends ControllerState> {
         return binding;
     }
 
+    private ControllerBinding<?> create(UnaryOperator<ControllerBindingBuilder<?>> builder) {
+        return builder.apply(ControllerBindingBuilder.create(controller)).build();
+    }
+
+    @Deprecated
     private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id) {
         return new ControllerBinding<>(controller, bind, id);
     }
 
+    @Deprecated
     private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
         return new ControllerBinding<>(controller, bind, id, override, toggleOverride);
     }
@@ -139,26 +367,59 @@ public class ControllerBindings<T extends ControllerState> {
         return json;
     }
 
-    public void fromJson(JsonObject json) {
+    public boolean fromJson(JsonObject json) {
+        boolean clean = true;
         for (var binding : registry().values()) {
             if (!json.has(binding.id().toString())) {
-                Controlify.LOGGER.warn("Missing control: " + binding.id() + " in config file. Skipping!");
+                Controlify.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
+                clean = false;
                 continue;
             }
 
             var bind = json.get(binding.id().toString()).getAsJsonObject();
             if (bind == null) {
-                Controlify.LOGGER.warn("Unknown control: " + binding.id() + " in config file. Skipping!");
+                Controlify.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
+                clean = false;
                 continue;
             }
             binding.setCurrentBind(IBind.fromJson(bind, controller));
         }
+
+        return clean;
     }
 
     public void onControllerUpdate(Controller<?, ?> controller) {
         if (controller != this.controller) return;
 
         imitateVanillaClick();
+    }
+
+    private void registerModdedKeybinds() {
+        for (KeyMapping keyMapping : KeyBindingRegistryImplAccessor.getCustomKeys()) {
+            if (EXCLUDED_VANILLA_BINDS.contains(keyMapping))
+                continue;
+
+            try {
+                var identifier = new ResourceLocation("fabric-key-binding-api-v1", keyMapping.getName());
+                BooleanSupplier toggleOverride = () -> false;
+                if (keyMapping instanceof ToggleKeyMapping toggleKeyMapping) {
+                    toggleOverride = ((ToggleKeyMappingAccessor) toggleKeyMapping).getNeedsToggle();
+                }
+
+                ControllerBinding<T> binding = ControllerBindingBuilder.create(controller)
+                        .identifier(identifier)
+                        .defaultBind(new EmptyBind<>())
+                        .name(Component.translatable(keyMapping.getName()))
+                        .description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
+                        .category(Component.translatable(keyMapping.getCategory()))
+                        .vanillaOverride(keyMapping, toggleOverride)
+                        .build();
+
+                register(binding);
+            } catch (Exception e) {
+                Controlify.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
+            }
+        }
     }
 
     private void imitateVanillaClick() {
@@ -191,14 +452,29 @@ public class ControllerBindings<T extends ControllerState> {
     public static final class Api implements ControlifyBindingsApi {
         public static final Api INSTANCE = new Api();
 
+        @Override
+        public BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder) {
+            CUSTOM_BINDS.put(id, bindings -> bindings.create(b -> builder.apply(b).identifier(id)));
+            return controller -> controller.bindings().get(id);
+        }
+
+        @Deprecated
+        @Override
         public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
             return controller -> controller.bindings().get(id);
         }
 
+        @Deprecated
+        @Override
         public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
             return controller -> controller.bindings().get(id);
+        }
+
+        @Override
+        public void excludeVanillaBind(KeyMapping... keyMappings) {
+            EXCLUDED_VANILLA_BINDS.addAll(Arrays.asList(keyMappings));
         }
     }
 }

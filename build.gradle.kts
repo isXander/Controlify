@@ -68,6 +68,7 @@ dependencies {
     listOf(
         "fabric-resource-loader-v0",
         "fabric-lifecycle-events-v1",
+        "fabric-key-binding-api-v1",
 
         // sodium requirements
         "fabric-rendering-data-attachment-v1",
