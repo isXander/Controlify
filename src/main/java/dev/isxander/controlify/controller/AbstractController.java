@@ -6,6 +6,8 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.sdl2jni.SDL2Joystick;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -17,6 +19,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final String uid;
     private final String guid;
     private final ControllerType type;
+    private final SDL2Joystick sdl2joystick;
 
     private final ControllerBindings<S> bindings;
     protected C config, defaultConfig;
@@ -28,6 +31,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             throw new IllegalArgumentException("Joystick " + joystickId + " is not present and cannot be initialised!");
 
         this.joystickId = joystickId;
+        this.sdl2joystick = new SDL2Joystick(joystickId);
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
 
         if (hidInfo.path().isPresent()) {
@@ -103,6 +107,24 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = defaultConfig();
         }
+    }
+
+    @Override
+    public boolean rumble(float leftStrength, float rightStrength, int duration_ms) {
+        if (!canRumble()) return false;
+
+        System.out.println("rumbling");
+        return sdl2joystick.rumble(leftStrength, rightStrength, duration_ms);
+    }
+
+    @Override
+    public boolean canRumble() {
+        return SDL2NativesManager.isLoaded();
+    }
+
+    @Override
+    public void close() {
+        sdl2joystick.close();
     }
 
     @Override

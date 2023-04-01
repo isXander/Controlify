@@ -19,6 +19,7 @@ quilt_json5 = "1.0.3"
 sodium = "mc1.19.4-0.4.10"
 iris = "1.5.2+1.19.4"
 immediately_fast = "1.1.10+1.19.4"
+sdl2_jni = "1.0.0"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
@@ -33,6 +34,7 @@ quilt_json5 = { module = "org.quiltmc:quilt-json5", version.ref = "quilt_json5" 
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 immediately_fast = { module = "maven.modrinth:immediatelyfast", version.ref = "immediately_fast" }
+sdl2_jni = { module = "dev.isxander:sdl2-jni", version.ref = "sdl2_jni" }
 
 test_fabric_loader = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric_loader" }
 

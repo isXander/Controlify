@@ -7,6 +7,7 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
@@ -57,6 +58,8 @@ public class Controlify implements ControlifyApi {
         LOGGER.info("Discovering and initializing controllers...");
 
         config().load();
+
+        SDL2NativesManager.initialise();
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();

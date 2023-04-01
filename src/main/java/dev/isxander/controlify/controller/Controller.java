@@ -33,8 +33,15 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void updateState();
     void clearState();
 
+    boolean rumble(float leftStrength, float rightStrength, int duration_ms);
+    boolean canRumble();
+
     default boolean canBeUsed() {
         return true;
+    }
+
+    default void close() {
+
     }
 
     Map<String, Controller<?, ?>> CONTROLLERS = new HashMap<>();
@@ -53,6 +60,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         SingleJoystickController controller = new SingleJoystickController(joystickId, hidInfo);
         CONTROLLERS.put(controller.uid(), controller);
         return controller;
+    }
+
+    static void remove(Controller<?, ?> controller) {
+        CONTROLLERS.remove(controller.uid());
+        controller.close();
     }
 
     Controller<?, ?> DUMMY = new Controller<>() {
@@ -132,6 +144,16 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public void clearState() {
 
+        }
+
+        @Override
+        public boolean rumble(float leftStrength, float rightStrength, int duration_ms) {
+            return false;
+        }
+
+        @Override
+        public boolean canRumble() {
+            return false;
         }
     };
 }

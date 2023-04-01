@@ -134,6 +134,16 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
     }
 
     @Override
+    public boolean rumble(float leftStrength, float rightStrength, int duration_ms) {
+        return false;
+    }
+
+    @Override
+    public boolean canRumble() {
+        return false;
+    }
+
+    @Override
     public boolean canBeUsed() {
         return JoystickController.super.canBeUsed()
                 && joysticks.stream().allMatch(GLFW::glfwJoystickPresent);
