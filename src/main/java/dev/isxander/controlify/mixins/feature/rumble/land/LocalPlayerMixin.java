@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LocalPlayerMixin extends EntityMixin {
     @Override
     protected void onLand(double heightDifference, boolean onGround, BlockState landedState, BlockPos landedPosition, CallbackInfo ci) {
-        boolean rumbled = Controlify.instance().currentController().rumble(0.5f, 0.5f, 100);
+        boolean rumbled = Controlify.instance().currentController().rumble(1f, 1f, 1000);
         System.out.println(rumbled);
     }
 }

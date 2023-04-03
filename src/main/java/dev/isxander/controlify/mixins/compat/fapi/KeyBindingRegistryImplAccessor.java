@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-@Mixin(KeyBindingRegistryImpl.class)
+@Mixin(value = KeyBindingRegistryImpl.class, remap = false)
 public interface KeyBindingRegistryImplAccessor {
     @Accessor("MODDED_KEY_BINDINGS")
     static List<KeyMapping> getCustomKeys() {

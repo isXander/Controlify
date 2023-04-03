@@ -63,9 +63,11 @@ public class SDL2NativesManager {
         try {
             SDL.load(osNativePath);
 
-            int hapticSubsystem = 4096;
-            int joystickSubsystem = 512; // implies event subsystem
-            SDL.SDL_Init(hapticSubsystem | joystickSubsystem);
+            int hapticSubsystem = 0x00001000;
+            int joystickSubsystem = 0x00000200; // implies event subsystem
+            int gamepadSubsytem = 0x00002000;
+            SDL.SDL_Init(joystickSubsystem | gamepadSubsytem);
+
             loaded = true;
             return true;
         } catch (UnsatisfiedLinkError e) {

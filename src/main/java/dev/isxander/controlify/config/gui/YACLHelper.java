@@ -170,6 +170,11 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.reduce_bow_sensitivity.tooltip"))
                         .binding(def.reduceBowSensitivity, () -> config.reduceBowSensitivity, v -> config.reduceBowSensitivity = v)
                         .controller(TickBoxController::new)
+                        .build())
+                .option(ButtonOption.createBuilder()
+                        .name(Component.literal("Test Rumble"))
+                        .controller(ActionController::new)
+                        .action((screen, btn) -> controller.rumble(0.5f, 0.5f, 1000))
                         .build());
 
         if (controller instanceof GamepadController gamepad) {

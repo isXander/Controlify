@@ -8,6 +8,7 @@ import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.sdl2jni.SDL2Joystick;
+import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -19,7 +20,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final String uid;
     private final String guid;
     private final ControllerType type;
-    private final SDL2Joystick sdl2joystick;
+    private final long ptrJoystick;
 
     private final ControllerBindings<S> bindings;
     protected C config, defaultConfig;
@@ -31,8 +32,8 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             throw new IllegalArgumentException("Joystick " + joystickId + " is not present and cannot be initialised!");
 
         this.joystickId = joystickId;
-        this.sdl2joystick = new SDL2Joystick(joystickId);
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
+        this.ptrJoystick = SDL.SDL_JoystickOpen(joystickId);
 
         if (hidInfo.path().isPresent()) {
             this.uid = UUID.nameUUIDFromBytes(hidInfo.path().get().getBytes()).toString();
@@ -113,8 +114,12 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     public boolean rumble(float leftStrength, float rightStrength, int duration_ms) {
         if (!canRumble()) return false;
 
-        System.out.println("rumbling");
-        return sdl2joystick.rumble(leftStrength, rightStrength, duration_ms);
+        if (!SDL.SDL_JoystickRumble(ptrJoystick, (int)(leftStrength * 65535.0F), (int)(rightStrength * 65535.0F), duration_ms)) {
+            Controlify.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
+            return false;
+        }
+        Controlify.LOGGER.error("Rumble success: " + SDL.SDL_GetError());
+        return true;
     }
 
     @Override
@@ -124,7 +129,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
     @Override
     public void close() {
-        sdl2joystick.close();
+        //SDL.SDL_JoystickClose(ptrJoystick);
     }
 
     @Override
