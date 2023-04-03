@@ -142,8 +142,11 @@ public class Controlify implements ControlifyApi {
         for (var controller : Controller.CONTROLLERS.values()) {
             if (!outOfFocus)
                 controller.updateState();
-            else
+            else {
                 controller.clearState();
+                controller.rumbleManager().stopCurrentEffect();
+            }
+            controller.rumbleManager().tick();
         }
 
         ControllerState state = currentController == null ? ControllerState.EMPTY : currentController.state();

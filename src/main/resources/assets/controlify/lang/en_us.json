@@ -28,6 +28,8 @@
   "controlify.gui.toggle_sprint.tooltip": "How the state of the sprint button behaves.",
   "controlify.gui.auto_jump": "Auto Jump",
   "controlify.gui.auto_jump.tooltip": "If the player should automatically jump when you reach a block.",
+  "controlify.gui.allow_vibrations": "Allow Vibration",
+  "controlify.gui.allow_vibrations.tooltip": "If the controller should vibrate when you do certain actions.",
   "controlify.gui.show_ingame_guide": "Show Ingame Button Guide",
   "controlify.gui.show_ingame_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
   "controlify.gui.show_screen_guide": "Show Screen Button Guide",
@@ -55,6 +57,8 @@
   "controlify.gui.auto_calibration.tooltip": "Automatically calibrate the deadzone of your controller.",
   "controlify.gui.button_activation_threshold": "Button Activation Threshold",
   "controlify.gui.button_activation_threshold.tooltip": "How far a button needs to be pushed before registering as pressed.",
+  "controlify.gui.test_vibration": "Test Vibration",
+  "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",

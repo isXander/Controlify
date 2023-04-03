@@ -40,9 +40,9 @@ public class JoystickHatBind implements IBind<JoystickState> {
         else if (hatState.isDown())
             direction = "down";
         else if (hatState.isLeft())
-            direction = "left";
+            direction = "strong";
         else if (hatState.isRight())
-            direction = "right";
+            direction = "weak";
 
         var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/hat" + button + "_" + direction + ".png");
 

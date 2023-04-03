@@ -23,6 +23,8 @@ public abstract class ControllerConfig {
 
     public boolean reduceBowSensitivity = true;
 
+    public boolean allowVibrations = false;
+
     public boolean calibrated = false;
 
     public abstract void setDeadzone(int axis, float deadzone);

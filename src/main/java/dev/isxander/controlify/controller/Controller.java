@@ -7,6 +7,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.rumble.RumbleManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -33,8 +34,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void updateState();
     void clearState();
 
-    boolean rumble(float leftStrength, float rightStrength, int duration_ms);
-    boolean canRumble();
+    RumbleManager rumbleManager();
 
     default boolean canBeUsed() {
         return true;
@@ -147,13 +147,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         }
 
         @Override
-        public boolean rumble(float leftStrength, float rightStrength, int duration_ms) {
-            return false;
-        }
-
-        @Override
-        public boolean canRumble() {
-            return false;
+        public RumbleManager rumbleManager() {
+            return null;
         }
     };
 }

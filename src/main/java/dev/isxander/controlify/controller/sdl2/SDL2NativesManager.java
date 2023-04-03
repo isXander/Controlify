@@ -55,6 +55,22 @@ public class SDL2NativesManager {
         }
     }
 
+    private static void startSDL2() {
+        SDL.SDL_SetHint("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1");
+        SDL.SDL_SetHint("SDL_ACCELEROMETER_AS_JOYSTICK", "0");
+        SDL.SDL_SetHint("SDL_MAC_BACKGROUND_APP", "1");
+        SDL.SDL_SetHint("SDL_XINPUT_ENABLED", "1");
+        SDL.SDL_SetHint("SDL_JOYSTICK_RAWINPUT", "0");
+
+        int joystickSubsystem = 0x00000200; // implies event subsystem
+        if (SDL.SDL_Init(joystickSubsystem) != 0) {
+            Controlify.LOGGER.error("Failed to initialise SDL2: " + SDL.SDL_GetError());
+            throw new RuntimeException("Failed to initialise SDL2: " + SDL.SDL_GetError());
+        }
+
+        Controlify.LOGGER.info("Initialised SDL2");
+    }
+
     private static boolean loadCachedLibrary() {
         if (!Files.exists(osNativePath)) return false;
 
@@ -63,10 +79,7 @@ public class SDL2NativesManager {
         try {
             SDL.load(osNativePath);
 
-            int hapticSubsystem = 0x00001000;
-            int joystickSubsystem = 0x00000200; // implies event subsystem
-            int gamepadSubsytem = 0x00002000;
-            SDL.SDL_Init(joystickSubsystem | gamepadSubsytem);
+            startSDL2();
 
             loaded = true;
             return true;

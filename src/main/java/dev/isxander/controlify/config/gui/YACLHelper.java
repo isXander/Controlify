@@ -15,6 +15,8 @@ import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
+import dev.isxander.controlify.rumble.RumbleEffect;
+import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
 import dev.isxander.yacl.gui.controllers.BooleanController;
@@ -142,6 +144,12 @@ public class YACLHelper {
                         .controller(BooleanController::new)
                         .build())
                 .option(Option.createBuilder(boolean.class)
+                        .name(Component.translatable("controlify.gui.allow_vibrations"))
+                        .tooltip(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
+                        .binding(def.allowVibrations, () -> config.allowVibrations, v -> config.allowVibrations = v)
+                        .controller(TickBoxController::new)
+                        .build())
+                .option(Option.createBuilder(boolean.class)
                         .name(Component.translatable("controlify.gui.show_ingame_guide"))
                         .tooltip(Component.translatable("controlify.gui.show_ingame_guide.tooltip"))
                         .binding(def.showIngameGuide, () -> config.showIngameGuide, v -> config.showIngameGuide = v)
@@ -170,11 +178,6 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.reduce_bow_sensitivity.tooltip"))
                         .binding(def.reduceBowSensitivity, () -> config.reduceBowSensitivity, v -> config.reduceBowSensitivity = v)
                         .controller(TickBoxController::new)
-                        .build())
-                .option(ButtonOption.createBuilder()
-                        .name(Component.literal("Test Rumble"))
-                        .controller(ActionController::new)
-                        .action((screen, btn) -> controller.rumble(0.5f, 0.5f, 1000))
                         .build());
 
         if (controller instanceof GamepadController gamepad) {
@@ -273,7 +276,21 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.button_activation_threshold.tooltip"))
                         .binding(def.buttonActivationThreshold, () -> config.buttonActivationThreshold, v -> config.buttonActivationThreshold = v)
                         .controller(opt -> new FloatSliderController(opt, 0, 1, 0.05f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                        .build());
+                        .build())
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.test_vibration"))
+                        .tooltip(Component.translatable("controlify.gui.test_vibration.tooltip"))
+                        .controller(ActionController::new)
+                        .action((screen, btn) -> {
+                            controller.rumbleManager().play(
+                                    RumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
+                                            .join(RumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+                                            .repeat(3)
+                                            .join(RumbleEffect.constant(1f, 0f, 5).join(RumbleEffect.constant(0f, 1f, 5)).repeat(10))
+                            );
+                        })
+                        .build());;
+
         category.group(advancedGroup.build());
 
         var controlsGroup = OptionGroup.createBuilder()

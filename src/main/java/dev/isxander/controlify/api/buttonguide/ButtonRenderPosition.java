@@ -5,11 +5,11 @@ package dev.isxander.controlify.api.buttonguide;
  */
 public enum ButtonRenderPosition {
     /**
-     * Renders outside the button the left.
+     * Renders outside the button the left edge of the screen.
      */
     LEFT,
     /**
-     * Renders outside the button the right.
+     * Renders outside the button the right edge of the screen.
      */
     RIGHT,
     /**
