@@ -11,6 +11,8 @@ import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
+import dev.isxander.controlify.rumble.RumbleCapable;
+import dev.isxander.controlify.rumble.RumbleManager;
 
 import java.util.List;
 
@@ -22,6 +24,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
     private final ControllerBindings<JoystickState> bindings;
     private final JoystickConfig config;
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
+    private final RumbleManager rumbleManager;
 
     private float axisState;
     private boolean shouldClearAxisNextTick;
@@ -34,6 +37,17 @@ public class FakeController implements JoystickController<JoystickConfig> {
         this.id = -JOYSTICK_COUNT;
         this.bindings = new ControllerBindings<>(this);
         this.config = new JoystickConfig(this);
+        this.rumbleManager = new RumbleManager(new RumbleCapable() {
+            @Override
+            public boolean setRumble(float strongMagnitude, float weakMagnitude) {
+                return false;
+            }
+
+            @Override
+            public boolean canRumble() {
+                return false;
+            }
+        });
         this.config.calibrated = true;
     }
 
@@ -115,6 +129,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
     }
 
     @Override
+    public RumbleManager rumbleManager() {
+        return rumbleManager;
+    }
+
+    @Override
     public JoystickMapping mapping() {
         return UnmappedJoystickMapping.INSTANCE;
     }
@@ -168,6 +187,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
     @Override
     public boolean canBeUsed() {
         return true;
+    }
+
+    @Override
+    public void close() {
+        JoystickController.super.close();
     }
 
     public static class FakeControllerState extends JoystickState {
