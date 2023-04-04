@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
+import dev.isxander.controlify.gui.screen.VibrationOnboardingScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -54,27 +55,54 @@ public class Controlify implements ControlifyApi {
     private double askSwitchTime = 0;
     private ToastUtils.ControlifyToast askSwitchToast = null;
 
-    public void initializeControllers() {
+    public void initializeControlify() {
+        LOGGER.info("Initializing Controlify...");
+
+        config().load();
+
+        if (!config().globalSettings().vibrationOnboarded) {
+            minecraft.setScreen(new VibrationOnboardingScreen(
+                    minecraft.screen,
+                    answer -> this.initializeControllers()
+            ));
+        } else {
+            this.initializeControllers();
+        }
+    }
+
+    private void initializeControllers() {
         LOGGER.info("Discovering and initializing controllers...");
 
         config().load();
 
-        SDL2NativesManager.initialise();
+        if (config().globalSettings().loadVibrationNatives)
+            SDL2NativesManager.initialise();
 
-        controllerHIDService = new ControllerHIDService();
-        controllerHIDService.start();
-
+        boolean dirtyControllerConfig = false;
         // find already connected controllers
         for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
             if (GLFW.glfwJoystickPresent(jid)) {
-                var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
-                LOGGER.info("Controller found: " + controller.name());
+                try {
+                    var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                    LOGGER.info("Controller found: " + controller.name());
 
-                config().loadOrCreateControllerData(controller);
+                    config().loadOrCreateControllerData(controller);
 
-                if (config().currentControllerUid().equals(controller.uid()))
-                    setCurrentController(controller);
+                    if (config().currentControllerUid().equals(controller.uid()))
+                        setCurrentController(controller);
+
+                    if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
+                        controller.config().allowVibrations = false;
+                        dirtyControllerConfig = true;
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Failed to initialize controller with jid " + jid, e);
+                }
             }
+        }
+
+        if (dirtyControllerConfig) {
+            config().save();
         }
 
         checkCompoundJoysticks();
@@ -111,11 +139,14 @@ public class Controlify implements ControlifyApi {
         });
     }
 
-    public void initializeControlify() {
+    public void preInitialiseControlify() {
         LOGGER.info("Pre-initializing Controlify...");
 
         this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
         this.virtualMouseHandler = new VirtualMouseHandler();
+
+        controllerHIDService = new ControllerHIDService();
+        controllerHIDService.start();
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {

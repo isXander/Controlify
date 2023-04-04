@@ -35,15 +35,17 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
-        this.ptrJoystick = SDL.SDL_JoystickOpen(joystickId);
+
+        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
         this.rumbleManager = new RumbleManager(this);
 
         if (hidInfo.path().isPresent()) {
-            this.uid = UUID.nameUUIDFromBytes(hidInfo.path().get().getBytes()).toString();
+            this.uid = hidInfo.createControllerUID().orElseThrow();
+            this.type = hidInfo.type();
         } else {
             this.uid = "unidentified-guid-" + UUID.nameUUIDFromBytes(this.guid.getBytes());
+            this.type = ControllerType.UNKNOWN;
         }
-        this.type = hidInfo.type();
 
         var joystickName = GLFW.glfwGetJoystickName(joystickId);
         String name = type != ControllerType.UNKNOWN || joystickName == null ? type.friendlyName() : joystickName;

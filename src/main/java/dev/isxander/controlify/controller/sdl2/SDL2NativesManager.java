@@ -5,29 +5,24 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import org.libsdl.SDL;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Optional;
 
 public class SDL2NativesManager {
     private static final Path NATIVES_FOLDER = FabricLoader.getInstance().getGameDir().resolve("controlify-natives");
-    private static final Map<NativeLibrary, String> NATIVE_LIBRARIES = Map.of(
-            new NativeLibrary(Util.OS.WINDOWS, true), "windows64/sdl2gdx64.dll",
-            new NativeLibrary(Util.OS.WINDOWS, false), "windows32/sdl2gdx.dll",
-            new NativeLibrary(Util.OS.LINUX, true), "linux64/libsdl2gdx64.so",
-            new NativeLibrary(Util.OS.OSX, true), "macosx64/libsdl2gdx64.dylib"
+    private static final Map<Target, String> NATIVE_LIBRARIES = Map.of(
+            new Target(Util.OS.WINDOWS, true), "windows64/sdl2gdx64.dll",
+            new Target(Util.OS.WINDOWS, false), "windows32/sdl2gdx.dll",
+            new Target(Util.OS.LINUX, true), "linux64/libsdl2gdx64.so",
+            new Target(Util.OS.OSX, true), "macosx64/libsdl2gdx64.dylib"
     );
     private static final String NATIVE_LIBRARY_URL = "https://raw.githubusercontent.com/isXander/sdl2-jni/master/libs/";
 
@@ -115,11 +110,11 @@ public class SDL2NativesManager {
         return true;
     }
 
-    private static NativeLibrary getNativeLibraryType() {
+    private static Target getNativeLibraryType() {
         Util.OS os = Util.getPlatform();
         boolean is64bit = System.getProperty("os.arch").contains("64");
 
-        return new NativeLibrary(os, is64bit);
+        return new Target(os, is64bit);
     }
 
     private static Optional<Path> getNativesPathForOS() {
@@ -137,6 +132,6 @@ public class SDL2NativesManager {
         return loaded;
     }
 
-    private record NativeLibrary(Util.OS os, boolean is64Bit) {
+    private record Target(Util.OS os, boolean is64Bit) {
     }
 }

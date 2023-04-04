@@ -12,6 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
     String uid();
@@ -47,8 +48,9 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     Map<String, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
     static Controller<?, ?> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
-        if (CONTROLLERS.containsKey(hidInfo.createControllerUID())) {
-            return CONTROLLERS.get(hidInfo.createControllerUID());
+        Optional<String> uid = hidInfo.createControllerUID();
+        if (uid.isPresent() && CONTROLLERS.containsKey(uid.get())) {
+            return CONTROLLERS.get(uid.get());
         }
 
         if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {

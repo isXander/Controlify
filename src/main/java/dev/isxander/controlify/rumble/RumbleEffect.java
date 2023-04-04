@@ -1,5 +1,7 @@
 package dev.isxander.controlify.rumble;
 
+import org.apache.commons.lang3.Validate;
+
 import java.util.function.Function;
 
 public record RumbleEffect(RumbleState[] states) {
@@ -32,7 +34,11 @@ public record RumbleEffect(RumbleState[] states) {
      * @param durationTicks how many ticks the effect should last for.
      */
     public static RumbleEffect constant(float strong, float weak, int durationTicks) {
-        return RumbleEffect.byTick(time -> new RumbleState(strong, weak), durationTicks);
+        return RumbleEffect.byTick(tick -> new RumbleState(strong, weak), durationTicks);
+    }
+
+    public static RumbleEffect empty(int durationTicks) {
+        return RumbleEffect.byTick(tick -> new RumbleState(0f, 0f), durationTicks);
     }
 
     public static RumbleEffect join(RumbleEffect... effects) {
@@ -57,9 +63,13 @@ public record RumbleEffect(RumbleState[] states) {
         return RumbleEffect.join(this, other);
     }
 
-    public RumbleEffect repeat(int times) {
+    public RumbleEffect repeat(int count) {
+        Validate.isTrue(count > 0, "count must be greater than 0");
+
+        if (count == 1) return this;
+
         RumbleEffect effect = this;
-        for (int i = 0; i < times; i++) {
+        for (int i = 0; i < count - 1; i++) {
             effect = RumbleEffect.join(effect, this);
         }
         return effect;

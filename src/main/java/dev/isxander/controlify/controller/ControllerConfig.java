@@ -21,9 +21,9 @@ public abstract class ControllerConfig {
 
     public float chatKeyboardHeight = 0f;
 
-    public boolean reduceBowSensitivity = true;
+    public boolean reduceAimingSensitivity = true;
 
-    public boolean allowVibrations = false;
+    public boolean allowVibrations = true;
 
     public boolean calibrated = false;
 

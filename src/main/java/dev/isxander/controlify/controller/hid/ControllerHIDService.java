@@ -78,8 +78,8 @@ public class ControllerHIDService implements HidServicesListener {
     }
 
     public record ControllerHIDInfo(ControllerType type, Optional<String> path) {
-        public String createControllerUID() {
-            return UUID.nameUUIDFromBytes(path().get().getBytes()).toString();
+        public Optional<String> createControllerUID() {
+            return path.map(p -> UUID.nameUUIDFromBytes(p.getBytes())).map(UUID::toString);
         }
     }
 }
