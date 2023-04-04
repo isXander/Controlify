@@ -15,5 +15,7 @@ public class GlobalSettings {
 
     public boolean keyboardMovement = false;
     public boolean outOfFocusInput = false;
+    public boolean loadVibrationNatives = false;
+    public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
 }

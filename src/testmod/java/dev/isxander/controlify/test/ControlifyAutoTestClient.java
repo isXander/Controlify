@@ -2,6 +2,8 @@ package dev.isxander.controlify.test;
 
 import com.google.common.collect.Lists;
 import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.TitleScreen;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,7 @@ public class ControlifyAutoTestClient implements ClientModInitializer {
         }
 
         waitForLoadingComplete();
+        submitConsumerAndWait(client -> client.setScreen(new TitleScreen()));
 
         for (var test : postLoadTests) {
             success &= wrapTestExecution(test);

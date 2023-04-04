@@ -6,17 +6,23 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.rumble.RumbleCapable;
+import dev.isxander.controlify.rumble.RumbleManager;
+import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public abstract class AbstractController<S extends ControllerState, C extends ControllerConfig> implements Controller<S, C> {
+public abstract class AbstractController<S extends ControllerState, C extends ControllerConfig> implements Controller<S, C>, RumbleCapable {
     protected final int joystickId;
     protected String name;
     private final String uid;
     private final String guid;
     private final ControllerType type;
+    private final long ptrJoystick;
+    private final RumbleManager rumbleManager;
 
     private final ControllerBindings<S> bindings;
     protected C config, defaultConfig;
@@ -30,12 +36,16 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
 
+        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
+        this.rumbleManager = new RumbleManager(this);
+
         if (hidInfo.path().isPresent()) {
-            this.uid = UUID.nameUUIDFromBytes(hidInfo.path().get().getBytes()).toString();
+            this.uid = hidInfo.createControllerUID().orElseThrow();
+            this.type = hidInfo.type();
         } else {
             this.uid = "unidentified-guid-" + UUID.nameUUIDFromBytes(this.guid.getBytes());
+            this.type = ControllerType.UNKNOWN;
         }
-        this.type = hidInfo.type();
 
         var joystickName = GLFW.glfwGetJoystickName(joystickId);
         String name = type != ControllerType.UNKNOWN || joystickName == null ? type.friendlyName() : joystickName;
@@ -53,8 +63,9 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     protected void setName(String name) {
         String uniqueName = name;
         int i = 0;
-        while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(name::equalsIgnoreCase)) {
+        while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(uniqueName::equalsIgnoreCase)) {
             uniqueName = name + " (" + i++ + ")";
+            if (i > 1000) throw new IllegalStateException("Could not find a unique name for controller " + name + " (" + uid() + ")! (tried " + i + " times)");
         }
         this.name = uniqueName;
     }
@@ -103,6 +114,34 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = defaultConfig();
         }
+    }
+
+    @Override
+    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
+        if (!canRumble()) return false;
+
+        // the duration doesn't matter because we are not updating the joystick state,
+        // so there is never any SDL check to stop the rumble after the desired time.
+        if (!SDL.SDL_JoystickRumble(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 1)) {
+            Controlify.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean canRumble() {
+        return SDL2NativesManager.isLoaded() && config().allowVibrations;
+    }
+
+    @Override
+    public RumbleManager rumbleManager() {
+        return this.rumbleManager;
+    }
+
+    @Override
+    public void close() {
+        SDL.SDL_JoystickClose(ptrJoystick);
     }
 
     @Override

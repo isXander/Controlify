@@ -8,7 +8,9 @@
     "compat.sodium.CycleControlElementMixin",
     "compat.sodium.SliderControlElementMixin",
     "compat.sodium.TickBoxControlElementMixin",
-    "core.GLXMixin"
+    "core.GLXMixin",
+    "feature.rumble.sounds.LevelRendererMixin",
+    "feature.rumble.useitem.LivingEntityMixin"
   ],
   "client": [
     "compat.fapi.KeyBindingRegistryImplAccessor",
@@ -33,6 +35,8 @@
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.reacharound.GameRendererMixin",
+    "feature.rumble.damage.LocalPlayerMixin",
+    "feature.rumble.useitem.LocalPlayerMixin",
     "feature.screenop.MinecraftMixin",
     "feature.screenop.ScreenMixin",
     "feature.screenop.vanilla.AbstractButtonMixin",

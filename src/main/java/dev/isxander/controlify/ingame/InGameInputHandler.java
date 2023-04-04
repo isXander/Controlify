@@ -62,16 +62,23 @@ public class InGameInputHandler {
     }
 
     protected void handlePlayerLookInput() {
+        var player = this.minecraft.player;
+
         var impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
         var impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
 
-        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive() && minecraft.player != null) {
+        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive() && player != null) {
             lookInputX = impulseX * Math.abs(impulseX) * controller.config().horizontalLookSensitivity;
             lookInputY = impulseY * Math.abs(impulseY) * controller.config().verticalLookSensitivity;
 
-            if (controller.config().reduceBowSensitivity && minecraft.player.getUseItem().getItem() instanceof ProjectileWeaponItem) {
-                lookInputX *= Math.abs(impulseX) * 0.6;
-                lookInputY *= Math.abs(impulseY) * 0.6;
+            if (controller.config().reduceAimingSensitivity && player.isUsingItem()) {
+                float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
+                    case BOW, CROSSBOW, SPEAR -> 0.6f;
+                    case SPYGLASS -> 0.2f;
+                    default -> 1f;
+                };
+                lookInputX *= aimMultiplier;
+                lookInputY *= aimMultiplier;
             }
         } else {
             lookInputX = lookInputY = 0;

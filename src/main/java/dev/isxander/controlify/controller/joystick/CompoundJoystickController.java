@@ -8,11 +8,13 @@ import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
+import dev.isxander.controlify.rumble.RumbleCapable;
+import dev.isxander.controlify.rumble.RumbleManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 
-public class CompoundJoystickController implements JoystickController<JoystickConfig> {
+public class CompoundJoystickController implements JoystickController<JoystickConfig>, RumbleCapable {
     private final String uid;
     private final List<Integer> joysticks;
     private final int axisCount, buttonCount, hatCount;
@@ -22,6 +24,8 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
 
     private JoystickConfig config;
     private final JoystickConfig defaultConfig;
+
+    private final RumbleManager rumbleManager;
 
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
 
@@ -38,6 +42,8 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
 
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);
+
+        this.rumbleManager = new RumbleManager(this);
 
         this.bindings = new ControllerBindings<>(this);
     }
@@ -131,6 +137,21 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
     @Override
     public int hatCount() {
         return this.hatCount;
+    }
+
+    @Override
+    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
+        return false;
+    }
+
+    @Override
+    public boolean canRumble() {
+        return false;
+    }
+
+    @Override
+    public RumbleManager rumbleManager() {
+        return this.rumbleManager;
     }
 
     @Override

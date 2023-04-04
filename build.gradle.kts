@@ -18,6 +18,7 @@ group = "dev.isxander"
 version = "1.1.0+1.19.4"
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven("https://maven.terraformersmc.com")
     maven("https://maven.isxander.dev/releases")
@@ -30,6 +31,7 @@ repositories {
         }
     }
     maven("https://jitpack.io")
+    mavenLocal()
     maven("https://maven.flashyreese.me/snapshots")
 }
 
@@ -87,6 +89,10 @@ dependencies {
     // used to identify controller connections
     implementation(libs.hid4java)
     include(libs.hid4java)
+
+    // controller rumble
+    implementation(libs.sdl2.jni)
+    include(libs.sdl2.jni)
 
     // used to parse hiddb.json5
     implementation(libs.quilt.json5)

@@ -7,10 +7,12 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.rumble.RumbleManager;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
     String uid();
@@ -33,15 +35,22 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void updateState();
     void clearState();
 
+    RumbleManager rumbleManager();
+
     default boolean canBeUsed() {
         return true;
+    }
+
+    default void close() {
+
     }
 
     Map<String, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
     static Controller<?, ?> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
-        if (CONTROLLERS.containsKey(hidInfo.createControllerUID())) {
-            return CONTROLLERS.get(hidInfo.createControllerUID());
+        Optional<String> uid = hidInfo.createControllerUID();
+        if (uid.isPresent() && CONTROLLERS.containsKey(uid.get())) {
+            return CONTROLLERS.get(uid.get());
         }
 
         if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {
@@ -53,6 +62,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         SingleJoystickController controller = new SingleJoystickController(joystickId, hidInfo);
         CONTROLLERS.put(controller.uid(), controller);
         return controller;
+    }
+
+    static void remove(Controller<?, ?> controller) {
+        CONTROLLERS.remove(controller.uid());
+        controller.close();
     }
 
     Controller<?, ?> DUMMY = new Controller<>() {
@@ -132,6 +146,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public void clearState() {
 
+        }
+
+        @Override
+        public RumbleManager rumbleManager() {
+            return null;
         }
     };
 }
