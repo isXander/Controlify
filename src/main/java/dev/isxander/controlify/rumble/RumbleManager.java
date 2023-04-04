@@ -3,7 +3,6 @@ package dev.isxander.controlify.rumble;
 public class RumbleManager {
     private final RumbleCapable controller;
     private RumbleEffect playingEffect;
-    private int currentPlayingTick;
 
     public RumbleManager(RumbleCapable controller) {
         this.controller = controller;
@@ -14,7 +13,6 @@ public class RumbleManager {
             return;
 
         playingEffect = effect;
-        currentPlayingTick = 0;
     }
 
     public boolean isPlaying() {
@@ -27,20 +25,18 @@ public class RumbleManager {
 
         controller.setRumble(0f, 0f);
         playingEffect = null;
-        currentPlayingTick = 0;
     }
 
     public void tick() {
         if (playingEffect == null)
             return;
 
-        if (currentPlayingTick >= playingEffect.states().length) {
+        if (playingEffect.isFinished()) {
             stopCurrentEffect();
             return;
         }
 
-        RumbleState state = playingEffect.states()[currentPlayingTick];
+        RumbleState state = playingEffect.nextState();
         controller.setRumble(state.strong(), state.weak());
-        currentPlayingTick++;
     }
 }

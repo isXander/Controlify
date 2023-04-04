@@ -15,7 +15,7 @@ import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
-import dev.isxander.controlify.rumble.RumbleEffect;
+import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
@@ -294,13 +294,16 @@ public class YACLHelper {
                         .controller(ActionController::new)
                         .action((screen, btn) -> {
                             controller.rumbleManager().play(
-                                    RumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-                                            .join(RumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+                                    BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
+                                            .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
                                             .repeat(3)
-                                            .join(RumbleEffect.constant(1f, 0f, 5).join(RumbleEffect.constant(0f, 1f, 5)).repeat(10))
+                                            .join(BasicRumbleEffect.constant(1f, 0f, 5)
+                                                    .join(BasicRumbleEffect.constant(0f, 1f, 5))
+                                                    .repeat(10)
+                                            )
                             );
                         })
-                        .build());;
+                        .build());
 
         category.group(advancedGroup.build());
 
