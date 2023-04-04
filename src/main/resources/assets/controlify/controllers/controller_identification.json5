@@ -38,5 +38,14 @@
     "product": [
       0x1205,
     ]
+  },
+  {
+    "name": "Stadia Controller",
+    "identifier": "stadia",
+
+    "vendor": 0x18d1,
+    "product": [
+      0x9400,
+    ]
   }
 ]
