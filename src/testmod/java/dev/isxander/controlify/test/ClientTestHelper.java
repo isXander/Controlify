@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -44,8 +45,16 @@ public class ClientTestHelper {
         return Minecraft.getInstance().submit(() -> function.apply(Minecraft.getInstance()));
     }
 
+    private static CompletableFuture<Void> submit(Consumer<Minecraft> consumer) {
+        return Minecraft.getInstance().submit(() -> consumer.accept(Minecraft.getInstance()));
+    }
+
     public static <T> T submitAndWait(Function<Minecraft, T> function) {
         return submit(function).join();
+    }
+
+    public static void submitConsumerAndWait(Consumer<Minecraft> consumer) {
+        submit(consumer).join();
     }
 
     public static void takeScreenshot(String name) {
