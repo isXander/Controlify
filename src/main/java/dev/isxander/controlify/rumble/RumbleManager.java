@@ -1,11 +1,18 @@
 package dev.isxander.controlify.rumble;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 public class RumbleManager {
     private final RumbleCapable controller;
-    private RumbleEffectInstance playingEffect;
+    private final Queue<RumbleEffectInstance> effectQueue;
 
     public RumbleManager(RumbleCapable controller) {
         this.controller = controller;
+        this.effectQueue = new PriorityQueue<>(Comparator.comparing(RumbleEffectInstance::effect));
     }
 
     @Deprecated
@@ -17,34 +24,49 @@ public class RumbleManager {
         if (!controller.canRumble())
             return;
 
-        playingEffect = new RumbleEffectInstance(source, effect);
-    }
-
-    public boolean isPlaying() {
-        return playingEffect != null;
-    }
-
-    public void stopCurrentEffect() {
-        if (playingEffect == null)
-            return;
-
-        controller.setRumble(0f, 0f, RumbleSource.MASTER);
-        playingEffect = null;
+        effectQueue.add(new RumbleEffectInstance(source, effect));
     }
 
     public void tick() {
-        if (playingEffect == null)
-            return;
+        RumbleEffectInstance effect;
+        do {
+            effect = effectQueue.peek();
 
-        if (playingEffect.effect().isFinished()) {
-            stopCurrentEffect();
+            // if we have no effects, break out of loop and get the null check
+            if (effect == null)
+                break;
+
+            // if the effect is finished, remove and set null, so we loop again
+            if (effect.effect().isFinished()) {
+                effectQueue.remove(effect);
+                effect = null;
+            }
+        } while (effect == null);
+
+        if (effect == null) {
+            controller.setRumble(0f, 0f, RumbleSource.MASTER);
             return;
         }
 
-        RumbleState state = playingEffect.effect().nextState();
-        controller.setRumble(state.strong(), state.weak(), playingEffect.source());
+        effectQueue.removeIf(e -> e.effect().isFinished());
+        effectQueue.forEach(e -> e.effect().tick());
+
+        RumbleState state = effect.effect().currentState();
+        controller.setRumble(state.strong(), state.weak(), effect.source());
     }
 
-    private record RumbleEffectInstance(RumbleSource source, RumbleEffect effect) {
+    public void clearEffects() {
+        effectQueue.clear();
+    }
+
+    public boolean isPlaying() {
+        return !effectQueue.isEmpty();
+    }
+
+    private record RumbleEffectInstance(RumbleSource source, RumbleEffect effect) implements Comparable<RumbleEffectInstance> {
+        @Override
+        public int compareTo(@NotNull RumbleManager.RumbleEffectInstance o) {
+            return effect.compareTo(o.effect);
+        }
     }
 }

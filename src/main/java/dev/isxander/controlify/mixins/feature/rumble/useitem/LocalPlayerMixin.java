@@ -8,6 +8,7 @@ import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,22 +21,37 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin {
     @Override
     protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, ItemStack stack) {
         switch (stack.getUseAnimation()) {
-            case BOW, CROSSBOW, SPEAR ->
-                    startRumble(new ContinuousRumbleEffect(tick ->
-                            new RumbleState(tick % 7 <= 3 && tick > BowItem.MAX_DRAW_DURATION ? 0.1f : 0f, BowItem.getPowerForTime(tick))
-                    ));
-            case BLOCK, SPYGLASS ->
-                    startRumble(new ContinuousRumbleEffect(tick ->
-                            new RumbleState(0f, tick % 4 / 4f * 0.12f + 0.05f)
-                    ));
-            case EAT, DRINK ->
-                    startRumble(new ContinuousRumbleEffect(tick ->
-                            new RumbleState(0.05f, 0.1f)
-                    ));
-            case TOOT_HORN ->
-                    startRumble(new ContinuousRumbleEffect(tick ->
-                            new RumbleState(Math.min(1f, tick / 10f), 0.25f)
-                    ));
+            case BOW -> startRumble(ContinuousRumbleEffect.builder()
+                    .byTick(tick -> new RumbleState(
+                            tick % 7 <= 3 && tick > BowItem.MAX_DRAW_DURATION ? 0.1f : 0f,
+                            BowItem.getPowerForTime(tick)
+                    ))
+                    .build());
+            case CROSSBOW -> {
+                int chargeDuration = CrossbowItem.getChargeDuration(stack);
+                startRumble(ContinuousRumbleEffect.builder()
+                        .byTick(tick -> new RumbleState(
+                                0f,
+                                (float) tick / chargeDuration
+                        ))
+                        .timeout(chargeDuration)
+                        .build());
+            }
+            case BLOCK, SPYGLASS -> startRumble(ContinuousRumbleEffect.builder()
+                    .byTick(tick -> new RumbleState(
+                            0f,
+                            tick % 4 / 4f * 0.12f + 0.05f
+                    ))
+                    .build());
+            case EAT, DRINK -> startRumble(ContinuousRumbleEffect.builder()
+                    .constant(0.05f, 0.1f)
+                    .build());
+            case TOOT_HORN -> startRumble(ContinuousRumbleEffect.builder()
+                    .byTick(tick -> new RumbleState(
+                            Math.min(1f, tick / 10f),
+                            0.25f
+                    ))
+                    .build());
         }
     }
 

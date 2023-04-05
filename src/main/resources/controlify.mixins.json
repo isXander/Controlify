@@ -11,7 +11,7 @@
     "core.GLXMixin",
     "feature.rumble.explosion.LightningBoltMixin",
     "feature.rumble.itembreak.LivingEntityMixin",
-    "feature.rumble.sounds.LevelRendererMixin",
+    "feature.rumble.levelevents.LevelRendererMixin",
     "feature.rumble.useitem.LivingEntityMixin"
   ],
   "client": [

@@ -53,18 +53,13 @@ public class MultiPlayerGameModeMixin {
     }
 
     private void startRumble(BlockState state) {
-        ContinuousRumbleEffect effect = new ContinuousRumbleEffect(tick ->
-                new RumbleState(
+        var effect = ContinuousRumbleEffect.builder()
+                .byTick(tick -> new RumbleState(
                         0.02f + Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
                         0.01f
-                )
-        ){
-            @Override
-            public boolean isFinished() {
-                // insta-break blocks will stop the same tick it starts, so it must not stop until 1 tick has played
-                return super.isFinished() && currentTick() > 0;
-            }
-        };
+                ))
+                .minTime(1)
+                .build();
 
         blockBreakRumble = effect;
         ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect);

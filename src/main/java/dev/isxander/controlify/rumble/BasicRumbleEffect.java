@@ -17,12 +17,23 @@ public final class BasicRumbleEffect implements RumbleEffect {
     }
 
     @Override
-    public RumbleState nextState() {
+    public void tick() {
         tick++;
         if (tick >= keyframes.length)
             finished = true;
+    }
+
+    @Override
+    public RumbleState currentState() {
+        if (tick == 0)
+            throw new IllegalStateException("Effect hasn't ticked yet.");
 
         return keyframes[tick - 1];
+    }
+
+    @Override
+    public int age() {
+        return tick;
     }
 
     @Override
@@ -136,10 +147,5 @@ public final class BasicRumbleEffect implements RumbleEffect {
             effect = BasicRumbleEffect.join(effect, this);
         }
         return effect;
-    }
-
-    public ContinuousRumbleEffect continuous() {
-        int lastIndex = this.states().length - 1;
-        return new ContinuousRumbleEffect(index -> this.states()[index % lastIndex], this.priority());
     }
 }

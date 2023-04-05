@@ -175,7 +175,7 @@ public class Controlify implements ControlifyApi {
                 controller.updateState();
             else {
                 controller.clearState();
-                controller.rumbleManager().stopCurrentEffect();
+                controller.rumbleManager().clearEffects();
             }
             controller.rumbleManager().tick();
         }

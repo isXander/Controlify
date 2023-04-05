@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.rumble.sounds;
+package dev.isxander.controlify.mixins.feature.rumble.levelevents;
 
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
@@ -40,7 +40,7 @@ public class LevelRendererMixin {
                                 float easeOutQuad = Easings.easeOutQuad(t);
                                 return new RumbleState(1 - easeOutQuad, 1 - easeOutQuad);
                             }, 63)
-                    )
+                    ).prioritised(10)
             );
             case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> rumble(
                     RumbleSource.GLOBAL_EVENT,
@@ -51,7 +51,7 @@ public class LevelRendererMixin {
                                 float easeOutQuad = 1 - (1 - t) * (1 - t);
                                 return new RumbleState(0f, 1 - easeOutQuad);
                             }, 56)
-                    )
+                    ).prioritised(10)
             );
         }
     }
