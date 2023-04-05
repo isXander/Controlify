@@ -10,6 +10,7 @@
     "compat.sodium.TickBoxControlElementMixin",
     "core.GLXMixin",
     "feature.rumble.explosion.LightningBoltMixin",
+    "feature.rumble.fishing.FishingHookMixin",
     "feature.rumble.itembreak.LivingEntityMixin",
     "feature.rumble.levelevents.LevelRendererMixin",
     "feature.rumble.useitem.LivingEntityMixin"
