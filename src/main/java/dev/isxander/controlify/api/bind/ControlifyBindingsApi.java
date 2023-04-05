@@ -16,6 +16,12 @@ import java.util.function.UnaryOperator;
  * Should be called within {@link dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint#onControlifyPreInit(ControlifyApi)}
  */
 public interface ControlifyBindingsApi {
+    /**
+     * Registers a custom binding for all controllers.
+     * @param id the identifier for the binding, the namespace should be your modid.
+     * @param builder the binding builder function
+     * @return the binding supplier to fetch the binding for a specific controller.
+     */
     BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder);
 
     /**
@@ -42,6 +48,12 @@ public interface ControlifyBindingsApi {
     @Deprecated
     BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride);
 
+    /**
+     * By default, all modded keybindings are registered as controller binds.
+     * If you are explicitly depending on Controlify, you should exclude all your
+     * keybindings and register them explicitly.
+     * @param keyMapping the mappings to exclude
+     */
     void excludeVanillaBind(KeyMapping... keyMapping);
 
     static ControlifyBindingsApi get() {
