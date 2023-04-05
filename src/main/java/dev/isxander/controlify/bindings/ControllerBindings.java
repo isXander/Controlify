@@ -114,7 +114,6 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "jump")
                 .defaultBind(GamepadBinds.A_BUTTON)
                 .category(MOVEMENT_CATEGORY)
-                .vanillaOverride(options.keyJump, () -> false)
                 .build());
         register(SPRINT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "sprint")

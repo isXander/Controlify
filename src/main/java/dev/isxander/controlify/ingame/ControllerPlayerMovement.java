@@ -50,7 +50,10 @@ public class ControllerPlayerMovement extends Input {
             this.forwardImpulse *= f;
         }
 
-        this.jumping = bindings.JUMP.held();
+        if (!this.jumping && bindings.JUMP.justPressed())
+            this.jumping = true;
+        else
+            this.jumping = bindings.JUMP.held();
 
         if (player.getAbilities().flying || player.isInWater() || !controller.config().toggleSneak) {
             this.shiftKeyDown = bindings.SNEAK.held();
