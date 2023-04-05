@@ -7,7 +7,9 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.rumble.RumbleSource;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -71,6 +73,17 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     Controller<?, ?> DUMMY = new Controller<>() {
         private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
+        private final RumbleManager rumbleManager = new RumbleManager(new RumbleCapable() {
+            @Override
+            public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+                return false;
+            }
+
+            @Override
+            public boolean canRumble() {
+                return false;
+            }
+        });
         private final ControllerConfig config = new ControllerConfig() {
             @Override
             public void setDeadzone(int axis, float deadzone) {
@@ -150,7 +163,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
         @Override
         public RumbleManager rumbleManager() {
-            return null;
+            return rumbleManager;
         }
     };
 }

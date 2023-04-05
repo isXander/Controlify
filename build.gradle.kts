@@ -82,7 +82,7 @@ dependencies {
     modImplementation(libs.yet.another.config.lib)
     modImplementation(libs.mod.menu)
 
-    implementation(libs.mixin.extras)
+    api(libs.mixin.extras)
     annotationProcessor(libs.mixin.extras)
     include(libs.mixin.extras)
 

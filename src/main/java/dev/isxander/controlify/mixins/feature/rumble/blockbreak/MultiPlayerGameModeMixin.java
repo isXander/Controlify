@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
+import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
@@ -65,7 +66,7 @@ public class MultiPlayerGameModeMixin {
         };
 
         blockBreakRumble = effect;
-        ControlifyApi.get().currentController().rumbleManager().play(effect);
+        ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect);
     }
 
     private void stopRumble() {

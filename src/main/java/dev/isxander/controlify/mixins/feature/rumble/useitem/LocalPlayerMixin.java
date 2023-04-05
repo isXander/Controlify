@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.rumble.useitem;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
+import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
@@ -27,7 +28,10 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin {
                     startRumble(new ContinuousRumbleEffect(tick ->
                             new RumbleState(0f, tick % 4 / 4f * 0.12f + 0.05f)
                     ));
-            case EAT, DRINK -> startRumble(BasicRumbleEffect.constant(0.05f, 0.1f, 1).continuous());
+            case EAT, DRINK ->
+                    startRumble(new ContinuousRumbleEffect(tick ->
+                            new RumbleState(0.05f, 0.1f)
+                    ));
             case TOOT_HORN ->
                     startRumble(new ContinuousRumbleEffect(tick ->
                             new RumbleState(Math.min(1f, tick / 10f), 0.25f)
@@ -49,7 +53,7 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin {
     }
 
     private void startRumble(ContinuousRumbleEffect effect) {
-        ControlifyApi.get().currentController().rumbleManager().play(effect);
+        ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.USE_ITEM, effect);
         useItemRumble = effect;
     }
 }

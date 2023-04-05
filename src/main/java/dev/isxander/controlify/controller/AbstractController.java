@@ -4,11 +4,14 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.rumble.RumbleSource;
 import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
@@ -107,7 +110,14 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
     @Override
     public void setConfig(Gson gson, JsonElement json) {
-        C newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
+        C newConfig;
+        try {
+            newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
+        } catch (Exception e) {
+            Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead. Printing json: " + json.toString(), e);
+            return;
+        }
+
         if (newConfig != null) {
             this.config = newConfig;
         } else {
@@ -117,8 +127,15 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     }
 
     @Override
-    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
+    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
         if (!canRumble()) return false;
+
+        var strengthMod = config().getRumbleStrength(source);
+        if (source != RumbleSource.MASTER)
+            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
+
+        strongMagnitude *= strengthMod;
+        weakMagnitude *= strengthMod;
 
         // the duration doesn't matter because we are not updating the joystick state,
         // so there is never any SDL check to stop the rumble after the desired time.
@@ -131,7 +148,9 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
     @Override
     public boolean canRumble() {
-        return SDL2NativesManager.isLoaded() && config().allowVibrations;
+        return SDL2NativesManager.isLoaded()
+                && config().allowVibrations
+                && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
     }
 
     @Override

@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.rumble.damage;
 import com.mojang.authlib.GameProfile;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
+import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -35,6 +36,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
             float magnitude = (Mth.clamp(damageTaken, smallestDamage, maxDamage) - smallestDamage) / (maxDamage - smallestDamage) * (1 - minMagnitude) + minMagnitude;
             System.out.println(magnitude);
             ControlifyApi.get().currentController().rumbleManager().play(
+                    RumbleSource.DAMAGE,
                     BasicRumbleEffect.constant(magnitude, 0f, magnitude >= 0.75f ? 8 : 5)
             );
         }

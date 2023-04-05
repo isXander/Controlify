@@ -16,6 +16,7 @@ import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
+import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.yacl.api.*;
 import dev.isxander.yacl.gui.controllers.ActionController;
@@ -30,12 +31,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -119,6 +118,7 @@ public class YACLHelper {
         var def = controller.defaultConfig();
 
         Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
+        Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
 
         var basicGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.basic"))
@@ -152,13 +152,6 @@ public class YACLHelper {
                         .tooltip(Component.translatable("controlify.gui.auto_jump.tooltip"))
                         .binding(def.autoJump, () -> config.autoJump, v -> config.autoJump = v)
                         .controller(BooleanController::new)
-                        .build())
-                .option(Option.createBuilder(boolean.class)
-                        .name(Component.translatable("controlify.gui.allow_vibrations"))
-                        .tooltip(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
-                        .binding(globalVibrationOption.pendingValue(), () -> config.allowVibrations && globalVibrationOption.pendingValue(), v -> config.allowVibrations = v)
-                        .available(globalVibrationOption.pendingValue())
-                        .controller(TickBoxController::new)
                         .build())
                 .option(Option.createBuilder(boolean.class)
                         .name(Component.translatable("controlify.gui.show_ingame_guide"))
@@ -212,6 +205,36 @@ public class YACLHelper {
                         .controller(StringController::new)
                         .build());
         category.group(basicGroup.build());
+
+        var vibrationGroup = OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.vibration"))
+                .tooltip(Component.translatable("controlify.gui.group.vibration.tooltip"));
+        List<Option<Float>> strengthOptions = new ArrayList<>();
+        Option<Boolean> allowVibrationOption;
+        vibrationGroup.option(allowVibrationOption = Option.createBuilder(boolean.class)
+                .name(Component.translatable("controlify.gui.allow_vibrations"))
+                .tooltip(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
+                .binding(globalVibrationOption.pendingValue(), () -> config.allowVibrations && globalVibrationOption.pendingValue(), v -> config.allowVibrations = v)
+                .available(globalVibrationOption.pendingValue())
+                .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
+                .controller(TickBoxController::new)
+                .build());
+        for (RumbleSource source : RumbleSource.values()) {
+            var option = Option.createBuilder(float.class)
+                    .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
+                    .tooltip(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
+                    .binding(
+                            def.getRumbleStrength(source),
+                            () -> config.getRumbleStrength(source),
+                            v -> config.setRumbleStrength(source, v)
+                    )
+                    .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
+                    .available(allowVibrationOption.pendingValue())
+                    .build();
+            strengthOptions.add(option);
+            vibrationGroup.option(option);
+        }
+        category.group(vibrationGroup.build());
 
         var advancedGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.advanced"))
@@ -294,6 +317,7 @@ public class YACLHelper {
                         .controller(ActionController::new)
                         .action((screen, btn) -> {
                             controller.rumbleManager().play(
+                                    RumbleSource.MASTER,
                                     BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
                                             .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
                                             .repeat(3)
