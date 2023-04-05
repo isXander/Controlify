@@ -94,6 +94,8 @@
   "controlify.vibration_strength.controlify.gui.tooltip": "Various effects in GUIs such as anvil use.",
   "controlify.vibration_strength.controlify.global_event": "Global Event",
   "controlify.vibration_strength.controlify.global_event.tooltip": "When a global event occurs such as wither spawn or ender dragon death.",
+  "controlify.vibration_strength.controlify.misc": "Misc",
+  "controlify.vibration_strength.controlify.misc.tooltip": "Miscellaneous effects.",
 
   "controlify.toast.vmouse_enabled.title": "Virtual Mouse Enabled",
   "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",

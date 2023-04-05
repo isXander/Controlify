@@ -30,7 +30,7 @@ public class FishingHookMixin {
                 bitingRumble = ContinuousRumbleEffect.builder()
                         .constant(0f, 0.05f)
                         .build();
-                ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.MASTER, bitingRumble);
+                ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.MISC, bitingRumble);
             } else if (!biting && this.biting) {
                 stopBitingRumble();
             }
