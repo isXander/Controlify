@@ -47,8 +47,7 @@ public record ControllerType(String friendlyName, String identifier) {
         while (reader.hasNext()) {
             String friendlyName = null;
             String identifier = null;
-            int vendorId = -1;
-            Set<Integer> productIds = new HashSet<>();
+            Set<HIDIdentifier> hids = new HashSet<>();
 
             reader.beginObject();
             while (reader.hasNext()) {
@@ -57,11 +56,24 @@ public record ControllerType(String friendlyName, String identifier) {
                 switch (name) {
                     case "name" -> friendlyName = reader.nextString();
                     case "identifier" -> identifier = reader.nextString();
-                    case "vendor" -> vendorId = reader.nextInt();
-                    case "product" -> {
+                    case "hids" -> {
                         reader.beginArray();
                         while (reader.hasNext()) {
-                            productIds.add(reader.nextInt());
+                            int vendorId = -1;
+                            int productId = -1;
+                            reader.beginArray();
+                            while (reader.hasNext()) {
+                                if (vendorId == -1) {
+                                    vendorId = reader.nextInt();
+                                } else if (productId == -1) {
+                                    productId = reader.nextInt();
+                                } else {
+                                    Controlify.LOGGER.warn("Too many values in HID array. Skipping...");
+                                    reader.skipValue();
+                                }
+                            }
+                            reader.endArray();
+                            hids.add(new HIDIdentifier(vendorId, productId));
                         }
                         reader.endArray();
                     }
@@ -73,14 +85,14 @@ public record ControllerType(String friendlyName, String identifier) {
             }
             reader.endObject();
 
-            if (friendlyName == null || identifier == null || vendorId == -1 || productIds.isEmpty()) {
+            if (friendlyName == null || identifier == null || hids.isEmpty()) {
                 Controlify.LOGGER.warn("Invalid entry in HID DB. Skipping...");
                 continue;
             }
 
             var type = new ControllerType(friendlyName, identifier);
-            for (int productId : productIds) {
-                typeMap.put(new HIDIdentifier(vendorId, productId), type);
+            for (var hid : hids) {
+                typeMap.put(hid, type);
             }
         }
         reader.endArray();

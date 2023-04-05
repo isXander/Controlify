@@ -3,50 +3,46 @@
     "name": "Xbox One Controller",
     "identifier": "xbox_one",
 
-    "vendor": 0x45e,
-    "product": [
-      0x2ff,
-      0x2ea,
-      0xb12,
-      0x2dd,
-      0x2e3,
-      0x2e6,
-      0x2fd,
-      0x2d1,
-      0x289,
-      0x202,
-      0x285,
-      0x288,
-      0xb13,
+    "hids": [
+      [0x45e, 0x2ff],
+      [0x45e, 0x2ea],
+      [0x45e, 0xb12],
+      [0x45e, 0x2dd],
+      [0x45e, 0x2e6],
+      [0x45e, 0x2fd],
+      [0x45e, 0x2e3],
+      [0x45e, 0x2d1],
+      [0x45e, 0x289],
+      [0x45e, 0x202],
+      [0x45e, 0x285],
+      [0x45e, 0x288],
+      [0x45e, 0xb13],
     ]
   },
   {
     "name": "Dualshock 4 Controller",
     "identifier": "dualshock4",
 
-    "vendor": 0x54c,
-    "product": [
-      0x5c4,
-      0x9cc,
-      0xba0,
+    "hids": [
+      [0x54c, 0x5c4],
+      [0x54c, 0x9cc],
+      [0x54c, 0xba0],
     ]
   },
   {
     "name": "Steam Deck",
     "identifier": "steam_deck",
 
-    "vendor": 0x28de,
-    "product": [
-      0x1205,
+    "hids": [
+      [0x28de, 0x1205],
     ]
   },
   {
     "name": "Stadia Controller",
     "identifier": "stadia",
 
-    "vendor": 0x18d1,
-    "product": [
-      0x9400,
+    "hids": [
+      [0x18d1, 0x9400],
     ]
   }
 ]
