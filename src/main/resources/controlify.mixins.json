@@ -9,6 +9,7 @@
     "compat.sodium.SliderControlElementMixin",
     "compat.sodium.TickBoxControlElementMixin",
     "core.GLXMixin",
+    "feature.rumble.explosion.LightningBoltMixin",
     "feature.rumble.itembreak.LivingEntityMixin",
     "feature.rumble.sounds.LevelRendererMixin",
     "feature.rumble.useitem.LivingEntityMixin"
@@ -38,6 +39,7 @@
     "feature.reacharound.GameRendererMixin",
     "feature.rumble.blockbreak.MultiPlayerGameModeMixin",
     "feature.rumble.damage.LocalPlayerMixin",
+    "feature.rumble.explosion.ClientPacketListenerMixin",
     "feature.rumble.itembreak.LocalPlayerMixin",
     "feature.rumble.useitem.LocalPlayerMixin",
     "feature.screenop.MinecraftMixin",

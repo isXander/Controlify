@@ -5,6 +5,7 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -54,8 +55,8 @@ public class MultiPlayerGameModeMixin {
     private void startRumble(BlockState state) {
         ContinuousRumbleEffect effect = new ContinuousRumbleEffect(tick ->
                 new RumbleState(
-                        0.02f + Math.min(1, state.getBlock().defaultDestroyTime() / 20f) * 0.25f,
-                        0.15f
+                        0.02f + Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
+                        0.01f
                 )
         ){
             @Override

@@ -244,7 +244,7 @@ public class Controlify implements ControlifyApi {
 
     private void onControllerDisconnect(int jid) {
         Controller.CONTROLLERS.values().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
-            Controller.CONTROLLERS.remove(controller.uid(), controller);
+            Controller.remove(controller);
 
             setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
             LOGGER.info("Controller disconnected: " + controller.name());

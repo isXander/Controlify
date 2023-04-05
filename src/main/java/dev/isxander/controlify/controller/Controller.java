@@ -67,7 +67,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     }
 
     static void remove(Controller<?, ?> controller) {
-        CONTROLLERS.remove(controller.uid());
+        CONTROLLERS.remove(controller.uid(), controller);
         controller.close();
     }
 

@@ -15,6 +15,7 @@ public class RumbleSource {
             USE_ITEM = register("use_item"),
             ITEM_BREAK = register("item_break"),
             GUI = register("gui"),
+            EXPLOSION = register("explosion"),
             GLOBAL_EVENT = register("global_event");
 
     private final ResourceLocation id;

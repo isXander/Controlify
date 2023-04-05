@@ -88,6 +88,8 @@
   "controlify.vibration_strength.controlify.use_item.tooltip": "When you are using an item. For example:\n - pulling a bow or trident,\n - blocking with a shield,\n - eating or drinking, etc.",
   "controlify.vibration_strength.controlify.item_break": "Item Break",
   "controlify.vibration_strength.controlify.item_break.tooltip": "When an item breaks.",
+  "controlify.vibration_strength.controlify.explosion": "Explosion",
+  "controlify.vibration_strength.controlify.explosion.tooltip": "When an explosion occurs. For example, tnt, fireball, lightning etc.",
   "controlify.vibration_strength.controlify.gui": "GUI",
   "controlify.vibration_strength.controlify.gui.tooltip": "Various effects in GUIs such as anvil use.",
   "controlify.vibration_strength.controlify.global_event": "Global Event",
