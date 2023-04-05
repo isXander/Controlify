@@ -23,20 +23,27 @@ public class ClientPacketListenerMixin {
 
     @Inject(method = "handleExplosion", at = @At("RETURN"))
     private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
-        float distanceSqr = Math.max(
-                (float)minecraft.player.distanceToSqr(packet.getX(), packet.getY(), packet.getZ())
-                    - packet.getPower() * packet.getPower(), // power is explosion radius
-                0f);
-        float maxDistanceSqr = 4096f; // client only receives explosion packets within 64 blocks
-
-        float magnitude = 1f - Easings.easeOutQuad(distanceSqr / maxDistanceSqr);
+        float initialMagnitude = calculateMagnitude(packet);
 
         ControlifyApi.get().currentController().rumbleManager().play(
                 RumbleSource.EXPLOSION,
                 BasicRumbleEffect.join(
-                        BasicRumbleEffect.constant(magnitude, magnitude, 4), // initial boom
-                        BasicRumbleEffect.byTime(t -> new RumbleState(0f, magnitude - t*magnitude), 20) // explosion
+                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+                        BasicRumbleEffect.byTime(t -> {
+                            float magnitude = calculateMagnitude(packet);
+                            return new RumbleState(0f, magnitude - t * magnitude);
+                        }, 20) // explosion
                 )
         );
+    }
+
+    private float calculateMagnitude(ClientboundExplodePacket packet) {
+        float distanceSqr = Math.max(
+                (float)minecraft.player.distanceToSqr(packet.getX(), packet.getY(), packet.getZ())
+                        - packet.getPower() * packet.getPower(), // power is explosion radius
+                0f);
+        float maxDistanceSqr = 4096f; // client only receives explosion packets within 64 blocks
+
+        return 1f - Easings.easeOutQuad(distanceSqr / maxDistanceSqr);
     }
 }

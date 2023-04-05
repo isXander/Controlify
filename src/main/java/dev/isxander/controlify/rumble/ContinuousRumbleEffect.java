@@ -1,5 +1,8 @@
 package dev.isxander.controlify.rumble;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 
 import java.util.function.Function;
@@ -60,6 +63,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
         private int priority;
         private int timeout = -1;
         private int minTime;
+        private InWorldProperties inWorldProperties;
 
         private Builder() {
         }
@@ -97,11 +101,30 @@ public class ContinuousRumbleEffect implements RumbleEffect {
             return this;
         }
 
+        public Builder inWorld(Vec3 sourceLocation, float minMagnitude, float maxMagnitude, float minDistance, float maxDistance, Function<Float, Float> fallofFunction) {
+            this.inWorldProperties = new InWorldProperties(sourceLocation, minMagnitude, maxMagnitude, minDistance, maxDistance, fallofFunction);
+            return this;
+        }
+
         public ContinuousRumbleEffect build() {
             Validate.notNull(stateFunction, "stateFunction cannot be null!");
             Validate.isTrue(minTime <= timeout || timeout == -1, "the minimum time cannot be greater than the timeout!");
 
+            var stateFunction = this.stateFunction;
+            if (inWorldProperties != null)
+                stateFunction = inWorldProperties.modify(stateFunction);
+
             return new ContinuousRumbleEffect(stateFunction, priority, timeout, minTime);
+        }
+
+        private record InWorldProperties(Vec3 sourceLocation, float minMagnitude, float maxMagnitude, float minDistance, float maxDistance, Function<Float, Float> fallofFunction) {
+            private Function<Integer, RumbleState> modify(Function<Integer, RumbleState> stateFunction) {
+                return tick -> {
+                    float distanceSqr = (float) Mth.clamp(Minecraft.getInstance().player.distanceToSqr(sourceLocation), minDistance, maxDistance);
+                    float magnitude = Mth.lerp(1f - fallofFunction.apply(distanceSqr / (maxDistance * maxDistance)), minMagnitude, maxMagnitude);
+                    return stateFunction.apply(tick).mul(magnitude);
+                };
+            }
         }
     }
 }
