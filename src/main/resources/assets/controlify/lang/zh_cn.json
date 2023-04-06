@@ -33,10 +33,10 @@
   "controlify.gui.auto_jump.tooltip": "当玩家到达一个方块时是否会自动跳跃。",
   "controlify.gui.allow_vibrations": "允许震动",
   "controlify.gui.allow_vibrations.tooltip": "当你执行某些操作时手柄是否应该震动。",
-  "controlify.gui.show_ingame_guide": "Show Ingame Button Guide",
-  "controlify.gui.show_ingame_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
-  "controlify.gui.show_screen_guide": "Show Screen Button Guide",
-  "controlify.gui.show_screen_guide.tooltip": "Show various helpers in GUIs to assist in using controller input.",
+  "controlify.gui.show_ingame_guide": "显示游戏内按钮指南",
+  "controlify.gui.show_ingame_guide.tooltip": "显示一个HUD来展现你可以使用手柄按钮执行的操作。",
+  "controlify.gui.show_screen_guide": "显示屏幕按钮指南",
+  "controlify.gui.show_screen_guide.tooltip": "在GUI中显示各种帮助程序以协助使用手柄输入。",
   "controlify.gui.vmouse_sensitivity": "虚拟鼠标灵敏度",
   "controlify.gui.vmouse_sensitivity.tooltip": "虚拟鼠标移动速度。",
   "controlify.gui.chat_screen_offset": "屏幕键盘高度",
@@ -76,7 +76,7 @@
 
   "controlify.gui.button": "手柄设置…",
 
-  "controlify.gui.controller_unavailable": "Controller unavailable and cannot be edited.",
+  "controlify.gui.controller_unavailable": "手柄不可用且无法被编辑。",
 
   "controlify.vibration_strength.controlify.master": "Master",
   "controlify.vibration_strength.controlify.master.tooltip": "The strength of all vibrations. Will also affect the strength of all other sources.",
@@ -141,7 +141,7 @@
   "controlify.binding.controlify.gui_next_tab": "GUI下个标签",
   "controlify.binding.controlify.gui_prev_tab": "GUI上个标签",
   "controlify.binding.controlify.gui_abstract_action_1": "GUI抽象行为1",
-  "controlify.binding.controlify.gui_abstract_action_1.desc": "一个通用绑定，可以根据当前画面做不同的事情。,
+  "controlify.binding.controlify.gui_abstract_action_1.desc": "一个通用绑定，可以根据当前画面做不同的事情。",
   "controlify.binding.controlify.gui_abstract_action_2": "GUI抽象行为2",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "一个通用绑定，可以根据当前画面做不同的事情。",
   "controlify.binding.controlify.drop": "丢弃物品",
