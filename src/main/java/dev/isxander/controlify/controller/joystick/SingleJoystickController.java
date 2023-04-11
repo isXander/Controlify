@@ -13,17 +13,12 @@ import java.util.Objects;
 
 public class SingleJoystickController extends AbstractController<JoystickState, JoystickConfig> implements JoystickController<JoystickConfig> {
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
-    private final int axisCount, buttonCount, hatCount;
     private final JoystickMapping mapping;
 
     public SingleJoystickController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         super(joystickId, hidInfo);
 
-        this.axisCount = GLFW.glfwGetJoystickAxes(joystickId).capacity();
-        this.buttonCount = GLFW.glfwGetJoystickButtons(joystickId).capacity();
-        this.hatCount = GLFW.glfwGetJoystickHats(joystickId).capacity();
-
-        this.mapping = Objects.requireNonNull(RPJoystickMapping.fromType(type()));
+        this.mapping = Objects.requireNonNull(RPJoystickMapping.fromType(this));
         
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);
@@ -57,17 +52,17 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
     @Override
     public int axisCount() {
-        return axisCount;
+        return mapping().axes().length;
     }
 
     @Override
     public int buttonCount() {
-        return buttonCount;
+        return mapping.buttons().length;
     }
 
     @Override
     public int hatCount() {
-        return hatCount;
+        return mapping.hats().length;
     }
 
     @Override

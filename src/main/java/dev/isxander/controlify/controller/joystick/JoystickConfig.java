@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.joystick;
 
 import dev.isxander.controlify.controller.ControllerConfig;
+import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class JoystickConfig extends ControllerConfig {
         if (axis < 0)
             throw new IllegalArgumentException("Axis cannot be negative!");
 
-        deadzones.put(controller.mapping().axis(axis).identifier(), deadzone);
+        deadzones.put(controller.mapping().axes()[axis].identifier(), deadzone);
     }
 
     @Override
@@ -29,16 +30,18 @@ public class JoystickConfig extends ControllerConfig {
         if (axis < 0)
             throw new IllegalArgumentException("Axis cannot be negative!");
 
-        return deadzones.getOrDefault(controller.mapping().axis(axis).identifier(), 0.2f);
+        return deadzones.getOrDefault(controller.mapping().axes()[axis].identifier(), 0.2f);
     }
 
     void setup(JoystickController<?> controller) {
         this.controller = controller;
         if (this.deadzones == null) {
             deadzones = new HashMap<>();
-            for (int i = 0; i < controller.axisCount(); i++) {
-                if (controller.mapping().axis(i).requiresDeadzone())
-                    deadzones.put(controller.mapping().axis(i).identifier(), 0.2f);
+            for (int i = 0; i < controller.mapping().axes().length; i++) {
+                JoystickMapping.Axis axis = controller.mapping().axes()[i];
+
+                if (axis.requiresDeadzone())
+                    deadzones.put(axis.identifier(), 0.2f);
             }
         }
     }

@@ -9,8 +9,11 @@ import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMappi
 public interface JoystickController<T extends JoystickConfig> extends Controller<JoystickState, T> {
     JoystickMapping mapping();
 
+    @Deprecated
     int axisCount();
+    @Deprecated
     int buttonCount();
+    @Deprecated
     int hatCount();
 
     @Override

@@ -1,27 +1,65 @@
 package dev.isxander.controlify.controller.joystick.mapping;
 
 import dev.isxander.controlify.bindings.JoystickAxisBind;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.JoystickState;
 import net.minecraft.network.chat.Component;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.Arrays;
 
 public class UnmappedJoystickMapping implements JoystickMapping {
-    public static final UnmappedJoystickMapping INSTANCE = new UnmappedJoystickMapping();
+    public static final UnmappedJoystickMapping EMPTY = new UnmappedJoystickMapping(0, 0, 0);
 
-    @Override
-    public Axis axis(int axis) {
-        return new UnmappedAxis(axis);
+    private final UnmappedAxis[] axes;
+    private final UnmappedButton[] buttons;
+    private final UnmappedHat[] hats;
+
+    private UnmappedJoystickMapping(int axisCount, int buttonCount, int hatCount) {
+        this.axes = new UnmappedAxis[axisCount];
+        for (int i = 0; i < axisCount; i++) {
+            this.axes[i] = new UnmappedAxis(i);
+        }
+
+        this.buttons = new UnmappedButton[axisCount];
+        for (int i = 0; i < buttonCount; i++) {
+            this.buttons[i] = new UnmappedButton(i);
+        }
+
+        this.hats = new UnmappedHat[hatCount];
+        for (int i = 0; i < hatCount; i++) {
+            this.hats[i] = new UnmappedHat(i);
+        }
+    }
+
+    public UnmappedJoystickMapping(int joystickId) {
+        this(
+                GLFW.glfwGetJoystickAxes(joystickId).limit(),
+                GLFW.glfwGetJoystickButtons(joystickId).limit(),
+                GLFW.glfwGetJoystickHats(joystickId).limit()
+        );
     }
 
     @Override
-    public Button button(int button) {
-        return new UnmappedButton(button);
+    public Axis[] axes() {
+        return axes;
     }
 
     @Override
-    public Hat hat(int hat) {
-        return new UnmappedHat(hat);
+    public Button[] buttons() {
+        return buttons;
+    }
+
+    @Override
+    public Hat[] hats() {
+        return hats;
     }
 
     private record UnmappedAxis(int axis) implements Axis {
+        @Override
+        public float getAxis(JoystickData data) {
+            return data.axes()[axis];
+        }
 
         @Override
         public String identifier() {
@@ -36,11 +74,6 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         @Override
         public boolean requiresDeadzone() {
             return true;
-        }
-
-        @Override
-        public float modifyAxis(float value) {
-            return value;
         }
 
         @Override
@@ -61,6 +94,11 @@ public class UnmappedJoystickMapping implements JoystickMapping {
 
     private record UnmappedButton(int button) implements Button {
         @Override
+        public boolean isPressed(JoystickData data) {
+            return data.buttons()[button];
+        }
+
+        @Override
         public String identifier() {
             return "button-" + button;
         }
@@ -72,6 +110,11 @@ public class UnmappedJoystickMapping implements JoystickMapping {
     }
 
     private record UnmappedHat(int hat) implements Hat {
+        @Override
+        public JoystickState.HatState getHatState(JoystickData data) {
+            return data.hats()[hat];
+        }
+
         @Override
         public String identifier() {
             return "hat-" + hat;

@@ -1,9 +1,12 @@
 package dev.isxander.controlify.rumble;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public final class BasicRumbleEffect implements RumbleEffect {
@@ -11,6 +14,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
     private int tick = 0;
     private boolean finished;
     private int priority = 0;
+    private BooleanSupplier earlyFinishCondition = () -> false;
 
     public BasicRumbleEffect(RumbleState[] keyframes) {
         this.keyframes = keyframes;
@@ -19,7 +23,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
     @Override
     public void tick() {
         tick++;
-        if (tick >= keyframes.length)
+        if (tick >= keyframes.length || earlyFinishCondition.getAsBoolean())
             finished = true;
     }
 
@@ -55,6 +59,12 @@ public final class BasicRumbleEffect implements RumbleEffect {
         return keyframes;
     }
 
+    public BasicRumbleEffect earlyFinish(BooleanSupplier condition) {
+        var current = earlyFinishCondition;
+        this.earlyFinishCondition = () -> current.getAsBoolean() || condition.getAsBoolean();
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -74,6 +84,22 @@ public final class BasicRumbleEffect implements RumbleEffect {
         return "RumbleEffect[" +
                 "states=" + Arrays.toString(this.states()) + ',' +
                 "priority=" + this.priority() + ']';
+    }
+
+    public BasicRumbleEffect join(BasicRumbleEffect other) {
+        return BasicRumbleEffect.join(this, other);
+    }
+
+    public BasicRumbleEffect repeat(int count) {
+        Validate.isTrue(count > 0, "count must be greater than 0");
+
+        if (count == 1) return this;
+
+        BasicRumbleEffect effect = this;
+        for (int i = 0; i < count - 1; i++) {
+            effect = BasicRumbleEffect.join(effect, this);
+        }
+        return effect;
     }
 
     /**
@@ -133,19 +159,8 @@ public final class BasicRumbleEffect implements RumbleEffect {
         return new BasicRumbleEffect(states);
     }
 
-    public BasicRumbleEffect join(BasicRumbleEffect other) {
-        return BasicRumbleEffect.join(this, other);
-    }
-
-    public BasicRumbleEffect repeat(int count) {
-        Validate.isTrue(count > 0, "count must be greater than 0");
-
-        if (count == 1) return this;
-
-        BasicRumbleEffect effect = this;
-        for (int i = 0; i < count - 1; i++) {
-            effect = BasicRumbleEffect.join(effect, this);
-        }
-        return effect;
+    public static BooleanSupplier finishOnScreenChange() {
+        Screen screen = Minecraft.getInstance().screen;
+        return () -> screen != Minecraft.getInstance().screen;
     }
 }

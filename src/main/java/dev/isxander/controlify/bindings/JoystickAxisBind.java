@@ -42,8 +42,8 @@ public class JoystickAxisBind implements IBind<JoystickState> {
         JoystickMapping mapping = joystick.mapping();
 
         String type = joystick.type().identifier();
-        String axis = mapping.axis(axisIndex).identifier();
-        String direction = mapping.axis(axisIndex).getDirectionIdentifier(axisIndex, this.direction);
+        String axis = mapping.axes()[axisIndex].identifier();
+        String direction = mapping.axes()[axisIndex].getDirectionIdentifier(axisIndex, this.direction);
         var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/axis_" + axis + "_" + direction + ".png");
 
         RenderSystem.setShaderTexture(0, texture);

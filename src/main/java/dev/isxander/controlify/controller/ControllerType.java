@@ -11,8 +11,8 @@ import org.quiltmc.json5.JsonReader;
 import java.io.IOException;
 import java.util.*;
 
-public record ControllerType(String friendlyName, String identifier) {
-    public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown");
+public record ControllerType(String friendlyName, String identifier, boolean forceJoystick, boolean dontLoad) {
+    public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown", false, false);
 
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
@@ -47,6 +47,8 @@ public record ControllerType(String friendlyName, String identifier) {
         while (reader.hasNext()) {
             String friendlyName = null;
             String identifier = null;
+            boolean forceJoystick = false;
+            boolean dontLoad = false;
             Set<HIDIdentifier> hids = new HashSet<>();
 
             reader.beginObject();
@@ -77,6 +79,8 @@ public record ControllerType(String friendlyName, String identifier) {
                         }
                         reader.endArray();
                     }
+                    case "force_joystick" -> forceJoystick = reader.nextBoolean();
+                    case "dont_load" -> dontLoad = reader.nextBoolean();
                     default -> {
                         Controlify.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
                         reader.skipValue();
@@ -90,7 +94,7 @@ public record ControllerType(String friendlyName, String identifier) {
                 continue;
             }
 
-            var type = new ControllerType(friendlyName, identifier);
+            var type = new ControllerType(friendlyName, identifier, forceJoystick, dontLoad);
             for (var hid : hids) {
                 typeMap.put(hid, type);
             }

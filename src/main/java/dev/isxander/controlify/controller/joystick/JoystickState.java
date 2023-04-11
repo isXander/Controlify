@@ -1,8 +1,10 @@
 package dev.isxander.controlify.controller.joystick;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.yacl.api.NameableEnum;
 import net.minecraft.network.chat.Component;
@@ -11,12 +13,13 @@ import org.lwjgl.glfw.GLFW;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class JoystickState implements ControllerState {
-    public static final JoystickState EMPTY = new JoystickState(UnmappedJoystickMapping.INSTANCE, List.of(), List.of(), List.of(), List.of());
+    public static final JoystickState EMPTY = new JoystickState(UnmappedJoystickMapping.EMPTY, List.of(), List.of(), List.of(), List.of());
 
     private final JoystickMapping mapping;
 
@@ -54,7 +57,7 @@ public class JoystickState implements ControllerState {
 
     @Override
     public boolean hasAnyInput() {
-        return IntStream.range(0, axes().size()).anyMatch(i -> !mapping.axis(i).isAxisResting(axes().get(i)))
+        return IntStream.range(0, axes().size()).anyMatch(i -> !mapping.axes()[i].isAxisResting(axes().get(i)))
                 || buttons().stream().anyMatch(Boolean::booleanValue)
                 || hats().stream().anyMatch(hat -> hat != HatState.CENTERED);
     }
@@ -70,68 +73,85 @@ public class JoystickState implements ControllerState {
     }
 
     public static JoystickState fromJoystick(JoystickController<?> joystick, int joystickId) {
+        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
+            Controlify.LOGGER.info("Printing joy input for " + joystick.name());
+
         FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystickId);
-        List<Float> axes = new ArrayList<>();
-        List<Float> rawAxes = new ArrayList<>();
-        if (axesBuffer != null) {
+        float[] inAxes = new float[axesBuffer.limit()];
+
+        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
+            Controlify.LOGGER.info("Axes count = " + inAxes.length);
+
+        {
             int i = 0;
             while (axesBuffer.hasRemaining()) {
-                var axisMapping = joystick.mapping().axis(i);
-                var axis = axisMapping.modifyAxis(axesBuffer.get());
-                var deadzone = axisMapping.requiresDeadzone();
-
-                rawAxes.add(axis);
-                axes.add(deadzone ? ControllerUtils.deadzone(axis, joystick.config().getDeadzone(i)) : axis);
-
+                inAxes[i] = axesBuffer.get();
                 i++;
             }
         }
 
         ByteBuffer buttonBuffer = GLFW.glfwGetJoystickButtons(joystickId);
-        List<Boolean> buttons = new ArrayList<>();
-        if (buttonBuffer != null) {
+        boolean[] inButtons = new boolean[buttonBuffer.limit()];
+
+        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
+            Controlify.LOGGER.info("Button count = " + inButtons.length);
+
+        {
+            int i = 0;
             while (buttonBuffer.hasRemaining()) {
-                buttons.add(buttonBuffer.get() == GLFW.GLFW_PRESS);
+                inButtons[i] = buttonBuffer.get() == GLFW.GLFW_PRESS;
+                i++;
             }
         }
 
         ByteBuffer hatBuffer = GLFW.glfwGetJoystickHats(joystickId);
-        List<JoystickState.HatState> hats = new ArrayList<>();
-        if (hatBuffer != null) {
+        HatState[] inHats = new HatState[hatBuffer.limit()];
+
+        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
+            Controlify.LOGGER.info("Hat count = " + inHats.length);
+
+        {
+            int i = 0;
             while (hatBuffer.hasRemaining()) {
                 var state = switch (hatBuffer.get()) {
-                    case GLFW.GLFW_HAT_CENTERED -> JoystickState.HatState.CENTERED;
-                    case GLFW.GLFW_HAT_UP -> JoystickState.HatState.UP;
-                    case GLFW.GLFW_HAT_RIGHT -> JoystickState.HatState.RIGHT;
-                    case GLFW.GLFW_HAT_DOWN -> JoystickState.HatState.DOWN;
-                    case GLFW.GLFW_HAT_LEFT -> JoystickState.HatState.LEFT;
-                    case GLFW.GLFW_HAT_RIGHT_UP -> JoystickState.HatState.RIGHT_UP;
-                    case GLFW.GLFW_HAT_RIGHT_DOWN -> JoystickState.HatState.RIGHT_DOWN;
-                    case GLFW.GLFW_HAT_LEFT_UP -> JoystickState.HatState.LEFT_UP;
-                    case GLFW.GLFW_HAT_LEFT_DOWN -> JoystickState.HatState.LEFT_DOWN;
+                    case GLFW.GLFW_HAT_CENTERED -> HatState.CENTERED;
+                    case GLFW.GLFW_HAT_UP -> HatState.UP;
+                    case GLFW.GLFW_HAT_RIGHT -> HatState.RIGHT;
+                    case GLFW.GLFW_HAT_DOWN -> HatState.DOWN;
+                    case GLFW.GLFW_HAT_LEFT -> HatState.LEFT;
+                    case GLFW.GLFW_HAT_RIGHT_UP -> HatState.RIGHT_UP;
+                    case GLFW.GLFW_HAT_RIGHT_DOWN -> HatState.RIGHT_DOWN;
+                    case GLFW.GLFW_HAT_LEFT_UP -> HatState.LEFT_UP;
+                    case GLFW.GLFW_HAT_LEFT_DOWN -> HatState.LEFT_DOWN;
                     default -> throw new IllegalStateException("Unexpected value: " + hatBuffer.get());
                 };
-                hats.add(state);
+                inHats[i] = state;
             }
         }
 
-        return new JoystickState(joystick.mapping(), axes, rawAxes, buttons, hats);
+        JoystickMapping.JoystickData data = new JoystickMapping.JoystickData(inAxes, inButtons, inHats);
+        JoystickMapping mapping = joystick.mapping();
+
+        JoystickMapping.Axis[] axes = mapping.axes();
+        List<Float> rawAxes = new ArrayList<>(axes.length);
+        List<Float> deadzoneAxes = new ArrayList<>(axes.length);
+        for (int i = 0; i < axes.length; i++) {
+            var axis = axes[i];
+            float state = axis.getAxis(data);
+            rawAxes.add(state);
+            deadzoneAxes.add(axis.requiresDeadzone() ? ControllerUtils.deadzone(state, i) : state);
+        }
+
+        List<Boolean> buttons = Arrays.stream(mapping.buttons()).map(button -> button.isPressed(data)).toList();
+        List<HatState> hats = Arrays.stream(mapping.hats()).map(hat -> hat.getHatState(data)).toList();
+
+        return new JoystickState(joystick.mapping(), deadzoneAxes, rawAxes, buttons, hats);
     }
 
     public static JoystickState empty(JoystickController<?> joystick) {
-        var axes = new ArrayList<Float>();
-        var buttons = new ArrayList<Boolean>();
-        var hats = new ArrayList<HatState>();
-
-        for (int i = 0; i < joystick.axisCount(); i++) {
-            axes.add(joystick.mapping().axis(i).restingValue());
-        }
-        for (int i = 0; i < joystick.buttonCount(); i++) {
-            buttons.add(false);
-        }
-        for (int i = 0; i < joystick.hatCount(); i++) {
-            hats.add(HatState.CENTERED);
-        }
+        var axes = Arrays.stream(joystick.mapping().axes()).map(JoystickMapping.Axis::restingValue).toList();
+        var buttons = IntStream.range(0, joystick.mapping().buttons().length).mapToObj(i -> false).toList();
+        var hats = IntStream.range(0, joystick.mapping().hats().length).mapToObj(i -> HatState.CENTERED).toList();
 
         return new JoystickState(joystick.mapping(), axes, axes, buttons, hats);
     }

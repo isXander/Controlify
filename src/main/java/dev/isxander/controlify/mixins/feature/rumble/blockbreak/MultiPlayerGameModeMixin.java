@@ -53,6 +53,8 @@ public class MultiPlayerGameModeMixin {
     }
 
     private void startRumble(BlockState state) {
+        stopRumble();
+
         var effect = ContinuousRumbleEffect.builder()
                 .byTick(tick -> new RumbleState(
                         0.02f + Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,

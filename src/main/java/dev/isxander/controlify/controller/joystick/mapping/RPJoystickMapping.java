@@ -1,123 +1,282 @@
 package dev.isxander.controlify.controller.joystick.mapping;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.JoystickAxisBind;
 import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.JoystickState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
+import org.jetbrains.annotations.Nullable;
+import org.quiltmc.json5.JsonReader;
+import org.quiltmc.json5.JsonToken;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 public class RPJoystickMapping implements JoystickMapping {
-    private static final Gson gson = new Gson();
 
-    private final Map<Integer, AxisMapping> axisMappings;
-    private final Map<Integer, ButtonMapping> buttonMappings;
-    private final Map<Integer, HatMapping> hatMappings;
+    private final AxisMapping[] axes;
+    private final ButtonMapping[] buttons;
+    private final HatMapping[] hats;
 
-    public RPJoystickMapping(JsonObject object, ControllerType type) {
-        axisMappings = new HashMap<>();
-        object.getAsJsonArray("axes").forEach(element -> {
-            var axis = element.getAsJsonObject();
-            List<Integer> ids = axis.getAsJsonArray("ids").asList().stream().map(JsonElement::getAsInt).toList();
+    public RPJoystickMapping(JsonReader reader, ControllerType type) throws IOException {
+        AxisMapping[] axes = null;
+        ButtonMapping[] buttons = null;
+        HatMapping[] hats = null;
 
-            Vec2 inpRange = null;
-            Vec2 outRange = null;
-            if (axis.has("range")) {
-                var rangeElement = axis.get("range");
-                if (rangeElement.isJsonArray()) {
-                    var rangeArray = rangeElement.getAsJsonArray();
-                    outRange = new Vec2(rangeArray.get(0).getAsFloat(), rangeArray.get(1).getAsFloat());
-                    inpRange = new Vec2(-1, 1);
-                } else if (rangeElement.isJsonObject()) {
-                    var rangeObject = rangeElement.getAsJsonObject();
-
-                    var inpRangeArray = rangeObject.getAsJsonArray("in");
-                    inpRange = new Vec2(inpRangeArray.get(0).getAsFloat(), inpRangeArray.get(1).getAsFloat());
-
-                    var outRangeArray = rangeObject.getAsJsonArray("out");
-                    outRange = new Vec2(outRangeArray.get(0).getAsFloat(), outRangeArray.get(1).getAsFloat());
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case "axes" -> {
+                    if (axes != null)
+                        throw new IllegalStateException("Axes defined twice.");
+                    axes = readAxes(reader, type);
+                }
+                case "buttons" -> {
+                    if (buttons != null)
+                        throw new IllegalStateException("Buttons defined twice.");
+                    buttons = readButtons(reader, type);
+                }
+                case "hats" -> {
+                    if (hats != null)
+                        throw new IllegalStateException("Hats defined twice.");
+                    hats = readHats(reader, type);
+                }
+                default -> {
+                    Controlify.LOGGER.warn("Unknown field in joystick mapping: " + name + ". Expected values: ['axes', 'buttons', 'hats']");
+                    reader.skipValue();
                 }
             }
-            var restState = axis.get("rest").getAsFloat();
-            var deadzone = axis.get("deadzone").getAsBoolean();
-            var identifier = axis.get("identifier").getAsString();
+        }
+        reader.endObject();
 
-            var axisNames = axis.getAsJsonArray("axis_names").asList().stream()
-                    .map(JsonElement::getAsJsonArray)
-                    .map(JsonArray::asList)
-                    .map(list -> list.stream().map(JsonElement::getAsString).toList())
-                    .toList();
+        this.axes = axes;
+        this.buttons = buttons;
+        this.hats = hats;
+    }
+
+    private AxisMapping[] readAxes(JsonReader reader, ControllerType type) throws IOException {
+        List<AxisMapping> axes = new ArrayList<>();
+
+        reader.beginArray();
+        while (reader.hasNext()) {
+            List<Integer> ids = new ArrayList<>();
+            Vec2 inpRange = null;
+            Vec2 outRange = null;
+            boolean deadzone = false;
+            float restState = 0f;
+            String identifier = null;
+            List<String[]> axisNames = new ArrayList<>();
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case "ids" -> {
+                        reader.beginArray();
+                        while (reader.hasNext()) {
+                            ids.add(reader.nextInt());
+                        }
+                        reader.endArray();
+                    }
+                    case "identifier" -> {
+                        identifier = reader.nextString();
+                    }
+                    case "range" -> {
+                        if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+                            reader.beginArray();
+                            outRange = new Vec2((float) reader.nextDouble(), (float) reader.nextDouble());
+                            inpRange = new Vec2(-1, 1);
+                            reader.endArray();
+                        } else {
+                            reader.beginObject();
+                            while (reader.hasNext()) {
+                                String rangeName = reader.nextName();
+
+                                switch (rangeName) {
+                                    case "in" -> {
+                                        reader.beginArray();
+                                        inpRange = new Vec2((float) reader.nextDouble(), (float) reader.nextDouble());
+                                        reader.endArray();
+                                    }
+                                    case "out" -> {
+                                        reader.beginArray();
+                                        outRange = new Vec2((float) reader.nextDouble(), (float) reader.nextDouble());
+                                        reader.endArray();
+                                    }
+                                    default -> {
+                                        reader.skipValue();
+                                        Controlify.LOGGER.info("Unknown axis range property: " + rangeName + ". Expected are ['in', 'out']");
+                                    }
+                                }
+                            }
+                            reader.endObject();
+                        }
+                    }
+                    case "rest" -> {
+                        restState = (float) reader.nextDouble();
+                    }
+                    case "deadzone" -> {
+                        deadzone = reader.nextBoolean();
+                    }
+                    case "axis_names" -> {
+                        reader.beginArray();
+                        while (reader.hasNext()) {
+                            reader.beginArray();
+                            axisNames.add(new String[] { reader.nextString(), reader.nextString() });
+                            reader.endArray();
+                        }
+                        reader.endArray();
+                    }
+                    default -> {
+                        reader.skipValue();
+                        Controlify.LOGGER.info("Unknown axis property: " + name + ". Expected are ['identifier', 'axis_names', 'ids', 'range', 'rest', 'deadzone']");
+                    }
+                }
+            }
+            reader.endObject();
 
             for (var id : ids) {
-                axisMappings.put(id, new AxisMapping(ids, identifier, inpRange, outRange, restState, deadzone, type.identifier(), axisNames));
+                axes.add(new AxisMapping(id, identifier, inpRange, outRange, restState, deadzone, type.identifier(), axisNames.get(ids.indexOf(id))));
             }
-        });
+        }
+        reader.endArray();
 
-        buttonMappings = new HashMap<>();
-        object.getAsJsonArray("buttons").forEach(element -> {
-            var button = element.getAsJsonObject();
-            buttonMappings.put(button.get("button").getAsInt(), new ButtonMapping(button.get("name").getAsString(), type.identifier()));
-        });
+        return axes.toArray(new AxisMapping[0]);
+    }
 
-        hatMappings = new HashMap<>();
-        object.getAsJsonArray("hats").forEach(element -> {
-            var hat = element.getAsJsonObject();
-            hatMappings.put(hat.get("hat").getAsInt(), new HatMapping(hat.get("name").getAsString(), type.identifier()));
-        });
+    private ButtonMapping[] readButtons(JsonReader reader, ControllerType type) throws IOException {
+        List<ButtonMapping> buttons = new ArrayList<>();
+
+        reader.beginArray();
+        while (reader.hasNext()) {
+            int id = -1;
+            String btnName = null;
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case "button" -> id = reader.nextInt();
+                    case "name" -> btnName = reader.nextString();
+                    default -> {
+                        reader.skipValue();
+                        Controlify.LOGGER.info("Unknown button property: " + name + ". Expected are ['button', 'name']");
+                    }
+                }
+            }
+            reader.endObject();
+
+            buttons.add(new ButtonMapping(id, btnName, type.identifier()));
+        }
+        reader.endArray();
+
+        return buttons.toArray(new ButtonMapping[0]);
+    }
+
+    private HatMapping[] readHats(JsonReader reader, ControllerType type) throws IOException {
+        List<HatMapping> hats = new ArrayList<>();
+
+        reader.beginArray();
+        while (reader.hasNext()) {
+            int id = -1;
+            String hatName = null;
+            HatMapping.EmulatedAxis axis = null;
+
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case "hat" -> id = reader.nextInt();
+                    case "name" -> hatName = reader.nextString();
+                    case "emulated_axis" -> {
+                        int axisId = -1;
+                        Map<Float, JoystickState.HatState> states = new HashMap<>();
+
+                        reader.beginObject();
+                        while (reader.hasNext()) {
+                            String emulatedName = reader.nextName();
+                            for (var hatState : JoystickState.HatState.values()) {
+                                if (hatState.name().equalsIgnoreCase(emulatedName)) {
+                                    states.put((float) reader.nextDouble(), hatState);
+                                }
+                            }
+
+                            if (emulatedName.equalsIgnoreCase("axis")) {
+                                axisId = reader.nextInt();
+                            }
+                        }
+                        reader.endObject();
+
+                        if (axisId == -1) {
+                            Controlify.LOGGER.error("No axis id defined for emulated hat " + hatName + "! Skipping.");
+                            continue;
+                        }
+                        if (states.size() != JoystickState.HatState.values().length) {
+                            Controlify.LOGGER.error("Not all hat states are defined for emulated hat " + hatName + "! Skipping.");
+                            continue;
+                        }
+
+                        axis = new HatMapping.EmulatedAxis(axisId, states);
+                    }
+                    default -> {
+                        reader.skipValue();
+                        Controlify.LOGGER.info("Unknown hat property: " + name + ". Expected are ['hat', 'name']");
+                    }
+                }
+            }
+            reader.endObject();
+
+            hats.add(new HatMapping(id, hatName, type.identifier(), axis));
+        }
+        reader.endArray();
+
+        return hats.toArray(new HatMapping[0]);
     }
 
     @Override
-    public Axis axis(int axis) {
-        if (!axisMappings.containsKey(axis))
-            return UnmappedJoystickMapping.INSTANCE.axis(axis);
-        return axisMappings.get(axis);
+    public Axis[] axes() {
+        return axes;
     }
 
     @Override
-    public Button button(int button) {
-        if (!buttonMappings.containsKey(button))
-            return UnmappedJoystickMapping.INSTANCE.button(button);
-        return buttonMappings.get(button);
+    public Button[] buttons() {
+        return buttons;
     }
 
     @Override
-    public Hat hat(int hat) {
-        if (!hatMappings.containsKey(hat))
-            return UnmappedJoystickMapping.INSTANCE.hat(hat);
-        return hatMappings.get(hat);
+    public Hat[] hats() {
+        return hats;
     }
 
-    public static JoystickMapping fromType(ControllerType type) {
-        var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + type.identifier() + ".json"));
+    public static JoystickMapping fromType(JoystickController<?> joystick) {
+        var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + joystick.type().identifier() + ".json"));
         if (resource.isEmpty()) {
-            Controlify.LOGGER.warn("No joystick mapping found for controller: '" + type.identifier() + "'");
-            return UnmappedJoystickMapping.INSTANCE;
+            Controlify.LOGGER.warn("No joystick mapping found for controller: '" + joystick.type().identifier() + "'");
+            return new UnmappedJoystickMapping(joystick.joystickId());
         }
 
-        try (var reader = resource.get().openAsReader()) {
-            return new RPJoystickMapping(gson.fromJson(reader, JsonObject.class), type);
+        try (var reader = JsonReader.json5(resource.get().openAsReader())) {
+            return new RPJoystickMapping(reader, joystick.type());
         } catch (Exception e) {
-            Controlify.LOGGER.error("Failed to load joystick mapping for controller: '" + type.identifier() + "'", e);
-            return UnmappedJoystickMapping.INSTANCE;
+            Controlify.LOGGER.error("Failed to load joystick mapping for controller: '" + joystick.type().identifier() + "'", e);
+            return new UnmappedJoystickMapping(joystick.joystickId());
         }
     }
 
-    private record AxisMapping(List<Integer> ids, String identifier, Vec2 inpRange, Vec2 outRange, float restingValue, boolean requiresDeadzone, String typeId, List<List<String>> axisNames) implements Axis {
+    private record AxisMapping(int id, String identifier, Vec2 inpRange, Vec2 outRange, float restingValue, boolean requiresDeadzone, String typeId, String[] axisNames) implements Axis {
         @Override
-        public float modifyAxis(float value) {
-            if (inpRange() == null || outRange() == null)
-                return value;
+        public float getAxis(JoystickData data) {
+            float rawAxis = data.axes()[id];
 
-            return (value + (outRange().x - inpRange().x)) / (inpRange().y - inpRange().x) * (outRange().y - outRange().x);
+            if (inpRange() == null || outRange() == null)
+                return rawAxis;
+
+            return (rawAxis + (outRange().x - inpRange().x)) / (inpRange().y - inpRange().x) * (outRange().y - outRange().x);
         }
 
         @Override
@@ -132,23 +291,40 @@ public class RPJoystickMapping implements JoystickMapping {
 
         @Override
         public String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction) {
-            return this.axisNames().get(ids.indexOf(axis)).get(direction.ordinal());
+            return this.axisNames()[direction.ordinal()];
         }
     }
 
-    private record ButtonMapping(String identifier, String typeId) implements Button {
+    private record ButtonMapping(int id, String identifier, String typeId) implements Button {
+        @Override
+        public boolean isPressed(JoystickData data) {
+            return data.buttons()[id];
+        }
+
         @Override
         public Component name() {
             return Component.translatable("controlify.joystick_mapping." + typeId() + ".button." + identifier());
         }
-
-
     }
 
-    private record HatMapping(String identifier, String typeId) implements Hat {
+    private record HatMapping(int hatId, String identifier, String typeId, @Nullable EmulatedAxis emulatedAxis) implements Hat {
+        @Override
+        public JoystickState.HatState getHatState(JoystickData data) {
+            if (emulatedAxis() != null) {
+                var axis = emulatedAxis();
+                var axisValue = data.axes()[axis.axisId()];
+                return emulatedAxis().states().get(axisValue);
+            }
+
+            return data.hats()[hatId()];
+        }
+
         @Override
         public Component name() {
             return Component.translatable("controlify.joystick_mapping." + typeId() + ".hat." + identifier());
+        }
+
+        private record EmulatedAxis(int axisId, Map<Float, JoystickState.HatState> states) {
         }
     }
 }

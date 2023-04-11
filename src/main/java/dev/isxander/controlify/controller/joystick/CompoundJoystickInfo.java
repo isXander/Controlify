@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public record CompoundJoystickInfo(Collection<String> joystickUids, String friendlyName) {
     public ControllerType type() {
-        return new ControllerType(friendlyName, createUID(joystickUids));
+        return new ControllerType(friendlyName, createUID(joystickUids), true, false);
     }
 
     public boolean canBeUsed() {

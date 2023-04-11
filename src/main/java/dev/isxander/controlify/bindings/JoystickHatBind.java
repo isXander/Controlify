@@ -33,18 +33,18 @@ public class JoystickHatBind implements IBind<JoystickState> {
     @Override
     public void draw(PoseStack matrices, int x, int centerY) {
         String type = joystick.type().identifier();
-        String button = joystick.mapping().button(hatIndex).identifier();
+        String hat = joystick.mapping().hats()[hatIndex].identifier();
         String direction = "centered";
         if (hatState.isUp())
             direction = "up";
         else if (hatState.isDown())
             direction = "down";
         else if (hatState.isLeft())
-            direction = "strong";
+            direction = "left";
         else if (hatState.isRight())
-            direction = "weak";
+            direction = "right";
 
-        var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/hat" + button + "_" + direction + ".png");
+        var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/hat" + hat + "_" + direction + ".png");
 
         RenderSystem.setShaderTexture(0, texture);
         RenderSystem.setShaderColor(1, 1, 1, 1);

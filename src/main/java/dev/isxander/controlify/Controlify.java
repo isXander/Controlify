@@ -21,6 +21,9 @@ import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -78,12 +81,14 @@ public class Controlify implements ControlifyApi {
         if (config().globalSettings().loadVibrationNatives)
             SDL2NativesManager.initialise();
 
-        boolean dirtyControllerConfig = false;
         // find already connected controllers
         for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
             if (GLFW.glfwJoystickPresent(jid)) {
                 try {
-                    var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                    var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                    if (controllerOpt.isEmpty()) continue;
+                    var controller = controllerOpt.get();
+
                     LOGGER.info("Controller found: " + controller.name());
 
                     config().loadOrCreateControllerData(controller);
@@ -93,16 +98,12 @@ public class Controlify implements ControlifyApi {
 
                     if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
                         controller.config().allowVibrations = false;
-                        dirtyControllerConfig = true;
+                        config().setDirty();
                     }
                 } catch (Exception e) {
                     LOGGER.error("Failed to initialize controller with jid " + jid, e);
                 }
             }
-        }
-
-        if (dirtyControllerConfig) {
-            config().save();
         }
 
         checkCompoundJoysticks();
@@ -113,6 +114,9 @@ public class Controlify implements ControlifyApi {
 
         if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
             this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+        } else {
+            // setCurrentController saves config
+            config().saveIfDirty();
         }
 
         // listen for new controllers
@@ -172,15 +176,10 @@ public class Controlify implements ControlifyApi {
 
         for (var controller : Controller.CONTROLLERS.values()) {
             if (!outOfFocus)
-                controller.updateState();
-            else {
-                controller.clearState();
-                controller.rumbleManager().clearEffects();
-            }
-            controller.rumbleManager().tick();
+                wrapControllerError(controller::updateState, "Updating controller state", controller);
+            else
+                wrapControllerError(controller::clearState, "Clearing controller state", controller);
         }
-
-        ControllerState state = currentController == null ? ControllerState.EMPTY : currentController.state();
 
         if (switchableController != null && Blaze3D.getTime() - askSwitchTime <= 10000) {
             if (switchableController.state().hasAnyInput()) {
@@ -189,13 +188,23 @@ public class Controlify implements ControlifyApi {
                     askSwitchToast.remove();
                     askSwitchToast = null;
                 }
+                switchableController.clearState();
                 switchableController = null;
-                state = ControllerState.EMPTY;
             }
         }
 
-        if (outOfFocus)
+        wrapControllerError(() -> tickController(currentController, outOfFocus), "Ticking current controller", currentController);
+    }
+
+    private void tickController(Controller<?, ?> controller, boolean outOfFocus) {
+        ControllerState state = controller.state();
+
+        if (outOfFocus) {
             state = ControllerState.EMPTY;
+            controller.rumbleManager().clearEffects();
+        } else {
+            controller.rumbleManager().tick();
+        }
 
         if (state.hasAnyInput())
             this.setInputMode(InputMode.CONTROLLER);
@@ -209,22 +218,31 @@ public class Controlify implements ControlifyApi {
             );
             this.setCurrentController(null);
             consecutiveInputSwitches = 0;
-        }
-
-        if (currentController == null) {
-            this.setInputMode(InputMode.KEYBOARD_MOUSE);
             return;
         }
 
-        if (client.screen != null) {
-            ScreenProcessorProvider.provide(client.screen).onControllerUpdate(currentController);
+        if (minecraft.screen != null) {
+            ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
         }
-        if (client.level != null) {
+        if (minecraft.level != null) {
             this.inGameInputHandler().inputTick();
         }
-        this.virtualMouseHandler().handleControllerInput(currentController);
+        this.virtualMouseHandler().handleControllerInput(controller);
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(currentController);
+        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(controller);
+    }
+
+    public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?, ?> controller) {
+        try {
+            runnable.run();
+        } catch (Throwable e) {
+            CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
+            CrashReportCategory category = crashReport.addCategory("Affected controller");
+            category.setDetail("Controller name", controller::name);
+            category.setDetail("Controller identification", () -> controller.type().toString());
+            category.setDetail("Controller type", () -> controller.getClass().getCanonicalName());
+            throw new ReportedException(crashReport);
+        }
     }
 
     public ControlifyConfig config() {
@@ -232,14 +250,24 @@ public class Controlify implements ControlifyApi {
     }
 
     private void onControllerHotplugged(int jid) {
-        var controller = Controller.createOrGet(jid, controllerHIDService.fetchType());
+        var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
+        if (controllerOpt.isEmpty()) return;
+        var controller = controllerOpt.get();
+
         LOGGER.info("Controller connected: " + controller.name());
 
         config().loadOrCreateControllerData(currentController);
 
+        if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
+            controller.config().allowVibrations = false;
+            config().setDirty();
+        }
+
         this.askToSwitchController(controller);
 
         checkCompoundJoysticks();
+
+        config().saveIfDirty();
     }
 
     private void onControllerDisconnect(int jid) {
@@ -304,7 +332,12 @@ public class Controlify implements ControlifyApi {
             controller = Controller.DUMMY;
 
         if (this.currentController == controller) return;
+
+        if (this.currentController != null)
+            this.currentController.close();
+
         this.currentController = controller;
+        this.currentController.open();
 
         if (switchableController == controller) {
             switchableController = null;

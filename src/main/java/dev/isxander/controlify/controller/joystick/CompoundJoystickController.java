@@ -39,7 +39,7 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
         this.buttonCount = joystickIds.stream().mapToInt(this::getButtonCountForJoystick).sum();
         this.hatCount = joystickIds.stream().mapToInt(this::getHatCountForJoystick).sum();
 
-        this.mapping = RPJoystickMapping.fromType(type());
+        this.mapping = RPJoystickMapping.fromType(this);
 
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);

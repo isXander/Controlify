@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
@@ -38,6 +39,7 @@ public class ControllerBindings<T extends ControllerState> {
     public final ControllerBinding<T>
             WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
             LOOK_UP, LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT,
+            GAMEPAD_GYRO_BUTTON,
             JUMP, SNEAK,
             ATTACK, USE,
             SPRINT,
@@ -110,6 +112,15 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.RIGHT_STICK_RIGHT)
                 .category(MOVEMENT_CATEGORY)
                 .build());
+        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+            register(GAMEPAD_GYRO_BUTTON = ControllerBindingBuilder.create(controller)
+                    .identifier("controlify", "gamepad_gyro_button")
+                    .defaultBind(new EmptyBind<>())
+                    .category(MOVEMENT_CATEGORY)
+                    .build());
+        } else {
+            GAMEPAD_GYRO_BUTTON = null;
+        }
         register(JUMP = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "jump")
                 .defaultBind(GamepadBinds.A_BUTTON)

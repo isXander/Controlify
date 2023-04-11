@@ -1,14 +1,13 @@
 package dev.isxander.controlify.controller.joystick.mapping;
 
 import dev.isxander.controlify.bindings.JoystickAxisBind;
+import dev.isxander.controlify.controller.joystick.JoystickState;
 import net.minecraft.network.chat.Component;
 
 public interface JoystickMapping {
-    Axis axis(int axis);
-
-    Button button(int button);
-
-    Hat hat(int hat);
+    Axis[] axes();
+    Button[] buttons();
+    Hat[] hats();
 
     interface Axis {
         String identifier();
@@ -17,7 +16,7 @@ public interface JoystickMapping {
 
         boolean requiresDeadzone();
 
-        float modifyAxis(float value);
+        float getAxis(JoystickData data);
 
         boolean isAxisResting(float value);
 
@@ -30,11 +29,18 @@ public interface JoystickMapping {
         String identifier();
 
         Component name();
+
+        boolean isPressed(JoystickData data);
     }
 
     interface Hat {
+        JoystickState.HatState getHatState(JoystickData data);
+
         String identifier();
 
         Component name();
+    }
+
+    record JoystickData(float[] axes, boolean[] buttons, JoystickState.HatState[] hats) {
     }
 }
