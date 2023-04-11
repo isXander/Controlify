@@ -18,6 +18,7 @@
   "controlify.gui.keyboard_movement": "类似键盘移动",
   "controlify.gui.keyboard_movement.tooltip": "打开或关闭移动，而不是使用手柄摇杆进行平滑移动，这在服务器反作弊严格的情况下可能会有所帮助。",
   "controlify.gui.open_issue_tracker": "提交问题",
+
   "controlify.gui.group.basic": "基本",
   "controlify.gui.group.basic.tooltip": "调整你的手柄行为。",
   "controlify.gui.horizontal_look_sensitivity": "水平视角灵敏度",
@@ -48,6 +49,14 @@
   "controlify.gui.custom_name.tooltip": "在整个Minecraft中显示此手柄的名称。",
   "controlify.gui.group.vibration": "震动",
   "controlify.gui.group.vibration.tooltip": "调整你的手柄震动方式。",
+  "controlify.gui.group.gyro": "Gyro",
+  "controlify.gui.group.gyro.tooltip": "Adjust how Controlify treats your controller's built in gyroscope.\nA gyroscope determines how the controller is rotated.",
+  "controlify.gui.gyro_look_sensitivity": "Look Sensitivity",
+  "controlify.gui.gyro_look_sensitivity.tooltip": "How much the camera moves based on gyroscope rotation.",
+  "controlify.gui.gyro_requires_button": "Require Button",
+  "controlify.gui.gyro_requires_button.tooltip": "If the gyroscope should only be used when the gyro bind is pressed down. (scroll down to controls).",
+  "controlify.gui.flick_stick": "Flick Stick",
+  "controlify.gui.flick_stick.tooltip": "Changes the behaviour of the look up/down/left/right binds to rotate the look direction 90 degrees in the respected direction upon press. This should be combined with gyro look to get the most accurate and fast aiming.",
   "controlify.gui.group.advanced": "高级",
   "controlify.gui.group.advanced.tooltip": "你可能不应该碰的设置！",
   "controlify.gui.screen_repeat_navi_delay": "屏幕重复导航延迟",
@@ -67,6 +76,7 @@
   "controlify.gui.group.controls": "控制",
   "controlify.gui.group.controls.tooltip": "调整手柄控制。",
   "controlify.gui.bind_input_awaiting": "按任意按钮",
+
   "controlify.gui.format.ticks": "%s ticks",
   "controlify.gui.format.hold_toggle.hold": "按住",
   "controlify.gui.format.hold_toggle.toggle": "切换",
@@ -113,6 +123,7 @@
   "controlify.controller_theme.xbox_one": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
   "controlify.controller_theme.steam_deck": "Steam Deck",
+
   "controlify.binding.controlify.walk_forward": "向前移动",
   "controlify.binding.controlify.walk_backward": "向后移动",
   "controlify.binding.controlify.strafe_left": "向左移动",
@@ -190,6 +201,7 @@
   "controlify.guide.use": "使用",
   "controlify.guide.interact": "交互",
   "controlify.guide.pick_block": "选择方块",
+
   "controlify.joystick_mapping.unmapped.axis": "轴#%s",
   "controlify.joystick_mapping.unmapped.button": "按钮#%s",
   "controlify.joystick_mapping.unmapped.hat": "头#%s",
@@ -223,6 +235,7 @@
   "controlify.joystick_mapping.xbox_one.button.start": "开始",
   "controlify.joystick_mapping.xbox_one.button.guide": "指南",
   "controlify.joystick_mapping.xbox_one.hat.dpad": "D-Pad",
+
   "controlify.calibration.title": "手柄‘%s’校准",
   "controlify.calibration.info": "此过程将优化你的手柄设置，以防止摇杆漂移。摇杆漂移发生在你的手柄摇杆中，当你根本没有触碰到它们时，它们会输出略有错误的值。盲区用于防止这种情况的发生。\n\n这只需要几秒钟。",
   "controlify.calibration.wait": "在进度条完成之前，请不要触碰你的手柄摇杆。这个过程只需要几秒钟。",
@@ -230,12 +243,15 @@
   "controlify.calibration.ready": "准备好了",
   "controlify.calibration.done": "完成",
   "controlify.calibration.calibrating": "校准中...",
+
   "controlify.beta.title": "Controlify测试版通知",
   "controlify.beta.message": "您目前正在使用Controlify测试版。\n\n此模组正在进行中，将包含许多bug。如果你在这个模组中发现了错误，或者有建议让它变得更好，请在%s上创建一个问题！\n\n你可以在Controlify的设置菜单中找到提交问题的链接。",
   "controlify.beta.message.link": "问题追踪",
   "controlify.beta.button": "提交问题...",
+
   "controlify.error.hid": "手柄检测已禁用",
   "controlify.error.hid.desc": "Controlify无法启动用于识别和区分多个手柄的控手柄检测系统。这意味着手柄的配置将无法在游戏会话之间保存。这可能是由于系统故障造成的，你应该查看日志以了解更多信息。",
+
   "controlify.hat_state.up": "上",
   "controlify.hat_state.down": "下",
   "controlify.hat_state.left": "左",
