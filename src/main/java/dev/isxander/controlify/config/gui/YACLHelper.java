@@ -13,6 +13,7 @@ import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
@@ -236,6 +237,51 @@ public class YACLHelper {
         }
         category.group(vibrationGroup.build());
 
+        if (controller instanceof GamepadController gamepad && (gamepad.hasGyro() || true)) {
+            var gpCfg = gamepad.config();
+            var gpCfgDef = gamepad.defaultConfig();
+
+            Option<Float> gyroSensitivity;
+            List<Option<?>> gyroOptions = new ArrayList<>();
+            var gyroGroup = OptionGroup.createBuilder()
+                    .name(Component.translatable("controlify.gui.group.gyro"))
+                    .tooltip(Component.translatable("controlify.gui.group.gyro.tooltip"))
+                    .option(gyroSensitivity = Option.createBuilder(float.class)
+                            .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
+                            .tooltip(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
+                            .binding(gpCfgDef.gyroLookSensitivity, () -> gpCfg.gyroLookSensitivity, v -> gpCfg.gyroLookSensitivity = v)
+                            .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
+                            .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
+                                o.setAvailable(sensitivity > 0);
+                                o.requestSetDefault();
+                            }))
+                            .build())
+                    .option(Util.make(() -> {
+                        var opt = Option.createBuilder(boolean.class)
+                                .name(Component.translatable("controlify.gui.gyro_requires_button"))
+                                .tooltip(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
+                                .binding(gpCfgDef.gyroRequiresButton, () -> gpCfg.gyroRequiresButton, v -> gpCfg.gyroRequiresButton = v)
+                                .controller(TickBoxController::new)
+                                .available(gyroSensitivity.pendingValue() > 0)
+                                .build();
+                        gyroOptions.add(opt);
+                        return opt;
+                    }))
+                    .option(Util.make(() -> {
+                        var opt = Option.createBuilder(boolean.class)
+                                .name(Component.translatable("controlify.gui.flick_stick"))
+                                .tooltip(Component.translatable("controlify.gui.flick_stick.tooltip"))
+                                .binding(gpCfgDef.flickStick, () -> gpCfg.flickStick, v -> gpCfg.flickStick = v)
+                                .controller(TickBoxController::new)
+                                .available(gyroSensitivity.pendingValue() > 0)
+                                .build();
+                        gyroOptions.add(opt);
+                        return opt;
+                    }));
+
+            category.group(gyroGroup.build());
+        }
+
         var advancedGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.advanced"))
                 .tooltip(Component.translatable("controlify.gui.group.advanced.tooltip"))
@@ -274,11 +320,12 @@ public class YACLHelper {
                             .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
                             .build());
         } else if (controller instanceof SingleJoystickController joystick) {
-            Collection<Integer> deadzoneAxes = IntStream.range(0, joystick.axisCount())
-                    .filter(i -> joystick.mapping().axis(i).requiresDeadzone())
+            JoystickMapping.Axis[] axes = joystick.mapping().axes();
+            Collection<Integer> deadzoneAxes = IntStream.range(0, axes.length)
+                    .filter(i -> axes[i].requiresDeadzone())
                     .boxed()
                     .collect(Collectors.toMap(
-                            i -> joystick.mapping().axis(i).identifier(),
+                            i -> axes[i].identifier(),
                             i -> i,
                             (x, y) -> x,
                             LinkedHashMap::new
@@ -288,9 +335,11 @@ public class YACLHelper {
             var jsCfgDef = joystick.defaultConfig();
 
             for (int i : deadzoneAxes) {
+                var axis = axes[i];
+
                 advancedGroup.option(Option.createBuilder(float.class)
-                        .name(Component.translatable("controlify.gui.joystick_axis_deadzone", joystick.mapping().axis(i).name()))
-                        .tooltip(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", joystick.mapping().axis(i).name()))
+                        .name(Component.translatable("controlify.gui.joystick_axis_deadzone", axis.name()))
+                        .tooltip(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", axis.name()))
                         .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                         .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
                         .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
@@ -325,6 +374,7 @@ public class YACLHelper {
                                                     .join(BasicRumbleEffect.constant(0f, 1f, 5))
                                                     .repeat(10)
                                             )
+                                            .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
                             );
                         })
                         .build());

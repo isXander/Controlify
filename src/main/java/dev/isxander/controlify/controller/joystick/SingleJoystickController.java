@@ -2,18 +2,27 @@ package dev.isxander.controlify.controller.joystick;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
-import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
-import org.lwjgl.glfw.GLFW;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.rumble.RumbleSource;
+import org.libsdl.SDL;
 
 import java.util.Objects;
 
 public class SingleJoystickController extends AbstractController<JoystickState, JoystickConfig> implements JoystickController<JoystickConfig> {
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
     private final JoystickMapping mapping;
+
+    private long ptrJoystick;
+    private RumbleManager rumbleManager;
+    private boolean rumbleSupported;
 
     public SingleJoystickController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         super(joystickId, hidInfo);
@@ -74,5 +83,51 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     public void setConfig(Gson gson, JsonElement json) {
         super.setConfig(gson, json);
         this.config.setup(this);
+    }
+
+    @Override
+    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+        if (!canRumble()) return false;
+
+        var strengthMod = config().getRumbleStrength(source);
+        if (source != RumbleSource.MASTER)
+            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
+
+        strongMagnitude *= strengthMod;
+        weakMagnitude *= strengthMod;
+
+        // the duration doesn't matter because we are not updating the joystick state,
+        // so there is never any SDL check to stop the rumble after the desired time.
+        if (!SDL.SDL_JoystickRumbleTriggers(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 1)) {
+            Controlify.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean canRumble() {
+        return rumbleSupported
+                && config().allowVibrations
+                && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
+    }
+
+    @Override
+    public RumbleManager rumbleManager() {
+        return this.rumbleManager;
+    }
+
+    @Override
+    public void open() {
+        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
+        this.rumbleSupported = SDL2NativesManager.isLoaded() && SDL.SDL_JoystickHasRumble(this.ptrJoystick);
+        this.rumbleManager = new RumbleManager(this);
+    }
+
+    @Override
+    public void close() {
+        SDL.SDL_JoystickClose(ptrJoystick);
+        this.rumbleSupported = false;
+        this.rumbleManager = null;
     }
 }

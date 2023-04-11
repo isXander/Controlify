@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.event;
 
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
@@ -44,6 +45,24 @@ public final class ControlifyEvents {
         }
     });
 
+    public static final Event<LookInputModifier> LOOK_INPUT_MODIFIER = EventFactory.createArrayBacked(LookInputModifier.class, callbacks -> new LookInputModifier() {
+        @Override
+        public float modifyX(float x, Controller<?, ?> controller) {
+            for (LookInputModifier callback : callbacks) {
+                x = callback.modifyX(x, controller);
+            }
+            return x;
+        }
+
+        @Override
+        public float modifyY(float y, Controller<?, ?> controller) {
+            for (LookInputModifier callback : callbacks) {
+                y = callback.modifyY(y, controller);
+            }
+            return y;
+        }
+    });
+
     @FunctionalInterface
     public interface InputModeChanged {
         void onInputModeChanged(InputMode mode);
@@ -63,4 +82,5 @@ public final class ControlifyEvents {
     public interface VirtualMouseToggled {
         void onVirtualMouseToggled(boolean enabled);
     }
+
 }

@@ -2,6 +2,7 @@ package dev.isxander.controlify.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -10,6 +11,9 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -37,38 +41,49 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void updateState();
     void clearState();
 
+    default void open() {}
+    default void close() {}
     RumbleManager rumbleManager();
 
     default boolean canBeUsed() {
         return true;
     }
 
-    default void close() {
-
-    }
-
     Map<String, Controller<?, ?>> CONTROLLERS = new HashMap<>();
 
-    static Controller<?, ?> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
-        Optional<String> uid = hidInfo.createControllerUID();
-        if (uid.isPresent() && CONTROLLERS.containsKey(uid.get())) {
-            return CONTROLLERS.get(uid.get());
-        }
+    static Optional<Controller<?, ?>> createOrGet(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
+        try {
+            Optional<String> uid = hidInfo.createControllerUID();
+            if (uid.isPresent() && CONTROLLERS.containsKey(uid.get())) {
+                return Optional.of(CONTROLLERS.get(uid.get()));
+            }
 
-        if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK) {
-            GamepadController controller = new GamepadController(joystickId, hidInfo);
+            if (hidInfo.type().dontLoad()) {
+                Controlify.LOGGER.warn("Preventing load of controller #" + joystickId + " because its type prevents loading.");
+                return Optional.empty();
+            }
+
+            if (GLFW.glfwJoystickIsGamepad(joystickId) && !DebugProperties.FORCE_JOYSTICK && !hidInfo.type().forceJoystick()) {
+                GamepadController controller = new GamepadController(joystickId, hidInfo);
+                CONTROLLERS.put(controller.uid(), controller);
+                return Optional.of(controller);
+            }
+
+            SingleJoystickController controller = new SingleJoystickController(joystickId, hidInfo);
             CONTROLLERS.put(controller.uid(), controller);
-            return controller;
+            return Optional.of(controller);
+        } catch (Throwable e) {
+            CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + joystickId);
+            CrashReportCategory category = crashReport.addCategory("Controller Info");
+            category.setDetail("Joystick ID", joystickId);
+            category.setDetail("Controller identification", hidInfo.type());
+            category.setDetail("HID path", hidInfo.path().orElse("N/A"));
+            throw new ReportedException(crashReport);
         }
-
-        SingleJoystickController controller = new SingleJoystickController(joystickId, hidInfo);
-        CONTROLLERS.put(controller.uid(), controller);
-        return controller;
     }
 
     static void remove(Controller<?, ?> controller) {
         CONTROLLERS.remove(controller.uid(), controller);
-        controller.close();
     }
 
     Controller<?, ?> DUMMY = new Controller<>() {

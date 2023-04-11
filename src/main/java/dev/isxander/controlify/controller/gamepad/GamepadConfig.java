@@ -5,9 +5,12 @@ import dev.isxander.controlify.controller.ControllerConfig;
 public class GamepadConfig extends ControllerConfig {
     public float leftStickDeadzoneX = 0.2f;
     public float leftStickDeadzoneY = 0.2f;
-
     public float rightStickDeadzoneX = 0.2f;
     public float rightStickDeadzoneY = 0.2f;
+
+    public float gyroLookSensitivity = 0f;
+    public boolean gyroRequiresButton = true;
+    public boolean flickStick = false;
 
     public BuiltinGamepadTheme theme = BuiltinGamepadTheme.DEFAULT;
 

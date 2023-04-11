@@ -24,8 +24,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final String uid;
     private final String guid;
     private final ControllerType type;
-    private final long ptrJoystick;
-    private final RumbleManager rumbleManager;
 
     private final ControllerBindings<S> bindings;
     protected C config, defaultConfig;
@@ -38,9 +36,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
-
-        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
-        this.rumbleManager = new RumbleManager(this);
 
         if (hidInfo.path().isPresent()) {
             this.uid = hidInfo.createControllerUID().orElseThrow();
@@ -115,6 +110,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
         } catch (Exception e) {
             Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead. Printing json: " + json.toString(), e);
+            Controlify.instance().config().setDirty();
             return;
         }
 
@@ -123,44 +119,8 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         } else {
             Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = defaultConfig();
+            Controlify.instance().config().setDirty();
         }
-    }
-
-    @Override
-    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
-        if (!canRumble()) return false;
-
-        var strengthMod = config().getRumbleStrength(source);
-        if (source != RumbleSource.MASTER)
-            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
-
-        strongMagnitude *= strengthMod;
-        weakMagnitude *= strengthMod;
-
-        // the duration doesn't matter because we are not updating the joystick state,
-        // so there is never any SDL check to stop the rumble after the desired time.
-        if (!SDL.SDL_JoystickRumble(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 1)) {
-            Controlify.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean canRumble() {
-        return SDL2NativesManager.isLoaded()
-                && config().allowVibrations
-                && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
-    }
-
-    @Override
-    public RumbleManager rumbleManager() {
-        return this.rumbleManager;
-    }
-
-    @Override
-    public void close() {
-        SDL.SDL_JoystickClose(ptrJoystick);
     }
 
     @Override

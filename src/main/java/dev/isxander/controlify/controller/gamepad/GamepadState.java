@@ -2,25 +2,37 @@ package dev.isxander.controlify.controller.gamepad;
 
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.utils.ControllerUtils;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
 
 public final class GamepadState implements ControllerState {
-    public static final GamepadState EMPTY = new GamepadState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY);
+    public static final GamepadState EMPTY = new GamepadState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY, GyroState.ORIGIN, GyroState.ORIGIN);
     private final AxesState gamepadAxes;
     private final AxesState rawGamepadAxes;
     private final ButtonState gamepadButtons;
+
+    private final GyroState absoluteGyroPos;
+    private final @Nullable GyroState gyroDelta;
 
     private final List<Float> unnamedAxes;
     private final List<Float> unnamedRawAxes;
     private final List<Boolean> unnamedButtons;
 
-    public GamepadState(AxesState gamepadAxes, AxesState rawGamepadAxes, ButtonState gamepadButtons) {
+    public GamepadState(
+            AxesState gamepadAxes,
+            AxesState rawGamepadAxes,
+            ButtonState gamepadButtons,
+            @Nullable GamepadState.GyroState gyroDelta,
+            GyroState absoluteGyroPos
+    ) {
         this.gamepadAxes = gamepadAxes;
         this.rawGamepadAxes = rawGamepadAxes;
         this.gamepadButtons = gamepadButtons;
+        this.gyroDelta = gyroDelta;
+        this.absoluteGyroPos = absoluteGyroPos;
 
         this.unnamedAxes = List.of(
                 gamepadAxes.leftStickX(),
@@ -88,6 +100,19 @@ public final class GamepadState implements ControllerState {
 
     public ButtonState gamepadButtons() {
         return gamepadButtons;
+    }
+
+    public GyroState gyroDelta() {
+        if (gyroDelta == null) return GyroState.ORIGIN;
+        return gyroDelta;
+    }
+
+    public GyroState absoluteGyroPos() {
+        return absoluteGyroPos;
+    }
+
+    public boolean supportsGyro() {
+        return gyroDelta != null;
     }
 
     @Override
@@ -211,6 +236,14 @@ public final class GamepadState implements ControllerState {
             boolean rightStick = buttons.get(GLFW.GLFW_GAMEPAD_BUTTON_RIGHT_THUMB) == GLFW.GLFW_PRESS;
 
             return new ButtonState(a, b, x, y, leftBumper, rightBumper, back, start, guide, dpadUp, dpadDown, dpadLeft, dpadRight, leftStick, rightStick);
+        }
+    }
+
+    public record GyroState(float pitch, float yaw, float roll) {
+        public static GyroState ORIGIN = new GyroState(0, 0, 0);
+
+        public GyroState add(GyroState other) {
+            return new GyroState(pitch + other.pitch, yaw + other.yaw, roll + other.roll);
         }
     }
 }

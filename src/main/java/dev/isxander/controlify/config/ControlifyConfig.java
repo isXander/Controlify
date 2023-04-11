@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,6 +31,7 @@ public class ControlifyConfig {
     private Map<String, CompoundJoystickInfo> compoundJoysticks = Map.of();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
+
     private boolean dirty;
 
     public ControlifyConfig(Controlify controlify) {
@@ -101,14 +101,19 @@ public class ControlifyConfig {
 
     private void applyConfig(JsonObject object) {
         globalSettings = GSON.fromJson(object.getAsJsonObject("global"), GlobalSettings.class);
-        if (globalSettings == null) globalSettings = new GlobalSettings();
+        if (globalSettings == null) {
+            globalSettings = new GlobalSettings();
+            setDirty();
+        }
 
         JsonObject controllers = object.getAsJsonObject("controllers");
         if (controllers != null) {
             this.controllerData = controllers;
             for (var controller : Controller.CONTROLLERS.values()) {
-                _loadOrCreateControllerData(controller);
+                loadOrCreateControllerData(controller);
             }
+        } else {
+            setDirty();
         }
 
         this.compoundJoysticks = object
@@ -122,25 +127,18 @@ public class ControlifyConfig {
             currentControllerUid = object.get("current_controller").getAsString();
         } else {
             currentControllerUid = controlify.currentController().uid();
+            setDirty();
         }
     }
 
-    public boolean loadOrCreateControllerData(Controller<?, ?> controller) {
-        boolean result = _loadOrCreateControllerData(controller);
-        saveIfDirty();
-        return result;
-    }
-
-    private boolean _loadOrCreateControllerData(Controller<?, ?> controller) {
+    public void loadOrCreateControllerData(Controller<?, ?> controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
             Controlify.LOGGER.info("Loading controller data for " + uid);
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
-            return true;
         } else {
             Controlify.LOGGER.info("New controller found, creating controller data for " + uid);
-            save();
-            return false;
+            setDirty();
         }
     }
 
@@ -155,15 +153,15 @@ public class ControlifyConfig {
         }
     }
 
-    private void saveIfDirty() {
+    public void setDirty() {
+        dirty = true;
+    }
+
+    public void saveIfDirty() {
         if (dirty) {
             Controlify.LOGGER.info("Config is dirty. Saving...");
             save();
         }
-    }
-
-    public Optional<JsonObject> getLoadedControllerConfig(String uid) {
-        return Optional.ofNullable(controllerData.getAsJsonObject(uid));
     }
 
     public Map<String, CompoundJoystickInfo> getCompoundJoysticks() {

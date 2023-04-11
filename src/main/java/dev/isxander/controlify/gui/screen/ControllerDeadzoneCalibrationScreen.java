@@ -117,7 +117,14 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
         for (int i = 0; i < axes.size(); i++) {
             var axis = axes.get(i);
             var minDeadzone = axis + 0.08f;
-            controller.config().setDeadzone(i, (float)Mth.clamp(0.05 * Math.ceil(minDeadzone / 0.05), 0, 0.95));
+            var deadzone = (float)Mth.clamp(0.05 * Math.ceil(minDeadzone / 0.05), 0, 0.95);
+
+            if (Float.isNaN(deadzone)) {
+                Controlify.LOGGER.warn("Deadzone for axis {} is NaN, using default deadzone.", i);
+                deadzone = controller.defaultConfig().getDeadzone(i);
+            }
+
+            controller.config().setDeadzone(i, deadzone);
         }
     }
 
