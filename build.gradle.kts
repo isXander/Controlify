@@ -11,11 +11,12 @@ plugins {
     alias(libs.plugins.github.release)
     alias(libs.plugins.machete)
     alias(libs.plugins.grgit)
+    alias(libs.plugins.blossom)
     `maven-publish`
 }
 
 group = "dev.isxander"
-version = "1.1.0-beta.2+1.19.4"
+version = "1.1.0-beta.3+1.19.4"
 
 repositories {
     mavenLocal()
@@ -110,6 +111,11 @@ dependencies {
 
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)
+}
+
+blossom {
+    val sdl2ManagerClass = "src/main/java/dev/isxander/controlify/controller/sdl2/SDL2NativesManager.java"
+    replaceToken("<SDL2_VERSION>", libs.versions.sdl2.jni.get(), sdl2ManagerClass)
 }
 
 tasks {

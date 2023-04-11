@@ -6,7 +6,6 @@ import net.minecraft.Util;
 import org.libsdl.SDL;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -14,19 +13,19 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
+
+import static org.libsdl.SDL_Hints.*;
 
 public class SDL2NativesManager {
-    private static final Path NATIVES_FOLDER = FabricLoader.getInstance().getGameDir().resolve("controlify-natives");
+    private static final String SDL2_VERSION = "<SDL2_VERSION>";
     private static final Map<Target, String> NATIVE_LIBRARIES = Map.of(
-            new Target(Util.OS.WINDOWS, true), "windows64/sdl2gdx64.dll",
-            new Target(Util.OS.WINDOWS, false), "windows32/sdl2gdx.dll",
-            new Target(Util.OS.LINUX, true), "linux64/libsdl2gdx64.so",
-            new Target(Util.OS.OSX, true), "macosx64/libsdl2gdx64.dylib"
+            new Target(Util.OS.WINDOWS, true), "windows64.dll",
+            new Target(Util.OS.WINDOWS, false), "window32.dll",
+            new Target(Util.OS.LINUX, true), "linux64.so"
+            //new Target(Util.OS.OSX, true), "mac64.dylib"
     );
-    private static final String NATIVE_LIBRARY_URL = "https://raw.githubusercontent.com/isXander/sdl2-jni/master/libs/";
+    private static final String NATIVE_LIBRARY_URL = "https://maven.isxander.dev/releases/dev/isxander/sdl2-jni-natives/%s/".formatted(SDL2_VERSION);
 
-    private static Path osNativePath;
     private static boolean loaded = false;
 
     public static void initialise() {
@@ -34,31 +33,46 @@ public class SDL2NativesManager {
 
         Controlify.LOGGER.info("Initialising SDL2 native library");
 
-        osNativePath = getNativesPathForOS().orElseGet(() -> {
-            Controlify.LOGGER.warn("No native library found for SDL2");
-            return null;
-        });
+        if (!Target.CURRENT.hasNativeLibrary()) {
+            Controlify.LOGGER.warn("SDL2 native library not available for OS: " + Target.CURRENT);
+            return;
+        }
 
-        if (osNativePath == null) return;
+        Path localLibraryPath = Target.CURRENT.getLocalNativePath();
+        if (Files.notExists(localLibraryPath)) {
+            Controlify.LOGGER.info("Downloading SDL2 native library: " + Target.CURRENT.getArtifactName());
+            downloadLibrary(localLibraryPath);
+        }
 
-        if (!loadCachedLibrary()) {
-            downloadLibrary();
+        try {
+            SDL.load(localLibraryPath);
 
-            if (!loadCachedLibrary()) {
-                Controlify.LOGGER.warn("Failed to download and load SDL2 native library");
-            }
+            startSDL2();
+
+            loaded = true;
+        } catch (Exception e) {
+            Controlify.LOGGER.error("Failed to load SDL2 native library", e);
         }
     }
 
     private static void startSDL2() {
-        SDL.SDL_SetHint("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1");
-        SDL.SDL_SetHint("SDL_ACCELEROMETER_AS_JOYSTICK", "0");
-        SDL.SDL_SetHint("SDL_MAC_BACKGROUND_APP", "1");
-        SDL.SDL_SetHint("SDL_XINPUT_ENABLED", "1");
-        SDL.SDL_SetHint("SDL_JOYSTICK_RAWINPUT", "0");
+        // we have no windows, so all events are background events
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+        // accelerometer as joystick is not good UX. unexpected
+        SDL.SDL_SetHint(SDL_HINT_ACCELEROMETER_AS_JOYSTICK, "0");
+        // see first hint
+        SDL.SDL_SetHint(SDL_HINT_MAC_BACKGROUND_APP, "1");
+        // raw input requires controller correlation, which is impossible
+        // without calling JoystickUpdate, which we don't do.
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
+        // better rumble
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");
 
         int joystickSubsystem = 0x00000200; // implies event subsystem
-        if (SDL.SDL_Init(joystickSubsystem) != 0) {
+        int gameControllerSubsystem = 0x00002000; // implies event subsystem
+        if (SDL.SDL_Init(joystickSubsystem | gameControllerSubsystem) != 0) {
             Controlify.LOGGER.error("Failed to initialise SDL2: " + SDL.SDL_GetError());
             throw new RuntimeException("Failed to initialise SDL2: " + SDL.SDL_GetError());
         }
@@ -66,43 +80,24 @@ public class SDL2NativesManager {
         Controlify.LOGGER.info("Initialised SDL2");
     }
 
-    private static boolean loadCachedLibrary() {
-        if (!Files.exists(osNativePath)) return false;
-
-        Controlify.LOGGER.info("Loading SDL2 native library from " + osNativePath);
-
+    private static boolean downloadLibrary(Path path) {
         try {
-            SDL.load(osNativePath);
-
-            startSDL2();
-
-            loaded = true;
-            return true;
-        } catch (UnsatisfiedLinkError e) {
+            Files.deleteIfExists(path);
+            Files.createDirectories(path.getParent());
+            Files.createFile(path);
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-    }
 
-    private static boolean downloadLibrary() {
-        Controlify.LOGGER.info("Downloading SDL2 native library");
-
-        try {
-            Files.deleteIfExists(osNativePath);
-            Files.createDirectories(osNativePath.getParent());
-            Files.createFile(osNativePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        try(FileOutputStream fileOutputStream = new FileOutputStream(osNativePath.toFile())) {
-            String downloadUrl = NATIVE_LIBRARY_URL + NATIVE_LIBRARIES.get(getNativeLibraryType());
-            URL url = new URL(downloadUrl);
-            ReadableByteChannel readableByteChannel = Channels.newChannel(url.openStream());
+        try(FileOutputStream fileOutputStream = new FileOutputStream(path.toFile())) {
+            String url = NATIVE_LIBRARY_URL + Target.CURRENT.getArtifactName();
+            URL downloadUrl = new URL(url);
+            ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
             Controlify.LOGGER.info("Downloaded SDL2 native library from " + downloadUrl);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -110,28 +105,31 @@ public class SDL2NativesManager {
         return true;
     }
 
-    private static Target getNativeLibraryType() {
-        Util.OS os = Util.getPlatform();
-        boolean is64bit = System.getProperty("os.arch").contains("64");
-
-        return new Target(os, is64bit);
-    }
-
-    private static Optional<Path> getNativesPathForOS() {
-        String path = NATIVE_LIBRARIES.get(getNativeLibraryType());
-
-        if (path == null) {
-            Controlify.LOGGER.warn("No native library found for SDL " + getNativeLibraryType());
-            return Optional.empty();
-        }
-
-        return Optional.of(NATIVES_FOLDER.resolve(path));
-    }
-
     public static boolean isLoaded() {
         return loaded;
     }
 
     private record Target(Util.OS os, boolean is64Bit) {
+        public static final Target CURRENT = Util.make(() -> {
+            Util.OS os = Util.getPlatform();
+            boolean is64bit = System.getProperty("os.arch").contains("64");
+
+            return new Target(os, is64bit);
+        });
+
+        public boolean hasNativeLibrary() {
+            return NATIVE_LIBRARIES.containsKey(this);
+        }
+
+        public String getArtifactName() {
+            String suffix = NATIVE_LIBRARIES.get(Target.CURRENT);
+            return "sdl2-jni-natives-" + SDL2_VERSION + "-" + suffix;
+        }
+
+        public Path getLocalNativePath() {
+            return FabricLoader.getInstance().getGameDir()
+                    .resolve("controlify-natives")
+                    .resolve(getArtifactName());
+        }
     }
 }
