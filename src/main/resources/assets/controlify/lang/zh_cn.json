@@ -131,7 +131,9 @@
   "controlify.binding.controlify.pause": "暂停游戏",
   "controlify.binding.controlify.inventory": "打开物品栏",
   "controlify.binding.controlify.change_perspective": "更改视角",
-	@@ -95,6 +140,10 @@
+  "controlify.binding.controlify.swap_hands": "交换手",
+  "controlify.binding.controlify.open_chat": "打开聊天",
+  "controlify.binding.controlify.gui_press": "GUI按下",
   "controlify.binding.controlify.gui_back": "GUI返回",
   "controlify.binding.controlify.gui_next_tab": "GUI下个标签",
   "controlify.binding.controlify.gui_prev_tab": "GUI上个标签",
