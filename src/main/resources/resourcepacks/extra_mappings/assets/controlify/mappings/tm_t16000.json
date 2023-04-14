@@ -1,0 +1,113 @@
+{
+  "axes": [
+    {
+      "ids": [0],
+      "identifier": "roll",
+      "deadzone": true,
+      "rest": 0.0,
+      "axis_names": [
+        ["right", "left"]
+      ]
+    },
+    {
+      "ids": [1],
+      "identifier": "pitch",
+      "deadzone": true,
+      "rest": 0.0,
+      "axis_names": [
+        ["down", "up"]
+      ]
+    },
+    {
+      "ids": [2],
+      "identifier": "yaw",
+      "deadzone": true,
+      "rest": 0.0,
+      "axis_names": [
+        ["right", "left"]
+      ]
+    },
+    {
+      "ids": [3],
+      "identifier": "throttle",
+      "rest": 0.0,
+      "deadzone": false,
+      "range": [0.0, 1.0],
+      "axis_names": [
+        ["down", "up"]
+      ]
+    }
+  ],
+  "buttons": [
+    {
+      "button": 0,
+      "name": "trigger"
+    },
+    {
+      "button": 1,
+      "name": "a"
+    },
+    {
+      "button": 2,
+      "name": "x"
+    },
+    {
+      "button": 3,
+      "name": "b"
+    },
+    {
+      "button": 4,
+      "name": "left_1"
+    },
+    {
+      "button": 5,
+      "name": "left_2"
+    },
+    {
+      "button": 6,
+      "name": "left_3"
+    },
+    {
+      "button": 7,
+      "name": "left_4"
+    },
+    {
+      "button": 8,
+      "name": "left_5"
+    },
+    {
+      "button": 9,
+      "name": "left_6"
+    },
+    {
+      "button": 10,
+      "name": "right_1"
+    },
+    {
+      "button": 11,
+      "name": "right_2"
+    },
+    {
+      "button": 12,
+      "name": "right_3"
+    },
+    {
+      "button": 13,
+      "name": "right_4"
+    },
+    {
+      "button": 14,
+      "name": "right_5"
+    },
+    {
+      "button": 15,
+      "name": "right_6"
+    }
+  ],
+  "hats": [
+    {
+      "name": "hat",
+      "hat": 0
+    }
+  ]
+}

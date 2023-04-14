@@ -22,6 +22,8 @@ import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -29,6 +31,7 @@ import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
@@ -143,6 +146,13 @@ public class Controlify implements ControlifyApi {
         DebugProperties.printProperties();
 
         LOGGER.info("Pre-initializing Controlify...");
+
+        ResourceManagerHelper.registerBuiltinResourcePack(
+                Controlify.id("extra_mappings"),
+                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
+                Component.translatable("controlify.resource_pack.extra_mappings"),
+                ResourcePackActivationType.DEFAULT_ENABLED
+        );
 
         this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
         this.virtualMouseHandler = new VirtualMouseHandler();
@@ -426,5 +436,9 @@ public class Controlify implements ControlifyApi {
     public static Controlify instance() {
         if (instance == null) instance = new Controlify();
         return instance;
+    }
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation("controlify", path);
     }
 }
