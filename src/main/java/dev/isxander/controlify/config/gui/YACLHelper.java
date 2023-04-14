@@ -2,7 +2,8 @@ package dev.isxander.controlify.config.gui;
 
 import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.ControllerBinding;
+import dev.isxander.controlify.api.bind.ControllerBinding;
+import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.Controller;
@@ -387,9 +388,10 @@ public class YACLHelper {
             groupBindings(gamepad.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
                 controlsGroup.option(LabelOption.create(categoryName));
                 for (var binding : bindGroup) {
+                    ControllerBindingImpl<GamepadState> bindingImpl = (ControllerBindingImpl<GamepadState>) binding;
                     controlsGroup.option(Option.createBuilder((Class<IBind<GamepadState>>) (Class<?>) IBind.class)
                             .name(binding.name())
-                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .binding(bindingImpl.defaultBind(), bindingImpl::currentBind, bindingImpl::setCurrentBind)
                             .controller(opt -> new GamepadBindController(opt, gamepad))
                             .tooltip(binding.description())
                             .build());
@@ -399,9 +401,10 @@ public class YACLHelper {
             groupBindings(joystick.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
                 controlsGroup.option(LabelOption.create(categoryName));
                 for (var binding : bindGroup) {
+                    ControllerBindingImpl<JoystickState> bindingImpl = (ControllerBindingImpl<JoystickState>) binding;
                     controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
                             .name(binding.name())
-                            .binding(binding.defaultBind(), binding::currentBind, binding::setCurrentBind)
+                            .binding(bindingImpl.defaultBind(), bindingImpl::currentBind, bindingImpl::setCurrentBind)
                             .controller(opt -> new JoystickBindController(opt, joystick))
                             .tooltip(binding.description())
                             .build());
@@ -414,7 +417,7 @@ public class YACLHelper {
         return category.build();
     }
 
-    private static <T extends ControllerState> Map<Component, List<ControllerBinding<T>>> groupBindings(Collection<ControllerBinding<T>> bindings) {
+    private static <T extends ControllerState> Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {
         return bindings.stream()
                 .collect(Collectors.groupingBy(ControllerBinding::category, LinkedHashMap::new, Collectors.toList()));
     }

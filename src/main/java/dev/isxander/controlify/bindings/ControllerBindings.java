@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
+import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
@@ -25,7 +26,7 @@ import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
 public class ControllerBindings<T extends ControllerState> {
-    private static final Map<ResourceLocation, Function<ControllerBindings<?>, ControllerBinding<?>>> CUSTOM_BINDS = new LinkedHashMap<>();
+    private static final Map<ResourceLocation, Function<ControllerBindings<?>, ControllerBinding>> CUSTOM_BINDS = new LinkedHashMap<>();
     private static final Set<KeyMapping> EXCLUDED_VANILLA_BINDS = new HashSet<>();
 
     public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
@@ -36,7 +37,7 @@ public class ControllerBindings<T extends ControllerState> {
     public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
     public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
 
-    public final ControllerBinding<T>
+    public final ControllerBinding
             WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
             LOOK_UP, LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT,
             GAMEPAD_GYRO_BUTTON,
@@ -64,7 +65,7 @@ public class ControllerBindings<T extends ControllerState> {
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
-    private final Map<ResourceLocation, ControllerBinding<T>> registry = new LinkedHashMap<>();
+    private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
     private final Controller<T, ?> controller;
 
@@ -333,7 +334,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .build());
 
         for (var constructor : CUSTOM_BINDS.values()) {
-            register((ControllerBinding<T>) constructor.apply(this));
+            register(constructor.apply(this));
         }
 
         registerModdedKeybinds();
@@ -342,37 +343,44 @@ public class ControllerBindings<T extends ControllerState> {
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
-    public ControllerBinding<T> register(ControllerBinding<T> binding) {
+    public ControllerBinding register(ControllerBinding binding) {
         registry.put(binding.id(), binding);
         return binding;
     }
 
-    private ControllerBinding<?> create(UnaryOperator<ControllerBindingBuilder<?>> builder) {
+    private ControllerBinding create(UnaryOperator<ControllerBindingBuilder<?>> builder) {
         return builder.apply(ControllerBindingBuilder.create(controller)).build();
     }
 
     @Deprecated
-    private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id) {
-        return new ControllerBinding<>(controller, bind, id);
+    private ControllerBinding create(GamepadBinds bind, ResourceLocation id) {
+        return ControllerBindingBuilder.create(controller)
+                .identifier(id)
+                .defaultBind(bind)
+                .build();
     }
 
     @Deprecated
-    private ControllerBinding<?> create(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
-        return new ControllerBinding<>(controller, bind, id, override, toggleOverride);
+    private ControllerBinding create(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+        return ControllerBindingBuilder.create(controller)
+                .identifier(id)
+                .defaultBind(bind)
+                .vanillaOverride(override, toggleOverride)
+                .build();
     }
 
-    public ControllerBinding<T> get(ResourceLocation id) {
+    public ControllerBinding get(ResourceLocation id) {
         return registry.get(id);
     }
 
-    public Map<ResourceLocation, ControllerBinding<T>> registry() {
+    public Map<ResourceLocation, ControllerBinding> registry() {
         return Collections.unmodifiableMap(registry);
     }
 
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         for (var binding : registry().values()) {
-            json.add(binding.id().toString(), binding.currentBind().toJson());
+            json.add(binding.id().toString(), binding.toJson());
         }
         return json;
     }
@@ -392,7 +400,7 @@ public class ControllerBindings<T extends ControllerState> {
                 clean = false;
                 continue;
             }
-            binding.setCurrentBind(IBind.fromJson(bind, controller));
+            ((ControllerBindingImpl<T>) binding).setCurrentBind(IBind.fromJson(bind, controller));
         }
 
         return clean;
@@ -416,7 +424,7 @@ public class ControllerBindings<T extends ControllerState> {
                     toggleOverride = ((ToggleKeyMappingAccessor) toggleKeyMapping).getNeedsToggle();
                 }
 
-                ControllerBinding<T> binding = ControllerBindingBuilder.create(controller)
+                ControllerBinding binding = ControllerBindingBuilder.create(controller)
                         .identifier(identifier)
                         .defaultBind(new EmptyBind<>())
                         .name(Component.translatable(keyMapping.getName()))
@@ -433,7 +441,7 @@ public class ControllerBindings<T extends ControllerState> {
     }
 
     private void imitateVanillaClick() {
-        ControllerBinding.clearPressedBinds(controller);
+        ControllerBindingImpl.clearPressedBinds(controller);
 
         if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER)
             return;
@@ -463,21 +471,21 @@ public class ControllerBindings<T extends ControllerState> {
         public static final Api INSTANCE = new Api();
 
         @Override
-        public BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder) {
+        public dev.isxander.controlify.api.bind.BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder) {
             CUSTOM_BINDS.put(id, bindings -> bindings.create(b -> builder.apply(b).identifier(id)));
             return controller -> controller.bindings().get(id);
         }
 
         @Deprecated
         @Override
-        public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
+        public dev.isxander.controlify.api.bind.BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
             return controller -> controller.bindings().get(id);
         }
 
         @Deprecated
         @Override
-        public BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+        public dev.isxander.controlify.api.bind.BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
             return controller -> controller.bindings().get(id);
         }

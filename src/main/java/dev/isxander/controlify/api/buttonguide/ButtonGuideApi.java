@@ -1,6 +1,6 @@
 package dev.isxander.controlify.api.buttonguide;
 
-import dev.isxander.controlify.bindings.ControllerBinding;
+import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -25,7 +25,7 @@ public final class ButtonGuideApi {
      */
     public static <T extends AbstractButton> void addGuideToButton(
             T button,
-            Function<ControllerBindings<?>, ControllerBinding<?>> binding,
+            Function<ControllerBindings<?>, ControllerBinding> binding,
             ButtonRenderPosition position,
             ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, binding, position, renderPredicate);

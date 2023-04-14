@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.guide.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
@@ -31,18 +32,18 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     private void renderButtonGuide(PoseStack matrices, Font renderer, int color, CallbackInfo ci) {
         if (shouldRender()) {
             switch (renderData.position()) {
-                case LEFT -> getBind().draw(matrices, getX() - getBind().drawSize().width() - 1, getY() + getHeight() / 2);
-                case RIGHT -> getBind().draw(matrices, getX() + getWidth() + 1, getY() + getHeight() / 2);
+                case LEFT -> getBind().render(matrices, getX() - getBind().size().width() - 1, getY() + getHeight() / 2);
+                case RIGHT -> getBind().render(matrices, getX() + getWidth() + 1, getY() + getHeight() / 2);
                 case TEXT -> {
                     Font font = Minecraft.getInstance().font;
                     int x;
                     if (font.width(getMessage()) > getWidth()) {
                         x = getX();
                     } else {
-                        x = getX() + getWidth() / 2 - font.width(getMessage()) / 2 - getBind().drawSize().width();
+                        x = getX() + getWidth() / 2 - font.width(getMessage()) / 2 - getBind().size().width();
                     }
 
-                    getBind().draw(matrices, x, getY() + getHeight() / 2);
+                    getBind().render(matrices, x, getY() + getHeight() / 2);
                 }
             }
         }
@@ -52,7 +53,7 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     private void shiftXOffset(PoseStack matrices, Font renderer, int color, CallbackInfo ci) {
         matrices.pushPose();
         if (!shouldRender() || Minecraft.getInstance().font.width(getMessage()) > getWidth() || renderData.position() != ButtonRenderPosition.TEXT) return;
-        matrices.translate(getBind().drawSize().width() / 2f, 0, 0);
+        matrices.translate(getBind().size().width() / 2f, 0, 0);
     }
 
     @Inject(method = "renderString", at = @At("RETURN"))
@@ -63,7 +64,7 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     @Override
     protected int shiftDrawSize(int x) {
         if (!shouldRender() || Minecraft.getInstance().font.width(getMessage()) < getWidth() || renderData.position() != ButtonRenderPosition.TEXT) return x;
-        return x + getBind().drawSize().width();
+        return x + getBind().size().width();
     }
 
     @Override
@@ -76,11 +77,11 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
                 && this.isActive()
                 && Controlify.instance().currentInputMode() == InputMode.CONTROLLER
                 && Controlify.instance().currentController().config().showScreenGuide
-                && !renderData.binding().apply(Controlify.instance().currentController().bindings()).unbound()
+                && !renderData.binding().apply(Controlify.instance().currentController().bindings()).isUnbound()
                 && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
     }
 
-    private IBind<?> getBind() {
-        return renderData.binding().apply(Controlify.instance().currentController().bindings()).currentBind();
+    private BindRenderer getBind() {
+        return renderData.binding().apply(Controlify.instance().currentController().bindings()).renderer();
     }
 }

@@ -1,8 +1,8 @@
-package dev.isxander.controlify.bindings;
+package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.controller.Controller;
 
 @FunctionalInterface
 public interface BindingSupplier {
-    ControllerBinding<?> get(Controller<?, ?> controller);
+    ControllerBinding onController(Controller<?, ?> controller);
 }

@@ -1,9 +1,15 @@
 package dev.isxander.controlify.bindings;
 
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.bind.BindRenderer;
+import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -17,19 +23,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
-public class ControllerBinding<T extends ControllerState> {
+public class ControllerBindingImpl<T extends ControllerState> implements ControllerBinding {
     private final Controller<T, ?> controller;
     private IBind<T> bind;
     private final IBind<T> defaultBind;
+    private BindRenderer renderer;
     private final ResourceLocation id;
     private final Component name, description, category;
     private final KeyMappingOverride override;
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
-    private ControllerBinding(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category) {
+    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
+        this.renderer = new BindRendererImpl(bind);
         this.id = id;
         this.override = vanillaOverride;
         this.name = name;
@@ -37,50 +45,27 @@ public class ControllerBinding<T extends ControllerState> {
         this.category = category;
     }
 
-    @Deprecated
-    public ControllerBinding(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
-        this.controller = controller;
-        this.bind = this.defaultBind = defaultBind;
-        this.id = id;
-        this.name = Component.translatable("controlify.binding." + id.getNamespace() + "." + id.getPath());
-        var descKey = "controlify.binding." + id.getNamespace() + "." + id.getPath() + ".desc";
-        this.description = Language.getInstance().has(descKey) ? Component.translatable(descKey) : Component.empty();
-        this.override = override != null ? new KeyMappingOverride(override, toggleOverride) : null;
-        this.category = null;
-    }
-
-    @Deprecated
-    public ControllerBinding(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id) {
-        this(controller, defaultBind, id, null, () -> false);
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    public ControllerBinding(Controller<T, ?> controller, GamepadBinds defaultBind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
-        this(controller, controller instanceof GamepadController gamepad ? (IBind<T>) defaultBind.forGamepad(gamepad) : new EmptyBind<>(), id, override, toggleOverride);
-    }
-
-    @Deprecated
-    public ControllerBinding(Controller<T, ?> controller, GamepadBinds defaultBind, ResourceLocation id) {
-        this(controller, defaultBind, id, null, () -> false);
-    }
-
+    @Override
     public float state() {
         return bind.state(controller.state());
     }
 
+    @Override
     public float prevState() {
         return bind.state(controller.prevState());
     }
 
+    @Override
     public boolean held() {
         return bind.held(controller.state());
     }
 
+    @Override
     public boolean prevHeld() {
         return bind.held(controller.prevState());
     }
 
+    @Override
     public boolean justPressed() {
         if (hasBindPressed(this)) return false;
 
@@ -92,6 +77,7 @@ public class ControllerBinding<T extends ControllerState> {
         }
     }
 
+    @Override
     public boolean justReleased() {
         if (hasBindPressed(this)) return false;
 
@@ -109,34 +95,56 @@ public class ControllerBinding<T extends ControllerState> {
 
     public void setCurrentBind(IBind<T> bind) {
         this.bind = bind;
+        this.renderer = new BindRendererImpl(bind);
+        Controlify.instance().config().setDirty();
     }
 
     public IBind<T> defaultBind() {
         return defaultBind;
     }
 
+    @Override
+    public void resetBind() {
+        setCurrentBind(defaultBind());
+    }
+
     public ResourceLocation id() {
         return id;
     }
 
+    @Override
     public Component name() {
         return name;
     }
 
+    @Override
     public Component description() {
         return description;
     }
 
+    @Override
     public Component category() {
         return category;
     }
 
-    public boolean unbound() {
+    @Override
+    public boolean isUnbound() {
         return bind instanceof EmptyBind;
     }
 
+    @Override
     public KeyMappingOverride override() {
         return override;
+    }
+
+    @Override
+    public JsonObject toJson() {
+        return currentBind().toJson();
+    }
+
+    @Override
+    public BindRenderer renderer() {
+        return renderer;
     }
 
     // FIXME: very hack solution please remove me
@@ -147,20 +155,17 @@ public class ControllerBinding<T extends ControllerState> {
         }
     }
 
-    private static boolean hasBindPressed(ControllerBinding<?> binding) {
+    private static boolean hasBindPressed(ControllerBindingImpl<?> binding) {
         var pressed = pressedBinds.getOrDefault(binding.controller, Set.of());
         return pressed.containsAll(getBinds(binding.bind));
     }
 
-    private static void addPressedBind(ControllerBinding<?> binding) {
+    private static void addPressedBind(ControllerBindingImpl<?> binding) {
         pressedBinds.computeIfAbsent(binding.controller, c -> new HashSet<>()).addAll(getBinds(binding.bind));
     }
 
     private static Set<IBind<?>> getBinds(IBind<?> bind) {
         return Set.of(bind);
-    }
-
-    public record KeyMappingOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
     }
 
     @ApiStatus.Internal
@@ -233,7 +238,7 @@ public class ControllerBinding<T extends ControllerState> {
         }
 
         @Override
-        public ControllerBinding<T> build() {
+        public ControllerBinding build() {
             Validate.notNull(id, "Identifier must be set");
             Validate.notNull(bind, "Default bind must be set");
             Validate.notNull(category, "Category must be set");
@@ -249,7 +254,19 @@ public class ControllerBinding<T extends ControllerState> {
                 }
             }
 
-            return new ControllerBinding<>(controller, bind, id, override, name, description, category);
+            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category);
+        }
+    }
+
+    private record BindRendererImpl(IBind<?> bind) implements BindRenderer {
+        @Override
+        public void render(PoseStack poseStack, int x, int centerY) {
+            bind.draw(poseStack, x, centerY);
+        }
+
+        @Override
+        public DrawSize size() {
+            return bind.drawSize();
         }
     }
 }

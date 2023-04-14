@@ -1,6 +1,6 @@
 package dev.isxander.controlify.api.bind;
 
-import dev.isxander.controlify.bindings.ControllerBinding;
+import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.controller.Controller;
@@ -13,7 +13,7 @@ import java.util.function.BooleanSupplier;
 
 public interface ControllerBindingBuilder<T extends ControllerState> {
     static <T extends ControllerState> ControllerBindingBuilder<T> create(Controller<T, ?> controller) {
-        return new ControllerBinding.ControllerBindingBuilderImpl<>(controller);
+        return new ControllerBindingImpl.ControllerBindingBuilderImpl<>(controller);
     }
 
     /**
@@ -92,5 +92,5 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      */
     ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping);
 
-    ControllerBinding<T> build();
+    ControllerBinding build();
 }

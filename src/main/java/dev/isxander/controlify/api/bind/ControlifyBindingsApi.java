@@ -1,7 +1,6 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.bindings.BindingSupplier;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import net.minecraft.client.KeyMapping;

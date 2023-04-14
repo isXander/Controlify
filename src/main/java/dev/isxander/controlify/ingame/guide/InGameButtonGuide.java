@@ -1,8 +1,9 @@
 package dev.isxander.controlify.ingame.guide;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.ingameguide.*;
-import dev.isxander.controlify.bindings.ControllerBinding;
+import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -47,15 +48,15 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         {
             var offset = 0;
             for (var action : leftGuides) {
-                var bind = action.binding().currentBind();
+                var renderer = action.binding().renderer();
 
-                var drawSize = bind.drawSize();
+                var drawSize = renderer.size();
                 if (offset == 0) offset += drawSize.height() / 2;
 
                 int x = 4;
                 int y = 3 + offset;
 
-                bind.draw(poseStack, x, y);
+                renderer.render(poseStack, x, y);
 
                 int textX = x + drawSize.width() + 2;
                 int textY = y - minecraft.font.lineHeight / 2;
@@ -69,15 +70,15 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         {
             var offset = 0;
             for (var action : rightGuides) {
-                var bind = action.binding().currentBind();
+                var renderer = action.binding().renderer();
 
-                var drawSize = bind.drawSize();
+                var drawSize = renderer.size();
                 if (offset == 0) offset += drawSize.height() / 2;
 
                 int x = width - 4 - drawSize.width();
                 int y = 3 + offset;
 
-                bind.draw(poseStack, x, y);
+                renderer.render(poseStack, x, y);
 
                 int textX = x - minecraft.font.width(action.name()) - 2;
                 int textY = y - minecraft.font.lineHeight / 2;
@@ -104,7 +105,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 continue;
 
             GuideAction guideAction = action.get();
-            if (!guideAction.binding().unbound()) {
+            if (!guideAction.binding().isUnbound()) {
                 if (action.get().location() == ActionLocation.LEFT)
                     leftGuides.add(action.get());
                 else
@@ -117,12 +118,12 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     @Override
-    public void registerGuideAction(ControllerBinding<?> binding, ActionLocation location, GuideActionNameSupplier supplier) {
+    public void registerGuideAction(ControllerBinding binding, ActionLocation location, GuideActionNameSupplier supplier) {
         this.registerGuideAction(binding, location, ActionPriority.NORMAL, supplier);
     }
 
     @Override
-    public void registerGuideAction(ControllerBinding<?> binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier supplier) {
+    public void registerGuideAction(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier supplier) {
         guidePredicates.add(new GuideActionSupplier(binding, location, priority, supplier));
     }
 
@@ -251,7 +252,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         }
     }
 
-    private record GuideActionSupplier(ControllerBinding<?> binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier nameSupplier) {
+    private record GuideActionSupplier(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier nameSupplier) {
         public Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller<?, ?> controller) {
             return nameSupplier.supply(new IngameGuideContext(client, player, level, hitResult, controller))
                     .map(name -> new GuideAction(binding, name, location, priority));

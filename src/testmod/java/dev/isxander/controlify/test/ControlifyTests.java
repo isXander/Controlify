@@ -2,14 +2,12 @@ package dev.isxander.controlify.test;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.BindingSupplier;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.bindings.BindingSupplier;
 import dev.isxander.controlify.bindings.EmptyBind;
-import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +37,7 @@ public class ControlifyTests {
     @Test.TitleScreen("BindingSupplier getter test")
     void bindingSupplierGetterTest() {
         var controller = createAndUseDummyController();
-        assertNotNull(binding.get(controller), "Bind registry failed - Bind for fake controller is null");
+        assertNotNull(binding.onController(controller), "Bind registry failed - Bind for fake controller is null");
         controller.finish();
     }
 
