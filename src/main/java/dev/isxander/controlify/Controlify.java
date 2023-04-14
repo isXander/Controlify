@@ -84,24 +84,20 @@ public class Controlify implements ControlifyApi {
         // find already connected controllers
         for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
             if (GLFW.glfwJoystickPresent(jid)) {
-                try {
-                    var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
-                    if (controllerOpt.isEmpty()) continue;
-                    var controller = controllerOpt.get();
+                var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                if (controllerOpt.isEmpty()) continue;
+                var controller = controllerOpt.get();
 
-                    LOGGER.info("Controller found: " + controller.name());
+                LOGGER.info("Controller found: " + controller.name());
 
-                    config().loadOrCreateControllerData(controller);
+                config().loadOrCreateControllerData(controller);
 
-                    if (config().currentControllerUid().equals(controller.uid()))
-                        setCurrentController(controller);
+                if (config().currentControllerUid().equals(controller.uid()))
+                    setCurrentController(controller);
 
-                    if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
-                        controller.config().allowVibrations = false;
-                        config().setDirty();
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Failed to initialize controller with jid " + jid, e);
+                if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
+                    controller.config().allowVibrations = false;
+                    config().setDirty();
                 }
             }
         }
