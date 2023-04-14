@@ -1,27 +1,27 @@
 package dev.isxander.controlify.controller.gamepad;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
-import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
-import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
+
+import java.util.Set;
 
 public class GamepadController extends AbstractController<GamepadState, GamepadConfig> {
     private GamepadState state = GamepadState.EMPTY;
     private GamepadState prevState = GamepadState.EMPTY;
 
-    private long gamepadPtr;
-    private boolean rumbleSupported, triggerRumbleSupported;
     private final RumbleManager rumbleManager;
-    private boolean hasGyro;
     private GamepadState.GyroState absoluteGyro = GamepadState.GyroState.ORIGIN;
+
+    private final GamepadDrivers drivers;
+    private final Set<Driver> uniqueDrivers;
 
     public GamepadController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         super(joystickId, hidInfo);
@@ -31,10 +31,15 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         if (!this.name.startsWith(type().friendlyName()))
             setName(GLFW.glfwGetGamepadName(joystickId));
 
+        this.drivers = GamepadDrivers.forController(joystickId, hidInfo.hidDevice());
+        this.uniqueDrivers = drivers.getUniqueDrivers();
+
         this.rumbleManager = new RumbleManager(this);
 
         this.defaultConfig = new GamepadConfig();
         this.config = new GamepadConfig();
+
+        this.bindings = new ControllerBindings<>(this);
     }
 
     @Override
@@ -51,23 +56,16 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     public void updateState() {
         prevState = state;
 
-        GamepadState.AxesState rawAxesState = GamepadState.AxesState.fromController(this);
-        GamepadState.AxesState axesState = rawAxesState
+        uniqueDrivers.forEach(Driver::update);
+
+        BasicGamepadInputDriver.BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
+        GamepadState.AxesState deadzoneAxesState = basicState.axes()
                 .leftJoystickDeadZone(config().leftStickDeadzoneX, config().leftStickDeadzoneY)
                 .rightJoystickDeadZone(config().rightStickDeadzoneX, config().rightStickDeadzoneY);
-        GamepadState.ButtonState buttonState = GamepadState.ButtonState.fromController(this);
 
-        GamepadState.GyroState gyroDelta = null;
-        if (this.hasGyro) {
-            float[] gyro = new float[3];
-            SDL.SDL_GameControllerGetSensorData(gamepadPtr, SDL.SDL_SENSOR_GYRO, gyro, 3);
-            gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
-            if (DebugProperties.PRINT_GYRO) Controlify.LOGGER.info("Gyro delta: " + gyroDelta);
-            absoluteGyro = absoluteGyro.add(gyroDelta);
-        }
-        SDL.SDL_GameControllerUpdate();
+        GamepadState.GyroState gyroState = drivers.gyroDriver().getGyroState();
 
-        state = new GamepadState(axesState, rawAxesState, buttonState, gyroDelta, absoluteGyro);
+        state = new GamepadState(deadzoneAxesState, basicState.axes(), basicState.buttons(), gyroState, absoluteGyro);
     }
 
     public GamepadState.GyroState absoluteGyroState() {
@@ -75,7 +73,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     }
 
     public boolean hasGyro() {
-        return hasGyro;
+        return drivers.gyroDriver().isGyroSupported();
     }
 
     @Override
@@ -104,18 +102,12 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         strongMagnitude *= strengthMod;
         weakMagnitude *= strengthMod;
 
-        // the duration doesn't matter because we are not updating the gamecontroller state,
-        // so there is never any SDL check to stop the rumble after the desired time.
-        if (!SDL.SDL_GameControllerRumble(gamepadPtr, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 0)) {
-            Controlify.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
-            return false;
-        }
-        return true;
+        return drivers.rumbleDriver().rumble(strongMagnitude, weakMagnitude);
     }
 
     @Override
     public boolean canRumble() {
-        return rumbleSupported
+        return drivers.rumbleDriver().isRumbleSupported()
                 && config().allowVibrations
                 && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
     }
@@ -126,26 +118,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     }
 
     @Override
-    public void open() {
-        if (SDL2NativesManager.isLoaded()) {
-            this.gamepadPtr = SDL.SDL_GameControllerOpen(joystickId);
-            this.rumbleSupported = SDL.SDL_GameControllerHasRumble(gamepadPtr);
-            this.triggerRumbleSupported = SDL.SDL_GameControllerHasRumble(gamepadPtr);
-            if (this.hasGyro = SDL.SDL_GameControllerHasSensor(gamepadPtr, SDL.SDL_SENSOR_GYRO)) {
-                SDL.SDL_GameControllerSetSensorEnabled(gamepadPtr, SDL.SDL_SENSOR_GYRO, true);
-            }
-        } else {
-            this.gamepadPtr = 0;
-            this.rumbleSupported = false;
-            this.hasGyro = false;
-        }
-    }
-
-    @Override
     public void close() {
-        SDL.SDL_GameControllerClose(gamepadPtr);
-        this.gamepadPtr = 0;
-        this.rumbleSupported = false;
-        this.hasGyro = false;
+        uniqueDrivers.forEach(Driver::close);
     }
 }

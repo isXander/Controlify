@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.gui.screen.BetaNoticeScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -66,5 +67,10 @@ public abstract class MinecraftMixin {
             }
         });
         return resourceReload;
+    }
+
+    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
+    private void onMinecraftClose(CallbackInfo ci) {
+        Controller.CONTROLLERS.values().forEach(Controller::close);
     }
 }
