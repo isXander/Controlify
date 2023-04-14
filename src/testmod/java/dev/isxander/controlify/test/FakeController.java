@@ -136,7 +136,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
 
     @Override
     public JoystickMapping mapping() {
-        return UnmappedJoystickMapping.INSTANCE;
+        return UnmappedJoystickMapping.EMPTY;
     }
 
     @Override
