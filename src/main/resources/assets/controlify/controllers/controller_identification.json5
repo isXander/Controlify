@@ -30,6 +30,23 @@
     ]
   },
   {
+    "name": "Dualshock 3 Controller",
+    "theme": "dualshock3",
+
+    "hids": [
+      [0x54c, 0x0268]
+    ]
+  },
+  {
+    "name": "Dualsense Controller",
+    "theme": "dualsense",
+
+    "hids": [
+      [0x54c, 0x0ce6],
+      [0x54c, 0x0df2]
+    ]
+  },
+  {
     "name": "Steam Deck",
     "theme": "xbox_one",
 
