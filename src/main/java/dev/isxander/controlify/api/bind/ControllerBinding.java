@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
 import com.google.gson.JsonObject;
+import dev.isxander.yacl.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,8 @@ public interface ControllerBinding {
     boolean isUnbound();
 
     BindRenderer renderer();
+
+    Option<?> generateYACLOption();
 
     JsonObject toJson();
 

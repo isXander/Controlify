@@ -384,33 +384,10 @@ public class YACLHelper {
 
         var controlsGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
-        if (controller instanceof GamepadController gamepad) {
-            groupBindings(gamepad.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
-                controlsGroup.option(LabelOption.create(categoryName));
-                for (var binding : bindGroup) {
-                    ControllerBindingImpl<GamepadState> bindingImpl = (ControllerBindingImpl<GamepadState>) binding;
-                    controlsGroup.option(Option.createBuilder((Class<IBind<GamepadState>>) (Class<?>) IBind.class)
-                            .name(binding.name())
-                            .binding(bindingImpl.defaultBind(), bindingImpl::currentBind, bindingImpl::setCurrentBind)
-                            .controller(opt -> new GamepadBindController(opt, gamepad))
-                            .tooltip(binding.description())
-                            .build());
-                }
-            });
-        } else if (controller instanceof JoystickController<?> joystick) {
-            groupBindings(joystick.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
-                controlsGroup.option(LabelOption.create(categoryName));
-                for (var binding : bindGroup) {
-                    ControllerBindingImpl<JoystickState> bindingImpl = (ControllerBindingImpl<JoystickState>) binding;
-                    controlsGroup.option(Option.createBuilder((Class<IBind<JoystickState>>) (Class<?>) IBind.class)
-                            .name(binding.name())
-                            .binding(bindingImpl.defaultBind(), bindingImpl::currentBind, bindingImpl::setCurrentBind)
-                            .controller(opt -> new JoystickBindController(opt, joystick))
-                            .tooltip(binding.description())
-                            .build());
-                }
-            });
-        }
+        groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
+            controlsGroup.option(LabelOption.create(categoryName));
+            controlsGroup.options(bindGroup.stream().map(ControllerBinding::generateYACLOption).toList());
+        });
 
         category.group(controlsGroup.build());
 
