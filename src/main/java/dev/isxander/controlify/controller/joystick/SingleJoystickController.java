@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
@@ -31,6 +32,12 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
         
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);
+
+        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
+        this.rumbleSupported = SDL2NativesManager.isLoaded() && SDL.SDL_JoystickHasRumble(this.ptrJoystick);
+        this.rumbleManager = new RumbleManager(this);
+
+        this.bindings = new ControllerBindings<>(this);
     }
 
     @Override
@@ -115,13 +122,6 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     @Override
     public RumbleManager rumbleManager() {
         return this.rumbleManager;
-    }
-
-    @Override
-    public void open() {
-        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
-        this.rumbleSupported = SDL2NativesManager.isLoaded() && SDL.SDL_JoystickHasRumble(this.ptrJoystick);
-        this.rumbleManager = new RumbleManager(this);
     }
 
     @Override

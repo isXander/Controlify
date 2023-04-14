@@ -333,11 +333,7 @@ public class Controlify implements ControlifyApi {
 
         if (this.currentController == controller) return;
 
-        if (this.currentController != null)
-            this.currentController.close();
-
         this.currentController = controller;
-        this.currentController.open();
 
         if (switchableController == controller) {
             switchableController = null;

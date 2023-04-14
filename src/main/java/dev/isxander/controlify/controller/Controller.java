@@ -14,6 +14,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import org.hid4java.HidDevice;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
@@ -41,7 +42,6 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void updateState();
     void clearState();
 
-    default void open() {}
     default void close() {}
     RumbleManager rumbleManager();
 
@@ -77,12 +77,13 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
             CrashReportCategory category = crashReport.addCategory("Controller Info");
             category.setDetail("Joystick ID", joystickId);
             category.setDetail("Controller identification", hidInfo.type());
-            category.setDetail("HID path", hidInfo.path().orElse("N/A"));
+            category.setDetail("HID path", hidInfo.hidDevice().map(HidDevice::getPath).orElse("N/A"));
             throw new ReportedException(crashReport);
         }
     }
 
     static void remove(Controller<?, ?> controller) {
+        controller.close();
         CONTROLLERS.remove(controller.uid(), controller);
     }
 

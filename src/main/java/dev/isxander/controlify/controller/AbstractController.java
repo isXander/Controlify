@@ -25,7 +25,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final String guid;
     private final ControllerType type;
 
-    private final ControllerBindings<S> bindings;
+    protected ControllerBindings<S> bindings;
     protected C config, defaultConfig;
 
     public AbstractController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
@@ -37,7 +37,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
 
-        if (hidInfo.path().isPresent()) {
+        if (hidInfo.hidDevice().isPresent()) {
             this.uid = hidInfo.createControllerUID().orElseThrow();
             this.type = hidInfo.type();
         } else {
@@ -48,8 +48,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         var joystickName = GLFW.glfwGetJoystickName(joystickId);
         String name = type != ControllerType.UNKNOWN || joystickName == null ? type.friendlyName() : joystickName;
         setName(name);
-
-        this.bindings = new ControllerBindings<>(this);
     }
 
     public String name() {
