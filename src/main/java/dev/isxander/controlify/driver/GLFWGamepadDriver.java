@@ -23,8 +23,8 @@ public class GLFWGamepadDriver implements BasicGamepadInputDriver {
                 state.axes(GLFW.GLFW_GAMEPAD_AXIS_LEFT_Y),
                 state.axes(GLFW.GLFW_GAMEPAD_AXIS_RIGHT_X),
                 state.axes(GLFW.GLFW_GAMEPAD_AXIS_RIGHT_Y),
-                state.axes(GLFW.GLFW_GAMEPAD_AXIS_LEFT_TRIGGER),
-                state.axes(GLFW.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER)
+                (1f + state.axes(GLFW.GLFW_GAMEPAD_AXIS_LEFT_TRIGGER)) / 2f,
+                (1f + state.axes(GLFW.GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER)) / 2f
         );
         GamepadState.ButtonState buttons = new GamepadState.ButtonState(
                 state.buttons(GLFW.GLFW_GAMEPAD_BUTTON_A) == GLFW.GLFW_PRESS,
