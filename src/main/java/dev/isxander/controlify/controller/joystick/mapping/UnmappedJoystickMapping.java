@@ -1,12 +1,11 @@
 package dev.isxander.controlify.controller.joystick.mapping;
 
 import dev.isxander.controlify.bindings.JoystickAxisBind;
-import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.render.GenericRenderer;
+import dev.isxander.controlify.controller.joystick.render.JoystickRenderer;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.Arrays;
 
 public class UnmappedJoystickMapping implements JoystickMapping {
     public static final UnmappedJoystickMapping EMPTY = new UnmappedJoystickMapping(0, 0, 0);
@@ -18,12 +17,12 @@ public class UnmappedJoystickMapping implements JoystickMapping {
     private UnmappedJoystickMapping(int axisCount, int buttonCount, int hatCount) {
         this.axes = new UnmappedAxis[axisCount];
         for (int i = 0; i < axisCount; i++) {
-            this.axes[i] = new UnmappedAxis(i);
+            this.axes[i] = new UnmappedAxis(i, new GenericRenderer.Axis(Integer.toString(i + 1)));
         }
 
         this.buttons = new UnmappedButton[axisCount];
         for (int i = 0; i < buttonCount; i++) {
-            this.buttons[i] = new UnmappedButton(i);
+            this.buttons[i] = new UnmappedButton(i, new GenericRenderer.Button(Integer.toString(i + 1)));
         }
 
         this.hats = new UnmappedHat[hatCount];
@@ -55,7 +54,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         return hats;
     }
 
-    private record UnmappedAxis(int axis) implements Axis {
+    private record UnmappedAxis(int axis, GenericRenderer.Axis renderer) implements Axis {
         @Override
         public float getAxis(JoystickData data) {
             return data.axes()[axis];
@@ -92,7 +91,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         }
     }
 
-    private record UnmappedButton(int button) implements Button {
+    private record UnmappedButton(int button, GenericRenderer.Button renderer) implements Button {
         @Override
         public boolean isPressed(JoystickData data) {
             return data.buttons()[button];
@@ -123,6 +122,11 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         @Override
         public Component name() {
             return Component.translatable("controlify.joystick_mapping.unmapped.hat", hat + 1);
+        }
+
+        @Override
+        public JoystickRenderer renderer(JoystickState.HatState state) {
+            return new GenericRenderer.Hat(Integer.toString(hat + 1));
         }
     }
 }

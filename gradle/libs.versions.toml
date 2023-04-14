@@ -11,10 +11,10 @@ blossom = "1.3.+"
 minecraft = "1.19.4"
 quilt_mappings = "10"
 fabric_loader = "0.14.17"
-fabric_api = "0.76.0+1.19.4"
-mixin_extras = "0.2.0-beta.1"
+fabric_api = "0.78.0+1.19.4"
+mixin_extras = "0.2.0-beta.6"
 yet_another_config_lib = "2.4.0"
-mod_menu = "6.1.0-rc.1"
+mod_menu = "6.1.0-rc.4"
 hid4java = "0.7.0"
 quilt_json5 = "1.0.3"
 sodium = "mc1.19.4-0.4.10"
@@ -27,7 +27,7 @@ minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
 
 fabric_api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
-mixin_extras = { module = "com.github.llamalad7:mixinextras", version.ref = "mixin_extras" }
+mixin_extras = { module = "com.github.llamalad7.mixinextras:mixinextras-fabric", version.ref = "mixin_extras" }
 yet_another_config_lib = { module = "dev.isxander:yet-another-config-lib", version.ref = "yet_another_config_lib" }
 mod_menu = { module = "com.terraformersmc:modmenu", version.ref = "mod_menu" }
 hid4java = { module = "org.hid4java:hid4java", version.ref = "hid4java" }

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.sdl2;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.utils.DebugLog;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import org.libsdl.SDL;
@@ -31,7 +32,7 @@ public class SDL2NativesManager {
     public static void initialise() {
         if (loaded) return;
 
-        Controlify.LOGGER.info("Initialising SDL2 native library");
+        DebugLog.log("Initialising SDL2 native library");
 
         if (!Target.CURRENT.hasNativeLibrary()) {
             Controlify.LOGGER.warn("SDL2 native library not available for OS: " + Target.CURRENT);
@@ -77,7 +78,7 @@ public class SDL2NativesManager {
             throw new RuntimeException("Failed to initialise SDL2: " + SDL.SDL_GetError());
         }
 
-        Controlify.LOGGER.info("Initialised SDL2");
+        DebugLog.log("Initialised SDL2");
     }
 
     private static boolean downloadLibrary(Path path) {

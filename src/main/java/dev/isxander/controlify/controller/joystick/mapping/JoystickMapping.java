@@ -2,6 +2,7 @@ package dev.isxander.controlify.controller.joystick.mapping;
 
 import dev.isxander.controlify.bindings.JoystickAxisBind;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.render.JoystickRenderer;
 import net.minecraft.network.chat.Component;
 
 public interface JoystickMapping {
@@ -23,6 +24,8 @@ public interface JoystickMapping {
         float restingValue();
 
         String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction);
+
+        JoystickRenderer renderer();
     }
 
     interface Button {
@@ -31,6 +34,8 @@ public interface JoystickMapping {
         Component name();
 
         boolean isPressed(JoystickData data);
+
+        JoystickRenderer renderer();
     }
 
     interface Hat {
@@ -39,6 +44,8 @@ public interface JoystickMapping {
         String identifier();
 
         Component name();
+
+        JoystickRenderer renderer(JoystickState.HatState state);
     }
 
     record JoystickData(float[] axes, boolean[] buttons, JoystickState.HatState[] hats) {

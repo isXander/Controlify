@@ -129,7 +129,6 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     public void open() {
         if (SDL2NativesManager.isLoaded()) {
             this.gamepadPtr = SDL.SDL_GameControllerOpen(joystickId);
-            Controlify.LOGGER.info(SDL.SDL_GetError());
             this.rumbleSupported = SDL.SDL_GameControllerHasRumble(gamepadPtr);
             this.triggerRumbleSupported = SDL.SDL_GameControllerHasRumble(gamepadPtr);
             if (this.hasGyro = SDL.SDL_GameControllerHasSensor(gamepadPtr, SDL.SDL_SENSOR_GYRO)) {

@@ -4,6 +4,7 @@ import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
+import dev.isxander.controlify.utils.DebugLog;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class ControlifyConfig {
         }
 
         if (dirty) {
-            Controlify.LOGGER.info("Config was dirty after load, saving...");
+            DebugLog.log("Config was dirty after load, saving...");
             save();
         }
     }
@@ -121,7 +122,7 @@ public class ControlifyConfig {
                 .asList()
                 .stream()
                 .map(element -> GSON.fromJson(element, CompoundJoystickInfo.class))
-                .collect(Collectors.toMap(info -> info.type().identifier(), Function.identity()));
+                .collect(Collectors.toMap(info -> info.type().mappingId(), Function.identity()));
 
         if (object.has("current_controller")) {
             currentControllerUid = object.get("current_controller").getAsString();
@@ -134,10 +135,10 @@ public class ControlifyConfig {
     public void loadOrCreateControllerData(Controller<?, ?> controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
-            Controlify.LOGGER.info("Loading controller data for " + uid);
+            DebugLog.log("Loading controller data for " + uid);
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
         } else {
-            Controlify.LOGGER.info("New controller found, creating controller data for " + uid);
+            DebugLog.log("New controller found, setting config dirty ({})", uid);
             setDirty();
         }
     }
@@ -159,7 +160,7 @@ public class ControlifyConfig {
 
     public void saveIfDirty() {
         if (dirty) {
-            Controlify.LOGGER.info("Config is dirty. Saving...");
+            DebugLog.log("Config is dirty. Saving...");
             save();
         }
     }

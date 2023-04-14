@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public record CompoundJoystickInfo(Collection<String> joystickUids, String friendlyName) {
     public ControllerType type() {
-        return new ControllerType(friendlyName, createUID(joystickUids), true, false);
+        return new ControllerType(friendlyName, createUID(joystickUids), "generic", true, false);
     }
 
     public boolean canBeUsed() {
@@ -37,7 +37,7 @@ public record CompoundJoystickInfo(Collection<String> joystickUids, String frien
                 .toList();
 
         ControllerType type = type();
-        return Optional.of(new CompoundJoystickController(joystickIDs, type.identifier(), type));
+        return Optional.of(new CompoundJoystickController(joystickIDs, type.mappingId(), type));
     }
 
     public static String createUID(Collection<String> joystickUIDs) {

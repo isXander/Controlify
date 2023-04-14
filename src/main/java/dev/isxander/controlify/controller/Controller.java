@@ -11,6 +11,7 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.utils.DebugLog;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -59,7 +60,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
             }
 
             if (hidInfo.type().dontLoad()) {
-                Controlify.LOGGER.warn("Preventing load of controller #" + joystickId + " because its type prevents loading.");
+                DebugLog.log("Preventing load of controller #" + joystickId + " because its type prevents loading.");
                 return Optional.empty();
             }
 

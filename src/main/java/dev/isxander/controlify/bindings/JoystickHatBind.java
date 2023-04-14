@@ -32,7 +32,7 @@ public class JoystickHatBind implements IBind<JoystickState> {
 
     @Override
     public void draw(PoseStack matrices, int x, int centerY) {
-        String type = joystick.type().identifier();
+        String type = joystick.type().themeId();
         String hat = joystick.mapping().hats()[hatIndex].identifier();
         String direction = "centered";
         if (hatState.isUp())

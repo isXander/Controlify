@@ -1,7 +1,7 @@
 [
   {
     "name": "Xbox One Controller",
-    "identifier": "xbox_one",
+    "theme": "xbox_one",
 
     "hids": [
       [0x45e, 0x2ff],
@@ -21,7 +21,7 @@
   },
   {
     "name": "Dualshock 4 Controller",
-    "identifier": "dualshock4",
+    "theme": "dualshock4",
 
     "hids": [
       [0x54c, 0x5c4],
@@ -31,7 +31,7 @@
   },
   {
     "name": "Steam Deck",
-    "identifier": "steam_deck",
+    "theme": "xbox_one",
 
     "hids": [
       [0x28de, 0x1205],
@@ -39,10 +39,19 @@
   },
   {
     "name": "Stadia Controller",
-    "identifier": "stadia",
+    "theme": "stadia",
 
     "hids": [
       [0x18d1, 0x9400],
+    ]
+  },
+  {
+    "name": "Thrustmaster T16000M",
+    "theme": "thrustmaster",
+    "mapping": "tm_t16000m",
+
+    "hids": [
+      [0x044f, 0xb10a]
     ]
   }
 ]

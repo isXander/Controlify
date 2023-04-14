@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.gui.screen.VibrationOnboardingScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -17,6 +18,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -74,9 +76,7 @@ public class Controlify implements ControlifyApi {
     }
 
     private void initializeControllers() {
-        LOGGER.info("Discovering and initializing controllers...");
-
-        config().load();
+        DebugLog.log("Discovering and initializing controllers...");
 
         if (config().globalSettings().loadVibrationNatives)
             SDL2NativesManager.initialise();
@@ -140,6 +140,8 @@ public class Controlify implements ControlifyApi {
     }
 
     public void preInitialiseControlify() {
+        DebugProperties.printProperties();
+
         LOGGER.info("Pre-initializing Controlify...");
 
         this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
@@ -205,7 +207,7 @@ public class Controlify implements ControlifyApi {
         if (state.hasAnyInput())
             this.setInputMode(InputMode.CONTROLLER);
 
-        if (consecutiveInputSwitches > 500) {
+        if (consecutiveInputSwitches > 100) {
             LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
@@ -289,13 +291,13 @@ public class Controlify implements ControlifyApi {
             try {
                 if (info.isLoaded() && !info.canBeUsed()) {
                     LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
-                    Controller.CONTROLLERS.remove(info.type().identifier());
+                    Controller.CONTROLLERS.remove(info.type().mappingId());
                 }
 
                 if (!info.isLoaded() && info.canBeUsed()) {
-                    LOGGER.info("Loading compound joystick " + info.type().identifier() + ".");
+                    LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
                     CompoundJoystickController controller = info.attemptCreate().orElseThrow();
-                    Controller.CONTROLLERS.put(info.type().identifier(), controller);
+                    Controller.CONTROLLERS.put(info.type().mappingId(), controller);
                     config().loadOrCreateControllerData(controller);
                 }
             } catch (Exception e) {
@@ -339,14 +341,14 @@ public class Controlify implements ControlifyApi {
             switchableController = null;
         }
 
-        LOGGER.info("Updated current controller to " + controller.name() + "(" + controller.uid() + ")");
+        DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 
         if (!config().currentControllerUid().equals(controller.uid())) {
             config().save();
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
-        if (Minecraft.getInstance().player != null) {
+        if (minecraft.player != null) {
             this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
         }
 

@@ -11,8 +11,8 @@ import org.quiltmc.json5.JsonReader;
 import java.io.IOException;
 import java.util.*;
 
-public record ControllerType(String friendlyName, String identifier, boolean forceJoystick, boolean dontLoad) {
-    public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown", false, false);
+public record ControllerType(String friendlyName, String mappingId, String themeId, boolean forceJoystick, boolean dontLoad) {
+    public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown", "unknown", false, false);
 
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
@@ -46,7 +46,9 @@ public record ControllerType(String friendlyName, String identifier, boolean for
         reader.beginArray();
         while (reader.hasNext()) {
             String friendlyName = null;
-            String identifier = null;
+            String legacyIdentifier = null;
+            String themeId = null;
+            String mappingId = null;
             boolean forceJoystick = false;
             boolean dontLoad = false;
             Set<HIDIdentifier> hids = new HashSet<>();
@@ -57,7 +59,9 @@ public record ControllerType(String friendlyName, String identifier, boolean for
 
                 switch (name) {
                     case "name" -> friendlyName = reader.nextString();
-                    case "identifier" -> identifier = reader.nextString();
+                    case "identifier" -> legacyIdentifier = reader.nextString();
+                    case "theme" -> themeId = reader.nextString();
+                    case "mapping" -> mappingId = reader.nextString();
                     case "hids" -> {
                         reader.beginArray();
                         while (reader.hasNext()) {
@@ -89,12 +93,18 @@ public record ControllerType(String friendlyName, String identifier, boolean for
             }
             reader.endObject();
 
-            if (friendlyName == null || identifier == null || hids.isEmpty()) {
+            if (legacyIdentifier != null) {
+                Controlify.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
+                themeId = legacyIdentifier;
+                mappingId = legacyIdentifier;
+            }
+
+            if (friendlyName == null || themeId == null || hids.isEmpty()) {
                 Controlify.LOGGER.warn("Invalid entry in HID DB. Skipping...");
                 continue;
             }
 
-            var type = new ControllerType(friendlyName, identifier, forceJoystick, dontLoad);
+            var type = new ControllerType(friendlyName, mappingId, themeId, forceJoystick, dontLoad);
             for (var hid : hids) {
                 typeMap.put(hid, type);
             }

@@ -237,7 +237,7 @@ public class YACLHelper {
         }
         category.group(vibrationGroup.build());
 
-        if (controller instanceof GamepadController gamepad && (gamepad.hasGyro() || true)) {
+        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
             var gpCfg = gamepad.config();
             var gpCfgDef = gamepad.defaultConfig();
 

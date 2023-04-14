@@ -65,7 +65,7 @@ public class GamepadBind implements IBind<GamepadState> {
     private ResourceLocation getTexture(BuiltinGamepadTheme theme) {
         String themeId = theme.id();
         if (theme == BuiltinGamepadTheme.DEFAULT)
-            themeId = gamepad.type().identifier();
+            themeId = gamepad.type().themeId();
         return new ResourceLocation("controlify", "textures/gui/gamepad/" + themeId + "/" + identifier + ".png");
     }
 

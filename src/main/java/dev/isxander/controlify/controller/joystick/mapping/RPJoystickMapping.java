@@ -5,6 +5,7 @@ import dev.isxander.controlify.bindings.JoystickAxisBind;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.joystick.render.JoystickRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -141,7 +142,7 @@ public class RPJoystickMapping implements JoystickMapping {
             reader.endObject();
 
             for (var id : ids) {
-                axes.add(new AxisMapping(id, identifier, inpRange, outRange, restState, deadzone, type.identifier(), axisNames.get(ids.indexOf(id))));
+                axes.add(new AxisMapping(id, identifier, inpRange, outRange, restState, deadzone, type.mappingId(), axisNames.get(ids.indexOf(id))));
             }
         }
         reader.endArray();
@@ -171,7 +172,7 @@ public class RPJoystickMapping implements JoystickMapping {
             }
             reader.endObject();
 
-            buttons.add(new ButtonMapping(id, btnName, type.identifier()));
+            buttons.add(new ButtonMapping(id, btnName, type.mappingId()));
         }
         reader.endArray();
 
@@ -231,7 +232,7 @@ public class RPJoystickMapping implements JoystickMapping {
             }
             reader.endObject();
 
-            hats.add(new HatMapping(id, hatName, type.identifier(), axis));
+            hats.add(new HatMapping(id, hatName, type.mappingId(), axis));
         }
         reader.endArray();
 
@@ -254,21 +255,21 @@ public class RPJoystickMapping implements JoystickMapping {
     }
 
     public static JoystickMapping fromType(JoystickController<?> joystick) {
-        var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + joystick.type().identifier() + ".json"));
+        var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + joystick.type().mappingId() + ".json"));
         if (resource.isEmpty()) {
-            Controlify.LOGGER.warn("No joystick mapping found for controller: '" + joystick.type().identifier() + "'");
+            Controlify.LOGGER.warn("No joystick mapping found for controller: '" + joystick.type().mappingId() + "'");
             return new UnmappedJoystickMapping(joystick.joystickId());
         }
 
         try (var reader = JsonReader.json5(resource.get().openAsReader())) {
             return new RPJoystickMapping(reader, joystick.type());
         } catch (Exception e) {
-            Controlify.LOGGER.error("Failed to load joystick mapping for controller: '" + joystick.type().identifier() + "'", e);
+            Controlify.LOGGER.error("Failed to load joystick mapping for controller: '" + joystick.type().mappingId() + "'", e);
             return new UnmappedJoystickMapping(joystick.joystickId());
         }
     }
 
-    private record AxisMapping(int id, String identifier, Vec2 inpRange, Vec2 outRange, float restingValue, boolean requiresDeadzone, String typeId, String[] axisNames) implements Axis {
+    private record AxisMapping(int id, String identifier, Vec2 inpRange, Vec2 outRange, float restingValue, boolean requiresDeadzone, String theme, String[] axisNames) implements Axis {
         @Override
         public float getAxis(JoystickData data) {
             float rawAxis = data.axes()[id];
@@ -286,12 +287,17 @@ public class RPJoystickMapping implements JoystickMapping {
 
         @Override
         public Component name() {
-            return Component.translatable("controlify.joystick_mapping." + typeId() + ".axis." + identifier());
+            return Component.translatable("controlify.joystick_mapping." + theme() + ".axis." + identifier());
         }
 
         @Override
         public String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction) {
             return this.axisNames()[direction.ordinal()];
+        }
+
+        @Override
+        public JoystickRenderer renderer() {
+            return null;
         }
     }
 
@@ -304,6 +310,11 @@ public class RPJoystickMapping implements JoystickMapping {
         @Override
         public Component name() {
             return Component.translatable("controlify.joystick_mapping." + typeId() + ".button." + identifier());
+        }
+
+        @Override
+        public JoystickRenderer renderer() {
+            return null;
         }
     }
 
@@ -322,6 +333,11 @@ public class RPJoystickMapping implements JoystickMapping {
         @Override
         public Component name() {
             return Component.translatable("controlify.joystick_mapping." + typeId() + ".hat." + identifier());
+        }
+
+        @Override
+        public JoystickRenderer renderer(JoystickState.HatState state) {
+            return null;
         }
 
         private record EmulatedAxis(int axisId, Map<Float, JoystickState.HatState> states) {
