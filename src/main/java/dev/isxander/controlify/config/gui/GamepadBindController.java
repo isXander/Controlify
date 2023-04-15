@@ -1,6 +1,7 @@
 package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.GamepadBind;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
@@ -42,8 +43,9 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<GamepadBindController> implements ComponentProcessor {
+    public static class BindButtonWidget extends ControllerWidget<GamepadBindController> implements ComponentProcessor, ControlifyEvents.ControllerStateUpdate {
         private boolean awaitingControllerInput = false;
+        private boolean justTookInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
         public BindButtonWidget(GamepadBindController control, YACLScreen screen, Dimension<Integer> dim) {
@@ -64,6 +66,7 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
             if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER && !awaitingControllerInput) {
                 awaitingControllerInput = true;
+                ControllerBindHandler.setBindListener(this);
                 return true;
             }
 
@@ -74,6 +77,7 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
                 awaitingControllerInput = true;
+                ControllerBindHandler.setBindListener(this);
                 return true;
             }
 
@@ -85,10 +89,23 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
             if (controller != control.controller) return true;
 
             if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
+                ControllerBindHandler.setBindListener(this);
                 return awaitingControllerInput = true;
             }
 
-            if (!awaitingControllerInput) return false;
+            if (justTookInput) {
+                justTookInput = false;
+                return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onControllerStateUpdate(dev.isxander.controlify.controller.Controller<?, ?> controller) {
+            if (controller != control.controller) return;
+
+            if (!awaitingControllerInput) return;
 
             var gamepad = control.controller;
 
@@ -97,17 +114,16 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
                 if (bind.held(gamepad.state()) && !bind.held(gamepad.prevState())) {
                     control.option().requestSet(bind);
                     awaitingControllerInput = false;
-                    gamepad.consumeButtonState();
-                    return true;
+                    justTookInput = true;
+                    ControllerBindHandler.clearBindListener();
+                    return;
                 }
             }
-
-            return false;
         }
 
         @Override
         public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            return awaitingControllerInput;
+            return awaitingControllerInput || justTookInput;
         }
 
         @Override

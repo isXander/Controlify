@@ -73,15 +73,8 @@ public class JoystickState implements ControllerState {
     }
 
     public static JoystickState fromJoystick(JoystickController<?> joystick, int joystickId) {
-        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
-            Controlify.LOGGER.info("Printing joy input for " + joystick.name());
-
         FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystickId);
         float[] inAxes = new float[axesBuffer.limit()];
-
-        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
-            Controlify.LOGGER.info("Axes count = " + inAxes.length);
-
         {
             int i = 0;
             while (axesBuffer.hasRemaining()) {
@@ -92,10 +85,6 @@ public class JoystickState implements ControllerState {
 
         ByteBuffer buttonBuffer = GLFW.glfwGetJoystickButtons(joystickId);
         boolean[] inButtons = new boolean[buttonBuffer.limit()];
-
-        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
-            Controlify.LOGGER.info("Button count = " + inButtons.length);
-
         {
             int i = 0;
             while (buttonBuffer.hasRemaining()) {
@@ -106,10 +95,6 @@ public class JoystickState implements ControllerState {
 
         ByteBuffer hatBuffer = GLFW.glfwGetJoystickHats(joystickId);
         HatState[] inHats = new HatState[hatBuffer.limit()];
-
-        if (DebugProperties.PRINT_JOY_INPUT_COUNT)
-            Controlify.LOGGER.info("Hat count = " + inHats.length);
-
         {
             int i = 0;
             while (hatBuffer.hasRemaining()) {
@@ -139,11 +124,21 @@ public class JoystickState implements ControllerState {
             var axis = axes[i];
             float state = axis.getAxis(data);
             rawAxes.add(state);
-            deadzoneAxes.add(axis.requiresDeadzone() ? ControllerUtils.deadzone(state, i) : state);
+            deadzoneAxes.add(axis.requiresDeadzone()
+                    ? ControllerUtils.deadzone(state, joystick.config().getDeadzone(i))
+                    : state
+            );
         }
 
         List<Boolean> buttons = Arrays.stream(mapping.buttons()).map(button -> button.isPressed(data)).toList();
         List<HatState> hats = Arrays.stream(mapping.hats()).map(hat -> hat.getHatState(data)).toList();
+
+        if (DebugProperties.PRINT_JOY_STATE) {
+            Controlify.LOGGER.info("Printing joystick state for controller {}", joystick);
+            Controlify.LOGGER.info(Arrays.stream(axes).map(axis -> axis.name().getString() + ": " + axis.getAxis(data)).toList().toString());
+            Controlify.LOGGER.info(Arrays.stream(mapping.buttons()).map(button -> button.name().getString() + ": " + button.isPressed(data)).toList().toString());
+            Controlify.LOGGER.info(Arrays.stream(mapping.hats()).map(hat -> hat.name().getString() + ": " + hat.getHatState(data)).toList().toString());
+        }
 
         return new JoystickState(joystick.mapping(), deadzoneAxes, rawAxes, buttons, hats);
     }

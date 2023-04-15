@@ -339,7 +339,7 @@ public class ControllerBindings<T extends ControllerState> {
 
         registerModdedKeybinds();
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.register(this::onControllerUpdate);
+        ControlifyEvents.CONTROLLER_STATE_UPDATE.register(this::onControllerUpdate);
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 

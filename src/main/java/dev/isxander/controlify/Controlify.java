@@ -4,6 +4,7 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.config.gui.ControllerBindHandler;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
@@ -37,6 +38,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
+import java.util.Optional;
 import java.util.Queue;
 
 public class Controlify implements ControlifyApi {
@@ -160,6 +162,8 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
+        ControllerBindHandler.setup();
+
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControlifyPreInit(this);
@@ -187,6 +191,7 @@ public class Controlify implements ControlifyApi {
                 wrapControllerError(controller::updateState, "Updating controller state", controller);
             else
                 wrapControllerError(controller::clearState, "Clearing controller state", controller);
+            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoker().onControllerStateUpdate(controller);
         }
 
         if (switchableController != null && Blaze3D.getTime() - askSwitchTime <= 10000) {
@@ -233,11 +238,11 @@ public class Controlify implements ControlifyApi {
             ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
         }
         if (minecraft.level != null) {
-            this.inGameInputHandler().inputTick();
+            this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
         }
         this.virtualMouseHandler().handleControllerInput(controller);
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATED.invoker().onControllerStateUpdate(controller);
+        ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
     }
 
     public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?, ?> controller) {
@@ -335,16 +340,27 @@ public class Controlify implements ControlifyApi {
         return currentController;
     }
 
-    public void setCurrentController(Controller<?, ?> controller) {
-        if (controller == null)
-            controller = Controller.DUMMY;
+    @Override
+    public @NotNull Optional<Controller<?, ?>> getCurrentController() {
+        return Optional.ofNullable(currentController);
+    }
 
+    public void setCurrentController(Controller<?, ?> controller) {
         if (this.currentController == controller) return;
 
         this.currentController = controller;
 
         if (switchableController == controller) {
             switchableController = null;
+        }
+
+        if (controller == null) {
+            this.setInputMode(InputMode.KEYBOARD_MOUSE);
+            this.inGameInputHandler = null;
+            this.inGameButtonGuide = null;
+            DebugLog.log("Updated current controller to null");
+            config().save();
+            return;
         }
 
         DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
@@ -362,12 +378,12 @@ public class Controlify implements ControlifyApi {
             calibrationQueue.add(controller);
     }
 
-    public InGameInputHandler inGameInputHandler() {
-        return inGameInputHandler;
+    public Optional<InGameInputHandler> inGameInputHandler() {
+        return Optional.ofNullable(inGameInputHandler);
     }
 
-    public InGameButtonGuide inGameButtonGuide() {
-        return inGameButtonGuide;
+    public Optional<InGameButtonGuide> inGameButtonGuide() {
+        return Optional.ofNullable(inGameButtonGuide);
     }
 
     public VirtualMouseHandler virtualMouseHandler() {

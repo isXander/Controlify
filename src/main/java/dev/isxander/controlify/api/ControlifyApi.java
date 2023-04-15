@@ -2,9 +2,10 @@ package dev.isxander.controlify.api;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.controller.Controller;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Interface with Controlify in a manner where you don't need to worry about updates
@@ -17,9 +18,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface ControlifyApi {
     /**
+     * @deprecated Use {@link #getCurrentController()} instead.
      * @return the controller currently in use. If disabled, this will return {@link Controller#DUMMY}
      */
+    @Deprecated
     @NotNull Controller<?, ?> currentController();
+
+    @NotNull Optional<Controller<?, ?>> getCurrentController();
 
     /**
      * Get the current input mode for the game.

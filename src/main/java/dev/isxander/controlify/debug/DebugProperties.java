@@ -15,7 +15,7 @@ public class DebugProperties {
     /* Forces all gamepads to be treated as a regular joystick */
     public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, false);
     /* Prints joystick input counts for making joystick mappings */
-    public static final boolean PRINT_JOY_INPUT_COUNT = boolProp("controlify.debug.print_joy_input_count", false, false);
+    public static final boolean PRINT_JOY_STATE = boolProp("controlify.debug.print_joy_state", false, false);
     /* Print gyro data if supported */
     public static final boolean PRINT_GYRO = boolProp("controlify.debug.print_gyro", false, false);
 

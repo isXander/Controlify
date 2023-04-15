@@ -1,4 +1,5 @@
 import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     java
@@ -118,6 +119,11 @@ blossom {
     replaceToken("<SDL2_VERSION>", libs.versions.sdl2.jni.get(), sdl2ManagerClass)
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 tasks {
     processResources {
         val modId: String by project
@@ -152,6 +158,10 @@ tasks {
         archiveClassifier.set("fabric-$minecraftVersion-sources")   
     }
 
+    named<Jar>("javadocJar") {
+        archiveClassifier.set("fabric-$minecraftVersion-javadoc")
+    }
+
     register("releaseMod") {
         group = "mod"
 
@@ -161,10 +171,6 @@ tasks {
         dependsOn("publish")
         dependsOn("githubRelease")
     }
-}
-
-java {
-    withSourcesJar()   
 }
 
 val changelogText = file("changelogs/${project.version}.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
@@ -233,6 +239,8 @@ publishing {
             artifactId = base.archivesName.get()
 
             from(components["java"])
+            artifact(tasks["remapSourcesJar"])
+            artifact(tasks["javadocJar"])
         }
     }
 

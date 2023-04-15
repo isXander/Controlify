@@ -2,6 +2,8 @@ package dev.isxander.controlify.mixins.feature.guide.ingame;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.ingame.InGameInputHandler;
+import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import org.spongepowered.asm.mixin.Final;
@@ -20,17 +22,15 @@ public class GuiMixin {
 
     @Inject(method = "render", at = @At(value = "CONSTANT", args = "stringValue=chat"))
     private void renderButtonGuide(PoseStack matrices, float tickDelta, CallbackInfo ci) {
-        if (Controlify.instance().inGameButtonGuide() != null) {
+        Controlify.instance().inGameButtonGuide().ifPresent(guide -> {
             minecraft.getProfiler().push("controlify_button_guide");
-            Controlify.instance().inGameButtonGuide().renderHud(matrices, tickDelta, screenWidth, screenHeight);
+            guide.renderHud(matrices, tickDelta, screenWidth, screenHeight);
             minecraft.getProfiler().pop();
-        }
+        });
     }
 
     @Inject(method = "tick()V", at = @At("RETURN"))
     private void tickButtonGuide(CallbackInfo ci) {
-        if (Controlify.instance().inGameButtonGuide() != null) {
-            Controlify.instance().inGameButtonGuide().tick();
-        }
+        Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::tick);
     }
 }

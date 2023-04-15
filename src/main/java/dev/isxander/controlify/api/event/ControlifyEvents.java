@@ -21,7 +21,22 @@ public final class ControlifyEvents {
     /**
      * Triggers every tick when the current controller state has been updated.
      */
-    public static final Event<ControllerStateUpdate> CONTROLLER_STATE_UPDATED = EventFactory.createArrayBacked(ControllerStateUpdate.class, callbacks -> controller -> {
+    public static final Event<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = EventFactory.createArrayBacked(ControllerStateUpdate.class, callbacks -> controller -> {
+        for (ControllerStateUpdate callback : callbacks) {
+            callback.onControllerStateUpdate(controller);
+        }
+    });
+
+    /**
+     * @deprecated Use {@link #ACTIVE_CONTROLLER_TICKED} instead.
+     */
+    @Deprecated
+    public static final Event<ControllerStateUpdate> CONTROLLER_STATE_UPDATED = ACTIVE_CONTROLLER_TICKED;
+
+    /**
+     * Triggers every tick when any connected controller's state has been updated before the active controller is ticked.
+     */
+    public static final Event<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = EventFactory.createArrayBacked(ControllerStateUpdate.class, callbacks -> controller -> {
         for (ControllerStateUpdate callback : callbacks) {
             callback.onControllerStateUpdate(controller);
         }
@@ -45,6 +60,10 @@ public final class ControlifyEvents {
         }
     });
 
+    /**
+     * Allows you to modify the look input before it is applied to the player.
+     * These modifiers are called before the look input is multiplied by the sensitivity.
+     */
     public static final Event<LookInputModifier> LOOK_INPUT_MODIFIER = EventFactory.createArrayBacked(LookInputModifier.class, callbacks -> new LookInputModifier() {
         @Override
         public float modifyX(float x, Controller<?, ?> controller) {

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
@@ -41,8 +42,9 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<JoystickBindController> implements ComponentProcessor {
+    public static class BindButtonWidget extends ControllerWidget<JoystickBindController> implements ComponentProcessor, ControlifyEvents.ControllerStateUpdate {
         private boolean awaitingControllerInput = false;
+        private boolean justTookInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
         public BindButtonWidget(JoystickBindController control, YACLScreen screen, Dimension<Integer> dim) {
@@ -63,6 +65,7 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
             if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER && !awaitingControllerInput) {
                 awaitingControllerInput = true;
+                ControllerBindHandler.setBindListener(this);
                 return true;
             }
 
@@ -73,6 +76,7 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
                 awaitingControllerInput = true;
+                ControllerBindHandler.setBindListener(this);
                 return true;
             }
 
@@ -83,11 +87,25 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
             if (controller != control.controller) return true;
 
-            if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
-                return awaitingControllerInput = true;
+            if (justTookInput) {
+                justTookInput = false;
+                return true;
             }
 
-            if (!awaitingControllerInput) return false;
+            if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
+                awaitingControllerInput = true;
+                ControllerBindHandler.setBindListener(this);
+                return true;
+            }
+
+            return awaitingControllerInput;
+        }
+
+        @Override
+        public void onControllerStateUpdate(dev.isxander.controlify.controller.Controller<?, ?> controller) {
+            if (controller != control.controller) return;
+
+            if (!awaitingControllerInput) return;
 
             var joystick = control.controller;
 
@@ -98,7 +116,9 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
                 if (state.buttons().get(i) && !prevState.buttons().get(i)) {
                     control.option().requestSet(new JoystickButtonBind(joystick, i));
                     awaitingControllerInput = false;
-                    return true;
+                    justTookInput = true;
+                    ControllerBindHandler.clearBindListener();
+                    return;
                 }
             }
 
@@ -111,11 +131,15 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
                     if (axis > activationThreshold) {
                         control.option().requestSet(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.POSITIVE));
                         awaitingControllerInput = false;
-                        return true;
+                        justTookInput = true;
+                        ControllerBindHandler.clearBindListener();
+                        return;
                     } else if (axis < -activationThreshold) {
                         control.option().requestSet(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.NEGATIVE));
                         awaitingControllerInput = false;
-                        return true;
+                        justTookInput = true;
+                        ControllerBindHandler.clearBindListener();
+                        return;
                     }
                 }
             }
@@ -127,16 +151,16 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
                 if (prevHat.isCentered() && !hat.isCentered()) {
                     control.option().requestSet(new JoystickHatBind(joystick, i, hat));
                     awaitingControllerInput = false;
-                    return true;
+                    justTookInput = true;
+                    ControllerBindHandler.clearBindListener();
+                    return;
                 }
             }
-
-            return false;
         }
 
         @Override
         public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            return awaitingControllerInput;
+            return awaitingControllerInput || justTookInput;
         }
 
         @Override

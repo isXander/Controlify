@@ -50,7 +50,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
-        Controlify.instance().inGameInputHandler().processPlayerLook(getDeltaFrameTime());
+        Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getDeltaFrameTime()));
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
