@@ -1,11 +1,16 @@
 package dev.isxander.controlify.bindings;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
+import dev.isxander.controlify.bindings.bind.BindModifier;
+import dev.isxander.controlify.bindings.bind.BindModifiers;
+import dev.isxander.controlify.bindings.bind.BindType;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.config.gui.GamepadBindController;
 import dev.isxander.controlify.config.gui.JoystickBindController;
 import dev.isxander.controlify.controller.Controller;
@@ -23,10 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 public class ControllerBindingImpl<T extends ControllerState> implements ControllerBinding {
@@ -37,10 +39,12 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     private final ResourceLocation id;
     private final Component name, description, category;
     private final KeyMappingOverride override;
+    private final BindType preferredType;
+    private final ImmutableList<BindModifier> modifiers;
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
-    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category) {
+    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, BindType preferredType, Collection<BindModifier> modifiers, KeyMappingOverride vanillaOverride, Component name, Component description, Component category) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.renderer = new BindRendererImpl(bind);
@@ -49,33 +53,54 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         this.name = name;
         this.description = description;
         this.category = category;
+        this.preferredType = preferredType;
+        this.modifiers = ImmutableList.copyOf(modifiers);
     }
 
+    @Override
+    public BindValue value() {
+        return bind.value(controller.state()).modify(modifiers);
+    }
+
+    @Override
+    public BindValue prevValue() {
+        return bind.value(controller.prevState()).modify(modifiers);
+    }
+
+    @Deprecated
     @Override
     public float state() {
-        return bind.state(controller.state());
+        return value().analogue();
     }
 
+    @Deprecated
     @Override
     public float prevState() {
-        return bind.state(controller.prevState());
+        return prevValue().analogue();
     }
 
+    @Deprecated
     @Override
     public boolean held() {
-        return bind.held(controller.state());
+        return value().digital();
+    }
+
+    @Deprecated
+    @Override
+    public boolean prevHeld() {
+        return prevValue().digital();
     }
 
     @Override
-    public boolean prevHeld() {
-        return bind.held(controller.prevState());
+    public BindType preferredType() {
+        return preferredType;
     }
 
     @Override
     public boolean justPressed() {
         if (hasBindPressed(this)) return false;
 
-        if (held() && !prevHeld()) {
+        if (value().digital() && !prevValue().digital()) {
             addPressedBind(this);
             return true;
         } else {
@@ -87,7 +112,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     public boolean justReleased() {
         if (hasBindPressed(this)) return false;
 
-        if (!held() && prevHeld()) {
+        if (!value().digital() && prevValue().digital()) {
             addPressedBind(this);
             return true;
         } else {
@@ -161,7 +186,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 .tooltip(this.description());
 
         if (controller instanceof GamepadController gamepad) {
-            ((Option.Builder<IBind<GamepadState>>) (Object) option).controller(opt -> new GamepadBindController(opt, gamepad));
+            ((Option.Builder<IBind<GamepadState>>) (Object) option).controller(opt -> new GamepadBindController(opt, gamepad, this.preferredType()));
         } else if (controller instanceof JoystickController<?> joystick) {
             ((Option.Builder<IBind<JoystickState>>) (Object) option).controller(opt -> new JoystickBindController(opt, joystick));
         }
@@ -197,6 +222,8 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
         private KeyMappingOverride override = null;
+        private BindType type = null;
+        private final List<BindModifier> modifiers = new ArrayList<>();
 
         public ControllerBindingBuilderImpl(Controller<T, ?> controller) {
             this.controller = controller;
@@ -249,6 +276,18 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         }
 
         @Override
+        public ControllerBindingBuilder<T> preferredBind(BindType type) {
+            this.type = type;
+            return this;
+        }
+
+        @Override
+        public ControllerBindingBuilder<T> modifyBind(BindModifier... modifiers) {
+            this.modifiers.addAll(List.of(modifiers));
+            return this;
+        }
+
+        @Override
         public ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
             this.override = new KeyMappingOverride(keyMapping, toggleable);
             return this;
@@ -276,7 +315,12 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 }
             }
 
-            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category);
+            if (type == null) {
+                type = BindType.ANALOGUE;
+                Controlify.LOGGER.warn("Preferred bind type not set for binding {}, defaulting to analogue", id);
+            }
+
+            return new ControllerBindingImpl<>(controller, bind, id, type, override, name, description, category);
         }
     }
 

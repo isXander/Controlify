@@ -1,5 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
+import dev.isxander.controlify.bindings.bind.BindModifier;
+import dev.isxander.controlify.bindings.bind.BindType;
 import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
@@ -72,6 +74,15 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      * @param category the category of the binding
      */
     ControllerBindingBuilder<T> category(Component category);
+
+    /**
+     * Sets the preferred bind type for the binding.
+     * This is used when determining what bind is used for rebinding when multiple binds are pressed.
+     * @param type the preferred bind type
+     */
+    ControllerBindingBuilder<T> preferredBind(BindType type);
+
+    ControllerBindingBuilder<T> modifyBind(BindModifier... modifiers);
 
     /**
      * Specifies are vanilla override for the binding.

@@ -2,16 +2,14 @@ package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.gui.DrawSize;
 
 public interface IBind<S extends ControllerState> {
-    float state(S state);
-    default boolean held(S state) {
-        return state(state) > controller().config().buttonActivationThreshold;
-    }
+    BindValue value(S state);
 
     void draw(PoseStack matrices, int x, int centerY);
     DrawSize drawSize();

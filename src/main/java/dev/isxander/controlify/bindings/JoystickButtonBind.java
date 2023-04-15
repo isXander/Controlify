@@ -3,6 +3,7 @@ package dev.isxander.controlify.bindings;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
@@ -24,8 +25,8 @@ public class JoystickButtonBind implements IBind<JoystickState> {
     }
 
     @Override
-    public float state(JoystickState state) {
-        return state.buttons().get(buttonIndex) ? 1 : 0;
+    public BindValue value(JoystickState state) {
+        return BindValue.of(state.buttons().get(buttonIndex));
     }
 
     @Override

@@ -3,6 +3,7 @@ package dev.isxander.controlify.bindings;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
@@ -29,12 +30,14 @@ public class JoystickAxisBind implements IBind<JoystickState> {
     }
 
     @Override
-    public float state(JoystickState state) {
+    public BindValue value(JoystickState state) {
         var rawState = state.axes().get(axisIndex);
-        return switch (direction) {
+        float analogue = switch (direction) {
             case POSITIVE -> Math.max(0, rawState);
             case NEGATIVE -> -Math.min(0, rawState);
         };
+
+        return BindValue.of(analogue);
     }
 
     @Override

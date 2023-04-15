@@ -6,6 +6,8 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
+import dev.isxander.controlify.bindings.bind.BindModifiers;
+import dev.isxander.controlify.bindings.bind.BindType;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -38,7 +40,7 @@ public class ControllerBindings<T extends ControllerState> {
     public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
 
     public final ControllerBinding
-            WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
+            WALK,
             LOOK_UP, LOOK_DOWN, LOOK_LEFT, LOOK_RIGHT,
             GAMEPAD_GYRO_BUTTON,
             JUMP, SNEAK,
@@ -73,24 +75,11 @@ public class ControllerBindings<T extends ControllerState> {
         this.controller = controller;
         var options = Minecraft.getInstance().options;
 
-        register(WALK_FORWARD = ControllerBindingBuilder.create(controller)
+        register(WALK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "walk_forward")
-                .defaultBind(GamepadBinds.LEFT_STICK_FORWARD)
-                .category(MOVEMENT_CATEGORY)
-                .build());
-        register(WALK_BACKWARD = ControllerBindingBuilder.create(controller)
-                .identifier("controlify", "walk_backward")
-                .defaultBind(GamepadBinds.LEFT_STICK_BACKWARD)
-                .category(MOVEMENT_CATEGORY)
-                .build());
-        register(WALK_LEFT = ControllerBindingBuilder.create(controller)
-                .identifier("controlify", "strafe_left")
-                .defaultBind(GamepadBinds.LEFT_STICK_LEFT)
-                .category(MOVEMENT_CATEGORY)
-                .build());
-        register(WALK_RIGHT = ControllerBindingBuilder.create(controller)
-                .identifier("controlify", "strafe_right")
-                .defaultBind(GamepadBinds.LEFT_STICK_RIGHT)
+                .defaultBind(GamepadBinds.LEFT_STICK)
+                .preferredBind(BindType.VECTOR)
+                .modifyBind(BindModifiers.INVERT, BindModifiers.INVERT_X)
                 .category(MOVEMENT_CATEGORY)
                 .build());
         register(LOOK_UP = ControllerBindingBuilder.create(controller)

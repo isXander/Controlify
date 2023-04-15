@@ -3,6 +3,7 @@ package dev.isxander.controlify.bindings;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
@@ -15,19 +16,19 @@ import java.util.Objects;
 import java.util.function.Function;
 
 public class GamepadBind implements IBind<GamepadState> {
-    private final Function<GamepadState, Float> stateSupplier;
+    private final Function<GamepadState, BindValue> valueSupplier;
     private final String identifier;
     private final GamepadController gamepad;
 
-    public GamepadBind(Function<GamepadState, Float> stateSupplier, String identifier, GamepadController gamepad) {
-        this.stateSupplier = stateSupplier;
+    public GamepadBind(Function<GamepadState, BindValue> valueSupplier, String identifier, GamepadController gamepad) {
+        this.valueSupplier = valueSupplier;
         this.identifier = identifier;
         this.gamepad = gamepad;
     }
 
     @Override
-    public float state(GamepadState state) {
-        return stateSupplier.apply(state);
+    public BindValue value(GamepadState state) {
+        return valueSupplier.apply(state);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package dev.isxander.controlify.api.bind;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.bindings.bind.BindType;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.yacl.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
@@ -10,35 +12,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.BooleanSupplier;
 
 public interface ControllerBinding {
-    /**
-     * @return the current analogue state of the binding.
-     */
-    float state();
+    BindValue value();
+    BindValue prevValue();
 
-    /**
-     * @return the analogue state of the binding last tick.
-     */
-    float prevState();
-
-    /**
-     * @return if the binding is currently held.
-     */
-    boolean held();
-
-    /**
-     * @return if the binding was held last tick.
-     */
-    boolean prevHeld();
-
-    /**
-     * @return if the binding is held this tick but not the previous tick
-     */
     boolean justPressed();
-
-    /**
-     * @return if the binding is not held this tick but was held last tick
-     */
     boolean justReleased();
+
+    BindType preferredType();
+
+    @Deprecated float state();
+    @Deprecated float prevState();
+
+    @Deprecated boolean held();
+    @Deprecated boolean prevHeld();
 
     Component name();
     Component description();

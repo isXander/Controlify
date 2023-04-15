@@ -2,21 +2,18 @@ package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.isxander.controlify.bindings.bind.BindValue;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.gui.DrawSize;
 
 public class EmptyBind<T extends ControllerState> implements IBind<T> {
     public static final String BIND_ID = "empty";
+    private static final BindValue EMPTY_VALUE = BindValue.of(false);
 
     @Override
-    public float state(T state) {
-        return 0;
-    }
-
-    @Override
-    public boolean held(T state) {
-        return false;
+    public BindValue value(T state) {
+        return EMPTY_VALUE;
     }
 
     @Override

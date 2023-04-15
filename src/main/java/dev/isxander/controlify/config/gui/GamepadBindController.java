@@ -2,6 +2,7 @@ package dev.isxander.controlify.config.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.bindings.bind.BindType;
 import dev.isxander.controlify.bindings.GamepadBind;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
@@ -19,13 +20,19 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 public class GamepadBindController implements Controller<IBind<GamepadState>> {
     private final Option<IBind<GamepadState>> option;
     private final GamepadController controller;
+    private final BindType preferredType;
 
-    public GamepadBindController(Option<IBind<GamepadState>> option, GamepadController controller) {
+    public GamepadBindController(Option<IBind<GamepadState>> option, GamepadController controller, BindType preferredType) {
         this.option = option;
         this.controller = controller;
+        this.preferredType = preferredType;
     }
 
     @Override
@@ -109,9 +116,13 @@ public class GamepadBindController implements Controller<IBind<GamepadState>> {
 
             var gamepad = control.controller;
 
-            for (var bindType : GamepadBinds.values()) {
-                GamepadBind bind = bindType.forGamepad(gamepad);
-                if (bind.held(gamepad.state()) && !bind.held(gamepad.prevState())) {
+            List<GamepadBind> binds = Arrays.stream(GamepadBinds.values())
+                    .map(bindType -> bindType.forGamepad(gamepad))
+                    .sorted(Comparator.comparing(bind -> bind.value(gamepad.state()).isBackedByType(control.preferredType)))
+                    .toList();
+
+            for (var bind : binds) {
+                if (bind.value(gamepad.state()).digital() && !bind.value(gamepad.prevState()).digital()) {
                     control.option().requestSet(bind);
                     awaitingControllerInput = false;
                     justTookInput = true;
