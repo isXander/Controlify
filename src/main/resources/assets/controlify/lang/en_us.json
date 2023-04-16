@@ -53,6 +53,7 @@
   "controlify.gui.group.vibration.tooltip": "Adjust how your controller vibrates.",
   "controlify.gui.group.gyro": "Gyro",
   "controlify.gui.group.gyro.tooltip": "Adjust how Controlify treats your controller's built in gyroscope.\nA gyroscope determines how the controller is rotated.",
+  "controlify.gui.group.gyro.no_gyro.tooltip": "This controller does not support Gyro. You must have a Dualsense™ controller or other compatible controller to use this feature.",
   "controlify.gui.gyro_look_sensitivity": "Look Sensitivity",
   "controlify.gui.gyro_look_sensitivity.tooltip": "How much the camera moves based on gyroscope rotation.",
   "controlify.gui.gyro_requires_button": "Require Button",

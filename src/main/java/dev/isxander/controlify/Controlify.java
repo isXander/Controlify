@@ -228,8 +228,9 @@ public class Controlify implements ControlifyApi {
             controller.rumbleManager().tick();
         }
 
-        if (state.hasAnyInput())
+        if (state.hasAnyInput()) {
             this.setInputMode(InputMode.CONTROLLER);
+        }
 
         if (consecutiveInputSwitches > 100) {
             LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
@@ -408,8 +409,8 @@ public class Controlify implements ControlifyApi {
     }
 
     @Override
-    public void setInputMode(@NotNull InputMode currentInputMode) {
-        if (this.currentInputMode == currentInputMode) return;
+    public boolean setInputMode(@NotNull InputMode currentInputMode) {
+        if (this.currentInputMode == currentInputMode) return false;
         this.currentInputMode = currentInputMode;
 
         var minecraft = Minecraft.getInstance();
@@ -432,7 +433,12 @@ public class Controlify implements ControlifyApi {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
+        if (currentInputMode == InputMode.CONTROLLER)
+            getCurrentController().ifPresent(Controller::clearState);
+
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
+
+        return true;
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {

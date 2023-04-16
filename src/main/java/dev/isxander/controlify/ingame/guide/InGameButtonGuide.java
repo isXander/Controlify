@@ -154,13 +154,10 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.dismount"));
             if (player.getAbilities().flying)
                 return Optional.of(Component.translatable("controlify.guide.fly_down"));
-            if (player.isInWater())
+            if (player.isInWater() && !player.isOnGround())
                 return Optional.of(Component.translatable("controlify.guide.swim_down"));
             if (ctx.controller().config().toggleSneak) {
-                if (player.input.shiftKeyDown)
-                    return Optional.of(Component.translatable("controlify.guide.stop_sneaking"));
-                else
-                    return Optional.of(Component.translatable("controlify.guide.start_sneaking"));
+                return Optional.of(Component.translatable(player.input.shiftKeyDown ? "controlify.guide.stop_sneaking" : "controlify.guide.start_sneaking"));
             } else {
                 if (!player.input.shiftKeyDown)
                     return Optional.of(Component.translatable("controlify.guide.sneak"));

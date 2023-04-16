@@ -30,7 +30,7 @@ public interface ControlifyApi {
      * Get the current input mode for the game.
      */
     @NotNull InputMode currentInputMode();
-    void setInputMode(@NotNull InputMode mode);
+    boolean setInputMode(@NotNull InputMode mode);
 
     static ControlifyApi get() {
         return Controlify.instance();

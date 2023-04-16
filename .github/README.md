@@ -19,14 +19,6 @@ Another fabric mod to add controller support to Minecraft Java - with a focus on
 
 </div>
 
-## Work In Progress
-
-This mod is still in development (so is this readme!) and is not ready for use. If you want to help contribute,
-there are a few things you can do:
-
-- Find/create controller diagrams & buttons for each major controller brand.
-- Add built-in support for common mod GUIs (contact me for a how-to).
-
 ## Why another?
 
 Yes, mods like [Midnight Controls](https://modrinth.com/mod/midnight-controls) already exist. However due to the fact it
@@ -34,6 +26,18 @@ was forked from a now abandoned project, its codebase is a mess and adding compa
 create this mod!
 
 ## Features
+
+### Controller vibration
+
+Controlify supports controller vibration, which has not been seen before for PC versions of Minecraft,
+including Bedrock Windows 10 Edition. Configure the intensity of each vibration source, with
+complex vibration patterns for lots of aspects of the game (e.g. when you take damage).
+
+### Built-in gyro support
+
+Controlify has built-in support for controller gyroscopes, allowing you to make fine movements in-game
+with your controller. This can be combined with [flick stick](https://www.reddit.com/r/gamedev/comments/bw5xct/flick_stick_is_a_new_way_to_control_3d_games_with/) to be able to use a controller without
+the compromise.
 
 ### Controller identification
 

@@ -48,7 +48,7 @@
   },
   {
     "name": "Steam Deck",
-    "theme": "xbox_one",
+    "theme": "steam_deck",
 
     "hids": [
       [0x28de, 0x1205],

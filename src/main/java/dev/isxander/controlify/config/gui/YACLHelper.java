@@ -220,9 +220,7 @@ public class YACLHelper {
             category.group(makeVibrationGroup(globalVibrationOption, config, def));
         }
 
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            category.group(makeGyroGroup(gamepad));
-        }
+        category.group(makeGyroGroup(controller));
 
         var advancedGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.advanced"))
@@ -309,19 +307,27 @@ public class YACLHelper {
         return vibrationGroup.build();
     }
 
-    private static OptionGroup makeGyroGroup(GamepadController gamepad) {
-        var gpCfg = gamepad.config();
-        var gpCfgDef = gamepad.defaultConfig();
+    private static OptionGroup makeGyroGroup(Controller<?, ?> controller) {
+        GamepadController gamepad = (controller instanceof GamepadController) ? (GamepadController) controller : null;
+        boolean hasGyro = gamepad != null && gamepad.hasGyro();
+
+        var gpCfg = gamepad != null ? gamepad.config() : null;
+        var gpCfgDef = gamepad != null ? gamepad.defaultConfig() : null;
+
+        Component noGyroTooltip = Component.translatable("controlify.gui.group.gyro.no_gyro.tooltip").withStyle(ChatFormatting.RED);
 
         Option<Float> gyroSensitivity;
         List<Option<?>> gyroOptions = new ArrayList<>();
         var gyroGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.gyro"))
                 .tooltip(Component.translatable("controlify.gui.group.gyro.tooltip"))
+                .collapsed(!hasGyro)
                 .option(gyroSensitivity = Option.createBuilder(float.class)
                         .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
                         .tooltip(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
-                        .binding(gpCfgDef.gyroLookSensitivity, () -> gpCfg.gyroLookSensitivity, v -> gpCfg.gyroLookSensitivity = v)
+                        .tooltip(hasGyro ? Component.empty() : noGyroTooltip)
+                        .available(hasGyro)
+                        .binding(hasGyro ? gpCfgDef.gyroLookSensitivity : 0, () -> hasGyro ? gpCfg.gyroLookSensitivity : 0, v -> gpCfg.gyroLookSensitivity = v)
                         .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
                         .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
                             o.setAvailable(sensitivity > 0);
@@ -332,7 +338,9 @@ public class YACLHelper {
                     var opt = Option.createBuilder(boolean.class)
                             .name(Component.translatable("controlify.gui.gyro_requires_button"))
                             .tooltip(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
-                            .binding(gpCfgDef.gyroRequiresButton, () -> gpCfg.gyroRequiresButton, v -> gpCfg.gyroRequiresButton = v)
+                            .tooltip(hasGyro ? Component.empty() : noGyroTooltip)
+                            .available(hasGyro)
+                            .binding(hasGyro ? gpCfgDef.gyroRequiresButton : false, () -> hasGyro ? gpCfg.gyroRequiresButton : false, v -> gpCfg.gyroRequiresButton = v)
                             .controller(TickBoxController::new)
                             .available(gyroSensitivity.pendingValue() > 0)
                             .build();
@@ -343,7 +351,9 @@ public class YACLHelper {
                     var opt = Option.createBuilder(boolean.class)
                             .name(Component.translatable("controlify.gui.flick_stick"))
                             .tooltip(Component.translatable("controlify.gui.flick_stick.tooltip"))
-                            .binding(gpCfgDef.flickStick, () -> gpCfg.flickStick, v -> gpCfg.flickStick = v)
+                            .tooltip(hasGyro ? Component.empty() : noGyroTooltip)
+                            .available(hasGyro)
+                            .binding(hasGyro ? gpCfgDef.flickStick : false, () -> hasGyro ? gpCfg.flickStick : false, v -> gpCfg.flickStick = v)
                             .controller(TickBoxController::new)
                             .available(gyroSensitivity.pendingValue() > 0)
                             .build();

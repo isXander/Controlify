@@ -137,7 +137,6 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "sneak")
                 .defaultBind(GamepadBinds.RIGHT_STICK_PRESS)
                 .category(MOVEMENT_CATEGORY)
-                .vanillaOverride(options.keyShift, () -> controller.config().toggleSneak)
                 .build());
         register(ATTACK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "attack")

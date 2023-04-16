@@ -81,16 +81,6 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         state = GamepadState.EMPTY;
     }
 
-    public void consumeButtonState() {
-        this.state = new GamepadState(state().gamepadAxes(), state().rawGamepadAxes(), GamepadState.ButtonState.EMPTY, state().gyroDelta(), state().absoluteGyroPos());
-    }
-
-    GLFWGamepadState getGamepadState() {
-        GLFWGamepadState state = GLFWGamepadState.create();
-        GLFW.glfwGetGamepadState(joystickId, state);
-        return state;
-    }
-
     @Override
     public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
         if (!canRumble()) return false;

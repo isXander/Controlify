@@ -16,7 +16,7 @@ public class ControllerPlayerMovement extends Input {
     }
 
     @Override
-    public void tick(boolean slowDown, float f) {
+    public void tick(boolean slowDown, float movementMultiplier) {
         if (Minecraft.getInstance().screen != null || player == null) {
             this.up = false;
             this.down = false;
@@ -46,19 +46,25 @@ public class ControllerPlayerMovement extends Input {
         }
 
         if (slowDown) {
-            this.leftImpulse *= f;
-            this.forwardImpulse *= f;
+            this.leftImpulse *= movementMultiplier;
+            this.forwardImpulse *= movementMultiplier;
         }
 
-        if (!this.jumping && bindings.JUMP.justPressed())
+        // this over-complication is so exiting a GUI with the button still held doesn't trigger a jump.
+        if (bindings.JUMP.justPressed())
             this.jumping = true;
-        else
-            this.jumping = bindings.JUMP.held();
+        if (!bindings.JUMP.held())
+            this.jumping = false;
 
-        if (player.getAbilities().flying || player.isInWater() || !controller.config().toggleSneak) {
-            this.shiftKeyDown = bindings.SNEAK.held();
+        if (player.getAbilities().flying || (player.isInWater() && !player.isOnGround()) || !controller.config().toggleSneak) {
+            if (bindings.SNEAK.justPressed())
+                this.shiftKeyDown = true;
+            if (!bindings.SNEAK.held())
+                this.shiftKeyDown = false;
         } else {
-            this.shiftKeyDown = Minecraft.getInstance().options.keyShift.isDown();
+            if (bindings.SNEAK.justPressed()) {
+                this.shiftKeyDown = !this.shiftKeyDown;
+            }
         }
     }
 }

@@ -9,7 +9,8 @@ public enum BuiltinGamepadTheme implements NameableEnum {
     XBOX_ONE("Xbox One", "xbox_one"),
     DUALSHOCK4("Dualshock 4", "dualshock4"),
     DUALSHOCK3("Dualshock 3", "dualshock3"),
-    DUALSENSE("Dualsense", "dualsense");
+    DUALSENSE("Dualsense", "dualsense"),
+    STEAM_DECK("Steam Deck", "steam_deck");
 
     private final String name, id;
 
