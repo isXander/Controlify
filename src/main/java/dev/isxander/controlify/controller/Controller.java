@@ -44,7 +44,9 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     void clearState();
 
     default void close() {}
+
     RumbleManager rumbleManager();
+    boolean canRumble();
 
     default boolean canBeUsed() {
         return true;
@@ -88,6 +90,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         CONTROLLERS.remove(controller.uid(), controller);
     }
 
+    @Deprecated
     Controller<?, ?> DUMMY = new Controller<>() {
         private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
         private final RumbleManager rumbleManager = new RumbleManager(new RumbleCapable() {
@@ -181,6 +184,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public RumbleManager rumbleManager() {
             return rumbleManager;
+        }
+
+        @Override
+        public boolean canRumble() {
+            return false;
         }
     };
 }

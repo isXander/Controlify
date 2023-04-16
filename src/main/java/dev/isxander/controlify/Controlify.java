@@ -47,7 +47,7 @@ public class Controlify implements ControlifyApi {
 
     private final Minecraft minecraft = Minecraft.getInstance();
 
-    private Controller<?, ?> currentController = Controller.DUMMY;
+    private Controller<?, ?> currentController = null;
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
@@ -113,7 +113,7 @@ public class Controlify implements ControlifyApi {
             LOGGER.info("No controllers found.");
         }
 
-        if (currentController() == Controller.DUMMY && config().isFirstLaunch()) {
+        if (getCurrentController().isEmpty() && config().isFirstLaunch()) {
             this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
         } else {
             // setCurrentController saves config
@@ -156,7 +156,7 @@ public class Controlify implements ControlifyApi {
                 ResourcePackActivationType.DEFAULT_ENABLED
         );
 
-        this.inGameInputHandler = new InGameInputHandler(Controller.DUMMY); // initialize with dummy controller before connection in case of no controller
+        this.inGameInputHandler = null;
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         controllerHIDService = new ControllerHIDService();
@@ -206,7 +206,13 @@ public class Controlify implements ControlifyApi {
             }
         }
 
-        wrapControllerError(() -> tickController(currentController, outOfFocus), "Ticking current controller", currentController);
+        getCurrentController().ifPresent(currentController -> {
+            wrapControllerError(
+                    () -> tickController(currentController, outOfFocus),
+                    "Ticking current controller",
+                    currentController
+            );
+        });
     }
 
     private void tickController(Controller<?, ?> controller, boolean outOfFocus) {
@@ -269,7 +275,7 @@ public class Controlify implements ControlifyApi {
 
         LOGGER.info("Controller connected: " + controller.name());
 
-        config().loadOrCreateControllerData(currentController);
+        config().loadOrCreateControllerData(controller);
 
         if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
             controller.config().allowVibrations = false;
@@ -374,7 +380,7 @@ public class Controlify implements ControlifyApi {
             this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
         }
 
-        if (!controller.config().calibrated && controller != Controller.DUMMY)
+        if (!controller.config().calibrated)
             calibrationQueue.add(controller);
     }
 
@@ -410,12 +416,12 @@ public class Controlify implements ControlifyApi {
             ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
         }
         if (Minecraft.getInstance().player != null) {
-            if (currentInputMode == InputMode.KEYBOARD_MOUSE)
+            if (currentInputMode == InputMode.KEYBOARD_MOUSE) {
                 this.inGameButtonGuide = null;
-            else
-                this.inGameButtonGuide = new InGameButtonGuide(this.currentController != null ? currentController : Controller.DUMMY, Minecraft.getInstance().player);
+            } else {
+                this.inGameButtonGuide = this.getCurrentController().map(c -> new InGameButtonGuide(c, Minecraft.getInstance().player)).orElse(null);
+            }
         }
-
         if (Blaze3D.getTime() - lastInputSwitchTime < 20) {
             consecutiveInputSwitches++;
         } else {

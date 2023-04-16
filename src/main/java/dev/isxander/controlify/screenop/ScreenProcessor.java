@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
+import dev.isxander.controlify.utils.NavigationHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -22,7 +23,7 @@ import java.util.*;
 
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
-    protected int lastMoved = 0;
+    protected final NavigationHelper navigationHelper = new NavigationHelper(10, 3);
     protected final Minecraft minecraft = Minecraft.getInstance();
 
     public ScreenProcessor(T screen) {
@@ -66,26 +67,39 @@ public class ScreenProcessor<T extends Screen> {
 
         var accessor = (ScreenAccessor) screen;
 
-        boolean repeatEventAvailable = ++lastMoved >= controller.config().screenRepeatNavigationDelay;
+        boolean repeatEventAvailable = navigationHelper.canNavigate();
 
         var bindings = controller.bindings();
 
         FocusNavigationEvent.ArrowNavigation event = null;
         if (bindings.GUI_NAVI_RIGHT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_RIGHT.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
+
+            if (!bindings.GUI_NAVI_RIGHT.prevHeld())
+                navigationHelper.reset();
         } else if (bindings.GUI_NAVI_LEFT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_LEFT.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
+
+            if (!bindings.GUI_NAVI_LEFT.prevHeld())
+                navigationHelper.reset();
         } else if (bindings.GUI_NAVI_UP.held() && (repeatEventAvailable || !bindings.GUI_NAVI_UP.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
+
+            if (!bindings.GUI_NAVI_UP.prevHeld())
+                navigationHelper.reset();
         } else if (bindings.GUI_NAVI_DOWN.held() && (repeatEventAvailable || !bindings.GUI_NAVI_DOWN.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
+
+            if (!bindings.GUI_NAVI_DOWN.prevHeld())
+                navigationHelper.reset();
         }
 
         if (event != null) {
             ComponentPath path = screen.nextFocusPath(event);
             if (path != null) {
                 accessor.invokeChangeFocus(path);
-                lastMoved = 0;
+
+                navigationHelper.onNavigate();
 
                 var newFocusTree = getFocusTree();
                 while (!newFocusTree.isEmpty() && !focuses.contains(newFocusTree.peek())) {
@@ -156,7 +170,7 @@ public class ScreenProcessor<T extends Screen> {
             ComponentPath path = screen.nextFocusPath(accessor.invokeCreateArrowEvent(ScreenDirection.DOWN));
             if (path != null) {
                 accessor.invokeChangeFocus(path);
-                lastMoved = 0;
+                navigationHelper.clearDelay();
             }
         }
     }

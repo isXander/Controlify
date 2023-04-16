@@ -83,7 +83,7 @@ public class ControlifyConfig {
         }
 
         controllerData = newControllerData;
-        config.addProperty("current_controller", currentControllerUid = controlify.currentController().uid());
+        config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null));
         config.add("controllers", controllerData);
         config.add("compound_joysticks", GSON.toJsonTree(compoundJoysticks.values().toArray(new CompoundJoystickInfo[0])));
         config.add("global", GSON.toJsonTree(globalSettings));
@@ -127,7 +127,7 @@ public class ControlifyConfig {
         if (object.has("current_controller")) {
             currentControllerUid = object.get("current_controller").getAsString();
         } else {
-            currentControllerUid = controlify.currentController().uid();
+            currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null);
             setDirty();
         }
     }

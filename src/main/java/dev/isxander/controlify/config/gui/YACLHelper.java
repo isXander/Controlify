@@ -1,12 +1,14 @@
 package dev.isxander.controlify.config.gui;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
@@ -42,6 +44,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class YACLHelper {
+    private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
+    private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
+
     public static Screen generateConfigScreen(Screen parent) {
         var controlify = Controlify.instance();
 
@@ -57,7 +62,7 @@ public class YACLHelper {
                 .option(Option.createBuilder((Class<Controller<?, ?>>) (Class<?>) Controller.class)
                         .name(Component.translatable("controlify.gui.current_controller"))
                         .tooltip(Component.translatable("controlify.gui.current_controller.tooltip"))
-                        .binding(Controlify.instance().currentController(), () -> Controlify.instance().currentController(), v -> Controlify.instance().setCurrentController(v))
+                        .binding(Controlify.instance().getCurrentController().orElse(Controller.DUMMY), () -> Controlify.instance().getCurrentController().orElse(Controller.DUMMY), v -> Controlify.instance().setCurrentController(v))
                         .controller(opt -> new CyclingListController<>(opt, Iterables.concat(List.of(Controller.DUMMY), Controller.CONTROLLERS.values().stream().filter(Controller::canBeUsed).toList()), c -> Component.literal(c == Controller.DUMMY ? "Disabled" : c.name())))
                         .build())
                 .option(globalVibrationOption = Option.createBuilder(boolean.class)
@@ -118,9 +123,6 @@ public class YACLHelper {
 
         var config = controller.config();
         var def = controller.defaultConfig();
-
-        Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
-        Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
 
         var basicGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.basic"))
@@ -208,145 +210,20 @@ public class YACLHelper {
                         .build());
         category.group(basicGroup.build());
 
-        var vibrationGroup = OptionGroup.createBuilder()
-                .name(Component.translatable("controlify.gui.group.vibration"))
-                .tooltip(Component.translatable("controlify.gui.group.vibration.tooltip"));
-        List<Option<Float>> strengthOptions = new ArrayList<>();
-        Option<Boolean> allowVibrationOption;
-        vibrationGroup.option(allowVibrationOption = Option.createBuilder(boolean.class)
-                .name(Component.translatable("controlify.gui.allow_vibrations"))
-                .tooltip(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
-                .binding(globalVibrationOption.pendingValue(), () -> config.allowVibrations && globalVibrationOption.pendingValue(), v -> config.allowVibrations = v)
-                .available(globalVibrationOption.pendingValue())
-                .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
-                .controller(TickBoxController::new)
-                .build());
-        for (RumbleSource source : RumbleSource.values()) {
-            var option = Option.createBuilder(float.class)
-                    .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
-                    .tooltip(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
-                    .binding(
-                            def.getRumbleStrength(source),
-                            () -> config.getRumbleStrength(source),
-                            v -> config.setRumbleStrength(source, v)
-                    )
-                    .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
-                    .available(allowVibrationOption.pendingValue())
-                    .build();
-            strengthOptions.add(option);
-            vibrationGroup.option(option);
+        if (controller.canRumble()) {
+            category.group(makeVibrationGroup(globalVibrationOption, config, def));
         }
-        category.group(vibrationGroup.build());
 
         if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            var gpCfg = gamepad.config();
-            var gpCfgDef = gamepad.defaultConfig();
-
-            Option<Float> gyroSensitivity;
-            List<Option<?>> gyroOptions = new ArrayList<>();
-            var gyroGroup = OptionGroup.createBuilder()
-                    .name(Component.translatable("controlify.gui.group.gyro"))
-                    .tooltip(Component.translatable("controlify.gui.group.gyro.tooltip"))
-                    .option(gyroSensitivity = Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
-                            .tooltip(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
-                            .binding(gpCfgDef.gyroLookSensitivity, () -> gpCfg.gyroLookSensitivity, v -> gpCfg.gyroLookSensitivity = v)
-                            .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
-                            .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
-                                o.setAvailable(sensitivity > 0);
-                                o.requestSetDefault();
-                            }))
-                            .build())
-                    .option(Util.make(() -> {
-                        var opt = Option.createBuilder(boolean.class)
-                                .name(Component.translatable("controlify.gui.gyro_requires_button"))
-                                .tooltip(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
-                                .binding(gpCfgDef.gyroRequiresButton, () -> gpCfg.gyroRequiresButton, v -> gpCfg.gyroRequiresButton = v)
-                                .controller(TickBoxController::new)
-                                .available(gyroSensitivity.pendingValue() > 0)
-                                .build();
-                        gyroOptions.add(opt);
-                        return opt;
-                    }))
-                    .option(Util.make(() -> {
-                        var opt = Option.createBuilder(boolean.class)
-                                .name(Component.translatable("controlify.gui.flick_stick"))
-                                .tooltip(Component.translatable("controlify.gui.flick_stick.tooltip"))
-                                .binding(gpCfgDef.flickStick, () -> gpCfg.flickStick, v -> gpCfg.flickStick = v)
-                                .controller(TickBoxController::new)
-                                .available(gyroSensitivity.pendingValue() > 0)
-                                .build();
-                        gyroOptions.add(opt);
-                        return opt;
-                    }));
-
-            category.group(gyroGroup.build());
+            category.group(makeGyroGroup(gamepad));
         }
 
         var advancedGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.advanced"))
                 .tooltip(Component.translatable("controlify.gui.group.advanced.tooltip"))
-                .collapsed(true)
-                .option(Option.createBuilder(int.class)
-                        .name(Component.translatable("controlify.gui.screen_repeat_navi_delay"))
-                        .tooltip(Component.translatable("controlify.gui.screen_repeat_navi_delay.tooltip"))
-                        .binding(def.screenRepeatNavigationDelay, () -> config.screenRepeatNavigationDelay, v -> config.screenRepeatNavigationDelay = v)
-                        .controller(opt -> new IntegerSliderController(opt, 1, 20, 1, v -> Component.translatable("controlify.gui.format.ticks", v)))
-                        .build());
+                .collapsed(true);
 
-        if (controller instanceof GamepadController gamepad) {
-            var gpCfg = gamepad.config();
-            var gpCfgDef = gamepad.defaultConfig();
-            advancedGroup
-                    .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.left_stick")))
-                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.left_stick")))
-                            .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                            .binding(
-                                    Math.max(gpCfgDef.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
-                                    () -> Math.max(gpCfg.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
-                                    v -> gpCfg.leftStickDeadzoneX = gpCfg.leftStickDeadzoneY = v
-                            )
-                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build())
-                    .option(Option.createBuilder(float.class)
-                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.right_stick")))
-                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.right_stick")))
-                            .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                            .binding(
-                                    Math.max(gpCfgDef.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
-                                    () -> Math.max(gpCfg.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
-                                    v -> gpCfg.rightStickDeadzoneX = gpCfg.rightStickDeadzoneY = v
-                            )
-                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                            .build());
-        } else if (controller instanceof SingleJoystickController joystick) {
-            JoystickMapping.Axis[] axes = joystick.mapping().axes();
-            Collection<Integer> deadzoneAxes = IntStream.range(0, axes.length)
-                    .filter(i -> axes[i].requiresDeadzone())
-                    .boxed()
-                    .collect(Collectors.toMap(
-                            i -> axes[i].identifier(),
-                            i -> i,
-                            (x, y) -> x,
-                            LinkedHashMap::new
-                    ))
-                    .values();
-            var jsCfg = joystick.config();
-            var jsCfgDef = joystick.defaultConfig();
-
-            for (int i : deadzoneAxes) {
-                var axis = axes[i];
-
-                advancedGroup.option(Option.createBuilder(float.class)
-                        .name(Component.translatable("controlify.gui.joystick_axis_deadzone", axis.name()))
-                        .tooltip(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", axis.name()))
-                        .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                        .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
-                        .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
-                        .build());
-            }
-        }
+        addDeadzoneOptions(controller, advancedGroup);
 
         advancedGroup
                 .option(ButtonOption.createBuilder()
@@ -392,6 +269,139 @@ public class YACLHelper {
         category.group(controlsGroup.build());
 
         return category.build();
+    }
+
+    private static OptionGroup makeVibrationGroup(Option<Boolean> globalVibrationOption, ControllerConfig config, ControllerConfig def) {
+        var vibrationGroup = OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.vibration"))
+                .tooltip(Component.translatable("controlify.gui.group.vibration.tooltip"));
+        List<Option<Float>> strengthOptions = new ArrayList<>();
+        Option<Boolean> allowVibrationOption;
+        vibrationGroup.option(allowVibrationOption = Option.createBuilder(boolean.class)
+                .name(Component.translatable("controlify.gui.allow_vibrations"))
+                .tooltip(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
+                .binding(globalVibrationOption.pendingValue(), () -> config.allowVibrations && globalVibrationOption.pendingValue(), v -> config.allowVibrations = v)
+                .available(globalVibrationOption.pendingValue())
+                .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
+                .controller(TickBoxController::new)
+                .build());
+        for (RumbleSource source : RumbleSource.values()) {
+            var option = Option.createBuilder(float.class)
+                    .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
+                    .tooltip(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
+                    .binding(
+                            def.getRumbleStrength(source),
+                            () -> config.getRumbleStrength(source),
+                            v -> config.setRumbleStrength(source, v)
+                    )
+                    .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
+                    .available(allowVibrationOption.pendingValue())
+                    .build();
+            strengthOptions.add(option);
+            vibrationGroup.option(option);
+        }
+        return vibrationGroup.build();
+    }
+
+    private static OptionGroup makeGyroGroup(GamepadController gamepad) {
+        var gpCfg = gamepad.config();
+        var gpCfgDef = gamepad.defaultConfig();
+
+        Option<Float> gyroSensitivity;
+        List<Option<?>> gyroOptions = new ArrayList<>();
+        var gyroGroup = OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.gyro"))
+                .tooltip(Component.translatable("controlify.gui.group.gyro.tooltip"))
+                .option(gyroSensitivity = Option.createBuilder(float.class)
+                        .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
+                        .tooltip(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
+                        .binding(gpCfgDef.gyroLookSensitivity, () -> gpCfg.gyroLookSensitivity, v -> gpCfg.gyroLookSensitivity = v)
+                        .controller(opt -> new FloatSliderController(opt, 0f, 1f, 0.05f, percentOrOffFormatter))
+                        .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
+                            o.setAvailable(sensitivity > 0);
+                            o.requestSetDefault();
+                        }))
+                        .build())
+                .option(Util.make(() -> {
+                    var opt = Option.createBuilder(boolean.class)
+                            .name(Component.translatable("controlify.gui.gyro_requires_button"))
+                            .tooltip(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
+                            .binding(gpCfgDef.gyroRequiresButton, () -> gpCfg.gyroRequiresButton, v -> gpCfg.gyroRequiresButton = v)
+                            .controller(TickBoxController::new)
+                            .available(gyroSensitivity.pendingValue() > 0)
+                            .build();
+                    gyroOptions.add(opt);
+                    return opt;
+                }))
+                .option(Util.make(() -> {
+                    var opt = Option.createBuilder(boolean.class)
+                            .name(Component.translatable("controlify.gui.flick_stick"))
+                            .tooltip(Component.translatable("controlify.gui.flick_stick.tooltip"))
+                            .binding(gpCfgDef.flickStick, () -> gpCfg.flickStick, v -> gpCfg.flickStick = v)
+                            .controller(TickBoxController::new)
+                            .available(gyroSensitivity.pendingValue() > 0)
+                            .build();
+                    gyroOptions.add(opt);
+                    return opt;
+                }));
+
+        return gyroGroup.build();
+    }
+
+    private static void addDeadzoneOptions(Controller<?, ?> controller, OptionGroup.Builder group) {
+        if (controller instanceof GamepadController gamepad) {
+            var gpCfg = gamepad.config();
+            var gpCfgDef = gamepad.defaultConfig();
+            group
+                    .option(Option.createBuilder(float.class)
+                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.left_stick")))
+                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.left_stick")))
+                            .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                            .binding(
+                                    Math.max(gpCfgDef.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
+                                    () -> Math.max(gpCfg.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
+                                    v -> gpCfg.leftStickDeadzoneX = gpCfg.leftStickDeadzoneY = v
+                            )
+                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                            .build())
+                    .option(Option.createBuilder(float.class)
+                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.right_stick")))
+                            .tooltip(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.right_stick")))
+                            .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                            .binding(
+                                    Math.max(gpCfgDef.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
+                                    () -> Math.max(gpCfg.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
+                                    v -> gpCfg.rightStickDeadzoneX = gpCfg.rightStickDeadzoneY = v
+                            )
+                            .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                            .build());
+        } else if (controller instanceof SingleJoystickController joystick) {
+            JoystickMapping.Axis[] axes = joystick.mapping().axes();
+            Collection<Integer> deadzoneAxes = IntStream.range(0, axes.length)
+                    .filter(i -> axes[i].requiresDeadzone())
+                    .boxed()
+                    .collect(Collectors.toMap(
+                            i -> axes[i].identifier(),
+                            i -> i,
+                            (x, y) -> x,
+                            LinkedHashMap::new
+                    ))
+                    .values();
+            var jsCfg = joystick.config();
+            var jsCfgDef = joystick.defaultConfig();
+
+            for (int i : deadzoneAxes) {
+                var axis = axes[i];
+
+                group.option(Option.createBuilder(float.class)
+                        .name(Component.translatable("controlify.gui.joystick_axis_deadzone", axis.name()))
+                        .tooltip(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", axis.name()))
+                        .tooltip(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                        .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
+                        .controller(opt -> new FloatSliderController(opt, 0, 1, 0.01f, v -> Component.literal(String.format("%.0f%%", v*100))))
+                        .build());
+            }
+        }
     }
 
     private static <T extends ControllerState> Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {

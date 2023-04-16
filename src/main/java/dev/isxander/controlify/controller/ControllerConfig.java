@@ -13,8 +13,6 @@ public abstract class ControllerConfig {
 
     public float buttonActivationThreshold = 0.5f;
 
-    public int screenRepeatNavigationDelay = 4;
-
     public float virtualMouseSensitivity = 1f;
 
     public boolean autoJump = false;
