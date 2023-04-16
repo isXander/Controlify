@@ -20,6 +20,9 @@
     ],
     "modmenu": [
       "dev.isxander.controlify.config.gui.ModMenuIntegration"
+    ],
+    "client": [
+      "dev.isxander.controlify.ControlifyEntrypoint"
     ]
   },
   "mixins": [

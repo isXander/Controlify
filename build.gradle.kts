@@ -73,12 +73,17 @@ dependencies {
         "fabric-resource-loader-v0",
         "fabric-lifecycle-events-v1",
         "fabric-key-binding-api-v1",
+        "fabric-registry-sync-v0",
+    ).forEach {
+        modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
+    }
 
+    listOf(
         // sodium requirements
         "fabric-rendering-data-attachment-v1",
         "fabric-rendering-fluids-v1",
     ).forEach {
-        modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
+        modRuntimeOnly(fabricApi.module(it, libs.versions.fabric.api.get()))
     }
 
     modImplementation(libs.yet.another.config.lib)

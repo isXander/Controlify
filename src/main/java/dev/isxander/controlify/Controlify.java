@@ -19,6 +19,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
@@ -155,6 +156,8 @@ public class Controlify implements ControlifyApi {
                 Component.translatable("controlify.resource_pack.extra_mappings"),
                 ResourcePackActivationType.DEFAULT_ENABLED
         );
+
+        ControlifySounds.init();
 
         this.inGameInputHandler = null;
         this.virtualMouseHandler = new VirtualMouseHandler();

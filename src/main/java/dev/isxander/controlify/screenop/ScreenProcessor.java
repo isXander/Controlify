@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
+import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.NavigationHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
@@ -100,6 +101,9 @@ public class ScreenProcessor<T extends Screen> {
                 accessor.invokeChangeFocus(path);
 
                 navigationHelper.onNavigate();
+
+                if (Controlify.instance().config().globalSettings().uiSounds)
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
 
                 var newFocusTree = getFocusTree();
                 while (!newFocusTree.isEmpty() && !focuses.contains(newFocusTree.peek())) {

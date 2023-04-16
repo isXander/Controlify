@@ -1,0 +1,7 @@
+{
+  "controlify.ui.focus": {
+    "sounds": [
+      "controlify:ui_focus"
+    ]
+  }
+}

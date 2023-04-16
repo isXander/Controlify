@@ -13,6 +13,8 @@
   "controlify.reach_around.singleplayer_only": "Singleplayer Only",
   "controlify.reach_around.singleplayer_and_lan": "Singleplayer and LAN",
   "controlify.reach_around.everywhere": "Everywhere",
+  "controlify.gui.ui_sounds": "UI Sounds",
+  "controlify.gui.ui_sounds.tooltip": "If enabled, Controlify will play UI sounds when you interact with the UI, like in legacy console editions of Minecraft.",
   "controlify.gui.out_of_focus_input": "Out of Focus Input",
   "controlify.gui.out_of_focus_input.tooltip": "If enabled, Controlify will still receive input even if the game window is not focused.",
   "controlify.gui.keyboard_movement": "Keyboard-like Movement",

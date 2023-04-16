@@ -43,11 +43,6 @@ public abstract class MinecraftMixin {
         }
     }
 
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;setup(J)V", shift = At.Shift.AFTER))
-    private void onInputInitialized(CallbackInfo ci) {
-        Controlify.instance().preInitialiseControlify();
-    }
-
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
         Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getDeltaFrameTime()));
