@@ -117,8 +117,8 @@ public class InGameInputHandler {
         impulseY = lookInputModifier.modifyY(impulseY, controller);
 
         if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive() && player != null) {
-            lookInputX = impulseX * controller.config().horizontalLookSensitivity;
-            lookInputY = impulseY * controller.config().verticalLookSensitivity;
+            lookInputX = impulseX * controller.config().horizontalLookSensitivity * 65f;
+            lookInputY = impulseY * controller.config().verticalLookSensitivity * 65f;
         } else {
             lookInputX = lookInputY = 0;
         }
@@ -126,7 +126,7 @@ public class InGameInputHandler {
 
     public void processPlayerLook(float deltaTime) {
         if (minecraft.player != null) {
-            minecraft.player.turn(lookInputX * 65f * deltaTime, lookInputY * 65f * deltaTime);
+            minecraft.player.turn(lookInputX * deltaTime, lookInputY * deltaTime);
         }
     }
 
