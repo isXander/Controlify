@@ -9,7 +9,6 @@ import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWGamepadState;
 
 import java.util.Set;
 
@@ -33,6 +32,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
         this.drivers = GamepadDrivers.forController(joystickId, hidInfo.hidDevice());
         this.uniqueDrivers = drivers.getUniqueDrivers();
+        this.drivers.printDrivers();
 
         this.rumbleManager = new RumbleManager(this);
 

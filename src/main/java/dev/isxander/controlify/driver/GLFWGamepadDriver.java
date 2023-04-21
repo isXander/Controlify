@@ -51,4 +51,9 @@ public class GLFWGamepadDriver implements BasicGamepadInputDriver {
     public BasicGamepadState getBasicGamepadState() {
         return state;
     }
+
+    @Override
+    public String getBasicGamepadDetails() {
+        return "GLFW Gamepad";
+    }
 }

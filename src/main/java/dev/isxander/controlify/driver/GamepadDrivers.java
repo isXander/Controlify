@@ -1,6 +1,8 @@
 package dev.isxander.controlify.driver;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.debug.DebugProperties;
 import org.hid4java.HidDevice;
 
 import java.util.*;
@@ -10,6 +12,16 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
         Set<Driver> drivers = Collections.newSetFromMap(new IdentityHashMap<>());
         drivers.addAll(List.of(basicGamepadInputDriver, gyroDriver, rumbleDriver));
         return drivers;
+    }
+
+    public void printDrivers() {
+        if (DebugProperties.PRINT_DRIVER) {
+            Controlify.LOGGER.info("Drivers in use: Basic Input = {}, Gyro = {}, Rumble = {}",
+                    basicGamepadInputDriver.getBasicGamepadDetails(),
+                    gyroDriver.getGyroDetails(),
+                    rumbleDriver.getRumbleDetails()
+            );
+        }
     }
 
     public static GamepadDrivers forController(int jid, Optional<HidDevice> hid) {

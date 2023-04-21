@@ -128,6 +128,16 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
         hidDevice.close();
     }
 
+    @Override
+    public String getBasicGamepadDetails() {
+        return "SteamDeck HIDAPI";
+    }
+
+    @Override
+    public String getGyroDetails() {
+        return "SteamDeck HIDAPI";
+    }
+
     // https://github.com/kmicki/SteamDeckGyroDSU/blob/574745406011cc2433fc6f179446ecc836180aa4/inc/sdgyrodsu/sdhidframe.h
     private record Frame(
             int header,

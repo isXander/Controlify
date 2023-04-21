@@ -7,6 +7,8 @@ public interface GyroDriver extends Driver {
 
     boolean isGyroSupported();
 
+    String getGyroDetails();
+
     GyroDriver UNSUPPORTED = new GyroDriver() {
         @Override
         public void update() {
@@ -20,6 +22,11 @@ public interface GyroDriver extends Driver {
         @Override
         public boolean isGyroSupported() {
             return false;
+        }
+
+        @Override
+        public String getGyroDetails() {
+            return "Unsupported";
         }
     };
 }

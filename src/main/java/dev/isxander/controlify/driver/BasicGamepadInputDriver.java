@@ -6,6 +6,8 @@ public interface BasicGamepadInputDriver extends Driver {
 
     BasicGamepadState getBasicGamepadState();
 
+    String getBasicGamepadDetails();
+
     record BasicGamepadState(GamepadState.AxesState axes, GamepadState.ButtonState buttons) {
         public static final BasicGamepadState EMPTY = new BasicGamepadState(GamepadState.AxesState.EMPTY, GamepadState.ButtonState.EMPTY);
     }
@@ -18,6 +20,11 @@ public interface BasicGamepadInputDriver extends Driver {
         @Override
         public BasicGamepadState getBasicGamepadState() {
             return BasicGamepadState.EMPTY;
+        }
+
+        @Override
+        public String getBasicGamepadDetails() {
+            return "Unsupported";
         }
     };
 }

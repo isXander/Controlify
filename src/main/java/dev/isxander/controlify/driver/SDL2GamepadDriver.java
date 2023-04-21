@@ -56,4 +56,14 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver {
     public void close() {
         SDL.SDL_GameControllerClose(ptrGamepad);
     }
+
+    @Override
+    public String getGyroDetails() {
+        return "SDL2 supported=%s".formatted(isGyroSupported);
+    }
+
+    @Override
+    public String getRumbleDetails() {
+        return "SDL2 supported=%s".formatted(isRumbleSupported);
+    }
 }

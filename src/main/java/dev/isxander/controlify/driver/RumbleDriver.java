@@ -5,6 +5,8 @@ public interface RumbleDriver extends Driver {
 
     boolean isRumbleSupported();
 
+    String getRumbleDetails();
+
     RumbleDriver UNSUPPORTED = new RumbleDriver() {
         @Override
         public void update() {
@@ -18,6 +20,11 @@ public interface RumbleDriver extends Driver {
         @Override
         public boolean isRumbleSupported() {
             return false;
+        }
+
+        @Override
+        public String getRumbleDetails() {
+            return "Unsupported";
         }
     };
 }
