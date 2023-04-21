@@ -34,11 +34,10 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
             float maxDamage = 15; // the damage that results in magnitude 1.0f
 
             float magnitude = (Mth.clamp(damageTaken, smallestDamage, maxDamage) - smallestDamage) / (maxDamage - smallestDamage) * (1 - minMagnitude) + minMagnitude;
-            System.out.println(magnitude);
-            ControlifyApi.get().currentController().rumbleManager().play(
+            ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(
                     RumbleSource.DAMAGE,
                     BasicRumbleEffect.constant(magnitude, 0f, magnitude >= 0.75f ? 8 : 5)
-            );
+            ));
         }
         // skip first tick from spawn
         skipTick = false;

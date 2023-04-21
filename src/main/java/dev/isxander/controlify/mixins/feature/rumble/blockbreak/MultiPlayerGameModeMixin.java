@@ -64,7 +64,8 @@ public class MultiPlayerGameModeMixin {
                 .build();
 
         blockBreakRumble = effect;
-        ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect);
+        ControlifyApi.get().getCurrentController()
+                .ifPresent(controller -> controller.rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect));
     }
 
     private void stopRumble() {

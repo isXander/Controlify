@@ -69,7 +69,9 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin {
     }
 
     private void startRumble(ContinuousRumbleEffect effect) {
-        ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.USE_ITEM, effect);
-        useItemRumble = effect;
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+            controller.rumbleManager().play(RumbleSource.USE_ITEM, effect);
+            useItemRumble = effect;
+        });
     }
 }

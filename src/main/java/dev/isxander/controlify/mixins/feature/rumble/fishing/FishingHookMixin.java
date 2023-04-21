@@ -27,10 +27,13 @@ public class FishingHookMixin {
         var biting = (boolean) bitingObj;
         if (isLocalPlayerHook) {
             if (biting && !this.biting) {
-                bitingRumble = ContinuousRumbleEffect.builder()
-                        .constant(0f, 0.05f)
-                        .build();
-                ControlifyApi.get().currentController().rumbleManager().play(RumbleSource.MISC, bitingRumble);
+                ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+                    bitingRumble = ContinuousRumbleEffect.builder()
+                            .constant(0f, 0.05f)
+                            .build();
+
+                    controller.rumbleManager().play(RumbleSource.MISC, bitingRumble);
+                });
             } else if (!biting && this.biting) {
                 stopBitingRumble();
             }

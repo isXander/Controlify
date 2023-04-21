@@ -57,6 +57,6 @@ public class LevelRendererMixin {
     }
 
     private void rumble(RumbleSource source, RumbleEffect effect) {
-        ControlifyApi.get().currentController().rumbleManager().play(source, effect);
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(source, effect));
     }
 }

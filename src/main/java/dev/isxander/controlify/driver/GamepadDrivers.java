@@ -16,7 +16,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
 
     public void printDrivers() {
         if (DebugProperties.PRINT_DRIVER) {
-            Controlify.LOGGER.info("Drivers in use: Basic Input = {}, Gyro = {}, Rumble = {}",
+            Controlify.LOGGER.info("Drivers in use: Basic Input = '{}', Gyro = '{}', Rumble = '{}'",
                     basicGamepadInputDriver.getBasicGamepadDetails(),
                     gyroDriver.getGyroDetails(),
                     rumbleDriver.getRumbleDetails()
