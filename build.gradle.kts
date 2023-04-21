@@ -272,3 +272,6 @@ publishing {
 tasks.getByName("generateMetadataFileForModPublication") {
     dependsOn("optimizeOutputsOfRemapJar")
 }
+tasks.getByName("publishModPublicationToXanderReleasesRepository") {
+    dependsOn("optimizeOutputsOfRemapJar")
+}
