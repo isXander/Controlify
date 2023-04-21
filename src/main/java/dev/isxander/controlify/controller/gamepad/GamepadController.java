@@ -92,14 +92,13 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         strongMagnitude *= strengthMod;
         weakMagnitude *= strengthMod;
 
-        return drivers.rumbleDriver().rumble(strongMagnitude, weakMagnitude);
+        return drivers.rumbleDriver().rumble(Math.min(strongMagnitude, 1), Math.min(weakMagnitude, 1));
     }
 
     @Override
     public boolean canRumble() {
         return drivers.rumbleDriver().isRumbleSupported()
-                && config().allowVibrations
-                && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
+                && config().allowVibrations;
     }
 
     @Override
