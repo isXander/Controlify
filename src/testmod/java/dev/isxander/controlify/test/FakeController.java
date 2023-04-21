@@ -135,6 +135,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
     }
 
     @Override
+    public boolean canRumble() {
+        return false;
+    }
+
+    @Override
     public JoystickMapping mapping() {
         return UnmappedJoystickMapping.EMPTY;
     }
