@@ -72,7 +72,12 @@
     "feature.virtualmouse.MouseHandlerAccessor",
     "feature.virtualmouse.MouseHandlerMixin",
     "feature.virtualmouse.snapping.AbstractContainerScreenMixin",
+    "feature.virtualmouse.snapping.AbstractFurnaceScreenMixin",
+    "feature.virtualmouse.snapping.CraftingScreenMixin",
     "feature.virtualmouse.snapping.CreativeModeInventoryScreenMixin",
+    "feature.virtualmouse.snapping.InventoryScreenMixin",
+    "feature.virtualmouse.snapping.RecipeBookComponentAccessor",
+    "feature.virtualmouse.snapping.RecipeBookPageAccessor",
     "feature.virtualmouse.snapping.ScreenMixin"
   ]
 }
