@@ -263,6 +263,7 @@ public class YACLHelper {
         var vibrationGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.vibration"))
                 .tooltip(Component.translatable("controlify.gui.group.vibration.tooltip"))
+                .tooltip(canRumble ? Component.empty() : Component.translatable("controlify.gui.allow_vibrations.not_available").withStyle(ChatFormatting.RED))
                 .collapsed(!canRumble);
         List<Option<Float>> strengthOptions = new ArrayList<>();
         Option<Boolean> allowVibrationOption;

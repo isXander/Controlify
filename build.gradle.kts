@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.1.0-beta.4+1.19.4"
+version = "1.1.0+1.19.4"
 
 repositories {
     mavenLocal()
