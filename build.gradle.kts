@@ -17,7 +17,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.1.0-beta.3+1.19.4"
+version = "1.1.0-beta.4+1.19.4"
 
 repositories {
     mavenLocal()
@@ -176,6 +176,10 @@ tasks {
         dependsOn("publish")
         dependsOn("githubRelease")
     }
+
+    named("modrinth") {
+        dependsOn("optimizeOutputsOfRemapJar")
+    }
 }
 
 val changelogText = file("changelogs/${project.version}.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
@@ -241,11 +245,10 @@ publishing {
     publications {
         create<MavenPublication>("mod") {
             groupId = "dev.isxander"
-            artifactId = base.archivesName.get()
+            artifactId = "controlify"
 
-            from(components["java"])
+            artifact(tasks["remapJar"])
             artifact(tasks["remapSourcesJar"])
-            artifact(tasks["javadocJar"])
         }
     }
 

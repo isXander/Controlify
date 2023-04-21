@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -125,7 +126,8 @@ public class ControlifyConfig {
                 .collect(Collectors.toMap(info -> info.type().mappingId(), Function.identity()));
 
         if (object.has("current_controller")) {
-            currentControllerUid = object.get("current_controller").getAsString();
+            JsonElement element = object.get("current_controller");
+            currentControllerUid = element.isJsonNull() ? null : element.getAsString();
         } else {
             currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null);
             setDirty();
@@ -177,6 +179,7 @@ public class ControlifyConfig {
         return firstLaunch;
     }
 
+    @Nullable
     public String currentControllerUid() {
         return currentControllerUid;
     }

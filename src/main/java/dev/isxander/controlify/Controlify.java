@@ -35,10 +35,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 
@@ -62,7 +64,7 @@ public class Controlify implements ControlifyApi {
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
 
-    private Controller<?, ?> switchableController = null;
+    private @Nullable Controller<?, ?> switchableController = null;
     private double askSwitchTime = 0;
     private ToastUtils.ControlifyToast askSwitchToast = null;
 
@@ -98,7 +100,7 @@ public class Controlify implements ControlifyApi {
 
                 config().loadOrCreateControllerData(controller);
 
-                if (config().currentControllerUid().equals(controller.uid()))
+                if (controller.uid().equals(config().currentControllerUid()))
                     setCurrentController(controller);
 
                 if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
@@ -199,13 +201,12 @@ public class Controlify implements ControlifyApi {
 
         if (switchableController != null && Blaze3D.getTime() - askSwitchTime <= 10000) {
             if (switchableController.state().hasAnyInput()) {
-                this.setCurrentController(switchableController);
+                switchableController.clearState();
+                this.setCurrentController(switchableController); // setCurrentController sets switchableController to null
                 if (askSwitchToast != null) {
                     askSwitchToast.remove();
                     askSwitchToast = null;
                 }
-                switchableController.clearState();
-                switchableController = null;
             }
         }
 
@@ -355,7 +356,7 @@ public class Controlify implements ControlifyApi {
         return Optional.ofNullable(currentController);
     }
 
-    public void setCurrentController(Controller<?, ?> controller) {
+    public void setCurrentController(@Nullable Controller<?, ?> controller) {
         if (this.currentController == controller) return;
 
         this.currentController = controller;
@@ -375,7 +376,7 @@ public class Controlify implements ControlifyApi {
 
         DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 
-        if (!config().currentControllerUid().equals(controller.uid())) {
+        if (!controller.uid().equals(config().currentControllerUid())) {
             config().save();
         }
 

@@ -40,6 +40,10 @@ public class ControllerHIDService {
     }
 
     public ControllerHIDInfo fetchType() {
+        if (disabled) {
+            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+        }
+
         doScanOnThisThread();
 
         Pair<HidDevice, HIDIdentifier> hid = unconsumedControllerHIDs.poll();
