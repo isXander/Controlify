@@ -6,6 +6,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.JoystickConfig;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
@@ -16,6 +17,7 @@ import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FakeController implements JoystickController<JoystickConfig> {
     public static int JOYSTICK_COUNT = 0;
@@ -137,6 +139,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
     @Override
     public boolean canRumble() {
         return false;
+    }
+
+    @Override
+    public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
+        return Optional.empty();
     }
 
     @Override

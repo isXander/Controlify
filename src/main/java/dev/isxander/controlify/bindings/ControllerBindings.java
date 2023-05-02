@@ -417,7 +417,12 @@ public class ControllerBindings<T extends ControllerState> {
                 continue;
 
             try {
-                var identifier = new ResourceLocation("fabric-key-binding-api-v1", keyMapping.getName());
+                var idPath = keyMapping.getName()
+                        .toLowerCase()
+                        .replaceAll("[^a-z0-9/._-]", "_")
+                        .trim();
+
+                var identifier = new ResourceLocation("fabric-key-binding-api-v1", idPath);
                 BooleanSupplier toggleOverride = () -> false;
                 if (keyMapping instanceof ToggleKeyMapping toggleKeyMapping) {
                     toggleOverride = ((ToggleKeyMappingAccessor) toggleKeyMapping).getNeedsToggle();

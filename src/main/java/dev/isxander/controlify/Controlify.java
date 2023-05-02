@@ -298,6 +298,8 @@ public class Controlify implements ControlifyApi {
         Controller.CONTROLLERS.values().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
             Controller.remove(controller);
 
+            controller.hidInfo().ifPresent(controllerHIDService::unconsumeController);
+
             setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
             LOGGER.info("Controller disconnected: " + controller.name());
             this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);

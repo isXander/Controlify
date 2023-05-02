@@ -105,6 +105,10 @@ public class ControllerHIDService {
         }
     }
 
+    public void unconsumeController(ControllerHIDInfo hid) {
+        hid.hidDevice.ifPresent(device -> attachedDevices.remove(device.getPath()));
+    }
+
     private boolean isController(HidDevice device) {
         boolean isControllerType = ControllerType.getTypeMap().containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
         boolean isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;

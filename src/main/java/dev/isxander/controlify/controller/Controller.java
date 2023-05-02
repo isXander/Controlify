@@ -48,6 +48,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     RumbleManager rumbleManager();
     boolean canRumble();
 
+    Optional<ControllerHIDService.ControllerHIDInfo> hidInfo();
+
     default boolean canBeUsed() {
         return true;
     }
@@ -154,6 +156,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public ControllerType type() {
             return ControllerType.UNKNOWN;
+        }
+
+        @Override
+        public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
+            return Optional.empty();
         }
 
         @Override

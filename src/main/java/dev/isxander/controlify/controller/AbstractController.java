@@ -16,6 +16,7 @@ import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractController<S extends ControllerState, C extends ControllerConfig> implements Controller<S, C>, RumbleCapable {
@@ -24,6 +25,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     private final String uid;
     private final String guid;
     private final ControllerType type;
+    private final ControllerHIDService.ControllerHIDInfo hidInfo;
 
     protected ControllerBindings<S> bindings;
     protected C config, defaultConfig;
@@ -33,6 +35,8 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             throw new IllegalArgumentException("Joystick ID " + joystickId + " is out of range!");
         if (!GLFW.glfwJoystickPresent(joystickId))
             throw new IllegalArgumentException("Joystick " + joystickId + " is not present and cannot be initialised!");
+
+        this.hidInfo = hidInfo;
 
         this.joystickId = joystickId;
         this.guid = GLFW.glfwGetJoystickGUID(joystickId);
@@ -119,6 +123,11 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             this.config = defaultConfig();
             Controlify.instance().config().setDirty();
         }
+    }
+
+    @Override
+    public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
+        return Optional.of(hidInfo);
     }
 
     @Override

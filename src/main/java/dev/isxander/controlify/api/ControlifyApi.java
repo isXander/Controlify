@@ -18,16 +18,21 @@ import java.util.Optional;
  */
 public interface ControlifyApi {
     /**
+     * The controller that is currently enabled and in use.
+     * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
+     * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
+     */
+    @NotNull Optional<Controller<?, ?>> getCurrentController();
+
+    /**
      * @deprecated Use {@link #getCurrentController()} instead.
      * @return the controller currently in use. If disabled, this will return {@link Controller#DUMMY}
      */
     @Deprecated
     @NotNull Controller<?, ?> currentController();
 
-    @NotNull Optional<Controller<?, ?>> getCurrentController();
-
     /**
-     * Get the current input mode for the game.
+     * The last input received: a controller or keyboard/mouse.
      */
     @NotNull InputMode currentInputMode();
     boolean setInputMode(@NotNull InputMode mode);

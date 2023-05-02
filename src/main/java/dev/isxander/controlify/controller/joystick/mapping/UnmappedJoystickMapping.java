@@ -20,7 +20,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
             this.axes[i] = new UnmappedAxis(i, new GenericRenderer.Axis(Integer.toString(i + 1)));
         }
 
-        this.buttons = new UnmappedButton[axisCount];
+        this.buttons = new UnmappedButton[buttonCount];
         for (int i = 0; i < buttonCount; i++) {
             this.buttons[i] = new UnmappedButton(i, new GenericRenderer.Button(Integer.toString(i + 1)));
         }

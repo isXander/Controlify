@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.rumble.RumbleCapable;
@@ -14,6 +15,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CompoundJoystickController implements JoystickController<JoystickConfig>, RumbleCapable {
     private final String uid;
@@ -176,5 +178,10 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
 
     private int getHatCountForJoystick(int joystick) {
         return GLFW.glfwGetJoystickHats(joystick).capacity();
+    }
+
+    @Override
+    public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
+        return Optional.empty();
     }
 }
