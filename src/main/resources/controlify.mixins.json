@@ -37,6 +37,7 @@
     "feature.guide.screen.AbstractButtonMixin",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
+    "feature.oofinput.GameRendererMixin",
     "feature.reacharound.GameRendererMixin",
     "feature.rumble.blockbreak.MultiPlayerGameModeMixin",
     "feature.rumble.damage.LocalPlayerMixin",

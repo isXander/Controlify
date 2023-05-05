@@ -1,5 +1,6 @@
 package dev.isxander.controlify.ingame;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
@@ -116,7 +117,7 @@ public class InGameInputHandler {
         impulseX = lookInputModifier.modifyX(impulseX, controller);
         impulseY = lookInputModifier.modifyY(impulseY, controller);
 
-        if (minecraft.mouseHandler.isMouseGrabbed() && minecraft.isWindowActive() && player != null) {
+        if (minecraft.mouseHandler.isMouseGrabbed() && (minecraft.isWindowActive() || Controlify.instance().config().globalSettings().outOfFocusInput) && player != null) {
             lookInputX = impulseX * controller.config().horizontalLookSensitivity * 65f;
             lookInputY = impulseY * controller.config().verticalLookSensitivity * 65f;
         } else {
