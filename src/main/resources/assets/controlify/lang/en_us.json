@@ -120,8 +120,8 @@
   "controlify.toast.faulty_input.title": "Controller disabled",
   "controlify.toast.faulty_input.description": "The controller was found to conflict with the keyboard and mouse and is now disabled. Increase deadzone values or check joystick mapping to fix.",
 
-  "controlify.vibration_onboarding.title": "Controlify Vibration Support",
-  "controlify.vibration_onboarding.message": "To enable vibration support, a native library must be downloaded that Controlify loads automatically. This is a seamless process and will only take a few seconds. If you choose no, you may change your mind later in Controlify settings.\n\nWould you like to download them?",
+  "controlify.vibration_onboarding.title": "Controlify Extra Features",
+  "controlify.vibration_onboarding.message": "To enable vibration and gyro support, a native library must be downloaded that Controlify loads automatically. This is a seamless process and will only take a few seconds. If you choose no, you may change your mind later in Controlify settings, but you won't have access to these important features.\n\nWould you like to download them?",
 
   "controlify.controller_theme.default": "Default",
   "controlify.controller_theme.xbox_one": "Xbox",
