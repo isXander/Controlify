@@ -63,7 +63,8 @@ public class ControllerBindings<T extends ControllerState> {
             VMOUSE_ESCAPE, VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
-            CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
+            CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD,
+            CLEAR_BINDING;
 
     private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
@@ -329,6 +330,11 @@ public class ControllerBindings<T extends ControllerState> {
         register(CYCLE_OPT_BACKWARD = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "cycle_opt_backward")
                 .defaultBind(GamepadBinds.RIGHT_STICK_LEFT)
+                .category(GUI_CATEGORY)
+                .build());
+        register(CLEAR_BINDING = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "clear_binding")
+                .defaultBind(GamepadBinds.RIGHT_STICK_PRESS)
                 .category(GUI_CATEGORY)
                 .build());
 

@@ -1,124 +1,38 @@
 package dev.isxander.controlify.config.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.joystick.JoystickController;
-import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
-import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.yacl.api.Controller;
 import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.utils.Dimension;
-import dev.isxander.yacl.gui.AbstractWidget;
 import dev.isxander.yacl.gui.YACLScreen;
-import dev.isxander.yacl.gui.controllers.ControllerWidget;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
-public class JoystickBindController implements Controller<IBind<JoystickState>> {
-    private final Option<IBind<JoystickState>> option;
-    private final JoystickController<?> controller;
+import java.util.Optional;
 
+public class JoystickBindController extends AbstractBindController<JoystickState> {
     public JoystickBindController(Option<IBind<JoystickState>> option, JoystickController<?> controller) {
-        this.option = option;
-        this.controller = controller;
+        super(option, controller);
     }
-
     @Override
-    public Option<IBind<JoystickState>> option() {
-        return this.option;
-    }
-
-    @Override
-    public Component formatValue() {
-        return Component.empty();
-    }
-
-    @Override
-    public AbstractWidget provideWidget(YACLScreen yaclScreen, Dimension<Integer> dimension) {
+    public AbstractBindControllerElement<JoystickState> provideWidget(YACLScreen yaclScreen, Dimension<Integer> dimension) {
         return new BindButtonWidget(this, yaclScreen, dimension);
     }
 
-    public static class BindButtonWidget extends ControllerWidget<JoystickBindController> implements ComponentProcessor, ControlifyEvents.ControllerStateUpdate {
-        private boolean awaitingControllerInput = false;
-        private boolean justTookInput = false;
-        private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
-
+    public static class BindButtonWidget extends AbstractBindControllerElement<JoystickState> {
         public BindButtonWidget(JoystickBindController control, YACLScreen screen, Dimension<Integer> dim) {
             super(control, screen, dim);
         }
 
         @Override
-        protected void drawValueText(PoseStack matrices, int mouseX, int mouseY, float delta) {
-            if (awaitingControllerInput) {
-                textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
-            } else {
-                var bind = control.option().pendingValue();
-                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY());
-            }
-        }
-
-        @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER && !awaitingControllerInput) {
-                awaitingControllerInput = true;
-                ControllerBindHandler.setBindListener(this);
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
-            if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
-                awaitingControllerInput = true;
-                ControllerBindHandler.setBindListener(this);
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            if (controller != control.controller) return true;
-
-            if (justTookInput) {
-                justTookInput = false;
-                return true;
-            }
-
-            if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
-                awaitingControllerInput = true;
-                ControllerBindHandler.setBindListener(this);
-                return true;
-            }
-
-            return awaitingControllerInput;
-        }
-
-        @Override
-        public void onControllerStateUpdate(dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            if (controller != control.controller) return;
-
-            if (!awaitingControllerInput) return;
-
-            var joystick = control.controller;
+        public Optional<IBind<JoystickState>> getPressedBind() {
+            var joystick = (JoystickController<?>) control.controller;
 
             var state = joystick.state();
             var prevState = joystick.prevState();
 
             for (int i = 0; i < Math.min(state.buttons().size(), prevState.buttons().size()); i++) {
                 if (state.buttons().get(i) && !prevState.buttons().get(i)) {
-                    control.option().requestSet(new JoystickButtonBind(joystick, i));
-                    awaitingControllerInput = false;
-                    justTookInput = true;
-                    ControllerBindHandler.clearBindListener();
-                    return;
+                    return Optional.of(new JoystickButtonBind(joystick, i));
                 }
             }
 
@@ -129,17 +43,9 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
 
                 if (Math.abs(prevAxis) < activationThreshold) {
                     if (axis > activationThreshold) {
-                        control.option().requestSet(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.POSITIVE));
-                        awaitingControllerInput = false;
-                        justTookInput = true;
-                        ControllerBindHandler.clearBindListener();
-                        return;
+                        return Optional.of(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.POSITIVE));
                     } else if (axis < -activationThreshold) {
-                        control.option().requestSet(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.NEGATIVE));
-                        awaitingControllerInput = false;
-                        justTookInput = true;
-                        ControllerBindHandler.clearBindListener();
-                        return;
+                        return Optional.of(new JoystickAxisBind(joystick, i, JoystickAxisBind.AxisDirection.NEGATIVE));
                     }
                 }
             }
@@ -149,31 +55,11 @@ public class JoystickBindController implements Controller<IBind<JoystickState>> 
                 var prevHat = prevState.hats().get(i);
 
                 if (prevHat.isCentered() && !hat.isCentered()) {
-                    control.option().requestSet(new JoystickHatBind(joystick, i, hat));
-                    awaitingControllerInput = false;
-                    justTookInput = true;
-                    ControllerBindHandler.clearBindListener();
-                    return;
+                    return Optional.of(new JoystickHatBind(joystick, i, hat));
                 }
             }
-        }
 
-        @Override
-        public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            return awaitingControllerInput || justTookInput;
-        }
-
-        @Override
-        protected int getHoveredControlWidth() {
-            return getUnhoveredControlWidth();
-        }
-
-        @Override
-        protected int getUnhoveredControlWidth() {
-            if (awaitingControllerInput)
-                return textRenderer.width(awaitingText);
-
-            return control.option().pendingValue().drawSize().width();
+            return Optional.empty();
         }
     }
 }

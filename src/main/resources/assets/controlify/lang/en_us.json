@@ -178,6 +178,7 @@
   "controlify.binding.controlify.gui_navi_right": "GUI Navi Right",
   "controlify.binding.controlify.cycle_opt_forward": "Cycle Option Forward",
   "controlify.binding.controlify.cycle_opt_backward": "Cycle Option Backward",
+  "controlify.binding.controlify.clear_binding": "Clear Binding",
 
   "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Virtual Mouse",
