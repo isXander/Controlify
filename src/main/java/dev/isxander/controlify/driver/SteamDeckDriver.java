@@ -5,12 +5,15 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import org.hid4java.HidDevice;
 
+import java.util.Arrays;
+
 public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
     private static final int cInputRecordLen = 8; // Number of bytes that are read from the hid device per 1 byte of HID
     private static final int cByteposInput = 4; // Position in the raw hid data where HID data byte is
     private static final byte[] startMarker = new byte[] { 0x01, 0x00, 0x09, 0x40 }; // Beginning of every Steam deck HID frame
 
     private final HidDevice hidDevice;
+    private int interval = 0;
 
     private GamepadState.GyroState gyroDelta = GamepadState.GyroState.ORIGIN;
     private BasicGamepadState basicGamepadState = new BasicGamepadState(GamepadState.AxesState.EMPTY, GamepadState.ButtonState.EMPTY);
@@ -23,7 +26,9 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
 
     @Override
     public void update() {
-        sendSomething();
+        if (interval == 0)
+            keepAlive();
+        interval = (interval + 1) % 120;
 
         byte[] data = new byte[64];
         int readCnt = hidDevice.read(data);
@@ -35,6 +40,8 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
             Controlify.LOGGER.warn("Error reading data.");
         }
 
+        System.out.println(Arrays.toString(data));
+
         if (!checkData(data, readCnt)) return;
 
         Frame frame = Frame.fromBytes(data);
@@ -42,9 +49,8 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
         readFrame(frame);
     }
 
-    private void sendSomething() {
-        hidDevice.getFeatureReport(new byte[]{ (byte) 0x89 }, (byte) 0x0);
-        hidDevice.write(new byte[]{ (byte) 0x89 }, 2, (byte) 0x0);
+    private void keepAlive() {
+        hidDevice.sendFeatureReport(new byte[0], (byte) 8);
     }
 
     private void readFrame(Frame frame) {

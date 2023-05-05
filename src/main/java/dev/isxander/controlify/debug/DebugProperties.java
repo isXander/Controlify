@@ -19,7 +19,7 @@ public class DebugProperties {
     /* Print gyro data if supported */
     public static final boolean PRINT_GYRO = boolProp("controlify.debug.print_gyro", false, false);
     /* Print what drivers are being used */
-    public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", false, true);
+    public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
 
     public static void printProperties() {
         if (properties.stream().noneMatch(DebugProperty::enabled))

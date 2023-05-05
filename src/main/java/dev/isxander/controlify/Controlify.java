@@ -40,9 +40,10 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 public class Controlify implements ControlifyApi {
     public static final Logger LOGGER = LogUtils.getLogger();
@@ -56,6 +57,8 @@ public class Controlify implements ControlifyApi {
     private VirtualMouseHandler virtualMouseHandler;
     private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
     private ControllerHIDService controllerHIDService;
+
+    private CompletableFuture<Boolean> vibrationOnboardingFuture = null;
 
     private final ControlifyConfig config = new ControlifyConfig(this);
 
@@ -73,17 +76,49 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
-        if (!config().globalSettings().vibrationOnboarded) {
-            minecraft.setScreen(new VibrationOnboardingScreen(
-                    minecraft.screen,
-                    answer -> this.initializeControllers()
-            ));
-        } else {
-            this.initializeControllers();
+        var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1).anyMatch(GLFW::glfwJoystickPresent);
+        if (controllersConnected) {
+            askVibrationNatives().whenComplete((loaded, th) -> discoverControllers());
         }
+
+        // listen for new controllers
+        GLFW.glfwSetJoystickCallback((jid, event) -> {
+            try {
+                this.askVibrationNatives().whenComplete((loaded, th) -> {
+                    if (event == GLFW.GLFW_CONNECTED) {
+                        this.onControllerHotplugged(jid);
+                    } else if (event == GLFW.GLFW_DISCONNECTED) {
+                        this.onControllerDisconnect(jid);
+                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    private void initializeControllers() {
+    private CompletableFuture<Boolean> askVibrationNatives() {
+        if (vibrationOnboardingFuture != null) return vibrationOnboardingFuture;
+
+        if (config().globalSettings().vibrationOnboarded) {
+            return CompletableFuture.completedFuture(config().globalSettings().loadVibrationNatives);
+        }
+
+        vibrationOnboardingFuture = new CompletableFuture<>();
+
+        minecraft.setScreen(new VibrationOnboardingScreen(
+                minecraft.screen,
+                answer -> {
+                    if (answer)
+                        SDL2NativesManager.initialise();
+                    vibrationOnboardingFuture.complete(answer);
+                }
+        ));
+
+        return vibrationOnboardingFuture;
+    }
+
+    private void discoverControllers() {
         DebugLog.log("Discovering and initializing controllers...");
 
         if (config().globalSettings().loadVibrationNatives)
@@ -122,19 +157,6 @@ public class Controlify implements ControlifyApi {
             // setCurrentController saves config
             config().saveIfDirty();
         }
-
-        // listen for new controllers
-        GLFW.glfwSetJoystickCallback((jid, event) -> {
-            try {
-                if (event == GLFW.GLFW_CONNECTED) {
-                    this.onControllerHotplugged(jid);
-                } else if (event == GLFW.GLFW_DISCONNECTED) {
-                    this.onControllerDisconnect(jid);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
 
         ClientTickEvents.START_CLIENT_TICK.register(this::tick);
 
