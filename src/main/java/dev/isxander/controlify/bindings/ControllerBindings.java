@@ -220,7 +220,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(GUI_CATEGORY)
                 .build());
         register(GUI_ABSTRACT_ACTION_2 = ControllerBindingBuilder.create(controller)
-                .identifier("controlify", "gui_abstract_action_1")
+                .identifier("controlify", "gui_abstract_action_2")
                 .defaultBind(GamepadBinds.Y_BUTTON)
                 .category(GUI_CATEGORY)
                 .build());
