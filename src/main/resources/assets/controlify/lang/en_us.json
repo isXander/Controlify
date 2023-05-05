@@ -220,7 +220,7 @@
   "controlify.beta.button": "Open Issue Tracker...",
 
   "controlify.error.hid": "Controller Detection Disabled",
-  "controlify.error.hid.desc": "Controlify could not start the controller detection system used to identify and distinguish between multiple controllers. This means controller config will not be able to be saved between play sessions. This is likely due to a system fault and you should check logs for further information.",
+  "controlify.error.hid.desc": "Controllify's controller identification failed and controller config changes will not persist. Check logs for more info.",
 
   "controlify.hat_state.up": "Up",
   "controlify.hat_state.down": "Down",
