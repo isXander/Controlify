@@ -19,6 +19,7 @@ on:
       - '.gitignore'
       - '.editorconfig'
       - 'changelogs/**'
+      - 'src/*/resources/lang/*'
   workflow_dispatch:
 jobs:
   build:
