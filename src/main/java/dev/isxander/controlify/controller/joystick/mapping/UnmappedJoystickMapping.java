@@ -7,6 +7,10 @@ import dev.isxander.controlify.controller.joystick.render.JoystickRenderer;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.Optional;
+
 public class UnmappedJoystickMapping implements JoystickMapping {
     public static final UnmappedJoystickMapping EMPTY = new UnmappedJoystickMapping(0, 0, 0);
 
@@ -33,9 +37,9 @@ public class UnmappedJoystickMapping implements JoystickMapping {
 
     public UnmappedJoystickMapping(int joystickId) {
         this(
-                GLFW.glfwGetJoystickAxes(joystickId).limit(),
-                GLFW.glfwGetJoystickButtons(joystickId).limit(),
-                GLFW.glfwGetJoystickHats(joystickId).limit()
+                Optional.ofNullable(GLFW.glfwGetJoystickAxes(joystickId)).map(FloatBuffer::limit).orElse(0),
+                Optional.ofNullable(GLFW.glfwGetJoystickButtons(joystickId)).map(ByteBuffer::limit).orElse(0),
+                Optional.ofNullable(GLFW.glfwGetJoystickHats(joystickId)).map(ByteBuffer::limit).orElse(0)
         );
     }
 
