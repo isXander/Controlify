@@ -83,6 +83,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
             category.setDetail("Joystick ID", joystickId);
             category.setDetail("Controller identification", hidInfo.type());
             category.setDetail("HID path", hidInfo.hidDevice().map(HidDevice::getPath).orElse("N/A"));
+            category.setDetail("HID service status", Controlify.instance().controllerHIDService().isDisabled() ? "Disabled" : "Enabled");
+            category.setDetail("GLFW name", Optional.ofNullable(GLFW.glfwGetJoystickName(joystickId)).orElse("N/A"));
             throw new ReportedException(crashReport);
         }
     }
