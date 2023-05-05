@@ -220,7 +220,7 @@
   "controlify.beta.button": "Open Issue Tracker...",
 
   "controlify.error.hid": "Controller Detection Disabled",
-  "controlify.error.hid.desc": "Controllify's controller identification failed and controller config changes will not persist. Check logs for more info.",
+  "controlify.error.hid.desc": "Controller identification failed, so any controller config changes will not persist. Check logs for more info.",
 
   "controlify.hat_state.up": "Up",
   "controlify.hat_state.down": "Down",
