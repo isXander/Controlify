@@ -263,6 +263,9 @@ publishing {
                     this.password = password
                 }
             }
+            tasks.getByName("publishModPublicationToXanderReleasesRepository") {
+                dependsOn("optimizeOutputsOfRemapJar")
+            }
         } else {
             println("Xander Maven credentials not satisfied.")
         }
@@ -270,8 +273,5 @@ publishing {
 }
 
 tasks.getByName("generateMetadataFileForModPublication") {
-    dependsOn("optimizeOutputsOfRemapJar")
-}
-tasks.getByName("publishModPublicationToXanderReleasesRepository") {
     dependsOn("optimizeOutputsOfRemapJar")
 }
