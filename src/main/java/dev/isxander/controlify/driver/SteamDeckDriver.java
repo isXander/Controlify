@@ -2,7 +2,6 @@ package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
-import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import org.hid4java.HidDevice;
 
 import java.util.Arrays;

@@ -47,7 +47,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
             }
 
             @Override
-            public boolean canRumble() {
+            public boolean supportsRumble() {
                 return false;
             }
         });

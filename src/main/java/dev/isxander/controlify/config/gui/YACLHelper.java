@@ -256,7 +256,7 @@ public class YACLHelper {
     }
 
     private static OptionGroup makeVibrationGroup(Option<Boolean> globalVibrationOption, Controller<?, ?> controller) {
-        boolean canRumble = controller.canRumble();
+        boolean canRumble = controller.supportsRumble();
         var config = controller.config();
         var def = controller.defaultConfig();
 

@@ -1,7 +1,5 @@
 package dev.isxander.controlify.controller.gamepad;
 
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -83,7 +81,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
     @Override
     public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
-        if (!canRumble()) return false;
+        if (!supportsRumble() || !config().allowVibrations) return false;
 
         var strengthMod = config().getRumbleStrength(source);
         if (source != RumbleSource.MASTER)
@@ -96,9 +94,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     }
 
     @Override
-    public boolean canRumble() {
-        return drivers.rumbleDriver().isRumbleSupported()
-                && config().allowVibrations;
+    public boolean supportsRumble() {
+        return drivers.rumbleDriver().isRumbleSupported();
     }
 
     @Override

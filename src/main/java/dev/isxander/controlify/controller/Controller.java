@@ -46,7 +46,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     default void close() {}
 
     RumbleManager rumbleManager();
-    boolean canRumble();
+    boolean supportsRumble();
 
     Optional<ControllerHIDService.ControllerHIDInfo> hidInfo();
 
@@ -104,7 +104,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
             }
 
             @Override
-            public boolean canRumble() {
+            public boolean supportsRumble() {
                 return false;
             }
         });
@@ -196,7 +196,7 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         }
 
         @Override
-        public boolean canRumble() {
+        public boolean supportsRumble() {
             return false;
         }
     };

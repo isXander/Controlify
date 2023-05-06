@@ -148,7 +148,7 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
     }
 
     @Override
-    public boolean canRumble() {
+    public boolean supportsRumble() {
         return false;
     }
 

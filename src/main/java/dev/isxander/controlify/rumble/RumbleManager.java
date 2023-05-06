@@ -21,7 +21,7 @@ public class RumbleManager {
     }
 
     public void play(RumbleSource source, RumbleEffect effect) {
-        if (!controller.canRumble())
+        if (!controller.supportsRumble())
             return;
 
         effectQueue.add(new RumbleEffectInstance(source, effect));

@@ -59,11 +59,11 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver {
 
     @Override
     public String getGyroDetails() {
-        return "SDL2 supported=%s".formatted(isGyroSupported);
+        return "SDL2gp supported=" + isGyroSupported();
     }
 
     @Override
     public String getRumbleDetails() {
-        return "SDL2 supported=%s".formatted(isRumbleSupported);
+        return "SDL2gp supported=" + isRumbleSupported();
     }
 }

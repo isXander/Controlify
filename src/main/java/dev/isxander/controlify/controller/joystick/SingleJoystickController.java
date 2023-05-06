@@ -94,7 +94,7 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
     @Override
     public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
-        if (!canRumble()) return false;
+        if (!supportsRumble()) return false;
 
         var strengthMod = config().getRumbleStrength(source);
         if (source != RumbleSource.MASTER)
@@ -113,10 +113,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     }
 
     @Override
-    public boolean canRumble() {
-        return rumbleSupported
-                && config().allowVibrations
-                && ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER;
+    public boolean supportsRumble() {
+        return rumbleSupported;
     }
 
     @Override
