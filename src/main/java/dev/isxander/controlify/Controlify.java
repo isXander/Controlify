@@ -309,11 +309,14 @@ public class Controlify implements ControlifyApi {
             config().setDirty();
         }
 
-        this.askToSwitchController(controller);
-
         checkCompoundJoysticks();
 
-        config().saveIfDirty();
+        if (Controller.CONTROLLERS.size() == 1) {
+            this.setCurrentController(controller);
+        } else {
+            this.askToSwitchController(controller);
+            config().saveIfDirty();
+        }
     }
 
     private void onControllerDisconnect(int jid) {
@@ -368,6 +371,7 @@ public class Controlify implements ControlifyApi {
     }
 
     @Override
+    @Deprecated
     public @NotNull Controller<?, ?> currentController() {
         if (currentController == null)
             return Controller.DUMMY;
@@ -438,7 +442,6 @@ public class Controlify implements ControlifyApi {
         if (this.currentInputMode == currentInputMode) return false;
         this.currentInputMode = currentInputMode;
 
-        var minecraft = Minecraft.getInstance();
         if (!minecraft.mouseHandler.isMouseGrabbed())
             hideMouse(currentInputMode == InputMode.CONTROLLER, true);
         if (minecraft.screen != null) {
@@ -467,7 +470,6 @@ public class Controlify implements ControlifyApi {
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {
-        var minecraft = Minecraft.getInstance();
         GLFW.glfwSetInputMode(
                 minecraft.getWindow().getWindow(),
                 GLFW.GLFW_CURSOR,

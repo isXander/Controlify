@@ -20,7 +20,6 @@ group = "dev.isxander"
 version = "1.1.1+1.19.4"
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://maven.terraformersmc.com")
     maven("https://maven.isxander.dev/releases")
@@ -33,7 +32,6 @@ repositories {
         }
     }
     maven("https://jitpack.io")
-    mavenLocal()
     maven("https://maven.flashyreese.me/snapshots")
 }
 
