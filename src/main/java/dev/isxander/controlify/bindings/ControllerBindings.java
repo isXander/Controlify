@@ -60,7 +60,7 @@ public class ControllerBindings<T extends ControllerState> {
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
             VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN,
-            VMOUSE_ESCAPE, VMOUSE_SHIFT,
+            VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD,
@@ -285,11 +285,6 @@ public class ControllerBindings<T extends ControllerState> {
         register(VMOUSE_SCROLL_DOWN = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_scroll_down")
                 .defaultBind(GamepadBinds.RIGHT_STICK_BACKWARD)
-                .category(VMOUSE_CATEGORY)
-                .build());
-        register(VMOUSE_ESCAPE = ControllerBindingBuilder.create(controller)
-                .identifier("controlify", "vmouse_escape")
-                .defaultBind(GamepadBinds.B_BUTTON)
                 .category(VMOUSE_CATEGORY)
                 .build());
         register(VMOUSE_SHIFT = ControllerBindingBuilder.create(controller)

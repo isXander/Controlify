@@ -267,13 +267,12 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
+        this.virtualMouseHandler().handleControllerInput(controller);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
-        }
-        if (minecraft.level != null) {
+        } else if (minecraft.level != null) {
             this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
         }
-        this.virtualMouseHandler().handleControllerInput(controller);
 
         ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
     }

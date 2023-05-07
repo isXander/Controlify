@@ -114,10 +114,8 @@ public class VirtualMouseHandler {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_ESCAPE.justPressed()) {
-            keyboardHandler.invokeKeyPress(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_ESCAPE.justReleased()) {
-            keyboardHandler.invokeKeyPress(minecraft.getWindow().getWindow(), GLFW.GLFW_KEY_ESCAPE, 0, GLFW.GLFW_RELEASE, 0);
+        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
+            minecraft.screen.onClose();
         }
     }
 
