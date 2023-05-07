@@ -36,7 +36,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
         }
 
         // broken
-        if (hid.isPresent() && SteamDeckDriver.isSteamDeck(hid.get())) {
+        if (hid.isPresent() && SteamDeckDriver.isSteamDeck(hid.get()) && false) {
             gyroDriver = new SteamDeckDriver(hid.get());
         }
 
