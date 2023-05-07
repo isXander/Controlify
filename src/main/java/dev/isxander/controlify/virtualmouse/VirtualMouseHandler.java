@@ -81,7 +81,7 @@ public class VirtualMouseHandler {
             snapping = false;
         }
 
-        var sensitivity = !snapping ? controller.config().virtualMouseSensitivity : 2f;
+        var sensitivity = !snapping ? controller.config().virtualMouseSensitivity : 20f;
 
         // quadratic function to make small movements smaller
         // abs to keep sign
