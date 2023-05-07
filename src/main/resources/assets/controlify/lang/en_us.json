@@ -115,6 +115,8 @@
   "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
   "controlify.toast.ask_to_switch.title": "Switch Controller?",
   "controlify.toast.ask_to_switch.description": "A new controller named '%s' has just been connected. Press any button to switch to it.",
+  "controlify.toast.default_controller_connected.title": "Controller Connected",
+  "controlify.toast.default_controller_connected.description": "Your primary controller has been connected and automatically switched to.",
   "controlify.toast.controller_disconnected.title": "Controller Disconnected",
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
   "controlify.toast.faulty_input.title": "Controller disabled",

@@ -312,6 +312,12 @@ public class Controlify implements ControlifyApi {
 
         if (Controller.CONTROLLERS.size() == 1) {
             this.setCurrentController(controller);
+
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.default_controller_connected.title"),
+                    Component.translatable("controlify.toast.default_controller_connected.description"),
+                    false
+            );
         } else {
             this.askToSwitchController(controller);
             config().saveIfDirty();
