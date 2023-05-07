@@ -240,7 +240,6 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "show_player_list")
                 .defaultBind(GamepadBinds.DPAD_RIGHT)
                 .category(MISC_CATEGORY)
-                .vanillaOverride(options.keyPlayerList, () -> false)
                 .build());
         register(VMOUSE_MOVE_UP = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_up")

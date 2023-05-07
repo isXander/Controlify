@@ -23,6 +23,7 @@
     "compat.yacl.SliderControllerElementMixin",
     "compat.yacl.YACLScreenMixin",
     "core.ClientPacketListenerMixin",
+    "core.GuiMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",

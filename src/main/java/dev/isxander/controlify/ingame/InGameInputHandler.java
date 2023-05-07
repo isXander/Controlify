@@ -18,6 +18,7 @@ public class InGameInputHandler {
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY;
+    private boolean shouldShowPlayerList;
 
     public InGameInputHandler(Controller<?, ?> controller) {
         this.controller = controller;
@@ -38,6 +39,8 @@ public class InGameInputHandler {
     }
 
     protected void handleKeybinds() {
+        shouldShowPlayerList = false;
+
         if (Minecraft.getInstance().screen != null)
             return;
 
@@ -63,6 +66,8 @@ public class InGameInputHandler {
         if (controller.bindings().TOGGLE_HUD_VISIBILITY.justPressed()) {
             minecraft.options.hideGui = !minecraft.options.hideGui;
         }
+
+        shouldShowPlayerList = controller.bindings().SHOW_PLAYER_LIST.held();
     }
 
     protected void handlePlayerLookInput() {
@@ -129,6 +134,10 @@ public class InGameInputHandler {
         if (minecraft.player != null) {
             minecraft.player.turn(lookInputX * deltaTime, lookInputY * deltaTime);
         }
+    }
+
+    public boolean shouldShowPlayerList() {
+        return this.shouldShowPlayerList;
     }
 
     public record FunctionalLookInputModifier(BiFunction<Float, Controller<?, ?>, Float> x, BiFunction<Float, Controller<?, ?>, Float> y) implements LookInputModifier {
