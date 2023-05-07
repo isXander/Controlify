@@ -1,21 +1,16 @@
 package dev.isxander.controlify.config.gui;
 
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.bindings.ControllerBindingImpl;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
-import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
-import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
@@ -29,7 +24,6 @@ import dev.isxander.yacl.gui.controllers.TickBoxController;
 import dev.isxander.yacl.gui.controllers.cycling.CyclingListController;
 import dev.isxander.yacl.gui.controllers.cycling.EnumController;
 import dev.isxander.yacl.gui.controllers.slider.FloatSliderController;
-import dev.isxander.yacl.gui.controllers.slider.IntegerSliderController;
 import dev.isxander.yacl.gui.controllers.string.StringController;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -39,6 +33,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -69,7 +64,7 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.load_vibration_natives"))
                         .tooltip(Component.translatable("controlify.gui.load_vibration_natives.tooltip"))
                         .tooltip(Component.translatable("controlify.gui.load_vibration_natives.tooltip.warning").withStyle(ChatFormatting.RED))
-                        .binding(GlobalSettings.DEFAULT.loadVibrationNatives, () -> globalSettings.loadVibrationNatives, v -> globalSettings.loadVibrationNatives = v)
+                        .binding(true, () -> globalSettings.loadVibrationNatives, v -> globalSettings.loadVibrationNatives = v)
                         .controller(opt -> new BooleanController(opt, BooleanController.YES_NO_FORMATTER, false))
                         .flag(OptionFlag.GAME_RESTART)
                         .build())
@@ -114,7 +109,7 @@ public class YACLHelper {
         return yacl.build().generateScreen(parent);
     }
 
-    private static ConfigCategory createControllerCategory(Controller<?, ?> controller, Option<Boolean> globalVibrationOption) {
+    private static <S extends ControllerState, C extends ControllerConfig> ConfigCategory createControllerCategory(Controller<S, C> controller, Option<Boolean> globalVibrationOption) {
         if (!controller.canBeUsed()) {
             return PlaceholderCategory.createBuilder()
                     .name(Component.literal(controller.name()))
@@ -245,14 +240,43 @@ public class YACLHelper {
 
         var controlsGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
+        List<OptionBindPair> optionBinds = new ArrayList<>();
         groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
             controlsGroup.option(LabelOption.create(categoryName));
-            controlsGroup.options(bindGroup.stream().map(ControllerBinding::generateYACLOption).toList());
+            controlsGroup.options(bindGroup.stream().map(binding -> {
+                Option.Builder<?> option = binding.startYACLOption()
+                        .listener((opt, val) -> updateConflictingBinds(optionBinds));
+
+                Option<?> built = option.build();
+                optionBinds.add(new OptionBindPair(built, binding));
+                return built;
+            }).toList());
         });
+        updateConflictingBinds(optionBinds);
 
         category.group(controlsGroup.build());
 
         return category.build();
+    }
+
+    private static void updateConflictingBinds(List<OptionBindPair> all) {
+        all.forEach(pair -> ((AbstractBindController<?>) pair.option().controller()).setConflicting(false));
+
+        for (OptionBindPair opt : all) {
+            var ctxs = BindContext.flatten(opt.binding().contexts());
+
+            List<OptionBindPair> conflicting = all.stream()
+                    .filter(pair -> pair.binding() != opt.binding())
+                    .filter(pair -> {
+                        boolean contextsMatch = BindContext.flatten(pair.binding().contexts())
+                                .stream()
+                                .anyMatch(ctxs::contains);
+                        boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
+                        return contextsMatch && bindMatches;
+                    }).toList();
+
+            conflicting.forEach(conflict -> ((AbstractBindController<?>) conflict.option().controller()).setConflicting(true));
+        }
     }
 
     private static OptionGroup makeVibrationGroup(Option<Boolean> globalVibrationOption, Controller<?, ?> controller) {
@@ -428,8 +452,11 @@ public class YACLHelper {
         }
     }
 
-    private static <T extends ControllerState> Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {
+    private static Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {
         return bindings.stream()
                 .collect(Collectors.groupingBy(ControllerBinding::category, LinkedHashMap::new, Collectors.toList()));
+    }
+
+    private record OptionBindPair(Option<?> option, ControllerBinding binding) {
     }
 }

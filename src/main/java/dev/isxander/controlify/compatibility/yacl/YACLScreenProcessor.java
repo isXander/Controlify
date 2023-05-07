@@ -13,11 +13,10 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     }
 
     @Override
-    protected void handleComponentNavigation(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?, ?> controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             this.playClackSound();
             screen.finishedSaveButton.onPress();
-            return;
         }
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
@@ -31,12 +30,11 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
             screen.changeCategory(idx);
         }
 
-        super.handleComponentNavigation(controller);
+        super.handleButtons(controller);
     }
 
     @Override
     public void onWidgetRebuild() {
-        // currently doesn't work because TextScaledButtonWidget overrides renderString
         ButtonGuideApi.addGuideToButton(screen.finishedSaveButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
     }
 

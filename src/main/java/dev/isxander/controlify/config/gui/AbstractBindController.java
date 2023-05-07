@@ -12,6 +12,7 @@ import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.utils.Dimension;
 import dev.isxander.yacl.gui.YACLScreen;
 import dev.isxander.yacl.gui.controllers.ControllerWidget;
+import dev.isxander.yacl.gui.utils.GuiUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -21,6 +22,7 @@ import java.util.Optional;
 public abstract class AbstractBindController<T extends ControllerState> implements Controller<IBind<T>> {
     private final Option<IBind<T>> option;
     public final dev.isxander.controlify.controller.Controller<T, ?> controller;
+    private boolean conflicting;
 
     public AbstractBindController(Option<IBind<T>> option, dev.isxander.controlify.controller.Controller<T, ?> controller) {
         this.option = option;
@@ -35,6 +37,14 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
     @Override
     public Component formatValue() {
         return Component.empty();
+    }
+
+    public void setConflicting(boolean conflicting) {
+        this.conflicting = conflicting;
+    }
+
+    public boolean getConflicting() {
+        return this.conflicting;
     }
 
     @Override
@@ -85,14 +95,16 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
             if (controller != control.controller) return true;
 
-            if (controller.bindings().CLEAR_BINDING.justPressed()) {
-                control.option().requestSet(new EmptyBind<>());
-                return true;
-            }
+            if (!justTookInput && !awaitingControllerInput) {
+                if (controller.bindings().CLEAR_BINDING.justPressed()) {
+                    control.option().requestSet(new EmptyBind<>());
+                    return true;
+                }
 
-            if (controller.bindings().GUI_PRESS.justPressed() && !awaitingControllerInput) {
-                ControllerBindHandler.setBindListener(this);
-                return awaitingControllerInput = true;
+                if (controller.bindings().GUI_PRESS.justPressed()) {
+                    ControllerBindHandler.setBindListener(this);
+                    return awaitingControllerInput = true;
+                }
             }
 
             if (justTookInput) {
@@ -134,6 +146,11 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
                 return textRenderer.width(awaitingText);
 
             return control.option().pendingValue().drawSize().width();
+        }
+
+        @Override
+        protected int getValueColor() {
+            return control.conflicting ? 0xFF5555 : super.getValueColor();
         }
 
         public abstract Optional<IBind<T>> getPressedBind();

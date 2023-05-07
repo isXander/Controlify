@@ -1,5 +1,6 @@
 package dev.isxander.controlify.bindings;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
@@ -36,11 +37,12 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     private BindRenderer renderer;
     private final ResourceLocation id;
     private final Component name, description, category;
+    private final Set<BindContext> contexts;
     private final KeyMappingOverride override;
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
-    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category) {
+    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.renderer = new BindRendererImpl(bind);
@@ -49,6 +51,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         this.name = name;
         this.description = description;
         this.category = category;
+        this.contexts = ImmutableSet.copyOf(contexts);
     }
 
     @Override
@@ -134,6 +137,16 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     }
 
     @Override
+    public Set<BindContext> contexts() {
+        return contexts;
+    }
+
+    @Override
+    public IBind<T> getBind() {
+        return bind;
+    }
+
+    @Override
     public boolean isUnbound() {
         return bind instanceof EmptyBind;
     }
@@ -154,7 +167,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     }
 
     @Override
-    public Option<?> generateYACLOption() {
+    public Option.Builder<?> startYACLOption() {
         Option.Builder<IBind<T>> option = Option.createBuilder((Class<IBind<T>>) (Class<?>) IBind.class)
                 .name(name())
                 .binding(defaultBind(), this::currentBind, this::setCurrentBind)
@@ -166,7 +179,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
             ((Option.Builder<IBind<JoystickState>>) (Object) option).controller(opt -> new JoystickBindController(opt, joystick));
         }
 
-        return option.build();
+        return option;
     }
 
     // FIXME: very hack solution please remove me
@@ -197,6 +210,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
         private KeyMappingOverride override = null;
+        private final Set<BindContext> contexts = new HashSet<>();
 
         public ControllerBindingBuilderImpl(Controller<T, ?> controller) {
             this.controller = controller;
@@ -249,6 +263,12 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         }
 
         @Override
+        public ControllerBindingBuilder<T> context(BindContext... contexts) {
+            this.contexts.addAll(Set.of(contexts));
+            return this;
+        }
+
+        @Override
         public ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
             this.override = new KeyMappingOverride(keyMapping, toggleable);
             return this;
@@ -276,7 +296,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 }
             }
 
-            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category);
+            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category, contexts);
         }
     }
 

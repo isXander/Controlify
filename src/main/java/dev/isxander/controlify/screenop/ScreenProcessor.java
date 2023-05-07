@@ -34,8 +34,11 @@ public class ScreenProcessor<T extends Screen> {
 
     public void onControllerUpdate(Controller<?, ?> controller) {
         if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-            handleComponentNavigation(controller);
-            handleButtons(controller);
+            if (!handleComponentNavOverride(controller))
+                handleComponentNavigation(controller);
+
+            if (!handleComponentButtonOverride(controller))
+                handleButtons(controller);
         } else {
             handleScreenVMouse(controller);
         }
@@ -58,13 +61,7 @@ public class ScreenProcessor<T extends Screen> {
         if (screen.getFocused() == null)
             setInitialFocus();
 
-        var focusTree = getFocusTree();
-        var focuses = List.copyOf(focusTree);
-        while (!focusTree.isEmpty()) {
-            var focused = focusTree.poll();
-            var processor = ComponentProcessorProvider.provide(focused);
-            if (processor.overrideControllerNavigation(this, controller)) return;
-        }
+        var focuses = List.copyOf(getFocusTree());
 
         var accessor = (ScreenAccessor) screen;
 
@@ -114,15 +111,9 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     protected void handleButtons(Controller<?, ?> controller) {
-        var focusTree = getFocusTree();
-        while (!focusTree.isEmpty()) {
-            var focused = focusTree.poll();
-            var processor = ComponentProcessorProvider.provide(focused);
-            if (processor.overrideControllerButtons(this, controller)) return;
-        }
-
-        if (controller.bindings().GUI_PRESS.justPressed())
+        if (controller.bindings().GUI_PRESS.justPressed()) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+        }
         if (controller.bindings().GUI_BACK.justPressed()) {
             this.playClackSound();
             screen.onClose();
@@ -131,6 +122,27 @@ public class ScreenProcessor<T extends Screen> {
 
     protected void handleScreenVMouse(Controller<?, ?> controller) {
 
+    }
+
+    protected boolean handleComponentButtonOverride(Controller<?, ?> controller) {
+        var focusTree = getFocusTree();
+        while (!focusTree.isEmpty()) {
+            var focused = focusTree.poll();
+            var processor = ComponentProcessorProvider.provide(focused);
+            if (processor.overrideControllerButtons(this, controller)) return true;
+        }
+
+        return false;
+    }
+
+    protected boolean handleComponentNavOverride(Controller<?, ?> controller) {
+        var focusTree = getFocusTree();
+        while (!focusTree.isEmpty()) {
+            var focused = focusTree.poll();
+            var processor = ComponentProcessorProvider.provide(focused);
+            if (processor.overrideControllerNavigation(this, controller)) return true;
+        }
+        return false;
     }
 
     protected void handleTabNavigation(Controller<?, ?> controller) {

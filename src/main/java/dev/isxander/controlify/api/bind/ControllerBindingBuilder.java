@@ -1,5 +1,6 @@
 package dev.isxander.controlify.api.bind;
 
+import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
@@ -72,6 +73,8 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      * @param category the category of the binding
      */
     ControllerBindingBuilder<T> category(Component category);
+
+    ControllerBindingBuilder<T> context(BindContext... contexts);
 
     /**
      * Specifies are vanilla override for the binding.
