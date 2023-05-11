@@ -22,6 +22,7 @@ import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.wireless.LowBatteryNotifier;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
@@ -57,7 +58,7 @@ public class Controlify implements ControlifyApi {
     private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
     private ControllerHIDService controllerHIDService;
 
-    private CompletableFuture<Boolean> vibrationOnboardingFuture = null;
+    private CompletableFuture<Boolean> nativeOnboardingFuture = null;
 
     private final ControlifyConfig config = new ControlifyConfig(this);
 
@@ -77,13 +78,13 @@ public class Controlify implements ControlifyApi {
 
         var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1).anyMatch(GLFW::glfwJoystickPresent);
         if (controllersConnected) {
-            askVibrationNatives().whenComplete((loaded, th) -> discoverControllers());
+            askNatives().whenComplete((loaded, th) -> discoverControllers());
         }
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             try {
-                this.askVibrationNatives().whenComplete((loaded, th) -> {
+                this.askNatives().whenComplete((loaded, th) -> {
                     if (event == GLFW.GLFW_CONNECTED) {
                         this.onControllerHotplugged(jid);
                     } else if (event == GLFW.GLFW_DISCONNECTED) {
@@ -96,25 +97,25 @@ public class Controlify implements ControlifyApi {
         });
     }
 
-    private CompletableFuture<Boolean> askVibrationNatives() {
-        if (vibrationOnboardingFuture != null) return vibrationOnboardingFuture;
+    private CompletableFuture<Boolean> askNatives() {
+        if (nativeOnboardingFuture != null) return nativeOnboardingFuture;
 
         if (config().globalSettings().vibrationOnboarded) {
             return CompletableFuture.completedFuture(config().globalSettings().loadVibrationNatives);
         }
 
-        vibrationOnboardingFuture = new CompletableFuture<>();
+        nativeOnboardingFuture = new CompletableFuture<>();
 
-        minecraft.setScreen(new VibrationOnboardingScreen(
+        minecraft.setScreen(new SDLOnboardingScreen(
                 minecraft.screen,
                 answer -> {
                     if (answer)
                         SDL2NativesManager.initialise();
-                    vibrationOnboardingFuture.complete(answer);
+                    nativeOnboardingFuture.complete(answer);
                 }
         ));
 
-        return vibrationOnboardingFuture;
+        return nativeOnboardingFuture;
     }
 
     private void discoverControllers() {
@@ -228,6 +229,8 @@ public class Controlify implements ControlifyApi {
                 }
             }
         }
+
+        LowBatteryNotifier.tick();
 
         getCurrentController().ifPresent(currentController -> {
             wrapControllerError(

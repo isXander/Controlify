@@ -46,7 +46,18 @@ public class YACLHelper {
     private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
     private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
 
-    public static Screen generateConfigScreen(Screen parent) {
+    public static Screen openConfigScreen(Screen parent) {
+        Screen configScreen = generateConfigScreen(parent);
+        if (!Controlify.instance().config().globalSettings().vibrationOnboarded)
+           configScreen = new SDLOnboardingScreen(configScreen, yes -> {
+                if (yes) {
+                    SDL2NativesManager.initialise();
+                }
+           });
+        return configScreen;
+    }
+
+    private static Screen generateConfigScreen(Screen parent) {
         var controlify = Controlify.instance();
 
         var yacl = YetAnotherConfigLib.createBuilder()
@@ -84,6 +95,12 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.ui_sounds"))
                         .tooltip(Component.translatable("controlify.gui.ui_sounds.tooltip"))
                         .binding(GlobalSettings.DEFAULT.uiSounds, () -> globalSettings.uiSounds, v -> globalSettings.uiSounds = v)
+                        .controller(TickBoxController::new)
+                        .build())
+                .option(Option.createBuilder(boolean.class)
+                        .name(Component.translatable("controlify.gui.notify_low_battery"))
+                        .tooltip(Component.translatable("controlify.gui.notify_low_battery.tooltip"))
+                        .binding(GlobalSettings.DEFAULT.notifyLowBattery, () -> globalSettings.notifyLowBattery, v -> globalSettings.notifyLowBattery = v)
                         .controller(TickBoxController::new)
                         .build())
                 .option(Option.createBuilder(boolean.class)
@@ -125,6 +142,10 @@ public class YACLHelper {
         var category = ConfigCategory.createBuilder();
 
         category.name(Component.literal(controller.name()));
+
+        if (controller.batteryLevel() != BatteryLevel.UNKNOWN) {
+            category.option(LabelOption.create(Component.translatable("controlify.gui.battery_level", controller.batteryLevel().getFriendlyName())));
+        }
 
         var config = controller.config();
         var def = controller.defaultConfig();

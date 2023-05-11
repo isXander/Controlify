@@ -2,6 +2,7 @@ package dev.isxander.controlify.controller.gamepad;
 
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
+import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
@@ -101,6 +102,11 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     @Override
     public RumbleManager rumbleManager() {
         return this.rumbleManager;
+    }
+
+    @Override
+    public BatteryLevel batteryLevel() {
+        return drivers.batteryDriver().getBatteryLevel();
     }
 
     @Override

@@ -22,7 +22,7 @@ public class ControlsScreenMixin extends OptionsSubScreen {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void addControllerSettings(CallbackInfo ci, @Local(ordinal = 0) int leftX, @Local(ordinal = 1) int rightX, @Local(ordinal = 2) int currentY) {
-        addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> minecraft.setScreen(YACLHelper.generateConfigScreen(this)))
+        addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> minecraft.setScreen(YACLHelper.openConfigScreen(this)))
                 .pos(leftX, currentY)
                 .width(150)
                 .build());

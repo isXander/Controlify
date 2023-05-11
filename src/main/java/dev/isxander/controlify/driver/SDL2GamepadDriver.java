@@ -1,11 +1,12 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.debug.DebugProperties;
 import org.libsdl.SDL;
 
-public class SDL2GamepadDriver implements GyroDriver, RumbleDriver {
+public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDriver {
     private final long ptrGamepad;
     private GamepadState.GyroState gyroDelta;
     private final boolean isGyroSupported, isRumbleSupported;
@@ -43,6 +44,20 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver {
     }
 
     @Override
+    public BatteryLevel getBatteryLevel() {
+        return switch (SDL.SDL_JoystickCurrentPowerLevel(ptrGamepad)) {
+            case SDL.SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
+            case SDL.SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
+            case SDL.SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
+            case SDL.SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
+            case SDL.SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
+            case SDL.SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
+            case SDL.SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
+            default -> throw new IllegalStateException("Unexpected value: " + SDL.SDL_JoystickCurrentPowerLevel(ptrGamepad));
+        };
+    }
+
+    @Override
     public boolean isGyroSupported() {
         return isGyroSupported;
     }
@@ -65,5 +80,10 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver {
     @Override
     public String getRumbleDetails() {
         return "SDL2gp supported=" + isRumbleSupported();
+    }
+
+    @Override
+    public String getBatteryDriverDetails() {
+        return "SDL2gp";
     }
 }

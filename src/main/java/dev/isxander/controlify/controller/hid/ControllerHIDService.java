@@ -3,6 +3,9 @@ package dev.isxander.controlify.controller.hid;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.utils.ToastUtils;
+import net.minecraft.network.chat.Component;
 import org.hid4java.*;
 
 import java.util.*;
@@ -15,6 +18,7 @@ public class ControllerHIDService {
     private final Queue<Pair<HidDevice, HIDIdentifier>> unconsumedControllerHIDs;
     private final Map<String, HidDevice> attachedDevices = new HashMap<>();
     private boolean disabled = false;
+    private boolean firstFetch = true;
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/hid-usages#usage-page
     private static final Set<Integer> CONTROLLER_USAGE_IDS = Set.of(
             0x04, // Joystick
@@ -39,7 +43,29 @@ public class ControllerHIDService {
         }
     }
 
-    public ControllerHIDInfo fetchType() {
+    public ControllerHIDInfo fetchType(int jid) {
+        if (firstFetch) {
+            firstFetch = false;
+            if (isDisabled() && !SDL2NativesManager.isLoaded()) {
+                if (Controlify.instance().controllerHIDService().isDisabled() && !SDL2NativesManager.isLoaded()) {
+                    ToastUtils.sendToast(
+                            Component.translatable("controlify.error.hid"),
+                            Component.translatable("controlify.error.hid.desc"),
+                            true
+                    );
+                }
+            }
+        }
+
+//        if (SDL2NativesManager.isLoaded()) {
+//            int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
+//            int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
+//
+//            if (vid != 0 && pid != 0) {
+//                return new ControllerHIDInfo(ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)), Optional.empty());
+//            }
+//        }
+
         if (disabled) {
             return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
@@ -52,7 +78,7 @@ public class ControllerHIDService {
             return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
-        ControllerType type = ControllerType.getTypeMap().getOrDefault(hid.getSecond(), ControllerType.UNKNOWN);
+        ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
         if (type == ControllerType.UNKNOWN)
             Controlify.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid.getSecond());
 

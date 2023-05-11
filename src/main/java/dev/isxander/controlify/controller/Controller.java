@@ -2,24 +2,11 @@ package dev.isxander.controlify.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.controller.joystick.SingleJoystickController;
-import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.utils.DebugLog;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
-import org.hid4java.HidDevice;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
@@ -47,6 +34,10 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     RumbleManager rumbleManager();
     boolean supportsRumble();
+
+    default BatteryLevel batteryLevel() {
+        return BatteryLevel.UNKNOWN;
+    }
 
     Optional<ControllerHIDService.ControllerHIDInfo> hidInfo();
 

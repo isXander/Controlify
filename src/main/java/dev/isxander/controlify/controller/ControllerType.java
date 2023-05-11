@@ -17,6 +17,10 @@ public record ControllerType(String friendlyName, String mappingId, String theme
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
 
+    public static ControllerType getTypeForHID(HIDIdentifier hid) {
+        return getTypeMap().getOrDefault(hid, ControllerType.UNKNOWN);
+    }
+
     public static void ensureTypeMapFilled() {
         if (typeMap != null) return;
 
