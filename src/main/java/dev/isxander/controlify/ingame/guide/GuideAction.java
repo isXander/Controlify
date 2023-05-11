@@ -3,13 +3,13 @@ package dev.isxander.controlify.ingame.guide;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.ingameguide.ActionLocation;
 import dev.isxander.controlify.api.ingameguide.ActionPriority;
+import dev.isxander.controlify.api.ingameguide.GuideActionNameSupplier;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
-public record GuideAction(ControllerBinding binding, Component name, ActionLocation location,
-                          ActionPriority priority) implements Comparable<GuideAction> {
-    public GuideAction(ControllerBinding binding, Component name, ActionLocation location) {
-        this(binding, name, location, ActionPriority.NORMAL);
+public record GuideAction(ControllerBinding binding, GuideActionNameSupplier name, ActionPriority priority) implements Comparable<GuideAction> {
+    public GuideAction(ControllerBinding binding, GuideActionNameSupplier name) {
+        this(binding, name, ActionPriority.NORMAL);
     }
 
     @Override

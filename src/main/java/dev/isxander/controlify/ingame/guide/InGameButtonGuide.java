@@ -7,6 +7,9 @@ import dev.isxander.controlify.bindings.ControllerBindingImpl;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.gui.layout.AnchorPoint;
+import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
+import dev.isxander.controlify.gui.layout.PositionedComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -26,10 +29,11 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private final LocalPlayer player;
     private final Minecraft minecraft = Minecraft.getInstance();
 
-    private final List<GuideActionSupplier> guidePredicates = new ArrayList<>();
-
     private final List<GuideAction> leftGuides = new ArrayList<>();
     private final List<GuideAction> rightGuides = new ArrayList<>();
+
+    private final PositionedComponent<ColumnLayoutComponent<GuideActionRenderer>> leftLayout;
+    private final PositionedComponent<ColumnLayoutComponent<GuideActionRenderer>> rightLayout;
 
     public InGameButtonGuide(Controller<?, ?> controller, LocalPlayer localPlayer) {
         this.controller = controller;
@@ -37,6 +41,33 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         registerDefaultActions();
         ControlifyEvents.INGAME_GUIDE_REGISTRY.invoker().onRegisterIngameGuide(controller.bindings(), this);
+
+        Collections.sort(leftGuides);
+        Collections.sort(rightGuides);
+
+        leftLayout = new PositionedComponent<>(
+                ColumnLayoutComponent.<GuideActionRenderer>builder()
+                        .elementPadding(2)
+                        .colPadding(4, 4)
+                        .elementPosition(ColumnLayoutComponent.ElementPosition.LEFT)
+                        .elements(leftGuides.stream().map(guide -> new GuideActionRenderer(guide, false)).toList())
+                        .build(),
+                AnchorPoint.TOP_LEFT,
+                0, 0,
+                AnchorPoint.TOP_LEFT
+        );
+
+        rightLayout = new PositionedComponent<>(
+                ColumnLayoutComponent.<GuideActionRenderer>builder()
+                        .elementPadding(2)
+                        .colPadding(4, 4)
+                        .elementPosition(ColumnLayoutComponent.ElementPosition.RIGHT)
+                        .elements(rightGuides.stream().map(guide -> new GuideActionRenderer(guide, true)).toList())
+                        .build(),
+                AnchorPoint.TOP_RIGHT,
+                0, 0,
+                AnchorPoint.TOP_RIGHT
+        );
     }
 
     public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
@@ -45,76 +76,20 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         ControlifyCompat.ifBeginHudBatching();
 
-        {
-            var offset = 0;
-            for (var action : leftGuides) {
-                var renderer = action.binding().renderer();
-
-                var drawSize = renderer.size();
-                if (offset == 0) offset += drawSize.height() / 2;
-
-                int x = 4;
-                int y = 3 + offset;
-
-                renderer.render(poseStack, x, y);
-
-                int textX = x + drawSize.width() + 2;
-                int textY = y - minecraft.font.lineHeight / 2;
-                GuiComponent.fill(poseStack, textX - 1, textY - 1, textX + minecraft.font.width(action.name()) + 1, textY + minecraft.font.lineHeight + 1, 0x80000000);
-                minecraft.font.draw(poseStack, action.name(), textX, textY, 0xFFFFFF);
-
-                offset += drawSize.height() + 2;
-            }
-        }
-
-        {
-            var offset = 0;
-            for (var action : rightGuides) {
-                var renderer = action.binding().renderer();
-
-                var drawSize = renderer.size();
-                if (offset == 0) offset += drawSize.height() / 2;
-
-                int x = width - 4 - drawSize.width();
-                int y = 3 + offset;
-
-                renderer.render(poseStack, x, y);
-
-                int textX = x - minecraft.font.width(action.name()) - 2;
-                int textY = y - minecraft.font.lineHeight / 2;
-                GuiComponent.fill(poseStack, textX - 1, textY - 1, textX + minecraft.font.width(action.name()) + 1, textY + minecraft.font.lineHeight + 1, 0x80000000);
-                minecraft.font.draw(poseStack, action.name(), textX, textY, 0xFFFFFF);
-
-                offset += drawSize.height() + 2;
-            }
-        }
+        leftLayout.render(poseStack, tickDelta);
+        rightLayout.render(poseStack, tickDelta);
 
         ControlifyCompat.ifEndHudBatching();
     }
 
     public void tick() {
-        leftGuides.clear();
-        rightGuides.clear();
+        IngameGuideContext context = new IngameGuideContext(Minecraft.getInstance(), player, minecraft.level, calculateHitResult(), controller);
 
-        if (!controller.config().showIngameGuide || minecraft.screen != null)
-            return;
+        leftLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
+        rightLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
 
-        for (var actionPredicate : guidePredicates) {
-            var action = actionPredicate.supply(Minecraft.getInstance(), player, minecraft.level, calculateHitResult(), controller);
-            if (action.isEmpty())
-                continue;
-
-            GuideAction guideAction = action.get();
-            if (!guideAction.binding().isUnbound()) {
-                if (action.get().location() == ActionLocation.LEFT)
-                    leftGuides.add(action.get());
-                else
-                    rightGuides.add(action.get());
-            }
-        }
-
-        Collections.sort(leftGuides);
-        Collections.sort(rightGuides);
+        leftLayout.updatePosition();
+        rightLayout.updatePosition();
     }
 
     @Override
@@ -124,7 +99,10 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
     @Override
     public void registerGuideAction(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier supplier) {
-        guidePredicates.add(new GuideActionSupplier(binding, location, priority, supplier));
+        if (location == ActionLocation.LEFT)
+            leftGuides.add(new GuideAction(binding, supplier, priority));
+        else
+            rightGuides.add(new GuideAction(binding, supplier, priority));
     }
 
     private void registerDefaultActions() {
@@ -246,13 +224,6 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             return entityHitResult;
         } else {
             return pickResult;
-        }
-    }
-
-    private record GuideActionSupplier(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier nameSupplier) {
-        public Optional<GuideAction> supply(Minecraft client, LocalPlayer player, ClientLevel level, HitResult hitResult, Controller<?, ?> controller) {
-            return nameSupplier.supply(new IngameGuideContext(client, player, level, hitResult, controller))
-                    .map(name -> new GuideAction(binding, name, location, priority));
         }
     }
 }
