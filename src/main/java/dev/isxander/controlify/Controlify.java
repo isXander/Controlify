@@ -7,11 +7,10 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.config.gui.ControllerBindHandler;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
-import dev.isxander.controlify.gui.screen.VibrationOnboardingScreen;
+import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -127,7 +126,7 @@ public class Controlify implements ControlifyApi {
         // find already connected controllers
         for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
             if (GLFW.glfwJoystickPresent(jid)) {
-                var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
+                var controllerOpt = ControllerManager.createOrGet(jid, controllerHIDService.fetchType(jid));
                 if (controllerOpt.isEmpty()) continue;
                 var controller = controllerOpt.get();
 
@@ -145,14 +144,12 @@ public class Controlify implements ControlifyApi {
             }
         }
 
-        checkCompoundJoysticks();
-
-        if (Controller.CONTROLLERS.isEmpty()) {
+        if (ControllerManager.getConnectedControllers().isEmpty()) {
             LOGGER.info("No controllers found.");
         }
 
         if (getCurrentController().isEmpty() && config().isFirstLaunch()) {
-            this.setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+            this.setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
         } else {
             // setCurrentController saves config
             config().saveIfDirty();
@@ -213,7 +210,7 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
-        for (var controller : Controller.CONTROLLERS.values()) {
+        for (var controller : ControllerManager.getConnectedControllers()) {
             if (!outOfFocus)
                 wrapControllerError(controller::updateState, "Updating controller state", controller);
             else
@@ -295,7 +292,7 @@ public class Controlify implements ControlifyApi {
     }
 
     private void onControllerHotplugged(int jid) {
-        var controllerOpt = Controller.createOrGet(jid, controllerHIDService.fetchType());
+        var controllerOpt = ControllerManager.createOrGet(jid, controllerHIDService.fetchType(jid));
         if (controllerOpt.isEmpty()) return;
         var controller = controllerOpt.get();
 
@@ -308,9 +305,7 @@ public class Controlify implements ControlifyApi {
             config().setDirty();
         }
 
-        checkCompoundJoysticks();
-
-        if (Controller.CONTROLLERS.size() == 1) {
+        if (ControllerManager.getConnectedControllers().size() == 1) {
             this.setCurrentController(controller);
 
             ToastUtils.sendToast(
@@ -325,12 +320,12 @@ public class Controlify implements ControlifyApi {
     }
 
     private void onControllerDisconnect(int jid) {
-        Controller.CONTROLLERS.values().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
-            Controller.remove(controller);
+        ControllerManager.getConnectedControllers().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
+            ControllerManager.disconnect(controller);
 
             controller.hidInfo().ifPresent(controllerHIDService::unconsumeController);
 
-            setCurrentController(Controller.CONTROLLERS.values().stream().findFirst().orElse(null));
+            setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
             LOGGER.info("Controller disconnected: " + controller.name());
             this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
 
@@ -339,28 +334,6 @@ public class Controlify implements ControlifyApi {
                     Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
                     false
             );
-        });
-
-        checkCompoundJoysticks();
-    }
-
-    private void checkCompoundJoysticks() {
-        config().getCompoundJoysticks().values().forEach(info -> {
-            try {
-                if (info.isLoaded() && !info.canBeUsed()) {
-                    LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
-                    Controller.CONTROLLERS.remove(info.type().mappingId());
-                }
-
-                if (!info.isLoaded() && info.canBeUsed()) {
-                    LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
-                    CompoundJoystickController controller = info.attemptCreate().orElseThrow();
-                    Controller.CONTROLLERS.put(info.type().mappingId(), controller);
-                    config().loadOrCreateControllerData(controller);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         });
     }
 

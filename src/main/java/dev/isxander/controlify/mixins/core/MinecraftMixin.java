@@ -2,14 +2,13 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.gui.screen.BetaNoticeScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.main.GameConfig;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -54,18 +53,8 @@ public abstract class MinecraftMixin {
             setScreen(new BetaNoticeScreen());
     }
 
-    @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;createReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/server/packs/resources/ReloadInstance;"))
-    private ReloadInstance onReloadResources(ReloadInstance resourceReload) {
-        resourceReload.done().thenRun(() -> {
-            if (Controlify.instance().controllerHIDService().isDisabled()) {
-                getToasts().addToast(SystemToast.multiline((Minecraft) (Object) this, SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING, Component.translatable("controlify.error.hid"), Component.translatable("controlify.error.hid.desc")));
-            }
-        });
-        return resourceReload;
-    }
-
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
     private void onMinecraftClose(CallbackInfo ci) {
-        Controller.CONTROLLERS.values().forEach(Controller::close);
+        ControllerManager.getConnectedControllers().forEach(Controller::close);
     }
 }

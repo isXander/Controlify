@@ -4,15 +4,10 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.rumble.RumbleCapable;
-import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.rumble.RumbleSource;
-import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -63,7 +58,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     protected void setName(String name) {
         String uniqueName = name;
         int i = 0;
-        while (CONTROLLERS.values().stream().map(Controller::name).anyMatch(uniqueName::equalsIgnoreCase)) {
+        while (ControllerManager.getConnectedControllers().stream().map(Controller::name).anyMatch(uniqueName::equalsIgnoreCase)) {
             uniqueName = name + " (" + i++ + ")";
             if (i > 1000) throw new IllegalStateException("Could not find a unique name for controller " + name + " (" + uid() + ")! (tried " + i + " times)");
         }

@@ -20,7 +20,7 @@ quilt_json5 = "1.0.3"
 sodium = "mc1.19.4-0.4.10"
 iris = "1.5.2+1.19.4"
 immediately_fast = "1.1.10+1.19.4"
-sdl2_jni = "2.26.4-4"
+sdl2_jni = "2.26.5-18"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }

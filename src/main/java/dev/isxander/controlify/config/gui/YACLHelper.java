@@ -2,9 +2,11 @@ package dev.isxander.controlify.config.gui;
 
 import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.config.GlobalSettings;
+import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.ControllerState;
@@ -12,7 +14,9 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
+import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
@@ -58,7 +62,7 @@ public class YACLHelper {
                         .name(Component.translatable("controlify.gui.current_controller"))
                         .tooltip(Component.translatable("controlify.gui.current_controller.tooltip"))
                         .binding(Controlify.instance().getCurrentController().orElse(Controller.DUMMY), () -> Controlify.instance().getCurrentController().orElse(Controller.DUMMY), v -> Controlify.instance().setCurrentController(v))
-                        .controller(opt -> new CyclingListController<>(opt, Iterables.concat(List.of(Controller.DUMMY), Controller.CONTROLLERS.values().stream().filter(Controller::canBeUsed).toList()), c -> Component.literal(c == Controller.DUMMY ? "Disabled" : c.name())))
+                        .controller(opt -> new CyclingListController<>(opt, Iterables.concat(List.of(Controller.DUMMY), ControllerManager.getConnectedControllers().stream().filter(Controller::canBeUsed).toList()), c -> Component.literal(c == Controller.DUMMY ? "Disabled" : c.name())))
                         .build())
                 .option(globalVibrationOption = Option.createBuilder(boolean.class)
                         .name(Component.translatable("controlify.gui.load_vibration_natives"))
@@ -102,7 +106,7 @@ public class YACLHelper {
 
         yacl.category(globalCategory.build());
 
-        for (var controller : Controller.CONTROLLERS.values()) {
+        for (var controller : ControllerManager.getConnectedControllers()) {
             yacl.category(createControllerCategory(controller, globalVibrationOption));
         }
 

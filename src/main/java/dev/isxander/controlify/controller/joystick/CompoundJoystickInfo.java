@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.joystick;
 
+import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
 
@@ -13,7 +14,7 @@ public record CompoundJoystickInfo(Collection<String> joystickUids, String frien
     }
 
     public boolean canBeUsed() {
-        List<Controller<?, ?>> joysticks = Controller.CONTROLLERS.values().stream().filter(c -> joystickUids.contains(c.uid())).toList();
+        List<Controller<?, ?>> joysticks = ControllerManager.getConnectedControllers().stream().filter(c -> joystickUids.contains(c.uid())).toList();
         if (joysticks.size() != joystickUids().size()) {
             return false; // not all controllers are connected
         }
@@ -25,13 +26,13 @@ public record CompoundJoystickInfo(Collection<String> joystickUids, String frien
     }
 
     public boolean isLoaded() {
-        return Controller.CONTROLLERS.containsKey(createUID(joystickUids));
+        return ControllerManager.isControllerConnected(createUID(joystickUids));
     }
 
     public Optional<CompoundJoystickController> attemptCreate() {
         if (!canBeUsed()) return Optional.empty();
 
-        List<Integer> joystickIDs = Controller.CONTROLLERS.values().stream()
+        List<Integer> joystickIDs = ControllerManager.getConnectedControllers().stream()
                 .filter(c -> joystickUids.contains(c.uid()))
                 .map(Controller::joystickId)
                 .toList();
