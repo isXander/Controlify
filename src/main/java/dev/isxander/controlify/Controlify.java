@@ -15,7 +15,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
+import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.sound.ControlifySounds;
@@ -270,7 +270,8 @@ public class Controlify implements ControlifyApi {
         this.virtualMouseHandler().handleControllerInput(controller);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
-        } else if (minecraft.level != null) {
+        }
+        if (minecraft.level != null) {
             this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
         }
 

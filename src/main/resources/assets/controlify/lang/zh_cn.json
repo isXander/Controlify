@@ -180,7 +180,7 @@
 
   "controlify.custom_binding.vanilla_description": "自动从Fabric API生成键绑定。",
 
-  "controlify.guide.inventory": "打开物品栏",
+  "controlify.guide.ingame.inventory": "打开物品栏",
   "controlify.guide.swim_up": "向上游",
   "controlify.guide.start_elytra": "打开鞘翅",
   "controlify.guide.fly_up": "向上飞",

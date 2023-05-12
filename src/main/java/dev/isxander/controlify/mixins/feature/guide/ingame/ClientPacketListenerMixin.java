@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.feature.guide.ingame;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.ingame.guide.InGameButtonGuide;
+import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;

@@ -1,4 +1,4 @@
-package dev.isxander.controlify.api.ingameguide;
+package dev.isxander.controlify.api.guide;
 
 import net.minecraft.network.chat.Component;
 
@@ -11,6 +11,6 @@ import java.util.Optional;
  * This is supplied once every tick.
  */
 @FunctionalInterface
-public interface GuideActionNameSupplier {
-    Optional<Component> supply(IngameGuideContext ctx);
+public interface GuideActionNameSupplier<T> {
+    Optional<Component> supply(T ctx);
 }

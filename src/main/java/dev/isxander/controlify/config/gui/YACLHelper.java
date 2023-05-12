@@ -5,6 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.Controller;
@@ -297,7 +298,8 @@ public class YACLHelper {
                                 .stream()
                                 .anyMatch(ctxs::contains);
                         boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
-                        return contextsMatch && bindMatches;
+                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyBind<?>);
+                        return contextsMatch && bindMatches && bindIsNotEmpty;
                     }).toList();
 
             conflicting.forEach(conflict -> ((AbstractBindController<?>) conflict.option().controller()).setConflicting(true));

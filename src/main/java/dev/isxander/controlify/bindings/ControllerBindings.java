@@ -194,7 +194,6 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.Y_BUTTON)
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME)
-                .vanillaOverride(options.keyInventory, () -> false)
                 .build());
         register(CHANGE_PERSPECTIVE = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "change_perspective")

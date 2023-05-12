@@ -81,7 +81,7 @@ public class VirtualMouseHandler {
             snapping = false;
         }
 
-        var sensitivity = !snapping ? controller.config().virtualMouseSensitivity : 20f;
+        var sensitivity = controller.config().virtualMouseSensitivity;
 
         // quadratic function to make small movements smaller
         // abs to keep sign
@@ -166,8 +166,9 @@ public class VirtualMouseHandler {
             lastSnappedPoint = closestSnapPoint;
             snapping = false;
 
-            targetX = closestSnapPoint.position().x() / scaleFactor.x();
-            targetY = closestSnapPoint.position().y() / scaleFactor.y();
+            targetX = currentX = closestSnapPoint.position().x() / scaleFactor.x();
+            targetY = currentY = closestSnapPoint.position().y() / scaleFactor.y();
+            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
         }
     }
 

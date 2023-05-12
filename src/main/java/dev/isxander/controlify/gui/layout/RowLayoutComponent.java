@@ -78,6 +78,12 @@ public class RowLayoutComponent<T extends RenderComponent> extends AbstractLayou
                 .sum() - elementPaddingHorizontal;
     }
 
+    @Override
+    public boolean isVisible() {
+        return this.getChildComponents().stream()
+                .anyMatch(RenderComponent::isVisible);
+    }
+
     public static <T extends RenderComponent> Builder<T> builder() {
         return new Builder<>();
     }
@@ -115,7 +121,7 @@ public class RowLayoutComponent<T extends RenderComponent> extends AbstractLayou
             return this;
         }
 
-        public Builder<T> elementPadding(int padding) {
+        public Builder<T> spacing(int padding) {
             this.elementPaddingHorizontal = padding;
             return this;
         }

@@ -118,7 +118,7 @@ public class ColumnLayoutComponent<T extends RenderComponent> extends AbstractLa
             return this;
         }
 
-        public Builder<T> elementPadding(int padding) {
+        public Builder<T> spacing(int padding) {
             this.componentPaddingVertical = padding;
             return this;
         }

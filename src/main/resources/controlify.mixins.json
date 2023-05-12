@@ -39,6 +39,7 @@
     "feature.guide.ingame.ClientPacketListenerMixin",
     "feature.guide.ingame.GuiMixin",
     "feature.guide.screen.AbstractButtonMixin",
+    "feature.guide.screen.AbstractContainerScreenMixin",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.oofinput.GameRendererMixin",

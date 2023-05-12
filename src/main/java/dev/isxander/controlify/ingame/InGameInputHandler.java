@@ -7,6 +7,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.world.InteractionHand;
 
@@ -41,7 +42,7 @@ public class InGameInputHandler {
     protected void handleKeybinds() {
         shouldShowPlayerList = false;
 
-        if (Minecraft.getInstance().screen != null)
+        if (minecraft.screen != null)
             return;
 
         if (controller.bindings().PAUSE.justPressed()) {
@@ -62,6 +63,14 @@ public class InGameInputHandler {
                 }
             }
 
+            if (controller.bindings().INVENTORY.justPressed()) {
+                if (minecraft.gameMode.isServerControlledInventory()) {
+                    minecraft.player.sendOpenInventory();
+                } else {
+                    minecraft.getTutorial().onOpenInventory();
+                    minecraft.setScreen(new InventoryScreen(minecraft.player));
+                }
+            }
         }
         if (controller.bindings().TOGGLE_HUD_VISIBILITY.justPressed()) {
             minecraft.options.hideGui = !minecraft.options.hideGui;
@@ -74,19 +83,23 @@ public class InGameInputHandler {
         var player = this.minecraft.player;
         var gamepad = controller instanceof GamepadController ? (GamepadController) controller : null;
 
+        if (!minecraft.mouseHandler.isMouseGrabbed() || (!minecraft.isWindowActive() && !Controlify.instance().config().globalSettings().outOfFocusInput) || minecraft.screen != null || player == null) {
+            lookInputX = 0;
+            lookInputY = 0;
+            return;
+        }
+
         // flick stick - turn 90 degrees immediately upon turning
         // should be paired with gyro controls
         if (gamepad != null && gamepad.config().flickStick) {
-            if (player != null) {
-                var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
+            var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
 
-                player.turn(
-                        (controller.bindings().LOOK_RIGHT.justPressed() ? turnAngle : 0)
-                                - (controller.bindings().LOOK_LEFT.justPressed() ? turnAngle : 0),
-                        (controller.bindings().LOOK_DOWN.justPressed() ? turnAngle : 0)
-                                - (controller.bindings().LOOK_UP.justPressed() ? turnAngle : 0)
-                );
-            }
+            player.turn(
+                    (controller.bindings().LOOK_RIGHT.justPressed() ? turnAngle : 0)
+                            - (controller.bindings().LOOK_LEFT.justPressed() ? turnAngle : 0),
+                    (controller.bindings().LOOK_DOWN.justPressed() ? turnAngle : 0)
+                            - (controller.bindings().LOOK_UP.justPressed() ? turnAngle : 0)
+            );
 
             return;
         }
@@ -122,12 +135,8 @@ public class InGameInputHandler {
         impulseX = lookInputModifier.modifyX(impulseX, controller);
         impulseY = lookInputModifier.modifyY(impulseY, controller);
 
-        if (minecraft.mouseHandler.isMouseGrabbed() && (minecraft.isWindowActive() || Controlify.instance().config().globalSettings().outOfFocusInput) && player != null) {
-            lookInputX = impulseX * controller.config().horizontalLookSensitivity * 65f;
-            lookInputY = impulseY * controller.config().verticalLookSensitivity * 65f;
-        } else {
-            lookInputX = lookInputY = 0;
-        }
+        lookInputX = impulseX * controller.config().horizontalLookSensitivity * 65f;
+        lookInputY = impulseY * controller.config().verticalLookSensitivity * 65f;
     }
 
     public void processPlayerLook(float deltaTime) {

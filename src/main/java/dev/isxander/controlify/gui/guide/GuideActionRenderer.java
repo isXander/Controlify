@@ -1,8 +1,7 @@
-package dev.isxander.controlify.ingame.guide;
+package dev.isxander.controlify.gui.guide;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.api.bind.BindRenderer;
-import dev.isxander.controlify.api.ingameguide.IngameGuideContext;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.controlify.gui.layout.RenderComponent;
 import net.minecraft.client.Minecraft;
@@ -14,20 +13,22 @@ import org.joml.Vector2ic;
 
 import java.util.Optional;
 
-public class GuideActionRenderer implements RenderComponent {
-    private final GuideAction guideAction;
+public class GuideActionRenderer<T> implements RenderComponent {
+    private final GuideAction<T> guideAction;
     private final boolean rtl;
+    private final boolean textContrast;
 
     private Optional<Component> name = Optional.empty();
 
-    public GuideActionRenderer(GuideAction action, boolean rtl) {
+    public GuideActionRenderer(GuideAction<T> action, boolean rtl, boolean textContrast) {
         this.guideAction = action;
         this.rtl = rtl;
+        this.textContrast = textContrast;
     }
 
     @Override
     public void render(PoseStack stack, int x, int y, float deltaTime) {
-        if (name.isEmpty())
+        if (!isVisible())
             return;
 
         Font font = Minecraft.getInstance().font;
@@ -41,7 +42,8 @@ public class GuideActionRenderer implements RenderComponent {
         int textX = x + (rtl ? 0 : drawSize.width() + 2);
         int textY = y + drawSize.height() / 2 - font.lineHeight / 2;
 
-        GuiComponent.fill(stack, textX - 1, textY - 1, textX + textWidth + 1, textY + font.lineHeight + 1, 0x80000000);
+        if (textContrast)
+            GuiComponent.fill(stack, textX - 1, textY - 1, textX + textWidth + 1, textY + font.lineHeight + 1, 0x80000000);
         font.draw(stack, name.get(), textX, textY, 0xFFFFFF);
     }
 
@@ -55,10 +57,10 @@ public class GuideActionRenderer implements RenderComponent {
 
     @Override
     public boolean isVisible() {
-        return name.isPresent();
+        return name.isPresent() && !guideAction.binding().isUnbound();
     }
 
-    public void updateName(IngameGuideContext ctx) {
+    public void updateName(T ctx) {
         name = guideAction.name().supply(ctx);
     }
 }
