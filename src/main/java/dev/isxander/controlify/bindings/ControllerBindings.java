@@ -51,6 +51,7 @@ public class ControllerBindings<T extends ControllerState> {
             CHANGE_PERSPECTIVE,
             SWAP_HANDS,
             OPEN_CHAT,
+            INV_SELECT, INV_QUICK_MOVE, INV_TAKE_HALF,
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
             GUI_ABSTRACT_ACTION_1, GUI_ABSTRACT_ACTION_2,
@@ -249,6 +250,24 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.Y_BUTTON)
                 .category(GUI_CATEGORY)
                 .context(BindContexts.GUI)
+                .build());
+        register(INV_SELECT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "inv_select")
+                .defaultBind(GamepadBinds.A_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
+                .build());
+        register(INV_QUICK_MOVE = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "inv_quick_move")
+                .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
+                .build());
+        register(INV_TAKE_HALF = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "inv_take_half")
+                .defaultBind(GamepadBinds.X_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
                 .build());
         register(PICK_BLOCK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "pick_block")
