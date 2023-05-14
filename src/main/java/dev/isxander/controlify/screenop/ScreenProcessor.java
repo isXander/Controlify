@@ -13,6 +13,7 @@ import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
@@ -20,6 +21,7 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import org.lwjgl.glfw.GLFW;
 
@@ -221,6 +223,16 @@ public class ScreenProcessor<T extends Screen> {
         }
 
         return tree;
+    }
+
+    protected final Optional<AbstractWidget> getWidget(String translationKey) {
+        var translatedName = Component.translatable(translationKey).getString();
+
+        return screen.children().stream()
+                .filter(child -> child instanceof AbstractWidget)
+                .map(AbstractWidget.class::cast)
+                .filter(widget -> widget.getMessage().getString().equals(translatedName))
+                .findAny();
     }
 
     public static void playClackSound() {
