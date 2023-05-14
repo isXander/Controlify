@@ -30,6 +30,8 @@ public class GuiMixin {
 
     @Inject(method = "tick()V", at = @At("RETURN"))
     private void tickButtonGuide(CallbackInfo ci) {
+        if (minecraft.level == null) return;
+
         Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::tick);
     }
 }
