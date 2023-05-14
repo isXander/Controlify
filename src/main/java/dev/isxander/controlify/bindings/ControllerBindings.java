@@ -200,14 +200,12 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.BACK)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
-                .vanillaOverride(options.keyTogglePerspective, () -> false)
                 .build());
         register(SWAP_HANDS = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "swap_hands")
                 .defaultBind(GamepadBinds.X_BUTTON)
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME, BindContexts.INVENTORY)
-                .vanillaOverride(options.keySwapOffhand, () -> false)
                 .build());
         register(OPEN_CHAT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "open_chat")

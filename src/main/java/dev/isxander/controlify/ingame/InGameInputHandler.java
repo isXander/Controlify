@@ -6,13 +6,16 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
 
 import java.util.function.BiFunction;
-import java.util.function.UnaryOperator;
 
 public class InGameInputHandler {
     private final Controller<?, ?> controller;
@@ -61,6 +64,29 @@ public class InGameInputHandler {
                     minecraft.player.drop(false);
                     minecraft.player.swing(InteractionHand.MAIN_HAND);
                 }
+
+                if (controller.bindings().SWAP_HANDS.justPressed()) {
+                    minecraft.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
+                }
+            }
+
+            if (controller.bindings().INVENTORY.justPressed()) {
+                if (minecraft.gameMode.isServerControlledInventory()) {
+                    minecraft.player.sendOpenInventory();
+                } else {
+                    minecraft.getTutorial().onOpenInventory();
+                    minecraft.setScreen(new InventoryScreen(minecraft.player));
+                }
+            }
+
+            if (controller.bindings().CHANGE_PERSPECTIVE.justPressed()) {
+                CameraType cameraType = minecraft.options.getCameraType();
+                minecraft.options.setCameraType(minecraft.options.getCameraType().cycle());
+                if (cameraType.isFirstPerson() != minecraft.options.getCameraType().isFirstPerson()) {
+                    minecraft.gameRenderer.checkEntityPostEffect(minecraft.options.getCameraType().isFirstPerson() ? minecraft.getCameraEntity() : null);
+                }
+
+                minecraft.levelRenderer.needsUpdate();
             }
 
             if (controller.bindings().INVENTORY.justPressed()) {

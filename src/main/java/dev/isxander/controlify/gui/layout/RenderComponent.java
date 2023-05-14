@@ -1,5 +1,4 @@
 package dev.isxander.controlify.gui.layout;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Vector2ic;
 
