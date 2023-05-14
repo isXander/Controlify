@@ -111,7 +111,8 @@ public class RowLayoutComponent<T extends RenderComponent> extends AbstractLayou
             return this;
         }
 
-        public Builder<T> elements(T... elements) {
+        @SafeVarargs
+        public final Builder<T> elements(T... elements) {
             this.elements.addAll(Arrays.asList(elements));
             return this;
         }

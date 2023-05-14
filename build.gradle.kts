@@ -72,6 +72,7 @@ dependencies {
         "fabric-lifecycle-events-v1",
         "fabric-key-binding-api-v1",
         "fabric-registry-sync-v0",
+        "fabric-screen-api-v1",
     ).forEach {
         modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
     }

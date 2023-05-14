@@ -75,8 +75,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         ControlifyCompat.ifBeginHudBatching();
 
-        leftLayout.render(poseStack, tickDelta);
-        rightLayout.render(poseStack, tickDelta);
+        leftLayout.renderComponent(poseStack, tickDelta);
+        rightLayout.renderComponent(poseStack, tickDelta);
 
         ControlifyCompat.ifEndHudBatching();
     }

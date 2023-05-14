@@ -1,12 +1,11 @@
 package dev.isxander.controlify.gui.layout;
 
-import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import org.joml.Vector2i;
+import net.minecraft.client.gui.components.Renderable;
 import org.joml.Vector2ic;
 
-public class PositionedComponent<T extends RenderComponent> {
+public class PositionedComponent<T extends RenderComponent> implements Renderable {
     private final T component;
 
     private int x, y;
@@ -21,19 +20,24 @@ public class PositionedComponent<T extends RenderComponent> {
         this.offsetY = offsetY;
         this.windowAnchor = windowAnchor;
         this.origin = origin;
-
-        updatePosition();
     }
 
     public void updatePosition() {
-        Vector2ic windowPosition = windowAnchor.getAnchorPosition(windowSize());
-        Vector2ic anchoredPosition = origin.getAnchorPosition(component.size());
+        Vector2ic componentSize = component.size();
+
+        Vector2ic windowPosition = windowAnchor.getAnchorPosition(Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+        Vector2ic anchoredPosition = origin.getAnchorPosition(componentSize.x(), componentSize.y());
 
         this.x = windowPosition.x() + offsetX - anchoredPosition.x();
         this.y = windowPosition.y() + offsetY - anchoredPosition.y();
     }
 
-    public void render(PoseStack stack, float deltaTime) {
+    @Override
+    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderComponent(matrices, delta);
+    }
+
+    public void renderComponent(PoseStack stack, float deltaTime) {
         component.render(stack, x, y, deltaTime);
     }
 
@@ -47,10 +51,5 @@ public class PositionedComponent<T extends RenderComponent> {
 
     public T getComponent() {
         return component;
-    }
-
-    private Vector2i windowSize() {
-        Window window = Minecraft.getInstance().getWindow();
-        return new Vector2i(window.getGuiScaledWidth(), window.getGuiScaledHeight());
     }
 }

@@ -1,9 +1,6 @@
 package dev.isxander.controlify.gui.layout;
 
-import org.joml.Vector2f;
-import org.joml.Vector2fc;
 import org.joml.Vector2i;
-import org.joml.Vector2ic;
 
 public enum AnchorPoint {
     TOP_LEFT(0, 0),
@@ -23,7 +20,7 @@ public enum AnchorPoint {
         this.anchorY = anchorY;
     }
 
-    public Vector2i getAnchorPosition(Vector2ic windowSize) {
-        return new Vector2i((int) (windowSize.x() * anchorX), (int) (windowSize.y() * anchorY));
+    public Vector2i getAnchorPosition(int w, int h) {
+        return new Vector2i((int) (w * anchorX), (int) (h * anchorY));
     }
 }

@@ -1,13 +1,16 @@
 package dev.isxander.controlify.screenop;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.mixins.feature.screenop.vanilla.ScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.NavigationHelper;
+import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
+import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -25,7 +28,7 @@ import java.util.*;
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
     protected final NavigationHelper navigationHelper = new NavigationHelper(10, 3);
-    protected final Minecraft minecraft = Minecraft.getInstance();
+    protected static final Minecraft minecraft = Minecraft.getInstance();
 
     public ScreenProcessor(T screen) {
         this.screen = screen;
@@ -40,10 +43,15 @@ public class ScreenProcessor<T extends Screen> {
             if (!handleComponentButtonOverride(controller))
                 handleButtons(controller);
         } else {
-            handleScreenVMouse(controller);
+            handleScreenVMouse(controller, Controlify.instance().virtualMouseHandler());
         }
 
         handleTabNavigation(controller);
+    }
+
+    public void render(Controller<?, ?> controller, PoseStack poseStack, float tickDelta) {
+        var vmouse = Controlify.instance().virtualMouseHandler();
+        this.render(controller, poseStack, tickDelta, vmouse.isVirtualMouseEnabled() ? Optional.of(vmouse) : Optional.empty());
     }
 
     public void onInputModeChanged(InputMode mode) {
@@ -115,12 +123,12 @@ public class ScreenProcessor<T extends Screen> {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
         }
         if (controller.bindings().GUI_BACK.justPressed()) {
-            this.playClackSound();
+            playClackSound();
             screen.onClose();
         }
     }
 
-    protected void handleScreenVMouse(Controller<?, ?> controller) {
+    protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
 
     }
 
@@ -180,6 +188,10 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
+    protected void render(Controller<?, ?> controller, PoseStack poseStack, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+
+    }
+
     protected void setInitialFocus() {
         if (screen.getFocused() == null && Controlify.instance().currentInputMode() == InputMode.CONTROLLER && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
             var accessor = (ScreenAccessor) screen;
@@ -191,8 +203,8 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    public boolean forceVirtualMouse() {
-        return false;
+    public VirtualMouseBehaviour virtualMouseBehaviour() {
+        return VirtualMouseBehaviour.DEFAULT;
     }
 
     protected Queue<GuiEventListener> getFocusTree() {
@@ -211,7 +223,7 @@ public class ScreenProcessor<T extends Screen> {
         return tree;
     }
 
-    protected void playClackSound() {
+    public static void playClackSound() {
         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 }

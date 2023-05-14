@@ -1,8 +1,8 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
+import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -15,7 +15,7 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?, ?> controller) {
+    protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
@@ -31,6 +31,6 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
             accessor.invokeSelectTab(tabs.get(newIndex));
         }
 
-        super.handleScreenVMouse(controller);
+        super.handleScreenVMouse(controller, vmouse);
     }
 }

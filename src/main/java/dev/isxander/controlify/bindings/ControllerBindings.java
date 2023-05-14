@@ -275,25 +275,25 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "vmouse_move_up")
                 .defaultBind(GamepadBinds.LEFT_STICK_FORWARD)
                 .category(VMOUSE_CATEGORY)
-                .context(BindContexts.GUI_VMOUSE)
+                .context(BindContexts.GUI_VMOUSE_CURSOR_ONLY)
                 .build());
         register(VMOUSE_MOVE_DOWN = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_down")
                 .defaultBind(GamepadBinds.LEFT_STICK_BACKWARD)
                 .category(VMOUSE_CATEGORY)
-                .context(BindContexts.GUI_VMOUSE)
+                .context(BindContexts.GUI_VMOUSE_CURSOR_ONLY)
                 .build());
         register(VMOUSE_MOVE_LEFT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_left")
                 .defaultBind(GamepadBinds.LEFT_STICK_LEFT)
                 .category(VMOUSE_CATEGORY)
-                .context(BindContexts.GUI_VMOUSE)
+                .context(BindContexts.GUI_VMOUSE_CURSOR_ONLY)
                 .build());
         register(VMOUSE_MOVE_RIGHT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_right")
                 .defaultBind(GamepadBinds.LEFT_STICK_RIGHT)
                 .category(VMOUSE_CATEGORY)
-                .context(BindContexts.GUI_VMOUSE)
+                .context(BindContexts.GUI_VMOUSE_CURSOR_ONLY)
                 .build());
         register(VMOUSE_LCLICK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_lclick")
@@ -335,7 +335,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "vmouse_toggle")
                 .defaultBind(GamepadBinds.BACK)
                 .category(VMOUSE_CATEGORY)
-                .context(BindContexts.GUI_VMOUSE)
+                .context(BindContexts.GUI_VMOUSE, BindContexts.GUI)
                 .build());
         register(GUI_NAVI_UP = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "gui_navi_up")

@@ -9,13 +9,14 @@ import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -40,7 +41,6 @@ public class VirtualMouseHandler {
 
     private Set<SnapPoint> snapPoints;
     private SnapPoint lastSnappedPoint;
-    private boolean snapping;
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
@@ -77,8 +77,6 @@ public class VirtualMouseHandler {
         if (impulseX == 0 && impulseY == 0) {
             if ((prevImpulseX != 0 || prevImpulseY != 0))
                 snapToClosestPoint();
-        } else {
-            snapping = false;
         }
 
         var sensitivity = controller.config().virtualMouseSensitivity;
@@ -91,6 +89,17 @@ public class VirtualMouseHandler {
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
+        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
+            ScreenProcessor.playClackSound();
+            minecraft.screen.onClose();
+        }
+
+        if (!ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().hasCursor()) {
+            handleCompatibilityBinds(controller);
+        }
+    }
+
+    private void handleCompatibilityBinds(Controller<?, ?> controller) {
         scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
 
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
@@ -112,10 +121,6 @@ public class VirtualMouseHandler {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
         } else if (controller.bindings().VMOUSE_SHIFT_CLICK.justReleased()) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
-        }
-
-        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
-            minecraft.screen.onClose();
         }
     }
 
@@ -164,7 +169,6 @@ public class VirtualMouseHandler {
 
         if (closestSnapPoint != null) {
             lastSnappedPoint = closestSnapPoint;
-            snapping = false;
 
             targetX = currentX = closestSnapPoint.position().x() / scaleFactor.x();
             targetY = currentY = closestSnapPoint.position().y() / scaleFactor.y();
@@ -271,14 +275,29 @@ public class VirtualMouseHandler {
     public boolean requiresVirtualMouse() {
         var isController = Controlify.instance().currentInputMode() == InputMode.CONTROLLER;
         var hasScreen = minecraft.screen != null;
-        var forceVirtualMouse = hasScreen && ScreenProcessorProvider.provide(minecraft.screen).forceVirtualMouse();
-        var screenIsVMouseScreen = hasScreen && Controlify.instance().config().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
 
-        return isController && hasScreen && (forceVirtualMouse || screenIsVMouseScreen);
+        if (isController && hasScreen) {
+            return switch (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour()) {
+                case DEFAULT -> Controlify.instance().config().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
+                case ENABLED, CURSOR_ONLY -> true;
+                case DISABLED -> false;
+            };
+        }
+
+        return false;
     }
 
     public void toggleVirtualMouse() {
         if (minecraft.screen == null) return;
+
+        if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour() != VirtualMouseBehaviour.DEFAULT) {
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.vmouse_unavailable.title"),
+                    Component.translatable("controlify.toast.vmouse_unavailable.description"),
+                    false
+            );
+            return;
+        }
 
         var screens = Controlify.instance().config().globalSettings().virtualMouseScreens;
         var screenClass = minecraft.screen.getClass();
@@ -287,22 +306,20 @@ public class VirtualMouseHandler {
             disableVirtualMouse();
             Controlify.instance().hideMouse(true, false);
 
-            minecraft.getToasts().addToast(SystemToast.multiline(
-                    minecraft,
-                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+            ToastUtils.sendToast(
                     Component.translatable("controlify.toast.vmouse_disabled.title"),
-                    Component.translatable("controlify.toast.vmouse_disabled.description")
-            ));
+                    Component.translatable("controlify.toast.vmouse_disabled.description"),
+                    false
+            );
         } else {
             screens.add(screenClass);
             enableVirtualMouse();
 
-            minecraft.getToasts().addToast(SystemToast.multiline(
-                    minecraft,
-                    SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+            ToastUtils.sendToast(
                     Component.translatable("controlify.toast.vmouse_enabled.title"),
-                    Component.translatable("controlify.toast.vmouse_enabled.description")
-            ));
+                    Component.translatable("controlify.toast.vmouse_enabled.description"),
+                    false
+            );
         }
 
         Controlify.instance().config().save();
@@ -310,5 +327,13 @@ public class VirtualMouseHandler {
 
     public boolean isVirtualMouseEnabled() {
         return virtualMouseEnabled;
+    }
+
+    public int getCurrentX(float deltaTime) {
+        return (int) Mth.lerp(deltaTime, currentX, targetX);
+    }
+
+    public int getCurrentY(float deltaTime) {
+        return (int) Mth.lerp(deltaTime, currentY, targetY);
     }
 }

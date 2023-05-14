@@ -1,6 +1,5 @@
 package dev.isxander.controlify.test;
 
-import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 
@@ -69,7 +68,6 @@ public class ClientTestHelper {
 
     public static FakeController createAndUseDummyController() {
         var controller = new FakeController();
-        Controller.CONTROLLERS.put(controller.uid(), controller);
         controller.use();
         return controller;
     }

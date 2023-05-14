@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.JoystickConfig;
@@ -194,7 +193,6 @@ public class FakeController implements JoystickController<JoystickConfig> {
 
     public void finish() {
         Controlify.instance().setCurrentController(null);
-        Controller.CONTROLLERS.remove(uid, this);
     }
 
     @Override

@@ -116,6 +116,8 @@
   "controlify.toast.vmouse_enabled.description": "Controlify virtual mouse is now enabled for this screen.",
   "controlify.toast.vmouse_disabled.title": "Virtual Mouse Disabled",
   "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
+  "controlify.toast.vmouse_unavailable.title": "Virtual Mouse Unavailable",
+  "controlify.toast.vmouse_unavailable.description": "This screen is forcing a specific virtual mouse mode and you cannot change it.",
   "controlify.toast.ask_to_switch.title": "Switch Controller?",
   "controlify.toast.ask_to_switch.description": "A new controller named '%s' has just been connected. Press any button to switch to it.",
   "controlify.toast.default_controller_connected.title": "Controller Connected",
