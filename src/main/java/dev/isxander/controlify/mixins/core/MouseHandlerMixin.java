@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ControlifyApi;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Final;
@@ -34,5 +35,15 @@ public class MouseHandlerMixin {
     private void onMouseScrollInput(long window, double scrollDeltaX, double scrollDeltaY, CallbackInfo ci) {
         if (window == minecraft.getWindow().getWindow())
             Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
+    }
+
+    /**
+     * Without this, mouse is left in the center of the screen that conflicts with controller focus.
+     */
+    @Inject(method = "releaseMouse", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"))
+    private void moveMouseIfNecessary(CallbackInfo ci) {
+        if (ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER) {
+            Controlify.instance().hideMouse(true, true);
+        }
     }
 }
