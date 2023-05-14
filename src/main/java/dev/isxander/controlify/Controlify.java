@@ -9,7 +9,6 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.gui.guide.ContainerButtonGuide;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -184,7 +183,6 @@ public class Controlify implements ControlifyApi {
 
         this.inGameInputHandler = null;
         this.virtualMouseHandler = new VirtualMouseHandler();
-        //ContainerButtonGuide.setup();
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();

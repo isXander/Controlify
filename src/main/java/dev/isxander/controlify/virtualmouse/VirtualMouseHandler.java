@@ -89,19 +89,19 @@ public class VirtualMouseHandler {
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
-        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
-            ScreenProcessor.playClackSound();
-            minecraft.screen.onClose();
-        }
+        scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
 
         if (!ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().hasCursor()) {
             handleCompatibilityBinds(controller);
         }
+
+        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
+            ScreenProcessor.playClackSound();
+            minecraft.screen.onClose();
+        }
     }
 
-    private void handleCompatibilityBinds(Controller<?, ?> controller) {
-        scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
-
+    public void handleCompatibilityBinds(Controller<?, ?> controller) {
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
         var keyboardHandler = (KeyboardHandlerAccessor) minecraft.keyboardHandler;
 

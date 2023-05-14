@@ -8,6 +8,7 @@ import dev.isxander.controlify.gui.guide.ContainerGuideCtx;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
+import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.gui.layout.RowLayoutComponent;
 import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
@@ -26,8 +27,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
-    private PositionedComponent<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>> leftLayout;
-    private PositionedComponent<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>> rightLayout;
+    private PositionedComponent<ColumnLayoutComponent<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>>> leftLayout;
+    private PositionedComponent<ColumnLayoutComponent<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>>> rightLayout;
 
     private final Supplier<Slot> hoveredSlot;
     private final ClickSlotFunction clickSlotFunction;
@@ -40,23 +41,44 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
     @Override
     protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
-        if (controller.bindings().DROP.justPressed()) {
-            Slot slot = hoveredSlot.get();
-            if (slot != null && slot.hasItem()) {
-                clickSlotFunction.clickSlot(slot, slot.index, 0, ClickType.THROW);
+        var accessor = (AbstractContainerScreenAccessor) screen;
+        ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
+
+        Slot hoveredSlot = this.hoveredSlot.get();
+        if (hoveredSlot != null) {
+            if (controller.bindings().DROP.justPressed() && hoveredSlot.hasItem()) {
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.THROW);
             }
+
+            if (controller.bindings().INV_SELECT.justPressed()) {
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
+            }
+
+            if (controller.bindings().INV_QUICK_MOVE.justPressed()) {
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.QUICK_MOVE);
+            }
+
+            if (controller.bindings().INV_TAKE_HALF.justPressed()) {
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, ClickType.PICKUP);
+            }
+
+            if (controller.bindings().SWAP_HANDS.justPressed()) {
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ClickType.SWAP);
+            }
+        } else {
+            vmouse.handleCompatibilityBinds(controller);
         }
 
         if (leftLayout != null && rightLayout != null) {
-            var accessor = (AbstractContainerScreenAccessor) screen;
-
-            ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
-
-            for (var element : leftLayout.getComponent().getChildComponents()) {
-                element.updateName(ctx);
+            for (var row : leftLayout.getComponent().getChildComponents()) {
+                for (var element : row.getChildComponents()) {
+                    element.updateName(ctx);
+                }
             }
-            for (var element : rightLayout.getComponent().getChildComponents()) {
-                element.updateName(ctx);
+            for (var row : rightLayout.getComponent().getChildComponents()) {
+                for (var element : row.getChildComponents()) {
+                    element.updateName(ctx);
+                }
             }
 
             leftLayout.updatePosition();
@@ -75,35 +97,40 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         }
 
         leftLayout = new PositionedComponent<>(
-                RowLayoutComponent.<GuideActionRenderer<ContainerGuideCtx>>builder()
-                        .spacing(5)
-                        .rowPadding(0)
-                        .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
-                        .element(new GuideActionRenderer<>(
-                                new GuideAction<>(bindings.VMOUSE_LCLICK, ctx -> {
-                                    if (!ctx.holdingItem().isEmpty())
-                                        if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
-                                            if (ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
-                                                if (ctx.holdingItem().getCount() > 1)
-                                                    return Optional.of(Component.translatable("controlify.guide.container.place_all"));
-                                                else
-                                                    return Optional.of(Component.translatable("controlify.guide.container.place_one"));
-                                            else
-                                                return Optional.of(Component.translatable("controlify.guide.container.swap"));
-                                        else if (ctx.cursorOutsideContainer())
-                                            return Optional.of(Component.translatable("controlify.guide.container.drop"));
-                                    if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
-                                        return Optional.of(Component.translatable("controlify.guide.container.take"));
-                                    return Optional.empty();
-                                }),
-                                false, false
-                        ))
-                        .element(new GuideActionRenderer<>(
-                                new GuideAction<>(bindings.GUI_BACK, ctx -> {
-                                    return Optional.of(Component.translatable("controlify.guide.container.exit"));
-                                }),
-                                false, false
-                        ))
+                ColumnLayoutComponent.<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>>builder()
+                        .spacing(2)
+                        .elementPosition(ColumnLayoutComponent.ElementPosition.LEFT)
+                        .colPadding(2)
+                        .element(RowLayoutComponent.<GuideActionRenderer<ContainerGuideCtx>>builder()
+                                .spacing(5)
+                                .rowPadding(0)
+                                .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
+                                .element(new GuideActionRenderer<>(
+                                        new GuideAction<>(bindings.VMOUSE_LCLICK, ctx -> {
+                                            if (!ctx.holdingItem().isEmpty())
+                                                if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                                    if (ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
+                                                        if (ctx.holdingItem().getCount() > 1)
+                                                            return Optional.of(Component.translatable("controlify.guide.container.place_all"));
+                                                        else
+                                                            return Optional.of(Component.translatable("controlify.guide.container.place_one"));
+                                                    else
+                                                        return Optional.of(Component.translatable("controlify.guide.container.swap"));
+                                                else if (ctx.cursorOutsideContainer())
+                                                    return Optional.of(Component.translatable("controlify.guide.container.drop"));
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                                return Optional.of(Component.translatable("controlify.guide.container.take"));
+                                            return Optional.empty();
+                                        }),
+                                        false, false
+                                ))
+                                .element(new GuideActionRenderer<>(
+                                        new GuideAction<>(bindings.GUI_BACK, ctx -> {
+                                            return Optional.of(Component.translatable("controlify.guide.container.exit"));
+                                        }),
+                                        false, false
+                                ))
+                                .build())
                         .build(),
                 AnchorPoint.BOTTOM_LEFT,
                 0, 0,
@@ -111,26 +138,46 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         );
 
         rightLayout = new PositionedComponent<>(
-                RowLayoutComponent.<GuideActionRenderer<ContainerGuideCtx>>builder()
-                        .spacing(5)
-                        .rowPadding(0)
-                        .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
-                        .element(new GuideActionRenderer<>(
-                                new GuideAction<>(bindings.VMOUSE_RCLICK, ctx -> {
-                                    if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
-                                        return Optional.of(Component.translatable("controlify.guide.container.take_half"));
-                                    if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
-                                        return Optional.of(Component.translatable("controlify.guide.container.take_one"));
-                                    return Optional.empty();
-                                }),
-                                true, false
-                        ))
-                        .element(new GuideActionRenderer<>(
-                                new GuideAction<>(bindings.VMOUSE_SHIFT_CLICK, ctx -> {
-                                    return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
-                                }),
-                                true, false
-                        ))
+                ColumnLayoutComponent.<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>>builder()
+                        .spacing(2)
+                        .elementPosition(ColumnLayoutComponent.ElementPosition.RIGHT)
+                        .colPadding(2)
+                        .element(RowLayoutComponent.<GuideActionRenderer<ContainerGuideCtx>>builder()
+                                .spacing(5)
+                                .rowPadding(0)
+                                .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
+                                .element(new GuideActionRenderer<>(
+                                        new GuideAction<>(bindings.DROP, ctx -> {
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                                return Optional.of(Component.translatable("controlify.guide.container.drop"));
+                                            return Optional.empty();
+                                        }),
+                                        true, false
+                                ))
+                                .build())
+                        .element(RowLayoutComponent.<GuideActionRenderer<ContainerGuideCtx>>builder()
+                                .spacing(5)
+                                .rowPadding(0)
+                                .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
+                                .element(new GuideActionRenderer<>(
+                                        new GuideAction<>(bindings.VMOUSE_RCLICK, ctx -> {
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
+                                                return Optional.of(Component.translatable("controlify.guide.container.take_half"));
+                                            if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
+                                                return Optional.of(Component.translatable("controlify.guide.container.take_one"));
+                                            return Optional.empty();
+                                        }),
+                                        true, false
+                                ))
+                                .element(new GuideActionRenderer<>(
+                                        new GuideAction<>(bindings.VMOUSE_SHIFT_CLICK, ctx -> {
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                                return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
+                                            return Optional.empty();
+                                        }),
+                                        true, false
+                                ))
+                                .build())
                         .build(),
                 AnchorPoint.BOTTOM_RIGHT,
                 0, 0,
