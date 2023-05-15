@@ -128,6 +128,8 @@
   "controlify.toast.faulty_input.description": "The controller was found to conflict with the keyboard and mouse and is now disabled. Increase deadzone values or check joystick mapping to fix.",
   "controlify.toast.low_battery.title": "Low Battery",
   "controlify.toast.low_battery.message": "Your controller '%s' is low on battery. Please charge it soon.",
+  "controlify.toast.setup_in_config.title": "Controllers found!",
+  "controlify.toast.setup_in_config.description": "To use with Controlify, go to %s -> %s -> %s.",
 
   "controlify.sdl2_onboarding.title": "Controlify Native Library",
   "controlify.sdl2_onboarding.message": "Many features in Controlify require an extra library that needs to be downloaded for your system. If you do not download this library, you will lose access to many features such as: controller vibration, gyroscope control, better controller identification. This is a seamless process and will only take a few seconds. If you choose no, you may change your mind later in Controlify settings, but you won't have access to these features in the meantime.",

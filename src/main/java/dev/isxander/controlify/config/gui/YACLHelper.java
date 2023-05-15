@@ -38,7 +38,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -48,14 +47,26 @@ public class YACLHelper {
     private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
 
     public static Screen openConfigScreen(Screen parent) {
-        Screen configScreen = generateConfigScreen(parent);
-        if (!Controlify.instance().config().globalSettings().vibrationOnboarded)
-           configScreen = new SDLOnboardingScreen(configScreen, yes -> {
+        var controlify = Controlify.instance();
+
+        if (!controlify.config().globalSettings().vibrationOnboarded) {
+            return new SDLOnboardingScreen(() -> generateConfigScreen(parent), yes -> {
                 if (yes) {
                     SDL2NativesManager.initialise();
+
+                    if (controlify.config().globalSettings().delegateSetup) {
+                        controlify.discoverControllers();
+                        controlify.config().globalSettings().delegateSetup = false;
+                        controlify.config().save();
+                    }
                 }
-           });
-        return configScreen;
+            });
+        } else if (Controlify.instance().config().globalSettings().delegateSetup) {
+            controlify.discoverControllers();
+            controlify.config().globalSettings().delegateSetup = false;
+            controlify.config().save();
+        }
+        return generateConfigScreen(parent);
     }
 
     private static Screen generateConfigScreen(Screen parent) {

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -119,12 +120,16 @@ public class ControlifyConfig {
             setDirty();
         }
 
-        this.compoundJoysticks = object
-                .getAsJsonArray("compound_joysticks")
-                .asList()
-                .stream()
-                .map(element -> GSON.fromJson(element, CompoundJoystickInfo.class))
-                .collect(Collectors.toMap(info -> info.type().mappingId(), Function.identity()));
+        if (object.has("compound_joysticks")) {
+            this.compoundJoysticks = object
+                    .getAsJsonArray("compound_joysticks")
+                    .asList()
+                    .stream()
+                    .map(element -> GSON.fromJson(element, CompoundJoystickInfo.class))
+                    .collect(Collectors.toMap(info -> info.type().mappingId(), Function.identity()));
+        } else {
+            this.compoundJoysticks = Map.of();
+        }
 
         if (object.has("current_controller")) {
             JsonElement element = object.get("current_controller");

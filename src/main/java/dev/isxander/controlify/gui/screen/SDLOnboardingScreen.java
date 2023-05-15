@@ -9,15 +9,17 @@ import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.function.Supplier;
+
 public class SDLOnboardingScreen extends ConfirmScreen {
-    public SDLOnboardingScreen(Screen lastScreen, BooleanConsumer onAnswered) {
+    public SDLOnboardingScreen(Supplier<Screen> lastScreen, BooleanConsumer onAnswered) {
         super(
                 yes -> {
                     Controlify.instance().config().globalSettings().loadVibrationNatives = yes;
                     Controlify.instance().config().globalSettings().vibrationOnboarded = true;
                     Controlify.instance().config().save();
-                    Minecraft.getInstance().setScreen(lastScreen);
                     onAnswered.accept(yes);
+                    Minecraft.getInstance().setScreen(lastScreen.get());
                 },
                 Component.translatable("controlify.sdl2_onboarding.title").withStyle(ChatFormatting.BOLD),
                 Util.make(() -> {

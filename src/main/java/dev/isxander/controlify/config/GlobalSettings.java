@@ -20,4 +20,5 @@ public class GlobalSettings {
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
     public boolean uiSounds = false;
     public boolean notifyLowBattery = true;
+    public boolean delegateSetup = false;
 }

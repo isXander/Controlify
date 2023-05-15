@@ -63,6 +63,7 @@ public class Controlify implements ControlifyApi {
     private final ControlifyConfig config = new ControlifyConfig(this);
 
     private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
+    private boolean canDiscoverControllers = true;
 
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
@@ -78,7 +79,20 @@ public class Controlify implements ControlifyApi {
 
         var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1).anyMatch(GLFW::glfwJoystickPresent);
         if (controllersConnected) {
-            askNatives().whenComplete((loaded, th) -> discoverControllers());
+            if (!config().globalSettings().delegateSetup) {
+                askNatives().whenComplete((loaded, th) -> discoverControllers());
+            } else {
+                ToastUtils.sendToast(
+                        Component.translatable("controlify.toast.setup_in_config.title"),
+                        Component.translatable(
+                                "controlify.toast.setup_in_config.description",
+                                Component.translatable("options.title"),
+                                Component.translatable("controls.keybinds.title"),
+                                Component.literal("Controlify")
+                        ),
+                        false
+                );
+            }
         }
 
         // listen for new controllers
@@ -107,7 +121,7 @@ public class Controlify implements ControlifyApi {
         nativeOnboardingFuture = new CompletableFuture<>();
 
         minecraft.setScreen(new SDLOnboardingScreen(
-                minecraft.screen,
+                () -> minecraft.screen,
                 answer -> {
                     if (answer)
                         SDL2NativesManager.initialise();
@@ -118,7 +132,12 @@ public class Controlify implements ControlifyApi {
         return nativeOnboardingFuture;
     }
 
-    private void discoverControllers() {
+    public void discoverControllers() {
+        if (!canDiscoverControllers) {
+            throw new IllegalStateException("Cannot discover controllers!");
+        }
+        canDiscoverControllers = false;
+
         DebugLog.log("Discovering and initializing controllers...");
 
         if (config().globalSettings().loadVibrationNatives)
@@ -321,6 +340,8 @@ public class Controlify implements ControlifyApi {
             this.askToSwitchController(controller);
             config().saveIfDirty();
         }
+
+        canDiscoverControllers = false;
     }
 
     private void onControllerDisconnect(int jid) {
