@@ -46,7 +46,7 @@ the compromise.
 Just like in bedrock edition, you can move a cursor across your inventory, and interact
 with it in a controller-friendly way. With dedicated buttons for quick move, dropping etc. Controlify also comes with cursor snapping, so you don't need to be so precise with cursor movements.
 
-![container cursor screenshot](https://cdn.modrinth.com/data/DOUdJVEm/images/050d4f218fc77ea3a38187f0e6148e1184b8247c.png)
+![container cursor screenshot](https://cdn.modrinth.com/data/DOUdJVEm/images/249a2cbaea9b374b33fe67717380e732693dd37a.png)
 
 ### Controller identification
 
