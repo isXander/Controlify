@@ -246,8 +246,7 @@ publishing {
             groupId = "dev.isxander"
             artifactId = "controlify"
 
-            artifact(tasks["remapJar"])
-            artifact(tasks["remapSourcesJar"])
+            from(components["java"])
         }
     }
 
