@@ -44,7 +44,7 @@ public class ControllerBindings<T extends ControllerState> {
             JUMP, SNEAK,
             ATTACK, USE,
             SPRINT,
-            DROP,
+            DROP, DROP_STACK,
             NEXT_SLOT, PREV_SLOT,
             PAUSE,
             INVENTORY,
@@ -171,6 +171,12 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.DPAD_DOWN)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME, BindContexts.INVENTORY)
+                .build());
+        register(DROP_STACK = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "drop_stack")
+                .defaultBind(new EmptyBind<>())
+                .category(GAMEPLAY_CATEGORY)
+                .context(BindContexts.INGAME)
                 .build());
         register(NEXT_SLOT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "next_slot")

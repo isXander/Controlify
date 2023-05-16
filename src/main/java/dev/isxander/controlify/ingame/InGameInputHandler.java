@@ -6,6 +6,7 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.utils.NavigationHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -24,9 +25,12 @@ public class InGameInputHandler {
     private double lookInputX, lookInputY;
     private boolean shouldShowPlayerList;
 
+    private final NavigationHelper dropRepeatHelper;
+
     public InGameInputHandler(Controller<?, ?> controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
+        this.dropRepeatHelper = new NavigationHelper(20, 1);
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
             if (minecraft.player != null) {
@@ -60,9 +64,15 @@ public class InGameInputHandler {
             }
 
             if (!minecraft.player.isSpectator()) {
-                if (controller.bindings().DROP.justPressed()) {
-                    minecraft.player.drop(false);
-                    minecraft.player.swing(InteractionHand.MAIN_HAND);
+                if (controller.bindings().DROP_STACK.justPressed()) {
+                    if (minecraft.player.drop(true)) {
+                        minecraft.player.swing(InteractionHand.MAIN_HAND);
+                    }
+                } else if (dropRepeatHelper.shouldAction(controller.bindings().DROP)) {
+                    if (minecraft.player.drop(false)) {
+                        dropRepeatHelper.onNavigate();
+                        minecraft.player.swing(InteractionHand.MAIN_HAND);
+                    }
                 }
 
                 if (controller.bindings().SWAP_HANDS.justPressed()) {

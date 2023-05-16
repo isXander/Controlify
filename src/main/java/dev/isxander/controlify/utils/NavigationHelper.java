@@ -1,5 +1,7 @@
 package dev.isxander.controlify.utils;
 
+import dev.isxander.controlify.api.bind.ControllerBinding;
+
 public class NavigationHelper {
     private final int initialDelay, repeatDelay;
     private int currentDelay;
@@ -31,5 +33,13 @@ public class NavigationHelper {
         } else {
             hasResetThisTick = false;
         }
+    }
+
+    public boolean shouldAction(ControllerBinding binding) {
+        boolean shouldAction = binding.held() && (canNavigate() || !binding.prevHeld());
+        if (shouldAction && !binding.prevHeld()) {
+            reset();
+        }
+        return shouldAction;
     }
 }

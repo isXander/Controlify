@@ -173,6 +173,7 @@
   "controlify.binding.controlify.inv_quick_move": "Quick Move",
   "controlify.binding.controlify.inv_take_half": "Take Half",
   "controlify.binding.controlify.drop": "Drop Item",
+  "controlify.binding.controlify.drop_stack": "Drop Stack",
   "controlify.binding.controlify.pick_block": "Pick Block",
   "controlify.binding.controlify.toggle_hud_visibility": "Toggle HUD Visibility",
   "controlify.binding.controlify.show_player_list": "Show Player List",
