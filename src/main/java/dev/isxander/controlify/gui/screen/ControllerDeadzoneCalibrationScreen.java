@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -57,36 +58,34 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        renderBackground(graphics);
 
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(graphics, mouseX, mouseY, delta);
 
-        drawCenteredString(matrices, font, Component.translatable("controlify.calibration.title", controller.name()).withStyle(ChatFormatting.BOLD), width / 2, 8, -1);
+        graphics.drawCenteredString(font, Component.translatable("controlify.calibration.title", controller.name()).withStyle(ChatFormatting.BOLD), width / 2, 8, -1);
 
-        RenderSystem.setShaderTexture(0, GUI_BARS_LOCATION);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        matrices.pushPose();
-        matrices.scale(2f, 2f, 1f);
-        drawBar(matrices, width / 2 / 2, 30 / 2, 1f, 0);
+        graphics.pose().pushPose();
+        graphics.pose().scale(2f, 2f, 1f);
+        drawBar(graphics, width / 2 / 2, 30 / 2, 1f, 0);
         var progress = (calibrationTicks - 1 + delta) / 100f;
         if (progress > 0)
-            drawBar(matrices, width / 2 / 2, 30 / 2, progress, 5);
-        matrices.popPose();
+            drawBar(graphics, width / 2 / 2, 30 / 2, progress, 5);
+        graphics.pose().popPose();
 
         MultiLineLabel label;
         if (calibrating) label = waitLabel;
         else if (calibrated) label = completeLabel;
         else label = infoLabel;
 
-        label.renderCentered(matrices, width / 2, 55);
+        label.renderCentered(graphics, width / 2, 55);
     }
 
-    private void drawBar(PoseStack matrices, int centerX, int y, float progress, int vOffset) {
+    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress, int vOffset) {
         progress = 1 - (float)Math.pow(1 - progress, 3);
 
         int x = centerX - 182 / 2;
-        this.blit(matrices, x, y, 0, 30 + vOffset, (int)(progress * 182), 5);
+        graphics.blit(GUI_BARS_LOCATION, x, y, 0, 30 + vOffset, (int)(progress * 182), 5);
     }
 
     @Override

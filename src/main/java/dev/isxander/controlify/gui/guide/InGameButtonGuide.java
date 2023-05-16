@@ -1,6 +1,5 @@
 package dev.isxander.controlify.gui.guide;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
@@ -12,6 +11,7 @@ import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
@@ -69,14 +69,14 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         );
     }
 
-    public void renderHud(PoseStack poseStack, float tickDelta, int width, int height) {
+    public void renderHud(GuiGraphics graphics, float tickDelta, int width, int height) {
         if (!controller.config().showIngameGuide || minecraft.screen != null || minecraft.options.renderDebug)
             return;
 
         ControlifyCompat.ifBeginHudBatching();
 
-        leftLayout.renderComponent(poseStack, tickDelta);
-        rightLayout.renderComponent(poseStack, tickDelta);
+        leftLayout.renderComponent(graphics, tickDelta);
+        rightLayout.renderComponent(graphics, tickDelta);
 
         ControlifyCompat.ifEndHudBatching();
     }
@@ -111,13 +111,13 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             if (player.getAbilities().flying)
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_up"));
 
-            if (player.isOnGround())
+            if (player.onGround())
                 return Optional.of(Component.translatable("key.jump"));
 
             if (player.isInWater())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_up"));
 
-            if (!player.isOnGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
+            if (!player.onGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
                 var chestStack = player.getItemBySlot(EquipmentSlot.CHEST);
                 if (chestStack.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(chestStack))
                     return Optional.of(Component.translatable("controlify.guide.ingame.start_elytra"));
@@ -131,7 +131,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.dismount"));
             if (player.getAbilities().flying)
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_down"));
-            if (player.isInWater() && !player.isOnGround())
+            if (player.isInWater() && !player.onGround())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_down"));
             if (ctx.controller().config().toggleSneak) {
                 return Optional.of(Component.translatable(player.input.shiftKeyDown ? "controlify.guide.ingame.stop_sneaking" : "controlify.guide.ingame.start_sneaking"));
@@ -182,8 +182,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             return Optional.empty();
         });
         registerGuideAction(controller.bindings().DROP, ActionLocation.RIGHT, (ctx) -> {
-            var player = ctx.player();
-            if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
+            var holdingItem = ctx.player().getInventory().getSelected();
+            if (!holdingItem.isEmpty())
                 return Optional.of(Component.translatable("controlify.guide.ingame.drop"));
             return Optional.empty();
         });

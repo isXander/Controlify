@@ -13,6 +13,7 @@ import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -51,9 +52,9 @@ public class ScreenProcessor<T extends Screen> {
         handleTabNavigation(controller);
     }
 
-    public void render(Controller<?, ?> controller, PoseStack poseStack, float tickDelta) {
+    public void render(Controller<?, ?> controller, GuiGraphics graphics, float tickDelta) {
         var vmouse = Controlify.instance().virtualMouseHandler();
-        this.render(controller, poseStack, tickDelta, vmouse.isVirtualMouseEnabled() ? Optional.of(vmouse) : Optional.empty());
+        this.render(controller, graphics, tickDelta, vmouse.isVirtualMouseEnabled() ? Optional.of(vmouse) : Optional.empty());
     }
 
     public void onInputModeChanged(InputMode mode) {
@@ -190,7 +191,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void render(Controller<?, ?> controller, PoseStack poseStack, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+    protected void render(Controller<?, ?> controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
 
     }
 

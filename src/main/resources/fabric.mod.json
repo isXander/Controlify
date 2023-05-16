@@ -32,9 +32,9 @@
   "accessWidener": "controlify.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.0",
-    "minecraft": "~1.19.4",
+    "minecraft": ">1.20-",
     "java": ">=17",
-    "yet-another-config-lib": "^2.4.0"
+    "yet_another_config_lib": "^2.4.0"
   },
   "breaks": {
     "midnightcontrols": "*"

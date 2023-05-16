@@ -514,7 +514,7 @@ public class ControllerBindings<T extends ControllerState> {
 
         if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER)
             return;
-        if (Minecraft.getInstance().screen != null && !Minecraft.getInstance().screen.passEvents)
+        if (Minecraft.getInstance().screen != null)
             return;
 
         for (var binding : registry().values()) {

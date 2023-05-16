@@ -2,7 +2,6 @@ package dev.isxander.controlify.bindings;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
@@ -18,6 +17,7 @@ import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl.api.Option;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -302,8 +302,8 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     private record BindRendererImpl(IBind<?> bind) implements BindRenderer {
         @Override
-        public void render(PoseStack poseStack, int x, int centerY) {
-            bind.draw(poseStack, x, centerY);
+        public void render(GuiGraphics graphics, int x, int centerY) {
+            bind.draw(graphics, x, centerY);
         }
 
         @Override

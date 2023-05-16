@@ -5,6 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,10 +21,10 @@ public class GuiMixin {
     @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = "render", at = @At(value = "CONSTANT", args = "stringValue=chat"))
-    private void renderButtonGuide(PoseStack matrices, float tickDelta, CallbackInfo ci) {
+    private void renderButtonGuide(GuiGraphics graphics, float tickDelta, CallbackInfo ci) {
         Controlify.instance().inGameButtonGuide().ifPresent(guide -> {
             minecraft.getProfiler().push("controlify_button_guide");
-            guide.renderHud(matrices, tickDelta, screenWidth, screenHeight);
+            guide.renderHud(graphics, tickDelta, screenWidth, screenHeight);
             minecraft.getProfiler().pop();
         });
     }

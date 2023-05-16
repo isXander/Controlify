@@ -1,11 +1,11 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.gui.DrawSize;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface IBind<S extends ControllerState> {
     float state(S state);
@@ -13,7 +13,7 @@ public interface IBind<S extends ControllerState> {
         return state(state) > controller().config().buttonActivationThreshold;
     }
 
-    void draw(PoseStack matrices, int x, int centerY);
+    void draw(GuiGraphics graphics, int x, int centerY);
     DrawSize drawSize();
 
     JsonObject toJson();

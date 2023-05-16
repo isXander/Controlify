@@ -56,7 +56,7 @@ public class ControllerPlayerMovement extends Input {
         if (!bindings.JUMP.held())
             this.jumping = false;
 
-        if (player.getAbilities().flying || (player.isInWater() && !player.isOnGround()) || !controller.config().toggleSneak) {
+        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || !controller.config().toggleSneak) {
             if (bindings.SNEAK.justPressed())
                 this.shiftKeyDown = true;
             if (!bindings.SNEAK.held())

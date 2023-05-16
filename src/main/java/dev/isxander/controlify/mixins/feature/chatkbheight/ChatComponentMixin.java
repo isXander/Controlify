@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import org.spongepowered.asm.mixin.Final;
@@ -18,22 +19,22 @@ public class ChatComponentMixin {
     @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = "render", at = @At("HEAD"))
-    private void translateRender(PoseStack matrices, int tickDelta, int i, int j, CallbackInfo ci) {
+    private void translateRender(GuiGraphics graphics, int tickDelta, int i, int j, CallbackInfo ci) {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
         Controller<?, ?> controller = Controlify.instance().currentController();
-        matrices.pushPose();
+        graphics.pose().pushPose();
         if (controller.config().chatKeyboardHeight == 0) return;
-        matrices.translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
+        graphics.pose().translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void finishTranslateRender(PoseStack matrices, int tickDelta, int i, int j, CallbackInfo ci) {
+    private void finishTranslateRender(GuiGraphics graphics, int tickDelta, int i, int j, CallbackInfo ci) {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
-        matrices.popPose();
+        graphics.pose().popPose();
     }
 
     @ModifyConstant(method = "render", constant = @Constant(intValue = 40))

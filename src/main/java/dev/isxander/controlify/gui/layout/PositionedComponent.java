@@ -1,7 +1,7 @@
 package dev.isxander.controlify.gui.layout;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import org.joml.Vector2ic;
 
@@ -33,12 +33,12 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
     }
 
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        this.renderComponent(matrices, delta);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        this.renderComponent(graphics, delta);
     }
 
-    public void renderComponent(PoseStack stack, float deltaTime) {
-        component.render(stack, x, y, deltaTime);
+    public void renderComponent(GuiGraphics graphics, float deltaTime) {
+        component.render(graphics, x, y, deltaTime);
     }
 
     public int x() {

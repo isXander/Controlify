@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.layout;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import org.apache.commons.lang3.Validate;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
@@ -32,7 +32,7 @@ public class RowLayoutComponent<T extends RenderComponent> extends AbstractLayou
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float deltaTime) {
+    public void render(GuiGraphics graphics, int x, int y, float deltaTime) {
         int height = getMaxChildHeight();
 
         if (height == -1)
@@ -44,7 +44,7 @@ public class RowLayoutComponent<T extends RenderComponent> extends AbstractLayou
                 continue;
 
             element.render(
-                    stack,
+                    graphics,
                     x + rowPaddingLeft + xOffset,
                     y + rowPaddingTop + elementPosition.positionFunction.apply(height, element.size().y()),
                     deltaTime

@@ -62,7 +62,7 @@ val minecraftVersion = libs.versions.minecraft.get()
 dependencies {
     minecraft(libs.minecraft)
     mappings(loom.layered {
-        mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.${libs.versions.quilt.mappings.get()}:intermediary-v2")
+        //mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.${libs.versions.quilt.mappings.get()}:intermediary-v2")
         officialMojangMappings()
     })
     modImplementation(libs.fabric.loader)
@@ -107,12 +107,12 @@ dependencies {
     // sodium compat
     modImplementation(libs.sodium)
     // iris compat
-    modImplementation(libs.iris)
-    modRuntimeOnly("org.anarres:jcpp:1.4.14")
-    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
+//    modImplementation(libs.iris)
+//    modRuntimeOnly("org.anarres:jcpp:1.4.14")
+//    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
     // immediately-fast compat
-    modImplementation(libs.immediately.fast)
-    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+//    modImplementation(libs.immediately.fast)
+//    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)

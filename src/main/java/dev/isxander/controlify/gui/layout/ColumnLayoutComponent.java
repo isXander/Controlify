@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.layout;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import org.apache.commons.lang3.Validate;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
@@ -35,7 +35,7 @@ public class ColumnLayoutComponent<T extends RenderComponent> extends AbstractLa
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float deltaTime) {
+    public void render(GuiGraphics graphics, int x, int y, float deltaTime) {
         int width = getMaxChildWidth();
 
         if (width == -1)
@@ -47,7 +47,7 @@ public class ColumnLayoutComponent<T extends RenderComponent> extends AbstractLa
                 continue;
 
             element.render(
-                    stack,
+                    graphics,
                     x + colPaddingLeft + elementPosition.positionFunction.apply(width, element.size().x()),
                     y + colPaddingTop + yOffset,
                     deltaTime

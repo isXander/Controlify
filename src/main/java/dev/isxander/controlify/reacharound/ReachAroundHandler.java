@@ -36,7 +36,7 @@ public class ReachAroundHandler {
                 && cameraEntity.getXRot() >= 45
                 // if the player is not standing on a block, this is inappropriate
                 // this also prevents selecting fluids as a valid position
-                && cameraEntity.isOnGround()
+                && cameraEntity.onGround()
                 // must respect config option
                 && Controlify.instance().config().globalSettings().reachAround.canReachAround();
     }

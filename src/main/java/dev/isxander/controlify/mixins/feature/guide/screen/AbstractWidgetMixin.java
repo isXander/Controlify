@@ -1,6 +1,5 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -9,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(AbstractWidget.class)
-public abstract class AbstractWidgetMixin extends GuiComponent {
+public abstract class AbstractWidgetMixin {
     @Shadow public abstract int getX();
 
     @Shadow public abstract int getY();
@@ -22,7 +21,7 @@ public abstract class AbstractWidgetMixin extends GuiComponent {
 
     @Shadow public abstract boolean isActive();
 
-    @ModifyArg(method = "renderScrollingString(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;renderScrollingString(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIII)V"), index = 3)
+    @ModifyArg(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIII)V"), index = 3)
     protected int shiftDrawSize(int x) {
         return x;
     }

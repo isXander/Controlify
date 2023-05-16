@@ -1,13 +1,11 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
@@ -31,7 +29,7 @@ public class JoystickHatBind implements IBind<JoystickState> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY) {
+    public void draw(GuiGraphics graphics, int x, int centerY) {
         String type = joystick.type().themeId();
         String hat = joystick.mapping().hats()[hatIndex].identifier();
         String direction = "centered";
@@ -45,10 +43,7 @@ public class JoystickHatBind implements IBind<JoystickState> {
             direction = "right";
 
         var texture = new ResourceLocation("controlify", "textures/gui/joystick/" + type + "/hat" + hat + "_" + direction + ".png");
-
-        RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        GuiComponent.blit(matrices, x, centerY - 11, 0, 0, 22, 22, 22, 22);
+        graphics.blit(texture, x, centerY - 11, 0, 0, 22, 22, 22, 22);
     }
 
     @Override

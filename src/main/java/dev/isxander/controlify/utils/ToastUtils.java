@@ -1,8 +1,8 @@
 package dev.isxander.controlify.utils;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
@@ -26,11 +26,11 @@ public class ToastUtils {
         }
 
         @Override
-        public @NotNull Visibility render(@NotNull PoseStack matrices, @NotNull ToastComponent manager, long startTime) {
+        public @NotNull Visibility render(@NotNull GuiGraphics graphics, @NotNull ToastComponent manager, long startTime) {
             if (removed)
                 return Visibility.HIDE;
 
-            return super.render(matrices, manager, startTime);
+            return super.render(graphics, manager, startTime);
         }
 
         public void remove() {

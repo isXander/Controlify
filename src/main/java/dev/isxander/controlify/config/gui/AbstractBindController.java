@@ -12,8 +12,8 @@ import dev.isxander.yacl.api.Option;
 import dev.isxander.yacl.api.utils.Dimension;
 import dev.isxander.yacl.gui.YACLScreen;
 import dev.isxander.yacl.gui.controllers.ControllerWidget;
-import dev.isxander.yacl.gui.utils.GuiUtils;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
@@ -60,12 +60,12 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
         }
 
         @Override
-        protected void drawValueText(PoseStack matrices, int mouseX, int mouseY, float delta) {
+        protected void drawValueText(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             if (awaitingControllerInput) {
-                textRenderer.drawShadow(matrices, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), getDimension().centerY() - textRenderer.lineHeight / 2f, 0xFFFFFF);
+                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
-                bind.draw(matrices, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY());
+                bind.draw(graphics, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY());
             }
         }
 

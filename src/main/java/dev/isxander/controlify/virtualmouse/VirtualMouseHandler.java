@@ -16,7 +16,7 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccess
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -202,32 +202,28 @@ public class VirtualMouseHandler {
         }
     }
 
-    public void renderVirtualMouse(PoseStack matrices) {
+    public void renderVirtualMouse(GuiGraphics graphics) {
         if (!virtualMouseEnabled) return;
 
         if (DebugProperties.DEBUG_SNAPPING) {
             for (var snapPoint : snapPoints) {
-                GuiComponent.fill(matrices, snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
-                GuiComponent.fill(matrices, snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);
+                graphics.fill(snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
+                graphics.fill( snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);
             }
         }
-
-        RenderSystem.setShaderTexture(0, CURSOR_TEXTURE);
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.enableBlend();
 
         var scaledX = currentX * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
         var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
-        matrices.pushPose();
-        matrices.translate(scaledX, scaledY, 1000f);
-        matrices.scale(0.5f, 0.5f, 0.5f);
+        graphics.pose().pushPose();
+        graphics.pose().translate(scaledX, scaledY, 1000f);
+        graphics.pose().scale(0.5f, 0.5f, 0.5f);
 
-        GuiComponent.blit(matrices, -16, -16, 0, 0, 32, 32, 32, 32);
-
-        matrices.popPose();
-
+        RenderSystem.enableBlend();
+        graphics.blit(CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
         RenderSystem.disableBlend();
+
+        graphics.pose().popPose();
     }
 
     public void enableVirtualMouse() {

@@ -1,14 +1,12 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Objects;
@@ -31,13 +29,9 @@ public class GamepadBind implements IBind<GamepadState> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY) {
+    public void draw(GuiGraphics graphics, int x, int centerY) {
         ResourceLocation texture = getTexture(gamepad.config().theme);
-
-        RenderSystem.setShaderTexture(0, texture);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-
-        GuiComponent.blit(matrices, x, centerY - 22 / 2, 0, 0, 22, 22, 22, 22);
+        graphics.blit(texture, x, centerY - 22 / 2, 0, 0, 22, 22, 22, 22);
     }
 
     @Override

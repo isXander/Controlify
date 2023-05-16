@@ -6,7 +6,7 @@ import dev.isxander.controlify.bindings.JoystickAxisBind;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,14 +19,15 @@ public abstract class GenericRenderer implements JoystickRenderer {
     }
 
     @Override
-    public DrawSize render(PoseStack poseStack, int x, int centerY, int size) {
+    public DrawSize render(GuiGraphics graphics, int x, int centerY, int size) {
         if (annotation != null) {
-            minecraft.font.draw(
-                    poseStack,
+            graphics.drawString(
+                    minecraft.font,
                     annotation,
                     x + size + 2 - minecraft.font.width(annotation),
-                    centerY + size/2f - minecraft.font.lineHeight * 0.75f,
-                    -1
+                    (int)(centerY + size/2f - minecraft.font.lineHeight * 0.75f),
+                    -1,
+                    false
             );
         }
 
@@ -41,34 +42,31 @@ public abstract class GenericRenderer implements JoystickRenderer {
         }
 
         @Override
-        public DrawSize render(PoseStack poseStack, int x, int centerY, int size) {
-            RenderSystem.setShaderTexture(0, BUTTON_TEXTURE);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-
-            poseStack.pushPose();
-            poseStack.translate(x, centerY, 0);
+        public DrawSize render(GuiGraphics graphics, int x, int centerY, int size) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, centerY, 0);
 
             float scale = (float) size / 22f;
-            poseStack.scale(scale, scale, 1);
-            poseStack.translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
+            graphics.pose().scale(scale, scale, 1);
+            graphics.pose().translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
 
-            GuiComponent.blit(poseStack, 0, 0, 0, 0, DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE);
+            graphics.blit(BUTTON_TEXTURE, 0, 0, 0, 0, DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE);
 
-            poseStack.popPose();
+            graphics.pose().popPose();
             
-            super.render(poseStack, x, centerY, size);
+            super.render(graphics, x, centerY, size);
 
             return new DrawSize(size, size);
         }
 
         @Override
-        public DrawSize render(PoseStack poseStack, int x, int centerY, int size, boolean down) {
-            return this.render(poseStack, x, centerY, size);
+        public DrawSize render(GuiGraphics graphics, int x, int centerY, int size, boolean down) {
+            return this.render(graphics, x, centerY, size);
         }
 
         @Override
-        public DrawSize render(PoseStack poseStack, int x, int centerY, boolean down) {
-            return this.render(poseStack, x, centerY, DEFAULT_SIZE);
+        public DrawSize render(GuiGraphics graphics, int x, int centerY, boolean down) {
+            return this.render(graphics, x, centerY, DEFAULT_SIZE);
         }
     }
 
@@ -80,28 +78,25 @@ public abstract class GenericRenderer implements JoystickRenderer {
         }
 
         @Override
-        public DrawSize render(PoseStack poseStack, int x, int centerY, int size, JoystickAxisBind.AxisDirection direction) {
-            RenderSystem.setShaderTexture(0, AXIS_TEXTURE);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-
-            poseStack.pushPose();
-            poseStack.translate(x, centerY, 0);
+        public DrawSize render(GuiGraphics graphics, int x, int centerY, int size, JoystickAxisBind.AxisDirection direction) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, centerY, 0);
 
             float scale = (float) size / 22f;
-            poseStack.scale(scale, scale, 1);
-            poseStack.translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
+            graphics.pose().scale(scale, scale, 1);
+            graphics.pose().translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
 
-            GuiComponent.blit(
-                    poseStack,
+            graphics.blit(
+                    AXIS_TEXTURE,
                     0, 0,
                     direction.ordinal() * DEFAULT_SIZE, 0,
                     DEFAULT_SIZE, DEFAULT_SIZE,
                     DEFAULT_SIZE * JoystickAxisBind.AxisDirection.values().length, DEFAULT_SIZE
             );
 
-            poseStack.popPose();
+            graphics.pose().popPose();
 
-            super.render(poseStack, x, centerY, size);
+            super.render(graphics, x, centerY, size);
 
             return new DrawSize(size, size);
         }
@@ -115,28 +110,25 @@ public abstract class GenericRenderer implements JoystickRenderer {
         }
 
         @Override
-        public DrawSize render(PoseStack poseStack, int x, int centerY, int size, JoystickState.HatState hatState) {
-            RenderSystem.setShaderTexture(0, HAT_TEXTURE);
-            RenderSystem.setShaderColor(1, 1, 1, 1);
-
-            poseStack.pushPose();
-            poseStack.translate(x, centerY, 0);
+        public DrawSize render(GuiGraphics graphics, int x, int centerY, int size, JoystickState.HatState hatState) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, centerY, 0);
 
             float scale = (float) size / 22f;
-            poseStack.scale(scale, scale, 1);
-            poseStack.translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
+            graphics.pose().scale(scale, scale, 1);
+            graphics.pose().translate(0f, -DEFAULT_SIZE / scale / 2f, 0);
 
-            GuiComponent.blit(
-                    poseStack,
+            graphics.blit(
+                    HAT_TEXTURE,
                     0, 0,
                     hatState.ordinal() * DEFAULT_SIZE, 0,
                     DEFAULT_SIZE, DEFAULT_SIZE,
                     DEFAULT_SIZE * JoystickState.HatState.values().length, DEFAULT_SIZE
             );
 
-            poseStack.popPose();
+            graphics.pose().popPose();
 
-            super.render(poseStack, x, centerY, size);
+            super.render(graphics, x, centerY, size);
 
             return new DrawSize(size, size);
         }

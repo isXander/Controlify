@@ -1,12 +1,11 @@
 package dev.isxander.controlify.gui.guide;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.controlify.gui.layout.RenderComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.joml.Vector2i;
 import org.joml.Vector2ic;
@@ -27,7 +26,7 @@ public class GuideActionRenderer<T> implements RenderComponent {
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float deltaTime) {
+    public void render(GuiGraphics graphics, int x, int y, float deltaTime) {
         if (!isVisible())
             return;
 
@@ -37,14 +36,14 @@ public class GuideActionRenderer<T> implements RenderComponent {
         DrawSize drawSize = renderer.size();
         int textWidth = font.width(name.get());
 
-        renderer.render(stack, x + (!rtl ? 0 : textWidth + 2), y + drawSize.height() / 2);
+        renderer.render(graphics, x + (!rtl ? 0 : textWidth + 2), y + drawSize.height() / 2);
 
         int textX = x + (rtl ? 0 : drawSize.width() + 2);
         int textY = y + drawSize.height() / 2 - font.lineHeight / 2;
 
         if (textContrast)
-            GuiComponent.fill(stack, textX - 1, textY - 1, textX + textWidth + 1, textY + font.lineHeight + 1, 0x80000000);
-        font.draw(stack, name.get(), textX, textY, 0xFFFFFF);
+            graphics.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + font.lineHeight + 1, 0x80000000);
+        graphics.drawString(font, name.get(), textX, textY, 0xFFFFFF, false);
     }
 
     @Override

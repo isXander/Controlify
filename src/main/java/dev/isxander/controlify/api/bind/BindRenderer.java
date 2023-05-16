@@ -1,10 +1,10 @@
 package dev.isxander.controlify.api.bind;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.gui.DrawSize;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface BindRenderer {
     DrawSize size();
 
-    void render(PoseStack poseStack, int x, int centerY);
+    void render(GuiGraphics graphics, int x, int centerY);
 }

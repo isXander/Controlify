@@ -1,10 +1,10 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.gui.DrawSize;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class EmptyBind<T extends ControllerState> implements IBind<T> {
     public static final String BIND_ID = "empty";
@@ -20,7 +20,7 @@ public class EmptyBind<T extends ControllerState> implements IBind<T> {
     }
 
     @Override
-    public void draw(PoseStack matrices, int x, int centerY) {
+    public void draw(GuiGraphics graphics, int x, int centerY) {
 
     }
 
