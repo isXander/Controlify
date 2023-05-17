@@ -1,5 +1,4 @@
 import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     java
@@ -17,7 +16,9 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.2.0+1.19.4"
+version = "1.3.0-beta.1+1.20"
+val isBeta = "beta" in version.toString()
+if (isBeta) println("Beta version detected.")
 
 repositories {
     mavenCentral()
@@ -62,7 +63,7 @@ val minecraftVersion = libs.versions.minecraft.get()
 dependencies {
     minecraft(libs.minecraft)
     mappings(loom.layered {
-        //mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.${libs.versions.quilt.mappings.get()}:intermediary-v2")
+        mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.${libs.versions.quilt.mappings.get()}:intermediary-v2")
         officialMojangMappings()
     })
     modImplementation(libs.fabric.loader)
@@ -107,9 +108,10 @@ dependencies {
     // sodium compat
     modImplementation(libs.sodium)
     // iris compat
+    modImplementation(files("libs/iris-b7bf8745.jar"))
 //    modImplementation(libs.iris)
-//    modRuntimeOnly("org.anarres:jcpp:1.4.14")
-//    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre9")
+    modRuntimeOnly("org.anarres:jcpp:1.4.14")
+    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
 //    modImplementation(libs.immediately.fast)
 //    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
@@ -153,18 +155,6 @@ tasks {
             )
         }
     }
-    
-    remapJar {
-        archiveClassifier.set("fabric-$minecraftVersion")   
-    }
-    
-    remapSourcesJar {
-        archiveClassifier.set("fabric-$minecraftVersion-sources")   
-    }
-
-    named<Jar>("javadocJar") {
-        archiveClassifier.set("fabric-$minecraftVersion-javadoc")
-    }
 
     register("releaseMod") {
         group = "mod"
@@ -189,9 +179,9 @@ if (modrinthId.isNotEmpty()) {
         token.set(findProperty("modrinth.token")?.toString())
         projectId.set(modrinthId)
         versionNumber.set("${project.version}")
-        versionType.set("release")
+        versionType.set(if (isBeta) "beta" else "release")
         uploadFile.set(tasks["remapJar"])
-        gameVersions.set(listOf("1.19.4"))
+        gameVersions.set(listOf("1.20-pre2"))
         loaders.set(listOf("fabric", "quilt"))
         changelog.set(changelogText)
         syncBodyFrom.set(file(".github/README.md").readText())
@@ -208,8 +198,8 @@ if (hasProperty("curseforge.token") && curseforgeId.isNotEmpty()) {
             })
 
             id = curseforgeId
-            releaseType = "release"
-            addGameVersion("1.19.4")
+            releaseType = if (isBeta) "beta" else "release"
+            addGameVersion("1.20-Snapshot")
             addGameVersion("Fabric")
             addGameVersion("Java 17")
 
@@ -231,7 +221,7 @@ githubRelease {
     owner(split[0])
     repo(split[1])
     tagName("${project.version}")
-    targetCommitish("1.19.x/dev")
+    targetCommitish("1.20.x/dev")
     body(changelogText)
     releaseAssets(tasks["remapJar"].outputs.files)
 }
