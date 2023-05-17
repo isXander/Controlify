@@ -67,7 +67,7 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
         return renderData != null
                 && this.isActive()
                 && Controlify.instance().currentInputMode() == InputMode.CONTROLLER
-                && Controlify.instance().currentController().config().showScreenGuide
+                && Controlify.instance().getCurrentController().map(c -> c.config().showScreenGuide).orElse(false)
                 && !renderData.binding().apply(Controlify.instance().currentController().bindings()).isUnbound()
                 && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
     }

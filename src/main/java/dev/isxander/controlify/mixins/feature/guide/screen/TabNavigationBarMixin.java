@@ -26,10 +26,11 @@ public class TabNavigationBarMixin {
     @Inject(method = "render", at = @At("RETURN"))
     private void renderControllerButtonOverlay(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER) {
-            var controller = Controlify.instance().currentController();
-            if (controller.config().showScreenGuide) {
-                this.renderControllerButtonOverlay(graphics, controller);
-            }
+            Controlify.instance().getCurrentController().ifPresent(c -> {
+                if (c.config().showScreenGuide) {
+                    this.renderControllerButtonOverlay(graphics, c);
+                }
+            });
         }
     }
 

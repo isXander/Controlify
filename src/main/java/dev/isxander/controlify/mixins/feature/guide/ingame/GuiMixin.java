@@ -1,6 +1,5 @@
 package dev.isxander.controlify.mixins.feature.guide.ingame;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;

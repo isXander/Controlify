@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.chatkbheight;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.api.ControlifyApi;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,8 +22,9 @@ public abstract class ChatScreenMixin extends Screen {
     private void translateRender(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         graphics.pose().pushPose();
 
-        Controller<?, ?> controller = Controlify.instance().currentController();
-        graphics.pose().translate(0, -controller.config().chatKeyboardHeight * this.height, 0);
+        Controlify.instance().getCurrentController().ifPresent(c -> {
+            graphics.pose().translate(0, -c.config().chatKeyboardHeight * this.height, 0);
+        });
     }
 
     @Inject(method = "render", at = @At("TAIL"))
@@ -33,7 +34,7 @@ public abstract class ChatScreenMixin extends Screen {
 
     @ModifyVariable(method = "mouseClicked", at = @At("HEAD"), ordinal = 1, argsOnly = true)
     private double modifyClickY(double original) {
-        Controller<?, ?> controller = Controlify.instance().currentController();
-        return original + controller.config().chatKeyboardHeight * this.height;
+        float yOffset = ControlifyApi.get().getCurrentController().map(c -> c.config().chatKeyboardHeight * this.height).orElse(0f);
+        return original + yOffset;
     }
 }
