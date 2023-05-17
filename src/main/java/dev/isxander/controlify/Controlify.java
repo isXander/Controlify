@@ -191,13 +191,6 @@ public class Controlify implements ControlifyApi {
 
         LOGGER.info("Pre-initializing Controlify...");
 
-        ResourceManagerHelper.registerBuiltinResourcePack(
-                Controlify.id("extra_mappings"),
-                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
-                Component.translatable("controlify.resource_pack.extra_mappings"),
-                ResourcePackActivationType.DEFAULT_ENABLED
-        );
-
         ControlifySounds.init();
 
         this.inGameInputHandler = null;

@@ -269,5 +269,27 @@
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Negative)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positive)",
 
-  "controlify.resource_pack.extra_mappings": "Extra Mappings"
+
+
+  "controlify.joystick_mapping.tm_t16000.axis.roll": "Roll",
+  "controlify.joystick_mapping.tm_t16000.axis.pitch": "Pitch",
+  "controlify.joystick_mapping.tm_t16000.axis.yaw": "Yaw",
+  "controlify.joystick_mapping.tm_t16000.axis.throttle": "Throttle",
+  "controlify.joystick_mapping.tm_t16000.button.trigger": "Trigger",
+  "controlify.joystick_mapping.tm_t16000.button.a": "A",
+  "controlify.joystick_mapping.tm_t16000.button.x": "X",
+  "controlify.joystick_mapping.tm_t16000.button.b": "B",
+  "controlify.joystick_mapping.tm_t16000.left_1": "Left 1",
+  "controlify.joystick_mapping.tm_t16000.left_2": "Left 2",
+  "controlify.joystick_mapping.tm_t16000.left_3": "Left 3",
+  "controlify.joystick_mapping.tm_t16000.left_4": "Left 4",
+  "controlify.joystick_mapping.tm_t16000.left_5": "Left 5",
+  "controlify.joystick_mapping.tm_t16000.left_6": "Left 6",
+  "controlify.joystick_mapping.tm_t16000.right_1": "Right 1",
+  "controlify.joystick_mapping.tm_t16000.right_2": "Right 2",
+  "controlify.joystick_mapping.tm_t16000.right_3": "Right 3",
+  "controlify.joystick_mapping.tm_t16000.right_4": "Right 4",
+  "controlify.joystick_mapping.tm_t16000.right_5": "Right 5",
+  "controlify.joystick_mapping.tm_t16000.right_6": "Right 6",
+  "controlify.joystick_mapping.tm_t16000.hat": "Hat"
 }
