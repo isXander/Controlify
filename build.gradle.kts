@@ -185,6 +185,12 @@ if (modrinthId.isNotEmpty()) {
         loaders.set(listOf("fabric", "quilt"))
         changelog.set(changelogText)
         syncBodyFrom.set(file(".github/README.md").readText())
+
+        dependencies {
+            required.project("yacl")
+            required.project("fabric-api")
+            optional.project("modmenu")
+        }
     }
 }
 
@@ -205,10 +211,17 @@ if (hasProperty("curseforge.token") && curseforgeId.isNotEmpty()) {
 
             changelog = changelogText
             changelogType = "markdown"
+
+            relations(closureOf<me.hypherionmc.cursegradle.CurseRelation> {
+                requiredDependency("fabric-api")
+                requiredDependency("yacl")
+                optionalDependency("modmenu")
+            })
         })
 
         options(closureOf<me.hypherionmc.cursegradle.Options> {
             forgeGradleIntegration = false
+            fabricIntegration = false
         })
     }
 }
@@ -221,7 +234,7 @@ githubRelease {
     owner(split[0])
     repo(split[1])
     tagName("${project.version}")
-    targetCommitish("1.20.x/dev")
+    targetCommitish(grgit.branch.current().name)
     body(changelogText)
     releaseAssets(tasks["remapJar"].outputs.files)
 }
