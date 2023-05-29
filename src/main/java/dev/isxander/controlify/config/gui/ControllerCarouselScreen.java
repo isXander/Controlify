@@ -18,10 +18,9 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.gui.navigation.ScreenAxis;
-import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -41,11 +40,12 @@ public class ControllerCarouselScreen extends Screen {
 
     private List<CarouselEntry> carouselEntries = null;
     private int carouselIndex;
-    private Animator animator;
+    private Animator.AnimationInstance carouselAnimation = null;
 
     private ControllerCarouselScreen(Screen parent) {
         super(Component.translatable("controlify.gui.carousel.title"));
         this.parent = parent;
+        this.carouselIndex = Controlify.instance().getCurrentController().map(c -> ControllerManager.getConnectedControllers().indexOf(c)).orElse(0);
     }
 
     public static Screen createConfigScreen(Screen parent) {
@@ -88,15 +88,26 @@ public class ControllerCarouselScreen extends Screen {
     }
 
     public void refreshControllers() {
+        Controller<?, ?> prevSelectedController;
         if (carouselEntries != null) {
             carouselEntries.forEach(this::removeWidget);
+            prevSelectedController = carouselEntries.get(carouselIndex).controller;
+        } else {
+            prevSelectedController = null;
         }
 
         carouselEntries = ControllerManager.getConnectedControllers().stream()
                 .map(c -> new CarouselEntry(c, this.width / 3, this.height - 66))
                 .peek(this::addRenderableWidget)
                 .toList();
-        carouselIndex = Controlify.instance().getCurrentController().map(c -> ControllerManager.getConnectedControllers().indexOf(c)).orElse(0);
+        carouselIndex = carouselEntries.stream()
+                .filter(e -> e.controller == prevSelectedController)
+                .findFirst()
+                .map(carouselEntries::indexOf)
+                .orElse(Controlify.instance().getCurrentController()
+                        .map(c -> ControllerManager.getConnectedControllers().indexOf(c))
+                        .orElse(0)
+                );
         if (!carouselEntries.isEmpty())
             carouselEntries.get(carouselIndex).overlayColor = 0;
 
@@ -119,10 +130,6 @@ public class ControllerCarouselScreen extends Screen {
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
         graphics.setColor(1f, 1f, 1f, 1f);
 
-        if (animator != null && !animator.isDone()) {
-            animator.tick(delta);
-        }
-
         if (carouselEntries.isEmpty()) {
             graphics.drawCenteredString(font, Component.translatable("controlify.gui.carousel.no_controllers"), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
         }
@@ -136,25 +143,8 @@ public class ControllerCarouselScreen extends Screen {
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, scale, scale);
     }
 
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        switch (keyCode) {
-            case InputConstants.KEY_RIGHT -> {
-                if (carouselEntries.stream().anyMatch(CarouselEntry::isFocused))
-                    focusOnEntry(Math.min(carouselEntries.size() - 1, carouselIndex + 1));
-                return true;
-            }
-            case InputConstants.KEY_LEFT -> {
-                if (carouselEntries.stream().anyMatch(CarouselEntry::isFocused))
-                    focusOnEntry(Math.max(0, carouselIndex - 1));
-                return true;
-            }
-        }
-        return super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
     public void focusOnEntry(int index) {
-        if (animator != null && !animator.isDone())
+        if (carouselAnimation != null && !carouselAnimation.isDone())
             return;
 
         int diff = index - carouselIndex;
@@ -162,13 +152,14 @@ public class ControllerCarouselScreen extends Screen {
 
         carouselIndex = index;
 
-        animator = new Animator(10, x -> x < 0.5f ? 4 * x * x * x : 1 - (float)Math.pow(-2 * x + 2, 3) / 2);
+        carouselAnimation = new Animator.AnimationInstance(10, x -> x < 0.5f ? 4 * x * x * x : 1 - (float)Math.pow(-2 * x + 2, 3) / 2);
         for (CarouselEntry entry : carouselEntries) {
             boolean selected = carouselEntries.indexOf(entry) == index;
-            animator.addConsumer(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
-            animator.addConsumer(entry::setY, entry.getY(), selected ? 20f : 10f);
-            animator.addConsumer(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
+            carouselAnimation.addConsumer(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
+            carouselAnimation.addConsumer(entry::setY, entry.getY(), selected ? 20f : 10f);
+            carouselAnimation.addConsumer(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
         }
+        Animator.INSTANCE.play(carouselAnimation);
     }
 
     @Override
@@ -179,17 +170,22 @@ public class ControllerCarouselScreen extends Screen {
     private class CarouselEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
         private int x, y;
         private final int width, height;
-
         private float translationX, translationY;
 
         private final Controller<?, ?> controller;
         private final boolean hasNickname;
 
-        private Button useControllerButton;
-        private Button settingsButton;
-        private ImmutableList<? extends GuiEventListener> children;
+        private final Button useControllerButton;
+        private final Button settingsButton;
+        private final ImmutableList<? extends GuiEventListener> children;
+
+        private boolean prevUse;
+        private float currentlyUsedPos;
+        private Animator.AnimationInstance currentlyUsedAnimation;
 
         private int overlayColor = 0x90000000;
+
+        private boolean hovered = false;
 
         private CarouselEntry(Controller<?, ?> controller, int width, int height) {
             this.width = width;
@@ -201,10 +197,17 @@ public class ControllerCarouselScreen extends Screen {
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigGui.generateConfigScreen(ControllerCarouselScreen.this, controller))).width(getWidth() / 2 - 4).build();
             this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
             this.children = ImmutableList.of(settingsButton, useControllerButton);
+
+            this.prevUse = isCurrentlyUsed();
+            this.currentlyUsedPos = prevUse ? 0 : -1;
         }
 
         @Override
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+            hovered = isMouseOver(mouseX, mouseY);
+
+            graphics.enableScissor(x, y, x + width + (translationX > 0 ? 1 : 0), y + height + (translationY > 0 ? 1 : 0));
+
             graphics.pose().pushPose();
             graphics.pose().translate(translationX, translationY, 0);
 
@@ -222,10 +225,15 @@ public class ControllerCarouselScreen extends Screen {
                 controller.config().customName = nickname;
             }
 
-            if (Controlify.instance().getCurrentController().orElse(null) == controller) {
+            Component currentlyInUseText = Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN);
+            graphics.pose().pushPose();
+            graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * currentlyUsedPos, 0, 0);
+
+            if (currentlyUsedPos > -1) {
                 graphics.blit(CHECKMARK, x + 4, y + 4, 0f, 0f, 9, 8, 9, 8);
-                graphics.drawString(font, Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN), x + 17, y + 4, -1);
+                graphics.drawString(font, currentlyInUseText, x + 17, y + 4, -1);
             }
+            graphics.pose().popPose();
 
             int iconWidth = width - 6;
             //                      buttons   4px padding top  currently in use       controller name                                   image padding
@@ -236,11 +244,22 @@ public class ControllerCarouselScreen extends Screen {
             graphics.pose().translate(x + width / 2 - iconSize / 2, y + font.lineHeight + 12 + iconHeight / 2 - iconSize / 2, 0);
             graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
             graphics.blit(controller.icon(), 0, 0, 0f, 0f, 64, 64, 64, 64);
+            graphics.pose().popPose();
 
             graphics.pose().translate(0, 0, 1);
             graphics.fill(x, y, x + width, y + height, overlayColor);
 
             graphics.pose().popPose();
+
+            graphics.disableScissor();
+
+            if (prevUse != isCurrentlyUsed()) {
+                if (currentlyUsedAnimation != null)
+                    currentlyUsedAnimation.finish();
+                currentlyUsedAnimation = Animator.INSTANCE.play(new Animator.AnimationInstance(20, t -> 1 - (float)Math.pow(1 - t, 5))
+                        .addConsumer(t -> currentlyUsedPos = t, currentlyUsedPos, isCurrentlyUsed() ? 0 : -1));
+            }
+            prevUse = isCurrentlyUsed();
         }
 
         @Override
@@ -248,7 +267,7 @@ public class ControllerCarouselScreen extends Screen {
             if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
                 int index = carouselEntries.indexOf(this);
                 if (index != carouselIndex) {
-                    if (animator == null || animator.isDone())
+                    if (carouselAnimation == null || carouselAnimation.isDone())
                         focusOnEntry(index);
 
                     return true;
@@ -304,7 +323,7 @@ public class ControllerCarouselScreen extends Screen {
         @Nullable
         @Override
         public ComponentPath nextFocusPath(FocusNavigationEvent event) {
-            if (animator != null && !animator.isDone())
+            if (carouselAnimation != null && !carouselAnimation.isDone())
                 return null;
             return super.nextFocusPath(event);
         }
@@ -314,14 +333,19 @@ public class ControllerCarouselScreen extends Screen {
             return new ScreenRectangle(x, y, width, height);
         }
 
+        public boolean isCurrentlyUsed() {
+            return Controlify.instance().getCurrentController().orElse(null) == controller;
+        }
+
         @Override
         public NarrationPriority narrationPriority() {
-            return NarrationPriority.NONE;
+            return isFocused() ? NarrationPriority.FOCUSED : hovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
         }
 
         @Override
         public void updateNarration(NarrationElementOutput builder) {
-
+            builder.add(NarratedElementType.TITLE, controller.name());
+            builder.add(NarratedElementType.USAGE, Component.literal("Left arrow to go to previous controller, right arrow to go to next controller."));
         }
     }
 }

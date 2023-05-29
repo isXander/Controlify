@@ -2,52 +2,92 @@ package dev.isxander.controlify.utils;
 
 import net.minecraft.util.Mth;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
-public class Animator {
-    private final List<AnimationConsumer> animations;
-    private final UnaryOperator<Float> easingFunction;
-    private final int durationTicks;
-    private float time;
+public final class Animator {
+    public static final Animator INSTANCE = new Animator();
 
-    public Animator(int durationTicks, UnaryOperator<Float> easingFunction) {
+    private final List<AnimationInstance> animations;
+
+    private Animator() {
         this.animations = new ArrayList<>();
-        this.easingFunction = easingFunction;
-        this.durationTicks = durationTicks;
     }
 
-    public void addConsumer(Consumer<Float> consumer, float start, float end) {
-        animations.add(new AnimationConsumer(consumer, start, end));
+    public void progress(float deltaTime) {
+        animations.forEach(animation -> animation.tick(deltaTime));
+        animations.removeIf(AnimationInstance::isDone);
     }
 
-    public void addConsumer(Consumer<Integer> consumer, int start, int end) {
-        animations.add(new AnimationConsumer(aFloat -> consumer.accept(aFloat.intValue()), start, end));
+    public AnimationInstance play(AnimationInstance animation) {
+        animations.add(animation);
+        return animation;
     }
 
-    public void tick(float deltaTime) {
-        time += deltaTime;
-        if (time > durationTicks) {
-            time = durationTicks;
+    public static class AnimationInstance {
+        private final List<AnimationConsumer> animations;
+        private final UnaryOperator<Float> easingFunction;
+        private final int durationTicks;
+        private float time;
+        private boolean done;
+        private final List<Runnable> callbacks = new ArrayList<>();
+
+        public AnimationInstance(int durationTicks, UnaryOperator<Float> easingFunction) {
+            this.animations = new ArrayList<>();
+            this.easingFunction = easingFunction;
+            this.durationTicks = durationTicks;
         }
-        updateConsumers();
-    }
 
-    private void updateConsumers() {
-        animations.forEach(consumer -> {
-            float progress = easingFunction.apply(time / durationTicks);
-            float value = Mth.lerp(progress, consumer.start, consumer.end);
-            consumer.consumer.accept(value);
-        });
-    }
+        public AnimationInstance addConsumer(Consumer<Float> consumer, float start, float end) {
+            animations.add(new AnimationConsumer(consumer, start, end));
+            return this;
+        }
 
-    public boolean isDone() {
-        return time >= durationTicks;
-    }
+        public AnimationInstance addConsumer(Consumer<Integer> consumer, int start, int end) {
+            animations.add(new AnimationConsumer(aFloat -> consumer.accept(aFloat.intValue()), start, end));
+            return this;
+        }
 
-    private record AnimationConsumer(Consumer<Float> consumer, float start, float end) {
+        public AnimationInstance onComplete(Runnable callback) {
+            callbacks.add(callback);
+            return this;
+        }
+
+        private void tick(float deltaTime) {
+            time += deltaTime;
+            if (time > durationTicks) {
+                if (!done) {
+                    callbacks.removeIf(callback -> {
+                        callback.run();
+                        return true;
+                    });
+                }
+                done = true;
+                time = durationTicks;
+            }
+
+            updateConsumers();
+        }
+
+        private void updateConsumers() {
+            animations.forEach(consumer -> {
+                float progress = easingFunction.apply(time / durationTicks);
+                float value = Mth.lerp(progress, consumer.start, consumer.end);
+                consumer.consumer.accept(value);
+            });
+        }
+
+        public void finish() {
+            time = durationTicks;
+            updateConsumers();
+        }
+
+        public boolean isDone() {
+            return done;
+        }
+
+        private record AnimationConsumer(Consumer<Float> consumer, float start, float end) {
+        }
     }
 }

@@ -5,6 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.gui.screen.BetaNoticeScreen;
+import dev.isxander.controlify.utils.Animator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.Screen;
@@ -56,5 +57,10 @@ public abstract class MinecraftMixin {
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
     private void onMinecraftClose(CallbackInfo ci) {
         ControllerManager.getConnectedControllers().forEach(Controller::close);
+    }
+
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))
+    private void tickAnimator(boolean tick, CallbackInfo ci) {
+        Animator.INSTANCE.progress(this.getDeltaFrameTime());
     }
 }
