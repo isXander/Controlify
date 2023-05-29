@@ -1,0 +1,325 @@
+package dev.isxander.controlify.config.gui;
+
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.ControllerManager;
+import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
+import dev.isxander.controlify.utils.Animator;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.ComponentPath;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+
+public class ControllerCarouselScreen extends Screen {
+    public static final ResourceLocation CHECKMARK = new ResourceLocation("textures/gui/checkmark.png");
+
+    private final Screen parent;
+
+    private List<CarouselEntry> carouselEntries = null;
+    private int carouselIndex;
+    private Animator animator;
+
+    private ControllerCarouselScreen(Screen parent) {
+        super(Component.literal("Controllers"));
+        this.parent = parent;
+    }
+
+    public static Screen createConfigScreen(Screen parent) {
+        var controlify = Controlify.instance();
+
+        if (!controlify.config().globalSettings().vibrationOnboarded) {
+            return new SDLOnboardingScreen(() -> new ControllerCarouselScreen(parent), yes -> {
+                if (yes) {
+                    SDL2NativesManager.initialise();
+
+                    if (controlify.config().globalSettings().delegateSetup) {
+                        controlify.discoverControllers();
+                        controlify.config().globalSettings().delegateSetup = false;
+                        controlify.config().save();
+                    }
+                }
+            });
+        } else if (Controlify.instance().config().globalSettings().delegateSetup) {
+            controlify.discoverControllers();
+            controlify.config().globalSettings().delegateSetup = false;
+            controlify.config().save();
+        }
+        return new ControllerCarouselScreen(parent);
+    }
+
+    @Override
+    protected void init() {
+        refreshControllers();
+
+        GridLayout grid = new GridLayout().columnSpacing(10);
+        GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
+        rowHelper.addChild(Button.builder(Component.literal("Global Settings"), btn -> minecraft.setScreen(GlobalSettingsGui.createGlobalSettingsScreen(this))).build());
+        rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
+        grid.visitWidgets(widget -> {
+            widget.setTabOrderGroup(1);
+            this.addRenderableWidget(widget);
+        });
+        grid.arrangeElements();
+        FrameLayout.centerInRectangle(grid, 0, this.height - 36, this.width, 36);
+    }
+
+    public void refreshControllers() {
+        if (carouselEntries != null) {
+            carouselEntries.forEach(this::removeWidget);
+        }
+
+        carouselEntries = ControllerManager.getConnectedControllers().stream()
+                .map(c -> new CarouselEntry(c, this.width / 3, this.height - 66))
+                .peek(this::addRenderableWidget)
+                .toList();
+        carouselIndex = Controlify.instance().getCurrentController().map(c -> ControllerManager.getConnectedControllers().indexOf(c)).orElse(0);
+        if (!carouselEntries.isEmpty())
+            carouselEntries.get(carouselIndex).overlayColor = 0;
+
+        float offsetX = (this.width / 2f) * -(carouselIndex - 1) - this.width / 6f;
+        for (int i = 0; i < carouselEntries.size(); i++) {
+            CarouselEntry entry = carouselEntries.get(i);
+            entry.setX(offsetX + (this.width / 2f) * i);
+            entry.setY(i == carouselIndex ? 20 : 10);
+        }
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        renderDirtBackground(graphics);
+
+        int footerY = Mth.roundToward(this.height - 36 - 2, 2);
+        graphics.blit(CreateWorldScreen.FOOTER_SEPERATOR, 0, footerY, 0.0F, 0.0F, this.width, 2, 32, 2);
+
+        graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
+        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
+        graphics.setColor(1f, 1f, 1f, 1f);
+
+        if (animator != null && !animator.isDone()) {
+            animator.tick(delta);
+        }
+
+        if (carouselEntries.isEmpty()) {
+            graphics.drawCenteredString(font, Component.literal("No controllers connected."), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
+        }
+
+        super.render(graphics, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void renderDirtBackground(GuiGraphics graphics) {
+        int scale = 32;
+        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, scale, scale);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        switch (keyCode) {
+            case InputConstants.KEY_RIGHT -> {
+                if (carouselEntries.stream().anyMatch(CarouselEntry::isFocused))
+                    focusOnEntry(Math.min(carouselEntries.size() - 1, carouselIndex + 1));
+                return true;
+            }
+            case InputConstants.KEY_LEFT -> {
+                if (carouselEntries.stream().anyMatch(CarouselEntry::isFocused))
+                    focusOnEntry(Math.max(0, carouselIndex - 1));
+                return true;
+            }
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    public void focusOnEntry(int index) {
+        if (animator != null && !animator.isDone())
+            return;
+
+        int diff = index - carouselIndex;
+        if (diff == 0) return;
+
+        carouselIndex = index;
+
+        animator = new Animator(10, x -> x < 0.5f ? 4 * x * x * x : 1 - (float)Math.pow(-2 * x + 2, 3) / 2);
+        for (CarouselEntry entry : carouselEntries) {
+            boolean selected = carouselEntries.indexOf(entry) == index;
+            animator.addConsumer(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
+            animator.addConsumer(entry::setY, entry.getY(), selected ? 20f : 10f);
+            animator.addConsumer(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
+        }
+    }
+
+    @Override
+    public void onClose() {
+        minecraft.setScreen(parent);
+    }
+
+    private class CarouselEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+        private int x, y;
+        private final int width, height;
+
+        private float translationX, translationY;
+
+        private final Controller<?, ?> controller;
+        private final boolean hasNickname;
+
+        private Button useControllerButton;
+        private Button settingsButton;
+
+        private int overlayColor = 0x90000000;
+
+        private CarouselEntry(Controller<?, ?> controller, int width, int height) {
+            this.width = width;
+            this.height = height;
+
+            this.controller = controller;
+            this.hasNickname = this.controller.config().customName != null;
+
+            this.settingsButton = Button.builder(Component.literal("Settings"), btn -> minecraft.setScreen(ControllerConfigGui.generateConfigScreen(ControllerCarouselScreen.this, controller))).width(getWidth() / 2 - 4).build();
+            this.useControllerButton = Button.builder(Component.literal("Use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
+        }
+
+        @Override
+        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+            graphics.pose().pushPose();
+            graphics.pose().translate(translationX, translationY, 0);
+
+            graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
+
+            graphics.renderOutline(x, y, width, height, 0x5AFFFFFF);
+            useControllerButton.render(graphics, mouseX, mouseY, delta);
+            settingsButton.render(graphics, mouseX, mouseY, delta);
+
+            graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight - (hasNickname ? font.lineHeight + 1 : 0), 0xFFFFFF);
+            if (hasNickname) {
+                String nickname = controller.config().customName;
+                controller.config().customName = null;
+                graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight, 0xAAAAAA);
+                controller.config().customName = nickname;
+            }
+
+            if (Controlify.instance().getCurrentController().orElse(null) == controller) {
+                graphics.blit(CHECKMARK, x + 4, y + 4, 0f, 0f, 9, 8, 9, 8);
+                graphics.drawString(font, Component.literal("Currently in use").withStyle(ChatFormatting.GREEN), x + 17, y + 4, -1);
+            }
+
+            int iconWidth = width - 6;
+            //                      buttons   4px padding top  currently in use       controller name                                   image padding
+            int iconHeight = height - 22       - 4             - font.lineHeight - 8  - (font.lineHeight * (hasNickname ? 2 : 1) + 1) - 6;
+            int iconSize = Mth.roundToward(Math.min(iconHeight, iconWidth), 2);
+
+            graphics.pose().pushPose();
+            graphics.pose().translate(x + width / 2 - iconSize / 2, y + font.lineHeight + 12 + iconHeight / 2 - iconSize / 2, 0);
+            graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
+            graphics.blit(controller.icon(), 0, 0, 0f, 0f, 64, 64, 64, 64);
+
+            graphics.pose().translate(0, 0, 1);
+            graphics.fill(x, y, x + width, y + height, overlayColor);
+
+            graphics.pose().popPose();
+        }
+
+        @Override
+        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+            if (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height) {
+                int index = carouselEntries.indexOf(this);
+                if (index != carouselIndex) {
+                    if (animator == null || animator.isDone())
+                        focusOnEntry(index);
+
+                    return true;
+                }
+            }
+
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        @Override
+        public void setFocused(boolean focused) {
+            super.setFocused(focused);
+            if (focused) {
+                focusOnEntry(carouselEntries.indexOf(this));
+            }
+        }
+
+        @Override
+        public List<? extends GuiEventListener> children() {
+            return ImmutableList.of(useControllerButton, settingsButton);
+        }
+
+        public void setX(float x) {
+            this.x = (int)x;
+            this.settingsButton.setX((int)x + 2);
+            this.useControllerButton.setX(this.settingsButton.getX() + this.settingsButton.getWidth() + 2);
+            this.translationX = x - (int)x;
+        }
+
+        public void setY(float y) {
+            this.y = (int)y;
+            this.useControllerButton.setY((int)y + getHeight() - 20 - 2);
+            this.settingsButton.setY(this.useControllerButton.getY());
+            this.translationY = y - (int)y;
+        }
+
+        public int getX() {
+            return this.x;
+        }
+
+        public int getY() {
+            return this.y;
+        }
+
+        public int getWidth() {
+            return this.width;
+        }
+
+        public int getHeight() {
+            return this.height;
+        }
+
+        @Nullable
+        @Override
+        public ComponentPath nextFocusPath(FocusNavigationEvent event) {
+            if (animator != null && !animator.isDone())
+                return null;
+            return super.nextFocusPath(event);
+        }
+
+        @Override
+        public ScreenRectangle getRectangle() {
+            return new ScreenRectangle(x, y, width, height);
+        }
+
+        @Override
+        public NarrationPriority narrationPriority() {
+            return NarrationPriority.NONE;
+        }
+
+        @Override
+        public void updateNarration(NarrationElementOutput builder) {
+
+        }
+    }
+}

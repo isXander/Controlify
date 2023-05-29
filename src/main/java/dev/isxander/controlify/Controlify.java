@@ -5,6 +5,7 @@ import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.config.gui.ControllerBindHandler;
+import dev.isxander.controlify.config.gui.ControllerCarouselScreen;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
@@ -24,8 +25,6 @@ import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -335,6 +334,10 @@ public class Controlify implements ControlifyApi {
         }
 
         canDiscoverControllers = false;
+
+        if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
+            controllerListScreen.refreshControllers();
+        }
     }
 
     private void onControllerDisconnect(int jid) {
@@ -352,6 +355,10 @@ public class Controlify implements ControlifyApi {
                     Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
                     false
             );
+
+            if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
+                controllerListScreen.refreshControllers();
+            }
         });
     }
 

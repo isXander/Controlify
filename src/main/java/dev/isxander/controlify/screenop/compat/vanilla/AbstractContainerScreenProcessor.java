@@ -195,6 +195,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     }
 
     private void setRenderGuide(boolean render) {
+        render &= ControlifyApi.get().getCurrentController().map(c -> c.config().showScreenGuide).orElse(false);
+
         List<Renderable> renderables = ((ScreenAccessor) screen).getRenderables();
 
         if (leftLayout == null || rightLayout == null)

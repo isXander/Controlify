@@ -7,6 +7,8 @@ import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.Optional;
 
 public interface Controller<S extends ControllerState, C extends ControllerConfig> {
@@ -40,6 +42,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
     }
 
     Optional<ControllerHIDService.ControllerHIDInfo> hidInfo();
+
+    ResourceLocation icon();
 
     default boolean canBeUsed() {
         return true;
@@ -114,6 +118,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
             return Optional.empty();
+        }
+
+        @Override
+        public ResourceLocation icon() {
+            return null;
         }
 
         @Override

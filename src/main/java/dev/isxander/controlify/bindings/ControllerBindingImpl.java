@@ -16,6 +16,7 @@ import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl.api.Option;
+import dev.isxander.yacl.api.OptionDescription;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
@@ -171,12 +172,14 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         Option.Builder<IBind<T>> option = Option.createBuilder((Class<IBind<T>>) (Class<?>) IBind.class)
                 .name(name())
                 .binding(defaultBind(), this::currentBind, this::setCurrentBind)
-                .tooltip(this.description());
+                .description(OptionDescription.of(this.description()));
 
         if (controller instanceof GamepadController gamepad) {
-            ((Option.Builder<IBind<GamepadState>>) (Object) option).controller(opt -> new GamepadBindController(opt, gamepad));
+            ((Option.Builder<IBind<GamepadState>>) (Object) option).customController(opt -> new GamepadBindController(opt, gamepad));
         } else if (controller instanceof JoystickController<?> joystick) {
-            ((Option.Builder<IBind<JoystickState>>) (Object) option).controller(opt -> new JoystickBindController(opt, joystick));
+            ((Option.Builder<IBind<JoystickState>>) (Object) option).customController(opt -> new JoystickBindController(opt, joystick));
+        } else {
+            throw new IllegalStateException("Unknown controller type: " + controller.getClass().getName());
         }
 
         return option;

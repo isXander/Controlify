@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.gamepad;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.BatteryLevel;
@@ -7,6 +8,7 @@ import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Set;
@@ -112,5 +114,11 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     @Override
     public void close() {
         uniqueDrivers.forEach(Driver::close);
+    }
+
+    @Override
+    public ResourceLocation icon() {
+        String theme = config().theme == BuiltinGamepadTheme.DEFAULT ? type().themeId() : config().theme.id();
+        return Controlify.id("textures/gui/gamepad/" + theme + "/icon.png");
     }
 }

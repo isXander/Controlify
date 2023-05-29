@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.settingsbutton;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.config.gui.YACLHelper;
+import dev.isxander.controlify.config.gui.ControllerCarouselScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OptionsSubScreen;
@@ -22,7 +22,7 @@ public class ControlsScreenMixin extends OptionsSubScreen {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void addControllerSettings(CallbackInfo ci, @Local(ordinal = 0) int leftX, @Local(ordinal = 1) int rightX, @Local(ordinal = 2) int currentY) {
-        addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> minecraft.setScreen(YACLHelper.openConfigScreen(this)))
+        addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> minecraft.setScreen(ControllerCarouselScreen.createConfigScreen(this)))
                 .pos(leftX, currentY)
                 .width(150)
                 .build());
