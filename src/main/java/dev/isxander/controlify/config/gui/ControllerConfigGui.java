@@ -50,7 +50,7 @@ public class ControllerConfigGui {
 
     private static ConfigCategory createBasicCategory(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         return ConfigCategory.createBuilder()
-                .name(Component.literal("Basic"))
+                .name(Component.translatable("controlify.gui.config.category.basic"))
                 .option(Option.<String>createBuilder()
                         .name(Component.translatable("controlify.gui.custom_name"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.custom_name.tooltip")))
@@ -66,7 +66,7 @@ public class ControllerConfigGui {
 
     private static OptionGroup makeSensitivityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         return OptionGroup.createBuilder()
-                .name(Component.literal("Sensitivity"))
+                .name(Component.translatable("controlify.gui.config.group.sensitivity"))
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.horizontal_look_sensitivity"))
                         .description(OptionDescription.createBuilder()
@@ -110,7 +110,7 @@ public class ControllerConfigGui {
         Function<Boolean, Component> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
         return OptionGroup.createBuilder()
-                .name(Component.literal("Controls"))
+                .name(Component.translatable("controlify.gui.config.group.controls"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.toggle_sprint"))
                         .description(OptionDescription.createBuilder()
@@ -145,7 +145,7 @@ public class ControllerConfigGui {
 
     private static OptionGroup makeAccessibilityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         return OptionGroup.createBuilder()
-                .name(Component.literal("Accessibility"))
+                .name(Component.translatable("controlify.config.group.accessibility"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.show_ingame_guide"))
                         .description(OptionDescription.createBuilder()
@@ -178,7 +178,7 @@ public class ControllerConfigGui {
 
     private static OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         var group = OptionGroup.createBuilder()
-                .name(Component.literal("Deadzones"));
+                .name(Component.translatable("controlify.config.group.deadzones"));
         if (controller instanceof GamepadController gamepad) {
             var gpCfg = gamepad.config();
             var gpCfgDef = gamepad.defaultConfig();
@@ -269,7 +269,7 @@ public class ControllerConfigGui {
 
     private static ConfigCategory createAdvancedCategory(Controller<?, ?> controller) {
         return ConfigCategory.createBuilder()
-                .name(Component.literal("Advanced"))
+                .name(Component.translatable("controlify.config.category.advanced"))
                 .group(makeVibrationGroup(controller))
                 .group(makeGyroGroup(controller))
                 .build();

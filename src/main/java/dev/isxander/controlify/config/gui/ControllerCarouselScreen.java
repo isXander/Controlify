@@ -44,7 +44,7 @@ public class ControllerCarouselScreen extends Screen {
     private Animator animator;
 
     private ControllerCarouselScreen(Screen parent) {
-        super(Component.literal("Controllers"));
+        super(Component.translatable("controlify.gui.carousel.title"));
         this.parent = parent;
     }
 
@@ -77,7 +77,7 @@ public class ControllerCarouselScreen extends Screen {
 
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
-        rowHelper.addChild(Button.builder(Component.literal("Global Settings"), btn -> minecraft.setScreen(GlobalSettingsGui.createGlobalSettingsScreen(this))).build());
+        rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsGui.createGlobalSettingsScreen(this))).build());
         rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
         grid.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);
@@ -124,7 +124,7 @@ public class ControllerCarouselScreen extends Screen {
         }
 
         if (carouselEntries.isEmpty()) {
-            graphics.drawCenteredString(font, Component.literal("No controllers connected."), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
+            graphics.drawCenteredString(font, Component.translatable("controlify.gui.carousel.no_controllers"), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
         }
 
         super.render(graphics, mouseX, mouseY, delta);
@@ -187,6 +187,7 @@ public class ControllerCarouselScreen extends Screen {
 
         private Button useControllerButton;
         private Button settingsButton;
+        private ImmutableList<? extends GuiEventListener> children;
 
         private int overlayColor = 0x90000000;
 
@@ -197,8 +198,9 @@ public class ControllerCarouselScreen extends Screen {
             this.controller = controller;
             this.hasNickname = this.controller.config().customName != null;
 
-            this.settingsButton = Button.builder(Component.literal("Settings"), btn -> minecraft.setScreen(ControllerConfigGui.generateConfigScreen(ControllerCarouselScreen.this, controller))).width(getWidth() / 2 - 4).build();
-            this.useControllerButton = Button.builder(Component.literal("Use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
+            this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigGui.generateConfigScreen(ControllerCarouselScreen.this, controller))).width(getWidth() / 2 - 4).build();
+            this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
+            this.children = ImmutableList.of(settingsButton, useControllerButton);
         }
 
         @Override
@@ -222,7 +224,7 @@ public class ControllerCarouselScreen extends Screen {
 
             if (Controlify.instance().getCurrentController().orElse(null) == controller) {
                 graphics.blit(CHECKMARK, x + 4, y + 4, 0f, 0f, 9, 8, 9, 8);
-                graphics.drawString(font, Component.literal("Currently in use").withStyle(ChatFormatting.GREEN), x + 17, y + 4, -1);
+                graphics.drawString(font, Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN), x + 17, y + 4, -1);
             }
 
             int iconWidth = width - 6;
@@ -266,7 +268,7 @@ public class ControllerCarouselScreen extends Screen {
 
         @Override
         public List<? extends GuiEventListener> children() {
-            return ImmutableList.of(useControllerButton, settingsButton);
+            return children;
         }
 
         public void setX(float x) {

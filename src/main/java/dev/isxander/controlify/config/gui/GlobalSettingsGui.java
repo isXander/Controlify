@@ -16,9 +16,9 @@ public class GlobalSettingsGui {
     public static Screen createGlobalSettingsScreen(Screen parent) {
         var globalSettings = Controlify.instance().config().globalSettings();
         return YetAnotherConfigLib.createBuilder()
-                .title(Component.literal("Controlify Global Settings"))
+                .title(Component.translatable("controlify.gui.global_settings.title"))
                 .category(ConfigCategory.createBuilder()
-                        .name(Component.literal("Global Settings"))
+                        .name(Component.translatable("controlify.gui.global_settings.title"))
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("controlify.gui.load_vibration_natives"))
                                 .description(OptionDescription.createBuilder()
