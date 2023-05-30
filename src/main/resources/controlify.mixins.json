@@ -24,6 +24,8 @@
     "compat.sodium.SodiumOptionsGUIMixin",
     "compat.yacl.CyclingControllerElementMixin",
     "compat.yacl.SliderControllerElementMixin",
+    "compat.yacl.YACLScreenCategoryTabAccessor",
+    "compat.yacl.YACLScreenCategoryTabMixin",
     "compat.yacl.YACLScreenMixin",
     "core.ClientPacketListenerMixin",
     "core.GuiMixin",
