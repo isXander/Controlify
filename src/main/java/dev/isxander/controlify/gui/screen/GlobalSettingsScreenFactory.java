@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.GlobalSettings;
@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-public class GlobalSettingsGui {
+public class GlobalSettingsScreenFactory {
     public static Screen createGlobalSettingsScreen(Screen parent) {
         var globalSettings = Controlify.instance().config().globalSettings();
         return YetAnotherConfigLib.createBuilder()

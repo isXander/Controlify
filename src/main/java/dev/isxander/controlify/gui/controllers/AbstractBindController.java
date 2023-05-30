@@ -1,6 +1,5 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.controllers;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.bindings.IBind;

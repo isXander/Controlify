@@ -12,7 +12,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 
 public class BetaNoticeScreen extends Screen {
-    private MultiLineTextWidget textWidget;
 
     public BetaNoticeScreen() {
         super(Component.translatable("controlify.beta.title"));
@@ -20,7 +19,7 @@ public class BetaNoticeScreen extends Screen {
 
     @Override
     protected void init() {
-        textWidget = new AccessibilityOnboardingTextWidget(
+        MultiLineTextWidget textWidget = new AccessibilityOnboardingTextWidget(
                 font,
                 Component.translatable("controlify.beta.message",
                         Component.translatable("controlify.beta.message.link")

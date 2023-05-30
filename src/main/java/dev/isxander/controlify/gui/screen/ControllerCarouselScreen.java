@@ -1,12 +1,10 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
-import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.utils.Animator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.ComponentPath;
@@ -77,7 +75,7 @@ public class ControllerCarouselScreen extends Screen {
 
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
-        rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsGui.createGlobalSettingsScreen(this))).build());
+        rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))).build());
         rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
         grid.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);
@@ -194,7 +192,7 @@ public class ControllerCarouselScreen extends Screen {
             this.controller = controller;
             this.hasNickname = this.controller.config().customName != null;
 
-            this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigGui.generateConfigScreen(ControllerCarouselScreen.this, controller))).width(getWidth() / 2 - 4).build();
+            this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
             this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
             this.children = ImmutableList.of(settingsButton, useControllerButton);
 

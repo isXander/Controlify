@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.api.event.ControlifyEvents;
 

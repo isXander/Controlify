@@ -19,7 +19,7 @@
       "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
     ],
     "modmenu": [
-      "dev.isxander.controlify.config.gui.ModMenuIntegration"
+      "dev.isxander.controlify.config.ModMenuIntegration"
     ],
     "client": [
       "dev.isxander.controlify.ControlifyEntrypoint"

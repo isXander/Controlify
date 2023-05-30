@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.joystick.JoystickController;

@@ -1,7 +1,5 @@
 package dev.isxander.controlify.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.ChatFormatting;

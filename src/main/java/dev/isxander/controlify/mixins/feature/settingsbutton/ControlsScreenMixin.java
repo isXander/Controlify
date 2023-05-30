@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.settingsbutton;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.config.gui.ControllerCarouselScreen;
+import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OptionsSubScreen;

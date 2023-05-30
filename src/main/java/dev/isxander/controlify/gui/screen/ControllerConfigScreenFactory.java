@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.gui;
+package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
-import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
+import dev.isxander.controlify.gui.controllers.AbstractBindController;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -31,7 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ControllerConfigGui {
+public class ControllerConfigScreenFactory {
     private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
     private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
 
