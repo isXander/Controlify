@@ -18,8 +18,8 @@ public class SDLOnboardingScreen extends ConfirmScreen {
                     Controlify.instance().config().globalSettings().loadVibrationNatives = yes;
                     Controlify.instance().config().globalSettings().vibrationOnboarded = true;
                     Controlify.instance().config().save();
-                    onAnswered.accept(yes);
                     Minecraft.getInstance().setScreen(lastScreen.get());
+                    onAnswered.accept(yes);
                 },
                 Component.translatable("controlify.sdl2_onboarding.title").withStyle(ChatFormatting.BOLD),
                 Util.make(() -> {

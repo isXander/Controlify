@@ -119,8 +119,9 @@ public class Controlify implements ControlifyApi {
 
         nativeOnboardingFuture = new CompletableFuture<>();
 
+        Screen parent = minecraft.screen;
         minecraft.setScreen(new SDLOnboardingScreen(
-                () -> minecraft.screen,
+                () -> parent,
                 answer -> {
                     if (answer)
                         SDL2NativesManager.initialise();
@@ -211,7 +212,7 @@ public class Controlify implements ControlifyApi {
 
     public void tick(Minecraft client) {
         if (minecraft.getOverlay() == null) {
-            if (!calibrationQueue.isEmpty()) {
+            if (!calibrationQueue.isEmpty() && !(minecraft.screen instanceof SDLOnboardingScreen)) {
                 Screen screen = minecraft.screen;
                 while (!calibrationQueue.isEmpty()) {
                     screen = new ControllerDeadzoneCalibrationScreen(calibrationQueue.poll(), screen);
