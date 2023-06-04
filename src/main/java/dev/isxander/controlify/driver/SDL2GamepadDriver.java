@@ -15,15 +15,23 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
         this.ptrGamepad =  SDL.SDL_GameControllerOpen(jid);
         this.isGyroSupported = SDL.SDL_GameControllerHasSensor(ptrGamepad, SDL.SDL_SENSOR_GYRO);
         this.isRumbleSupported = SDL.SDL_GameControllerHasRumble(ptrGamepad);
+
+        if (this.isGyroSupported()) {
+            SDL.SDL_GameControllerSetSensorEnabled(ptrGamepad, SDL.SDL_SENSOR_GYRO, true);
+        }
     }
 
     @Override
     public void update() {
         if (isGyroSupported()) {
             float[] gyro = new float[3];
-            SDL.SDL_GameControllerGetSensorData(ptrGamepad, SDL.SDL_SENSOR_GYRO, gyro, 3);
-            gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
-            if (DebugProperties.PRINT_GYRO) Controlify.LOGGER.info("Gyro delta: " + gyroDelta);
+            if (SDL.SDL_GameControllerGetSensorData(ptrGamepad, SDL.SDL_SENSOR_GYRO, gyro, 3) == 0) {
+                gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
+                if (DebugProperties.PRINT_GYRO) Controlify.LOGGER.info("Gyro delta: " + gyroDelta);
+            } else {
+                Controlify.LOGGER.error("Could not get gyro data: " + SDL.SDL_GetError());
+            }
+
         }
         SDL.SDL_GameControllerUpdate();
     }

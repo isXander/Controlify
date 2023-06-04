@@ -209,5 +209,13 @@ public final class GamepadState implements ControllerState {
         public GyroState add(GyroState other) {
             return new GyroState(pitch + other.pitch, yaw + other.yaw, roll + other.roll);
         }
+
+        public GyroState deadzone(float deadzone) {
+            return new GyroState(
+                    Math.max(pitch - deadzone, 0) + Math.min(pitch + deadzone, 0),
+                    Math.max(yaw - deadzone, 0) + Math.min(yaw + deadzone, 0),
+                    Math.max(roll - deadzone, 0) + Math.min(roll + deadzone, 0)
+            );
+        }
     }
 }

@@ -6,6 +6,8 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.utils.Animator;
+import dev.isxander.controlify.utils.Easings;
 import dev.isxander.controlify.utils.NavigationHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -15,7 +17,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.InteractionHand;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
 
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 public class InGameInputHandler {
@@ -130,12 +135,19 @@ public class InGameInputHandler {
         if (gamepad != null && gamepad.config().flickStick) {
             var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
 
-            player.turn(
-                    (controller.bindings().LOOK_RIGHT.justPressed() ? turnAngle : 0)
-                            - (controller.bindings().LOOK_LEFT.justPressed() ? turnAngle : 0),
-                    (controller.bindings().LOOK_DOWN.justPressed() ? turnAngle : 0)
-                            - (controller.bindings().LOOK_UP.justPressed() ? turnAngle : 0)
+            AtomicReference<Float> lastAngle = new AtomicReference<>(0f);
+            Vector2fc flickVec = new Vector2f(
+                    controller.bindings().LOOK_RIGHT.justPressed() ? 1 : controller.bindings().LOOK_LEFT.justPressed() ? -1 : 0,
+                    controller.bindings().LOOK_DOWN.justPressed() ? 1 : controller.bindings().LOOK_UP.justPressed() ? -1 : 0
             );
+
+            if (!flickVec.equals(0, 0)) {
+                Animator.INSTANCE.play(new Animator.AnimationInstance(10, Easings::easeOutExpo)
+                        .addConsumer(angle -> {
+                            player.turn((angle - lastAngle.get()) * flickVec.x(), (angle - lastAngle.get()) * flickVec.y());
+                            lastAngle.set(angle);
+                        }, 0, turnAngle));
+            }
 
             return;
         }
@@ -161,10 +173,10 @@ public class InGameInputHandler {
                 && gamepad.hasGyro()
                 && (!gamepad.config().gyroRequiresButton || gamepad.bindings().GAMEPAD_GYRO_BUTTON.held())
         ) {
-            var gyroDelta = gamepad.state().gyroDelta();
+            var gyroDelta = gamepad.absoluteGyroState().deadzone(0.05f);
 
-            impulseX += (gyroDelta.yaw() + gyroDelta.pitch()) * gamepad.config().gyroLookSensitivity;
-            impulseY += gyroDelta.roll() * gamepad.config().gyroLookSensitivity;
+            impulseY += -gyroDelta.pitch() * gamepad.config().gyroLookSensitivity * (gamepad.config().invertGyroY ? -1 : 1);
+            impulseX += (-gyroDelta.roll() + -gyroDelta.yaw()) * gamepad.config().gyroLookSensitivity * (gamepad.config().invertGyroX ? -1 : 1);
         }
 
         LookInputModifier lookInputModifier = ControlifyEvents.LOOK_INPUT_MODIFIER.invoker();

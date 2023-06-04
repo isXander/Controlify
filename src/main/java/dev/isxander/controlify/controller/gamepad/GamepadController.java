@@ -85,7 +85,9 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
             }
         }
 
-        GamepadState.GyroState gyroState = drivers.gyroDriver().getGyroState();
+        // todo: make this configurable
+        GamepadState.GyroState gyroState = drivers.gyroDriver().getGyroState().deadzone(0.05f);
+        this.absoluteGyro = this.absoluteGyro.add(gyroState);
 
         state = new GamepadState(deadzoneAxesState, basicState.axes(), basicState.buttons(), gyroState, absoluteGyro);
     }

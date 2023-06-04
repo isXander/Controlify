@@ -11,6 +11,8 @@ public class GamepadConfig extends ControllerConfig {
     public float gyroLookSensitivity = 0f;
     public boolean gyroRequiresButton = true;
     public boolean flickStick = false;
+    public boolean invertGyroX = false;
+    public boolean invertGyroY = false;
 
     public BuiltinGamepadTheme theme = BuiltinGamepadTheme.DEFAULT;
 

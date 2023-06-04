@@ -420,6 +420,26 @@ public class ControllerConfigScreenFactory {
                     .build());
             gyroGroup.option(Util.make(() -> {
                 var opt = Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.gyro_invert_x"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
+                        .binding(gpCfgDef.invertGyroX, () -> gpCfg.invertGyroX, v -> gpCfg.invertGyroX = v)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build();
+                gyroOptions.add(opt);
+                return opt;
+            }));
+            gyroGroup.option(Util.make(() -> {
+                var opt = Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.gyro_invert_y"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
+                        .binding(gpCfgDef.invertGyroY, () -> gpCfg.invertGyroY, v -> gpCfg.invertGyroY = v)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build();
+                gyroOptions.add(opt);
+                return opt;
+            }));
+            gyroGroup.option(Util.make(() -> {
+                var opt = Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.gyro_requires_button"))
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
