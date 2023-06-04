@@ -77,6 +77,13 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
         else label = infoLabel;
 
         label.renderCentered(graphics, width / 2, 55);
+
+        graphics.pose().pushPose();
+        float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
+        graphics.pose().translate(width / 2f - 32 * scale, 55 + font.lineHeight * label.getLineCount(), 0f);
+        graphics.pose().scale(scale, scale, 1f);
+        graphics.blit(controller.icon(), 0, 0, 0f, 0f, 64, 64, 64, 64);
+        graphics.pose().popPose();
     }
 
     private void drawBar(GuiGraphics graphics, int centerX, int y, float progress, int vOffset) {
