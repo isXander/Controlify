@@ -3,8 +3,12 @@ package dev.isxander.controlify.gui.screen;
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
+import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
+import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.Animator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.ComponentPath;
@@ -31,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ControllerCarouselScreen extends Screen {
+public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
     public static final ResourceLocation CHECKMARK = new ResourceLocation("textures/gui/checkmark.png");
 
     private final Screen parent;
@@ -39,6 +43,8 @@ public class ControllerCarouselScreen extends Screen {
     private List<CarouselEntry> carouselEntries = null;
     private int carouselIndex;
     private Animator.AnimationInstance carouselAnimation = null;
+
+    private Button globalSettingsButton, doneButton;
 
     private ControllerCarouselScreen(Screen parent) {
         super(Component.translatable("controlify.gui.carousel.title"));
@@ -75,14 +81,17 @@ public class ControllerCarouselScreen extends Screen {
 
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
-        rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))).build());
-        rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
+        globalSettingsButton = rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))).build());
+        doneButton = rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
         grid.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);
             this.addRenderableWidget(widget);
         });
         grid.arrangeElements();
         FrameLayout.centerInRectangle(grid, 0, this.height - 36, this.width, 36);
+
+        ButtonGuideApi.addGuideToButton(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(doneButton, bindings -> bindings.GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
     }
 
     public void refreshControllers() {
@@ -158,6 +167,13 @@ public class ControllerCarouselScreen extends Screen {
             carouselAnimation.addConsumer(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
         }
         Animator.INSTANCE.play(carouselAnimation);
+    }
+
+    @Override
+    public void onControllerInput(Controller<?, ?> controller) {
+        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+            globalSettingsButton.onPress();
+        }
     }
 
     @Override

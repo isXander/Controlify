@@ -1,6 +1,5 @@
 package dev.isxander.controlify.screenop;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
@@ -50,6 +49,10 @@ public class ScreenProcessor<T extends Screen> {
         }
 
         handleTabNavigation(controller);
+
+        if (screen instanceof ScreenControllerEventListener eventListener) {
+            eventListener.onControllerInput(controller);
+        }
     }
 
     public void render(Controller<?, ?> controller, GuiGraphics graphics, float tickDelta) {
@@ -125,7 +128,7 @@ public class ScreenProcessor<T extends Screen> {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
         }
-        if (controller.bindings().GUI_BACK.justPressed()) {
+        if (screen.shouldCloseOnEsc() && controller.bindings().GUI_BACK.justPressed()) {
             playClackSound();
             screen.onClose();
         }
