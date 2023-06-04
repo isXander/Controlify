@@ -12,10 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class JoystickState implements ControllerState {
@@ -73,32 +70,32 @@ public class JoystickState implements ControllerState {
     }
 
     public static JoystickState fromJoystick(JoystickController<?> joystick, int joystickId) {
-        FloatBuffer axesBuffer = GLFW.glfwGetJoystickAxes(joystickId);
-        float[] inAxes = new float[axesBuffer.limit()];
+        Optional<FloatBuffer> axesBuffer = Optional.ofNullable(GLFW.glfwGetJoystickAxes(joystickId));
+        float[] inAxes = new float[axesBuffer.map(FloatBuffer::limit).orElse(0)];
         {
             int i = 0;
-            while (axesBuffer.hasRemaining()) {
-                inAxes[i] = axesBuffer.get();
+            while (axesBuffer.isPresent() && axesBuffer.get().hasRemaining()) {
+                inAxes[i] = axesBuffer.get().get();
                 i++;
             }
         }
 
-        ByteBuffer buttonBuffer = GLFW.glfwGetJoystickButtons(joystickId);
-        boolean[] inButtons = new boolean[buttonBuffer.limit()];
+        Optional<ByteBuffer> buttonBuffer = Optional.ofNullable(GLFW.glfwGetJoystickButtons(joystickId));
+        boolean[] inButtons = new boolean[axesBuffer.map(FloatBuffer::limit).orElse(0)];
         {
             int i = 0;
-            while (buttonBuffer.hasRemaining()) {
-                inButtons[i] = buttonBuffer.get() == GLFW.GLFW_PRESS;
+            while (buttonBuffer.isPresent() && buttonBuffer.get().hasRemaining()) {
+                inButtons[i] = buttonBuffer.get().get() == GLFW.GLFW_PRESS;
                 i++;
             }
         }
 
-        ByteBuffer hatBuffer = GLFW.glfwGetJoystickHats(joystickId);
-        HatState[] inHats = new HatState[hatBuffer.limit()];
+        Optional<ByteBuffer> hatBuffer = Optional.ofNullable(GLFW.glfwGetJoystickHats(joystickId));
+        HatState[] inHats = new HatState[hatBuffer.map(ByteBuffer::limit).orElse(0)];
         {
             int i = 0;
-            while (hatBuffer.hasRemaining()) {
-                var state = switch (hatBuffer.get()) {
+            while (hatBuffer.isPresent() && hatBuffer.get().hasRemaining()) {
+                var state = switch (hatBuffer.get().get()) {
                     case GLFW.GLFW_HAT_CENTERED -> HatState.CENTERED;
                     case GLFW.GLFW_HAT_UP -> HatState.UP;
                     case GLFW.GLFW_HAT_RIGHT -> HatState.RIGHT;
