@@ -20,6 +20,8 @@ public class DebugProperties {
     public static final boolean PRINT_GYRO = boolProp("controlify.debug.print_gyro", false, false);
     /* Print what drivers are being used */
     public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
+    /* Use experimental anti-snapback */
+    public static final boolean USE_SNAPBACK = boolProp("controlify.debug.use_snapback", false, false);
 
     public static void printProperties() {
         if (properties.stream().noneMatch(prop -> prop.enabled() != prop.def()))

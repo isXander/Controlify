@@ -80,6 +80,7 @@ public class SDL2NativesManager {
         // without calling JoystickUpdate, which we don't do.
         SDL.SDL_SetHint(SDL_HINT_JOYSTICK_RAWINPUT, "0");
         // better rumble
+        SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
         SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
         SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS5_RUMBLE, "1");
         SDL.SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");

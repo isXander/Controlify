@@ -5,9 +5,11 @@ import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.utils.ControllerUtils;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
@@ -22,6 +24,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
     private final GamepadDrivers drivers;
     private final Set<Driver> uniqueDrivers;
+
+    private int antiSnapbackTicksL, antiSnapbackTicksR;
 
     public GamepadController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         super(joystickId, hidInfo);
@@ -63,6 +67,23 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         GamepadState.AxesState deadzoneAxesState = basicState.axes()
                 .leftJoystickDeadZone(config().leftStickDeadzoneX, config().leftStickDeadzoneY)
                 .rightJoystickDeadZone(config().rightStickDeadzoneX, config().rightStickDeadzoneY);
+
+        if (DebugProperties.USE_SNAPBACK) {
+            if (antiSnapbackTicksL > 0) {
+                deadzoneAxesState = deadzoneAxesState.neutraliseLeft();
+                antiSnapbackTicksL--;
+            } else if (ControllerUtils.shouldApplyAntiSnapBack(deadzoneAxesState.leftStickX(), deadzoneAxesState.leftStickY(), prevState.gamepadAxes().leftStickX(), prevState.gamepadAxes().leftStickY(), 0.08f)) {
+                antiSnapbackTicksL = 2;
+                deadzoneAxesState = deadzoneAxesState.neutraliseLeft();
+            }
+            if (antiSnapbackTicksR > 0) {
+                deadzoneAxesState = deadzoneAxesState.neutraliseRight();
+                antiSnapbackTicksR--;
+            } else if (ControllerUtils.shouldApplyAntiSnapBack(deadzoneAxesState.rightStickX(), deadzoneAxesState.rightStickY(), prevState.gamepadAxes().rightStickX(), prevState.gamepadAxes().rightStickY(), 0.08f)) {
+                antiSnapbackTicksR = 2;
+                deadzoneAxesState = deadzoneAxesState.neutraliseRight();
+            }
+        }
 
         GamepadState.GyroState gyroState = drivers.gyroDriver().getGyroState();
 

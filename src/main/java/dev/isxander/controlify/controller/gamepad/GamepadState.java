@@ -177,6 +177,14 @@ public final class GamepadState implements ControllerState {
                     ControllerUtils.deadzone(rightTrigger, deadZone)
             );
         }
+
+        public AxesState neutraliseLeft() {
+            return new AxesState(0, 0, rightStickX, rightStickY, leftTrigger, rightTrigger);
+        }
+
+        public AxesState neutraliseRight() {
+            return new AxesState(leftStickX, leftStickY, 0, 0, leftTrigger, rightTrigger);
+        }
     }
 
     public record ButtonState(
