@@ -4,13 +4,15 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
-public class GLFWGamepadDriver implements BasicGamepadInputDriver {
+public class GLFWGamepadDriver implements BasicGamepadInputDriver, NameProviderDriver, GUIDProvider {
     private final int jid;
+    private final String guid;
 
     private BasicGamepadState state = new BasicGamepadState(GamepadState.AxesState.EMPTY, GamepadState.ButtonState.EMPTY);
 
     public GLFWGamepadDriver(int jid) {
         this.jid = jid;
+        this.guid = GLFW.glfwGetJoystickGUID(jid);
     }
 
     @Override
@@ -54,6 +56,26 @@ public class GLFWGamepadDriver implements BasicGamepadInputDriver {
 
     @Override
     public String getBasicGamepadDetails() {
+        return "GLFW Gamepad";
+    }
+
+    @Override
+    public String getName() {
+        return GLFW.glfwGetGamepadName(jid);
+    }
+
+    @Override
+    public String getNameProviderDetails() {
+        return "GLFW Gamepad";
+    }
+
+    @Override
+    public String getGUID() {
+        return guid;
+    }
+
+    @Override
+    public String getGUIDProviderDetails() {
         return "GLFW Gamepad";
     }
 }

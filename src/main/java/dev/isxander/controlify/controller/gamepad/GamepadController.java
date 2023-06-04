@@ -32,12 +32,12 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         if (!GLFW.glfwJoystickIsGamepad(joystickId))
             throw new IllegalArgumentException("Joystick " + joystickId + " is not a gamepad!");
 
-        if (!this.name.startsWith(type().friendlyName()))
-            setName(GLFW.glfwGetGamepadName(joystickId));
-
         this.drivers = GamepadDrivers.forController(joystickId, hidInfo.hidDevice());
         this.uniqueDrivers = drivers.getUniqueDrivers();
         this.drivers.printDrivers();
+
+        if (!this.name.startsWith(type().friendlyName()))
+            setName(this.drivers.nameProviderDriver().getName());
 
         this.rumbleManager = new RumbleManager(this);
 

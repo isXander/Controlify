@@ -6,13 +6,15 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.debug.DebugProperties;
 import org.libsdl.SDL;
 
-public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDriver {
+public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDriver, GUIDProvider {
     private final long ptrGamepad;
-    private GamepadState.GyroState gyroDelta;
+    private GamepadState.GyroState gyroDelta = new GamepadState.GyroState(0, 0, 0);
     private final boolean isGyroSupported, isRumbleSupported;
+    private final String guid;
 
     public SDL2GamepadDriver(int jid) {
         this.ptrGamepad =  SDL.SDL_GameControllerOpen(jid);
+        this.guid = SDL.SDL_JoystickGUIDString(SDL.SDL_GameControllerGetJoystick(ptrGamepad));
         this.isGyroSupported = SDL.SDL_GameControllerHasSensor(ptrGamepad, SDL.SDL_SENSOR_GYRO);
         this.isRumbleSupported = SDL.SDL_GameControllerHasRumble(ptrGamepad);
 
@@ -76,6 +78,11 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
     }
 
     @Override
+    public String getGUID() {
+        return guid;
+    }
+
+    @Override
     public void close() {
         SDL.SDL_GameControllerClose(ptrGamepad);
     }
@@ -92,6 +99,11 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
 
     @Override
     public String getBatteryDriverDetails() {
+        return "SDL2gp";
+    }
+
+    @Override
+    public String getGUIDProviderDetails() {
         return "SDL2gp";
     }
 }
