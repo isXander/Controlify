@@ -81,7 +81,7 @@ public class JoystickState implements ControllerState {
         }
 
         Optional<ByteBuffer> buttonBuffer = Optional.ofNullable(GLFW.glfwGetJoystickButtons(joystickId));
-        boolean[] inButtons = new boolean[axesBuffer.map(FloatBuffer::limit).orElse(0)];
+        boolean[] inButtons = new boolean[buttonBuffer.map(ByteBuffer::limit).orElse(0)];
         {
             int i = 0;
             while (buttonBuffer.isPresent() && buttonBuffer.get().hasRemaining()) {
