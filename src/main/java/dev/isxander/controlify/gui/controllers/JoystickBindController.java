@@ -3,9 +3,9 @@ package dev.isxander.controlify.gui.controllers;
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
-import dev.isxander.yacl.api.Option;
-import dev.isxander.yacl.api.utils.Dimension;
-import dev.isxander.yacl.gui.YACLScreen;
+import dev.isxander.yacl3.api.Option;
+import dev.isxander.yacl3.api.utils.Dimension;
+import dev.isxander.yacl3.gui.YACLScreen;
 
 import java.util.Optional;
 

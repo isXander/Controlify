@@ -3,7 +3,7 @@ package dev.isxander.controlify.compatibility.yacl;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.yacl.gui.controllers.cycling.CyclingControllerElement;
+import dev.isxander.yacl3.gui.controllers.cycling.CyclingControllerElement;
 
 public class CyclingControllerElementComponentProcessor implements ComponentProcessor {
     private final CyclingControllerElement cyclingController;

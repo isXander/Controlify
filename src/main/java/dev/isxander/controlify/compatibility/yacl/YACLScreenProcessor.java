@@ -3,7 +3,7 @@ package dev.isxander.controlify.compatibility.yacl;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.mixins.compat.yacl.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.yacl.gui.YACLScreen;
+import dev.isxander.yacl3.gui.YACLScreen;
 
 public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     public YACLScreenProcessor(YACLScreen screen) {

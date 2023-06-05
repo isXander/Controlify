@@ -6,7 +6,7 @@ import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.ControllerUtils;
-import dev.isxander.yacl.api.NameableEnum;
+import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 

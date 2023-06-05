@@ -4,7 +4,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.utils.NavigationHelper;
-import dev.isxander.yacl.gui.controllers.slider.SliderControllerElement;
+import dev.isxander.yacl3.gui.controllers.slider.SliderControllerElement;
 
 public class SliderControllerElementComponentProcessor implements ComponentProcessor {
     private final SliderControllerElement slider;

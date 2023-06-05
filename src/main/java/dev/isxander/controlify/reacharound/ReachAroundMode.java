@@ -1,7 +1,7 @@
 package dev.isxander.controlify.reacharound;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.yacl.api.NameableEnum;
+import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 

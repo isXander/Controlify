@@ -5,9 +5,9 @@ import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
-import dev.isxander.yacl.api.Option;
-import dev.isxander.yacl.api.utils.Dimension;
-import dev.isxander.yacl.gui.YACLScreen;
+import dev.isxander.yacl3.api.Option;
+import dev.isxander.yacl3.api.utils.Dimension;
+import dev.isxander.yacl3.gui.YACLScreen;
 
 import java.util.Optional;
 

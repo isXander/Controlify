@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller.gamepad;
 
-import dev.isxander.yacl.api.NameableEnum;
+import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 

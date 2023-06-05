@@ -3,7 +3,7 @@ package dev.isxander.controlify.mixins.compat.yacl;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.compatibility.yacl.SliderControllerElementComponentProcessor;
-import dev.isxander.yacl.gui.controllers.slider.SliderControllerElement;
+import dev.isxander.yacl3.gui.controllers.slider.SliderControllerElement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
