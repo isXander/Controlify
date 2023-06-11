@@ -99,6 +99,8 @@ public class Controlify implements ControlifyApi {
             }
         }
 
+        ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
             try {
@@ -119,7 +121,11 @@ public class Controlify implements ControlifyApi {
         if (nativeOnboardingFuture != null) return nativeOnboardingFuture;
 
         if (config().globalSettings().vibrationOnboarded) {
-            return CompletableFuture.completedFuture(config().globalSettings().loadVibrationNatives);
+            boolean loadNatives = config().globalSettings().loadVibrationNatives;
+            if (loadNatives && !SDL2NativesManager.isInitialised()) {
+                SDL2NativesManager.initialise();
+            }
+            return CompletableFuture.completedFuture(loadNatives);
         }
 
         nativeOnboardingFuture = new CompletableFuture<>();
@@ -179,8 +185,6 @@ public class Controlify implements ControlifyApi {
             // setCurrentController saves config
             config().saveIfDirty();
         }
-
-        ClientTickEvents.START_CLIENT_TICK.register(this::tick);
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {

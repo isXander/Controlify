@@ -31,9 +31,11 @@ public class SDL2NativesManager {
     private static final String NATIVE_LIBRARY_URL = "https://maven.isxander.dev/releases/dev/isxander/sdl2-jni-natives/%s/".formatted(SDL2_VERSION);
 
     private static boolean loaded = false;
+    private static boolean initialised = false;
 
     public static void initialise() {
-        if (loaded) return;
+        if (initialised) return;
+        initialised = true;
 
         DebugLog.log("Initialising SDL2 native library");
 
@@ -122,6 +124,10 @@ public class SDL2NativesManager {
 
     public static boolean isLoaded() {
         return loaded;
+    }
+
+    public static boolean isInitialised() {
+        return initialised;
     }
 
     private record Target(Util.OS os, boolean is64Bit, boolean isARM) {
