@@ -69,7 +69,7 @@ have not yet memorised the controls.
 
 Also, some GUIs display controller buttons on elements that have a controller shortcut, to easily navigate with a controller like you should be able to.
 
-![image of in-screen button guide](https://cdn.modrinth.com/data/DOUdJVEm/images/c1ecbb7fa1b0f955c9e5b61816a9518d0b0d4e73.png)
+![image of in-screen button guide](https://cdn.modrinth.com/data/DOUdJVEm/images/511e4182137bb27bbdf95539c8265b9af2038761.webp)
 
 ### Containerised Controllers
 
@@ -90,7 +90,7 @@ without convoluted support throughout the whole mod's codebase, making it diffic
 The deadzone values of your controller are automatically calibrated, 
 meaning you don't have to worry about it.
 
-![image of calibration screen](https://cdn.modrinth.com/data/DOUdJVEm/images/576cc223ba3c0c8c4731be7b456070e0e2a80651.png)
+![image of calibration screen](https://cdn.modrinth.com/data/DOUdJVEm/images/f5f8e2a0a05e61adb95dd919760b424165ca5d14.png)
 
 ## What is to come?
 

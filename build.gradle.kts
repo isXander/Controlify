@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.3.0-beta.2+1.20"
+version = "1.3.0+1.20"
 val isBeta = "beta" in version.toString()
 if (isBeta) println("Beta version detected.")
 
@@ -184,7 +184,7 @@ if (modrinthId.isNotEmpty()) {
         versionNumber.set("${project.version}")
         versionType.set(if (isBeta) "beta" else "release")
         uploadFile.set(tasks["remapJar"])
-        gameVersions.set(listOf("1.20-pre2"))
+        gameVersions.set(listOf("1.20"))
         loaders.set(listOf("fabric", "quilt"))
         changelog.set(changelogText)
         syncBodyFrom.set(file(".github/README.md").readText())
@@ -208,7 +208,7 @@ if (hasProperty("curseforge.token") && curseforgeId.isNotEmpty()) {
 
             id = curseforgeId
             releaseType = if (isBeta) "beta" else "release"
-            addGameVersion("1.20-Snapshot")
+            addGameVersion("1.20")
             addGameVersion("Fabric")
             addGameVersion("Java 17")
 
