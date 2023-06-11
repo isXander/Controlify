@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.sdl2;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.utils.DebugLog;
+import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import org.libsdl.SDL;
@@ -38,7 +38,7 @@ public class SDL2NativesManager {
         DebugLog.log("Initialising SDL2 native library");
 
         if (!Target.CURRENT.hasNativeLibrary()) {
-            Controlify.LOGGER.warn("SDL2 native library not available for OS: " + Target.CURRENT);
+            Log.LOGGER.warn("SDL2 native library not available for OS: " + Target.CURRENT);
             return;
         }
 
@@ -50,11 +50,11 @@ public class SDL2NativesManager {
                             .map(Path::toFile)
                             .forEachOrdered(File::delete);
                 } catch (Exception e) {
-                    Controlify.LOGGER.error("Failed to delete old SDL2 native library", e);
+                    Log.LOGGER.error("Failed to delete old SDL2 native library", e);
                 }
             }
 
-            Controlify.LOGGER.info("Downloading SDL2 native library: " + Target.CURRENT.getArtifactName());
+            Log.LOGGER.info("Downloading SDL2 native library: " + Target.CURRENT.getArtifactName());
             downloadLibrary(localLibraryPath);
         }
 
@@ -65,7 +65,7 @@ public class SDL2NativesManager {
 
             loaded = true;
         } catch (Exception e) {
-            Controlify.LOGGER.error("Failed to load SDL2 native library", e);
+            Log.LOGGER.error("Failed to load SDL2 native library", e);
         }
     }
 
@@ -88,7 +88,7 @@ public class SDL2NativesManager {
         int joystickSubsystem = 0x00000200; // implies event subsystem
         int gameControllerSubsystem = 0x00002000; // implies event subsystem
         if (SDL.SDL_Init(joystickSubsystem | gameControllerSubsystem) != 0) {
-            Controlify.LOGGER.error("Failed to initialise SDL2: " + SDL.SDL_GetError());
+            Log.LOGGER.error("Failed to initialise SDL2: " + SDL.SDL_GetError());
             throw new RuntimeException("Failed to initialise SDL2: " + SDL.SDL_GetError());
         }
 
@@ -111,7 +111,7 @@ public class SDL2NativesManager {
             ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
             FileChannel fileChannel = fileOutputStream.getChannel();
             fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-            Controlify.LOGGER.info("Downloaded SDL2 native library from " + downloadUrl);
+            Log.LOGGER.info("Downloaded SDL2 native library from " + downloadUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return false;

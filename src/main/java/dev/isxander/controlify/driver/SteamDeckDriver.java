@@ -1,7 +1,7 @@
 package dev.isxander.controlify.driver;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.utils.Log;
 import org.hid4java.HidDevice;
 
 import java.util.Arrays;
@@ -33,10 +33,10 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
         int readCnt = hidDevice.read(data);
 
         if (readCnt == 0) {
-            Controlify.LOGGER.warn("No data available.");
+            Log.LOGGER.warn("No data available.");
         }
         if (readCnt == -1) {
-            Controlify.LOGGER.warn("Error reading data.");
+            Log.LOGGER.warn("Error reading data.");
         }
 
         System.out.println(Arrays.toString(data));

@@ -8,8 +8,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class ReachAroundHandler {
+    public static boolean reachAroundPolicy = true;
+
     public static HitResult getReachAroundHitResult(Entity entity, HitResult hitResult) {
-        // if there is already a valid hit, we don't want to override it
+       // if there is already a valid hit, we don't want to override it
         if (hitResult.getType() != HitResult.Type.MISS)
             return hitResult;
 
@@ -29,8 +31,9 @@ public class ReachAroundHandler {
     }
 
     private static boolean canReachAround(Entity cameraEntity) {
-        return  // don't want to place blocks while riding an entity
-                cameraEntity.getVehicle() == null
+        return  reachAroundPolicy
+                // don't want to place blocks while riding an entity
+                && cameraEntity.getVehicle() == null
                 // straight ahead = 0deg, up = -90deg, down = 90deg
                 // 45deg and above is half between straight ahead and down, must be lower or equal to this threshold
                 && cameraEntity.getXRot() >= 45

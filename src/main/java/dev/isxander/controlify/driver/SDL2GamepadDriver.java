@@ -1,9 +1,9 @@
 package dev.isxander.controlify.driver;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.utils.Log;
 import org.libsdl.SDL;
 
 public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDriver, GUIDProvider {
@@ -29,9 +29,9 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
             float[] gyro = new float[3];
             if (SDL.SDL_GameControllerGetSensorData(ptrGamepad, SDL.SDL_SENSOR_GYRO, gyro, 3) == 0) {
                 gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
-                if (DebugProperties.PRINT_GYRO) Controlify.LOGGER.info("Gyro delta: " + gyroDelta);
+                if (DebugProperties.PRINT_GYRO) Log.LOGGER.info("Gyro delta: " + gyroDelta);
             } else {
-                Controlify.LOGGER.error("Could not get gyro data: " + SDL.SDL_GetError());
+                Log.LOGGER.error("Could not get gyro data: " + SDL.SDL_GetError());
             }
 
         }
@@ -42,7 +42,7 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
     public boolean rumble(float strongMagnitude, float weakMagnitude) {
         // duration of 0 is infinite
         if (!SDL.SDL_GameControllerRumble(ptrGamepad, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 0)) {
-            Controlify.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
+            Log.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
             return false;
         }
         return true;

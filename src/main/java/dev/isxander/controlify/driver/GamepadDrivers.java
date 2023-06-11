@@ -1,9 +1,9 @@
 package dev.isxander.controlify.driver;
 
 import com.google.common.collect.Sets;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.utils.Log;
 import org.hid4java.HidDevice;
 
 import java.util.*;
@@ -17,7 +17,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
 
     public void printDrivers() {
         if (DebugProperties.PRINT_DRIVER) {
-            Controlify.LOGGER.info("Drivers in use: Basic Input = '{}', Gyro = '{}', Rumble = '{}', Battery = '{}', Name = '{}', GUID = '{}'",
+            Log.LOGGER.info("Drivers in use: Basic Input = '{}', Gyro = '{}', Rumble = '{}', Battery = '{}', Name = '{}', GUID = '{}'",
                     basicGamepadInputDriver.getBasicGamepadDetails(),
                     gyroDriver.getGyroDetails(),
                     rumbleDriver.getRumbleDetails(),

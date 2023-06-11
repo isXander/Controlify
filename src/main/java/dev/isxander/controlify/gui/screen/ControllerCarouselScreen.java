@@ -96,7 +96,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     public void refreshControllers() {
         Controller<?, ?> prevSelectedController;
-        if (carouselEntries != null) {
+        if (carouselEntries != null && !carouselEntries.isEmpty()) {
             carouselEntries.forEach(this::removeWidget);
             prevSelectedController = carouselEntries.get(carouselIndex).controller;
         } else {

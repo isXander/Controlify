@@ -18,6 +18,7 @@ public class GlobalSettings {
     public boolean loadVibrationNatives = false;
     public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
+    public boolean allowServerRumble = true;
     public boolean uiSounds = false;
     public boolean notifyLowBattery = true;
     public boolean delegateSetup = false;

@@ -13,6 +13,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -459,14 +460,14 @@ public class ControllerBindings<T extends ControllerState> {
         boolean clean = true;
         for (var binding : registry().values()) {
             if (!json.has(binding.id().toString())) {
-                Controlify.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
+                Log.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
                 clean = false;
                 continue;
             }
 
             var bind = json.get(binding.id().toString()).getAsJsonObject();
             if (bind == null) {
-                Controlify.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
+                Log.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
                 clean = false;
                 continue;
             }
@@ -510,7 +511,7 @@ public class ControllerBindings<T extends ControllerState> {
 
                 register(binding);
             } catch (Exception e) {
-                Controlify.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
+                Log.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
             }
         }
     }

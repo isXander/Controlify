@@ -1,7 +1,6 @@
 package dev.isxander.controlify;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -9,6 +8,7 @@ import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.DebugLog;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -89,12 +89,12 @@ public final class ControllerManager {
         Controlify.instance().config().getCompoundJoysticks().values().forEach(info -> {
             try {
                 if (info.isLoaded() && !info.canBeUsed()) {
-                    Controlify.LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
+                    Log.LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
                     disconnect(info.type().mappingId());
                 }
 
                 if (!info.isLoaded() && info.canBeUsed()) {
-                    Controlify.LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
+                    Log.LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
                     CompoundJoystickController controller = info.attemptCreate().orElseThrow();
                     CONTROLLERS.put(info.type().mappingId(), controller);
                     Controlify.instance().config().loadOrCreateControllerData(controller);

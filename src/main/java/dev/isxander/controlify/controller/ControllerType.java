@@ -1,8 +1,8 @@
 package dev.isxander.controlify.controller;
 
 import com.google.common.collect.ImmutableMap;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.hid.HIDIdentifier;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -38,7 +38,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                     readControllerIdFiles(reader);
 
                 } catch (Exception e) {
-                    Controlify.LOGGER.error("Failed to load HID DB from source", e);
+                    Log.LOGGER.error("Failed to load HID DB from source", e);
                 }
             }
         } catch (Exception e) {
@@ -78,7 +78,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                                 } else if (productId == -1) {
                                     productId = reader.nextInt();
                                 } else {
-                                    Controlify.LOGGER.warn("Too many values in HID array. Skipping...");
+                                    Log.LOGGER.warn("Too many values in HID array. Skipping...");
                                     reader.skipValue();
                                 }
                             }
@@ -90,7 +90,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                     case "force_joystick" -> forceJoystick = reader.nextBoolean();
                     case "dont_load" -> dontLoad = reader.nextBoolean();
                     default -> {
-                        Controlify.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
+                        Log.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
                         reader.skipValue();
                     }
                 }
@@ -98,13 +98,13 @@ public record ControllerType(String friendlyName, String mappingId, String theme
             reader.endObject();
 
             if (legacyIdentifier != null) {
-                Controlify.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
+                Log.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
                 themeId = legacyIdentifier;
                 mappingId = legacyIdentifier;
             }
 
             if (friendlyName == null || themeId == null || hids.isEmpty()) {
-                Controlify.LOGGER.warn("Invalid entry in HID DB. Skipping...");
+                Log.LOGGER.warn("Invalid entry in HID DB. Skipping...");
                 continue;
             }
 

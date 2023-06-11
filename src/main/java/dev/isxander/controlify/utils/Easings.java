@@ -1,6 +1,12 @@
 package dev.isxander.controlify.utils;
 
+import net.minecraft.util.Mth;
+
 public class Easings {
+    public static float easeInSine(float t) {
+        return 1 - Mth.cos((float) ((t * Math.PI) / 2));
+    }
+
     public static float easeInQuad(float t) {
         return t * t;
     }

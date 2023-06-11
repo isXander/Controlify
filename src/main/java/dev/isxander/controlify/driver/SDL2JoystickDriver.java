@@ -1,6 +1,6 @@
 package dev.isxander.controlify.driver;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.utils.Log;
 import org.libsdl.SDL;
 
 public class SDL2JoystickDriver implements RumbleDriver {
@@ -21,7 +21,7 @@ public class SDL2JoystickDriver implements RumbleDriver {
     public boolean rumble(float strongMagnitude, float weakMagnitude) {
         // duration of 0 is infinite
         if (!SDL.SDL_JoystickRumble(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 0)) {
-            Controlify.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
+            Log.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
             return false;
         }
         return true;

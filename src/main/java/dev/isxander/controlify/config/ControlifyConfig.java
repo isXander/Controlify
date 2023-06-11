@@ -6,6 +6,7 @@ import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
+import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class ControlifyConfig {
     }
 
     public void save() {
-        Controlify.LOGGER.info("Saving Controlify config...");
+        Log.LOGGER.info("Saving Controlify config...");
 
         try {
             Files.deleteIfExists(CONFIG_PATH);
@@ -55,7 +55,7 @@ public class ControlifyConfig {
     }
 
     public void load() {
-        Controlify.LOGGER.info("Loading Controlify config...");
+        Log.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
             firstLaunch = true;
@@ -66,7 +66,7 @@ public class ControlifyConfig {
         try {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
         } catch (Exception e) {
-            Controlify.LOGGER.error("Failed to load Controlify config!", e);
+            Log.LOGGER.error("Failed to load Controlify config!", e);
         }
 
         if (dirty) {
@@ -156,7 +156,7 @@ public class ControlifyConfig {
             controller.setConfig(GSON, object.getAsJsonObject("config"));
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
         } catch (Exception e) {
-            Controlify.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
+            Log.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
             controller.resetConfig();
             save();
         }

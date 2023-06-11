@@ -1,7 +1,9 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
+import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
@@ -37,9 +39,11 @@ public class GlobalSettingsScreenFactory {
                                         .text(Component.translatable("controlify.gui.reach_around.tooltip"))
                                         .text(Component.translatable("controlify.gui.reach_around.tooltip.parity").withStyle(ChatFormatting.GRAY))
                                         .text(state == ReachAroundMode.EVERYWHERE ? Component.translatable("controlify.gui.reach_around.tooltip.warning").withStyle(ChatFormatting.RED) : Component.empty())
+                                        .text(!ReachAroundHandler.reachAroundPolicy ? Component.translatable("controlify.gui.reach_around.tooltip.server_disabled").withStyle(ChatFormatting.GOLD) : Component.empty())
                                         .build())
-                                .binding(GlobalSettings.DEFAULT.reachAround, () -> globalSettings.reachAround, v -> globalSettings.reachAround = v)
+                                .binding(GlobalSettings.DEFAULT.reachAround, () -> ReachAroundHandler.reachAroundPolicy ? globalSettings.reachAround : ReachAroundMode.OFF, v -> globalSettings.reachAround = v)
                                 .controller(opt -> EnumControllerBuilder.create(opt).enumClass(ReachAroundMode.class))
+                                .available(ReachAroundHandler.reachAroundPolicy)
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("controlify.gui.ui_sounds"))
@@ -48,6 +52,17 @@ public class GlobalSettingsScreenFactory {
                                         .build())
                                 .binding(GlobalSettings.DEFAULT.uiSounds, () -> globalSettings.uiSounds, v -> globalSettings.uiSounds = v)
                                 .controller(TickBoxControllerBuilder::create)
+                                .build())
+                        .option(Option.<Boolean>createBuilder()
+                                .name(Component.translatable("controlify.gui.allow_server_rumble"))
+                                .description(OptionDescription.createBuilder()
+                                        .text(Component.translatable("controlify.gui.allow_server_rumble.tooltip"))
+                                        .build())
+                                .binding(GlobalSettings.DEFAULT.allowServerRumble, () -> globalSettings.allowServerRumble, v -> globalSettings.allowServerRumble = v)
+                                .controller(TickBoxControllerBuilder::create)
+                                .listener((opt, val) -> {
+                                    if (!val) ControlifyApi.get().getCurrentController().ifPresent(c -> c.rumbleManager().clearEffects());
+                                })
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("controlify.gui.notify_low_battery"))

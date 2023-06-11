@@ -1,11 +1,12 @@
 package dev.isxander.controlify.rumble;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
-public class RumbleSource {
+public record RumbleSource(ResourceLocation id) {
     private static final Map<ResourceLocation, RumbleSource> SOURCES = new LinkedHashMap<>();
 
     public static final RumbleSource
@@ -19,14 +20,13 @@ public class RumbleSource {
             MISC = register("misc"),
             GLOBAL_EVENT = register("global_event");
 
-    private final ResourceLocation id;
-
-    private RumbleSource(ResourceLocation id) {
-        this.id = id;
-    }
-
-    public ResourceLocation id() {
-        return id;
+    public static RumbleSource get(ResourceLocation id) {
+        RumbleSource source = SOURCES.get(id);
+        if (source == null) {
+            Log.LOGGER.warn("Unknown rumble source: {}. Using master.", id);
+            return MASTER;
+        }
+        return source;
     }
 
     public static Collection<RumbleSource> values() {

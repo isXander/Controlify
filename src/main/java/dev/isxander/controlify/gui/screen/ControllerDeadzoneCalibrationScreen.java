@@ -2,6 +2,7 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -124,7 +125,7 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
             var deadzone = (float)Mth.clamp(0.05 * Math.ceil(minDeadzone / 0.05), 0, 0.95);
 
             if (Float.isNaN(deadzone)) {
-                Controlify.LOGGER.warn("Deadzone for axis {} is NaN, using default deadzone.", i);
+                Log.LOGGER.warn("Deadzone for axis {} is NaN, using default deadzone.", i);
                 deadzone = controller.defaultConfig().getDeadzone(i);
             }
 

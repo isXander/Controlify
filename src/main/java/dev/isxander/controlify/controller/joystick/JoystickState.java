@@ -1,11 +1,11 @@
 package dev.isxander.controlify.controller.joystick;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.ControllerUtils;
+import dev.isxander.controlify.utils.Log;
 import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -131,10 +131,10 @@ public class JoystickState implements ControllerState {
         List<HatState> hats = Arrays.stream(mapping.hats()).map(hat -> hat.getHatState(data)).toList();
 
         if (DebugProperties.PRINT_JOY_STATE) {
-            Controlify.LOGGER.info("Printing joystick state for controller {}", joystick);
-            Controlify.LOGGER.info(Arrays.stream(axes).map(axis -> axis.name().getString() + ": " + axis.getAxis(data)).toList().toString());
-            Controlify.LOGGER.info(Arrays.stream(mapping.buttons()).map(button -> button.name().getString() + ": " + button.isPressed(data)).toList().toString());
-            Controlify.LOGGER.info(Arrays.stream(mapping.hats()).map(hat -> hat.name().getString() + ": " + hat.getHatState(data)).toList().toString());
+            Log.LOGGER.info("Printing joystick state for controller {}", joystick);
+            Log.LOGGER.info(Arrays.stream(axes).map(axis -> axis.name().getString() + ": " + axis.getAxis(data)).toList().toString());
+            Log.LOGGER.info(Arrays.stream(mapping.buttons()).map(button -> button.name().getString() + ": " + button.isPressed(data)).toList().toString());
+            Log.LOGGER.info(Arrays.stream(mapping.hats()).map(hat -> hat.name().getString() + ": " + hat.getHatState(data)).toList().toString());
         }
 
         return new JoystickState(joystick.mapping(), deadzoneAxes, rawAxes, buttons, hats);

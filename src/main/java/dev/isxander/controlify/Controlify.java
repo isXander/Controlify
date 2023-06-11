@@ -1,7 +1,6 @@
 package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
-import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
@@ -12,6 +11,7 @@ import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
+import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -19,12 +19,19 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.server.EntityVibrationPacket;
+import dev.isxander.controlify.server.OriginVibrationPacket;
+import dev.isxander.controlify.server.ReachAroundPolicyPacket;
+import dev.isxander.controlify.server.VibrationPacket;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.DebugLog;
+import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -36,7 +43,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
-import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
 import java.util.Optional;
@@ -45,7 +51,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 public class Controlify implements ControlifyApi {
-    public static final Logger LOGGER = LogUtils.getLogger();
     private static Controlify instance = null;
 
     private final Minecraft minecraft = Minecraft.getInstance();
@@ -72,7 +77,7 @@ public class Controlify implements ControlifyApi {
     private ToastUtils.ControlifyToast askSwitchToast = null;
 
     public void initializeControlify() {
-        LOGGER.info("Initializing Controlify...");
+        Log.LOGGER.info("Initializing Controlify...");
 
         config().load();
 
@@ -150,7 +155,7 @@ public class Controlify implements ControlifyApi {
                 if (controllerOpt.isEmpty()) continue;
                 var controller = controllerOpt.get();
 
-                LOGGER.info("Controller found: " + controller.name());
+                Log.LOGGER.info("Controller found: " + controller.name());
 
                 config().loadOrCreateControllerData(controller);
 
@@ -165,7 +170,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (ControllerManager.getConnectedControllers().isEmpty()) {
-            LOGGER.info("No controllers found.");
+            Log.LOGGER.info("No controllers found.");
         }
 
         if (getCurrentController().isEmpty()) {
@@ -181,7 +186,7 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControllersDiscovered(this);
             } catch (Exception e) {
-                LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                Log.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
             }
         });
     }
@@ -189,7 +194,7 @@ public class Controlify implements ControlifyApi {
     public void preInitialiseControlify() {
         DebugProperties.printProperties();
 
-        LOGGER.info("Pre-initializing Controlify...");
+        Log.LOGGER.info("Pre-initializing Controlify...");
 
         ControlifySounds.init();
 
@@ -201,11 +206,38 @@ public class Controlify implements ControlifyApi {
 
         ControllerBindHandler.setup();
 
+        ClientPlayNetworking.registerGlobalReceiver(VibrationPacket.TYPE, (packet, player, sender) -> {
+            if (config().globalSettings().allowServerRumble) {
+                getCurrentController().ifPresent(controller ->
+                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(OriginVibrationPacket.TYPE, (packet, player, sender) -> {
+            if (config().globalSettings().allowServerRumble) {
+                getCurrentController().ifPresent(controller ->
+                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(EntityVibrationPacket.TYPE, (packet, player, sender) -> {
+            if (config().globalSettings().allowServerRumble) {
+                getCurrentController().ifPresent(controller ->
+                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(ReachAroundPolicyPacket.TYPE, (packet, player, sender) -> {
+            Log.LOGGER.info("Connected server specified reach around policy is {}.", packet.allowed() ? "ALLOWED" : "DISALLOWED");
+            ReachAroundHandler.reachAroundPolicy = packet.allowed();
+        });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            DebugLog.log("Disconnected from server, resetting reach around policy");
+            ReachAroundHandler.reachAroundPolicy = true;
+        });
+
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControlifyPreInit(this);
             } catch (Exception e) {
-                LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                Log.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
             }
         });
     }
@@ -268,7 +300,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (consecutiveInputSwitches > 100) {
-            LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
+            Log.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
                     Component.translatable("controlify.toast.faulty_input.description"),
@@ -312,7 +344,7 @@ public class Controlify implements ControlifyApi {
         if (controllerOpt.isEmpty()) return;
         var controller = controllerOpt.get();
 
-        LOGGER.info("Controller connected: " + controller.name());
+        Log.LOGGER.info("Controller connected: " + controller.name());
 
         config().loadOrCreateControllerData(controller);
 
@@ -348,7 +380,7 @@ public class Controlify implements ControlifyApi {
             controller.hidInfo().ifPresent(controllerHIDService::unconsumeController);
 
             setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
-            LOGGER.info("Controller disconnected: " + controller.name());
+            Log.LOGGER.info("Controller disconnected: " + controller.name());
             this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
 
             ToastUtils.sendToast(

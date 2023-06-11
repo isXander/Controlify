@@ -74,9 +74,12 @@ dependencies {
         "fabric-key-binding-api-v1",
         "fabric-registry-sync-v0",
         "fabric-screen-api-v1",
+        "fabric-command-api-v2",
+        "fabric-networking-api-v1",
     ).forEach {
         modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
     }
+    modRuntimeOnly(libs.fabric.api)
 
     listOf(
         // sodium requirements

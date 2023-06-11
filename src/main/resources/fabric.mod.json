@@ -13,7 +13,7 @@
     "sources": "https://github.com/${github}"
   },
   "license": "LGPL-3.0-or-later",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "preLaunch": [
       "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
@@ -21,8 +21,14 @@
     "modmenu": [
       "dev.isxander.controlify.config.ModMenuIntegration"
     ],
+    "main": [
+      "dev.isxander.controlify.server.ControlifyServer"
+    ],
     "client": [
       "dev.isxander.controlify.ControlifyEntrypoint"
+    ],
+    "server": [
+      "dev.isxander.controlify.server.ControlifyServer"
     ]
   },
   "mixins": [
@@ -31,12 +37,14 @@
   "icon": "icon.png",
   "accessWidener": "controlify.accesswidener",
   "depends": {
-    "fabricloader": ">=0.14.0",
-    "minecraft": ">1.20-",
+    "fabricloader": ">=0.14.21",
+    "minecraft": "1.20.x",
     "java": ">=17",
-    "yet_another_config_lib_v3": ">=3.0.0-"
+    "yet_another_config_lib_v3": ">=3.0.0-",
+    "fabric-api": "*"
   },
   "breaks": {
-    "midnightcontrols": "*"
+    "midnightcontrols": "*",
+    "controllable": "*"
   }
 }

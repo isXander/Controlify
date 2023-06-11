@@ -3,7 +3,6 @@ package dev.isxander.controlify.controller.joystick;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -12,6 +11,7 @@ import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.utils.Log;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -106,7 +106,7 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
         if (newConfig != null) {
             this.config = newConfig;
         } else {
-            Controlify.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
+            Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = defaultConfig();
         }
         this.config.setup(this);

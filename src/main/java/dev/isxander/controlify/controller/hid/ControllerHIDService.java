@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
@@ -38,7 +39,7 @@ public class ControllerHIDService {
             services = HidManager.getHidServices(specification);
             services.start();
         } catch (HidException e) {
-            Controlify.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
+            Log.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
             disabled = true;
         }
     }
@@ -74,13 +75,13 @@ public class ControllerHIDService {
 
         Pair<HidDevice, HIDIdentifier> hid = unconsumedControllerHIDs.poll();
         if (hid == null) {
-            Controlify.LOGGER.warn("No controller found via USB hardware scan! This prevents identifying controller type.");
+            Log.LOGGER.warn("No controller found via USB hardware scan! This prevents identifying controller type.");
             return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
         ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
         if (type == ControllerType.UNKNOWN)
-            Controlify.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid.getSecond());
+            Log.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid.getSecond());
 
         unconsumedControllerHIDs.removeIf(h -> hid.getFirst().getPath().equals(h.getFirst().getPath()));
 
