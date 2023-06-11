@@ -127,8 +127,10 @@ public class SDL2NativesManager {
     private record Target(Util.OS os, boolean is64Bit, boolean isARM) {
         public static final Target CURRENT = Util.make(() -> {
             Util.OS os = Util.getPlatform();
-            boolean is64bit = System.getProperty("os.arch").contains("64");
-            boolean isARM = System.getProperty("os.arch").contains("arm");
+
+            String arch = System.getProperty("os.arch");
+            boolean is64bit = arch.contains("64");
+            boolean isARM = arch.contains("arm") || arch.contains("aarch");
 
             return new Target(os, is64bit, isARM);
         });
