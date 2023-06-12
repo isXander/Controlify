@@ -3,6 +3,8 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadState;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -16,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class ControllerDeadzoneCalibrationScreen extends Screen {
+public class ControllerCalibrationScreen extends Screen {
     private static final int CALIBRATION_TIME = 100;
     private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
 
@@ -30,13 +32,14 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
 
-    private final Map<Integer, double[]> calibrationData = new HashMap<>();
+    private final Map<Integer, double[]> deadzoneCalibration = new HashMap<>();
+    private GamepadState.GyroState accumulatedGyroVelocity = GamepadState.GyroState.ORIGIN;
 
-    public ControllerDeadzoneCalibrationScreen(Controller<?, ?> controller, Screen parent) {
+    public ControllerCalibrationScreen(Controller<?, ?> controller, Screen parent) {
         this(controller, () -> parent);
     }
 
-    public ControllerDeadzoneCalibrationScreen(Controller<?, ?> controller, Supplier<Screen> parent) {
+    public ControllerCalibrationScreen(Controller<?, ?> controller, Supplier<Screen> parent) {
         super(Component.translatable("controlify.calibration.title"));
         this.controller = controller;
         this.parent = parent;
@@ -117,15 +120,19 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
 
         if (stateChanged()) {
             calibrationTicks = 0;
-            calibrationData.clear();
+            deadzoneCalibration.clear();
+            accumulatedGyroVelocity = GamepadState.GyroState.ORIGIN;
         }
 
         if (calibrationTicks < CALIBRATION_TIME) {
-            calibrate(calibrationTicks);
+            processDeadzoneData(calibrationTicks);
+            processGyroData();
 
             calibrationTicks++;
         } else {
             applyDeadzones();
+            generateGyroCalibration();
+
             calibrating = false;
             calibrated = true;
             readyButton.active = true;
@@ -136,20 +143,32 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
         }
     }
 
-    private void calibrate(int tick) {
+    private void processDeadzoneData(int tick) {
         var axes = controller.state().rawAxes();
 
         for (int i = 0; i < axes.size(); i++) {
             var axis = Math.abs(axes.get(i));
-            calibrationData.computeIfAbsent(i, k -> new double[CALIBRATION_TIME])[tick] = axis;
+            deadzoneCalibration.computeIfAbsent(i, k -> new double[CALIBRATION_TIME])[tick] = axis;
+        }
+    }
+
+    private void processGyroData() {
+        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+            accumulatedGyroVelocity = accumulatedGyroVelocity.added(gamepad.drivers.gyroDriver().getGyroState());
         }
     }
 
     private void applyDeadzones() {
-        calibrationData.forEach((i, data) -> {
+        deadzoneCalibration.forEach((i, data) -> {
             var max = Arrays.stream(data).max().orElseThrow();
             controller.config().setDeadzone(i, (float) max + 0.05f);
         });
+    }
+
+    private void generateGyroCalibration() {
+        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+            gamepad.config().gyroCalibration = accumulatedGyroVelocity.divided(CALIBRATION_TIME);
+        }
     }
 
     private boolean stateChanged() {

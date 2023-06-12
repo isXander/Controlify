@@ -272,7 +272,7 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.auto_calibration.tooltip"))
                         .build())
-                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerDeadzoneCalibrationScreen(controller, () -> {
+                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerCalibrationScreen(controller, () -> {
                     deadzoneOpts.forEach(Option::forgetPendingValue);
                     return screen;
                 })))
@@ -432,6 +432,17 @@ public class ControllerConfigScreenFactory {
                         o.requestSetDefault();
                     }))
                     .build());
+            var relativeModeOpt = Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.gyro_behaviour"))
+                    .description(val -> OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.gyro_behaviour.tooltip"))
+                            .text(val ? Component.translatable("controlify.gui.gyro_behaviour.relative.tooltip") : Component.translatable("controlify.gui.gyro_behaviour.absolute.tooltip"))
+                            .build())
+                    .binding(gpCfgDef.relativeGyroMode, () -> gpCfg.relativeGyroMode, v -> gpCfg.relativeGyroMode = v)
+                    .controller(opt -> BooleanControllerBuilder.create(opt)
+                            .valueFormatter(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
+                    .build();
+            gyroGroup.option(relativeModeOpt);
             gyroGroup.option(Util.make(() -> {
                 var opt = Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.gyro_invert_x"))
@@ -461,6 +472,14 @@ public class ControllerConfigScreenFactory {
                         .binding(gpCfgDef.gyroRequiresButton, () -> gpCfg.gyroRequiresButton, v -> gpCfg.gyroRequiresButton = v)
                         .controller(TickBoxControllerBuilder::create)
                         .available(gyroSensitivity.pendingValue() > 0)
+                        .listener((o, val) -> {
+                            if (val) {
+                                relativeModeOpt.setAvailable(gyroSensitivity.pendingValue() > 0);
+                            } else {
+                                relativeModeOpt.setAvailable(false);
+                                relativeModeOpt.requestSet(false);
+                            }
+                        })
                         .build();
                 gyroOptions.add(opt);
                 return opt;

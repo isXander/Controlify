@@ -12,10 +12,12 @@ public class GamepadConfig extends ControllerConfig {
     private transient float rightStickDeadzoneY = rightStickDeadzone;
 
     public float gyroLookSensitivity = 0f;
+    public boolean relativeGyroMode = false;
     public boolean gyroRequiresButton = true;
     public boolean flickStick = false;
     public boolean invertGyroX = false;
     public boolean invertGyroY = false;
+    public GamepadState.GyroState gyroCalibration = GamepadState.GyroState.ORIGIN;
 
     public BuiltinGamepadTheme theme = BuiltinGamepadTheme.DEFAULT;
 

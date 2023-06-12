@@ -3,7 +3,6 @@ package dev.isxander.controlify.controller.gamepad;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.utils.ControllerUtils;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
 import java.util.Objects;
@@ -206,8 +205,20 @@ public final class GamepadState implements ControllerState {
     public record GyroState(float pitch, float yaw, float roll) {
         public static GyroState ORIGIN = new GyroState(0, 0, 0);
 
-        public GyroState add(GyroState other) {
+        public GyroState added(GyroState other) {
             return new GyroState(pitch + other.pitch, yaw + other.yaw, roll + other.roll);
+        }
+
+        public GyroState subtracted(GyroState other) {
+            return new GyroState(pitch - other.pitch, yaw - other.yaw, roll - other.roll);
+        }
+
+        public GyroState multiplied(float scalar) {
+            return new GyroState(pitch * scalar, yaw * scalar, roll * scalar);
+        }
+
+        public GyroState divided(float scalar) {
+            return new GyroState(pitch / scalar, yaw / scalar, roll / scalar);
         }
 
         public GyroState deadzone(float deadzone) {

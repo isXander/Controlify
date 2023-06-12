@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.gui.screen.ControllerDeadzoneCalibrationScreen;
+import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -251,7 +251,7 @@ public class Controlify implements ControlifyApi {
             if (!calibrationQueue.isEmpty() && !(minecraft.screen instanceof SDLOnboardingScreen)) {
                 Screen screen = minecraft.screen;
                 while (!calibrationQueue.isEmpty()) {
-                    screen = new ControllerDeadzoneCalibrationScreen(calibrationQueue.poll(), screen);
+                    screen = new ControllerCalibrationScreen(calibrationQueue.poll(), screen);
                 }
                 minecraft.setScreen(screen);
             }
