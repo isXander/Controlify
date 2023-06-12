@@ -96,6 +96,11 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
 
     @Override
     public void tick() {
+        if (!ControllerManager.isControllerConnected(controller.uid())) {
+            onClose();
+            return;
+        }
+
         if (!calibrating)
             return;
 
