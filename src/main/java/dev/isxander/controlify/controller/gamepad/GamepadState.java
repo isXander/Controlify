@@ -145,19 +145,19 @@ public final class GamepadState implements ControllerState {
     ) {
         public static AxesState EMPTY = new AxesState(0, 0, 0, 0, 0, 0);
 
-        public AxesState leftJoystickDeadZone(float deadZoneX, float deadZoneY) {
+        public AxesState leftJoystickDeadZone(float deadZone) {
             return new AxesState(
-                    ControllerUtils.deadzone(leftStickX, deadZoneX),
-                    ControllerUtils.deadzone(leftStickY, deadZoneY),
+                    ControllerUtils.deadzone(leftStickX, deadZone),
+                    ControllerUtils.deadzone(leftStickY, deadZone),
                     rightStickX, rightStickY, leftTrigger, rightTrigger
             );
         }
 
-        public AxesState rightJoystickDeadZone(float deadZoneX, float deadZoneY) {
+        public AxesState rightJoystickDeadZone(float deadZone) {
             return new AxesState(
                     leftStickX, leftStickY,
-                    ControllerUtils.deadzone(rightStickX, deadZoneX),
-                    ControllerUtils.deadzone(rightStickY, deadZoneY),
+                    ControllerUtils.deadzone(rightStickX, deadZone),
+                    ControllerUtils.deadzone(rightStickY, deadZone),
                     leftTrigger, rightTrigger
             );
         }

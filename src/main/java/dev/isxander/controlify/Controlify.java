@@ -453,7 +453,7 @@ public class Controlify implements ControlifyApi {
             this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
         }
 
-        if (!controller.config().calibrated)
+        if (!controller.config().deadzonesCalibrated)
             calibrationQueue.add(controller);
     }
 

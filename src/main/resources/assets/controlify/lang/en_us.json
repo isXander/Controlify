@@ -251,8 +251,8 @@
   "controlify.guide.container.quick_move": "Quick Move",
 
   "controlify.calibration.title": "Controller Calibration for '%s'",
-  "controlify.calibration.info": "This process will optimize settings for your controller to prevent stick drift. Stick drift happens in your controller thumbsticks and outputs slightly wrong values when you aren't touching them at all. Deadzones are used to prevent this.\n\nThis will only take a few seconds.",
-  "controlify.calibration.wait": "Please do not touch your controller thumbsticks until the progress bar is complete. This process will only take a few seconds.",
+  "controlify.calibration.info": "This process will optimize settings for your controller to prevent stick drift. Stick drift happens in your controller thumbsticks and outputs slightly wrong values when you aren't touching them at all. Deadzones are used to prevent this.\nShaking your controller lightly (without touching thumbsticks) can also aid in getting a more precise calibration.\n\nThis will only take a few seconds.",
+  "controlify.calibration.wait": "Please do not touch your controller thumbsticks until the progress bar is complete. Shaking your controller lightly can improve calibration.\nThis process will only take a few seconds.",
   "controlify.calibration.complete": "Calibration complete! You can now use your controller. Press done to return to the game.",
   "controlify.calibration.ready": "Ready",
   "controlify.calibration.done": "Done",

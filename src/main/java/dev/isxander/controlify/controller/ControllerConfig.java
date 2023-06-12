@@ -3,9 +3,6 @@ package dev.isxander.controlify.controller;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.isxander.controlify.rumble.RumbleSource;
-import net.minecraft.resources.ResourceLocation;
-
-import java.util.Map;
 
 public abstract class ControllerConfig {
     public float horizontalLookSensitivity = 1f;
@@ -31,7 +28,7 @@ public abstract class ControllerConfig {
     public boolean allowVibrations = true;
     public JsonObject vibrationStrengths = RumbleSource.getDefaultJson();
 
-    public boolean calibrated = false;
+    public boolean deadzonesCalibrated = false;
 
     public abstract void setDeadzone(int axis, float deadzone);
     public abstract float getDeadzone(int axis);

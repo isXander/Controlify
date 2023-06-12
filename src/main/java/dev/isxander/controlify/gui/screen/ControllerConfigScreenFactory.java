@@ -177,42 +177,51 @@ public class ControllerConfigScreenFactory {
     }
 
     private static OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+        var deadzoneOpts = new ArrayList<Option<Float>>();
+
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
         if (controller instanceof GamepadController gamepad) {
             var gpCfg = gamepad.config();
             var gpCfgDef = gamepad.defaultConfig();
-            group
-                    .option(Option.<Float>createBuilder()
-                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.left_stick")))
-                            .description(OptionDescription.createBuilder()
-                                    .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.left_stick")))
-                                    .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                                    .build())
-                            .binding(
-                                    Math.max(gpCfgDef.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
-                                    () -> Math.max(gpCfg.leftStickDeadzoneX, gpCfgDef.leftStickDeadzoneY),
-                                    v -> gpCfg.leftStickDeadzoneX = gpCfg.leftStickDeadzoneY = v
-                            )
-                            .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                    .range(0f, 1f).step(0.01f)
-                                    .valueFormatter(percentFormatter))
+
+            Option<Float> left = Option.<Float>createBuilder()
+                    .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.left_stick")))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.left_stick")))
+                            .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                             .build())
-                    .option(Option.<Float>createBuilder()
-                            .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.right_stick")))
-                            .description(OptionDescription.createBuilder()
-                                    .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.right_stick")))
-                                    .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
-                                    .build())
-                            .binding(
-                                    Math.max(gpCfgDef.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
-                                    () -> Math.max(gpCfg.rightStickDeadzoneX, gpCfgDef.rightStickDeadzoneY),
-                                    v -> gpCfg.rightStickDeadzoneX = gpCfg.rightStickDeadzoneY = v
-                            )
-                            .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                    .range(0f, 1f).step(0.01f)
-                                    .valueFormatter(percentFormatter))
-                            .build());
+                    .binding(
+                            gpCfgDef.getLeftStickDeadzone(),
+                            gpCfg::getLeftStickDeadzone,
+                            gpCfg::setLeftStickDeadzone
+                    )
+                    .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                            .range(0f, 1f).step(0.01f)
+                            .valueFormatter(percentFormatter))
+                    .build();
+
+            Option<Float> right = Option.<Float>createBuilder()
+                    .name(Component.translatable("controlify.gui.axis_deadzone", Component.translatable("controlify.gui.right_stick")))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", Component.translatable("controlify.gui.right_stick")))
+                            .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
+                            .build())
+                    .binding(
+                            gpCfgDef.getRightStickDeadzone(),
+                            gpCfg::getRightStickDeadzone,
+                            gpCfg::setRightStickDeadzone
+                    )
+                    .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                            .range(0f, 1f).step(0.01f)
+                            .valueFormatter(percentFormatter))
+                    .build();
+
+            group.option(left);
+            group.option(right);
+
+            deadzoneOpts.add(left);
+            deadzoneOpts.add(right);
         } else if (controller instanceof SingleJoystickController joystick) {
             JoystickMapping.Axis[] axes = joystick.mapping().axes();
             Collection<Integer> deadzoneAxes = IntStream.range(0, axes.length)
@@ -231,7 +240,7 @@ public class ControllerConfigScreenFactory {
             for (int i : deadzoneAxes) {
                 var axis = axes[i];
 
-                group.option(Option.<Float>createBuilder()
+                Option<Float> deadzoneOpt = Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.joystick_axis_deadzone", axis.name()))
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", axis.name()))
@@ -241,7 +250,9 @@ public class ControllerConfigScreenFactory {
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0f, 1f).step(0.01f)
                                 .valueFormatter(percentFormatter))
-                        .build());
+                        .build();
+                group.option(deadzoneOpt);
+                deadzoneOpts.add(deadzoneOpt);
             }
         }
 
@@ -261,7 +272,10 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.auto_calibration.tooltip"))
                         .build())
-                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerDeadzoneCalibrationScreen(controller, screen)))
+                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerDeadzoneCalibrationScreen(controller, () -> {
+                    deadzoneOpts.forEach(Option::forgetPendingValue);
+                    return screen;
+                })))
                 .build());
 
         return group.build();

@@ -3,10 +3,13 @@ package dev.isxander.controlify.controller.gamepad;
 import dev.isxander.controlify.controller.ControllerConfig;
 
 public class GamepadConfig extends ControllerConfig {
-    public float leftStickDeadzoneX = 0.2f;
-    public float leftStickDeadzoneY = 0.2f;
-    public float rightStickDeadzoneX = 0.2f;
-    public float rightStickDeadzoneY = 0.2f;
+    private float leftStickDeadzone = 0.15f;
+    private float rightStickDeadzone = 0.15f;
+
+    private transient float leftStickDeadzoneX = leftStickDeadzone;
+    private transient float leftStickDeadzoneY = leftStickDeadzone;
+    private transient float rightStickDeadzoneX = rightStickDeadzone;
+    private transient float rightStickDeadzoneY = rightStickDeadzone;
 
     public float gyroLookSensitivity = 0f;
     public boolean gyroRequiresButton = true;
@@ -16,6 +19,26 @@ public class GamepadConfig extends ControllerConfig {
 
     public BuiltinGamepadTheme theme = BuiltinGamepadTheme.DEFAULT;
 
+    public float getLeftStickDeadzone() {
+        return leftStickDeadzone;
+    }
+
+    public float getRightStickDeadzone() {
+        return rightStickDeadzone;
+    }
+
+    public void setLeftStickDeadzone(float deadzone) {
+        leftStickDeadzoneX = deadzone;
+        leftStickDeadzoneY = deadzone;
+        leftStickDeadzone = deadzone;
+    }
+
+    public void setRightStickDeadzone(float deadzone) {
+        rightStickDeadzoneX = deadzone;
+        rightStickDeadzoneY = deadzone;
+        rightStickDeadzone = deadzone;
+    }
+
     @Override
     public void setDeadzone(int axis, float deadzone) {
         switch (axis) {
@@ -23,17 +46,20 @@ public class GamepadConfig extends ControllerConfig {
             case 1 -> leftStickDeadzoneY = deadzone;
             case 2 -> rightStickDeadzoneX = deadzone;
             case 3 -> rightStickDeadzoneY = deadzone;
+            case 4, 5 -> {} // ignore triggers
             default -> {}
         }
+
+        leftStickDeadzone = Math.max(leftStickDeadzoneX, leftStickDeadzoneY);
+        rightStickDeadzone = Math.max(rightStickDeadzoneX, rightStickDeadzoneY);
     }
 
     @Override
     public float getDeadzone(int axis) {
         return switch (axis) {
-            case 0 -> leftStickDeadzoneX;
-            case 1 -> leftStickDeadzoneY;
-            case 2 -> rightStickDeadzoneX;
-            case 3 -> rightStickDeadzoneY;
+            case 0, 1 -> leftStickDeadzone;
+            case 2, 3 -> rightStickDeadzone;
+            case 4, 5 -> 0f; // ignore triggers
             default -> throw new IllegalArgumentException("Unknown axis: " + axis);
         };
     }

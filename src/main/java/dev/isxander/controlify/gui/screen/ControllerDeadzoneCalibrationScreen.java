@@ -1,8 +1,8 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.utils.Log;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -10,13 +10,18 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Supplier;
 
 public class ControllerDeadzoneCalibrationScreen extends Screen {
+    private static final int CALIBRATION_TIME = 100;
     private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
 
     protected final Controller<?, ?> controller;
-    private final Screen parent;
+    private final Supplier<Screen> parent;
 
     private MultiLineLabel waitLabel, infoLabel, completeLabel;
 
@@ -25,7 +30,13 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
 
+    private final Map<Integer, double[]> calibrationData = new HashMap<>();
+
     public ControllerDeadzoneCalibrationScreen(Controller<?, ?> controller, Screen parent) {
+        this(controller, () -> parent);
+    }
+
+    public ControllerDeadzoneCalibrationScreen(Controller<?, ?> controller, Supplier<Screen> parent) {
         super(Component.translatable("controlify.calibration.title"));
         this.controller = controller;
         this.parent = parent;
@@ -104,42 +115,45 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
         if (!calibrating)
             return;
 
-        if (stateChanged())
+        if (stateChanged()) {
             calibrationTicks = 0;
+            calibrationData.clear();
+        }
 
-        if (calibrationTicks < 100) {
+        if (calibrationTicks < CALIBRATION_TIME) {
+            calibrate(calibrationTicks);
+
             calibrationTicks++;
         } else {
-            useCurrentStateAsDeadzone();
+            applyDeadzones();
             calibrating = false;
             calibrated = true;
             readyButton.active = true;
             readyButton.setMessage(Component.translatable("controlify.calibration.done"));
 
-            controller.config().calibrated = true;
+            controller.config().deadzonesCalibrated = true;
             Controlify.instance().config().save();
         }
     }
 
-    private void useCurrentStateAsDeadzone() {
-        var axes = controller.state().axes();
+    private void calibrate(int tick) {
+        var axes = controller.state().rawAxes();
 
         for (int i = 0; i < axes.size(); i++) {
-            var axis = axes.get(i);
-            var minDeadzone = axis + 0.08f;
-            var deadzone = (float)Mth.clamp(0.05 * Math.ceil(minDeadzone / 0.05), 0, 0.95);
-
-            if (Float.isNaN(deadzone)) {
-                Log.LOGGER.warn("Deadzone for axis {} is NaN, using default deadzone.", i);
-                deadzone = controller.defaultConfig().getDeadzone(i);
-            }
-
-            controller.config().setDeadzone(i, deadzone);
+            var axis = Math.abs(axes.get(i));
+            calibrationData.computeIfAbsent(i, k -> new double[CALIBRATION_TIME])[tick] = axis;
         }
     }
 
+    private void applyDeadzones() {
+        calibrationData.forEach((i, data) -> {
+            var max = Arrays.stream(data).max().orElseThrow();
+            controller.config().setDeadzone(i, (float) max + 0.05f);
+        });
+    }
+
     private boolean stateChanged() {
-        var amt = 0.0001f;
+        var amt = 0.4f;
         
         return controller.state().axes().stream()
                 .anyMatch(axis -> Math.abs(axis - controller.prevState().axes().get(controller.state().axes().indexOf(axis))) > amt);
@@ -147,7 +161,7 @@ public class ControllerDeadzoneCalibrationScreen extends Screen {
 
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        minecraft.setScreen(parent.get());
     }
 
     @Override

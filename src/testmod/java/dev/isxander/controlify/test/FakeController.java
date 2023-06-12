@@ -50,7 +50,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
                 return false;
             }
         });
-        this.config.calibrated = true;
+        this.config.deadzonesCalibrated = true;
     }
 
     @Override

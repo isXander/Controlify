@@ -65,8 +65,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
         BasicGamepadInputDriver.BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
         GamepadState.AxesState deadzoneAxesState = basicState.axes()
-                .leftJoystickDeadZone(config().leftStickDeadzoneX, config().leftStickDeadzoneY)
-                .rightJoystickDeadZone(config().rightStickDeadzoneX, config().rightStickDeadzoneY);
+                .leftJoystickDeadZone(config().getLeftStickDeadzone())
+                .rightJoystickDeadZone(config().getRightStickDeadzone());
 
         if (DebugProperties.USE_SNAPBACK) {
             if (antiSnapbackTicksL > 0) {
