@@ -27,7 +27,7 @@
   "controlify.gui.out_of_focus_input": "Out of Focus Input",
   "controlify.gui.out_of_focus_input.tooltip": "If enabled, Controlify will still receive input even if the game window is not focused.",
   "controlify.gui.keyboard_movement": "Keyboard-like Movement",
-  "controlify.gui.keyboard_movement.tooltip": "Makes movement either on or off rather than being smooth with a thumbstick, this may help in cases where server anti-cheats are harsh.",
+  "controlify.gui.keyboard_movement.tooltip": "Emulates keyboard WASD when using analog inputs like a thumbstick. This also applies to boat handling. This may be required on servers with harsh anti-cheats.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
 
   "controlify.gui.battery_level": "Your controller battery is currently %s.",
