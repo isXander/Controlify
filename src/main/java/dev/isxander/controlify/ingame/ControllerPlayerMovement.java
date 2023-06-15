@@ -34,11 +34,10 @@ public class ControllerPlayerMovement extends Input {
         this.forwardImpulse = bindings.WALK_FORWARD.state() - bindings.WALK_BACKWARD.state();
         this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
 
-        // .1 to prevent using boat turning absolute hell with left/right left/right
-        this.up = bindings.WALK_FORWARD.state() > 0.1;
-        this.down = bindings.WALK_BACKWARD.state() > 0.1;
-        this.left = bindings.WALK_LEFT.state() > 0.1;
-        this.right = bindings.WALK_RIGHT.state() > 0.1;
+        this.up = bindings.WALK_FORWARD.state() > 0;
+        this.down = bindings.WALK_BACKWARD.state() > 0;
+        this.left = bindings.WALK_LEFT.state() > 0;
+        this.right = bindings.WALK_RIGHT.state() > 0;
 
         if (Controlify.instance().config().globalSettings().keyboardMovement) {
             this.forwardImpulse = Math.signum(this.forwardImpulse);
@@ -56,7 +55,7 @@ public class ControllerPlayerMovement extends Input {
         if (!bindings.JUMP.held())
             this.jumping = false;
 
-        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || !controller.config().toggleSneak) {
+        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.config().toggleSneak) {
             if (bindings.SNEAK.justPressed())
                 this.shiftKeyDown = true;
             if (!bindings.SNEAK.held())

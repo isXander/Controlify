@@ -18,16 +18,19 @@ public class ReachAroundHandler {
         if (!canReachAround(entity))
             return hitResult;
 
-        // LivingEntity#playBlockFallSound - this is the location where the game determines the footstep noise
-        // maybe experiment on different values rather than 0.2f from other areas in the game?
-        int x = Mth.floor(entity.getX());
-        int y = Mth.floor(entity.getY() - 0.2F);
-        int z = Mth.floor(entity.getZ());
-        var floorPos = new BlockPos(x, y, z);
+        // New method in 1.20 describing the position of the block
+        // that the player is supported on.
+        // This differentiates from the feet minus 1 as a block on the edge of the hitbox
+        // may still support the player.
+        var supportingBlockPos = entity.getOnPos();
+
+        // player can be on ground but not directly over a block
+        if (entity.level().getBlockState(supportingBlockPos).isAir())
+            return hitResult;
 
         // this allows all interaction with blocks, such as opening containers, ringing bells, etc.
         // this is consistent with bedrock edition behaviour, tested
-        return new BlockHitResult(floorPos.getCenter(), entity.getDirection(), floorPos, false);
+        return new BlockHitResult(supportingBlockPos.getCenter(), entity.getDirection(), supportingBlockPos, false);
     }
 
     private static boolean canReachAround(Entity cameraEntity) {
