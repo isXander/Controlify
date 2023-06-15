@@ -33,7 +33,7 @@ public class ControllerCalibrationScreen extends Screen {
     protected int calibrationTicks = 0;
 
     private final Map<Integer, double[]> deadzoneCalibration = new HashMap<>();
-    private GamepadState.GyroState accumulatedGyroVelocity = GamepadState.GyroState.ORIGIN;
+    private GamepadState.GyroState accumulatedGyroVelocity = new GamepadState.GyroState();
 
     public ControllerCalibrationScreen(Controller<?, ?> controller, Screen parent) {
         this(controller, () -> parent);
@@ -121,7 +121,7 @@ public class ControllerCalibrationScreen extends Screen {
         if (stateChanged()) {
             calibrationTicks = 0;
             deadzoneCalibration.clear();
-            accumulatedGyroVelocity = GamepadState.GyroState.ORIGIN;
+            accumulatedGyroVelocity = new GamepadState.GyroState();
         }
 
         if (calibrationTicks < CALIBRATION_TIME) {
@@ -154,7 +154,7 @@ public class ControllerCalibrationScreen extends Screen {
 
     private void processGyroData() {
         if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            accumulatedGyroVelocity = accumulatedGyroVelocity.added(gamepad.drivers.gyroDriver().getGyroState());
+            accumulatedGyroVelocity.add(gamepad.drivers.gyroDriver().getGyroState());
         }
     }
 
@@ -167,7 +167,7 @@ public class ControllerCalibrationScreen extends Screen {
 
     private void generateGyroCalibration() {
         if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            gamepad.config().gyroCalibration = accumulatedGyroVelocity.divided(CALIBRATION_TIME);
+            gamepad.config().gyroCalibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
         }
     }
 

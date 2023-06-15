@@ -17,8 +17,10 @@ import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
@@ -27,11 +29,11 @@ public class InGameInputHandler {
     private final Controller<?, ?> controller;
     private final Minecraft minecraft;
 
-    private double lookInputX, lookInputY;
-    private boolean shouldShowPlayerList;
-
-    private GamepadState.GyroState gyroInput = GamepadState.GyroState.ORIGIN;
+    private double lookInputX, lookInputY; // in degrees per tick
+    private final GamepadState.GyroState gyroInput = new GamepadState.GyroState();
     private boolean wasAiming;
+
+    private boolean shouldShowPlayerList;
 
     private final NavigationHelper dropRepeatHelper;
 
@@ -106,15 +108,6 @@ public class InGameInputHandler {
 
                 minecraft.levelRenderer.needsUpdate();
             }
-
-            if (controller.bindings().INVENTORY.justPressed()) {
-                if (minecraft.gameMode.isServerControlledInventory()) {
-                    minecraft.player.sendOpenInventory();
-                } else {
-                    minecraft.getTutorial().onOpenInventory();
-                    minecraft.setScreen(new InventoryScreen(minecraft.player));
-                }
-            }
         }
         if (controller.bindings().TOGGLE_HUD_VISIBILITY.justPressed()) {
             minecraft.options.hideGui = !minecraft.options.hideGui;
@@ -157,10 +150,12 @@ public class InGameInputHandler {
             // normal look input
             impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
             impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
-            impulseX *= Math.abs(impulseX);
-            impulseY *= Math.abs(impulseY);
+            impulseX *= Math.abs(impulseX) * 10f; // 10 degrees per second
+            impulseY *= Math.abs(impulseY) * 10f;
+            impulseX *= controller.config().horizontalLookSensitivity;
+            impulseY *= controller.config().verticalLookSensitivity;
 
-            if (controller.config().reduceAimingSensitivity && player != null && player.isUsingItem()) {
+            if (controller.config().reduceAimingSensitivity && player.isUsingItem()) {
                 float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
                     case BOW, CROSSBOW, SPEAR -> 0.6f;
                     case SPYGLASS -> 0.2f;
@@ -177,23 +172,29 @@ public class InGameInputHandler {
 
             if (gamepad.config().gyroRequiresButton) {
                 if (gamepad.bindings().GAMEPAD_GYRO_BUTTON.justPressed() || (isAiming && !wasAiming))
-                    gyroInput = GamepadState.GyroState.ORIGIN;
+                    gyroInput.set(0);
 
                 if (gamepad.bindings().GAMEPAD_GYRO_BUTTON.held() || isAiming) {
                     if (gamepad.config().relativeGyroMode)
-                        gyroInput = gyroInput.added(gamepad.state().gyroDelta().multiplied(0.1f));
+                        gyroInput.add(new Vector3f(gamepad.state().gyroDelta()).mul(0.1f));
                     else
-                        gyroInput = gamepad.state().gyroDelta();
+                        gyroInput.set(gamepad.state().gyroDelta());
                     useGyro = true;
                 }
             } else {
-                gyroInput = gamepad.state().gyroDelta();
+                gyroInput.set(gamepad.state().gyroDelta());
                 useGyro = true;
             }
 
             if (useGyro) {
-                impulseY += -gyroInput.pitch() * gamepad.config().gyroLookSensitivity * (gamepad.config().invertGyroY ? -1 : 1);
-                impulseX += (-gyroInput.roll() + -gyroInput.yaw()) * gamepad.config().gyroLookSensitivity * (gamepad.config().invertGyroX ? -1 : 1);
+                // convert radians per second into degrees per tick
+                GamepadState.GyroState thisInput = new GamepadState.GyroState(gyroInput)
+                        .mul(Mth.RAD_TO_DEG)
+                        .div(20)
+                        .mul(gamepad.config().gyroLookSensitivity);
+
+                impulseY += -thisInput.pitch() * (gamepad.config().invertGyroY ? -1 : 1);
+                impulseX += (-thisInput.roll() + -thisInput.yaw()) * (gamepad.config().invertGyroX ? -1 : 1);
             }
         }
 
@@ -201,15 +202,15 @@ public class InGameInputHandler {
         impulseX = lookInputModifier.modifyX(impulseX, controller);
         impulseY = lookInputModifier.modifyY(impulseY, controller);
 
-        lookInputX = impulseX * controller.config().horizontalLookSensitivity * 65f;
-        lookInputY = impulseY * controller.config().verticalLookSensitivity * 65f;
+        lookInputX = impulseX;
+        lookInputY = impulseY;
 
         wasAiming = isAiming;
     }
 
     public void processPlayerLook(float deltaTime) {
         if (minecraft.player != null) {
-            minecraft.player.turn(lookInputX * deltaTime, lookInputY * deltaTime);
+            minecraft.player.turn(lookInputX / 0.15f * deltaTime, lookInputY / 0.15f * deltaTime);
         }
     }
 

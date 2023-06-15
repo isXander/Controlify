@@ -49,7 +49,7 @@ public class SDL2GamepadDriver implements GyroDriver, RumbleDriver, BatteryDrive
     }
 
     @Override
-    public GamepadState.GyroState getGyroState() {
+    public GamepadState.GyroStateC getGyroState() {
         return gyroDelta;
     }
 

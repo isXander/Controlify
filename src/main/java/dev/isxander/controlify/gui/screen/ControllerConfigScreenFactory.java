@@ -424,8 +424,8 @@ public class ControllerConfigScreenFactory {
                             .build())
                     .binding(gpCfgDef.gyroLookSensitivity, () -> gpCfg.gyroLookSensitivity, v -> gpCfg.gyroLookSensitivity = v)
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                            .range(0f, 1f)
-                            .step(0.05f)
+                            .range(0f, 3f)
+                            .step(0.1f)
                             .valueFormatter(percentOrOffFormatter))
                     .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
                         o.setAvailable(sensitivity > 0);

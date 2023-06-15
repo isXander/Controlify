@@ -3,20 +3,22 @@ package dev.isxander.controlify.driver;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 
 public interface GyroDriver extends Driver {
-    GamepadState.GyroState getGyroState();
+    GamepadState.GyroStateC getGyroState();
 
     boolean isGyroSupported();
 
     String getGyroDetails();
 
     GyroDriver UNSUPPORTED = new GyroDriver() {
+        private final GamepadState.GyroStateC zero = new GamepadState.GyroState();
+
         @Override
         public void update() {
         }
 
         @Override
-        public GamepadState.GyroState getGyroState() {
-            return GamepadState.GyroState.ORIGIN;
+        public GamepadState.GyroStateC getGyroState() {
+            return zero;
         }
 
         @Override

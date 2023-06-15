@@ -20,7 +20,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     private GamepadState prevState = GamepadState.EMPTY;
 
     private final RumbleManager rumbleManager;
-    private GamepadState.GyroState absoluteGyro = GamepadState.GyroState.ORIGIN;
+    private GamepadState.GyroState absoluteGyro = new GamepadState.GyroState();
 
     public final GamepadDrivers drivers;
     private final Set<Driver> uniqueDrivers;
@@ -86,8 +86,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         }
 
         // TODO: Add some sort of gyro filtering
-        GamepadState.GyroState gyroState = drivers.gyroDriver().getGyroState().subtracted(config().gyroCalibration);
-        this.absoluteGyro = this.absoluteGyro.added(gyroState);
+        GamepadState.GyroState gyroState = new GamepadState.GyroState(drivers.gyroDriver().getGyroState()).sub(config().gyroCalibration);
+        this.absoluteGyro.add(gyroState);
 
         state = new GamepadState(deadzoneAxesState, basicState.axes(), basicState.buttons(), gyroState, absoluteGyro);
     }

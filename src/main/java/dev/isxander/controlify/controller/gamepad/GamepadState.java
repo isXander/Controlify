@@ -3,12 +3,14 @@ package dev.isxander.controlify.controller.gamepad;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.utils.ControllerUtils;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.util.List;
 import java.util.Objects;
 
 public final class GamepadState implements ControllerState {
-    public static final GamepadState EMPTY = new GamepadState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY, GyroState.ORIGIN, GyroState.ORIGIN);
+    public static final GamepadState EMPTY = new GamepadState(AxesState.EMPTY, AxesState.EMPTY, ButtonState.EMPTY, new GyroState(), new GyroState());
     private final AxesState gamepadAxes;
     private final AxesState rawGamepadAxes;
     private final ButtonState gamepadButtons;
@@ -24,7 +26,7 @@ public final class GamepadState implements ControllerState {
             AxesState gamepadAxes,
             AxesState rawGamepadAxes,
             ButtonState gamepadButtons,
-            @Nullable GamepadState.GyroState gyroDelta,
+            @Nullable GyroState gyroDelta,
             GyroState absoluteGyroPos
     ) {
         this.gamepadAxes = gamepadAxes;
@@ -102,7 +104,7 @@ public final class GamepadState implements ControllerState {
     }
 
     public GyroState gyroDelta() {
-        if (gyroDelta == null) return GyroState.ORIGIN;
+        if (gyroDelta == null) return new GyroState();
         return gyroDelta;
     }
 
@@ -202,31 +204,75 @@ public final class GamepadState implements ControllerState {
         );
     }
 
-    public record GyroState(float pitch, float yaw, float roll) {
-        public static GyroState ORIGIN = new GyroState(0, 0, 0);
+    public interface GyroStateC extends Vector3fc {
+        float pitch();
 
-        public GyroState added(GyroState other) {
-            return new GyroState(pitch + other.pitch, yaw + other.yaw, roll + other.roll);
+        float yaw();
+
+        float roll();
+    }
+
+    public static class GyroState extends Vector3f implements GyroStateC {
+        public GyroState(float pitch, float yaw, float roll) {
+            super(pitch, yaw, roll);
         }
 
-        public GyroState subtracted(GyroState other) {
-            return new GyroState(pitch - other.pitch, yaw - other.yaw, roll - other.roll);
+        public GyroState(GyroStateC vec) {
+            super(vec);
         }
 
-        public GyroState multiplied(float scalar) {
-            return new GyroState(pitch * scalar, yaw * scalar, roll * scalar);
+        public GyroState() {
         }
 
-        public GyroState divided(float scalar) {
-            return new GyroState(pitch / scalar, yaw / scalar, roll / scalar);
+        @Override
+        public float pitch() {
+            return x;
         }
 
-        public GyroState deadzone(float deadzone) {
-            return new GyroState(
-                    Math.max(pitch - deadzone, 0) + Math.min(pitch + deadzone, 0),
-                    Math.max(yaw - deadzone, 0) + Math.min(yaw + deadzone, 0),
-                    Math.max(roll - deadzone, 0) + Math.min(roll + deadzone, 0)
-            );
+        @Override
+        public float yaw() {
+            return y;
+        }
+
+        @Override
+        public float roll() {
+            return z;
+        }
+
+        @Override
+        public GyroState mul(Vector3fc v) {
+            super.mul(v);
+            return this;
+        }
+
+        @Override
+        public GyroState mul(float scalar) {
+            super.mul(scalar);
+            return this;
+        }
+
+        @Override
+        public GyroState div(Vector3fc v) {
+            super.div(v);
+            return this;
+        }
+
+        @Override
+        public GyroState div(float scalar) {
+            super.div(scalar);
+            return this;
+        }
+
+        @Override
+        public GyroState sub(Vector3fc v) {
+            super.sub(v);
+            return this;
+        }
+
+        @Override
+        public GyroState sub(float x, float y, float z) {
+            super.sub(x, y, z);
+            return this;
         }
     }
 }

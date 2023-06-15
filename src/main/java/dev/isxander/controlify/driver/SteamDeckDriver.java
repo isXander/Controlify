@@ -14,7 +14,7 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
     private final HidDevice hidDevice;
     private int interval = 0;
 
-    private GamepadState.GyroState gyroDelta = GamepadState.GyroState.ORIGIN;
+    private GamepadState.GyroState gyroDelta = new GamepadState.GyroState();
     private BasicGamepadState basicGamepadState = new BasicGamepadState(GamepadState.AxesState.EMPTY, GamepadState.ButtonState.EMPTY);
 
     public SteamDeckDriver(HidDevice hidDevice) {
@@ -114,7 +114,7 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
     }
 
     @Override
-    public GamepadState.GyroState getGyroState() {
+    public GamepadState.GyroStateC getGyroState() {
         return gyroDelta;
     }
 

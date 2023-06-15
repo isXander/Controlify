@@ -17,7 +17,7 @@ public class GamepadConfig extends ControllerConfig {
     public boolean flickStick = false;
     public boolean invertGyroX = false;
     public boolean invertGyroY = false;
-    public GamepadState.GyroState gyroCalibration = GamepadState.GyroState.ORIGIN;
+    public GamepadState.GyroState gyroCalibration = new GamepadState.GyroState();
 
     public BuiltinGamepadTheme theme = BuiltinGamepadTheme.DEFAULT;
 

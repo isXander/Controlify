@@ -79,7 +79,7 @@
   "controlify.gui.group.gyro.tooltip": "Adjust how Controlify treats your controller's built in gyroscope.\nA gyroscope determines how the controller is rotated.",
   "controlify.gui.group.gyro.no_gyro.tooltip": "This controller does not support Gyro. You must have a DualSense™ controller or other compatible controller to use this feature.",
   "controlify.gui.gyro_look_sensitivity": "Look Sensitivity",
-  "controlify.gui.gyro_look_sensitivity.tooltip": "How much the camera moves based on gyroscope rotation.\nThe pitch (rotating your controller forward/backward) is used for looking up and down, whilst both the roll (rotating your controller left/right) and yaw (rotating your controller clockwise/anticlockwise) are used for looking left and right.",
+  "controlify.gui.gyro_look_sensitivity.tooltip": "The percentage of the real-world rotation of your controller to use as look input. For example, rotating your controller 90 degrees, will move the camera 90 degrees, at 100%.\nThe pitch of your controller is used as up/down and the roll and yaw is used for left/right.\nThis sensitivity is completely independent of the regular horizontal and vertical sensitivity settings.",
   "controlify.gui.gyro_behaviour": "Gyro Behaviour",
   "controlify.gui.gyro_behaviour.tooltip": "How the gyroscope input should be interpreted as look input.",
   "controlify.gui.gyro_behaviour.absolute": "Absolute",
