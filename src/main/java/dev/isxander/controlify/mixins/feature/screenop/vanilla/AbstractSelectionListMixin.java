@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class AbstractSelectionListMixin {
     @ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/InputType;isKeyboard()Z"))
     private boolean shouldEnsureEntryVisible(boolean keyboard) {
-        return keyboard || Controlify.instance().currentInputMode() == InputMode.CONTROLLER;
+        return keyboard || Controlify.instance().currentInputMode().isController();
     }
 }

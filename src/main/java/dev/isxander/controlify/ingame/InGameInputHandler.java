@@ -44,7 +44,7 @@ public class InGameInputHandler {
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
             if (minecraft.player != null) {
-                minecraft.player.input = mode == InputMode.CONTROLLER
+                minecraft.player.input = mode.isController()
                         ? new ControllerPlayerMovement(controller, minecraft.player)
                         : new KeyboardInput(minecraft.options);
             }

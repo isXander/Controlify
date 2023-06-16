@@ -1,6 +1,7 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.controller.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.Log;
 import org.hid4java.HidDevice;
 
@@ -243,7 +244,7 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
         }
     }
 
-    public static boolean isSteamDeck(HidDevice hid) {
-        return hid.getVendorId() == 0x28DE && hid.getProductId() == 0x1205;
+    public static boolean isSteamDeck(int vendorId, int productId) {
+        return vendorId == 0x28DE && productId == 0x1205;
     }
 }

@@ -35,7 +35,7 @@ public class ClientPacketListenerMixin {
     }
 
     private void overrideInput(LocalPlayer player) {
-        if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER && player != null)
+        if (Controlify.instance().currentInputMode().isController() && player != null)
             player.input = new ControllerPlayerMovement(Controlify.instance().currentController(), player);
     }
 }

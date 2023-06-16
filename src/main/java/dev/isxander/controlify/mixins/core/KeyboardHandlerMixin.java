@@ -18,7 +18,7 @@ public class KeyboardHandlerMixin {
     // m_unngxkoe is lambda for GLFW keypress hook - do it outside of the `keyPress` method due to fake inputs
     @Inject(method = "method_22678", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;keyPress(JIIII)V"))
     private void onKeyboardInput(long window, int i, int j, int k, int m, CallbackInfo ci) {
-        if (window == minecraft.getWindow().getWindow())
+        if (window == minecraft.getWindow().getWindow() && Controlify.instance().currentInputMode() != InputMode.MIXED)
             Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
     }
 }

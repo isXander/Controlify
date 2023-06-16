@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class LocalPlayerMixin {
     @ModifyExpressionValue(method = "sendPosition", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;"))
     private Object shouldUseAutoJump(Object keyboardAutoJump) {
-        if (ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER) {
+        if (ControlifyApi.get().currentInputMode().isController()) {
             return ControlifyApi.get().getCurrentController()
                     .map(controller -> controller.config().autoJump)
                     .orElse(false);

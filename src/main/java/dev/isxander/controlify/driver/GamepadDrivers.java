@@ -50,7 +50,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
         }
 
         // TODO: Fix Steam Deck driver
-        if (hid.isPresent() && SteamDeckDriver.isSteamDeck(hid.get()) && false) {
+        if (hid.isPresent() && SteamDeckDriver.isSteamDeck(hid.get().getVendorId(), hid.get().getProductId()) && false) {
             gyroDriver = new SteamDeckDriver(hid.get());
         }
 

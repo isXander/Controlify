@@ -3,6 +3,7 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.driver.SteamDeckDriver;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
 import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
 import dev.isxander.controlify.controller.Controller;
@@ -71,6 +72,8 @@ public class Controlify implements ControlifyApi {
 
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
+
+    private int showMouseTicks = 0;
 
     private @Nullable Controller<?, ?> switchableController = null;
     private double askSwitchTime = 0;
@@ -278,6 +281,15 @@ public class Controlify implements ControlifyApi {
             }
         }
 
+        if (minecraft.mouseHandler.isMouseGrabbed())
+            showMouseTicks = 0;
+        if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
+            showMouseTicks--;
+            if (showMouseTicks == 0) {
+                hideMouse(true, false);
+            }
+        }
+
         LowBatteryNotifier.tick();
 
         getCurrentController().ifPresent(currentController -> {
@@ -300,7 +312,11 @@ public class Controlify implements ControlifyApi {
         }
 
         if (state.hasAnyInput()) {
-            this.setInputMode(InputMode.CONTROLLER);
+            // use MIXED input mode to support Steam Input for things like gyro mouse and touchpads
+            // this is only temporary until the Steam Deck driver is finished
+            boolean isSteamDeck = controller.hidInfo().map(info -> info.hidDevice().map(device -> SteamDeckDriver.isSteamDeck(device.getVendorId(), device.getProductId())).orElse(false)).orElse(false);
+
+            this.setInputMode(isSteamDeck ? InputMode.MIXED : InputMode.CONTROLLER);
         }
 
         if (consecutiveInputSwitches > 100) {
@@ -483,7 +499,7 @@ public class Controlify implements ControlifyApi {
         this.currentInputMode = currentInputMode;
 
         if (!minecraft.mouseHandler.isMouseGrabbed())
-            hideMouse(currentInputMode == InputMode.CONTROLLER, true);
+            hideMouse(currentInputMode.isController(), true);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
         }
@@ -501,7 +517,7 @@ public class Controlify implements ControlifyApi {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
-        if (currentInputMode == InputMode.CONTROLLER)
+        if (this.currentInputMode == InputMode.CONTROLLER)
             getCurrentController().ifPresent(Controller::clearState);
 
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
@@ -524,6 +540,13 @@ public class Controlify implements ControlifyApi {
                 // so when the user switches back to mouse it will be in the same place
                 mouseHandlerAccessor.invokeOnMove(minecraft.getWindow().getWindow(), -50, -50);
             }
+        }
+    }
+
+    public void showCursorTemporarily() {
+        if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
+            hideMouse(false, false);
+            showMouseTicks = 20 * 3;
         }
     }
 

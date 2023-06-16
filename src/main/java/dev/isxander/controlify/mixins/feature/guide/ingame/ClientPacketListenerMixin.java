@@ -30,7 +30,7 @@ public class ClientPacketListenerMixin {
     }
 
     private void initButtonGuide() {
-        if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER && minecraft.player != null)
+        if (Controlify.instance().currentInputMode().isController() && minecraft.player != null)
             Controlify.instance().inGameButtonGuide = new InGameButtonGuide(Controlify.instance().getCurrentController().orElseThrow(), minecraft.player);
     }
 }

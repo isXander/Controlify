@@ -184,14 +184,14 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                 AnchorPoint.BOTTOM_RIGHT
         );
 
-        if (ControlifyApi.get().currentInputMode() == InputMode.CONTROLLER) {
+        if (ControlifyApi.get().currentInputMode().isController()) {
             setRenderGuide(true);
         }
     }
 
     @Override
     public void onInputModeChanged(InputMode mode) {
-        setRenderGuide(mode == InputMode.CONTROLLER);
+        setRenderGuide(mode.isController());
     }
 
     private void setRenderGuide(boolean render) {

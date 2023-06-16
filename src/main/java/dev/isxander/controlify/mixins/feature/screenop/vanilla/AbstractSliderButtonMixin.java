@@ -29,7 +29,7 @@ public class AbstractSliderButtonMixin implements ComponentProcessorProvider {
 
     @ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getLastInputType()Lnet/minecraft/client/InputType;"))
     private InputType shouldChangeValue(InputType type) {
-        if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER)
+        if (Controlify.instance().currentInputMode().isController())
             return InputType.NONE; // none doesn't pass condition
         return type;
     }

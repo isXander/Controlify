@@ -183,7 +183,7 @@ public class VirtualMouseHandler {
             } else {
                 disableVirtualMouse();
             }
-            if (Controlify.instance().currentInputMode() == InputMode.CONTROLLER)
+            if (Controlify.instance().currentInputMode().isController())
                 GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
         } else if (virtualMouseEnabled) {
             disableVirtualMouse();
@@ -193,7 +193,7 @@ public class VirtualMouseHandler {
     }
 
     public void onInputModeChanged(InputMode mode) {
-        if (mode == InputMode.CONTROLLER) {
+        if (mode.isController()) {
             if (requiresVirtualMouse()) {
                 enableVirtualMouse();
             }
@@ -269,7 +269,7 @@ public class VirtualMouseHandler {
     }
 
     public boolean requiresVirtualMouse() {
-        var isController = Controlify.instance().currentInputMode() == InputMode.CONTROLLER;
+        var isController = Controlify.instance().currentInputMode().isController();
         var hasScreen = minecraft.screen != null;
 
         if (isController && hasScreen) {
