@@ -1,5 +1,8 @@
 package dev.isxander.controlify.gui.guide;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexSorting;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
@@ -20,6 +23,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.*;
+import org.joml.Matrix4f;
 
 import java.util.*;
 
@@ -46,8 +50,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         leftLayout = new PositionedComponent<>(
                 ColumnLayoutComponent.<GuideActionRenderer<IngameGuideContext>>builder()
-                        .spacing(2)
-                        .colPadding(4, 4)
+                        .spacing(1)
+                        .colPadding(2, 2)
                         .elementPosition(ColumnLayoutComponent.ElementPosition.LEFT)
                         .elements(leftGuides.stream().map(guide -> new GuideActionRenderer<>(guide, false, true)).toList())
                         .build(),
@@ -58,8 +62,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         rightLayout = new PositionedComponent<>(
                 ColumnLayoutComponent.<GuideActionRenderer<IngameGuideContext>>builder()
-                        .spacing(2)
-                        .colPadding(4, 4)
+                        .spacing(1)
+                        .colPadding(2, 2)
                         .elementPosition(ColumnLayoutComponent.ElementPosition.RIGHT)
                         .elements(rightGuides.stream().map(guide -> new GuideActionRenderer<>(guide, true, true)).toList())
                         .build(),
@@ -73,12 +77,30 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         if (!controller.config().showIngameGuide || minecraft.screen != null || minecraft.options.renderDebug)
             return;
 
+        float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
+        boolean customScale = scale != 1f;
+
+        Matrix4f prevProjection = null;
+        if (customScale) {
+            prevProjection = RenderSystem.getProjectionMatrix();
+            double guiScale = minecraft.getWindow().getGuiScale() * scale;
+            Matrix4f matrix4f = new Matrix4f()
+                    .setOrtho(
+                            0.0F, (float)((double)minecraft.getWindow().getWidth() / guiScale), (float)((double)minecraft.getWindow().getHeight() / guiScale), 0.0F, 1000.0F, 21000.0F
+                    );
+            RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
+        }
+
         ControlifyCompat.ifBeginHudBatching();
 
         leftLayout.renderComponent(graphics, tickDelta);
         rightLayout.renderComponent(graphics, tickDelta);
 
         ControlifyCompat.ifEndHudBatching();
+
+        if (customScale) {
+            RenderSystem.setProjectionMatrix(prevProjection, VertexSorting.ORTHOGRAPHIC_Z);
+        }
     }
 
     public void tick() {
@@ -87,8 +109,12 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         leftLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
         rightLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
 
-        leftLayout.updatePosition();
-        rightLayout.updatePosition();
+        double guiScale = minecraft.getWindow().getGuiScale() * Controlify.instance().config().globalSettings().ingameButtonGuideScale;
+        int width = (int) (minecraft.getWindow().getWidth() / guiScale);
+        int height = (int) (minecraft.getWindow().getHeight() / guiScale);
+
+        leftLayout.updatePosition(width, height);
+        rightLayout.updatePosition(width, height);
     }
 
     @Override

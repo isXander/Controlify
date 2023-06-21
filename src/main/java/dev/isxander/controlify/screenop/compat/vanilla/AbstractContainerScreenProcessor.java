@@ -81,8 +81,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                 }
             }
 
-            leftLayout.updatePosition();
-            rightLayout.updatePosition();
+            leftLayout.updatePosition(screen.width, screen.height);
+            rightLayout.updatePosition(screen.width, screen.height);
         }
     }
 

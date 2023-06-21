@@ -22,4 +22,5 @@ public class GlobalSettings {
     public boolean uiSounds = false;
     public boolean notifyLowBattery = true;
     public boolean delegateSetup = false;
+    public float ingameButtonGuideScale = 1f;
 }

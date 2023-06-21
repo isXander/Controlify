@@ -8,6 +8,7 @@ import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -87,6 +88,18 @@ public class GlobalSettingsScreenFactory {
                                         .build())
                                 .binding(GlobalSettings.DEFAULT.keyboardMovement, () -> globalSettings.keyboardMovement, v -> globalSettings.keyboardMovement = v)
                                 .controller(TickBoxControllerBuilder::create)
+                                .build())
+                        .option(Option.<Float>createBuilder()
+                                .name(Component.translatable("controlify.gui.ingame_button_guide_scale"))
+                                .description(val  -> OptionDescription.createBuilder()
+                                        .text(Component.translatable("controlify.gui.ingame_button_guide_scale.tooltip"))
+                                        .text(val != 1f ? Component.translatable("controlify.gui.ingame_button_guide_scale.tooltip.warning").withStyle(ChatFormatting.RED) : Component.empty())
+                                        .build())
+                                .binding(GlobalSettings.DEFAULT.ingameButtonGuideScale, () -> globalSettings.ingameButtonGuideScale, v -> globalSettings.ingameButtonGuideScale = v)
+                                .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                                        .range(0.5f, 1.5f)
+                                        .step(0.05f)
+                                        .valueFormatter(v -> Component.literal(String.format("%.0f%%", v*100))))
                                 .build())
                         .option(ButtonOption.createBuilder()
                                 .name(Component.translatable("controlify.gui.open_issue_tracker"))

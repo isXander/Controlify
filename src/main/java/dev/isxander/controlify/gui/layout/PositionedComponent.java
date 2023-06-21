@@ -22,10 +22,10 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
         this.origin = origin;
     }
 
-    public void updatePosition() {
+    public void updatePosition(int windowWidth, int windowHeight) {
         Vector2ic componentSize = component.size();
 
-        Vector2ic windowPosition = windowAnchor.getAnchorPosition(Minecraft.getInstance().getWindow().getGuiScaledWidth(), Minecraft.getInstance().getWindow().getGuiScaledHeight());
+        Vector2ic windowPosition = windowAnchor.getAnchorPosition(windowWidth, windowHeight);
         Vector2ic anchoredPosition = origin.getAnchorPosition(componentSize.x(), componentSize.y());
 
         this.x = windowPosition.x() + offsetX - anchoredPosition.x();

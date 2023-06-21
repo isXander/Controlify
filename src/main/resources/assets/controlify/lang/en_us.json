@@ -28,6 +28,9 @@
   "controlify.gui.out_of_focus_input.tooltip": "If enabled, Controlify will still receive input even if the game window is not focused.",
   "controlify.gui.keyboard_movement": "Keyboard-like Movement",
   "controlify.gui.keyboard_movement.tooltip": "Emulates keyboard WASD when using analog inputs like a thumbstick. This also applies to boat handling. This may be required on servers with harsh anti-cheats.",
+  "controlify.gui.ingame_button_guide_scale": "Ingame Button Guide Scale",
+  "controlify.gui.ingame_button_guide_scale.tooltip": "How big the ingame button guide is. This is a percentage of the currently selected GUI scale. 100% will match the usual scale.",
+  "controlify.gui.ingame_button_guide_scale.tooltip.warning": "This may cause scaling issues that will make it to look bad at anything but 100%.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
 
   "controlify.gui.battery_level": "Your controller battery is currently %s.",
