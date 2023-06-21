@@ -17,9 +17,9 @@ yet_another_config_lib = "3.0.1+1.20"
 mod_menu = "7.0.0"
 hid4java = "0.7.0"
 quilt_json5 = "1.0.3"
-sodium = "f041f7ccba"
-iris = "1.6.3+1.19.4"
-immediately_fast = "1.1.12+1.19.4"
+sodium = "mc1.20-0.4.10"
+iris = "1.6.4+1.20"
+immediately_fast = "1.1.15+1.20.1"
 sdl2_jni = "2.26.5-18"
 
 [libraries]
@@ -32,7 +32,7 @@ yet_another_config_lib = { module = "dev.isxander.yacl:yet-another-config-lib-fa
 mod_menu = { module = "com.terraformersmc:modmenu", version.ref = "mod_menu" }
 hid4java = { module = "org.hid4java:hid4java", version.ref = "hid4java" }
 quilt_json5 = { module = "org.quiltmc:quilt-json5", version.ref = "quilt_json5" }
-sodium = { module = "com.github.CaffeineMC:sodium-fabric", version.ref = "sodium" }
+sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 immediately_fast = { module = "maven.modrinth:immediatelyfast", version.ref = "immediately_fast" }
 sdl2_jni = { module = "dev.isxander:sdl2-jni", version.ref = "sdl2_jni" }

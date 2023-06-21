@@ -111,13 +111,12 @@ dependencies {
     // sodium compat
     modImplementation(libs.sodium)
     // iris compat
-    modImplementation(files("libs/iris-b7bf8745.jar"))
-//    modImplementation(libs.iris)
+    modImplementation(libs.iris)
     modRuntimeOnly("org.anarres:jcpp:1.4.14")
     modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
-//    modImplementation(libs.immediately.fast)
-//    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modImplementation(libs.immediately.fast)
+    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)
