@@ -75,7 +75,7 @@ body:
       label: Bluetooth
       description: Did you use Bluetooth to connect your controller? *This does **not** include the Xbox Wireless Adapter dongle.*
       options:
-        - label: Yes
+        - label: "Yes"
           required: false
   - type: dropdown
     id: os
@@ -95,7 +95,7 @@ body:
       label: ARM
       description: Are you using an ARM-based device? This includes Apple Silicon.
       options:
-        - label: Yes
+        - label: "Yes"
           required: false
   - type: textarea
     id: additional
