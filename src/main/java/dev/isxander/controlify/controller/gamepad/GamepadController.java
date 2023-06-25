@@ -10,6 +10,7 @@ import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.utils.ControllerUtils;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
@@ -90,6 +91,11 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         this.absoluteGyro.add(gyroState);
 
         state = new GamepadState(deadzoneAxesState, basicState.axes(), basicState.buttons(), gyroState, absoluteGyro);
+
+        if (DebugProperties.PRINT_TRIGGER_STATE) {
+            Log.LOGGER.info("Left Trigger: " + state.gamepadAxes().leftTrigger());
+            Log.LOGGER.info("Right Trigger: " + state.gamepadAxes().rightTrigger());
+        }
     }
 
     public GamepadState.GyroState absoluteGyroState() {
