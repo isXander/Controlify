@@ -90,8 +90,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         grid.arrangeElements();
         FrameLayout.centerInRectangle(grid, 0, this.height - 36, this.width, 36);
 
-        ButtonGuideApi.addGuideToButton(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
-        ButtonGuideApi.addGuideToButton(doneButton, bindings -> bindings.GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButtonBuiltin(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButtonBuiltin(doneButton, bindings -> bindings.GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
     }
 
     public void refreshControllers() {

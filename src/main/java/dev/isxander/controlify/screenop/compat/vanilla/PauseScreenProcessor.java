@@ -36,19 +36,19 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
 
-        ButtonGuideApi.addGuideToButton(
+        ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
                 bindings -> bindings.GUI_BACK,
                 ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
-        ButtonGuideApi.addGuideToButton(
+        ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) getWidget("menu.options").orElseThrow(),
                 bindings -> bindings.GUI_ABSTRACT_ACTION_1,
                 ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
-        ButtonGuideApi.addGuideToButton(
+        ButtonGuideApi.addGuideToButtonBuiltin(
                 disconnectButtonSupplier.get(),
                 bindings -> bindings.GUI_ABSTRACT_ACTION_2,
                 ButtonRenderPosition.TEXT,

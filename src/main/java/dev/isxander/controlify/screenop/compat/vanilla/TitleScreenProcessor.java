@@ -34,13 +34,13 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
         super.onWidgetRebuild();
 
         AbstractButton quitButton = (AbstractButton) getWidget("menu.quit").orElseThrow();
-        ButtonGuideApi.addGuideToButton(
+        ButtonGuideApi.addGuideToButtonBuiltin(
                 quitButton,
                 bindings -> quitButton.isFocused() ? bindings.GUI_PRESS : bindings.GUI_BACK,
                 ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
-        ButtonGuideApi.addGuideToButton(
+        ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) getWidget("menu.options").orElseThrow(),
                 bindings -> bindings.GUI_ABSTRACT_ACTION_1,
                 ButtonRenderPosition.TEXT,

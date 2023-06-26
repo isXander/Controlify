@@ -19,6 +19,6 @@ public class YACLScreenCategoryTabMixin {
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void onConstructCategory(YACLScreen this$0, ConfigCategory category, CallbackInfo ci) {
-        ButtonGuideApi.addGuideToButton(saveFinishedButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButtonBuiltin(saveFinishedButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
     }
 }

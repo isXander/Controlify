@@ -68,11 +68,11 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
                 && this.isActive()
                 && Controlify.instance().currentInputMode().isController()
                 && Controlify.instance().getCurrentController().map(c -> c.config().showScreenGuide).orElse(false)
-                && !renderData.binding().apply(Controlify.instance().currentController().bindings()).isUnbound()
+                && !renderData.binding().onController(Controlify.instance().getCurrentController().orElseThrow()).isUnbound()
                 && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
     }
 
     private BindRenderer getBind() {
-        return renderData.binding().apply(Controlify.instance().currentController().bindings()).renderer();
+        return renderData.binding().onController(Controlify.instance().getCurrentController().orElseThrow()).renderer();
     }
 }
