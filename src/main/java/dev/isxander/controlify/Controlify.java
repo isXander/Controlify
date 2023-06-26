@@ -13,6 +13,7 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.reacharound.ReachAroundHandler;
+import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
@@ -234,6 +235,14 @@ public class Controlify implements ControlifyApi {
         ClientPlayNetworking.registerGlobalReceiver(ReachAroundPolicyPacket.TYPE, (packet, player, sender) -> {
             Log.LOGGER.info("Connected server specified reach around policy is {}.", packet.allowed() ? "ALLOWED" : "DISALLOWED");
             ReachAroundHandler.reachAroundPolicy = packet.allowed();
+
+            if (config().globalSettings().reachAround == ReachAroundMode.EVERYWHERE && !packet.allowed()) {
+                ToastUtils.sendToast(
+                        Component.translatable("controlify.toast.reach_around_disallowed.title"),
+                        Component.translatable("controlify.toast.reach_around_disallowed.description"),
+                        false
+                );
+            }
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             DebugLog.log("Disconnected from server, resetting reach around policy");
