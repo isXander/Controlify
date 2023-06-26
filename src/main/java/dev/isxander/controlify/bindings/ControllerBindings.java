@@ -519,7 +519,7 @@ public class ControllerBindings<T extends ControllerState> {
     private void imitateVanillaClick() {
         ControllerBindingImpl.clearPressedBinds(controller);
 
-        if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER)
+        if (!Controlify.instance().currentInputMode().isController())
             return;
         if (Minecraft.getInstance().screen != null)
             return;
