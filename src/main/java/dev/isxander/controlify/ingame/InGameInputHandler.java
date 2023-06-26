@@ -41,14 +41,6 @@ public class InGameInputHandler {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
         this.dropRepeatHelper = new NavigationHelper(20, 1);
-
-        ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> {
-            if (minecraft.player != null) {
-                minecraft.player.input = mode.isController()
-                        ? new ControllerPlayerMovement(controller, minecraft.player)
-                        : new KeyboardInput(minecraft.options);
-            }
-        });
     }
 
     public void inputTick() {

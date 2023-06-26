@@ -1,11 +1,12 @@
 package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.ingame.DualInput;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
@@ -35,7 +36,11 @@ public class ClientPacketListenerMixin {
     }
 
     private void overrideInput(LocalPlayer player) {
-        if (Controlify.instance().currentInputMode().isController() && player != null)
-            player.input = new ControllerPlayerMovement(Controlify.instance().currentController(), player);
+        if (player == null)
+            return;
+
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+            player.input = new DualInput(new KeyboardInput(minecraft.options), new ControllerPlayerMovement(controller, player));
+        });
     }
 }
