@@ -56,6 +56,8 @@
   "controlify.config.group.accessibility": "Accessibility",
   "controlify.gui.show_ingame_guide": "Show Ingame Button Guide",
   "controlify.gui.show_ingame_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
+  "controlify.gui.ingame_button_guide_position": "Ingame Button Guide Position",
+  "controlify.gui.ingame_button_guide_position.tooltip": "Where the ingame button guide is positioned.",
   "controlify.gui.show_screen_guide": "Show Screen Button Guide",
   "controlify.gui.show_screen_guide.tooltip": "Show various helpers in GUIs to assist in using controller input.",
   "controlify.gui.chat_screen_offset": "On-screen keyboard height",

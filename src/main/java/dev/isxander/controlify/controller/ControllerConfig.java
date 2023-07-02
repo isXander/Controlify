@@ -19,6 +19,7 @@ public abstract class ControllerConfig {
     public String customName = null;
 
     public boolean showIngameGuide = true;
+    public boolean ingameGuideBottom = false;
     public boolean showScreenGuide = true;
 
     public float chatKeyboardHeight = 0f;

@@ -9,7 +9,9 @@ import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
+import dev.isxander.controlify.driver.SteamDeckDriver;
 import dev.isxander.controlify.gui.controllers.AbstractBindController;
+import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -154,6 +156,14 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.showIngameGuide, () -> config.showIngameGuide, v -> config.showIngameGuide = v)
                         .controller(TickBoxControllerBuilder::create)
+                        .build())
+                .option(Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.ingame_button_guide_position"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.ingame_button_guide_position.tooltip")))
+                        .binding(def.ingameGuideBottom, () -> config.ingameGuideBottom, v -> config.ingameGuideBottom = v)
+                        .controller(opt -> BooleanControllerBuilder.create(opt)
+                                .valueFormatter(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
+                        .flag(mc -> Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::refreshLayout))
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.show_screen_guide"))

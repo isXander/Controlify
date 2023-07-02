@@ -35,8 +35,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private final List<GuideAction<IngameGuideContext>> leftGuides = new ArrayList<>();
     private final List<GuideAction<IngameGuideContext>> rightGuides = new ArrayList<>();
 
-    private final PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> leftLayout;
-    private final PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> rightLayout;
+    private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> leftLayout;
+    private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> rightLayout;
 
     public InGameButtonGuide(Controller<?, ?> controller, LocalPlayer localPlayer) {
         this.controller = controller;
@@ -48,6 +48,12 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         Collections.sort(leftGuides);
         Collections.sort(rightGuides);
 
+        refreshLayout();
+    }
+
+    public void refreshLayout() {
+        boolean bottom = controller.config().ingameGuideBottom;
+
         leftLayout = new PositionedComponent<>(
                 ColumnLayoutComponent.<GuideActionRenderer<IngameGuideContext>>builder()
                         .spacing(1)
@@ -55,9 +61,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                         .elementPosition(ColumnLayoutComponent.ElementPosition.LEFT)
                         .elements(leftGuides.stream().map(guide -> new GuideActionRenderer<>(guide, false, true)).toList())
                         .build(),
-                AnchorPoint.TOP_LEFT,
+                !bottom ? AnchorPoint.TOP_LEFT : AnchorPoint.BOTTOM_LEFT,
                 0, 0,
-                AnchorPoint.TOP_LEFT
+                !bottom ? AnchorPoint.TOP_LEFT : AnchorPoint.BOTTOM_LEFT
         );
 
         rightLayout = new PositionedComponent<>(
@@ -67,9 +73,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                         .elementPosition(ColumnLayoutComponent.ElementPosition.RIGHT)
                         .elements(rightGuides.stream().map(guide -> new GuideActionRenderer<>(guide, true, true)).toList())
                         .build(),
-                AnchorPoint.TOP_RIGHT,
+                !bottom ? AnchorPoint.TOP_RIGHT : AnchorPoint.BOTTOM_RIGHT,
                 0, 0,
-                AnchorPoint.TOP_RIGHT
+                !bottom ? AnchorPoint.TOP_RIGHT : AnchorPoint.BOTTOM_RIGHT
         );
     }
 
