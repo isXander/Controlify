@@ -149,7 +149,7 @@ public class Controlify implements ControlifyApi {
 
     public void discoverControllers() {
         if (!canDiscoverControllers) {
-            throw new IllegalStateException("Cannot discover controllers!");
+            throw new IllegalStateException("Already discovered/cannot discover controllers");
         }
         canDiscoverControllers = false;
 
@@ -377,6 +377,12 @@ public class Controlify implements ControlifyApi {
 
         config().loadOrCreateControllerData(controller);
 
+        canDiscoverControllers = false;
+        if (config().globalSettings().delegateSetup) {
+            config().globalSettings().delegateSetup = false;
+            config().setDirty();
+        }
+
         if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
             controller.config().allowVibrations = false;
             config().setDirty();
@@ -394,8 +400,6 @@ public class Controlify implements ControlifyApi {
             this.askToSwitchController(controller);
             config().saveIfDirty();
         }
-
-        canDiscoverControllers = false;
 
         if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
             controllerListScreen.refreshControllers();
@@ -526,7 +530,7 @@ public class Controlify implements ControlifyApi {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
-        if (this.currentInputMode == InputMode.CONTROLLER)
+        if (this.currentInputMode.isController())
             getCurrentController().ifPresent(Controller::clearState);
 
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
