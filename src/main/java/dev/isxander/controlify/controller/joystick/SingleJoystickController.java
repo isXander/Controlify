@@ -19,7 +19,7 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
     private final JoystickMapping mapping;
 
-    private long ptrJoystick;
+    private final long ptrJoystick;
     private RumbleManager rumbleManager;
     private boolean rumbleSupported;
 
@@ -122,7 +122,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
     @Override
     public void close() {
-        SDL.SDL_JoystickClose(ptrJoystick);
+        if (ptrJoystick != 0)
+            SDL.SDL_JoystickClose(ptrJoystick);
         this.rumbleSupported = false;
         this.rumbleManager = null;
     }
