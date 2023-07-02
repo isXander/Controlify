@@ -64,7 +64,7 @@ public class ScreenProcessor<T extends Screen> {
     public void onInputModeChanged(InputMode mode) {
         switch (mode) {
             case KEYBOARD_MOUSE -> ((ScreenAccessor) screen).invokeClearFocus();
-            case CONTROLLER -> {
+            case CONTROLLER, MIXED -> {
                 if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
                     setInitialFocus();
                 }
