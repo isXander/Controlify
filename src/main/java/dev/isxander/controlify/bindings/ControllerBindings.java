@@ -2,7 +2,6 @@ package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
@@ -14,6 +13,7 @@ import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
 import dev.isxander.controlify.utils.Log;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -410,7 +410,11 @@ public class ControllerBindings<T extends ControllerState> {
 
         registerModdedKeybinds();
 
-        ControlifyEvents.CONTROLLER_STATE_UPDATE.register(this::onControllerUpdate);
+        // key events are executed in Minecraft#execute, aka runTick.runAllTasks()
+        // which is called before ticking (the event below). so we can safely imitate clicks
+        // before key mappings are handled in tick()
+        ClientTickEvents.START_CLIENT_TICK.register(this::onTick);
+
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
@@ -477,9 +481,7 @@ public class ControllerBindings<T extends ControllerState> {
         return clean;
     }
 
-    public void onControllerUpdate(Controller<?, ?> controller) {
-        if (controller != this.controller) return;
-
+    public void onTick(Minecraft minecraft) {
         imitateVanillaClick();
     }
 
@@ -536,10 +538,11 @@ public class ControllerBindings<T extends ControllerState> {
                     // must set field directly to avoid ToggleKeyMapping breaking things
                     accessor.setIsDown(!accessor.getIsDown());
                 }
-            } else {
+            } else if (!override.keyMapping().isDown()) {
                 KeyMapping.set(vanillaKeyCode, binding.held());
             }
-            if (binding.justPressed()) KeyMapping.click(vanillaKeyCode);
+            if (binding.justPressed())
+                KeyMapping.click(vanillaKeyCode);
         }
     }
 
