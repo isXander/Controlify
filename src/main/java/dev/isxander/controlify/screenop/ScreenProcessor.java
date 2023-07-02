@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
 import dev.isxander.controlify.sound.ControlifySounds;
@@ -104,6 +105,28 @@ public class ScreenProcessor<T extends Screen> {
 
             if (!bindings.GUI_NAVI_DOWN.prevHeld())
                 navigationHelper.reset();
+        } else if (controller.state() instanceof GamepadState state && controller.prevState() instanceof GamepadState prevState) {
+            if (state.gamepadButtons().dpadRight() && (repeatEventAvailable || !prevState.gamepadButtons().dpadRight())) {
+                event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
+
+                if (!prevState.gamepadButtons().dpadRight())
+                    navigationHelper.reset();
+            } else if (state.gamepadButtons().dpadLeft() && (repeatEventAvailable || !prevState.gamepadButtons().dpadLeft())) {
+                event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
+
+                if (!prevState.gamepadButtons().dpadLeft())
+                    navigationHelper.reset();
+            } else if (state.gamepadButtons().dpadUp() && (repeatEventAvailable || !prevState.gamepadButtons().dpadUp())) {
+                event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
+
+                if (!prevState.gamepadButtons().dpadUp())
+                    navigationHelper.reset();
+            } else if (state.gamepadButtons().dpadDown() && (repeatEventAvailable || !prevState.gamepadButtons().dpadDown())) {
+                event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
+
+                if (!prevState.gamepadButtons().dpadDown())
+                    navigationHelper.reset();
+            }
         }
 
         if (event != null) {
