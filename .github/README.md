@@ -25,6 +25,18 @@ I, the developer, have contributed to popular mods such as Sodium and Iris to ge
 
 The mod is also easy to use for beginners, with default-on button guides, so you know how to interact with the game with a new input scheme.
 
+## Q&A
+
+### Does it support Steam Deck?
+
+Yes! Controlify has been tested on the Steam Deck, and works great. The gyro features built-in to Controlify
+do not currently work on the Steam Deck, but you can utilise Steam Input's gyro -> mouse emulation to get
+working gyro.
+
+### Does it support *insert generic gamepad here*?
+
+Yes! Controlify supports most standard gamepad controllers out of the box.
+
 ## Features
 
 ### Controller vibration
