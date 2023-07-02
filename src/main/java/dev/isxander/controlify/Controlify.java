@@ -296,6 +296,9 @@ public class Controlify implements ControlifyApi {
             showMouseTicks--;
             if (showMouseTicks == 0) {
                 hideMouse(true, false);
+                if (virtualMouseHandler().requiresVirtualMouse()) {
+                    virtualMouseHandler().enableVirtualMouse();
+                }
             }
         }
 
@@ -560,6 +563,9 @@ public class Controlify implements ControlifyApi {
         if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
             hideMouse(false, false);
             showMouseTicks = 20 * 3;
+            if (virtualMouseHandler().isVirtualMouseEnabled()) {
+                virtualMouseHandler().disableVirtualMouse();
+            }
         }
     }
 
