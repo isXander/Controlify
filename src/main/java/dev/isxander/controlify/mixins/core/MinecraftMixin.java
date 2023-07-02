@@ -4,12 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.gui.screen.BetaNoticeScreen;
 import dev.isxander.controlify.utils.Animator;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.main.GameConfig;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class MinecraftMixin {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
     @Shadow public abstract float getDeltaFrameTime();
-    @Shadow public abstract ToastComponent getToasts();
 
     @Unique private boolean initNextTick = false;
 
@@ -46,12 +42,6 @@ public abstract class MinecraftMixin {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
         Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getDeltaFrameTime()));
-    }
-
-    @Inject(method = "<init>", at = @At("TAIL"))
-    private void showBetaScreen(GameConfig args, CallbackInfo ci) {
-        if (Controlify.instance().config().isFirstLaunch())
-            setScreen(new BetaNoticeScreen());
     }
 
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
