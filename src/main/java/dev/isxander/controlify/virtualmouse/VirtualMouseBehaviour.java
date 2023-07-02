@@ -9,4 +9,8 @@ public enum VirtualMouseBehaviour {
     public boolean hasCursor() {
         return this != DISABLED;
     }
+
+    public boolean isDefaultOr(VirtualMouseBehaviour behaviour) {
+        return this == DEFAULT || this == behaviour;
+    }
 }

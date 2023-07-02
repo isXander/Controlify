@@ -91,7 +91,7 @@ public class VirtualMouseHandler {
 
         scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
 
-        if (!ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().hasCursor()) {
+        if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
             handleCompatibilityBinds(controller);
         }
 
