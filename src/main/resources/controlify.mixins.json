@@ -36,6 +36,8 @@
     "feature.accessibility.LocalPlayerMixin",
     "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.KeyMappingAccessor",
+    "feature.bind.KeyMappingMixin",
+    "feature.bind.MinecraftMixin",
     "feature.bind.ToggleKeyMappingAccessor",
     "feature.chatkbheight.ChatComponentMixin",
     "feature.chatkbheight.ChatScreenMixin",

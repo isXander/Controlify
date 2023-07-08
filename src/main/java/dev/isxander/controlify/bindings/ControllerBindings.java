@@ -410,16 +410,21 @@ public class ControllerBindings<T extends ControllerState> {
 
         registerModdedKeybinds();
 
-        // key events are executed in Minecraft#execute, aka runTick.runAllTasks()
-        // which is called before ticking (the event below). so we can safely imitate clicks
-        // before key mappings are handled in tick()
-        ClientTickEvents.START_CLIENT_TICK.register(this::onTick);
+        // key events are executed in Minecraft#execute, which run at runTick.runAllTasks()
+        // which this event runs directly after. A normal tick could run multiple
+        // times per frame, so you could get double clicks if lagging.
+        InputHandledEvent.EVENT.register(this::imitateVanillaClick);
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
 
     public ControllerBinding register(ControllerBinding binding) {
         registry.put(binding.id(), binding);
+
+        if (binding.override() != null) {
+            ((KeyMappingOverrideHolder) binding.override().keyMapping()).controlify$addOverride(binding);
+        }
+
         return binding;
     }
 
@@ -481,10 +486,6 @@ public class ControllerBindings<T extends ControllerState> {
         return clean;
     }
 
-    public void onTick(Minecraft minecraft) {
-        imitateVanillaClick();
-    }
-
     private void registerModdedKeybinds() {
         for (KeyMapping keyMapping : KeyBindingRegistryImplAccessor.getCustomKeys()) {
             if (EXCLUDED_VANILLA_BINDS.contains(keyMapping))
@@ -538,8 +539,6 @@ public class ControllerBindings<T extends ControllerState> {
                     // must set field directly to avoid ToggleKeyMapping breaking things
                     accessor.setIsDown(!accessor.getIsDown());
                 }
-            } else if (!override.keyMapping().isDown()) {
-                KeyMapping.set(vanillaKeyCode, binding.held());
             }
             if (binding.justPressed())
                 KeyMapping.click(vanillaKeyCode);
