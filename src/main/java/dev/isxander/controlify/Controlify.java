@@ -25,7 +25,6 @@ import dev.isxander.controlify.server.EntityVibrationPacket;
 import dev.isxander.controlify.server.OriginVibrationPacket;
 import dev.isxander.controlify.server.ReachAroundPolicyPacket;
 import dev.isxander.controlify.server.VibrationPacket;
-import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
@@ -203,8 +202,6 @@ public class Controlify implements ControlifyApi {
         DebugProperties.printProperties();
 
         Log.LOGGER.info("Pre-initializing Controlify...");
-
-        ControlifySounds.init();
 
         this.inGameInputHandler = null;
         this.virtualMouseHandler = new VirtualMouseHandler();

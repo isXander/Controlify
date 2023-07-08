@@ -1,5 +1,6 @@
 package dev.isxander.controlify.server;
 
+import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.Log;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
@@ -10,6 +11,8 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 public class ControlifyServer implements ModInitializer, DedicatedServerModInitializer {
     @Override
     public void onInitialize() {
+        ControlifySounds.init();
+
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, env) -> {
             VibrateCommand.register(dispatcher);
         });
