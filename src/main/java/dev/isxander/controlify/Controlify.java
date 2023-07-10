@@ -326,11 +326,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (state.hasAnyInput()) {
-            // use MIXED input mode to support Steam Input for things like gyro mouse and touchpads
-            // this is only temporary until the Steam Deck driver is finished
-            boolean isSteamDeck = controller.hidInfo().map(info -> info.hidDevice().map(device -> SteamDeckDriver.isSteamDeck(device.getVendorId(), device.getProductId())).orElse(false)).orElse(false);
-
-            this.setInputMode(isSteamDeck ? InputMode.MIXED : InputMode.CONTROLLER);
+            this.setInputMode(controller.config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
         }
 
         if (consecutiveInputSwitches > 100) {
@@ -362,9 +358,9 @@ public class Controlify implements ControlifyApi {
         } catch (Throwable e) {
             CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
             CrashReportCategory category = crashReport.addCategory("Affected controller");
-            category.setDetail("Controller name", controller::name);
-            category.setDetail("Controller identification", () -> controller.type().toString());
-            category.setDetail("Controller type", () -> controller.getClass().getCanonicalName());
+            category.setDetail("Controller name", controller.name());
+            category.setDetail("Controller identification", controller.type().toString());
+            category.setDetail("Controller type", controller.getClass().getCanonicalName());
             throw new ReportedException(crashReport);
         }
     }

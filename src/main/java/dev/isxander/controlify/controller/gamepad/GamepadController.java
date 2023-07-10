@@ -44,6 +44,10 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
         this.defaultConfig = new GamepadConfig();
         this.config = new GamepadConfig();
+        if (hidInfo.hidDevice().map(hid -> SteamDeckDriver.isSteamDeck(hid.getVendorId(), hid.getProductId())).orElse(false)) {
+            this.defaultConfig.mixedInput = true;
+            this.config.mixedInput = true;
+        }
 
         this.bindings = new ControllerBindings<>(this);
     }

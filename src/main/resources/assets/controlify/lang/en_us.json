@@ -75,6 +75,8 @@
   "controlify.gui.button_activation_threshold": "Button Activation Threshold",
   "controlify.gui.button_activation_threshold.tooltip": "How far a button needs to be pushed before registering as pressed.",
   "controlify.config.category.advanced": "Advanced",
+  "controlify.gui.mixed_input": "Mixed Input",
+  "controlify.gui.mixed_input.tooltip": "If enabled, Controlify will allow you to use both this controller and keyboard/mouse at the same time. This should be used when pairing with Steam Input, where certain advanced controller actions needs to be mapped to these inputs, rather than a gamepad. Be aware, this prevents you from entering normal keyboard/mouse mode whilst this controller is in use.",
   "controlify.gui.group.vibration": "Vibration",
   "controlify.gui.group.vibration.tooltip": "Adjust how your controller vibrates.",
   "controlify.gui.allow_vibrations": "Allow Vibration",

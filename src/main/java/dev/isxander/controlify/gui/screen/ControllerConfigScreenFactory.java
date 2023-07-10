@@ -294,6 +294,12 @@ public class ControllerConfigScreenFactory {
     private static ConfigCategory createAdvancedCategory(Controller<?, ?> controller) {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"))
+                .option(Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.mixed_input"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
+                        .binding(controller.defaultConfig().mixedInput, () -> controller.config().mixedInput, v -> controller.config().mixedInput = v)
+                        .controller(TickBoxControllerBuilder::create)
+                        .build())
                 .group(makeVibrationGroup(controller))
                 .group(makeGyroGroup(controller))
                 .build();
