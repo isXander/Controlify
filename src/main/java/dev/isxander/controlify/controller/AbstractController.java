@@ -9,6 +9,7 @@ import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.utils.Log;
+import org.apache.commons.lang3.SerializationUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Objects;
@@ -116,7 +117,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             this.config = newConfig;
         } else {
             Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
-            this.config = defaultConfig();
+            this.config = SerializationUtils.clone(defaultConfig());
             Controlify.instance().config().setDirty();
         }
     }

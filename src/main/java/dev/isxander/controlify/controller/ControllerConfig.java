@@ -4,7 +4,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.isxander.controlify.rumble.RumbleSource;
 
-public abstract class ControllerConfig {
+import java.io.Serializable;
+
+public abstract class ControllerConfig implements Serializable {
     public float horizontalLookSensitivity = 1f;
     public float verticalLookSensitivity = 0.9f;
 
