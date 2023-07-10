@@ -514,7 +514,7 @@ public class ControllerConfigScreenFactory {
                 return opt;
             }));
         } else {
-            boolean isSteamDeck = gamepad != null && gamepad.hidInfo().map(hid -> hid.hidDevice().map(d -> SteamDeckDriver.isSteamDeck(d.getVendorId(), d.getProductId())).orElse(false)).orElse(false);
+            boolean isSteamDeck = gamepad != null && gamepad.hidInfo().map(hid -> hid.hidDevice().map(d -> SteamDeckDriver.isSteamDeck(d.vendorID(), d.productID())).orElse(false)).orElse(false);
             gyroGroup.option(LabelOption.create(Component.translatable(!isSteamDeck ? "controlify.gui.group.gyro.no_gyro.tooltip" : "controlify.gui.group.gyro.no_gyro_steamdeck.tooltip").withStyle(ChatFormatting.RED)));
         }
 

@@ -3,7 +3,7 @@ package dev.isxander.controlify.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;

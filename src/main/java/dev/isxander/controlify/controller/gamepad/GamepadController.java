@@ -4,7 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.BatteryLevel;
-import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
@@ -44,7 +44,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
         this.defaultConfig = new GamepadConfig();
         this.config = new GamepadConfig();
-        if (hidInfo.hidDevice().map(hid -> SteamDeckDriver.isSteamDeck(hid.getVendorId(), hid.getProductId())).orElse(false)) {
+        if (hidInfo.hidDevice().map(hid -> SteamDeckDriver.isSteamDeck(hid.vendorID(), hid.productID())).orElse(false)) {
             this.defaultConfig.mixedInput = true;
             this.config.mixedInput = true;
         }

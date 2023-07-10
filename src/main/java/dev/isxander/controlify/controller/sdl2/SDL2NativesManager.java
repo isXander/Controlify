@@ -130,7 +130,7 @@ public class SDL2NativesManager {
         return initialised;
     }
 
-    private record Target(Util.OS os, boolean is64Bit, boolean isARM) {
+    public record Target(Util.OS os, boolean is64Bit, boolean isARM) {
         public static final Target CURRENT = Util.make(() -> {
             Util.OS os = Util.getPlatform();
 
@@ -154,6 +154,10 @@ public class SDL2NativesManager {
             return FabricLoader.getInstance().getGameDir()
                     .resolve("controlify-natives")
                     .resolve(getArtifactName());
+        }
+
+        public boolean isMacArm() {
+            return os == Util.OS.OSX && isARM;
         }
     }
 }

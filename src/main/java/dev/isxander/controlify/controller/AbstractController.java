@@ -6,7 +6,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.utils.Log;
 import org.apache.commons.lang3.SerializationUtils;

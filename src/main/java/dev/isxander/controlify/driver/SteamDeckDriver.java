@@ -1,9 +1,8 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
-import dev.isxander.controlify.controller.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
-import org.hid4java.HidDevice;
 
 import java.util.Arrays;
 
@@ -12,16 +11,15 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
     private static final int cByteposInput = 4; // Position in the raw hid data where HID data byte is
     private static final byte[] startMarker = new byte[] { 0x01, 0x00, 0x09, 0x40 }; // Beginning of every Steam deck HID frame
 
-    private final HidDevice hidDevice;
+    private final HIDDevice hidDevice;
     private int interval = 0;
 
     private GamepadState.GyroState gyroDelta = new GamepadState.GyroState();
     private BasicGamepadState basicGamepadState = new BasicGamepadState(GamepadState.AxesState.EMPTY, GamepadState.ButtonState.EMPTY);
 
-    public SteamDeckDriver(HidDevice hidDevice) {
+    public SteamDeckDriver(HIDDevice hidDevice) {
         this.hidDevice = hidDevice;
         this.hidDevice.open();
-        this.hidDevice.setNonBlocking(true);
     }
 
     @Override
@@ -50,7 +48,7 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
     }
 
     private void keepAlive() {
-        hidDevice.sendFeatureReport(new byte[0], (byte) 8);
+        //hidDevice.sendFeatureReport(new byte[0], (byte) 8);
     }
 
     private void readFrame(Frame frame) {

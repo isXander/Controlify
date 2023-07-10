@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller;
 
 import com.google.common.collect.ImmutableMap;
-import dev.isxander.controlify.controller.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;

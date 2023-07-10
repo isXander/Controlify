@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller.hid;
+package dev.isxander.controlify.hid;
 
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
@@ -8,6 +8,8 @@ import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
+import org.libsdl.SDL;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -58,16 +60,18 @@ public class ControllerHIDService {
             }
         }
 
-//        if (SDL2NativesManager.isLoaded()) {
-//            int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
-//            int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
-//
-//            if (vid != 0 && pid != 0) {
-//                return new ControllerHIDInfo(ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)), Optional.empty());
-//            }
-//        }
-
         if (disabled) {
+            if (SDL2NativesManager.isLoaded()) {
+                int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
+                int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
+                String path = GLFW.glfwGetJoystickGUID(jid);
+
+                if (vid != 0 && pid != 0) {
+                    Log.LOGGER.info("Using SDL to identify controller type.");
+                    return new ControllerHIDInfo(ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)), Optional.of(new HIDDevice.IDOnly(vid, pid, path)));
+                }
+            }
+
             return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
@@ -85,7 +89,7 @@ public class ControllerHIDService {
 
         unconsumedControllerHIDs.removeIf(h -> hid.getFirst().getPath().equals(h.getFirst().getPath()));
 
-        return new ControllerHIDInfo(type, Optional.of(hid.getFirst()));
+        return new ControllerHIDInfo(type, Optional.of(new HIDDevice.Hid4Java(hid.getFirst())));
     }
 
     public boolean isDisabled() {
@@ -133,7 +137,7 @@ public class ControllerHIDService {
     }
 
     public void unconsumeController(ControllerHIDInfo hid) {
-        hid.hidDevice.ifPresent(device -> attachedDevices.remove(device.getPath()));
+        hid.hidDevice.ifPresent(device -> attachedDevices.remove(device.path()));
     }
 
     private boolean isController(HidDevice device) {
@@ -144,9 +148,9 @@ public class ControllerHIDService {
         return isControllerType || (isGenericDesktopControlOrGameControl && isSelfIdentifiedController);
     }
 
-    public record ControllerHIDInfo(ControllerType type, Optional<HidDevice> hidDevice) {
+    public record ControllerHIDInfo(ControllerType type, Optional<HIDDevice> hidDevice) {
         public Optional<String> createControllerUID() {
-            return hidDevice.map(HidDevice::getPath).map(p -> UUID.nameUUIDFromBytes(p.getBytes())).map(UUID::toString);
+            return hidDevice.map(HIDDevice::path).map(p -> UUID.nameUUIDFromBytes(p.getBytes())).map(UUID::toString);
         }
     }
 }

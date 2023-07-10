@@ -3,8 +3,8 @@ package dev.isxander.controlify.driver;
 import com.google.common.collect.Sets;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
-import org.hid4java.HidDevice;
 
 import java.util.*;
 
@@ -28,7 +28,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
         }
     }
 
-    public static GamepadDrivers forController(int jid, Optional<HidDevice> hid) {
+    public static GamepadDrivers forController(int jid, Optional<HIDDevice> hid) {
         GLFWGamepadDriver glfwDriver = new GLFWGamepadDriver(jid);
 
         BasicGamepadInputDriver basicGamepadInputDriver = glfwDriver;
@@ -50,7 +50,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
         }
 
         // TODO: Fix Steam Deck driver
-        if (hid.isPresent() && SteamDeckDriver.isSteamDeck(hid.get().getVendorId(), hid.get().getProductId()) && false) {
+        if (hid.isPresent() && hid.get().supportsCommunication() && SteamDeckDriver.isSteamDeck(hid.get().vendorID(), hid.get().productID()) && false) {
             gyroDriver = new SteamDeckDriver(hid.get());
         }
 

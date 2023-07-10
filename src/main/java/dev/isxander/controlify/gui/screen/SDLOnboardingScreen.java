@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -25,9 +26,9 @@ public class SDLOnboardingScreen extends ConfirmScreen {
                 Util.make(() -> {
                     var message = Component.translatable("controlify.sdl2_onboarding.message");
 
-//                    if (Util.getPlatform() == Util.OS.OSX) {
-//                        message.append("\n").append(Component.translatable("controlify.sdl2_onboarding.message_mac").withStyle(ChatFormatting.RED));
-//                    }
+                    if (SDL2NativesManager.Target.CURRENT.isMacArm()) {
+                        message.append("\n").append(Component.translatable("controlify.sdl2_onboarding.message_mac").withStyle(ChatFormatting.RED));
+                    }
 
                     message.append("\n\n").append(Component.translatable("controlify.sdl2_onboarding.question"));
 

@@ -5,7 +5,7 @@ import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.JoystickConfig;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
