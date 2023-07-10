@@ -9,6 +9,9 @@ import java.util.Queue;
 public class RumbleManager {
     private final RumbleCapable controller;
     private final Queue<RumbleEffectInstance> effectQueue;
+    private RumbleEffectInstance prevEffect = null;
+
+    private boolean silent, wasSilent;
 
     public RumbleManager(RumbleCapable controller) {
         this.controller = controller;
@@ -51,12 +54,24 @@ public class RumbleManager {
         effectQueue.removeIf(e -> e.effect().isFinished());
         effectQueue.forEach(e -> e.effect().tick());
 
-        RumbleState state = effect.effect().currentState();
-        controller.setRumble(state.strong(), state.weak(), effect.source());
+        if (silent) {
+            if (!wasSilent) {
+                controller.setRumble(0f, 0f, RumbleSource.MASTER);
+                wasSilent = true;
+            }
+        } else if (!effect.equals(prevEffect)) {
+            RumbleState state = effect.effect().currentState();
+            controller.setRumble(state.strong(), state.weak(), effect.source());
+            prevEffect = effect;
+        }
     }
 
     public void clearEffects() {
         effectQueue.clear();
+    }
+
+    public void setSilent(boolean silent) {
+        this.silent = silent;
     }
 
     public boolean isPlaying() {

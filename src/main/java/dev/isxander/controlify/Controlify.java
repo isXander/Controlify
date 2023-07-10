@@ -320,8 +320,9 @@ public class Controlify implements ControlifyApi {
 
         if (outOfFocus) {
             state = ControllerState.EMPTY;
-            controller.rumbleManager().clearEffects();
+            controller.rumbleManager().setSilent(true);
         } else {
+            controller.rumbleManager().setSilent(false);
             controller.rumbleManager().tick();
         }
 
