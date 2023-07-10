@@ -183,7 +183,12 @@ public class Controlify implements ControlifyApi {
         }
 
         if (getCurrentController().isEmpty()) {
-            this.setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
+            var controller = ControllerManager.getConnectedControllers().stream().findFirst().orElse(null);
+            if (controller != null && controller.config().delayedCalibration) {
+                controller = null;
+            }
+
+            this.setCurrentController(controller);
         } else {
             // setCurrentController saves config
             config().saveIfDirty();

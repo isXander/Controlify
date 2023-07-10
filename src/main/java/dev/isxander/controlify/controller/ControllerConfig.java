@@ -30,6 +30,7 @@ public abstract class ControllerConfig {
     public JsonObject vibrationStrengths = RumbleSource.getDefaultJson();
 
     public boolean deadzonesCalibrated = false;
+    public boolean delayedCalibration = false;
 
     public abstract void setDeadzone(int axis, float deadzone);
     public abstract float getDeadzone(int axis);

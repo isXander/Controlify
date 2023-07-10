@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,7 +28,7 @@ public class ControllerCalibrationScreen extends Screen {
 
     private MultiLineLabel waitLabel, infoLabel, completeLabel;
 
-    protected Button readyButton;
+    protected Button readyButton, laterButton;
 
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
@@ -47,16 +48,20 @@ public class ControllerCalibrationScreen extends Screen {
 
     @Override
     protected void init() {
-        addRenderableWidget(
-                readyButton = Button.builder(Component.translatable("controlify.calibration.ready"), btn -> {
-                            if (!calibrated)
-                                startCalibration();
-                            else
-                                onClose();
-                        })
+        addRenderableWidget(readyButton =
+                Button.builder(Component.translatable("controlify.calibration.ready"), btn -> onButtonPress())
                         .width(150)
-                        .pos(this.width / 2 - 75, this.height - 8 - 20)
-                        .build());
+                        .pos(this.width / 2 - 150 - 5, this.height - 8 - 20)
+                        .build()
+        );
+        addRenderableWidget(laterButton =
+                Button.builder(Component.translatable("controlify.calibration.later"), btn -> onLaterButtonPress())
+                        .width(150)
+                        .pos(this.width / 2 + 5, this.height - 8 - 20)
+                        .tooltip(Tooltip.create(Component.translatable("controlify.calibration.later.tooltip")))
+                        .build()
+        );
+
 
         this.infoLabel = MultiLineLabel.create(font, Component.translatable("controlify.calibration.info"), width - 30);
         this.waitLabel = MultiLineLabel.create(font, Component.translatable("controlify.calibration.wait"), width - 30);
@@ -139,6 +144,7 @@ public class ControllerCalibrationScreen extends Screen {
             readyButton.setMessage(Component.translatable("controlify.calibration.done"));
 
             controller.config().deadzonesCalibrated = true;
+            controller.config().delayedCalibration = false;
             Controlify.instance().config().save();
         }
     }
@@ -176,6 +182,25 @@ public class ControllerCalibrationScreen extends Screen {
         
         return controller.state().axes().stream()
                 .anyMatch(axis -> Math.abs(axis - controller.prevState().axes().get(controller.state().axes().indexOf(axis))) > amt);
+    }
+
+    private void onButtonPress() {
+        if (!calibrated) {
+            startCalibration();
+
+            removeWidget(laterButton);
+            readyButton.setX(this.width / 2 - 75);
+        } else
+            onClose();
+    }
+
+    private void onLaterButtonPress() {
+        if (!calibrated) {
+            controller.config().delayedCalibration = true;
+            Controlify.instance().config().setDirty();
+            Controlify.instance().setCurrentController(null);
+            onClose();
+        }
     }
 
     @Override

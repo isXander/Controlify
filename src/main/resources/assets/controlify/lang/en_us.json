@@ -274,6 +274,8 @@
   "controlify.calibration.ready": "Ready",
   "controlify.calibration.done": "Done",
   "controlify.calibration.calibrating": "Calibrating...",
+  "controlify.calibration.later": "Maybe Later",
+  "controlify.calibration.later.tooltip": "You must calibrate to use the controller. Pressing this will deactivate the controller and you will have to use it again to calibrate.",
 
   "controlify.beta.title": "Controlify Beta Notice",
   "controlify.beta.message": "You are currently using Controlify Beta.\n\nThis mod is a work in progress and will contain many bugs. Please, if you spot a bug in this mod or have a suggestion to make it even better, please create an issue on the %s!\n\nYou can always find the link to the issue tracker in Controlify's settings menu.",
