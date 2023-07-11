@@ -27,20 +27,11 @@ public class ClientPacketListenerMixin {
 
     @Inject(method = "handleLogin", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;", opcode = Opcodes.ASTORE, shift = At.Shift.AFTER))
     private void overrideNewPlayerInput(ClientboundLoginPacket packet, CallbackInfo ci) {
-        overrideInput(minecraft.player);
+        ControllerPlayerMovement.updatePlayerInput(minecraft.player);
     }
 
     @Inject(method = "handleRespawn", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;", opcode = Opcodes.ASTORE, shift = At.Shift.AFTER))
     private void overrideRespawnInput(ClientboundRespawnPacket packet, CallbackInfo ci, @Local(ordinal = 1) LocalPlayer newPlayer) {
-        overrideInput(newPlayer);
-    }
-
-    private void overrideInput(LocalPlayer player) {
-        if (player == null)
-            return;
-
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-            player.input = new DualInput(new KeyboardInput(minecraft.options), new ControllerPlayerMovement(controller, player));
-        });
+        ControllerPlayerMovement.updatePlayerInput(newPlayer);
     }
 }

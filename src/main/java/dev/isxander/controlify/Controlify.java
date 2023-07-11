@@ -11,6 +11,7 @@ import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
+import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -480,8 +481,10 @@ public class Controlify implements ControlifyApi {
 
         this.inGameInputHandler = new InGameInputHandler(controller);
         if (minecraft.player != null) {
-            this.inGameButtonGuide = new InGameButtonGuide(controller, Minecraft.getInstance().player);
+            this.inGameButtonGuide = new InGameButtonGuide(controller, minecraft.player);
         }
+
+        ControllerPlayerMovement.updatePlayerInput(minecraft.player);
 
         if (!controller.config().deadzonesCalibrated)
             calibrationQueue.add(controller);

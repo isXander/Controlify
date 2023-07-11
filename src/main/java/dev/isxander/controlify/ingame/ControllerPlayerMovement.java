@@ -4,7 +4,9 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
+import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
+import org.jetbrains.annotations.Nullable;
 
 public class ControllerPlayerMovement extends Input {
     private final Controller<?, ?> controller;
@@ -65,5 +67,20 @@ public class ControllerPlayerMovement extends Input {
                 this.shiftKeyDown = !this.shiftKeyDown;
             }
         }
+    }
+
+    public static void updatePlayerInput(@Nullable LocalPlayer player) {
+        if (player == null)
+            return;
+
+        if (Controlify.instance().getCurrentController().isPresent()) {
+            player.input = new DualInput(
+                    new KeyboardInput(Minecraft.getInstance().options),
+                    new ControllerPlayerMovement(Controlify.instance().getCurrentController().get(), player)
+            );
+        } else if (!(player.input instanceof KeyboardInput)) {
+            player.input = new KeyboardInput(Minecraft.getInstance().options);
+        }
+
     }
 }
