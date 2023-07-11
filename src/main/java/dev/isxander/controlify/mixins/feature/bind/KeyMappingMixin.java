@@ -17,7 +17,7 @@ public class KeyMappingMixin implements KeyMappingOverrideHolder {
 
     @ModifyReturnValue(method = "isDown", at = @At("RETURN"))
     private boolean injectOverrideState(boolean keyMappingState) {
-        return keyMappingState || overrides.stream().anyMatch(override -> override.override() != null && override.override().toggleable().getAsBoolean() && override.held());
+        return keyMappingState || overrides.stream().anyMatch(override -> override.override() != null && !override.override().toggleable().getAsBoolean() && override.held());
     }
 
     @Override
