@@ -6,7 +6,7 @@
     "defaultRequire": 1
   },
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
+  "client": [
     "compat.iris.BaseOptionElementWidgetMixin",
     "compat.sodium.CycleControlElementMixin",
     "compat.sodium.SliderControlElementMixin",
@@ -17,9 +17,7 @@
     "feature.rumble.fishing.FishingHookMixin",
     "feature.rumble.itembreak.LivingEntityMixin",
     "feature.rumble.levelevents.LevelRendererMixin",
-    "feature.rumble.useitem.LivingEntityMixin"
-  ],
-  "client": [
+    "feature.rumble.useitem.LivingEntityMixin",
     "compat.fapi.KeyBindingRegistryImplAccessor",
     "compat.sodium.SodiumOptionsGUIAccessor",
     "compat.sodium.SodiumOptionsGUIMixin",
@@ -37,7 +35,6 @@
     "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.KeyMappingAccessor",
     "feature.bind.KeyMappingMixin",
-    "feature.bind.MinecraftMixin",
     "feature.bind.ToggleKeyMappingAccessor",
     "feature.chatkbheight.ChatComponentMixin",
     "feature.chatkbheight.ChatScreenMixin",

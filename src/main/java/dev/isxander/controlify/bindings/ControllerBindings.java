@@ -410,10 +410,11 @@ public class ControllerBindings<T extends ControllerState> {
 
         registerModdedKeybinds();
 
-        // key events are executed in Minecraft#execute, which run at runTick.runAllTasks()
-        // which this event runs directly after. A normal tick could run multiple
-        // times per frame, so you could get double clicks if lagging.
-        InputHandledEvent.EVENT.register(this::imitateVanillaClick);
+        ControlifyEvents.CONTROLLER_STATE_UPDATE.register(ctrl -> {
+            if (ctrl == this.controller) {
+                this.imitateVanillaClick();
+            }
+        });
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }
@@ -540,8 +541,9 @@ public class ControllerBindings<T extends ControllerState> {
                     accessor.setIsDown(!accessor.getIsDown());
                 }
             }
-            if (binding.justPressed())
+            if (binding.justPressed()) {
                 KeyMapping.click(vanillaKeyCode);
+            }
         }
     }
 
