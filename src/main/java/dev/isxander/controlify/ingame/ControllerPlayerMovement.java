@@ -36,15 +36,17 @@ public class ControllerPlayerMovement extends Input {
         this.forwardImpulse = bindings.WALK_FORWARD.state() - bindings.WALK_BACKWARD.state();
         this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
 
-        this.up = bindings.WALK_FORWARD.state() > 0;
-        this.down = bindings.WALK_BACKWARD.state() > 0;
-        this.left = bindings.WALK_LEFT.state() > 0;
-        this.right = bindings.WALK_RIGHT.state() > 0;
-
         if (Controlify.instance().config().globalSettings().keyboardMovement) {
-            this.forwardImpulse = Math.signum(this.forwardImpulse);
-            this.leftImpulse = Math.signum(this.leftImpulse);
+            float threshold = controller.config().buttonActivationThreshold;
+
+            this.forwardImpulse = Math.abs(this.forwardImpulse) >= threshold ? Math.copySign(1, this.forwardImpulse) : 0;
+            this.leftImpulse = Math.abs(this.leftImpulse) >= threshold ? Math.copySign(1, this.leftImpulse) : 0;
         }
+
+        this.up = this.forwardImpulse > 0;
+        this.down = this.forwardImpulse < 0;
+        this.left = this.leftImpulse > 0;
+        this.right = this.leftImpulse < 0;
 
         if (slowDown) {
             this.leftImpulse *= movementMultiplier;
