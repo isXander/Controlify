@@ -61,26 +61,18 @@ public class ControllerHIDService {
         }
 
         if (disabled) {
-            if (SDL2NativesManager.isLoaded()) {
-                int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
-                int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
-                String path = GLFW.glfwGetJoystickGUID(jid);
-
-                if (vid != 0 && pid != 0) {
-                    Log.LOGGER.info("Using SDL to identify controller type.");
-                    return new ControllerHIDInfo(ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)), Optional.of(new HIDDevice.IDOnly(vid, pid, path)));
-                }
-            }
-
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            return fetchTypeFromSDL(jid)
+                    .orElse(new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()));
         }
 
         doScanOnThisThread();
 
         Pair<HidDevice, HIDIdentifier> hid = unconsumedControllerHIDs.poll();
         if (hid == null) {
-            Log.LOGGER.warn("No controller found via USB hardware scan! This prevents identifying controller type.");
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            Log.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
+
+            return fetchTypeFromSDL(jid)
+                    .orElse(new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()));
         }
 
         ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
@@ -134,6 +126,23 @@ public class ControllerHIDService {
             // Update the attached devices map
             removeList.forEach(this.attachedDevices.keySet()::remove);
         }
+    }
+
+    private Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
+        if (SDL2NativesManager.isLoaded()) {
+            int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
+            int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
+            String path = GLFW.glfwGetJoystickGUID(jid);
+
+            if (vid != 0 && pid != 0) {
+                Log.LOGGER.info("Using SDL to identify controller type.");
+                return Optional.of(new ControllerHIDInfo(
+                        ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
+                        Optional.of(new HIDDevice.IDOnly(vid, pid, path))
+                ));
+            }
+        }
+        return Optional.empty();
     }
 
     public void unconsumeController(ControllerHIDInfo hid) {
