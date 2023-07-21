@@ -56,6 +56,8 @@
   "controlify.config.group.accessibility": "无障碍",
   "controlify.gui.show_ingame_guide": "显示游戏内按钮指南",
   "controlify.gui.show_ingame_guide.tooltip": "显示一个HUD来展现你可以使用手柄按钮执行的操作。",
+  "controlify.gui.ingame_button_guide_position": "Ingame Button Guide Position",
+  "controlify.gui.ingame_button_guide_position.tooltip": "Where the ingame button guide is positioned.",
   "controlify.gui.show_screen_guide": "显示屏幕按钮指南",
   "controlify.gui.show_screen_guide.tooltip": "在GUI中显示各种帮助程序以协助使用手柄输入。",
   "controlify.gui.chat_screen_offset": "屏幕键盘高度",
@@ -73,6 +75,8 @@
   "controlify.gui.button_activation_threshold": "按钮激活阈值",
   "controlify.gui.button_activation_threshold.tooltip": "一个按钮需要按多远才能标记为已按下。",
   "controlify.config.category.advanced": "高级",
+  "controlify.gui.mixed_input": "Mixed Input",
+  "controlify.gui.mixed_input.tooltip": "If enabled, Controlify will allow you to use both this controller and keyboard/mouse at the same time. This should be used when pairing with Steam Input, where certain advanced controller actions needs to be mapped to these inputs, rather than a gamepad. Be aware, this prevents you from entering normal keyboard/mouse mode whilst this controller is in use.",
   "controlify.gui.group.vibration": "震动",
   "controlify.gui.group.vibration.tooltip": "调整你的手柄震动方式。",
   "controlify.gui.allow_vibrations": "允许震动",
@@ -81,6 +85,7 @@
   "controlify.gui.group.gyro": "陀螺仪",
   "controlify.gui.group.gyro.tooltip": "调整Controlify如何处理手柄的内置陀螺仪。\n陀螺仪决定了手柄如何旋转。",
   "controlify.gui.group.gyro.no_gyro.tooltip": "此手柄不支持陀螺仪。你必须有一个DualSense？手柄或其他兼容的手柄来使用此功能。",
+  "controlify.gui.group.gyro.no_gyro_steamdeck.tooltip": "Steam Deck's gyroscope does not currently work with Controlify. For now, use Steam Input to emulate gyro to work as a mouse.",
   "controlify.gui.gyro_look_sensitivity": "视觉灵敏度",
   "controlify.gui.gyro_look_sensitivity.tooltip": "基于陀螺仪的旋转，视角移动的程度。",
   "controlify.gui.gyro_behaviour": "陀螺仪行为",
@@ -112,6 +117,8 @@
   "controlify.gui.format.hold_toggle.hold": "按住",
   "controlify.gui.format.hold_toggle.toggle": "切换",
   "controlify.gui.format.open": "打开网址",
+  "controlify.gui.format.top": "Top",
+  "controlify.gui.format.bottom": "Bottom",
 
   "controlify.gui.button": "手柄设置…",
 
@@ -154,6 +161,8 @@
   "controlify.toast.low_battery.message": "你的手柄‘%s’电量不足。请尽快为其充电。",
   "controlify.toast.setup_in_config.title": "发现手柄！",
   "controlify.toast.setup_in_config.description": "要与Controlify一起使用，请到%s -> %s -> %s。",
+  "controlify.toast.reach_around_disallowed.title": "Reach-around prohibited",
+  "controlify.toast.reach_around_disallowed.description": "This server has prohibited the use of reach-around block placement that you have enabled.",
 
   "controlify.sdl2_onboarding.title": "Controlify本地库（前置）",
   "controlify.sdl2_onboarding.message": "Controlify中的许多功能需要额外的库，需要为你的系统下载该库。如果你不下载此库，你将无法使用许多功能，比如：手柄振动，陀螺仪控制，更好的手柄识别。这是一个无缝的过程，只需几秒钟时间。如果你选择“否”，你稍后可以在Controlify设置中改变主意，但在此期间你无法使用这些功能。",
@@ -267,6 +276,8 @@
   "controlify.calibration.ready": "准备好了",
   "controlify.calibration.done": "完成",
   "controlify.calibration.calibrating": "校准中…",
+  "controlify.calibration.later": "Maybe Later",
+  "controlify.calibration.later.tooltip": "You must calibrate to use the controller. Pressing this will deactivate the controller and you will have to use it again to calibrate.",
 
   "controlify.beta.title": "Controlify测试版通知",
   "controlify.beta.message": "您目前正在使用Controlify测试版。\n\n此模组正在进行中，将包含许多bug。如果你在这个模组中发现了错误，或者有建议让它变得更好，请在%s上创建一个问题！\n\n你可以在Controlify的设置菜单中找到提交问题的链接。",
