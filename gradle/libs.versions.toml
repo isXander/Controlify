@@ -1,17 +1,15 @@
 [versions]
 loom = "1.2.+"
 loom_quiltflower = "1.8.+"
-minotaur = "2.7.+"
-cursegradle = "2.+"
-github_release = "2.+"
+mod_publish_plugin = "0.1.+"
 machete = "2.+"
 grgit = "5.0.+"
 blossom = "1.3.+"
 
 minecraft = "1.20.1"
-quilt_mappings = "13"
+quilt_mappings = "20"
 fabric_loader = "0.14.21"
-fabric_api = "0.85.0+1.20.1"
+fabric_api = "0.86.0+1.20.1"
 mixin_extras = "0.2.0-beta.8"
 yet_another_config_lib = "3.0.3+1.20"
 mod_menu = "7.0.0"
@@ -43,9 +41,7 @@ test_fabric_loader = { module = "net.fabricmc:fabric-loader-junit", version.ref 
 loom = { id = "fabric-loom", version.ref = "loom" }
 loom_quiltflower = { id = "io.github.juuxel.loom-quiltflower", version.ref = "loom_quiltflower" }
 
-minotaur = { id = "com.modrinth.minotaur", version.ref = "minotaur" }
-cursegradle = { id = "me.hypherionmc.cursegradle", version.ref = "cursegradle" }
-github_release = { id = "com.github.breadmoirai.github-release", version.ref = "github_release" }
+mod_publish_plugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod_publish_plugin" }
 machete = { id = "io.github.p03w.machete", version.ref = "machete" }
 grgit = { id = "org.ajoberstar.grgit", version.ref = "grgit" }
 blossom = { id = "net.kyori.blossom", version.ref = "blossom" }

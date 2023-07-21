@@ -1,14 +1,10 @@
-import com.github.breadmoirai.githubreleaseplugin.GithubReleaseTask
-
 plugins {
     java
 
     alias(libs.plugins.loom)
     alias(libs.plugins.loom.quiltflower)
 
-    alias(libs.plugins.minotaur)
-    alias(libs.plugins.cursegradle)
-    alias(libs.plugins.github.release)
+    alias(libs.plugins.mod.publish.plugin)
     alias(libs.plugins.machete)
     alias(libs.plugins.grgit)
     alias(libs.plugins.blossom)
@@ -17,7 +13,9 @@ plugins {
 
 group = "dev.isxander"
 version = "1.4.4+1.20"
+val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
+if (isAlpha) println("Alpha version detected.")
 if (isBeta) println("Beta version detected.")
 
 repositories {
@@ -161,89 +159,63 @@ tasks {
     register("releaseMod") {
         group = "mod"
 
-        dependsOn("modrinth")
-        dependsOn("modrinthSyncBody")
-        dependsOn("curseforge")
+        dependsOn("publishMods")
         dependsOn("publish")
-        dependsOn("githubRelease")
-    }
-
-    named("modrinth") {
-        dependsOn("optimizeOutputsOfRemapJar")
     }
 }
 
-val changelogText = file("changelogs/${project.version}.md").takeIf { it.exists() }?.readText() ?: "No changelog provided."
+publishMods {
+    file.set(tasks.remapJar.get().archiveFile)
+    changelog.set(
+        file("changelogs/${project.version}.md")
+            .takeIf { it.exists() }
+            ?.readText()
+            ?: "No changelog provided."
+    )
+    type.set(when {
+        isAlpha -> ALPHA
+        isBeta -> BETA
+        else -> STABLE
+    })
+    modLoaders.add("fabric")
 
-val modrinthId: String by project
-if (modrinthId.isNotEmpty()) {
-    modrinth {
-        token.set(findProperty("modrinth.token")?.toString())
-        projectId.set(modrinthId)
-        versionNumber.set("${project.version}")
-        versionType.set(if (isBeta) "beta" else "release")
-        uploadFile.set(tasks["remapJar"])
-        gameVersions.set(listOf("1.20", "1.20.1"))
-        loaders.set(listOf("fabric", "quilt"))
-        changelog.set(changelogText)
-        syncBodyFrom.set(file(".github/README.md").readText())
+    // modrinth and curseforge use different formats for snapshots. this can be expressed globally
+    val stableMCVersions = listOf("1.20", "1.20.1")
 
-        dependencies {
-            required.project("yacl")
-            required.project("fabric-api")
-            optional.project("modmenu")
+    val modrinthId: String by project
+    if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
+        modrinth {
+            projectId.set(modrinthId)
+            accessToken.set(findProperty("modrinth.token")?.toString())
+            minecraftVersions.addAll(stableMCVersions)
+
+            requires { projectId.set("fabric-api") }
+            requires { projectId.set("yacl") }
+            optional { projectId.set("modmenu") }
         }
     }
-}
 
-val curseforgeId: String by project
-if (hasProperty("curseforge.token") && curseforgeId.isNotEmpty()) {
-    curseforge {
-        apiKey = findProperty("curseforge.token")
-        project(closureOf<me.hypherionmc.cursegradle.CurseProject> {
-            mainArtifact(tasks["remapJar"], closureOf<me.hypherionmc.cursegradle.CurseArtifact> {
-                displayName = "${project.version}"
-            })
+    val curseforgeId: String by project
+    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token")) {
+        curseforge {
+            projectId.set(curseforgeId)
+            accessToken.set(findProperty("curseforge.token")?.toString())
+            minecraftVersions.addAll(stableMCVersions)
 
-            id = curseforgeId
-            releaseType = if (isBeta) "beta" else "release"
-            addGameVersion("1.20")
-            addGameVersion("1.20.1")
-            addGameVersion("Fabric")
-            addGameVersion("Java 17")
-
-            changelog = changelogText
-            changelogType = "markdown"
-
-            relations(closureOf<me.hypherionmc.cursegradle.CurseRelation> {
-                requiredDependency("fabric-api")
-                requiredDependency("yacl")
-                optionalDependency("modmenu")
-            })
-        })
-
-        options(closureOf<me.hypherionmc.cursegradle.Options> {
-            forgeGradleIntegration = false
-            fabricIntegration = false
-        })
+            requires { slug.set("fabric-api") }
+            requires { slug.set("yacl") }
+            optional { slug.set("modmenu") }
+        }
     }
-}
-
-githubRelease {
-    token(findProperty("github.token")?.toString())
 
     val githubProject: String by project
-    val split = githubProject.split("/")
-    owner(split[0])
-    repo(split[1])
-    tagName("${project.version}")
-    targetCommitish(grgit.branch.current().name)
-    body(changelogText)
-    releaseAssets(tasks["remapJar"].outputs.files)
-}
-
-tasks.getByName<GithubReleaseTask>("githubRelease") {
-    dependsOn("optimizeOutputsOfRemapJar")
+    if (githubProject.isNotBlank() && hasProperty("github.token")) {
+        github {
+            repository.set(githubProject)
+            accessToken.set(findProperty("github.token")?.toString())
+            commitish.set(grgit.branch.current().name)
+        }
+    }
 }
 
 publishing {
