@@ -74,6 +74,7 @@ dependencies {
         "fabric-screen-api-v1",
         "fabric-command-api-v2",
         "fabric-networking-api-v1",
+        "fabric-item-group-api-v1",
     ).forEach {
         modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
     }
