@@ -1,9 +1,11 @@
 package dev.isxander.controlify.gui.screen;
 
+import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.EmptyBind;
+import dev.isxander.controlify.bindings.RadialAction;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
@@ -16,10 +18,7 @@ import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.yacl3.api.*;
-import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
-import dev.isxander.yacl3.api.controller.FloatSliderControllerBuilder;
-import dev.isxander.yacl3.api.controller.StringControllerBuilder;
-import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
+import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -308,6 +307,22 @@ public class ControllerConfigScreenFactory {
     private static ConfigCategory createBindsCategory(Controller<?, ?> controller) {
         var category = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
+
+        var radialMenuGroup = OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.radial_menu"))
+                .collapsed(true);
+        radialMenuGroup.option(controller.bindings().RADIAL_MENU.startYACLOption().build());
+        for (int i = 0; i < controller.config().radialActions.length; i++) {
+            int action = i;
+            radialMenuGroup.option(Option.<ResourceLocation>createBuilder()
+                    .name(Component.translatable("controlify.gui.radial_menu_action", i + 1))
+                    .binding(RadialMenuScreen.EMPTY, () -> controller.config().radialActions[action].binding(), v -> controller.config().radialActions[action] = new RadialAction(v, controller.config().radialActions[action].icon()))
+                    .controller(opt -> CyclingListControllerBuilder.create(opt)
+                            .values(Iterables.concat(Collections.singleton(RadialMenuScreen.EMPTY), controller.bindings().registry().keySet()))
+                            .valueFormatter(id -> !RadialMenuScreen.EMPTY.equals(id) ? controller.bindings().get(id).name() : Component.literal("None")))
+                    .build());
+        }
+        category.group(radialMenuGroup.build());
 
         List<OptionBindPair> optionBinds = new ArrayList<>();
         groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {

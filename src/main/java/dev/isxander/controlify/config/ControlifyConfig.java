@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class ControlifyConfig {
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
+            .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .create();
 
     private final Controlify controlify;

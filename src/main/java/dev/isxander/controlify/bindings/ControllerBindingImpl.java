@@ -43,6 +43,8 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
+    private boolean fakePress, fakeRelease;
+
     private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
@@ -67,6 +69,11 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     @Override
     public boolean held() {
+        if (fakePress) {
+            fakePress = false;
+            return true;
+        }
+
         return bind.held(controller.state());
     }
 
@@ -79,7 +86,8 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     public boolean justPressed() {
         if (hasBindPressed(this)) return false;
 
-        if (held() && !prevHeld()) {
+        if ((held() && !prevHeld()) || fakePress) {
+            fakePress = false;
             addPressedBind(this);
             return true;
         } else {
@@ -97,6 +105,11 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void fakePress() {
+        this.fakePress = true;
     }
 
     public IBind<T> currentBind() {

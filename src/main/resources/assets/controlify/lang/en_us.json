@@ -109,6 +109,8 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
+  "controlify.gui.group.radial_menu": "Radial Menu",
+  "controlify.gui.radial_menu_action": "Action #%s",
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.bind_input_awaiting": "Press any button",
@@ -211,6 +213,7 @@
   "controlify.binding.controlify.pick_block": "Pick Block",
   "controlify.binding.controlify.toggle_hud_visibility": "Toggle HUD Visibility",
   "controlify.binding.controlify.show_player_list": "Show Player List",
+  "controlify.binding.controlify.radial_menu": "Radial Menu",
   "controlify.binding.controlify.vmouse_move_up": "VMouse Move Up",
   "controlify.binding.controlify.vmouse_move_down": "VMouse Move Down",
   "controlify.binding.controlify.vmouse_move_left": "VMouse Move Left",

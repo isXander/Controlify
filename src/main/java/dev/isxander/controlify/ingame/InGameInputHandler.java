@@ -7,6 +7,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
 import dev.isxander.controlify.utils.NavigationHelper;
@@ -106,6 +107,10 @@ public class InGameInputHandler {
         }
 
         shouldShowPlayerList = controller.bindings().SHOW_PLAYER_LIST.held();
+
+        if (controller.bindings().RADIAL_MENU.justPressed()) {
+            minecraft.setScreen(new RadialMenuScreen(controller));
+        }
     }
 
     protected void handlePlayerLookInput() {

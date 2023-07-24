@@ -1,11 +1,13 @@
 package dev.isxander.controlify.gui.layout;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import org.joml.Vector2ic;
 
-public class PositionedComponent<T extends RenderComponent> implements Renderable {
+public class PositionedComponent<T extends RenderComponent> implements Renderable, GuiEventListener, NarratableEntry {
     private final T component;
 
     private int x, y;
@@ -51,5 +53,25 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
 
     public T getComponent() {
         return component;
+    }
+
+    @Override
+    public void setFocused(boolean focused) {
+
+    }
+
+    @Override
+    public boolean isFocused() {
+        return false;
+    }
+
+    @Override
+    public NarrationPriority narrationPriority() {
+        return NarrationPriority.NONE;
+    }
+
+    @Override
+    public void updateNarration(NarrationElementOutput builder) {
+
     }
 }

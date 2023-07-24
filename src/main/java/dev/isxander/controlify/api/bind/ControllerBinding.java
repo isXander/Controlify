@@ -43,6 +43,8 @@ public interface ControllerBinding {
      */
     boolean justReleased();
 
+    void fakePress();
+
     Component name();
     Component description();
     Component category();

@@ -59,6 +59,7 @@ public class ControllerBindings<T extends ControllerState> {
             PICK_BLOCK,
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST,
+            RADIAL_MENU,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
             VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN,
@@ -292,6 +293,12 @@ public class ControllerBindings<T extends ControllerState> {
         register(SHOW_PLAYER_LIST = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "show_player_list")
                 .defaultBind(GamepadBinds.DPAD_RIGHT)
+                .category(MISC_CATEGORY)
+                .context(BindContexts.INGAME)
+                .build());
+        register(RADIAL_MENU = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "radial_menu")
+                .defaultBind(GamepadBinds.DPAD_DOWN)
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
