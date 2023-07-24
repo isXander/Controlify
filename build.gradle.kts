@@ -190,9 +190,9 @@ publishMods {
             accessToken.set(findProperty("modrinth.token")?.toString())
             minecraftVersions.addAll(stableMCVersions)
 
-            requires { projectId.set("fabric-api") }
-            requires { projectId.set("yacl") }
-            optional { projectId.set("modmenu") }
+            requires { projectId.set("P7dR8mSH") /* fabric-api */ }
+            requires { projectId.set("1eAoo2KR") /* yacl */ }
+            optional { projectId.set("mOgUt4GM") /* modmenu */ }
         }
     }
 
@@ -250,5 +250,14 @@ publishing {
 }
 
 tasks.getByName("generateMetadataFileForModPublication") {
+    dependsOn("optimizeOutputsOfRemapJar")
+}
+tasks.getByName("publishCurseforge") {
+    dependsOn("optimizeOutputsOfRemapJar")
+}
+tasks.getByName("publishModrinth") {
+    dependsOn("optimizeOutputsOfRemapJar")
+}
+tasks.getByName("publishGithub") {
     dependsOn("optimizeOutputsOfRemapJar")
 }
