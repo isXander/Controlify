@@ -75,7 +75,7 @@ public class ControllerPlayerMovement extends Input {
         if (player == null)
             return;
 
-        if (Controlify.instance().getCurrentController().isPresent()) {
+        if (Controlify.instance().getCurrentController().isPresent() && Controlify.instance().currentInputMode().isController()) {
             player.input = new DualInput(
                     new KeyboardInput(Minecraft.getInstance().options),
                     new ControllerPlayerMovement(Controlify.instance().getCurrentController().get(), player)

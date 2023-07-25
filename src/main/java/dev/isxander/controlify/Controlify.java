@@ -480,11 +480,8 @@ public class Controlify implements ControlifyApi {
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
-        if (minecraft.player != null) {
-            this.inGameButtonGuide = new InGameButtonGuide(controller, minecraft.player);
-        }
 
-        ControllerPlayerMovement.updatePlayerInput(minecraft.player);
+        setInputMode(controller.config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
 
         if (!controller.config().deadzonesCalibrated)
             calibrationQueue.add(controller);
@@ -536,6 +533,8 @@ public class Controlify implements ControlifyApi {
 
         if (this.currentInputMode.isController())
             getCurrentController().ifPresent(Controller::clearState);
+
+        ControllerPlayerMovement.updatePlayerInput(minecraft.player);
 
         ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
 
