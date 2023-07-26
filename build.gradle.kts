@@ -190,9 +190,9 @@ publishMods {
             accessToken.set(findProperty("modrinth.token")?.toString())
             minecraftVersions.addAll(stableMCVersions)
 
-            requires { projectId.set("P7dR8mSH") /* fabric-api */ }
-            requires { projectId.set("1eAoo2KR") /* yacl */ }
-            optional { projectId.set("mOgUt4GM") /* modmenu */ }
+            requires { slug.set("fabric-api") }
+            requires { slug.set("yacl") }
+            optional { slug.set("modmenu") }
         }
 
         tasks.getByName("publishModrinth") {

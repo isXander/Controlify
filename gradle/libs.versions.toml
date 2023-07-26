@@ -1,7 +1,7 @@
 [versions]
 loom = "1.2.+"
 loom_quiltflower = "1.8.+"
-mod_publish_plugin = "0.1.+"
+mod_publish_plugin = "0.2.+"
 machete = "2.+"
 grgit = "5.0.+"
 blossom = "1.3.+"
