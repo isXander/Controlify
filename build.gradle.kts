@@ -194,6 +194,10 @@ publishMods {
             requires { projectId.set("1eAoo2KR") /* yacl */ }
             optional { projectId.set("mOgUt4GM") /* modmenu */ }
         }
+
+        tasks.getByName("publishModrinth") {
+            dependsOn("optimizeOutputsOfRemapJar")
+        }
     }
 
     val curseforgeId: String by project
@@ -207,6 +211,10 @@ publishMods {
             requires { slug.set("yacl") }
             optional { slug.set("modmenu") }
         }
+
+        tasks.getByName("publishCurseforge") {
+            dependsOn("optimizeOutputsOfRemapJar")
+        }
     }
 
     val githubProject: String by project
@@ -215,6 +223,10 @@ publishMods {
             repository.set(githubProject)
             accessToken.set(findProperty("github.token")?.toString())
             commitish.set(grgit.branch.current().name)
+        }
+
+        tasks.getByName("publishGithub") {
+            dependsOn("optimizeOutputsOfRemapJar")
         }
     }
 }
@@ -252,12 +264,4 @@ publishing {
 tasks.getByName("generateMetadataFileForModPublication") {
     dependsOn("optimizeOutputsOfRemapJar")
 }
-tasks.getByName("publishCurseforge") {
-    dependsOn("optimizeOutputsOfRemapJar")
-}
-tasks.getByName("publishModrinth") {
-    dependsOn("optimizeOutputsOfRemapJar")
-}
-tasks.getByName("publishGithub") {
-    dependsOn("optimizeOutputsOfRemapJar")
-}
+
