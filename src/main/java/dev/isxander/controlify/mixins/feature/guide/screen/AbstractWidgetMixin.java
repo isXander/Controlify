@@ -19,8 +19,6 @@ public abstract class AbstractWidgetMixin {
 
     @Shadow public abstract int getWidth();
 
-    @Shadow public abstract boolean isActive();
-
     @ModifyArg(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIIII)V"), index = 3)
     protected int shiftDrawSize(int x) {
         return x;
