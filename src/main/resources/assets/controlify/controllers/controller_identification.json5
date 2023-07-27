@@ -1,22 +1,27 @@
 [
   {
-    "name": "Xbox One Controller",
+    "name": "Xbox Controller",
     "theme": "xbox_one",
 
     "hids": [
-      [0x45e, 0x2ff],
-      [0x45e, 0x2ea],
-      [0x45e, 0xb12],
-      [0x45e, 0x2dd],
-      [0x45e, 0x2e6],
-      [0x45e, 0x2fd],
-      [0x45e, 0x2e3],
-      [0x45e, 0x2d1],
-      [0x45e, 0x289],
-      [0x45e, 0x202],
-      [0x45e, 0x285],
-      [0x45e, 0x288],
-      [0x45e, 0xb13],
+      [0x45e, 0x202], // Xbox Controller
+      [0x45e, 0x2ff], // Xbox One S Controller (Bluetooth)
+      [0x45e, 0x2ea], // Xbox One Controller
+      [0x45e, 0xb12], // Xbox Controller
+      [0x45e, 0x2dd], // Xbox One Controller (Firmware 2015)
+      [0x45e, 0x2e6], // ?
+      [0x45e, 0x2fd], // Xbox One S Controller (Bluetooth)
+      [0x45e, 0x2e3], // Xbox Elite Series 1 Controller
+      [0x45e, 0x2d1], // Xbox One Controller
+      [0x45e, 0x289], // Xbox Controller S
+      [0x45e, 0x202], // Xbox Controller
+      [0x45e, 0x285], // Xbox Controller S
+      [0x45e, 0x288], // Xbox Controller S Hub
+      [0x45e, 0xb13], // ?
+      [0x45e, 0xb22], // Xbox Elite Series 2 Controller
+      [0x45e, 0xb00], // Xbox Elite Series 2 Controller (model 1797)
+      [0x45e, 0x28e], // Xbox 360 Controller,
+      [0x45e, 0x28f], // Xbox 360 Wireless Controller via Plug & Charge Cable
     ]
   },
   {
