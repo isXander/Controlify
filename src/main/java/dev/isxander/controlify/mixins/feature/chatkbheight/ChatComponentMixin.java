@@ -18,7 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ChatComponentMixin {
     @Shadow @Final private Minecraft minecraft;
 
-    @Inject(method = "render", at = @At("HEAD"))
+    // the below TAIL injects inside the multiple conditional statements, so can't use HEAD, but the first target inside the inner-most if
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;isChatFocused()Z", ordinal = 0))
     private void translateRender(GuiGraphics graphics, int tickDelta, int i, int j, CallbackInfo ci) {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
