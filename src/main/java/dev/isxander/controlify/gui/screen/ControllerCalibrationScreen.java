@@ -196,9 +196,12 @@ public class ControllerCalibrationScreen extends Screen {
 
     private void onLaterButtonPress() {
         if (!calibrated) {
-            controller.config().delayedCalibration = true;
-            Controlify.instance().config().setDirty();
-            Controlify.instance().setCurrentController(null);
+            if (!controller.config().deadzonesCalibrated) {
+                controller.config().delayedCalibration = true;
+                Controlify.instance().config().setDirty();
+                Controlify.instance().setCurrentController(null);
+            }
+
             onClose();
         }
     }
