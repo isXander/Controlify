@@ -169,9 +169,9 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     @Override
     public Option.Builder<?> startYACLOption() {
-        Option.Builder<IBind<T>> option = Option.createBuilder((Class<IBind<T>>) (Class<?>) IBind.class)
+        Option.Builder<IBind<T>> option = Option.<IBind<T>>createBuilder()
                 .name(name())
-                .binding(defaultBind(), this::currentBind, this::setCurrentBind)
+                .binding(new EmptyBind<>(), this::currentBind, this::setCurrentBind)
                 .description(OptionDescription.of(this.description()));
 
         if (controller instanceof GamepadController gamepad) {

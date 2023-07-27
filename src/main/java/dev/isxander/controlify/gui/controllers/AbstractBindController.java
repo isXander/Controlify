@@ -95,11 +95,6 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
             if (controller != control.controller) return true;
 
             if (!justTookInput && !awaitingControllerInput) {
-                if (controller.bindings().CLEAR_BINDING.justPressed()) {
-                    control.option().requestSet(new EmptyBind<>());
-                    return true;
-                }
-
                 if (controller.bindings().GUI_PRESS.justPressed()) {
                     ControllerBindHandler.setBindListener(this);
                     return awaitingControllerInput = true;
