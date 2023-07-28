@@ -316,10 +316,10 @@ public class ControllerConfigScreenFactory {
             int action = i;
             radialMenuGroup.option(Option.<ResourceLocation>createBuilder()
                     .name(Component.translatable("controlify.gui.radial_menu_action", i + 1))
-                    .binding(RadialMenuScreen.EMPTY, () -> controller.config().radialActions[action].binding(), v -> controller.config().radialActions[action] = new RadialAction(v, controller.config().radialActions[action].icon()))
+                    .binding(RadialMenuScreen.EMPTY_ACTION, () -> controller.config().radialActions[action].binding(), v -> controller.config().radialActions[action] = new RadialAction(v, controller.config().radialActions[action].icon()))
                     .controller(opt -> CyclingListControllerBuilder.create(opt)
-                            .values(Iterables.concat(Collections.singleton(RadialMenuScreen.EMPTY), controller.bindings().registry().keySet()))
-                            .valueFormatter(id -> !RadialMenuScreen.EMPTY.equals(id) ? controller.bindings().get(id).name() : Component.literal("None")))
+                            .values(Iterables.concat(Collections.singleton(RadialMenuScreen.EMPTY_ACTION), controller.bindings().registry().keySet()))
+                            .valueFormatter(id -> !RadialMenuScreen.EMPTY_ACTION.equals(id) ? controller.bindings().get(id).name() : Component.literal("None")))
                     .build());
         }
         category.group(radialMenuGroup.build());

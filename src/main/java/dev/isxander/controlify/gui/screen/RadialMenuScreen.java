@@ -2,18 +2,17 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
-import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.RadialAction;
 import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
+import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
@@ -33,7 +32,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation EMPTY = new ResourceLocation("controlify", "empty_action");
+    public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
     private final Controller<?, ?> controller;
 
@@ -76,8 +74,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         Animator.AnimationInstance animation = new Animator.AnimationInstance(5, Easings::easeOutQuad);
         for (RadialButton radialButton : buttons) {
-            animation.addConsumer(radialButton::setX, centerX - 16, radialButton.getX());
-            animation.addConsumer(radialButton::setY, centerY - 16, radialButton.getY());
+            animation.addConsumer(radialButton::setX, centerX - 16, (float) radialButton.getX());
+            animation.addConsumer(radialButton::setY, centerY - 16, (float) radialButton.getY());
         }
         Animator.INSTANCE.play(animation);
 
@@ -104,21 +102,12 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         if (this.controller != controller) return;
 
         if (!controller.bindings().RADIAL_MENU.held()) {
-            if (!isEditing) {
-                if (!editMode) {
-                    if (selectedButton != -1 && buttons[selectedButton].invoke()) {
-                        playClickSound();
-                    }
-
-                    onClose();
-                } else {
-                    RadialButton button = buttons[selectedButton];
-                    int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
-                    actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
-                    addRenderableWidget(actionSelectList);
-                    setFocused(actionSelectList);
-                    isEditing = true;
+            if (!isEditing && !editMode) {
+                if (selectedButton != -1 && buttons[selectedButton].invoke()) {
+                    playClickSound();
                 }
+
+                onClose();
             }
         }
 
@@ -133,15 +122,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
         }
 
-        if (isEditing) {
-            if (controller.bindings().GUI_PRESS.justPressed() || controller.bindings().GUI_BACK.justPressed()) {
-                finishEditing();
-            }
-        }
-
         if (!isEditing && controller.state() instanceof GamepadState state) {
-            float x = state.gamepadAxes().leftStickX();
-            float y = state.gamepadAxes().leftStickY();
+            float x = state.gamepadAxes().rightStickX();
+            float y = state.gamepadAxes().rightStickY();
             float threshold = controller.config().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
@@ -155,11 +138,15 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 }
 
                 for (int i = 0; i < buttons.length; i++) {
-                    buttons[i].setFocused(i == selectedButton);
+                    boolean selected = i == selectedButton;
+                    buttons[i].setFocused(selected);
+                    if (selected) {
+                        this.setFocused(buttons[i]);
+                    }
                 }
 
                 idleTicks = 0;
-            } else {
+            } else if (!editMode) {
                 idleTicks++;
                 if (idleTicks >= 20) {
                     selectedButton = -1;
@@ -177,7 +164,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private void finishEditing() {
         isEditing = false;
-        onClose();
+        removeWidget(actionSelectList);
+        actionSelectList = null;
     }
 
     @Override
@@ -186,10 +174,11 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         super.onClose();
     }
 
-    public class RadialButton implements Renderable, GuiEventListener, NarratableEntry {
+    public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
         public static final ResourceLocation TEXTURE = Controlify.id("textures/gui/radial-buttons.png");
 
         private int x, y;
+        private float translateX, translateY;
         private boolean focused;
         private final ControllerBinding binding;
         private final MultiLineLabel name;
@@ -200,7 +189,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.y = y;
 
             RadialAction action = controller.config().radialActions[index];
-            if (!EMPTY.equals(action.binding())) {
+            if (!EMPTY_ACTION.equals(action.binding())) {
                 this.binding = controller.bindings().get(action.binding());
                 this.name = MultiLineLabel.create(font, this.binding.name(), 76);
             } else {
@@ -213,13 +202,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         @Override
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             graphics.pose().pushPose();
-            graphics.pose().translate(x, y, 0);
+            graphics.pose().translate(x + translateX, y + translateY, 0);
             graphics.pose().scale(2, 2, 1);
             graphics.blit(TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
             graphics.pose().popPose();
 
             graphics.pose().pushPose();
-            graphics.pose().translate(x + 4, y + 4, 0);
+            graphics.pose().translate(x + translateX + 4, y + translateY + 4, 0);
             graphics.pose().scale(1.5f, 1.5f, 1);
             this.icon.draw(graphics, 0, 0);
             graphics.pose().popPose();
@@ -244,12 +233,14 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             return y;
         }
 
-        public void setX(int x) {
-            this.x = x;
+        public void setX(float x) {
+            this.x = (int) x;
+            this.translateX = x - this.x;
         }
 
-        public void setY(int y) {
-            this.y = y;
+        public void setY(float y) {
+            this.y = (int) y;
+            this.translateY = y - this.y;
         }
 
         @Override
@@ -260,6 +251,22 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         @Override
         public void setFocused(boolean focused) {
             this.focused = focused;
+        }
+
+        @Override
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+            if (controller == RadialMenuScreen.this.controller) {
+                if (controller.bindings().GUI_PRESS.justPressed()) {
+                    RadialButton button = buttons[selectedButton];
+                    int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
+                    actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
+                    addRenderableWidget(actionSelectList);
+                    RadialMenuScreen.this.setFocused(actionSelectList);
+                    isEditing = true;
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -278,7 +285,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
     }
 
-    public class ActionSelectList implements Renderable, ContainerEventHandler, NarratableEntry {
+    public class ActionSelectList implements Renderable, ContainerEventHandler, NarratableEntry, ComponentProcessor {
         private final int radialIndex;
 
         private int x, y;
@@ -301,6 +308,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             controller.bindings().registry().forEach((id, binding) -> {
                 children.add(new ActionEntry(id));
             });
+
+            var selectedBind = controller.config().radialActions[radialIndex].binding();
+            children.stream()
+                    .filter(action -> action.binding.equals(selectedBind))
+                    .findAny()
+                    .ifPresent(this::setFocused);
+
         }
 
         @Override
@@ -316,6 +330,18 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             graphics.disableScissor();
 
             graphics.renderOutline(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
+        }
+
+        @Override
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+            if (controller == RadialMenuScreen.this.controller) {
+                if (controller.bindings().GUI_BACK.justPressed()) {
+                    finishEditing();
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         @Override
@@ -353,9 +379,6 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     else if (focusY + itemHeight > height)
                         scrollOffset = Mth.clamp(index * itemHeight + itemHeight - height, 0, children().size() * itemHeight - height);
                 }
-
-                controller.config().radialActions[radialIndex] = new RadialAction(focus.binding, controller.config().radialActions[radialIndex].icon());
-                Controlify.instance().config().setDirty();
             }
         }
 
@@ -379,7 +402,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         }
 
-        public class ActionEntry implements GuiEventListener {
+        public class ActionEntry implements GuiEventListener, ComponentProcessor {
             private int x, y;
             private boolean focused;
             private final ResourceLocation binding;
@@ -396,7 +419,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
                 if (focused)
                     graphics.fill(x, y, x + width, y + itemHeight, 0xff000000);
-                graphics.drawString(RadialMenuScreen.this.font, name, x + 2, y + 1, -1);
+                graphics.drawString(RadialMenuScreen.this.font, name, x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
             }
 
             @Override
@@ -418,6 +441,23 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             @Override
             public ScreenRectangle getRectangle() {
                 return new ScreenRectangle(x, y, width, itemHeight);
+            }
+
+            @Override
+            public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+                if (controller == RadialMenuScreen.this.controller) {
+                    if (controller.bindings().GUI_PRESS.justPressed()) {
+                        var icon = RadialIcons.getIcons().keySet().toArray(new ResourceLocation[0])[minecraft.level.random.nextInt(RadialIcons.getIcons().size())];
+                        controller.config().radialActions[radialIndex] = new RadialAction(binding, icon);
+                        Controlify.instance().config().setDirty();
+
+                        playClickSound();
+                        finishEditing();
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
     }

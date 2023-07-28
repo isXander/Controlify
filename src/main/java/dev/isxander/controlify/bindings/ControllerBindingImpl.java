@@ -43,7 +43,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
-    private boolean fakePress, fakeRelease;
+    private int fakePressState = 0;
 
     private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts) {
         this.controller = controller;
@@ -59,35 +59,33 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     @Override
     public float state() {
+        if (fakePressState == 1)
+            return 1f;
         return bind.state(controller.state());
     }
 
     @Override
     public float prevState() {
+        if (fakePressState == 2)
+            return 1f;
         return bind.state(controller.prevState());
     }
 
     @Override
     public boolean held() {
-        if (fakePress) {
-            fakePress = false;
-            return true;
-        }
-
-        return bind.held(controller.state());
+        return fakePressState == 2 || bind.held(controller.state());
     }
 
     @Override
     public boolean prevHeld() {
-        return bind.held(controller.prevState());
+        return fakePressState == 3 || bind.held(controller.prevState());
     }
 
     @Override
     public boolean justPressed() {
         if (hasBindPressed(this)) return false;
 
-        if ((held() && !prevHeld()) || fakePress) {
-            fakePress = false;
+        if ((held() && !prevHeld()) || fakePressState == 2) {
             addPressedBind(this);
             return true;
         } else {
@@ -99,7 +97,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     public boolean justReleased() {
         if (hasBindPressed(this)) return false;
 
-        if (!held() && prevHeld()) {
+        if ((!held() && prevHeld()) || fakePressState == 3) {
             addPressedBind(this);
             return true;
         } else {
@@ -109,7 +107,15 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     @Override
     public void fakePress() {
-        this.fakePress = true;
+        this.fakePressState = 1;
+    }
+
+    @Override
+    public void tick() {
+        if (fakePressState > 0)
+            fakePressState++;
+        if (fakePressState >= 4)
+            fakePressState = 0;
     }
 
     public IBind<T> currentBind() {

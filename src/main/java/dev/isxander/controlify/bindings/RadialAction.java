@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public record RadialAction(ResourceLocation binding, ResourceLocation icon) {
     public static final RadialAction EMPTY = new RadialAction(
-            RadialMenuScreen.EMPTY,
+            RadialMenuScreen.EMPTY_ACTION,
             RadialIcons.EMPTY
     );
 }

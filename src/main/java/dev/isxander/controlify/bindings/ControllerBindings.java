@@ -422,6 +422,9 @@ public class ControllerBindings<T extends ControllerState> {
                 this.imitateVanillaClick();
             }
         });
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            registry().values().forEach(ControllerBinding::tick);
+        });
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(mode -> KeyMapping.releaseAll());
     }

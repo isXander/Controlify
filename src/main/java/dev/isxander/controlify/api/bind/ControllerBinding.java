@@ -68,6 +68,8 @@ public interface ControllerBinding {
 
     JsonObject toJson();
 
+    void tick();
+
     record KeyMappingOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
     }
 }
