@@ -20,6 +20,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.ToggleKeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.item.Items;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -140,6 +142,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.A_BUTTON)
                 .category(MOVEMENT_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getEffect(MobEffects.JUMP))
                 .build());
         register(SPRINT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "sprint")
@@ -173,12 +176,14 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.DPAD_DOWN)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME, BindContexts.INVENTORY)
+                .radialCandidate(RadialIcons.getItem(Items.BARRIER))
                 .build());
         register(DROP_STACK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "drop_stack")
                 .defaultBind(new EmptyBind<>())
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.TNT))
                 .build());
         register(NEXT_SLOT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "next_slot")
@@ -197,30 +202,35 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.START)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.STRUCTURE_VOID))
                 .build());
         register(INVENTORY = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "inventory")
                 .defaultBind(GamepadBinds.Y_BUTTON)
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.CHEST))
                 .build());
         register(CHANGE_PERSPECTIVE = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "change_perspective")
                 .defaultBind(GamepadBinds.BACK)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.PAINTING))
                 .build());
         register(SWAP_HANDS = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "swap_hands")
                 .defaultBind(GamepadBinds.X_BUTTON)
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME, BindContexts.INVENTORY)
+                .radialCandidate(RadialIcons.getItem(Items.BONE))
                 .build());
         register(OPEN_CHAT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "open_chat")
                 .defaultBind(GamepadBinds.DPAD_UP)
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.WRITABLE_BOOK))
                 .vanillaOverride(options.keyChat, () -> false)
                 .build());
         register(GUI_PRESS = ControllerBindingBuilder.create(controller)
@@ -282,6 +292,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.DPAD_LEFT)
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.STICK))
                 .vanillaOverride(options.keyPickItem, () -> false)
                 .build());
         register(TOGGLE_HUD_VISIBILITY = ControllerBindingBuilder.create(controller)
@@ -289,12 +300,14 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(new EmptyBind<>())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getEffect(MobEffects.INVISIBILITY))
                 .build());
         register(SHOW_PLAYER_LIST = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "show_player_list")
                 .defaultBind(GamepadBinds.DPAD_RIGHT)
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.PLAYER_HEAD))
                 .build());
         register(RADIAL_MENU = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "radial_menu")
@@ -520,6 +533,7 @@ public class ControllerBindings<T extends ControllerState> {
                         .name(Component.translatable(keyMapping.getName()))
                         .description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
                         .category(Component.translatable(keyMapping.getCategory()))
+                        .radialCandidate(RadialIcons.FABRIC_ICON)
                         .vanillaOverride(keyMapping, toggleOverride)
                         .build();
 

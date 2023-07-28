@@ -2,7 +2,6 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.bindings.RadialAction;
 import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
@@ -36,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener {
@@ -188,15 +188,16 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.x = x;
             this.y = y;
 
-            RadialAction action = controller.config().radialActions[index];
-            if (!EMPTY_ACTION.equals(action.binding())) {
-                this.binding = controller.bindings().get(action.binding());
+            ResourceLocation binding = controller.config().radialActions[index];
+            if (!EMPTY_ACTION.equals(binding)) {
+                this.binding = controller.bindings().get(binding);
+                this.icon = RadialIcons.getIcons().get(this.binding.radialIcon().orElseThrow());
                 this.name = MultiLineLabel.create(font, this.binding.name(), 76);
             } else {
                 this.binding = null;
                 this.name = MultiLineLabel.EMPTY;
+                this.icon = RadialIcons.getIcons().get(RadialIcons.EMPTY);
             }
-            this.icon = RadialIcons.getIcons().get(action.icon());
         }
 
         @Override
@@ -305,11 +306,12 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.width = width;
             this.height = height;
 
-            controller.bindings().registry().forEach((id, binding) -> {
-                children.add(new ActionEntry(id));
-            });
+            controller.bindings().registry().entrySet().stream()
+                    .filter(entry -> entry.getValue().radialIcon().isPresent())
+                    .map(Map.Entry::getKey)
+                    .forEach(id -> children.add(new ActionEntry(id)));
 
-            var selectedBind = controller.config().radialActions[radialIndex].binding();
+            var selectedBind = controller.config().radialActions[radialIndex];
             children.stream()
                     .filter(action -> action.binding.equals(selectedBind))
                     .findAny()
@@ -447,8 +449,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
                 if (controller == RadialMenuScreen.this.controller) {
                     if (controller.bindings().GUI_PRESS.justPressed()) {
-                        var icon = RadialIcons.getIcons().keySet().toArray(new ResourceLocation[0])[minecraft.level.random.nextInt(RadialIcons.getIcons().size())];
-                        controller.config().radialActions[radialIndex] = new RadialAction(binding, icon);
+                        controller.config().radialActions[radialIndex] = binding;
                         Controlify.instance().config().setDirty();
 
                         playClickSound();

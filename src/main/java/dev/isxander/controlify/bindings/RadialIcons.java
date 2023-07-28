@@ -5,15 +5,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.HashMap;
@@ -23,11 +19,19 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = new ResourceLocation("controlify", "empty");
+    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabricloader", "icon");
 
     private static final Map<ResourceLocation, Icon> icons = Util.make(() -> {
         Map<ResourceLocation, Icon> map = new HashMap<>();
 
         map.put(EMPTY, (graphics, x, y) -> {});
+        map.put(FABRIC_ICON, ((graphics, x, y) -> {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, y, 0);
+            graphics.pose().scale(0.5f, 0.5f, 1f);
+            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32);
+            graphics.pose().popPose();
+        }));
         addItems(map);
         addPotionEffects(map);
 
@@ -36,6 +40,14 @@ public final class RadialIcons {
 
     public static Map<ResourceLocation, Icon> getIcons() {
         return icons;
+    }
+
+    public static ResourceLocation getItem(Item item) {
+        return prefixLocation("item", BuiltInRegistries.ITEM.getKey(item));
+    }
+
+    public static ResourceLocation getEffect(MobEffect effect) {
+        return prefixLocation("effect", BuiltInRegistries.MOB_EFFECT.getKey(effect));
     }
 
     private static void addItems(Map<ResourceLocation, Icon> map) {

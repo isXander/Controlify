@@ -25,10 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 public class ControllerBindingImpl<T extends ControllerState> implements ControllerBinding {
@@ -39,13 +36,14 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     private final ResourceLocation id;
     private final Component name, description, category;
     private final Set<BindContext> contexts;
+    private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
     private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
 
     private int fakePressState = 0;
 
-    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts) {
+    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.renderer = new BindRendererImpl(bind);
@@ -55,6 +53,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         this.description = description;
         this.category = category;
         this.contexts = ImmutableSet.copyOf(contexts);
+        this.radialIcon = icon;
     }
 
     @Override
@@ -116,6 +115,11 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
             fakePressState++;
         if (fakePressState >= 4)
             fakePressState = 0;
+    }
+
+    @Override
+    public Optional<ResourceLocation> radialIcon() {
+        return Optional.ofNullable(this.radialIcon);
     }
 
     public IBind<T> currentBind() {
@@ -233,6 +237,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         private Component name = null, description = null, category = null;
         private KeyMappingOverride override = null;
         private final Set<BindContext> contexts = new HashSet<>();
+        private ResourceLocation radialIcon = null;
 
         public ControllerBindingBuilderImpl(Controller<T, ?> controller) {
             this.controller = controller;
@@ -291,6 +296,12 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         }
 
         @Override
+        public ControllerBindingBuilder<T> radialCandidate(ResourceLocation icon) {
+            this.radialIcon = icon;
+            return this;
+        }
+
+        @Override
         public ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
             this.override = new KeyMappingOverride(keyMapping, toggleable);
             return this;
@@ -318,7 +329,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 }
             }
 
-            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category, contexts);
+            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category, contexts, radialIcon);
         }
     }
 

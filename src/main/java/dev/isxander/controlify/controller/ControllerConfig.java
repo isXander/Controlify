@@ -2,7 +2,6 @@ package dev.isxander.controlify.controller;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import dev.isxander.controlify.bindings.RadialAction;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.resources.ResourceLocation;
@@ -39,15 +38,15 @@ public abstract class ControllerConfig implements Serializable {
 
     public boolean mixedInput = false;
 
-    public RadialAction[] radialActions = new RadialAction[]{
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
-            RadialAction.EMPTY,
+    public ResourceLocation[] radialActions = new ResourceLocation[]{
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
+            RadialMenuScreen.EMPTY_ACTION,
     };
 
     public abstract void setDeadzone(int axis, float deadzone);
