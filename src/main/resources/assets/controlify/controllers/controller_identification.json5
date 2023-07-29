@@ -68,6 +68,16 @@
     ]
   },
   {
+    "name": "8BitDo SN30 Pro",
+    "theme": "xbox_one",
+
+    "hids": [
+      [0x57E, 0x2009],  // Switch Mode
+      [0x45E, 0x28E],   // XInput Mode
+      [0x2DC8, 0x6001], // DInput Mode
+    ]
+  },
+  {
     "name": "Thrustmaster T16000M",
     "theme": "thrustmaster",
     "mapping": "tm_t16000m",
