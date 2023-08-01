@@ -129,7 +129,7 @@ public class ControllerHIDService {
     }
 
     private Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
-        if (SDL2NativesManager.isLoaded()) {
+        if (SDL2NativesManager.isLoaded() && jid != 0) {
             int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
             int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
             String path = GLFW.glfwGetJoystickGUID(jid);
