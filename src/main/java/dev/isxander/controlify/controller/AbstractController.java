@@ -59,7 +59,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
 
     protected void setName(String name) {
         String uniqueName = name;
-        int i = 0;
+        int i = 1;
         while (ControllerManager.getConnectedControllers().stream().map(Controller::name).anyMatch(uniqueName::equalsIgnoreCase)) {
             uniqueName = name + " (" + i++ + ")";
             if (i > 1000) throw new IllegalStateException("Could not find a unique name for controller " + name + " (" + uid() + ")! (tried " + i + " times)");
