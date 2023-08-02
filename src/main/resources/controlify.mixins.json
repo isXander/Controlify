@@ -34,7 +34,6 @@
     "feature.chatkbheight.ChatScreenMixin",
     "feature.fixes.boatfix.BoatMixin",
     "feature.fixes.boatfix.LocalPlayerMixin",
-    "feature.gui.WarningScreenMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",
     "feature.guide.ingame.GuiMixin",
     "feature.guide.screen.AbstractButtonMixin",

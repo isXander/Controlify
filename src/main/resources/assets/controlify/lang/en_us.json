@@ -280,9 +280,10 @@
   "controlify.calibration.later.tooltip": "You must calibrate to use the controller. Pressing this will deactivate the controller and you will have to use it again to calibrate.",
 
   "controlify.controller_submission.title": "Unknown Controller Submission",
-  "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and does store any of your personal or account information.",
+  "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and doesn't store any of your personal or account information.",
   "controlify.controller_submission.dont_show_again": "Do not show for this controller again",
   "controlify.controller_submission.submit": "Submit Data",
+  "controlify.controller_submission.skip": "Skip",
   "controlify.controller_submission.name_hint": "Controller name",
   "controlify.controller_submission.name_narration": "Controller name input field",
   "controlify.controller_submission.invalid_name": "Invalid controller name. Use only letters, numbers and spaces.",
