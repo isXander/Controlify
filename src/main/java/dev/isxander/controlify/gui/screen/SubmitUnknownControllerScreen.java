@@ -32,7 +32,7 @@ public class SubmitUnknownControllerScreen extends Screen {
 
     private final Screen lastScreen;
 
-    private int invalidNameTicks;
+    private boolean invalidName;
 
     private Button submitButton;
     private EditBox nameField;
@@ -111,6 +111,11 @@ public class SubmitUnknownControllerScreen extends Screen {
         );
         this.nameField.setHint(Component.translatable("controlify.controller_submission.name_hint"));
         this.nameField.setValue(controller.name());
+        this.nameField.setFilter(s -> {
+            invalidName = !checkValidName(s);
+            submitButton.active = !invalidName;
+            return true;
+        });
     }
 
     @Override
@@ -119,27 +124,12 @@ public class SubmitUnknownControllerScreen extends Screen {
 
         super.render(graphics, mouseX, mouseY, delta);
 
-        if (invalidNameTicks > 0) {
+        if (invalidName) {
             graphics.drawCenteredString(font, Component.translatable("controlify.controller_submission.invalid_name").withStyle(ChatFormatting.RED), this.width / 2, nameField.getRectangle().bottom() + 4, -1);
         }
     }
 
-    @Override
-    public void tick() {
-        if (invalidNameTicks > 0) {
-            invalidNameTicks--;
-            submitButton.active = invalidNameTicks < 50;
-        }
-    }
-
     protected void onSubmitButton(Button button) {
-        invalidNameTicks = 0;
-
-        if (!checkValidName()) {
-            invalidNameTicks = 100;
-            return;
-        }
-
         if (submit()) {
             dontShowAgain();
             onClose();
@@ -188,9 +178,8 @@ public class SubmitUnknownControllerScreen extends Screen {
         return gson.toJson(object);
     }
 
-    private boolean checkValidName() {
-        String name = nameField.getValue().trim();
-        return NAME_PATTERN.matcher(name).matches();
+    private boolean checkValidName(String name) {
+        return NAME_PATTERN.matcher(name.trim()).matches();
     }
 
     private void dontShowAgain() {
