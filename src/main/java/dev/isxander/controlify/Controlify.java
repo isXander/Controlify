@@ -11,6 +11,7 @@ import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
+import dev.isxander.controlify.gui.screen.SubmitUnknownControllerScreen;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
@@ -43,6 +44,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
@@ -167,6 +169,10 @@ public class Controlify implements ControlifyApi {
                 Log.LOGGER.info("Controller found: " + controller.name());
 
                 config().loadOrCreateControllerData(controller);
+
+                if (SubmitUnknownControllerScreen.canSubmit(controller)) {
+                    minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
+                }
 
                 if (controller.uid().equals(config().currentControllerUid()))
                     setCurrentController(controller);
@@ -378,6 +384,10 @@ public class Controlify implements ControlifyApi {
         Log.LOGGER.info("Controller connected: " + controller.name());
 
         config().loadOrCreateControllerData(controller);
+
+        if (SubmitUnknownControllerScreen.canSubmit(controller)) {
+            minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
+        }
 
         canDiscoverControllers = false;
         if (config().globalSettings().delegateSetup) {

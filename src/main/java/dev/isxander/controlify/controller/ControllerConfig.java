@@ -36,6 +36,8 @@ public abstract class ControllerConfig implements Serializable {
 
     public boolean mixedInput = false;
 
+    public boolean dontShowControllerSubmission = false;
+
     public abstract void setDeadzone(int axis, float deadzone);
     public abstract float getDeadzone(int axis);
 

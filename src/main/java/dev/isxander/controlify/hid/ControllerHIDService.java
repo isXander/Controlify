@@ -76,8 +76,6 @@ public class ControllerHIDService {
         }
 
         ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
-        if (type == ControllerType.UNKNOWN)
-            Log.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid.getSecond());
 
         unconsumedControllerHIDs.removeIf(h -> hid.getFirst().getPath().equals(h.getFirst().getPath()));
 

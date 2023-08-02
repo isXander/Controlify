@@ -18,7 +18,12 @@ public record ControllerType(String friendlyName, String mappingId, String theme
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
 
     public static ControllerType getTypeForHID(HIDIdentifier hid) {
-        return getTypeMap().getOrDefault(hid, ControllerType.UNKNOWN);
+        if (getTypeMap().containsKey(hid)) {
+            return getTypeMap().get(hid);
+        } else {
+            Log.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid);
+            return ControllerType.UNKNOWN;
+        }
     }
 
     public static void ensureTypeMapFilled() {
