@@ -129,18 +129,22 @@ public class ControllerHIDService {
     }
 
     private Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
-        if (SDL2NativesManager.isLoaded() && jid != 0) {
-            int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
-            int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
-            String path = GLFW.glfwGetJoystickGUID(jid);
+        try {
+            if (SDL2NativesManager.isLoaded()) {
+                int vid = SDL.SDL_JoystickGetDeviceVendor(jid);
+                int pid = SDL.SDL_JoystickGetDeviceProduct(jid);
+                String path = GLFW.glfwGetJoystickGUID(jid);
 
-            if (vid != 0 && pid != 0) {
-                Log.LOGGER.info("Using SDL to identify controller type.");
-                return Optional.of(new ControllerHIDInfo(
-                        ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
-                        Optional.of(new HIDDevice.IDOnly(vid, pid, path))
-                ));
+                if (vid != 0 && pid != 0) {
+                    Log.LOGGER.info("Using SDL to identify controller type.");
+                    return Optional.of(new ControllerHIDInfo(
+                            ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
+                            Optional.of(new HIDDevice.IDOnly(vid, pid, path))
+                    ));
+                }
             }
+        } catch (UnsatisfiedLinkError linkError) {
+            Log.LOGGER.error("SDL Link Exception!", linkError);
         }
         return Optional.empty();
     }
