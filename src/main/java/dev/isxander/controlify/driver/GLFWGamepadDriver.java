@@ -61,7 +61,13 @@ public class GLFWGamepadDriver implements BasicGamepadInputDriver, NameProviderD
 
     @Override
     public String getName() {
-        return GLFW.glfwGetGamepadName(jid);
+        String name = GLFW.glfwGetGamepadName(jid);
+        // For some reason joystick name bypasses XInput abstractions.
+        // In my case, joystick returns 'Wireless Xbox Controller'.
+        if ("XInput Gamepad (GLFW)".equals(name)) {
+            return GLFW.glfwGetJoystickName(jid);
+        }
+        return name;
     }
 
     @Override
