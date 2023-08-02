@@ -15,6 +15,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
@@ -63,7 +64,14 @@ public class ScreenProcessor<T extends Screen> {
 
     public void onInputModeChanged(InputMode mode) {
         switch (mode) {
-            case KEYBOARD_MOUSE -> ((ScreenAccessor) screen).invokeClearFocus();
+            case KEYBOARD_MOUSE -> {
+                boolean focusingEditBox = getFocusTree().stream()
+                        .anyMatch(component -> component instanceof EditBox);
+
+                if (!focusingEditBox) {
+                    ((ScreenAccessor) screen).invokeClearFocus();
+                }
+            }
             case CONTROLLER, MIXED -> {
                 if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
                     setInitialFocus();
