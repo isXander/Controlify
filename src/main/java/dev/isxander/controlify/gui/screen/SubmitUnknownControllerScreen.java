@@ -67,7 +67,7 @@ public class SubmitUnknownControllerScreen extends Screen {
         int allHeight = font.lineHeight + titleBottomPadding + content.getHeight() + checkboxPadding + checkboxHeight + checkboxPadding + buttonHeight + nameFieldPaddingTop + nameFieldHeight + errorPadding + font.lineHeight;
 
         int y = this.height / 2 - allHeight / 2;
-        this.addRenderableWidget(createStringWidget(this.getTitle(), font, 25, y));
+        this.addRenderableWidget(ClientUtils.createStringWidget(this.getTitle(), font, 25, y));
         y += font.lineHeight + titleBottomPadding;
 
         content.setY(y);

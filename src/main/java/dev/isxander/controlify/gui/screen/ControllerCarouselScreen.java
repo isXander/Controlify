@@ -8,9 +8,11 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.Animator;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -78,6 +80,13 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     @Override
     protected void init() {
         refreshControllers();
+
+        var artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
+                .withStyle(ChatFormatting.DARK_GRAY);
+        var artCreditBtn = this.addRenderableWidget(new FakePositionPlainTextButton(artCreditText, font, width - font.width(artCreditText) - 3, 3, btn -> {
+            Util.getPlatform().openUri("https://github.com/Andrew6rant");
+        }));
+        artCreditBtn.setFakePosition(new ScreenRectangle(0, height, width, 1));
 
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);

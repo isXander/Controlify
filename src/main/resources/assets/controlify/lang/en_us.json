@@ -4,6 +4,7 @@
   "controlify.gui.carousel.entry.settings": "Settings",
   "controlify.gui.carousel.entry.use": "Use",
   "controlify.gui.carousel.entry.in_use": "Currently in use",
+  "controlify.gui.carousel.art_credit": "Controller art by %s.",
 
   "controlify.gui.global_settings.title": "Global Settings",
   "controlify.gui.load_vibration_natives": "Load Natives",
@@ -281,7 +282,7 @@
 
   "controlify.controller_submission.title": "Unknown Controller Submission",
   "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and doesn't store any of your personal or account information.",
-  "controlify.controller_submission.dont_show_again": "Do not show for this controller again",
+  "controlify.controller_submission.operational_checkbox": "Does your controller work with Controlify?",
   "controlify.controller_submission.submit": "Submit Data",
   "controlify.controller_submission.skip": "Skip",
   "controlify.controller_submission.name_hint": "Controller name",
