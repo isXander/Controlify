@@ -6,10 +6,10 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,7 +28,7 @@ public class SubmitUnknownControllerScreen extends Screen {
 
     private final Controller<?, ?> controller;
 
-    private Checkbox dontShowAgain;
+    private Checkbox operationalCheckbox;
 
     private final Screen lastScreen;
 
@@ -73,15 +73,16 @@ public class SubmitUnknownControllerScreen extends Screen {
         content.setY(y);
         y += content.getHeight() + checkboxPadding;
 
-        var dontShowAgainText = Component.translatable("controlify.controller_submission.dont_show_again");
-        this.dontShowAgain = this.addRenderableWidget(
+        var operationalText = Component.translatable("controlify.controller_submission.operational_checkbox")
+                .withStyle(ChatFormatting.BOLD);
+        this.operationalCheckbox = this.addRenderableWidget(
                 new Checkbox(
-                        this.width / 2 - font.width(dontShowAgainText) / 2 - 8,
+                        this.width / 2 - font.width(operationalText) / 2 - 8,
                         y,
                         150,
                         checkboxHeight,
-                        Component.translatable("controlify.controller_submission.dont_show_again"),
-                        false
+                        operationalText,
+                        true
                 )
         );
         y += checkboxHeight + checkboxPadding;
@@ -173,6 +174,7 @@ public class SubmitUnknownControllerScreen extends Screen {
         object.addProperty("GUID", GLFW.glfwGetJoystickGUID(controller.joystickId()));
         object.addProperty("reportedName", nameField.getValue());
         object.addProperty("controlifyVersion", FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion().getFriendlyString());
+        object.addProperty("operational", operationalCheckbox.selected());
 
         Gson gson = new Gson();
         return gson.toJson(object);
@@ -189,9 +191,7 @@ public class SubmitUnknownControllerScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (dontShowAgain.selected()) {
-            dontShowAgain();
-        }
+        dontShowAgain();
 
         Controlify.instance().config().saveIfDirty();
         minecraft.setScreen(lastScreen);
@@ -200,10 +200,6 @@ public class SubmitUnknownControllerScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return false;
-    }
-
-    private static StringWidget createStringWidget(Component text, Font font, int x, int y) {
-        return new StringWidget(x, y, font.width(text.getVisualOrderText()), font.lineHeight, text, font);
     }
 
     public static boolean canSubmit(Controller<?, ?> controller) {
