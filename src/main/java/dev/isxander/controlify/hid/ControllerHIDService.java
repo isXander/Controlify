@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
@@ -47,6 +48,17 @@ public class ControllerHIDService {
     }
 
     public ControllerHIDInfo fetchType(int jid) {
+        ControllerHIDInfo info = fetchType0(jid);
+        if (DebugProperties.PRINT_VID_PID) {
+            info.hidDevice.ifPresent(hid -> {
+                var hex = HexFormat.of().withPrefix("0x");
+                Log.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
+            });
+        }
+        return info;
+    }
+
+    private ControllerHIDInfo fetchType0(int jid) {
         if (firstFetch) {
             firstFetch = false;
             if (isDisabled() && !SDL2NativesManager.isLoaded()) {

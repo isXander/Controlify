@@ -10,6 +10,8 @@ public class DebugProperties {
     private static final List<DebugProperty> properties = new ArrayList<>();
 
     public static final boolean DEBUG_LOGGING = boolProp("controlify.debug.logging", false, true);
+    /* Print the VID and PID of every controller connected. */
+    public static final boolean PRINT_VID_PID = boolProp("controlify.debug.print_vid_pid", false, true);
     /* Renders debug overlay for vmouse snapping */
     public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
     /* Forces all gamepads to be treated as a regular joystick */
