@@ -109,8 +109,9 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
-  "controlify.gui.group.radial_menu": "Radial Menu",
-  "controlify.gui.radial_menu_action": "Action #%s",
+  "controlify.gui.radial_menu": "Radial Menu",
+  "controlify.gui.radial_menu.tooltip": "Open up the radial menu to configure what each button does.",
+  "controlify.gui.radial_menu.btn_text": "CONFIGURE",
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.bind_input_awaiting": "Press any button",
@@ -281,6 +282,8 @@
   "controlify.calibration.calibrating": "Calibrating...",
   "controlify.calibration.later": "Maybe Later",
   "controlify.calibration.later.tooltip": "You must calibrate to use the controller. Pressing this will deactivate the controller and you will have to use it again to calibrate.",
+
+  "controlify.radial_menu.configure_hint": "Configure actions in the controller settings.",
 
   "controlify.beta.title": "Controlify Beta Notice",
   "controlify.beta.message": "You are currently using Controlify Beta.\n\nThis mod is a work in progress and will contain many bugs. Please, if you spot a bug in this mod or have a suggestion to make it even better, please create an issue on the %s!\n\nYou can always find the link to the issue tracker in Controlify's settings menu.",

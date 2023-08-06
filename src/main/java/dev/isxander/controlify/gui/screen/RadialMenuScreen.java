@@ -27,6 +27,7 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -42,20 +43,22 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
     private final Controller<?, ?> controller;
-
-    public RadialMenuScreen(Controller<?, ?> controller) {
-        super(Component.empty());
-        this.controller = controller;
-    }
+    private final boolean editMode;
+    private final Screen parent;
 
     private final RadialButton[] buttons = new RadialButton[8];
     private int selectedButton = -1;
     private int idleTicks;
-    private boolean editMode;
     private boolean isEditing;
 
-    private PositionedComponent<GuideActionRenderer<Object>> editModeGuide;
     private ActionSelectList actionSelectList;
+
+    public RadialMenuScreen(Controller<?, ?> controller, boolean editMode, Screen parent) {
+        super(Component.empty());
+        this.controller = controller;
+        this.editMode = editMode;
+        this.parent = parent;
+    }
 
     @Override
     protected void init() {
@@ -79,47 +82,36 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
         Animator.INSTANCE.play(animation);
 
-        editModeGuide = addRenderableWidget(new PositionedComponent<>(
-                new GuideActionRenderer<>(
-                        new GuideAction<>(
-                                controller.bindings().GUI_ABSTRACT_ACTION_2,
-                                obj -> Optional.of(Component.literal(!editMode ? "Edit Mode" : "Done Editing"))
-                        ),
-                        false,
-                        true
-                ),
-                AnchorPoint.BOTTOM_CENTER,
-                0, -10,
-                AnchorPoint.BOTTOM_CENTER
-        ));
+        if (editMode) {
+            var exitGuide = addRenderableWidget(new PositionedComponent<>(
+                    new GuideActionRenderer<>(
+                            new GuideAction<>(
+                                    controller.bindings().GUI_BACK,
+                                    obj -> Optional.of(CommonComponents.GUI_DONE)
+                            ),
+                            false,
+                            true
+                    ),
+                    AnchorPoint.BOTTOM_CENTER,
+                    0, -10,
+                    AnchorPoint.BOTTOM_CENTER
+            ));
 
-        editModeGuide.getComponent().updateName(null);
-        editModeGuide.updatePosition(width, height);
+            exitGuide.getComponent().updateName(null);
+            exitGuide.updatePosition(width, height);
+        }
     }
 
     @Override
     public void onControllerInput(Controller<?, ?> controller) {
         if (this.controller != controller) return;
 
-        if (!controller.bindings().RADIAL_MENU.held()) {
-            if (!isEditing && !editMode) {
-                if (selectedButton != -1 && buttons[selectedButton].invoke()) {
-                    playClickSound();
-                }
-
-                onClose();
+        if (!editMode && !controller.bindings().RADIAL_MENU.held()) {
+            if (selectedButton != -1 && buttons[selectedButton].invoke()) {
+                playClickSound();
             }
-        }
 
-        if (controller.bindings().GUI_ABSTRACT_ACTION_2.justPressed()) {
-            editMode = !editMode;
-            editModeGuide.getComponent().updateName(null);
-            editModeGuide.updatePosition(width, height);
-            playClickSound();
-
-            if (!editMode) {
-                finishEditing();
-            }
+            onClose();
         }
 
         if (!isEditing && controller.state() instanceof GamepadState state) {
@@ -158,6 +150,18 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
     }
 
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        if (minecraft.level == null)
+            renderDirtBackground(graphics);
+
+        super.render(graphics, mouseX, mouseY, delta);
+
+        if (!editMode) {
+            graphics.drawCenteredString(font, Component.translatable("controlify.radial_menu.configure_hint"), width / 2, height - 10 - font.lineHeight, -1);
+        }
+    }
+
     private void playClickSound() {
         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
     }
@@ -171,7 +175,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     @Override
     public void onClose() {
         Controlify.instance().config().saveIfDirty();
-        super.onClose();
+        minecraft.setScreen(parent);
     }
 
     public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
@@ -180,24 +184,15 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         private int x, y;
         private float translateX, translateY;
         private boolean focused;
-        private final ControllerBinding binding;
-        private final MultiLineLabel name;
-        private final RadialIcons.Icon icon;
+        private ControllerBinding binding;
+        private MultiLineLabel name;
+        private RadialIcons.Icon icon;
 
-        private RadialButton(int index, int x, int y) {
-            this.x = x;
-            this.y = y;
+        private RadialButton(int index, float x, float y) {
+            this.setX(x);
+            this.setY(y);
 
-            ResourceLocation binding = controller.config().radialActions[index];
-            if (!EMPTY_ACTION.equals(binding)) {
-                this.binding = controller.bindings().get(binding);
-                this.icon = RadialIcons.getIcons().get(this.binding.radialIcon().orElseThrow());
-                this.name = MultiLineLabel.create(font, this.binding.name(), 76);
-            } else {
-                this.binding = null;
-                this.name = MultiLineLabel.EMPTY;
-                this.icon = RadialIcons.getIcons().get(RadialIcons.EMPTY);
-            }
+            this.setAction(controller.config().radialActions[index]);
         }
 
         @Override
@@ -224,6 +219,18 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 return true;
             }
             return false;
+        }
+
+        public void setAction(ResourceLocation binding) {
+            if (!EMPTY_ACTION.equals(binding)) {
+                this.binding = controller.bindings().get(binding);
+                this.icon = RadialIcons.getIcons().get(this.binding.radialIcon().orElseThrow());
+                this.name = MultiLineLabel.create(font, this.binding.name(), 76);
+            } else {
+                this.binding = null;
+                this.name = MultiLineLabel.EMPTY;
+                this.icon = RadialIcons.getIcons().get(RadialIcons.EMPTY);
+            }
         }
 
         public int getX() {
@@ -451,6 +458,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     if (controller.bindings().GUI_PRESS.justPressed()) {
                         controller.config().radialActions[radialIndex] = binding;
                         Controlify.instance().config().setDirty();
+
+                        buttons[radialIndex].setAction(binding);
 
                         playClickSound();
                         finishEditing();

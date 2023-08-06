@@ -109,7 +109,7 @@ public class InGameInputHandler {
         shouldShowPlayerList = controller.bindings().SHOW_PLAYER_LIST.held();
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {
-            minecraft.setScreen(new RadialMenuScreen(controller));
+            minecraft.setScreen(new RadialMenuScreen(controller, false, null));
         }
     }
 

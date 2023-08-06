@@ -308,6 +308,20 @@ public class ControllerConfigScreenFactory {
                 .name(Component.translatable("controlify.gui.group.controls"));
 
         List<OptionBindPair> optionBinds = new ArrayList<>();
+
+        ButtonOption editRadialButton = ButtonOption.createBuilder()
+                .name(Component.translatable("controlify.gui.radial_menu"))
+                .description(OptionDescription.of(Component.translatable("controlify.gui.radial_menu.tooltip")))
+                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, true, screen)))
+                .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
+                .build();
+        Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
+                .listener((opt, val) -> updateConflictingBinds(optionBinds))
+                .build();
+        optionBinds.add(new OptionBindPair(radialBind, controller.bindings().RADIAL_MENU));
+        category.option(editRadialButton);
+        category.option(radialBind);
+
         groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
