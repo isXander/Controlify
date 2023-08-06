@@ -572,7 +572,7 @@ public class Controlify implements ControlifyApi {
     public void showCursorTemporarily() {
         if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
             hideMouse(false, false);
-            showMouseTicks = 20 * 3;
+            showMouseTicks = 20 * 2;
             if (virtualMouseHandler().isVirtualMouseEnabled()) {
                 virtualMouseHandler().disableVirtualMouse();
             }
