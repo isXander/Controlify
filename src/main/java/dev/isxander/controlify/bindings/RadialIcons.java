@@ -19,7 +19,7 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = new ResourceLocation("controlify", "empty");
-    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabricloader", "icon");
+    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabric", "icon");
 
     private static final Map<ResourceLocation, Icon> icons = Util.make(() -> {
         Map<ResourceLocation, Icon> map = new HashMap<>();
