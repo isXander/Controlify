@@ -2,7 +2,7 @@ plugins {
     java
 
     alias(libs.plugins.loom)
-    alias(libs.plugins.loom.quiltflower)
+    alias(libs.plugins.loom.vineflower)
 
     alias(libs.plugins.mod.publish.plugin)
     alias(libs.plugins.machete)
@@ -32,6 +32,7 @@ repositories {
     }
     maven("https://jitpack.io")
     maven("https://maven.flashyreese.me/snapshots")
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 val testmod by sourceSets.registering {

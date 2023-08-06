@@ -1,23 +1,23 @@
 [versions]
 loom = "1.3.+"
-loom_quiltflower = "1.8.+"
+loom_vineflower = "1.11.+"
 mod_publish_plugin = "0.2.+"
 machete = "2.+"
 grgit = "5.0.+"
 blossom = "1.3.+"
 
 minecraft = "1.20.1"
-quilt_mappings = "20"
+quilt_mappings = "23"
 fabric_loader = "0.14.21"
-fabric_api = "0.86.0+1.20.1"
-mixin_extras = "0.2.0-beta.8"
-yet_another_config_lib = "3.0.3+1.20"
+fabric_api = "0.86.1+1.20.1"
+mixin_extras = "0.2.0-beta.9"
+yet_another_config_lib = "3.1.0+1.20"
 mod_menu = "7.0.0"
 hid4java = "0.7.0"
 quilt_json5 = "1.0.3"
-sodium = "mc1.20-0.4.10"
-iris = "1.6.4+1.20"
-immediately_fast = "1.1.15+1.20.1"
+sodium = "mc1.20.1-0.5.0"
+iris = "1.6.5+1.20.1"
+immediately_fast = "1.1.25+1.20.1"
 sdl2_jni = "2.26.5-24"
 
 [libraries]
@@ -39,7 +39,7 @@ test_fabric_loader = { module = "net.fabricmc:fabric-loader-junit", version.ref 
 
 [plugins]
 loom = { id = "fabric-loom", version.ref = "loom" }
-loom_quiltflower = { id = "io.github.juuxel.loom-quiltflower", version.ref = "loom_quiltflower" }
+loom_vineflower = { id = "io.github.juuxel.loom-vineflower", version.ref = "loom_vineflower" }
 
 mod_publish_plugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod_publish_plugin" }
 machete = { id = "io.github.p03w.machete", version.ref = "machete" }
