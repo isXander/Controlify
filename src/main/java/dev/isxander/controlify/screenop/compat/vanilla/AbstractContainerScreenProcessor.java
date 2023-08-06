@@ -106,7 +106,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.VMOUSE_LCLICK, ctx -> {
+                                        new GuideAction<>(bindings.INV_SELECT, ctx -> {
                                             if (!ctx.holdingItem().isEmpty())
                                                 if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
                                                     if (ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
@@ -160,7 +160,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.VMOUSE_RCLICK, ctx -> {
+                                        new GuideAction<>(bindings.INV_TAKE_HALF, ctx -> {
                                             if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.take_half"));
                                             if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
@@ -170,7 +170,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                         true, false
                                 ))
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.VMOUSE_SHIFT_CLICK, ctx -> {
+                                        new GuideAction<>(bindings.INV_QUICK_MOVE, ctx -> {
                                             if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
                                                 return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
                                             return Optional.empty();
