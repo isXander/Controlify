@@ -22,6 +22,7 @@
       [0x45e, 0xb00], // Xbox Elite Series 2 Controller (model 1797)
       [0x45e, 0x28e], // Xbox 360 Controller,
       [0x45e, 0x28f], // Xbox 360 Wireless Controller via Plug & Charge Cable
+      [0xe6f, 0x310], // PDP Rematch Xbox Wired Controller
     ]
   },
   {
