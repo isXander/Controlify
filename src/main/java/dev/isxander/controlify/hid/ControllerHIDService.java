@@ -48,13 +48,21 @@ public class ControllerHIDService {
     }
 
     public ControllerHIDInfo fetchType(int jid) {
-        ControllerHIDInfo info = fetchType0(jid);
+        ControllerHIDInfo info;
+        try {
+            info = fetchType0(jid);
+        } catch (Throwable e) {
+            Log.LOGGER.error("Failed to fetch controller type!", e);
+            info = new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+        }
+
         if (DebugProperties.PRINT_VID_PID) {
             info.hidDevice.ifPresent(hid -> {
                 var hex = HexFormat.of().withPrefix("0x");
                 Log.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
             });
         }
+
         return info;
     }
 

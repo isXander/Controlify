@@ -116,7 +116,7 @@ public class Controlify implements ControlifyApi {
                         this.onControllerDisconnect(jid);
                     }
                 });
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 e.printStackTrace();
             }
         });
@@ -203,7 +203,7 @@ public class Controlify implements ControlifyApi {
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControllersDiscovered(this);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
             }
         });
