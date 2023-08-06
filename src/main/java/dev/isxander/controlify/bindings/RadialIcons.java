@@ -19,19 +19,19 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = new ResourceLocation("controlify", "empty");
-    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabric", "icon");
+    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabric-resource-loader-v0", "icon.png");
 
     private static final Map<ResourceLocation, Icon> icons = Util.make(() -> {
         Map<ResourceLocation, Icon> map = new HashMap<>();
 
         map.put(EMPTY, (graphics, x, y) -> {});
-        map.put(FABRIC_ICON, ((graphics, x, y) -> {
+        map.put(FABRIC_ICON, (graphics, x, y) -> {
             graphics.pose().pushPose();
             graphics.pose().translate(x, y, 0);
             graphics.pose().scale(0.5f, 0.5f, 1f);
             graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32);
             graphics.pose().popPose();
-        }));
+        });
         addItems(map);
         addPotionEffects(map);
 

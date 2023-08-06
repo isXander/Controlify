@@ -155,8 +155,8 @@ public class ControlifyConfig {
 
     private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
         try {
-            controller.setConfig(GSON, object.getAsJsonObject("config"));
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
+            controller.setConfig(GSON, object.getAsJsonObject("config"));
         } catch (Exception e) {
             Log.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
             controller.resetConfig();

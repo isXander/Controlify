@@ -106,7 +106,9 @@ public class InGameInputHandler {
             minecraft.options.hideGui = !minecraft.options.hideGui;
         }
 
-        shouldShowPlayerList = controller.bindings().SHOW_PLAYER_LIST.held();
+        if (controller.bindings().SHOW_PLAYER_LIST.justPressed()) {
+            shouldShowPlayerList = !shouldShowPlayerList;
+        }
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {
             minecraft.setScreen(new RadialMenuScreen(controller, false, null));

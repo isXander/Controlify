@@ -39,6 +39,7 @@ public class ControllerBindings<T extends ControllerState> {
     public static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
     public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
     public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
+    public static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
 
     public final ControllerBinding
             WALK_FORWARD, WALK_BACKWARD, WALK_LEFT, WALK_RIGHT,
@@ -61,7 +62,7 @@ public class ControllerBindings<T extends ControllerState> {
             PICK_BLOCK,
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST,
-            RADIAL_MENU,
+            RADIAL_MENU, RADIAL_AXIS_UP, RADIAL_AXIS_DOWN, RADIAL_AXIS_LEFT, RADIAL_AXIS_RIGHT,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
             VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN,
@@ -222,7 +223,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "swap_hands")
                 .defaultBind(GamepadBinds.X_BUTTON)
                 .category(INVENTORY_CATEGORY)
-                .context(BindContexts.INGAME, BindContexts.INVENTORY)
+                .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.BONE))
                 .build());
         register(OPEN_CHAT = ControllerBindingBuilder.create(controller)
@@ -304,16 +305,40 @@ public class ControllerBindings<T extends ControllerState> {
                 .build());
         register(SHOW_PLAYER_LIST = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "show_player_list")
-                .defaultBind(GamepadBinds.DPAD_RIGHT)
+                .defaultBind(new EmptyBind<>())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.PLAYER_HEAD))
                 .build());
         register(RADIAL_MENU = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "radial_menu")
-                .defaultBind(GamepadBinds.DPAD_DOWN)
-                .category(MISC_CATEGORY)
+                .defaultBind(GamepadBinds.DPAD_RIGHT)
+                .category(RADIAL_CATEGORY)
                 .context(BindContexts.INGAME)
+                .build());
+        register(RADIAL_AXIS_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "radial_axis_up")
+                .defaultBind(GamepadBinds.RIGHT_STICK_FORWARD)
+                .category(RADIAL_CATEGORY)
+                .context(BindContexts.GUI)
+                .build());
+        register(RADIAL_AXIS_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "radial_axis_down")
+                .defaultBind(GamepadBinds.RIGHT_STICK_BACKWARD)
+                .category(RADIAL_CATEGORY)
+                .context(BindContexts.GUI)
+                .build());
+        register(RADIAL_AXIS_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "radial_axis_left")
+                .defaultBind(GamepadBinds.RIGHT_STICK_LEFT)
+                .category(RADIAL_CATEGORY)
+                .context(BindContexts.GUI)
+                .build());
+        register(RADIAL_AXIS_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "radial_axis_right")
+                .defaultBind(GamepadBinds.RIGHT_STICK_RIGHT)
+                .category(RADIAL_CATEGORY)
+                .context(BindContexts.GUI)
                 .build());
         register(VMOUSE_MOVE_UP = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_up")

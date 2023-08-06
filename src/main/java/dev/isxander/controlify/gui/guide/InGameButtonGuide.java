@@ -193,6 +193,11 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.inventory"));
             return Optional.empty();
         });
+        registerGuideAction(controller.bindings().RADIAL_MENU, ActionLocation.RIGHT, ctx -> {
+            if (ctx.client().screen == null)
+                return Optional.of(Component.translatable("controlify.gui.radial_menu"));
+            return Optional.empty();
+        });
         registerGuideAction(controller.bindings().ATTACK, ActionLocation.RIGHT, (ctx) -> {
             var hitResult = ctx.hitResult();
             if (hitResult.getType() == HitResult.Type.ENTITY)

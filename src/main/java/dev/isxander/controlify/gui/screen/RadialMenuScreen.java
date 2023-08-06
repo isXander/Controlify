@@ -1,10 +1,10 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
@@ -12,9 +12,11 @@ import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
+import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -22,6 +24,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -39,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class RadialMenuScreen extends Screen implements ScreenControllerEventListener {
+public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
     private final Controller<?, ?> controller;
@@ -52,6 +55,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     private boolean isEditing;
 
     private ActionSelectList actionSelectList;
+
+    private final Processor processor = new Processor(this);
 
     public RadialMenuScreen(Controller<?, ?> controller, boolean editMode, Screen parent) {
         super(Component.empty());
@@ -73,7 +78,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         addRenderableWidget(buttons[4] = button = new RadialButton(4, button.x - 32 - 8, button.y + 16));
         addRenderableWidget(buttons[5] = button = new RadialButton(5, button.x - 32 - 8, button.y - 16));
         addRenderableWidget(buttons[6] = button = new RadialButton(6, button.x - 16, button.y - 32 - 8));
-        addRenderableWidget(buttons[7] = new RadialButton(7, button.x + 16, button.y - 32 - 8));
+        addRenderableWidget(buttons[7]          = new RadialButton(7, button.x + 16, button.y - 32 - 8));
 
         Animator.AnimationInstance animation = new Animator.AnimationInstance(5, Easings::easeOutQuad);
         for (RadialButton radialButton : buttons) {
@@ -114,9 +119,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             onClose();
         }
 
-        if (!isEditing && controller.state() instanceof GamepadState state) {
-            float x = state.gamepadAxes().rightStickX();
-            float y = state.gamepadAxes().rightStickY();
+        if (editMode && controller.bindings().GUI_BACK.justPressed()) {
+            onClose();
+        }
+
+        if (!isEditing) {
+            float x = controller.bindings().RADIAL_AXIS_RIGHT.state() - controller.bindings().RADIAL_AXIS_LEFT.state();
+            float y = controller.bindings().RADIAL_AXIS_DOWN.state() - controller.bindings().RADIAL_AXIS_UP.state();
             float threshold = controller.config().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
@@ -152,13 +161,19 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        if (minecraft.level == null)
+        if (editMode)
             renderDirtBackground(graphics);
 
         super.render(graphics, mouseX, mouseY, delta);
 
         if (!editMode) {
-            graphics.drawCenteredString(font, Component.translatable("controlify.radial_menu.configure_hint"), width / 2, height - 10 - font.lineHeight, -1);
+            graphics.drawCenteredString(
+                    font,
+                    Component.translatable("controlify.radial_menu.configure_hint"),
+                    width / 2,
+                    height - 39,
+                    -1
+            );
         }
     }
 
@@ -176,6 +191,16 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public void onClose() {
         Controlify.instance().config().saveIfDirty();
         minecraft.setScreen(parent);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return editMode;
+    }
+
+    @Override
+    public ScreenProcessor<?> screenProcessor() {
+        return this.processor;
     }
 
     public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
@@ -199,14 +224,23 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             graphics.pose().pushPose();
             graphics.pose().translate(x + translateX, y + translateY, 0);
+
+            graphics.pose().pushPose();
             graphics.pose().scale(2, 2, 1);
             graphics.blit(TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
             graphics.pose().popPose();
 
-            graphics.pose().pushPose();
-            graphics.pose().translate(x + translateX + 4, y + translateY + 4, 0);
-            graphics.pose().scale(1.5f, 1.5f, 1);
-            this.icon.draw(graphics, 0, 0);
+            if (!editMode || !focused) {
+                graphics.pose().pushPose();
+                graphics.pose().translate(4, 4, 0);
+                graphics.pose().scale(1.5f, 1.5f, 1);
+                this.icon.draw(graphics, 0, 0);
+                graphics.pose().popPose();
+            } else {
+                BindRenderer renderer = controller.bindings().GUI_PRESS.renderer();
+                renderer.render(graphics, 16 - renderer.size().width() / 2, 16);
+            }
+
             graphics.pose().popPose();
 
             if (focused)
@@ -263,16 +297,14 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
-            if (controller == RadialMenuScreen.this.controller) {
-                if (controller.bindings().GUI_PRESS.justPressed()) {
-                    RadialButton button = buttons[selectedButton];
-                    int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
-                    actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
-                    addRenderableWidget(actionSelectList);
-                    RadialMenuScreen.this.setFocused(actionSelectList);
-                    isEditing = true;
-                    return true;
-                }
+            if (editMode && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
+                RadialButton button = buttons[selectedButton];
+                int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
+                actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
+                addRenderableWidget(actionSelectList);
+                RadialMenuScreen.this.setFocused(actionSelectList);
+                isEditing = true;
+                return true;
             }
             return false;
         }
@@ -284,7 +316,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public void updateNarration(NarrationElementOutput builder) {
-
+            if (binding != null)
+                builder.add(NarratedElementType.TITLE, binding.name());
         }
 
         @Override
@@ -370,7 +403,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Nullable
         @Override
-        public GuiEventListener getFocused() {
+        public ActionEntry getFocused() {
             return focusedEntry;
         }
 
@@ -408,7 +441,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public void updateNarration(NarrationElementOutput builder) {
-
+            if (getFocused() != null) {
+                builder.add(NarratedElementType.TITLE, getFocused().name);
+            }
         }
 
         public class ActionEntry implements GuiEventListener, ComponentProcessor {
@@ -469,6 +504,17 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
                 return false;
             }
+        }
+    }
+
+    public static class Processor extends ScreenProcessor<RadialMenuScreen> {
+        public Processor(RadialMenuScreen screen) {
+            super(screen);
+        }
+
+        @Override
+        public VirtualMouseBehaviour virtualMouseBehaviour() {
+            return VirtualMouseBehaviour.DISABLED;
         }
     }
 }
