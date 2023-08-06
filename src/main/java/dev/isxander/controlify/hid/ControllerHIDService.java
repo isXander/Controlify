@@ -47,6 +47,13 @@ public class ControllerHIDService {
         }
     }
 
+    public void stop() {
+        if (!disabled && services != null) {
+            services.shutdown();
+            disabled = true;
+        }
+    }
+
     public ControllerHIDInfo fetchType(int jid) {
         ControllerHIDInfo info;
         try {

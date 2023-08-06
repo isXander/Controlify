@@ -31,6 +31,7 @@ import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -105,6 +106,9 @@ public class Controlify implements ControlifyApi {
         }
 
         ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
+            controllerHIDService().stop();
+        });
 
         // listen for new controllers
         GLFW.glfwSetJoystickCallback((jid, event) -> {
