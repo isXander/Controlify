@@ -334,11 +334,15 @@ public class ControllerConfigScreenFactory {
         List<OptionBindPair> optionBinds = new ArrayList<>();
 
         ButtonOption editRadialButton = ButtonOption.createBuilder()
-                .name(Component.translatable("controlify.gui.radial_menu"))
-                .description(OptionDescription.of(Component.translatable("controlify.gui.radial_menu.tooltip")))
+                .name(Component.translatable("controlify.gui.radial_menu").withStyle(ChatFormatting.GOLD))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
+                        .text(newOptionLabel)
+                        .build())
                 .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, true, screen)))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
+        newOptions.add(editRadialButton);
         Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
                 .listener((opt, val) -> updateConflictingBinds(optionBinds))
                 .build();
