@@ -120,6 +120,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         if (editMode && controller.bindings().GUI_BACK.justPressed()) {
+            playClickSound();
             onClose();
         }
 
@@ -184,6 +185,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     private void finishEditing() {
         isEditing = false;
         removeWidget(actionSelectList);
+        this.setFocused(null);
         actionSelectList = null;
     }
 
