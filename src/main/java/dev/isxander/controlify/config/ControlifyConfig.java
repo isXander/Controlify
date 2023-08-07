@@ -10,6 +10,7 @@ import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -29,6 +30,7 @@ public class ControlifyConfig {
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
             .registerTypeHierarchyAdapter(Version.class, new TypeAdapters.VersionTypeAdapter())
+            .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .create();
 
     private final Controlify controlify;
@@ -175,8 +177,8 @@ public class ControlifyConfig {
 
     private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
         try {
-            controller.setConfig(GSON, object.getAsJsonObject("config"));
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
+            controller.setConfig(GSON, object.getAsJsonObject("config"));
         } catch (Exception e) {
             Log.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
             controller.resetConfig();

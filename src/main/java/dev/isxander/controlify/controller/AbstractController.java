@@ -120,6 +120,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
             this.config = SerializationUtils.clone(defaultConfig());
             Controlify.instance().config().setDirty();
         }
+        this.config.validateRadialActions(bindings);
     }
 
     @Override

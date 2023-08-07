@@ -113,6 +113,9 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
+  "controlify.gui.radial_menu": "Radial Menu",
+  "controlify.gui.radial_menu.tooltip": "Open up the radial menu to configure what each button does.",
+  "controlify.gui.radial_menu.btn_text": "CONFIGURE",
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.bind_input_awaiting": "Press any button",
@@ -218,6 +221,7 @@
   "controlify.binding.controlify.pick_block": "Pick Block",
   "controlify.binding.controlify.toggle_hud_visibility": "Toggle HUD Visibility",
   "controlify.binding.controlify.show_player_list": "Show Player List",
+  "controlify.binding.controlify.radial_menu": "Radial Menu",
   "controlify.binding.controlify.vmouse_move_up": "VMouse Move Up",
   "controlify.binding.controlify.vmouse_move_down": "VMouse Move Down",
   "controlify.binding.controlify.vmouse_move_left": "VMouse Move Left",
@@ -285,6 +289,8 @@
   "controlify.calibration.calibrating": "Calibrating...",
   "controlify.calibration.later": "Maybe Later",
   "controlify.calibration.later.tooltip": "You must calibrate to use the controller. Pressing this will deactivate the controller and you will have to use it again to calibrate.",
+
+  "controlify.radial_menu.configure_hint": "Configure actions in the controller settings.",
 
   "controlify.controller_submission.title": "Unknown Controller Submission",
   "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and doesn't store any of your personal or account information.",

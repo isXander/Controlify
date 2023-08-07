@@ -3,12 +3,14 @@ package dev.isxander.controlify.api.bind;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.yacl3.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 
@@ -43,6 +45,8 @@ public interface ControllerBinding {
      */
     boolean justReleased();
 
+    void fakePress();
+
     Component name();
     Component description();
     Component category();
@@ -65,6 +69,10 @@ public interface ControllerBinding {
     Option.Builder<?> startYACLOption();
 
     JsonObject toJson();
+
+    void tick();
+
+    Optional<ResourceLocation> radialIcon();
 
     record KeyMappingOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
     }

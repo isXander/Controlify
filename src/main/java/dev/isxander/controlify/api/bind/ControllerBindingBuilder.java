@@ -1,9 +1,6 @@
 package dev.isxander.controlify.api.bind;
 
-import dev.isxander.controlify.bindings.BindContext;
-import dev.isxander.controlify.bindings.ControllerBindingImpl;
-import dev.isxander.controlify.bindings.GamepadBinds;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import net.minecraft.client.KeyMapping;
@@ -75,6 +72,8 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
     ControllerBindingBuilder<T> category(Component category);
 
     ControllerBindingBuilder<T> context(BindContext... contexts);
+
+    ControllerBindingBuilder<T> radialCandidate(ResourceLocation icon);
 
     /**
      * Specifies are vanilla override for the binding.
