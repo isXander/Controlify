@@ -36,37 +36,61 @@ import java.util.stream.IntStream;
 public class ControllerConfigScreenFactory {
     private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
     private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
+    private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
+
+    private final List<Option<?>> newOptions = new ArrayList<>();
 
     public static Screen generateConfigScreen(Screen parent, Controller<?, ?> controller) {
+        return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
+    }
+
+    private Screen generateConfigScreen0(Screen parent, Controller<?, ?> controller) {
         ControllerConfig def = controller.defaultConfig();
         ControllerConfig config = controller.config();
 
+        var advancedCategory = createAdvancedCategory(controller);
+        var bindsCategory = createBindsCategory(controller);
+        var basicCategory = createBasicCategory(controller, def, config); // must be last for new options
+
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.literal("Controlify"))
-                .category(createBasicCategory(controller, def, config))
-                .category(createAdvancedCategory(controller))
-                .category(createBindsCategory(controller))
+                .category(basicCategory)
+                .category(advancedCategory)
+                .category(bindsCategory)
                 .save(() -> Controlify.instance().config().save())
                 .build().generateScreen(parent);
     }
 
-    private static ConfigCategory createBasicCategory(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
-        return ConfigCategory.createBuilder()
+    private ConfigCategory createBasicCategory(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+        var sensitivityGroup = makeSensitivityGroup(controller, def, config);
+        var controlsGroup = makeControlsGroup(controller, def, config);
+        var accessibilityGroup = makeAccessibilityGroup(controller, def, config);
+        var deadzoneGroup = makeDeadzoneGroup(controller, def, config);
+
+        ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.config.category.basic"))
                 .option(Option.<String>createBuilder()
                         .name(Component.translatable("controlify.gui.custom_name"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.custom_name.tooltip")))
                         .binding(def.customName == null ? "" : def.customName, () -> config.customName == null ? "" : config.customName, v -> config.customName = (v.equals("") ? null : v))
                         .controller(StringControllerBuilder::create)
-                        .build())
-                .group(makeSensitivityGroup(controller, def, config))
-                .group(makeControlsGroup(controller, def, config))
-                .group(makeAccessibilityGroup(controller, controller.defaultConfig(), controller.config()))
-                .group(makeDeadzoneGroup(controller, controller.defaultConfig(), controller.config()))
-                .build();
+                        .build());
+        if (!newOptions.isEmpty()) {
+            builder.group(OptionGroup.createBuilder()
+                    .name(Component.translatable("controlify.gui.new_options").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                    .description(OptionDescription.of(Component.translatable("controlify.gui.new_options.tooltip")))
+                    .options(newOptions)
+                    .build());
+        }
+        builder.group(sensitivityGroup)
+                .group(controlsGroup)
+                .group(accessibilityGroup)
+                .group(deadzoneGroup);
+
+        return builder.build();
     }
 
-    private static OptionGroup makeSensitivityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+    private OptionGroup makeSensitivityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         return OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.sensitivity"))
                 .option(Option.<Float>createBuilder()
@@ -108,7 +132,7 @@ public class ControllerConfigScreenFactory {
                 .build();
     }
 
-    private static OptionGroup makeControlsGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+    private OptionGroup makeControlsGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         Function<Boolean, Component> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
         return OptionGroup.createBuilder()
@@ -145,7 +169,7 @@ public class ControllerConfigScreenFactory {
                 .build();
     }
 
-    private static OptionGroup makeAccessibilityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+    private OptionGroup makeAccessibilityGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         return OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.accessibility"))
                 .option(Option.<Boolean>createBuilder()
@@ -186,7 +210,7 @@ public class ControllerConfigScreenFactory {
                 .build();
     }
 
-    private static OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+    private OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
         var deadzoneOpts = new ArrayList<Option<Float>>();
 
         var group = OptionGroup.createBuilder()
@@ -251,9 +275,9 @@ public class ControllerConfigScreenFactory {
                 var axis = axes[i];
 
                 Option<Float> deadzoneOpt = Option.<Float>createBuilder()
-                        .name(Component.translatable("controlify.gui.joystick_axis_deadzone", axis.name()))
+                        .name(Component.translatable("controlify.gui.axis_deadzone", axis.name()))
                         .description(OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.gui.joystick_axis_deadzone.tooltip", axis.name()))
+                                .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", axis.name()))
                                 .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                                 .build())
                         .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
@@ -291,7 +315,7 @@ public class ControllerConfigScreenFactory {
         return group.build();
     }
 
-    private static ConfigCategory createAdvancedCategory(Controller<?, ?> controller) {
+    private ConfigCategory createAdvancedCategory(Controller<?, ?> controller) {
         return ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"))
                 .option(Option.<Boolean>createBuilder()
@@ -305,7 +329,7 @@ public class ControllerConfigScreenFactory {
                 .build();
     }
 
-    private static ConfigCategory createBindsCategory(Controller<?, ?> controller) {
+    private ConfigCategory createBindsCategory(Controller<?, ?> controller) {
         var category = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
 
@@ -330,7 +354,7 @@ public class ControllerConfigScreenFactory {
         return category.build();
     }
 
-    private static void updateConflictingBinds(List<OptionBindPair> all) {
+    private void updateConflictingBinds(List<OptionBindPair> all) {
         all.forEach(pair -> ((AbstractBindController<?>) pair.option().controller()).setConflicting(false));
 
         for (OptionBindPair opt : all) {
@@ -351,7 +375,7 @@ public class ControllerConfigScreenFactory {
         }
     }
 
-    private static OptionGroup makeVibrationGroup(Controller<?, ?> controller) {
+    private OptionGroup makeVibrationGroup(Controller<?, ?> controller) {
         boolean canRumble = controller.supportsRumble();
         var config = controller.config();
         var def = controller.defaultConfig();
@@ -417,7 +441,7 @@ public class ControllerConfigScreenFactory {
         return vibrationGroup.build();
     }
 
-    private static OptionGroup makeGyroGroup(Controller<?, ?> controller) {
+    private OptionGroup makeGyroGroup(Controller<?, ?> controller) {
         GamepadController gamepad = (controller instanceof GamepadController) ? (GamepadController) controller : null;
         boolean hasGyro = gamepad != null && gamepad.hasGyro();
 

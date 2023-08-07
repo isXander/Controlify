@@ -8,6 +8,8 @@ import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.Version;
+import net.fabricmc.loader.api.VersionParsingException;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -25,7 +27,8 @@ public class ControlifyConfig {
             .serializeNulls()
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .registerTypeHierarchyAdapter(Class.class, new ClassTypeAdapter())
+            .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
+            .registerTypeHierarchyAdapter(Version.class, new TypeAdapters.VersionTypeAdapter())
             .create();
 
     private final Controlify controlify;
@@ -35,6 +38,7 @@ public class ControlifyConfig {
     private Map<String, CompoundJoystickInfo> compoundJoysticks = Map.of();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
+    private Version lastSeenVersion = null;
 
     private boolean dirty;
 
@@ -59,6 +63,14 @@ public class ControlifyConfig {
 
         if (!Files.exists(CONFIG_PATH)) {
             firstLaunch = true;
+            if (lastSeenVersion == null) {
+                try {
+                    lastSeenVersion = Version.parse("0.0.0");
+                } catch (VersionParsingException e) {
+                    throw new RuntimeException(e);
+                }
+                setDirty();
+            }
             save();
             return;
         }
@@ -77,6 +89,8 @@ public class ControlifyConfig {
 
     private JsonObject generateConfig() {
         JsonObject config = new JsonObject();
+
+        config.addProperty("last_seen_version", Log.VERSION.getFriendlyString());
 
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
@@ -103,7 +117,15 @@ public class ControlifyConfig {
         return object;
     }
 
-    private void applyConfig(JsonObject object) {
+    private void applyConfig(JsonObject object) throws VersionParsingException {
+        if (lastSeenVersion == null) {
+            boolean hasLastSeenVersion = object.has("last_seen_version");
+            lastSeenVersion = hasLastSeenVersion ? Version.parse(object.get("last_seen_version").getAsString()) : Version.parse("0.0.0");
+            if (!hasLastSeenVersion || lastSeenVersion.compareTo(Log.VERSION) < 0) {
+                setDirty();
+            }
+        }
+
         globalSettings = GSON.fromJson(object.getAsJsonObject("global"), GlobalSettings.class);
         if (globalSettings == null) {
             globalSettings = new GlobalSettings();
@@ -183,6 +205,18 @@ public class ControlifyConfig {
 
     public boolean isFirstLaunch() {
         return firstLaunch;
+    }
+
+    public boolean isLastSeenVersionLessThan(Version version) {
+        return lastSeenVersion.compareTo(version) < 0;
+    }
+
+    public boolean isLastSeenVersionLessThan(String version) {
+        try {
+            return isLastSeenVersionLessThan(Version.parse(version));
+        } catch (VersionParsingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Nullable

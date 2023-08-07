@@ -34,6 +34,9 @@
   "controlify.gui.ingame_button_guide_scale.tooltip.warning": "This may cause scaling issues that will make it to look bad at anything but 100%.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
 
+  "controlify.gui.new_options": "New This Update",
+  "controlify.gui.new_options.tooltip": "A showcase of the new options in the latest updates.",
+  "controlify.gui.new_options.label": "This option is new!",
   "controlify.gui.battery_level": "Your controller battery is currently %s.",
   "controlify.gui.custom_name": "Display Name",
   "controlify.gui.custom_name.tooltip": "Name to display for this controller throughout Minecraft.",
@@ -124,6 +127,9 @@
   "controlify.gui.button": "Controller Settings...",
 
   "controlify.gui.controller_unavailable": "Controller unavailable and cannot be edited.",
+
+  "controlify.new_features.title": "Controlify updated to %s!",
+  "controlify.new_features.1.5.0": "Added a radial menu that can be configured to any action you want. You can find it in your controller settings.",
 
   "controlify.vibration_strength.controlify.master": "Master",
   "controlify.vibration_strength.controlify.master.tooltip": "The strength of all vibrations. Will also affect the strength of all other sources.",

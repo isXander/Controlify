@@ -80,11 +80,12 @@ public class VirtualMouseHandler {
         }
 
         var sensitivity = controller.config().virtualMouseSensitivity;
+        var windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
         // quadratic function to make small movements smaller
         // abs to keep sign
-        targetX += impulseX * Mth.abs(impulseX) * 20f * sensitivity;
-        targetY += impulseY * Mth.abs(impulseY) * 20f * sensitivity;
+        targetX += impulseX * Mth.abs(impulseX) * 20f * sensitivity * windowSizeModifier;
+        targetY += impulseY * Mth.abs(impulseY) * 20f * sensitivity * windowSizeModifier;
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
@@ -128,8 +129,8 @@ public class VirtualMouseHandler {
         if (!virtualMouseEnabled) return;
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
-            currentX = Mth.lerp(minecraft.getDeltaFrameTime(), currentX, targetX);
-            currentY = Mth.lerp(minecraft.getDeltaFrameTime(), currentY, targetY);
+            currentX = Mth.lerp(minecraft.getFrameTime(), currentX, targetX);
+            currentY = Mth.lerp(minecraft.getFrameTime(), currentY, targetY);
 
             ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
         } else {

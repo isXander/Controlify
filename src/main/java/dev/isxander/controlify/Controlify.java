@@ -45,10 +45,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.libsdl.SDL;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayDeque;
+import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
@@ -124,6 +124,8 @@ public class Controlify implements ControlifyApi {
                 e.printStackTrace();
             }
         });
+
+        notifyOfNewFeatures();
     }
 
     private CompletableFuture<Boolean> askNatives() {
@@ -580,6 +582,31 @@ public class Controlify implements ControlifyApi {
             if (virtualMouseHandler().isVirtualMouseEnabled()) {
                 virtualMouseHandler().disableVirtualMouse();
             }
+        }
+    }
+
+    private void notifyOfNewFeatures() {
+        if (config().isFirstLaunch())
+            return;
+
+        var newFeatureVersions = List.of(
+                "1.5.0"
+        ).iterator();
+
+        String foundVersion = null;
+        while (foundVersion == null && newFeatureVersions.hasNext()) {
+            var version = newFeatureVersions.next();
+            if (config().isLastSeenVersionLessThan(version)) {
+                foundVersion = version;
+            }
+        }
+
+        if (foundVersion != null) {
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.new_features.title", foundVersion),
+                    Component.translatable("controlify.new_features." + foundVersion),
+                    true
+            );
         }
     }
 
