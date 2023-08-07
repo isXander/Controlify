@@ -9,7 +9,6 @@ import java.util.Queue;
 public class RumbleManager {
     private final RumbleCapable controller;
     private final Queue<RumbleEffectInstance> effectQueue;
-    private RumbleEffectInstance prevEffect = null;
 
     private boolean silent, wasSilent;
 
@@ -59,10 +58,9 @@ public class RumbleManager {
                 controller.setRumble(0f, 0f, RumbleSource.MASTER);
                 wasSilent = true;
             }
-        } else if (!effect.equals(prevEffect)) {
+        } else {
             RumbleState state = effect.effect().currentState();
             controller.setRumble(state.strong(), state.weak(), effect.source());
-            prevEffect = effect;
         }
     }
 
