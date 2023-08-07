@@ -29,7 +29,7 @@ public final class RadialIcons {
             graphics.pose().pushPose();
             graphics.pose().translate(x, y, 0);
             graphics.pose().scale(0.5f, 0.5f, 1f);
-            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32);
+            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
             graphics.pose().popPose();
         });
         addItems(map);
