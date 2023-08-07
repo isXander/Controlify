@@ -39,6 +39,9 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
         }
         SDL.SDL_GameControllerUpdate();
 
+        // Axis values are in the range [-32768, 32767] (short)
+        // Triggers are in the range [0, 32767] (thanks SDL!)
+        // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetAxis
         GamepadState.AxesState axes = new GamepadState.AxesState(
                 Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_LEFTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
                 Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_LEFTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
@@ -47,6 +50,8 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
                 Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_TRIGGERLEFT), 0, Short.MAX_VALUE),
                 Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_TRIGGERRIGHT), 0, Short.MAX_VALUE)
         );
+        // Button values return 1 if pressed, 0 if not
+        // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetButton
         GamepadState.ButtonState buttons = new GamepadState.ButtonState(
                 SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_A) == 1,
                 SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_B) == 1,
