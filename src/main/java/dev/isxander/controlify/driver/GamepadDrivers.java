@@ -41,6 +41,7 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
 
         if (SDL2NativesManager.isLoaded()) {
             SDL2GamepadDriver sdl2Driver = new SDL2GamepadDriver(jid);
+            basicGamepadInputDriver = sdl2Driver;
             gyroDriver = sdl2Driver;
             rumbleDriver = sdl2Driver;
             batteryDriver = sdl2Driver;
