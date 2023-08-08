@@ -65,10 +65,10 @@ public class ScreenProcessor<T extends Screen> {
     public void onInputModeChanged(InputMode mode) {
         switch (mode) {
             case KEYBOARD_MOUSE -> {
-                boolean focusingEditBox = getFocusTree().stream()
-                        .anyMatch(component -> component instanceof EditBox);
+                boolean shouldKeepFocus = getFocusTree().stream()
+                        .anyMatch(component -> ComponentProcessorProvider.provide(component).shouldKeepFocusOnKeyboardMode(this));
 
-                if (!focusingEditBox) {
+                if (!shouldKeepFocus) {
                     ((ScreenAccessor) screen).invokeClearFocus();
                 }
             }

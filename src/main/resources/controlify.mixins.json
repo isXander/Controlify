@@ -67,6 +67,7 @@
     "feature.screenop.vanilla.CreateWorldScreenMixin",
     "feature.screenop.vanilla.CreativeModeInventoryScreenAccessor",
     "feature.screenop.vanilla.CreativeModeInventoryScreenMixin",
+    "feature.screenop.vanilla.EditBoxMixin",
     "feature.screenop.vanilla.JoinMultiplayerScreenAccessor",
     "feature.screenop.vanilla.JoinMultiplayerScreenMixin",
     "feature.screenop.vanilla.LanguageSelectionListEntryMixin",
