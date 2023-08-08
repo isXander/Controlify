@@ -4,6 +4,7 @@
   "controlify.gui.carousel.entry.settings": "设置",
   "controlify.gui.carousel.entry.use": "使用",
   "controlify.gui.carousel.entry.in_use": "目前正在使用",
+  "controlify.gui.carousel.art_credit": "Controller art by %s.",
 
   "controlify.gui.global_settings.title": "全局设置",
   "controlify.gui.load_vibration_natives": "震动支持",
@@ -13,7 +14,7 @@
   "controlify.gui.reach_around.tooltip": "如果启用，你在未指向方块边缘时就可以在空中向前放置方块。",
   "controlify.gui.reach_around.tooltip.parity": "这与基岩版相同，你也可以在基岩版中执行此操作。",
   "controlify.gui.reach_around.tooltip.warning": "警告：与没有Controlify的玩家相比，这是一个不公平的优势，你可能会被许多反作弊标记。这应该只在每个玩游戏的人都认识到你有这种能力并且可以接受的情况下使用。",
-  "controlify.gui.reach_around.tooltip.server_disabled": "你所玩的服务器不允许你使用这个功能。",
+  "controlify.gui.reach_around.tooltip.server_controlled": "The server you are playing on is controlling this setting.",
   "controlify.reach_around.off": "关",
   "controlify.reach_around.singleplayer_only": "仅单人游戏",
   "controlify.reach_around.singleplayer_and_lan": "单人游戏和局域网",
@@ -33,6 +34,9 @@
   "controlify.gui.ingame_button_guide_scale.tooltip.warning": "这可能会导致缩放问题，使其看起来很奇怪，除了100%。",
   "controlify.gui.open_issue_tracker": "提交问题",
 
+  "controlify.gui.new_options": "New This Update",
+  "controlify.gui.new_options.tooltip": "A showcase of the new options in the latest updates.",
+  "controlify.gui.new_options.label": "This option is new!",
   "controlify.gui.battery_level": "你的手柄电池目前为%s",
   "controlify.gui.custom_name": "显示名称",
   "controlify.gui.custom_name.tooltip": "在整个Minecraft中显示此手柄的名称。",
@@ -109,6 +113,9 @@
   "controlify.gui.test_vibration": "测试震动",
   "controlify.gui.test_vibration.tooltip": "测试你的手柄振动。",
 
+  "controlify.gui.radial_menu": "Radial Menu",
+  "controlify.gui.radial_menu.tooltip": "Open up the radial menu to configure what each button does.",
+  "controlify.gui.radial_menu.btn_text": "CONFIGURE",
   "controlify.gui.group.controls": "控制",
   "controlify.gui.group.controls.tooltip": "调整手柄控制。",
   "controlify.gui.bind_input_awaiting": "按任意按钮",
@@ -123,6 +130,9 @@
   "controlify.gui.button": "手柄设置…",
 
   "controlify.gui.controller_unavailable": "手柄不可用且无法被编辑。",
+
+  "controlify.new_features.title": "Controlify updated to %s!",
+  "controlify.new_features.1.5.0": "Added a radial menu that can be configured to any action you want. You can find it in your controller settings.",
 
   "controlify.vibration_strength.controlify.master": "主要",
   "controlify.vibration_strength.controlify.master.tooltip": "所有震动的强度。也会影响所有其他来源的强度。",
@@ -211,6 +221,7 @@
   "controlify.binding.controlify.pick_block": "选取方块",
   "controlify.binding.controlify.toggle_hud_visibility": "切换HUD可见性",
   "controlify.binding.controlify.show_player_list": "显示玩家列表",
+  "controlify.binding.controlify.radial_menu": "Radial Menu",
   "controlify.binding.controlify.vmouse_move_up": "虚拟鼠标上移",
   "controlify.binding.controlify.vmouse_move_down": "虚拟鼠标下移",
   "controlify.binding.controlify.vmouse_move_left": "虚拟鼠标左移",
@@ -279,10 +290,16 @@
   "controlify.calibration.later": "以后再说",
   "controlify.calibration.later.tooltip": "你必须校准后才能使用手柄。按下此键将禁用手柄并且你将必须再次使用它进行校准。",
 
-  "controlify.beta.title": "Controlify测试版通知",
-  "controlify.beta.message": "您目前正在使用Controlify测试版。\n\n此模组正在进行中，将包含许多bug。如果你在这个模组中发现了错误，或者有建议让它变得更好，请在%s上创建一个问题！\n\n你可以在Controlify的设置菜单中找到提交问题的链接。",
-  "controlify.beta.message.link": "问题追踪",
-  "controlify.beta.button": "提交问题…",
+  "controlify.radial_menu.configure_hint": "Configure actions in the controller settings.",
+
+  "controlify.controller_submission.title": "Unknown Controller Submission",
+  "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and doesn't store any of your personal or account information.",
+  "controlify.controller_submission.operational_checkbox": "Does your controller work with Controlify?",
+  "controlify.controller_submission.submit": "Submit Data",
+  "controlify.controller_submission.skip": "Skip",
+  "controlify.controller_submission.name_hint": "Controller name",
+  "controlify.controller_submission.name_narration": "Controller name input field",
+  "controlify.controller_submission.invalid_name": "Invalid controller name. Use only letters, numbers and spaces.",
 
   "controlify.error.hid": "手柄检测已禁用",
   "controlify.error.hid.desc": "Controlify无法启动用于识别和区分多个手柄的控手柄检测系统。这意味着手柄的配置将无法在游戏会话之间保存。这可能是由于系统故障造成的，你应该查看日志以了解更多信息。",
