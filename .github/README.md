@@ -47,6 +47,14 @@ complex vibration patterns for lots of aspects of the game (e.g. when you take d
 
 ![picture of vibration config](https://cdn.modrinth.com/data/DOUdJVEm/images/8a7809d07d9e1d9e3002007d7e5e13b73ce8fb5b.png)
 
+### Radial menu
+
+![radial menu showcase](https://cdn.modrinth.com/data/DOUdJVEm/images/e56d9be363b2b31440e16018cc01f197848b7ac6.webp)
+
+To save up some buttons on your controller, dedicate some less-used actions to the radial menu.
+It is fully customizable through the settings and intuitive to use. Any modded keybind is
+compatible with this menu.
+
 ### Built-in gyro support
 
 Controlify has built-in support for controller gyroscopes, allowing you to make fine movements in-game
