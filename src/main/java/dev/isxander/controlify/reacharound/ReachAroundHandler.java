@@ -8,7 +8,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class ReachAroundHandler {
-    public static boolean reachAroundPolicy = true;
+    public static ReachAroundPolicy reachAroundPolicy = ReachAroundPolicy.UNSET;
 
     public static HitResult getReachAroundHitResult(Entity entity, HitResult hitResult) {
        // if there is already a valid hit, we don't want to override it
@@ -34,7 +34,7 @@ public class ReachAroundHandler {
     }
 
     private static boolean canReachAround(Entity cameraEntity) {
-        return  reachAroundPolicy
+        return reachAroundPolicy.canReachAround(Controlify.instance().config().globalSettings().reachAround)
                 // don't want to place blocks while riding an entity
                 && cameraEntity.getVehicle() == null
                 // straight ahead = 0deg, up = -90deg, down = 90deg
@@ -42,8 +42,6 @@ public class ReachAroundHandler {
                 && cameraEntity.getXRot() >= 45
                 // if the player is not standing on a block, this is inappropriate
                 // this also prevents selecting fluids as a valid position
-                && cameraEntity.onGround()
-                // must respect config option
-                && Controlify.instance().config().globalSettings().reachAround.canReachAround();
+                && cameraEntity.onGround();
     }
 }

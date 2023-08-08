@@ -1,5 +1,6 @@
 package dev.isxander.controlify.server;
 
+import dev.isxander.yacl3.config.ConfigEntry;
 import dev.isxander.yacl3.config.ConfigInstance;
 import dev.isxander.yacl3.config.GsonConfigInstance;
 import net.fabricmc.loader.api.FabricLoader;
@@ -9,5 +10,5 @@ public class ControlifyServerConfig {
             .setPath(FabricLoader.getInstance().getConfigDir().resolve("controlify.json"))
             .build();
 
-    public boolean reachAroundPolicy = false;
+    @ConfigEntry public boolean reachAroundPolicy = false;
 }

@@ -15,6 +15,7 @@ import dev.isxander.controlify.gui.screen.SubmitUnknownControllerScreen;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
+import dev.isxander.controlify.reacharound.ReachAroundPolicy;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.hid.ControllerHIDService;
@@ -248,7 +249,7 @@ public class Controlify implements ControlifyApi {
         });
         ClientPlayNetworking.registerGlobalReceiver(ReachAroundPolicyPacket.TYPE, (packet, player, sender) -> {
             Log.LOGGER.info("Connected server specified reach around policy is {}.", packet.allowed() ? "ALLOWED" : "DISALLOWED");
-            ReachAroundHandler.reachAroundPolicy = packet.allowed();
+            ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.fromServer(packet.allowed());
 
             if (config().globalSettings().reachAround == ReachAroundMode.EVERYWHERE && !packet.allowed()) {
                 ToastUtils.sendToast(
@@ -260,7 +261,7 @@ public class Controlify implements ControlifyApi {
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             DebugLog.log("Disconnected from server, resetting reach around policy");
-            ReachAroundHandler.reachAroundPolicy = true;
+            ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.UNSET;
         });
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
@@ -602,6 +603,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (foundVersion != null) {
+            Log.LOGGER.info("Sending new features toast for {}", foundVersion);
             ToastUtils.sendToast(
                     Component.translatable("controlify.new_features.title", foundVersion),
                     Component.translatable("controlify.new_features." + foundVersion),
