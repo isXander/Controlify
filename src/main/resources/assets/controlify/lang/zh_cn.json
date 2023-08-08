@@ -293,7 +293,7 @@
   "controlify.radial_menu.configure_hint": "在手柄设置中配置操作。",
 
   "controlify.controller_submission.title": "提交未知手柄",
-  "controlify.controller_submission.message": "Please submit some of your controller info to Controlify's database to get it added in a future update.\n\nControlify sends the following information:\n- Your controller's vendor & product IDs\n- Your controller's GUID\n- The name of your controller (in the box below)\n- The version of Controlify you are currently on\n\nThis is completely anonymous and doesn't store any of your personal or account information.",
+  "controlify.controller_submission.message": "请将你的一些手柄信息提交到Controlify的数据库，以便在未来的更新中添加它。\n\nControlify将发送以下信息：\n- 你的手柄的供应商和产品ID\n- 你的手柄的GUID\n- 你的手柄名称（在下面的输入框中）\n- 你当前使用的Controlify版本\n\n这是完全匿名的，不会存储你的任何个人信息或账号信息。",
   "controlify.controller_submission.operational_checkbox": "你的手柄能与Controlify正常使用吗？",
   "controlify.controller_submission.submit": "提交数据",
   "controlify.controller_submission.skip": "跳过",
