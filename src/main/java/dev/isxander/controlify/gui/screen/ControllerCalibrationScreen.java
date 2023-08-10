@@ -167,7 +167,7 @@ public class ControllerCalibrationScreen extends Screen {
     private void applyDeadzones() {
         deadzoneCalibration.forEach((i, data) -> {
             var max = Arrays.stream(data).max().orElseThrow();
-            controller.config().setDeadzone(i, (float) max + 0.05f);
+            controller.config().setDeadzone(i, (float) max + 0.08f);
         });
     }
 
