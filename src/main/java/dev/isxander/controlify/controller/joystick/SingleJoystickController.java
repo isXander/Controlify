@@ -91,15 +91,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     }
 
     @Override
-    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
         if (!supportsRumble()) return false;
-
-        var strengthMod = config().getRumbleStrength(source);
-        if (source != RumbleSource.MASTER)
-            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
-
-        strongMagnitude *= strengthMod;
-        weakMagnitude *= strengthMod;
 
         // the duration doesn't matter because we are not updating the joystick state,
         // so there is never any SDL check to stop the rumble after the desired time.

@@ -7,6 +7,7 @@ import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
@@ -54,13 +55,18 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
         private final RumbleManager rumbleManager = new RumbleManager(new RumbleCapable() {
             @Override
-            public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+            public boolean setRumble(float strongMagnitude, float weakMagnitude) {
                 return false;
             }
 
             @Override
             public boolean supportsRumble() {
                 return false;
+            }
+
+            @Override
+            public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source) {
+                return state;
             }
         });
         private final ControllerConfig config = new ControllerConfig() {

@@ -8,7 +8,6 @@ import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.Log;
 import net.minecraft.resources.ResourceLocation;
@@ -116,15 +115,8 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     }
 
     @Override
-    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
         if (!supportsRumble() || !config().allowVibrations) return false;
-
-        var strengthMod = config().getRumbleStrength(source);
-        if (source != RumbleSource.MASTER)
-            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
-
-        strongMagnitude *= strengthMod;
-        weakMagnitude *= strengthMod;
 
         return drivers.rumbleDriver().rumble(Math.min(strongMagnitude, 1), Math.min(weakMagnitude, 1));
     }

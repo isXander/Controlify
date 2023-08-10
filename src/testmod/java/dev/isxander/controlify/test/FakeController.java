@@ -14,6 +14,7 @@ import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMappi
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.rumble.RumbleState;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,13 +42,18 @@ public class FakeController implements JoystickController<JoystickConfig> {
         this.config = new JoystickConfig(this);
         this.rumbleManager = new RumbleManager(new RumbleCapable() {
             @Override
-            public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+            public boolean setRumble(float strongMagnitude, float weakMagnitude) {
                 return false;
             }
 
             @Override
             public boolean supportsRumble() {
                 return false;
+            }
+
+            @Override
+            public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source) {
+                return state;
             }
         });
         this.config.deadzonesCalibrated = true;

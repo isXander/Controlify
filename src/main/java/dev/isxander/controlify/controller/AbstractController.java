@@ -8,6 +8,8 @@ import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
+import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.utils.Log;
 import org.apache.commons.lang3.SerializationUtils;
 import org.lwjgl.glfw.GLFW;
@@ -126,6 +128,14 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     @Override
     public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
         return Optional.of(hidInfo);
+    }
+
+    @Override
+    public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source) {
+        float strengthMod = config().getRumbleStrength(source);
+        if (source != RumbleSource.MASTER)
+            strengthMod *= config().getRumbleStrength(RumbleSource.MASTER);
+        return state.mul(strengthMod);
     }
 
     @Override

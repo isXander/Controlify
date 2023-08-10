@@ -30,38 +30,41 @@ public class RumbleManager {
     }
 
     public void tick() {
-        RumbleEffectInstance effect;
-        do {
-            effect = effectQueue.peek();
-
-            // if we have no effects, break out of loop and get the null check
-            if (effect == null)
-                break;
-
-            // if the effect is finished, remove and set null, so we loop again
-            if (effect.effect().isFinished()) {
-                effectQueue.remove(effect);
-                effect = null;
-            }
-        } while (effect == null);
-
-        if (effect == null) {
-            controller.setRumble(0f, 0f, RumbleSource.MASTER);
-            return;
-        }
-
         effectQueue.removeIf(e -> e.effect().isFinished());
         effectQueue.forEach(e -> e.effect().tick());
 
-        if (silent) {
-            if (!wasSilent) {
-                controller.setRumble(0f, 0f, RumbleSource.MASTER);
-                wasSilent = true;
-            }
-        } else {
-            RumbleState state = effect.effect().currentState();
-            controller.setRumble(state.strong(), state.weak(), effect.source());
+        if (effectQueue.isEmpty()) {
+            clearRumble();
+            return;
         }
+
+        float strong = 0f, weak = 0f;
+        for (RumbleEffectInstance effect : effectQueue) {
+            RumbleState effectState = controller.applyRumbleSourceStrength(effect.effect().currentState(), effect.source());
+            strong = Math.max(strong, effectState.strong());
+            weak = Math.max(weak, effectState.weak());
+        }
+        RumbleState state = new RumbleState(strong, weak);
+
+        if (state.isZero()) {
+            clearRumble();
+            return;
+        }
+
+        if (silent) {
+            clearRumble();
+        } else {
+            controller.setRumble(state.strong(), state.weak());
+            wasSilent = false;
+        }
+    }
+
+    private void clearRumble() {
+        if (wasSilent)
+            return;
+
+        controller.setRumble(0f, 0f);
+        wasSilent = true;
     }
 
     public void clearEffects() {

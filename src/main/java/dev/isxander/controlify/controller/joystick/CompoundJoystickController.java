@@ -11,6 +11,7 @@ import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.utils.Log;
 import org.lwjgl.glfw.GLFW;
 
@@ -143,13 +144,18 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
     }
 
     @Override
-    public boolean setRumble(float strongMagnitude, float weakMagnitude, RumbleSource source) {
+    public boolean setRumble(float strongMagnitude, float weakMagnitude) {
         return false;
     }
 
     @Override
     public boolean supportsRumble() {
         return false;
+    }
+
+    @Override
+    public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source) {
+        return state;
     }
 
     @Override
