@@ -36,7 +36,7 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
         Entity entity = Minecraft.getInstance().level.getEntity(entityId);
         return ContinuousRumbleEffect.builder()
                 .constant(state)
-                .inWorld(() -> entity.position(), 0, 1, range, Easings::easeInSine)
+                .inWorld(entity::position, 0, 1, range, Easings::easeInSine)
                 .timeout(duration)
                 .build();
     }
