@@ -322,6 +322,9 @@
   "controlify.command.vibratecontroller.entity.single": "Vibrated controller of 1 player from %s's position.",
   "controlify.command.vibratecontroller.entity.multiple": "Vibrated controller of %s players from %s's position.",
 
+  "controlify.compat.svc.hold": "(Hold)",
+  "controlify.compat.svc.toggle": "(Toggle)",
+
   "controlify.hat_state.up": "Up",
   "controlify.hat_state.down": "Down",
   "controlify.hat_state.left": "Left",

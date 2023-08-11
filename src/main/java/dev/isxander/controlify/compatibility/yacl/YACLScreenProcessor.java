@@ -21,14 +21,4 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
 
         super.handleButtons(controller);
     }
-
-    @Override
-    public void onWidgetRebuild() {
-        //ButtonGuideApi.addGuideToButton(screen.finishedSaveButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
-    }
-
-    @Override
-    protected void setInitialFocus() {
-//        screen.setFocused(screen.optionList);
-    }
 }

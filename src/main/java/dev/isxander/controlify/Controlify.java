@@ -3,6 +3,7 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
 import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
 import dev.isxander.controlify.controller.Controller;
@@ -264,6 +265,7 @@ public class Controlify implements ControlifyApi {
             ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.UNSET;
         });
 
+        ControlifyCompat.init();
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControlifyPreInit(this);

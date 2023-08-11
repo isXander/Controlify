@@ -18,6 +18,7 @@ quilt_json5 = "1.0.3"
 sodium = "mc1.20.1-0.5.0"
 iris = "1.6.5+1.20.1"
 immediately_fast = "1.1.25+1.20.1"
+simple_voice_chat = "fabric-1.20.1-2.4.18"
 sdl2_jni = "2.28.2-26"
 
 [libraries]
@@ -33,6 +34,7 @@ quilt_json5 = { module = "org.quiltmc:quilt-json5", version.ref = "quilt_json5" 
 sodium = { module = "maven.modrinth:sodium", version.ref = "sodium" }
 iris = { module = "maven.modrinth:iris", version.ref = "iris" }
 immediately_fast = { module = "maven.modrinth:immediatelyfast", version.ref = "immediately_fast" }
+simple_voice_chat = { module = "maven.modrinth:simple-voice-chat", version.ref = "simple_voice_chat" }
 sdl2_jni = { module = "dev.isxander:sdl2-jni", version.ref = "sdl2_jni" }
 
 test_fabric_loader = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric_loader" }

@@ -118,6 +118,9 @@ dependencies {
     modImplementation(libs.immediately.fast)
     modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
+    // simple-voice-chat compat
+    modImplementation(libs.simple.voice.chat)
+
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)
 }

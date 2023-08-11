@@ -9,6 +9,8 @@
   "client": [
     "compat.fapi.KeyBindingRegistryImplAccessor",
     "compat.iris.BaseOptionElementWidgetMixin",
+    "compat.simplevoicechat.KeyEventsAccessor",
+    "compat.simplevoicechat.PTTKeyHandlerMixin",
     "compat.sodium.CycleControlElementMixin",
     "compat.sodium.SliderControlElementMixin",
     "compat.sodium.SodiumOptionsGUIAccessor",
