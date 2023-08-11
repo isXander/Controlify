@@ -89,6 +89,8 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
+        ControlifyCompat.init();
+
         var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1).anyMatch(GLFW::glfwJoystickPresent);
         if (controllersConnected) {
             if (!config().globalSettings().delegateSetup) {
@@ -265,7 +267,6 @@ public class Controlify implements ControlifyApi {
             ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.UNSET;
         });
 
-        ControlifyCompat.init();
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControlifyPreInit(this);

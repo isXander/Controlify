@@ -7,6 +7,7 @@ import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.mixins.compat.simplevoicechat.KeyEventsAccessor;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -18,8 +19,13 @@ public class SimpleVoiceChatCompat {
     private static boolean pttDown, whisperDown;
 
     public static void init() {
+        ResourceLocation muteIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone_off.png"));
+        ResourceLocation pttIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone.png"));
+        ResourceLocation whisperIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone_whisper.png"));
+
         ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_PTT);
         ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_WHISPER);
+        ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_MUTE);
 
         Component category = Component.translatable("key.categories.voicechat");
         pttHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_hold"), builder -> builder
@@ -29,7 +35,8 @@ public class SimpleVoiceChatCompat {
         pttToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_toggle"), builder -> builder
                 .name(Component.translatable("key.push_to_talk").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
                 .category(category)
-                .defaultBind(new EmptyBind<>()));
+                .defaultBind(new EmptyBind<>())
+                .radialCandidate(pttIcon));
         whisperHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_hold"), builder -> builder
                 .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
                 .category(category)
@@ -37,7 +44,14 @@ public class SimpleVoiceChatCompat {
         whisperToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_toggle"), builder -> builder
                 .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
                 .category(category)
-                .defaultBind(new EmptyBind<>()));
+                .defaultBind(new EmptyBind<>())
+                .radialCandidate(whisperIcon));
+        ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "mute_microphone"), builder -> builder
+                .name(Component.translatable("key.mute_microphone"))
+                .category(category)
+                .defaultBind(new EmptyBind<>())
+                .vanillaOverride(KeyEvents.KEY_MUTE)
+                .radialCandidate(muteIcon));
 
         ControlifyEvents.ACTIVE_CONTROLLER_TICKED.register(controller -> {
             var pttHold = pttHoldSupplier.onController(controller);
@@ -79,6 +93,14 @@ public class SimpleVoiceChatCompat {
     }
 
     private static void checkConnected() {
-        ((KeyEventsAccessor) ClientManager.instance().getKeyEvents()).invokeCheckConnected();
+        if (Minecraft.getInstance().getOverlay() == null && Minecraft.getInstance().screen == null) {
+            ((KeyEventsAccessor) ClientManager.instance().getKeyEvents()).invokeCheckConnected();
+        }
+    }
+
+    private static ResourceLocation registerIcon16x(ResourceLocation location) {
+        ControlifyBindingsApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
+                graphics.blit(location, x, y, 0, 0f, 0f, 16, 16, 16, 16)));
+        return location;
     }
 }
