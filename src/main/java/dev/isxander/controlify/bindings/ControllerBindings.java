@@ -5,6 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
+import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -615,6 +616,11 @@ public class ControllerBindings<T extends ControllerState> {
         @Override
         public void excludeVanillaBind(KeyMapping... keyMappings) {
             EXCLUDED_VANILLA_BINDS.addAll(Arrays.asList(keyMappings));
+        }
+
+        @Override
+        public void registerRadialIcon(ResourceLocation id, RadialIcon icon) {
+            RadialIcons.registerIcon(id, icon);
         }
     }
 }

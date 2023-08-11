@@ -55,6 +55,15 @@ public interface ControlifyBindingsApi {
      */
     void excludeVanillaBind(KeyMapping... keyMapping);
 
+    /**
+     * Registers a radial icon to be used in the radial menu.
+     * The identifier should be passed to {@link ControllerBindingBuilder#radialCandidate(ResourceLocation)}.
+     *
+     * @param id the identifier for the icon, the namespace should be your modid.
+     * @param icon the renderer for the icon.
+     */
+    void registerRadialIcon(ResourceLocation id, RadialIcon icon);
+
     static ControlifyBindingsApi get() {
         return ControllerBindings.Api.INSTANCE;
     }

@@ -3,6 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
+import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.gui.guide.GuideAction;
@@ -213,7 +214,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         private boolean focused;
         private ControllerBinding binding;
         private MultiLineLabel name;
-        private RadialIcons.Icon icon;
+        private RadialIcon icon;
 
         private RadialButton(int index, float x, float y) {
             this.setX(x);
@@ -236,7 +237,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 graphics.pose().pushPose();
                 graphics.pose().translate(4, 4, 0);
                 graphics.pose().scale(1.5f, 1.5f, 1);
-                this.icon.draw(graphics, 0, 0);
+                this.icon.draw(graphics, 0, 0, delta);
                 graphics.pose().popPose();
             } else {
                 BindRenderer renderer = controller.bindings().GUI_PRESS.renderer();
