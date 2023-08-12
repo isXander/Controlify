@@ -17,6 +17,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
+import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -220,7 +221,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.setX(x);
             this.setY(y);
 
-            this.setAction(controller.config().radialActions[index]);
+            ResourceLocation binding = controller.config().radialActions[index];
+            if (controller.bindings().get(binding) == null) {
+                Log.LOGGER.warn("Binding {} does not exist!", binding);
+                controller.config().radialActions[index] = EMPTY_ACTION;
+                Controlify.instance().config().setDirty();
+            }
+            this.setAction(binding);
         }
 
         @Override
@@ -259,7 +266,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         public void setAction(ResourceLocation binding) {
-            if (!EMPTY_ACTION.equals(binding)) {
+            if (!EMPTY_ACTION.equals(binding) && controller.bindings().get(binding) != null) {
                 this.binding = controller.bindings().get(binding);
                 this.icon = RadialIcons.getIcons().get(this.binding.radialIcon().orElseThrow());
                 this.name = MultiLineLabel.create(font, this.binding.name(), 76);
