@@ -52,6 +52,7 @@ public class MultiPlayerGameModeMixin {
         return original;
     }
 
+    @Unique
     private void startRumble(BlockState state) {
         stopRumble();
 
@@ -68,6 +69,7 @@ public class MultiPlayerGameModeMixin {
                 .ifPresent(controller -> controller.rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect));
     }
 
+    @Unique
     private void stopRumble() {
         if (blockBreakRumble != null) {
             blockBreakRumble.stop();

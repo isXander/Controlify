@@ -46,6 +46,7 @@ public class FishingHookMixin {
         stopBitingRumble();
     }
 
+    @Unique
     private void stopBitingRumble() {
         if (bitingRumble != null) {
             bitingRumble.stop();
