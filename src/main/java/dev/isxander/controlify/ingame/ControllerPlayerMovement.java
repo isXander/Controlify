@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class ControllerPlayerMovement extends Input {
     private final Controller<?, ?> controller;
     private final LocalPlayer player;
+    private boolean wasFlying, wasPassenger;
 
     public ControllerPlayerMovement(Controller<?, ?> controller, LocalPlayer player) {
         this.controller = controller;
@@ -69,6 +70,12 @@ public class ControllerPlayerMovement extends Input {
                 this.shiftKeyDown = !this.shiftKeyDown;
             }
         }
+        if ((!player.getAbilities().flying && wasFlying && player.onGround()) || (!player.isPassenger() && wasPassenger)) {
+            this.shiftKeyDown = false;
+        }
+
+        this.wasFlying = player.getAbilities().flying;
+        this.wasPassenger = player.isPassenger();
     }
 
     public static void updatePlayerInput(@Nullable LocalPlayer player) {
