@@ -49,6 +49,9 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         }
 
         this.bindings = new ControllerBindings<>(this);
+
+        this.config.validateRadialActions(bindings);
+        this.defaultConfig.validateRadialActions(bindings);
     }
 
     @Override

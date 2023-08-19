@@ -36,6 +36,9 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
         this.rumbleManager = new RumbleManager(this);
 
         this.bindings = new ControllerBindings<>(this);
+
+        this.config.validateRadialActions(bindings);
+        this.defaultConfig.validateRadialActions(bindings);
     }
 
     @Override
