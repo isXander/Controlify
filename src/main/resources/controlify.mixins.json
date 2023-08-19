@@ -43,6 +43,7 @@
     "feature.guide.screen.AbstractContainerScreenAccessor",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
+    "feature.input.MinecraftMixin",
     "feature.oofinput.GameRendererMixin",
     "feature.reacharound.GameRendererMixin",
     "feature.rumble.blockbreak.MultiPlayerGameModeMixin",

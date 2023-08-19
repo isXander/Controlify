@@ -60,9 +60,10 @@ public class ControllerBindings<T extends ControllerState> {
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
             GUI_ABSTRACT_ACTION_1, GUI_ABSTRACT_ACTION_2,
-            PICK_BLOCK,
+            PICK_BLOCK, PICK_BLOCK_NBT,
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST,
+            TAKE_SCREENSHOT,
             RADIAL_MENU, RADIAL_AXIS_UP, RADIAL_AXIS_DOWN, RADIAL_AXIS_LEFT, RADIAL_AXIS_RIGHT,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
@@ -294,7 +295,13 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.STICK))
-                .vanillaOverride(options.keyPickItem, () -> false)
+                .build());
+        register(PICK_BLOCK_NBT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "pick_block_nbt")
+                .defaultBind(new EmptyBind<>())
+                .category(GAMEPLAY_CATEGORY)
+                .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK))
                 .build());
         register(TOGGLE_HUD_VISIBILITY = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "toggle_hud_visibility")
@@ -309,6 +316,13 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.PLAYER_HEAD))
+                .build());
+        register(TAKE_SCREENSHOT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "take_screenshot")
+                .defaultBind(new EmptyBind<>())
+                .category(MISC_CATEGORY)
+                .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.SPYGLASS))
                 .build());
         register(RADIAL_MENU = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "radial_menu")

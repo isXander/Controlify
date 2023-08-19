@@ -241,6 +241,11 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.pick_block"));
             return Optional.empty();
         });
+        registerGuideAction(controller.bindings().PICK_BLOCK_NBT, ActionLocation.RIGHT, (ctx) -> {
+            if (ctx.hitResult().getType() == HitResult.Type.BLOCK && ctx.player().isCreative())
+                return Optional.of(Component.translatable("controlify.binding.controlify.pick_block_nbt"));
+            return Optional.empty();
+        });
     }
 
     private HitResult calculateHitResult() {

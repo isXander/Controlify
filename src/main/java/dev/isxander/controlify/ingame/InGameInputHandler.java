@@ -8,19 +8,22 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
 import dev.isxander.controlify.utils.NavigationHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.player.KeyboardInput;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,8 +53,6 @@ public class InGameInputHandler {
     }
 
     protected void handleKeybinds() {
-        shouldShowPlayerList = false;
-
         if (minecraft.screen != null)
             return;
 
@@ -108,6 +109,21 @@ public class InGameInputHandler {
 
         if (controller.bindings().SHOW_PLAYER_LIST.justPressed()) {
             shouldShowPlayerList = !shouldShowPlayerList;
+        }
+
+        if (controller.bindings().TAKE_SCREENSHOT.justPressed()) {
+            Screenshot.grab(
+                    this.minecraft.gameDirectory,
+                    this.minecraft.getMainRenderTarget(),
+                    component -> this.minecraft.execute(() -> this.minecraft.gui.getChat().addMessage(component))
+            );
+        }
+
+        if (controller.bindings().PICK_BLOCK.justPressed()) {
+            ((PickBlockAccessor) minecraft).controlify$pickBlock();
+        }
+        if (controller.bindings().PICK_BLOCK_NBT.justPressed()) {
+            ((PickBlockAccessor) minecraft).controlify$pickBlockWithNbt();
         }
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {

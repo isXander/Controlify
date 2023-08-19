@@ -80,7 +80,7 @@ public abstract class ControllerConfig implements Serializable {
             case 3 -> bindings.OPEN_CHAT.id();
             case 4 -> bindings.SWAP_HANDS.id();
             case 5 -> bindings.PICK_BLOCK.id();
-            case 6 -> bindings.PAUSE.id();
+            case 6 -> bindings.TAKE_SCREENSHOT.id();
             case 7 -> bindings.SHOW_PLAYER_LIST.id();
             default -> RadialMenuScreen.EMPTY_ACTION;
         };

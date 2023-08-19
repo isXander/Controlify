@@ -219,6 +219,8 @@
   "controlify.binding.controlify.drop": "Drop Item",
   "controlify.binding.controlify.drop_stack": "Drop Stack",
   "controlify.binding.controlify.pick_block": "Pick Block",
+  "controlify.binding.controlify.pick_block_nbt": "Pick Block (with NBT)",
+  "controlify.binding.controlify.take_screenshot": "Take Screenshot",
   "controlify.binding.controlify.toggle_hud_visibility": "Toggle HUD Visibility",
   "controlify.binding.controlify.show_player_list": "Show Player List",
   "controlify.binding.controlify.radial_menu": "Radial Menu",
