@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.5.1+1.20"
+version = "1.6.0+1.20"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Alpha version detected.")
