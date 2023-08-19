@@ -1,15 +1,12 @@
 package dev.isxander.controlify.reacharound;
 
 import dev.isxander.controlify.Controlify;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
+import dev.isxander.controlify.server.ServerPolicies;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 public class ReachAroundHandler {
-    public static ReachAroundPolicy reachAroundPolicy = ReachAroundPolicy.UNSET;
-
     public static HitResult getReachAroundHitResult(Entity entity, HitResult hitResult) {
        // if there is already a valid hit, we don't want to override it
         if (hitResult.getType() != HitResult.Type.MISS)
@@ -34,7 +31,16 @@ public class ReachAroundHandler {
     }
 
     private static boolean canReachAround(Entity cameraEntity) {
-        return reachAroundPolicy.canReachAround(Controlify.instance().config().globalSettings().reachAround)
+        boolean allowedToReachAround = switch (ServerPolicies.REACH_AROUND.get()) {
+            // straight no, not allowed
+            case DISALLOWED -> false;
+            // if unset, respect the global setting
+            case UNSET -> Controlify.instance().config().globalSettings().reachAround.canReachAround();
+            // if allowed, global setting is used but even if it singleplayer only it's still enabled.
+            case ALLOWED -> Controlify.instance().config().globalSettings().reachAround != ReachAroundMode.OFF;
+        };
+
+        return allowedToReachAround
                 // don't want to place blocks while riding an entity
                 && cameraEntity.getVehicle() == null
                 // straight ahead = 0deg, up = -90deg, down = 90deg

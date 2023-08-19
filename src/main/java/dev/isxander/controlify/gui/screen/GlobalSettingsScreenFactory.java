@@ -3,9 +3,9 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
-import dev.isxander.controlify.reacharound.ReachAroundHandler;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
-import dev.isxander.controlify.reacharound.ReachAroundPolicy;
+import dev.isxander.controlify.server.ServerPolicies;
+import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
@@ -42,17 +42,16 @@ public class GlobalSettingsScreenFactory {
                                         .text(Component.translatable("controlify.gui.reach_around.tooltip"))
                                         .text(Component.translatable("controlify.gui.reach_around.tooltip.parity").withStyle(ChatFormatting.GRAY))
                                         .text(state == ReachAroundMode.EVERYWHERE ? Component.translatable("controlify.gui.reach_around.tooltip.warning").withStyle(ChatFormatting.RED) : Component.empty())
-                                        .text(ReachAroundHandler.reachAroundPolicy != ReachAroundPolicy.UNSET ? Component.translatable("controlify.gui.reach_around.tooltip.server_controlled").withStyle(ChatFormatting.GOLD) : Component.empty())
+                                        .text(ServerPolicies.REACH_AROUND.get() != ServerPolicy.DISALLOWED ? Component.translatable("controlify.gui.server_controlled").withStyle(ChatFormatting.GOLD) : Component.empty())
                                         .build())
                                 .binding(GlobalSettings.DEFAULT.reachAround, () -> globalSettings.reachAround, v -> globalSettings.reachAround = v)
                                 .controller(opt -> EnumControllerBuilder.create(opt)
                                         .enumClass(ReachAroundMode.class)
-                                        .valueFormatter(mode -> switch (ReachAroundHandler.reachAroundPolicy) {
-                                            case UNSET -> mode.getDisplayName();
-                                            case ALLOWED -> CommonComponents.OPTION_ON;
+                                        .valueFormatter(mode -> switch (ServerPolicies.REACH_AROUND.get()) {
+                                            case UNSET, ALLOWED -> mode.getDisplayName();
                                             case DISALLOWED -> CommonComponents.OPTION_OFF;
                                         }))
-                                .available(ReachAroundHandler.reachAroundPolicy == ReachAroundPolicy.UNSET)
+                                .available(ServerPolicies.REACH_AROUND.get().isAllowed())
                                 .build())
                         .option(Option.<Boolean>createBuilder()
                                 .name(Component.translatable("controlify.gui.ui_sounds"))

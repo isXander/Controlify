@@ -21,6 +21,7 @@ public abstract class ControllerConfig implements Serializable {
     public boolean autoJump = false;
     public boolean toggleSprint = true;
     public boolean toggleSneak = true;
+    public boolean disableFlyDrifting = false;
 
     public String customName = null;
 

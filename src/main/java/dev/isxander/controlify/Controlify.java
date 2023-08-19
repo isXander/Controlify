@@ -14,9 +14,7 @@ import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
 import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
 import dev.isxander.controlify.gui.screen.SubmitUnknownControllerScreen;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
-import dev.isxander.controlify.reacharound.ReachAroundHandler;
-import dev.isxander.controlify.reacharound.ReachAroundMode;
-import dev.isxander.controlify.reacharound.ReachAroundPolicy;
+import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.hid.ControllerHIDService;
@@ -24,10 +22,6 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
-import dev.isxander.controlify.server.EntityVibrationPacket;
-import dev.isxander.controlify.server.OriginVibrationPacket;
-import dev.isxander.controlify.server.ReachAroundPolicyPacket;
-import dev.isxander.controlify.server.VibrationPacket;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
@@ -250,21 +244,13 @@ public class Controlify implements ControlifyApi {
                         controller.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(ReachAroundPolicyPacket.TYPE, (packet, player, sender) -> {
-            Log.LOGGER.info("Connected server specified reach around policy is {}.", packet.allowed() ? "ALLOWED" : "DISALLOWED");
-            ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.fromServer(packet.allowed());
-
-            if (config().globalSettings().reachAround == ReachAroundMode.EVERYWHERE && !packet.allowed()) {
-                ToastUtils.sendToast(
-                        Component.translatable("controlify.toast.reach_around_disallowed.title"),
-                        Component.translatable("controlify.toast.reach_around_disallowed.description"),
-                        false
-                );
-            }
+        ClientPlayNetworking.registerGlobalReceiver(ServerPolicyPacket.TYPE, (packet, player, sender) -> {
+            Log.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
+            ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            DebugLog.log("Disconnected from server, resetting reach around policy");
-            ReachAroundHandler.reachAroundPolicy = ReachAroundPolicy.UNSET;
+            DebugLog.log("Disconnected from server, resetting server policies");
+            ServerPolicies.unsetAll();
         });
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {

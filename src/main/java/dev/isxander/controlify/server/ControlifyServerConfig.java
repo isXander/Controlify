@@ -11,4 +11,5 @@ public class ControlifyServerConfig {
             .build();
 
     @ConfigEntry public boolean reachAroundPolicy = false;
+    @ConfigEntry public boolean noFlyDriftPolicy = false;
 }

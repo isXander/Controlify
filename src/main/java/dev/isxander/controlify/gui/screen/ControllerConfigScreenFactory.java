@@ -16,6 +16,8 @@ import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.server.ServerPolicies;
+import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
@@ -163,6 +165,16 @@ public class ControllerConfigScreenFactory {
                         .binding(def.autoJump, () -> config.autoJump, v -> config.autoJump = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .onOffFormatter())
+                        .build())
+                .option(Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.no_fly_drifting"))
+                        .description(OptionDescription.createBuilder()
+                                .text(Component.translatable("controlify.gui.no_fly_drifting.tooltip"))
+                                .text(ServerPolicies.DISABLE_FLY_DRIFTING.get() != ServerPolicy.UNSET ? Component.translatable("controlify.gui.server_controlled").withStyle(ChatFormatting.GOLD) : Component.empty())
+                                .build())
+                        .binding(def.disableFlyDrifting, () -> ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed() && config.disableFlyDrifting, v -> config.disableFlyDrifting = v)
+                        .controller(TickBoxControllerBuilder::create)
+                        .available(ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed())
                         .build())
                 .build();
     }

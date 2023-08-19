@@ -21,10 +21,17 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
     @Override
     public void onInitializeServer() {
         ControlifyServerConfig.INSTANCE.load();
+        ControlifyServerConfig.INSTANCE.save();
+
         Log.LOGGER.info("Reach-around policy: " + ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy);
+        Log.LOGGER.info("No-fly drift policy: " + ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy);
 
         ServerPlayConnectionEvents.INIT.register((handler, server) -> {
-            ServerPlayNetworking.send(handler.getPlayer(), new ReachAroundPolicyPacket(ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));
+            ServerPlayNetworking.send(handler.getPlayer(), new ServerPolicyPacket(ServerPolicies.REACH_AROUND.getId(), ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));
+            ServerPlayNetworking.send(handler.getPlayer(), new ServerPolicyPacket(ServerPolicies.DISABLE_FLY_DRIFTING.getId(), ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy));
+
+            // backwards compat
+            ServerPlayNetworking.send(handler.getPlayer(), new LegacyReachAroundPolicyPacket(ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));
         });
     }
 }

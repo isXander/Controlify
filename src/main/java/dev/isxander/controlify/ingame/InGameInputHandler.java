@@ -50,6 +50,7 @@ public class InGameInputHandler {
     public void inputTick() {
         handlePlayerLookInput();
         handleKeybinds();
+        preventFlyDrifting();
     }
 
     protected void handleKeybinds() {
@@ -231,6 +232,32 @@ public class InGameInputHandler {
 
     public boolean shouldShowPlayerList() {
         return this.shouldShowPlayerList;
+    }
+
+    public void preventFlyDrifting() {
+        if (!controller.config().disableFlyDrifting || !ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed()) {
+            return;
+        }
+
+        LocalPlayer player = minecraft.player;
+        if (player != null && player.getAbilities().flying && !player.onGround()) {
+            Vec3 motion = player.getDeltaMovement();
+            double x = motion.x;
+            double y = motion.y;
+            double z = motion.z;
+
+            if (!player.input.jumping)
+                y = Math.min(y, 0);
+            if (!player.input.shiftKeyDown)
+                y = Math.max(y, 0);
+
+            if (player.input.forwardImpulse == 0 && player.input.leftImpulse == 0) {
+                x = 0;
+                z = 0;
+            }
+
+            player.setDeltaMovement(x, y, z);
+        }
     }
 
     private boolean isAiming(Player player) {
