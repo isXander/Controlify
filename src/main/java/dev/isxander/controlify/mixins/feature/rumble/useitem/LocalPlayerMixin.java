@@ -1,21 +1,20 @@
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.rumble.*;
+import dev.isxander.controlify.rumble.effects.UseItemEffectHolder;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends LivingEntityMixin {
+public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseItemEffectHolder {
     @Unique private ContinuousRumbleEffect useItemRumble;
 
     @Override
@@ -73,5 +72,10 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin {
             controller.rumbleManager().play(RumbleSource.USE_ITEM, effect);
             useItemRumble = effect;
         });
+    }
+
+    @Override
+    public @Nullable ContinuousRumbleEffect controlify$getUseItemEffect() {
+        return useItemRumble;
     }
 }
