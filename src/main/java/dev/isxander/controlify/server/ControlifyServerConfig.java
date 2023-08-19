@@ -10,6 +10,6 @@ public class ControlifyServerConfig {
             .setPath(FabricLoader.getInstance().getConfigDir().resolve("controlify.json"))
             .build();
 
-    @ConfigEntry public boolean reachAroundPolicy = false;
-    @ConfigEntry public boolean noFlyDriftPolicy = false;
+    @ConfigEntry public boolean reachAroundPolicy = true;
+    @ConfigEntry public boolean noFlyDriftPolicy = true;
 }

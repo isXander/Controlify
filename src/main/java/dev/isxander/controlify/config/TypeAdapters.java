@@ -8,7 +8,6 @@ import java.lang.reflect.Type;
 
 public final class TypeAdapters {
     public static class ClassTypeAdapter implements JsonSerializer<Class<?>>, JsonDeserializer<Class<?>> {
-
         @Override
         public Class<?> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             try {
