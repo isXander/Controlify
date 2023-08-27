@@ -1,13 +1,13 @@
 package dev.isxander.controlify.compatibility.immediatelyfast;
 
-import net.raphimc.immediatelyfast.feature.batching.BatchingBuffers;
+import net.raphimc.immediatelyfastapi.ImmediatelyFastApi;
 
 public class ImmediatelyFastCompat {
     public static void beginHudBatching() {
-        BatchingBuffers.beginHudBatching();
+        ImmediatelyFastApi.getApiImpl().getBatching().beginHudBatching();
     }
 
     public static void endHudBatching() {
-        BatchingBuffers.endHudBatching();
+        ImmediatelyFastApi.getApiImpl().getBatching().endHudBatching();
     }
 }

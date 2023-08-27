@@ -17,7 +17,7 @@ hid4java = "0.7.0"
 quilt_json5 = "1.0.3"
 sodium = "mc1.20.1-0.5.0"
 iris = "1.6.5+1.20.1"
-immediately_fast = "1.1.25+1.20.1"
+immediately_fast = "1.2.0+1.20.1"
 simple_voice_chat = "fabric-1.20.1-2.4.18"
 sdl2_jni = "2.28.2-26"
 
