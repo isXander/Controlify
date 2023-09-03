@@ -6,6 +6,7 @@ import dev.isxander.controlify.screenop.compat.vanilla.PauseScreenProcessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.PauseScreen;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -13,9 +14,10 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(PauseScreen.class)
 public class PauseScreenMixin implements ScreenProcessorProvider {
     @Shadow private @Nullable Button disconnectButton;
+    @Shadow @Final private boolean showPauseMenu;
 
-    @Unique private final PauseScreenProcessor processor
-            = new PauseScreenProcessor((PauseScreen) (Object) this, () -> disconnectButton);
+    @Unique private final PauseScreenProcessor processor =
+            new PauseScreenProcessor((PauseScreen) (Object) this, showPauseMenu, () -> disconnectButton);
 
     @Override
     public ScreenProcessor<?> screenProcessor() {

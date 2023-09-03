@@ -14,9 +14,11 @@ import java.util.function.Supplier;
 
 public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     private final Supplier<Button> disconnectButtonSupplier;
+    private final boolean showButtons;
 
-    public PauseScreenProcessor(PauseScreen screen, Supplier<Button> disconnectButtonSupplier) {
+    public PauseScreenProcessor(PauseScreen screen, boolean showButtons, Supplier<Button> disconnectButtonSupplier) {
         super(screen);
+        this.showButtons = showButtons;
         this.disconnectButtonSupplier = disconnectButtonSupplier;
     }
 
@@ -36,23 +38,25 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
 
-        ButtonGuideApi.addGuideToButtonBuiltin(
-                (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
-                bindings -> bindings.GUI_BACK,
-                ButtonRenderPosition.TEXT,
-                ButtonGuidePredicate.ALWAYS
-        );
-        ButtonGuideApi.addGuideToButtonBuiltin(
-                (AbstractButton) getWidget("menu.options").orElseThrow(),
-                bindings -> bindings.GUI_ABSTRACT_ACTION_1,
-                ButtonRenderPosition.TEXT,
-                ButtonGuidePredicate.ALWAYS
-        );
-        ButtonGuideApi.addGuideToButtonBuiltin(
-                disconnectButtonSupplier.get(),
-                bindings -> bindings.GUI_ABSTRACT_ACTION_2,
-                ButtonRenderPosition.TEXT,
-                ButtonGuidePredicate.ALWAYS
-        );
+        if (showButtons) {
+            ButtonGuideApi.addGuideToButtonBuiltin(
+                    (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
+                    bindings -> bindings.GUI_BACK,
+                    ButtonRenderPosition.TEXT,
+                    ButtonGuidePredicate.ALWAYS
+            );
+            ButtonGuideApi.addGuideToButtonBuiltin(
+                    (AbstractButton) getWidget("menu.options").orElseThrow(),
+                    bindings -> bindings.GUI_ABSTRACT_ACTION_1,
+                    ButtonRenderPosition.TEXT,
+                    ButtonGuidePredicate.ALWAYS
+            );
+            ButtonGuideApi.addGuideToButtonBuiltin(
+                    disconnectButtonSupplier.get(),
+                    bindings -> bindings.GUI_ABSTRACT_ACTION_2,
+                    ButtonRenderPosition.TEXT,
+                    ButtonGuidePredicate.ALWAYS
+            );
+        }
     }
 }
