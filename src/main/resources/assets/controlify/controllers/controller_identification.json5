@@ -74,10 +74,8 @@
 
     "hids": [
       [0x57E, 0x2009],  // SN30 Pro - Switch Mode
-      [0x45E, 0x28E],   // SN30 Pro - XInput Mode
       [0x2DC8, 0x6001], // SN30 Pro - DInput Mode
       [0x2009, 0x057e], // Ultimate - Switch Mode
-      [0x3106, 0x2dc8], // Ultimate - XInput Mode
     ]
   },
   {
