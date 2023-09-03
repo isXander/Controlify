@@ -149,4 +149,19 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         String theme = config().theme == BuiltinGamepadTheme.DEFAULT ? type().themeId() : config().theme.id();
         return Controlify.id("textures/gui/gamepad/" + theme + "/icon.png");
     }
+
+    @Override
+    public int axisCount() {
+        return 6;
+    }
+
+    @Override
+    public int buttonCount() {
+        return 15;
+    }
+
+    @Override
+    public int hatCount() {
+        return 0;
+    }
 }

@@ -7,7 +7,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.Animator;
@@ -57,23 +57,12 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public static Screen createConfigScreen(Screen parent) {
         var controlify = Controlify.instance();
 
-        if (!controlify.config().globalSettings().vibrationOnboarded) {
-            return new SDLOnboardingScreen(() -> new ControllerCarouselScreen(parent), yes -> {
-                if (yes) {
-                    SDL2NativesManager.initialise();
-
-                    if (controlify.config().globalSettings().delegateSetup) {
-                        controlify.discoverControllers();
-                        controlify.config().globalSettings().delegateSetup = false;
-                        controlify.config().save();
-                    }
-                }
-            });
-        } else if (Controlify.instance().config().globalSettings().delegateSetup) {
+        if (controlify.config().globalSettings().delegateSetup) {
             controlify.discoverControllers();
             controlify.config().globalSettings().delegateSetup = false;
             controlify.config().save();
         }
+
         return new ControllerCarouselScreen(parent);
     }
 

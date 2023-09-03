@@ -9,6 +9,8 @@ import org.lwjgl.glfw.GLFW;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 
 public class UnmappedJoystickMapping implements JoystickMapping {
@@ -21,7 +23,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
     private UnmappedJoystickMapping(int axisCount, int buttonCount, int hatCount) {
         this.axes = new UnmappedAxis[axisCount];
         for (int i = 0; i < axisCount; i++) {
-            this.axes[i] = new UnmappedAxis(i, new GenericRenderer.Axis(Integer.toString(i + 1)));
+            this.axes[i] = new UnmappedAxis(i, new GenericRenderer.Axis(Integer.toString(i + 1)), false);
         }
 
         this.buttons = new UnmappedButton[buttonCount];
@@ -44,7 +46,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
     }
 
     @Override
-    public Axis[] axes() {
+    public UnmappedAxis[] axes() {
         return axes;
     }
 
@@ -58,15 +60,32 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         return hats;
     }
 
-    private record UnmappedAxis(int axis, GenericRenderer.Axis renderer) implements Axis {
+    public void setTriggerAxes(int axis, boolean triggerAxis) {
+        axes[axis].setTriggerAxis(triggerAxis);
+    }
+
+    public static final class UnmappedAxis implements Axis {
+        private final int axis;
+        private final GenericRenderer.Axis renderer;
+        private boolean triggerAxis;
+
+        private UnmappedAxis(int axis, GenericRenderer.Axis renderer, boolean triggerAxis) {
+            this.axis = axis;
+            this.renderer = renderer;
+            this.triggerAxis = triggerAxis;
+        }
+
         @Override
         public float getAxis(JoystickData data) {
-            return data.axes()[axis];
+            float value = data.axes()[axis];
+            if (triggerAxis)
+                value = (value + 1) / 2;
+            return value;
         }
 
         @Override
         public String identifier() {
-                return "axis-" + axis;
+            return "axis-" + axis;
         }
 
         @Override
@@ -76,7 +95,7 @@ public class UnmappedJoystickMapping implements JoystickMapping {
 
         @Override
         public boolean requiresDeadzone() {
-            return true;
+            return !triggerAxis;
         }
 
         @Override
@@ -93,6 +112,45 @@ public class UnmappedJoystickMapping implements JoystickMapping {
         public String getDirectionIdentifier(int axis, JoystickAxisBind.AxisDirection direction) {
             return direction.name().toLowerCase();
         }
+
+        public int index() {
+            return axis;
+        }
+
+        @Override
+        public GenericRenderer.Axis renderer() {
+            return renderer;
+        }
+
+        public boolean isTriggerAxis() {
+            return triggerAxis;
+        }
+
+        public void setTriggerAxis(boolean triggerAxis) {
+            this.triggerAxis = triggerAxis;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (UnmappedAxis) obj;
+            return this.axis == that.axis &&
+                    Objects.equals(this.renderer, that.renderer);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(axis, renderer);
+        }
+
+        @Override
+        public String toString() {
+            return "UnmappedAxis[" +
+                    "axis=" + axis + ", " +
+                    "renderer=" + renderer + ']';
+        }
+
     }
 
     private record UnmappedButton(int button, GenericRenderer.Button renderer) implements Button {

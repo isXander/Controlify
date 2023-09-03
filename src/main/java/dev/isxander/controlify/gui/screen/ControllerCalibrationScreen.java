@@ -5,6 +5,8 @@ import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -15,11 +17,17 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
-public class ControllerCalibrationScreen extends Screen {
+/**
+ * Controller calibration screen does a few things:
+ * <ul>
+ *     <li>Calculates deadzones</li>
+ *     <li>Does gyroscope calibration</li>
+ *     <li>Detects triggers on unmapped joysticks</li>
+ * </ul>
+ */
+public class ControllerCalibrationScreen extends Screen implements DontInteruptScreen {
     private static final int CALIBRATION_TIME = 100;
     private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
 
@@ -33,7 +41,7 @@ public class ControllerCalibrationScreen extends Screen {
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
 
-    private final Map<Integer, double[]> deadzoneCalibration = new HashMap<>();
+    private final double[] axisData;
     private GamepadState.GyroState accumulatedGyroVelocity = new GamepadState.GyroState();
 
     public ControllerCalibrationScreen(Controller<?, ?> controller, Screen parent) {
@@ -44,6 +52,7 @@ public class ControllerCalibrationScreen extends Screen {
         super(Component.translatable("controlify.calibration.title"));
         this.controller = controller;
         this.parent = parent;
+        this.axisData = new double[controller.axisCount() * CALIBRATION_TIME];
     }
 
     @Override
@@ -125,17 +134,17 @@ public class ControllerCalibrationScreen extends Screen {
 
         if (stateChanged()) {
             calibrationTicks = 0;
-            deadzoneCalibration.clear();
+            Arrays.fill(axisData, 0);
             accumulatedGyroVelocity = new GamepadState.GyroState();
         }
 
         if (calibrationTicks < CALIBRATION_TIME) {
-            processDeadzoneData(calibrationTicks);
+            processAxisData(calibrationTicks);
             processGyroData();
 
             calibrationTicks++;
         } else {
-            applyDeadzones();
+            calibrateAxis();
             generateGyroCalibration();
 
             calibrating = false;
@@ -145,17 +154,16 @@ public class ControllerCalibrationScreen extends Screen {
 
             controller.config().deadzonesCalibrated = true;
             controller.config().delayedCalibration = false;
-            Controlify.instance().config().save();
+            // no need to save because of setCurrentController
+
+            Controlify.instance().setCurrentController(controller);
         }
     }
 
-    private void processDeadzoneData(int tick) {
+    private void processAxisData(int tick) {
         var axes = controller.state().rawAxes();
 
-        for (int i = 0; i < axes.size(); i++) {
-            var axis = Math.abs(axes.get(i));
-            deadzoneCalibration.computeIfAbsent(i, k -> new double[CALIBRATION_TIME])[tick] = axis;
-        }
+        System.arraycopy(axes.stream().mapToDouble(a -> a).toArray(), 0, axisData, tick * axes.size(), axes.size());
     }
 
     private void processGyroData() {
@@ -164,11 +172,30 @@ public class ControllerCalibrationScreen extends Screen {
         }
     }
 
-    private void applyDeadzones() {
-        deadzoneCalibration.forEach((i, data) -> {
-            var max = Arrays.stream(data).max().orElseThrow();
-            controller.config().setDeadzone(i, (float) max + 0.08f);
-        });
+    private void calibrateAxis() {
+        int axisCount = controller.axisCount();
+        for (int axis = 0; axis < axisCount; axis++) {
+            boolean triggerAxis = true;
+            float maxAbs = 0;
+
+            for (int tick = 0; tick < CALIBRATION_TIME; tick++) {
+                float axisValue = (float) axisData[tick * axisCount + axis];
+
+                if (axisValue != -1) {
+                    triggerAxis = false;
+                }
+
+                maxAbs = Math.max(maxAbs, Math.abs(axisValue));
+            }
+
+            if (triggerAxis && controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping mapping) {
+                joystick.config().setDeadzone(axis, 0.0f);
+                joystick.config().setTriggerAxis(axis, true);
+                mapping.setTriggerAxes(axis, true);
+            } else {
+                controller.config().setDeadzone(axis, maxAbs + 0.08f);
+            }
+        }
     }
 
     private void generateGyroCalibration() {

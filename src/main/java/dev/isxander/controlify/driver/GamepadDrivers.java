@@ -1,7 +1,6 @@
 package dev.isxander.controlify.driver;
 
 import com.google.common.collect.Sets;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
@@ -45,7 +44,6 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
             gyroDriver = sdl2Driver;
             rumbleDriver = sdl2Driver;
             batteryDriver = sdl2Driver;
-
             // SDL2 bypasses XInput abstraction
             guidProviderDriver = sdl2Driver;
         }

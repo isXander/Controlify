@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.fixes.boatfix;
+package dev.isxander.controlify.mixins.feature.patches.boatfix;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;

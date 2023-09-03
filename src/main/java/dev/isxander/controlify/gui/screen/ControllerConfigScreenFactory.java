@@ -1,6 +1,5 @@
 package dev.isxander.controlify.gui.screen;
 
-import com.google.common.collect.Iterables;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;

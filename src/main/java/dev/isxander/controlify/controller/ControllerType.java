@@ -57,7 +57,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
             String friendlyName = null;
             String legacyIdentifier = null;
             String themeId = null;
-            String mappingId = null;
+            String mappingId = "unmapped";
             boolean forceJoystick = false;
             boolean dontLoad = false;
             Set<HIDIdentifier> hids = new HashSet<>();

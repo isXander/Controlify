@@ -1,15 +1,18 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.utils.Log;
-import org.libsdl.SDL;
+import io.github.libsdl4j.api.joystick.SDL_Joystick;
+
+import static io.github.libsdl4j.api.error.SdlError.*;
+import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
 
 public class SDL2JoystickDriver implements RumbleDriver {
-    private final long ptrJoystick;
+    private final SDL_Joystick ptrJoystick;
     private final boolean isRumbleSupported;
 
     public SDL2JoystickDriver(int jid) {
-        this.ptrJoystick = SDL.SDL_JoystickOpen(jid);
-        this.isRumbleSupported = SDL.SDL_JoystickHasRumble(ptrJoystick);
+        this.ptrJoystick = SDL_JoystickOpen(jid);
+        this.isRumbleSupported = SDL_JoystickHasRumble(ptrJoystick);
     }
 
     @Override
@@ -20,8 +23,8 @@ public class SDL2JoystickDriver implements RumbleDriver {
     @Override
     public boolean rumble(float strongMagnitude, float weakMagnitude) {
         // duration of 0 is infinite
-        if (!SDL.SDL_JoystickRumble(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 0)) {
-            Log.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
+        if (SDL_JoystickRumble(ptrJoystick, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 0) != 0) {
+            Log.LOGGER.error("Could not rumble controller: " + SDL_GetError());
             return false;
         }
         return true;
@@ -39,6 +42,6 @@ public class SDL2JoystickDriver implements RumbleDriver {
 
     @Override
     public void close() {
-        SDL.SDL_JoystickClose(ptrJoystick);
+        SDL_JoystickClose(ptrJoystick);
     }
 }

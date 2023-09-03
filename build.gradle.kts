@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.6.0+1.20"
+version = "1.7.0-beta.1+1.20"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Alpha version detected.")
@@ -101,8 +101,8 @@ dependencies {
     include(libs.hid4java)
 
     // controller rumble
-    implementation(libs.sdl2.jni)
-    include(libs.sdl2.jni)
+    implementation(libs.libsdl4j)
+    include(libs.libsdl4j)
 
     // used to parse hiddb.json5
     implementation(libs.quilt.json5)
@@ -126,8 +126,8 @@ dependencies {
 }
 
 blossom {
-    val sdl2ManagerClass = "src/main/java/dev/isxander/controlify/controller/sdl2/SDL2NativesManager.java"
-    replaceToken("<SDL2_VERSION>", libs.versions.sdl2.jni.get(), sdl2ManagerClass)
+    val sdl2ManagerClass = "src/main/java/dev/isxander/controlify/driver/SDL2NativesManager.java"
+    replaceToken("<SDL2_VERSION>", libs.versions.libsdl4j.get(), sdl2ManagerClass)
 }
 
 java {

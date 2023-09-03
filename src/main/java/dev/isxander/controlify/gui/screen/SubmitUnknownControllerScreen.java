@@ -22,7 +22,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.regex.Pattern;
 
-public class SubmitUnknownControllerScreen extends Screen {
+public class SubmitUnknownControllerScreen extends Screen implements DontInteruptScreen {
     public static final String SUBMISSION_URL = "https://api-controlify.isxander.dev/api/v1/submit";
     public static final Pattern NAME_PATTERN = Pattern.compile("^[\\w\\- ]{3,32}$");
 

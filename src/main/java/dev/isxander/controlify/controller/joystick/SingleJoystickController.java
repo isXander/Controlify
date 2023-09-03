@@ -4,22 +4,25 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.utils.Log;
-import org.libsdl.SDL;
+import io.github.libsdl4j.api.joystick.SDL_Joystick;
 
 import java.util.Objects;
+
+import static io.github.libsdl4j.api.error.SdlError.*;
+import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
 
 public class SingleJoystickController extends AbstractController<JoystickState, JoystickConfig> implements JoystickController<JoystickConfig> {
     private JoystickState state = JoystickState.EMPTY, prevState = JoystickState.EMPTY;
     private final JoystickMapping mapping;
 
-    private final long ptrJoystick;
+    private final SDL_Joystick ptrJoystick;
     private RumbleManager rumbleManager;
     private boolean rumbleSupported;
 
@@ -31,8 +34,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
         this.config = new JoystickConfig(this);
         this.defaultConfig = new JoystickConfig(this);
 
-        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL.SDL_JoystickOpen(joystickId) : 0;
-        this.rumbleSupported = SDL2NativesManager.isLoaded() && SDL.SDL_JoystickHasRumble(this.ptrJoystick);
+        this.ptrJoystick = SDL2NativesManager.isLoaded() ? SDL_JoystickOpen(joystickId) : new SDL_Joystick();
+        this.rumbleSupported = SDL2NativesManager.isLoaded() && SDL_JoystickHasRumble(this.ptrJoystick);
         this.rumbleManager = new RumbleManager(this);
 
         this.bindings = new ControllerBindings<>(this);
@@ -91,6 +94,16 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
     public void setConfig(Gson gson, JsonElement json) {
         super.setConfig(gson, json);
         this.config.setup(this);
+
+        if (mapping() instanceof UnmappedJoystickMapping unmapped) {
+            for (int i = 0; i < unmapped.axes().length; i++) {
+                unmapped.axes()[i].setTriggerAxis(this.config.isTriggerAxis(i));
+            }
+        } else {
+            for (int i = 0; i < mapping().axes().length; i++) {
+                this.config.setTriggerAxis(i, false);
+            }
+        }
     }
 
     @Override
@@ -99,8 +112,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
         // the duration doesn't matter because we are not updating the joystick state,
         // so there is never any SDL check to stop the rumble after the desired time.
-        if (!SDL.SDL_JoystickRumbleTriggers(ptrJoystick, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 1)) {
-            Log.LOGGER.error("Could not rumble controller " + name() + ": " + SDL.SDL_GetError());
+        if (SDL_JoystickRumbleTriggers(ptrJoystick, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 1) != 0) {
+            Log.LOGGER.error("Could not rumble controller " + name() + ": " + SDL_GetError());
             return false;
         }
         return true;
@@ -118,9 +131,11 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
     @Override
     public void close() {
-        if (ptrJoystick != 0)
-            SDL.SDL_JoystickClose(ptrJoystick);
+        if (!ptrJoystick.equals(new SDL_Joystick()))
+            SDL_JoystickClose(ptrJoystick);
         this.rumbleSupported = false;
         this.rumbleManager = null;
     }
+
+
 }

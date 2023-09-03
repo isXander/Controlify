@@ -257,7 +257,7 @@ public class RPJoystickMapping implements JoystickMapping {
     public static JoystickMapping fromType(JoystickController<?> joystick) {
         var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + joystick.type().mappingId() + ".json"));
         if (resource.isEmpty()) {
-            Log.LOGGER.warn("No joystick mapping found for controller: '" + joystick.type().mappingId() + "'");
+            Log.LOGGER.warn("No joystick mapping found for controller type: '{}' - using unmapped", joystick.type().mappingId());
             return new UnmappedJoystickMapping(joystick.joystickId());
         }
 

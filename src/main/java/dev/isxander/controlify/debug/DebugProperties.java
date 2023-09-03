@@ -10,21 +10,21 @@ public class DebugProperties {
     private static final List<DebugProperty> properties = new ArrayList<>();
 
     public static final boolean DEBUG_LOGGING = boolProp("controlify.debug.logging", false, true);
-    /* Print the VID and PID of every controller connected. */
+    /** Print the VID and PID of every controller connected. */
     public static final boolean PRINT_VID_PID = boolProp("controlify.debug.print_vid_pid", false, true);
-    /* Renders debug overlay for vmouse snapping */
+    /** Renders debug overlay for vmouse snapping */
     public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
-    /* Forces all gamepads to be treated as a regular joystick */
+    /** Forces all gamepads to be treated as a regular joystick */
     public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, false);
-    /* Prints joystick input counts for making joystick mappings */
+    /** Prints joystick input counts for making joystick mappings */
     public static final boolean PRINT_JOY_STATE = boolProp("controlify.debug.print_joy_state", false, false);
-    /* Print gyro data if supported */
+    /** Print gyro data if supported */
     public static final boolean PRINT_GYRO = boolProp("controlify.debug.print_gyro", false, false);
-    /* Print what drivers are being used */
+    /** Print what drivers are being used */
     public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
-    /* Print the state of the left and right triggers on gamepads */
+    /** Print the state of the left and right triggers on gamepads */
     public static final boolean PRINT_TRIGGER_STATE = boolProp("controlify.debug.print_trigger_state", false, false);
-    /* Use experimental anti-snapback */
+    /** Use experimental anti-snapback */
     public static final boolean USE_SNAPBACK = boolProp("controlify.debug.use_snapback", false, false);
 
     public static void printProperties() {

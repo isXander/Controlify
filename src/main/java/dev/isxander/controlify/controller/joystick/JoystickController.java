@@ -16,13 +16,6 @@ public interface JoystickController<T extends JoystickConfig> extends Controller
         return Controlify.id("textures/gui/joystick/icon.png");
     }
 
-    @Deprecated
-    int axisCount();
-    @Deprecated
-    int buttonCount();
-    @Deprecated
-    int hatCount();
-
     @Override
     default boolean canBeUsed() {
         return !(mapping() instanceof UnmappedJoystickMapping);

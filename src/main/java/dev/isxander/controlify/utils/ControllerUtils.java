@@ -1,8 +1,32 @@
 package dev.isxander.controlify.utils;
 
+import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.HIDDevice;
 import net.minecraft.util.Mth;
 
+import java.util.HexFormat;
+import java.util.Optional;
+
 public class ControllerUtils {
+    public static String createControllerString(Controller<?, ?> controller) {
+        Optional<HIDDevice> hid = controller.hidInfo().flatMap(ControllerHIDService.ControllerHIDInfo::hidDevice);
+        HexFormat hexFormat = HexFormat.of().withPrefix("0x");
+
+        return String.format("'%s'#%s-%s (%s, %s: %s)",
+                controller.name(),
+                controller.joystickId(),
+                controller instanceof GamepadController ? "gamepad" : "joy",
+                hid.map(device -> hexFormat.toHexDigits(device.vendorID())).orElse("?"),
+                hid.map(device -> hexFormat.toHexDigits(device.productID())).orElse("?"),
+                controller.hidInfo().map(ControllerHIDService.ControllerHIDInfo::type)
+                        .orElse(ControllerType.UNKNOWN)
+                        .friendlyName()
+        );
+    }
+
     public static float deadzone(float value, float deadzone) {
         return (value - Math.copySign(Math.min(deadzone, Math.abs(value)), value)) / (1 - deadzone);
     }

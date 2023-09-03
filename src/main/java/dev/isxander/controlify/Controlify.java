@@ -1,18 +1,19 @@
 package dev.isxander.controlify;
 
+import com.google.common.io.ByteStreams;
 import com.mojang.blaze3d.Blaze3D;
+import com.sun.jna.Memory;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
+import dev.isxander.controlify.controller.joystick.JoystickController;
+import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
-import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
+import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.gui.screen.ControllerCalibrationScreen;
-import dev.isxander.controlify.gui.screen.SDLOnboardingScreen;
-import dev.isxander.controlify.gui.screen.SubmitUnknownControllerScreen;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -22,11 +23,13 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import io.github.libsdl4j.api.rwops.SDL_RWops;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -39,16 +42,24 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.system.MemoryUtil;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
+
+import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.SDL_GameControllerAddMappingsFromRW;
+import static io.github.libsdl4j.api.rwops.SdlRWops.SDL_RWFromConstMem;
 
 public class Controlify implements ControlifyApi {
     private static Controlify instance = null;
@@ -67,7 +78,7 @@ public class Controlify implements ControlifyApi {
     private final ControlifyConfig config = new ControlifyConfig(this);
 
     private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
-    private boolean canDiscoverControllers = true;
+    private boolean hasDiscoveredControllers = false;
 
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
@@ -78,147 +89,19 @@ public class Controlify implements ControlifyApi {
     private double askSwitchTime = 0;
     private ToastUtils.ControlifyToast askSwitchToast = null;
 
-    public void initializeControlify() {
-        Log.LOGGER.info("Initializing Controlify...");
-
-        config().load();
-
-        ControlifyCompat.init();
-
-        var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1).anyMatch(GLFW::glfwJoystickPresent);
-        if (controllersConnected) {
-            if (!config().globalSettings().delegateSetup) {
-                askNatives().whenComplete((loaded, th) -> discoverControllers());
-            } else {
-                ToastUtils.sendToast(
-                        Component.translatable("controlify.toast.setup_in_config.title"),
-                        Component.translatable(
-                                "controlify.toast.setup_in_config.description",
-                                Component.translatable("options.title"),
-                                Component.translatable("controls.keybinds.title"),
-                                Component.literal("Controlify")
-                        ),
-                        false
-                );
-            }
-        }
-
-        ClientTickEvents.START_CLIENT_TICK.register(this::tick);
-        ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
-            controllerHIDService().stop();
-        });
-
-        // listen for new controllers
-        GLFW.glfwSetJoystickCallback((jid, event) -> {
-            try {
-                this.askNatives().whenComplete((loaded, th) -> {
-                    if (event == GLFW.GLFW_CONNECTED) {
-                        this.onControllerHotplugged(jid);
-                    } else if (event == GLFW.GLFW_DISCONNECTED) {
-                        this.onControllerDisconnect(jid);
-                    }
-                });
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-        });
-
-        notifyOfNewFeatures();
-    }
-
-    private CompletableFuture<Boolean> askNatives() {
-        if (nativeOnboardingFuture != null) return nativeOnboardingFuture;
-
-        if (config().globalSettings().vibrationOnboarded) {
-            boolean loadNatives = config().globalSettings().loadVibrationNatives;
-            if (loadNatives && !SDL2NativesManager.isInitialised()) {
-                SDL2NativesManager.initialise();
-            }
-            return CompletableFuture.completedFuture(loadNatives);
-        }
-
-        nativeOnboardingFuture = new CompletableFuture<>();
-
-        Screen parent = minecraft.screen;
-        minecraft.setScreen(new SDLOnboardingScreen(
-                () -> parent,
-                answer -> {
-                    if (answer)
-                        SDL2NativesManager.initialise();
-                    nativeOnboardingFuture.complete(answer);
-                }
-        ));
-
-        return nativeOnboardingFuture;
-    }
-
-    public void discoverControllers() {
-        if (!canDiscoverControllers) {
-            throw new IllegalStateException("Already discovered/cannot discover controllers");
-        }
-        canDiscoverControllers = false;
-
-        DebugLog.log("Discovering and initializing controllers...");
-
-        if (config().globalSettings().loadVibrationNatives)
-            SDL2NativesManager.initialise();
-
-        // find already connected controllers
-        for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
-            if (GLFW.glfwJoystickPresent(jid)) {
-                var controllerOpt = ControllerManager.createOrGet(jid, controllerHIDService.fetchType(jid));
-                if (controllerOpt.isEmpty()) continue;
-                var controller = controllerOpt.get();
-
-                Log.LOGGER.info("Controller found: " + controller.name());
-
-                config().loadOrCreateControllerData(controller);
-
-                if (SubmitUnknownControllerScreen.canSubmit(controller)) {
-                    minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
-                }
-
-                if (controller.uid().equals(config().currentControllerUid()))
-                    setCurrentController(controller);
-
-                if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
-                    controller.config().allowVibrations = false;
-                    config().setDirty();
-                }
-            }
-        }
-
-        if (ControllerManager.getConnectedControllers().isEmpty()) {
-            Log.LOGGER.info("No controllers found.");
-        }
-
-        if (getCurrentController().isEmpty()) {
-            var controller = ControllerManager.getConnectedControllers().stream().findFirst().orElse(null);
-            if (controller != null && controller.config().delayedCalibration) {
-                controller = null;
-            }
-
-            this.setCurrentController(controller);
-        } else {
-            // setCurrentController saves config
-            config().saveIfDirty();
-        }
-
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
-            try {
-                entrypoint.onControllersDiscovered(this);
-            } catch (Throwable e) {
-                Log.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
-            }
-        });
-    }
-
+    /**
+     * Called at usual fabric client entrypoint.
+     * Always runs, even with no controllers detected.
+     * In this state, Controlify is only partially loaded, no controllers
+     * have been initialised, nor has the config. This is done at {@link Controlify#initializeControlify()}.
+     * This is where regular fabric callbacks are registered.
+     */
     public void preInitialiseControlify() {
         DebugProperties.printProperties();
 
         Log.LOGGER.info("Pre-initializing Controlify...");
 
-        this.inGameInputHandler = null;
+        this.inGameInputHandler = null; // set when the current controller changes
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         controllerHIDService = new ControllerHIDService();
@@ -262,9 +145,315 @@ public class Controlify implements ControlifyApi {
         });
     }
 
+    /**
+     * Called once Minecraft has completely loaded.
+     * (When the loading overlay starts to fade).
+     *
+     * This is where controllers are usually initialised, as long
+     * as one or more controllers are connected.
+     */
+    public void initializeControlify() {
+        Log.LOGGER.info("Initializing Controlify...");
+
+        config().load();
+
+        // initialise and compatability modules that controlify implements itself
+        // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
+        ControlifyCompat.init();
+
+        var controllersConnected = IntStream.range(0, GLFW.GLFW_JOYSTICK_LAST + 1)
+                .anyMatch(GLFW::glfwJoystickPresent);
+        if (controllersConnected) { // only initialise Controlify if controllers are detected
+            if (!config().globalSettings().delegateSetup) {
+                // check native onboarding then discover controllers
+                askNatives().whenComplete((loaded, th) -> discoverControllers());
+            } else {
+                // delegate setup: don't auto set up controllers, require the user to open config screen
+                ToastUtils.sendToast(
+                        Component.translatable("controlify.toast.setup_in_config.title"),
+                        Component.translatable(
+                                "controlify.toast.setup_in_config.description",
+                                Component.translatable("options.title"),
+                                Component.translatable("controls.keybinds.title"),
+                                Component.literal("Controlify")
+                        ),
+                        false
+                );
+            }
+        }
+
+        // register events
+        ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+        ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
+            controllerHIDService().stop();
+        });
+
+        // set up the hotplugging callback with GLFW
+        // TODO: investigate if there is any benefit to implementing this with SDL
+        GLFW.glfwSetJoystickCallback((jid, event) -> {
+            try {
+                this.askNatives().whenComplete((loaded, th) -> {
+                    if (event == GLFW.GLFW_CONNECTED) {
+                        this.onControllerHotplugged(jid);
+                    } else if (event == GLFW.GLFW_DISCONNECTED) {
+                        this.onControllerDisconnect(jid);
+                    }
+                });
+            } catch (Throwable e) {
+                Log.LOGGER.error("Failed to handle controller connect/disconnect event", e);
+            }
+        });
+
+        // sends toasts of new features
+        notifyOfNewFeatures();
+    }
+
+    /**
+     * Loops through every controller slot and initialises it if it is connected.
+     * This is guaranteed to be called at most once. If no controllers are connected
+     * in the whole game lifecycle, this is never ran.
+     */
+    public void discoverControllers() {
+        if (hasDiscoveredControllers) {
+            Log.LOGGER.warn("Attempted to discover controllers twice!");
+        }
+        hasDiscoveredControllers = true;
+
+        DebugLog.log("Discovering and initializing controllers...");
+
+        // load gamepad mappings before every
+        minecraft.getResourceManager()
+                .getResource(Controlify.id("controllers/gamecontrollerdb.txt"))
+                .ifPresent(this::loadGamepadMappings);
+
+        // find already connected controllers
+        // TODO: investigate if there is any benefit to implementing this with SDL
+        for (int jid = 0; jid <= GLFW.GLFW_JOYSTICK_LAST; jid++) {
+            if (GLFW.glfwJoystickPresent(jid)) {
+                Optional<Controller<?, ?>> controllerOpt = ControllerManager.createOrGet(
+                        jid,
+                        controllerHIDService.fetchType(jid)
+                );
+                if (controllerOpt.isEmpty())
+                    continue;
+                Controller<?, ?> controller = controllerOpt.get();
+
+                Log.LOGGER.info("Controller found: " + ControllerUtils.createControllerString(controller));
+
+                boolean newController = !config().loadOrCreateControllerData(controller);
+
+                if (SubmitUnknownControllerScreen.canSubmit(controller)) {
+                    minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
+                }
+
+                // only "equip" the controller if it has already been calibrated
+                if (!controller.config().deadzonesCalibrated) {
+                    calibrationQueue.add(controller);
+                } else if (controller.uid().equals(config().currentControllerUid())) {
+                    setCurrentController(controller);
+                }
+
+                // make sure that allow vibrations is not mismatched with the native library setting
+                if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
+                    controller.config().allowVibrations = false;
+                    config().setDirty();
+                }
+
+                // if a joystick and unmapped, tell the user that they need to configure the controls
+                // joysticks have an abstract number of inputs, so applying a default control scheme is impossible
+                if (newController && controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
+                    ToastUtils.sendToast(
+                            Component.translatable("controlify.toast.unmapped_joystick.title"),
+                            Component.translatable("controlify.toast.unmapped_joystick.description", controller.name()),
+                            true
+                    );
+                }
+            }
+        }
+
+        if (ControllerManager.getConnectedControllers().isEmpty()) {
+            Log.LOGGER.info("No controllers found.");
+        }
+
+        // if no controller is currently selected, select the first one
+        if (getCurrentController().isEmpty()) {
+            var controller = ControllerManager.getConnectedControllers().stream().findFirst().orElse(null);
+            if (controller != null && (controller.config().delayedCalibration || !controller.config().deadzonesCalibrated)) {
+                controller = null;
+            }
+
+            this.setCurrentController(controller);
+        } else {
+            // setCurrentController saves config so there is no need to set dirty to save
+            config().saveIfDirty();
+        }
+
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+            try {
+                entrypoint.onControllersDiscovered(this);
+            } catch (Throwable e) {
+                Log.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+            }
+        });
+    }
+
+    /**
+     * Called when a controller has been connected after mod initialisation.
+     * If this is the first controller to be connected in the game's lifecycle,
+     * this is delegated to {@link Controlify#discoverControllers()} for it to be "discovered",
+     * otherwise the controller is initialised and added to the list of connected controllers.
+     */
+    private void onControllerHotplugged(int jid) {
+        if (!hasDiscoveredControllers) {
+            discoverControllers();
+            return;
+        }
+
+        var controllerOpt = ControllerManager.createOrGet(jid, controllerHIDService.fetchType(jid));
+        if (controllerOpt.isEmpty()) return;
+        var controller = controllerOpt.get();
+
+        Log.LOGGER.info("Controller connected: " + ControllerUtils.createControllerString(controller));
+
+        config().loadOrCreateControllerData(controller);
+
+        if (SubmitUnknownControllerScreen.canSubmit(controller)) {
+            minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
+        }
+
+        if (config().globalSettings().delegateSetup) {
+            config().globalSettings().delegateSetup = false;
+            config().setDirty();
+        }
+
+        if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
+            controller.config().allowVibrations = false;
+            config().setDirty();
+        }
+
+        if (ControllerManager.getConnectedControllers().size() == 1 && (controller.config().deadzonesCalibrated || controller.config().delayedCalibration)) {
+            this.setCurrentController(controller);
+
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.default_controller_connected.title"),
+                    Component.translatable("controlify.toast.default_controller_connected.description"),
+                    false
+            );
+        } else {
+            this.askToSwitchController(controller);
+            config().saveIfDirty();
+        }
+
+        if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
+            controllerListScreen.refreshControllers();
+        }
+    }
+
+    /**
+     * Called when a controller is disconnected.
+     * Equips another controller if available.
+     *
+     * @param jid the joystick id of the disconnected controller
+     */
+    private void onControllerDisconnect(int jid) {
+        ControllerManager.getConnectedControllers().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
+            ControllerManager.disconnect(controller);
+
+            controller.hidInfo().ifPresent(controllerHIDService::unconsumeController);
+
+            setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
+            Log.LOGGER.info("Controller disconnected: " + controller.name());
+            this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
+
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.controller_disconnected.title"),
+                    Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
+                    false
+            );
+
+            if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
+                controllerListScreen.refreshControllers();
+            }
+        });
+    }
+
+    /**
+     * Asks the user if they want to download the SDL2 library,
+     * or initialises it if it hasn't been already.
+     * If the user has already been asked and SDL is already initialised,
+     * a completed future is returned.
+     * The future is completed once the user has made their choice and SDL
+     * has been downloaded and initialised (or not).
+     */
+    public CompletableFuture<Boolean> askNatives() {
+        // if the future already exists, just return it
+        if (nativeOnboardingFuture != null)
+            return nativeOnboardingFuture;
+
+        // the user has already been asked, initialise SDL if necessary
+        // and return a completed future
+        if (config().globalSettings().vibrationOnboarded) {
+            if (config().globalSettings().loadVibrationNatives) {
+                return nativeOnboardingFuture = SDL2NativesManager.maybeLoad();
+            }
+            // micro-optimization. no need to create a new future every time. use the first not null check
+            return nativeOnboardingFuture = CompletableFuture.completedFuture(false);
+        }
+
+        nativeOnboardingFuture = new CompletableFuture<>();
+
+        // open the SDL onboarding screen. complete the future when the user has made their choice
+        Screen parent = minecraft.screen;
+        minecraft.setScreen(new SDLOnboardingScreen(
+                () -> parent,
+                answer -> {
+                    if (answer) {
+                        SDL2NativesManager.maybeLoad().whenComplete((loaded, th) -> {
+                            if (th != null) nativeOnboardingFuture.completeExceptionally(th);
+                            else nativeOnboardingFuture.complete(loaded);
+                        });
+                    } else {
+                        nativeOnboardingFuture.complete(false);
+                    }
+                }
+        ));
+
+        return nativeOnboardingFuture;
+    }
+
+    /**
+     * Loads the gamepad mappings for both GLFW and SDL2.
+     * @param resource the already located `gamecontrollerdb.txt` resource
+     */
+    private void loadGamepadMappings(Resource resource) {
+        try (InputStream is = resource.open()) {
+            byte[] bytes = ByteStreams.toByteArray(is);
+
+            ByteBuffer buffer = MemoryUtil.memASCIISafe(new String(bytes));
+            if (!GLFW.glfwUpdateGamepadMappings(buffer)) {
+                Log.LOGGER.error("GLFW failed to load gamepad mappings!");
+            }
+
+            try (Memory memory = new Memory(bytes.length)) {
+                memory.write(0, bytes, 0, bytes.length);
+                SDL_RWops rw = SDL_RWFromConstMem(memory, (int) memory.size());
+                int count = SDL_GameControllerAddMappingsFromRW(rw, 1);
+                if (count < 1) {
+                    Log.LOGGER.error("SDL2 failed to load gamepad mappings!");
+                }
+            }
+        } catch (Exception e) {
+            Log.LOGGER.error("Failed to load gamecontrollerdb.txt", e);
+        }
+    }
+
+    /**
+     * The main loop of Controlify.
+     * In Controlify's current state, only the current controller is ticked.
+     */
     public void tick(Minecraft client) {
         if (minecraft.getOverlay() == null) {
-            if (!calibrationQueue.isEmpty() && !(minecraft.screen instanceof SDLOnboardingScreen)) {
+            if (!calibrationQueue.isEmpty() && !(minecraft.screen instanceof DontInteruptScreen)) {
                 Screen screen = minecraft.screen;
                 while (!calibrationQueue.isEmpty()) {
                     screen = new ControllerCalibrationScreen(calibrationQueue.poll(), screen);
@@ -370,70 +559,6 @@ public class Controlify implements ControlifyApi {
 
     public ControlifyConfig config() {
         return config;
-    }
-
-    private void onControllerHotplugged(int jid) {
-        var controllerOpt = ControllerManager.createOrGet(jid, controllerHIDService.fetchType(jid));
-        if (controllerOpt.isEmpty()) return;
-        var controller = controllerOpt.get();
-
-        Log.LOGGER.info("Controller connected: " + controller.name());
-
-        config().loadOrCreateControllerData(controller);
-
-        if (SubmitUnknownControllerScreen.canSubmit(controller)) {
-            minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
-        }
-
-        canDiscoverControllers = false;
-        if (config().globalSettings().delegateSetup) {
-            config().globalSettings().delegateSetup = false;
-            config().setDirty();
-        }
-
-        if (controller.config().allowVibrations && !config().globalSettings().loadVibrationNatives) {
-            controller.config().allowVibrations = false;
-            config().setDirty();
-        }
-
-        if (ControllerManager.getConnectedControllers().size() == 1) {
-            this.setCurrentController(controller);
-
-            ToastUtils.sendToast(
-                    Component.translatable("controlify.toast.default_controller_connected.title"),
-                    Component.translatable("controlify.toast.default_controller_connected.description"),
-                    false
-            );
-        } else {
-            this.askToSwitchController(controller);
-            config().saveIfDirty();
-        }
-
-        if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
-            controllerListScreen.refreshControllers();
-        }
-    }
-
-    private void onControllerDisconnect(int jid) {
-        ControllerManager.getConnectedControllers().stream().filter(controller -> controller.joystickId() == jid).findAny().ifPresent(controller -> {
-            ControllerManager.disconnect(controller);
-
-            controller.hidInfo().ifPresent(controllerHIDService::unconsumeController);
-
-            setCurrentController(ControllerManager.getConnectedControllers().stream().findFirst().orElse(null));
-            Log.LOGGER.info("Controller disconnected: " + controller.name());
-            this.setInputMode(currentController == null ? InputMode.KEYBOARD_MOUSE : InputMode.CONTROLLER);
-
-            ToastUtils.sendToast(
-                    Component.translatable("controlify.toast.controller_disconnected.title"),
-                    Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
-                    false
-            );
-
-            if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
-                controllerListScreen.refreshControllers();
-            }
-        });
     }
 
     private void askToSwitchController(Controller<?, ?> controller) {

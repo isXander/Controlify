@@ -1,27 +1,37 @@
 package dev.isxander.controlify.driver;
 
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.Log;
+import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import net.minecraft.util.Mth;
-import org.libsdl.SDL;
+
+import static io.github.libsdl4j.api.error.SdlError.*;
+import static io.github.libsdl4j.api.gamecontroller.SDL_GameControllerAxis.*;
+import static io.github.libsdl4j.api.gamecontroller.SDL_GameControllerButton.*;
+import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
+import static io.github.libsdl4j.api.joystick.SDL_JoystickPowerLevel.*;
+import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
+import static io.github.libsdl4j.api.sensor.SDL_SensorType.*;
 
 public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, RumbleDriver, BatteryDriver, GUIDProvider {
-    private final long ptrGamepad;
+    private final SDL_GameController ptrGamepad;
     private BasicGamepadState state = BasicGamepadState.EMPTY;
     private GamepadState.GyroState gyroDelta = new GamepadState.GyroState(0, 0, 0);
     private final boolean isGyroSupported, isRumbleSupported;
     private final String guid;
 
     public SDL2GamepadDriver(int jid) {
-        this.ptrGamepad =  SDL.SDL_GameControllerOpen(jid);
-        this.guid = SDL.SDL_JoystickGUIDString(SDL.SDL_GameControllerGetJoystick(ptrGamepad));
-        this.isGyroSupported = SDL.SDL_GameControllerHasSensor(ptrGamepad, SDL.SDL_SENSOR_GYRO);
-        this.isRumbleSupported = SDL.SDL_GameControllerHasRumble(ptrGamepad);
+        this.ptrGamepad =  SDL_GameControllerOpen(jid);
+        this.guid = SDL_JoystickGetGUID(SDL_GameControllerGetJoystick(ptrGamepad)).toString();
+        this.isGyroSupported = SDL_GameControllerHasSensor(ptrGamepad, SDL_SENSOR_GYRO);
+        this.isRumbleSupported = SDL_GameControllerHasRumble(ptrGamepad);
 
         if (this.isGyroSupported()) {
-            SDL.SDL_GameControllerSetSensorEnabled(ptrGamepad, SDL.SDL_SENSOR_GYRO, true);
+            SDL_GameControllerSetSensorEnabled(ptrGamepad, SDL_SENSOR_GYRO, true);
         }
     }
 
@@ -29,45 +39,50 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
     public void update() {
         if (isGyroSupported()) {
             float[] gyro = new float[3];
-            if (SDL.SDL_GameControllerGetSensorData(ptrGamepad, SDL.SDL_SENSOR_GYRO, gyro, 3) == 0) {
-                gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
-                if (DebugProperties.PRINT_GYRO) Log.LOGGER.info("Gyro delta: " + gyroDelta);
-            } else {
-                Log.LOGGER.error("Could not get gyro data: " + SDL.SDL_GetError());
+
+            try (Memory memory = new Memory(gyro.length * Float.BYTES)) {
+                if (SDL_GameControllerGetSensorData(ptrGamepad, SDL_SENSOR_GYRO, memory, 3) == 0) {
+                    memory.read(0, gyro, 0, gyro.length);
+
+                    gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
+                    if (DebugProperties.PRINT_GYRO) Log.LOGGER.info("Gyro delta: " + gyroDelta);
+                } else {
+                    Log.LOGGER.error("Could not get gyro data: " + SDL_GetError());
+                }
             }
 
         }
-        SDL.SDL_GameControllerUpdate();
+        SDL_GameControllerUpdate();
 
         // Axis values are in the range [-32768, 32767] (short)
         // Triggers are in the range [0, 32767] (thanks SDL!)
         // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetAxis
         GamepadState.AxesState axes = new GamepadState.AxesState(
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_LEFTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_LEFTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_RIGHTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_RIGHTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_TRIGGERLEFT), 0, Short.MAX_VALUE),
-                Mth.inverseLerp(SDL.SDL_GameControllerGetAxis(ptrGamepad, SDL.SDL_CONTROLLER_AXIS_TRIGGERRIGHT), 0, Short.MAX_VALUE)
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT), 0, Short.MAX_VALUE),
+                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), 0, Short.MAX_VALUE)
         );
         // Button values return 1 if pressed, 0 if not
         // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetButton
         GamepadState.ButtonState buttons = new GamepadState.ButtonState(
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_A) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_B) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_X) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_Y) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_BACK) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_START) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_GUIDE) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_DPAD_UP) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_DPAD_DOWN) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_DPAD_LEFT) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_DPAD_RIGHT) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_LEFTSTICK) == 1,
-                SDL.SDL_GameControllerGetButton(ptrGamepad, SDL.SDL_CONTROLLER_BUTTON_RIGHTSTICK) == 1
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_A) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_B) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_X) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_Y) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_LEFTSHOULDER) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_RIGHTSHOULDER) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_BACK) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_START) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_GUIDE) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_DPAD_UP) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_DPAD_DOWN) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_DPAD_LEFT) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_DPAD_RIGHT) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_LEFTSTICK) == 1,
+                SDL_GameControllerGetButton(ptrGamepad, SDL_CONTROLLER_BUTTON_RIGHTSTICK) == 1
         );
         this.state = new BasicGamepadState(axes, buttons);
     }
@@ -80,8 +95,8 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
     @Override
     public boolean rumble(float strongMagnitude, float weakMagnitude) {
         // duration of 0 is infinite
-        if (!SDL.SDL_GameControllerRumble(ptrGamepad, (int)(strongMagnitude * 65535.0F), (int)(weakMagnitude * 65535.0F), 0)) {
-            Log.LOGGER.error("Could not rumble controller: " + SDL.SDL_GetError());
+        if (SDL_GameControllerRumble(ptrGamepad, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 0) != 0) {
+            Log.LOGGER.error("Could not rumble controller: " + SDL_GetError());
             return false;
         }
         return true;
@@ -94,15 +109,16 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
     @Override
     public BatteryLevel getBatteryLevel() {
-        return switch (SDL.SDL_JoystickCurrentPowerLevel(ptrGamepad)) {
-            case SDL.SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
-            case SDL.SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
-            case SDL.SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
-            case SDL.SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
-            case SDL.SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
-            case SDL.SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
-            case SDL.SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
-            default -> throw new IllegalStateException("Unexpected value: " + SDL.SDL_JoystickCurrentPowerLevel(ptrGamepad));
+        int powerLevel = SDL_JoystickCurrentPowerLevel(SDL_GameControllerGetJoystick(ptrGamepad));
+        return switch (powerLevel) {
+            case SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
+            case SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
+            case SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
+            case SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
+            case SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
+            case SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
+            case SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
+            default -> throw new IllegalStateException("Unexpected value: " + powerLevel);
         };
     }
 
@@ -123,7 +139,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
     @Override
     public void close() {
-        SDL.SDL_GameControllerClose(ptrGamepad);
+        SDL_GameControllerClose(ptrGamepad);
     }
 
     @Override

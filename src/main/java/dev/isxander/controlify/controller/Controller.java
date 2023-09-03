@@ -50,6 +50,12 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         return true;
     }
 
+    int axisCount();
+
+    int buttonCount();
+
+    int hatCount();
+
     @Deprecated
     Controller<?, ?> DUMMY = new Controller<>() {
         private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
@@ -164,6 +170,21 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public boolean supportsRumble() {
             return false;
+        }
+
+        @Override
+        public int axisCount() {
+            return 0;
+        }
+
+        @Override
+        public int buttonCount() {
+            return 0;
+        }
+
+        @Override
+        public int hatCount() {
+            return 0;
         }
     };
 }

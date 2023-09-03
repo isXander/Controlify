@@ -1,7 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.sdl2.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL2NativesManager;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
-public class SDLOnboardingScreen extends ConfirmScreen {
+public class SDLOnboardingScreen extends ConfirmScreen implements DontInteruptScreen {
     public SDLOnboardingScreen(Supplier<Screen> lastScreen, BooleanConsumer onAnswered) {
         super(
                 yes -> {
