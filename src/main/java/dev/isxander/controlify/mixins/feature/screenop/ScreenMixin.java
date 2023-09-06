@@ -1,5 +1,6 @@
 package dev.isxander.controlify.mixins.feature.screenop;
 
+import dev.isxander.controlify.screenop.ScreenProcessorFactory;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.Minecraft;
@@ -13,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Screen.class)
 public class ScreenMixin implements ScreenProcessorProvider {
     @Unique
-    private final ScreenProcessor<Screen> controlify$processor = new ScreenProcessor<>((Screen) (Object) this);
+    private final ScreenProcessor<? super Screen> controlify$processor = ScreenProcessorFactory.createForScreen((Screen) (Object) this);
 
     @Override
-    public ScreenProcessor<Screen> screenProcessor() {
+    public ScreenProcessor<?> screenProcessor() {
         return controlify$processor;
     }
 

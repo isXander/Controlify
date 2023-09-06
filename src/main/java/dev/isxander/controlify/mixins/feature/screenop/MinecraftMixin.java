@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin {
     @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;reset()V"))
     private void changeScreen(Screen screen, CallbackInfo ci) {
-        ScreenProcessorProvider.REGISTRY.clearCache();
         ComponentProcessorProvider.REGISTRY.clearCache();
     }
 }
