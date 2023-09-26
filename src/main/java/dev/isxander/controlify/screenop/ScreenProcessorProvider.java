@@ -12,7 +12,7 @@ public interface ScreenProcessorProvider {
         return ((ScreenProcessorProvider) screen).screenProcessor();
     }
 
-    static <T extends Screen> void registerProvider(@NotNull Class<T> screenClass, @NotNull Function<T, ScreenProcessor<? super T>> factory) {
+    static <T extends Screen> void registerProvider(@NotNull Class<T> screenClass, @NotNull ScreenProcessorFactory.Factory<T> factory) {
         ScreenProcessorFactory.registerProvider(screenClass, factory);
     }
 }
