@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.7.0-beta.1+1.20"
+version = "1.7.0-beta.2+1.20"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Alpha version detected.")
@@ -82,8 +82,6 @@ dependencies {
     modRuntimeOnly(libs.fabric.api)
 
     listOf(
-        // sodium requirements
-        "fabric-rendering-data-attachment-v1",
         "fabric-rendering-fluids-v1",
     ).forEach {
         modRuntimeOnly(fabricApi.module(it, libs.versions.fabric.api.get()))
@@ -185,7 +183,7 @@ publishMods {
     modLoaders.add("fabric")
 
     // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = listOf("1.20", "1.20.1")
+    val stableMCVersions = listOf("1.20.2")
 
     val modrinthId: String by project
     if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {

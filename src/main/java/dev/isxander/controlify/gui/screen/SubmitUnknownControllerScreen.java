@@ -121,7 +121,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics);
+        renderBackground(graphics, mouseX, mouseY, delta);
 
         super.render(graphics, mouseX, mouseY, delta);
 

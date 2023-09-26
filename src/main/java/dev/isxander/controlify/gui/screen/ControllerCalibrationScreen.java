@@ -15,6 +15,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -29,7 +30,8 @@ import java.util.function.Supplier;
  */
 public class ControllerCalibrationScreen extends Screen implements DontInteruptScreen {
     private static final int CALIBRATION_TIME = 100;
-    private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
+    private static final ResourceLocation GREEN_BACK_BAR = new ResourceLocation("boss_bar/green_background");
+    private static final ResourceLocation GREEN_FRONT_BAR = new ResourceLocation("boss_bar/green_progress");
 
     protected final Controller<?, ?> controller;
     private final Supplier<Screen> parent;
@@ -86,7 +88,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics);
+        renderBackground(graphics, mouseX, mouseY, delta);
 
         super.render(graphics, mouseX, mouseY, delta);
 
@@ -94,10 +96,10 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         graphics.pose().pushPose();
         graphics.pose().scale(2f, 2f, 1f);
-        drawBar(graphics, width / 2 / 2, 30 / 2, 1f, 0);
-        var progress = (calibrationTicks - 1 + delta) / 100f;
-        if (progress > 0)
-            drawBar(graphics, width / 2 / 2, 30 / 2, progress, 5);
+
+        float progress = (calibrationTicks - 1 + delta) / 100f;
+        drawBar(graphics, width / 2 / 2, 30 / 2, progress);
+
         graphics.pose().popPose();
 
         MultiLineLabel label;
@@ -115,11 +117,14 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         graphics.pose().popPose();
     }
 
-    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress, int vOffset) {
-        progress = 1 - (float)Math.pow(1 - progress, 3);
+    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
+        int width = Mth.lerpDiscrete(1 - (float)Math.pow(1 - progress, 3), 0, 182);
 
         int x = centerX - 182 / 2;
-        graphics.blit(GUI_BARS_LOCATION, x, y, 0, 30 + vOffset, (int)(progress * 182), 5);
+        graphics.blitSprite(GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
+        if (width > 0) {
+            graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
+        }
     }
 
     @Override

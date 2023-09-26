@@ -113,7 +113,7 @@ public class SDL2NativesManager {
             throw new RuntimeException("Failed to initialise SDL2: " + SDL_GetError());
         }
 
-        DebugLog.log("Initialised SDL2");
+        Log.LOGGER.info("Initialised SDL4j {}", SDL2_VERSION);
     }
 
     private static CompletableFuture<Boolean> downloadAndStart(Path localLibraryPath) {

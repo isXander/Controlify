@@ -33,12 +33,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation CHECKMARK = new ResourceLocation("textures/gui/checkmark.png");
+    public static final ResourceLocation CHECKMARK = new ResourceLocation("icon/checkmark");
 
     private final Screen parent;
 
@@ -125,7 +126,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         renderDirtBackground(graphics);
 
         int footerY = Mth.roundToward(this.height - 36 - 2, 2);
@@ -146,6 +147,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public void renderDirtBackground(GuiGraphics graphics) {
         int scale = 32;
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, scale, scale);
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
+
     }
 
     public void focusOnEntry(int index) {
@@ -242,7 +248,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * currentlyUsedPos, 0, 0);
 
             if (currentlyUsedPos > -1) {
-                graphics.blit(CHECKMARK, x + 4, y + 4, 0f, 0f, 9, 8, 9, 8);
+                graphics.blitSprite(CHECKMARK, x + 4, y + 4, 9, 8);
                 graphics.drawString(font, currentlyInUseText, x + 17, y + 4, -1);
             }
             graphics.pose().popPose();

@@ -6,18 +6,21 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
-public class ClientPacketListenerMixin {
-    @Shadow @Final private Minecraft minecraft;
+public abstract class ClientPacketListenerMixin extends ClientCommonPacketListenerImpl {
+    protected ClientPacketListenerMixin(Minecraft client, Connection connection, CommonListenerCookie commonListenerCookie) {
+        super(client, connection, commonListenerCookie);
+    }
 
     @Inject(method = "handleExplosion", at = @At("RETURN"))
     private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {

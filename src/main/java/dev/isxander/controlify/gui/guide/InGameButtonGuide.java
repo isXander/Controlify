@@ -80,7 +80,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     public void renderHud(GuiGraphics graphics, float tickDelta, int width, int height) {
-        if (!controller.config().showIngameGuide || minecraft.screen != null || minecraft.options.renderDebug)
+        if (!controller.config().showIngameGuide || minecraft.screen != null || minecraft.gui.getDebugOverlay().showDebugScreen())
             return;
 
         float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
