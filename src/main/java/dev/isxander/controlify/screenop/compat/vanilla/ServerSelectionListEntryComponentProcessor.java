@@ -13,6 +13,6 @@ public class ServerSelectionListEntryComponentProcessor implements ComponentProc
             return true;
         }
 
-        return true;
+        return false;
     }
 }

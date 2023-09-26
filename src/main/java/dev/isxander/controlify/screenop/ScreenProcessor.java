@@ -260,8 +260,16 @@ public class ScreenProcessor<T extends Screen> {
         return tree;
     }
 
+    protected final Optional<AbstractWidget> getWidget(Component message) {
+        return screen.children().stream()
+                .filter(child -> child instanceof AbstractWidget)
+                .map(AbstractWidget.class::cast)
+                .filter(widget -> widget.getMessage().equals(message))
+                .findAny();
+    }
+
     protected final Optional<AbstractWidget> getWidget(String translationKey) {
-        var translatedName = Component.translatable(translationKey).getString();
+        String translatedName = Component.translatable(translationKey).getString();
 
         return screen.children().stream()
                 .filter(child -> child instanceof AbstractWidget)

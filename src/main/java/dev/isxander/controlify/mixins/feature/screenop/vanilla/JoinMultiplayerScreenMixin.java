@@ -14,7 +14,7 @@ public class JoinMultiplayerScreenMixin implements ScreenProcessorProvider {
     @Shadow protected ServerSelectionList serverSelectionList;
 
     @Unique private final JoinMultiplayerScreenProcessor controlify$processor
-            = new JoinMultiplayerScreenProcessor((JoinMultiplayerScreen) (Object) this, serverSelectionList);
+            = new JoinMultiplayerScreenProcessor((JoinMultiplayerScreen) (Object) this, () -> serverSelectionList);
 
     @Override
     public ScreenProcessor<?> screenProcessor() {
