@@ -14,11 +14,9 @@ import java.util.function.Supplier;
 
 public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     private final Supplier<Button> disconnectButtonSupplier;
-    private final boolean showButtons;
 
-    public PauseScreenProcessor(PauseScreen screen, boolean showButtons, Supplier<Button> disconnectButtonSupplier) {
+    public PauseScreenProcessor(PauseScreen screen, Supplier<Button> disconnectButtonSupplier) {
         super(screen);
-        this.showButtons = showButtons;
         this.disconnectButtonSupplier = disconnectButtonSupplier;
     }
 
@@ -38,7 +36,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
 
-        if (showButtons) {
+        if (screen.showsPauseMenu()) {
             ButtonGuideApi.addGuideToButtonBuiltin(
                     (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
                     bindings -> bindings.GUI_BACK,

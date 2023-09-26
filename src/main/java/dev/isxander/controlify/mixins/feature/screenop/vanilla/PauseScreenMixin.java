@@ -14,10 +14,9 @@ import org.spongepowered.asm.mixin.Unique;
 @Mixin(PauseScreen.class)
 public class PauseScreenMixin implements ScreenProcessorProvider {
     @Shadow private @Nullable Button disconnectButton;
-    @Shadow @Final private boolean showPauseMenu;
 
     @Unique private final PauseScreenProcessor processor =
-            new PauseScreenProcessor((PauseScreen) (Object) this, showPauseMenu, () -> disconnectButton);
+            new PauseScreenProcessor((PauseScreen) (Object) this, () -> disconnectButton);
 
     @Override
     public ScreenProcessor<?> screenProcessor() {
