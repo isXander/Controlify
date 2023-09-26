@@ -434,15 +434,17 @@ public class Controlify implements ControlifyApi {
                 Log.LOGGER.error("GLFW failed to load gamepad mappings!");
             }
 
-            try (Memory memory = new Memory(bytes.length)) {
-                memory.write(0, bytes, 0, bytes.length);
-                SDL_RWops rw = SDL_RWFromConstMem(memory, (int) memory.size());
-                int count = SDL_GameControllerAddMappingsFromRW(rw, 1);
-                if (count < 1) {
-                    Log.LOGGER.error("SDL2 failed to load gamepad mappings!");
+            if (SDL2NativesManager.isLoaded()) {
+                try (Memory memory = new Memory(bytes.length)) {
+                    memory.write(0, bytes, 0, bytes.length);
+                    SDL_RWops rw = SDL_RWFromConstMem(memory, (int) memory.size());
+                    int count = SDL_GameControllerAddMappingsFromRW(rw, 1);
+                    if (count < 1) {
+                        Log.LOGGER.error("SDL2 failed to load gamepad mappings!");
+                    }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Log.LOGGER.error("Failed to load gamecontrollerdb.txt", e);
         }
     }
