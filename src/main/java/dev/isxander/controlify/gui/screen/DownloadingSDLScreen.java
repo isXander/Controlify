@@ -13,13 +13,15 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.concurrent.CompletableFuture;
 
 public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
-    private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
+    private static final ResourceLocation GREEN_BACK_BAR = new ResourceLocation("boss_bar/green_background");
+    private static final ResourceLocation GREEN_FRONT_BAR = new ResourceLocation("boss_bar/green_progress");
 
     private final Screen screenOnFinish;
     private final Path nativePath;
@@ -71,7 +73,12 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
 
         graphics.pose().popPose();
 
-        drawProgressBar(graphics, width / 2, (int) (30 + 9 * 2.5f + 40), (float) ((double) receivedBytes / totalBytes));
+        graphics.pose().pushPose();
+        graphics.pose().scale(2f, 2f, 1f);
+
+        drawBar(graphics, width / 2 / 2, (int) ((30 + 9 * 2.5f + 40) / 2), (float) ((double) receivedBytes / totalBytes));
+
+        graphics.pose().popPose();
 
         String totalString = format.format(totalBytes / 1024f / 1024f);
         graphics.drawString(
@@ -114,16 +121,13 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
         finishDownload();
     }
 
-    private static void drawProgressBar(GuiGraphics graphics, int centerX, int y, float progress) {
-        int x = (int) (centerX - 182 * 2f / 2);
+    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
+        int width = Mth.lerpDiscrete(1 - (float)Math.pow(1 - progress, 3), 0, 182);
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0);
-        graphics.pose().scale(2f, 2f, 1f);
-
-        graphics.blit(GUI_BARS_LOCATION, 0, 0, 0, 30, 182, 5);
-        graphics.blit(GUI_BARS_LOCATION, 0, 0, 0, 35, (int)(progress * 182), 5);
-
-        graphics.pose().popPose();
+        int x = centerX - 182 / 2;
+        graphics.blitSprite(GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
+        if (width > 0) {
+            graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
+        }
     }
 }
