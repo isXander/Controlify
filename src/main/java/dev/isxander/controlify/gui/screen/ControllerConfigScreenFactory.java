@@ -35,6 +35,7 @@ import java.util.stream.IntStream;
 public class ControllerConfigScreenFactory {
     private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
     private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
+    private static final Function<Float, Component> intervalFormatter = v -> Component.literal(String.format("%.2fs", v));
     private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
 
     private final List<Option<?>> newOptions = new ArrayList<>();
@@ -127,6 +128,15 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.reduceAimingSensitivity, () -> config.reduceAimingSensitivity, v -> config.reduceAimingSensitivity = v)
                         .controller(TickBoxControllerBuilder::create)
+                        .build())
+                .option(Option.<Float>createBuilder()
+                        .name(Component.translatable("controlify.gui.dpad_move_interval"))
+                        .description(OptionDescription.createBuilder()
+                                .text(Component.translatable("controlify.gui.dpad_move_interval.tooltip"))
+                                .build())
+                        .binding(def.dpadMoveInterval, () -> config.dpadMoveInterval, v -> config.dpadMoveInterval = v)
+                        .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                                .range(0.1f, 2f).step(0.05f).valueFormatter(intervalFormatter))
                         .build())
                 .build();
     }

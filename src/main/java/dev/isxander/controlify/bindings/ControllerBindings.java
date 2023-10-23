@@ -71,7 +71,8 @@ public class ControllerBindings<T extends ControllerState> {
             VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
-            CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
+            CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD,
+            CURSOR_UP, CURSOR_DOWN, CURSOR_LEFT, CURSOR_RIGHT;
 
     private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
 
@@ -177,7 +178,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .identifier("controlify", "drop")
                 .defaultBind(GamepadBinds.DPAD_DOWN)
                 .category(GAMEPLAY_CATEGORY)
-                .context(BindContexts.INGAME, BindContexts.INVENTORY)
+                .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.BARRIER))
                 .build());
         register(DROP_STACK = ControllerBindingBuilder.create(controller)
@@ -455,6 +456,30 @@ public class ControllerBindings<T extends ControllerState> {
                 .defaultBind(GamepadBinds.RIGHT_STICK_LEFT)
                 .category(GUI_CATEGORY)
                 .context(BindContexts.GUI)
+                .build());
+        register(CURSOR_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cursor_up")
+                .defaultBind(GamepadBinds.DPAD_UP)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
+                .build());
+        register(CURSOR_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cursor_down")
+                .defaultBind(GamepadBinds.DPAD_DOWN)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
+                .build());
+        register(CURSOR_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cursor_left")
+                .defaultBind(GamepadBinds.DPAD_LEFT)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
+                .build());
+        register(CURSOR_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "cursor_right")
+                .defaultBind(GamepadBinds.DPAD_RIGHT)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
                 .build());
 
         for (var constructor : CUSTOM_BINDS.values()) {

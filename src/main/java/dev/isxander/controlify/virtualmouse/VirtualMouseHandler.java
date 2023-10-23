@@ -1,10 +1,11 @@
 package dev.isxander.controlify.virtualmouse;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.controller.Controller;
@@ -25,7 +26,11 @@ import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class VirtualMouseHandler {
@@ -41,6 +46,7 @@ public class VirtualMouseHandler {
 
     private Set<SnapPoint> snapPoints;
     private SnapPoint lastSnappedPoint;
+    private final Map<ControllerBinding, LocalTime> dpadHeldSince;
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
@@ -51,6 +57,8 @@ public class VirtualMouseHandler {
             snapPoints = Set.of();
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
+
+        dpadHeldSince = new HashMap<>();
     }
 
     public void handleControllerInput(Controller<?, ?> controller) {
@@ -100,6 +108,72 @@ public class VirtualMouseHandler {
             ScreenProcessor.playClackSound();
             minecraft.screen.onClose();
         }
+
+        processDpadMove(controller);
+    }
+
+    private void processDpadMove(Controller<?, ?> controller) {
+        Window window = minecraft.getWindow();
+        Vector2d scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+        Vector2d currentLocation = new Vector2d(targetX, targetY).mul(scaleFactor);
+
+        Map<ControllerBinding, Pair<Boolean, Boolean>> dpadMoveBindings = new HashMap<>();
+        dpadMoveBindings.put(controller.bindings().CURSOR_UP, new Pair<>(false, false));
+        dpadMoveBindings.put(controller.bindings().CURSOR_DOWN, new Pair<>(false, true));
+        dpadMoveBindings.put(controller.bindings().CURSOR_LEFT, new Pair<>(true, false));
+        dpadMoveBindings.put(controller.bindings().CURSOR_RIGHT, new Pair<>(true, true));
+
+        for (ControllerBinding dpadButton : dpadMoveBindings.keySet()) {
+            if (dpadButton.justReleased()) dpadHeldSince.remove(dpadButton);
+            else if (dpadButton.held()) {
+                if (dpadHeldSince.containsKey(dpadButton)) {
+                    Duration durationSinceLast = Duration.between(dpadHeldSince.get(dpadButton), LocalTime.now());
+                    Duration minInterval = Duration.ofMillis((long) (controller.config().dpadMoveInterval*1000));
+                    if (minInterval.compareTo(durationSinceLast) > 0) continue;
+                }
+
+                SnapPoint targetPoint = getDpadTarget(currentLocation, dpadMoveBindings.get(dpadButton));
+                if (targetPoint != null) {
+                    moveToSnapPoint(targetPoint, scaleFactor);
+                    dpadHeldSince.put(dpadButton, LocalTime.now());
+                }
+            }
+        }
+    }
+
+    private void moveToSnapPoint(SnapPoint targetPoint, Vector2d scaleFactor) {
+        lastSnappedPoint = targetPoint;
+
+        targetX = currentX = targetPoint.position().x() / scaleFactor.x();
+        targetY = currentY = targetPoint.position().y() / scaleFactor.y();
+        ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+    }
+
+    private SnapPoint getDpadTarget(Vector2d currentLocation, Pair<Boolean, Boolean> direction) {
+        boolean directionIsX = direction.getFirst();
+        boolean directionIsPositive = direction.getSecond();
+
+        SnapPoint bestResult = null;
+        double bestScore = Double.MAX_VALUE;
+        for (SnapPoint point : snapPoints) {
+            double distanceX = point.position().x() - currentLocation.x();
+            double distanceY = point.position().y() - currentLocation.y();
+            // ignore points behind us
+            if ((directionIsX ? distanceX : distanceY) * (directionIsPositive ? -1 : 1) >= 0) continue;
+
+            double movementInTargetDirection = Math.abs(directionIsX ? distanceX : distanceY);
+            double movementInSideDirection = Math.abs(directionIsX ? distanceY : distanceX);
+            // ignore points where we don't move a full slot in the target direction
+            if (movementInTargetDirection < point.range()) continue;
+
+            double score = movementInTargetDirection + movementInSideDirection * 4;
+
+            if (score < bestScore) {
+                bestResult = point;
+                bestScore = score;
+            }
+        }
+        return bestResult;
     }
 
     public void handleCompatibilityBinds(Controller<?, ?> controller) {
@@ -169,11 +243,7 @@ public class VirtualMouseHandler {
                 .orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
 
         if (closestSnapPoint != null) {
-            lastSnappedPoint = closestSnapPoint;
-
-            targetX = currentX = closestSnapPoint.position().x() / scaleFactor.x();
-            targetY = currentY = closestSnapPoint.position().y() / scaleFactor.y();
-            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+            moveToSnapPoint(closestSnapPoint, scaleFactor);
         }
     }
 

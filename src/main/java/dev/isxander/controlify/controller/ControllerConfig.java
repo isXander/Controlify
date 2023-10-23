@@ -18,6 +18,8 @@ public abstract class ControllerConfig implements Serializable {
 
     public float virtualMouseSensitivity = 1f;
 
+    public float dpadMoveInterval = 0.3f;
+
     public boolean autoJump = false;
     public boolean toggleSprint = true;
     public boolean toggleSneak = true;
