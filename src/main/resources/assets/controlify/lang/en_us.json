@@ -224,6 +224,7 @@
   "controlify.binding.controlify.inv_take_half": "Take Half",
   "controlify.binding.controlify.drop": "Drop Item",
   "controlify.binding.controlify.drop_stack": "Drop Stack",
+  "controlify.binding.controlify.drop_inventory": "Drop Item (In Containers)",
   "controlify.binding.controlify.pick_block": "Pick Block",
   "controlify.binding.controlify.pick_block_nbt": "Pick Block (with NBT)",
   "controlify.binding.controlify.take_screenshot": "Take Screenshot",

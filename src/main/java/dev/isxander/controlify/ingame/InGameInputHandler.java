@@ -72,7 +72,7 @@ public class InGameInputHandler {
                     if (minecraft.player.drop(true)) {
                         minecraft.player.swing(InteractionHand.MAIN_HAND);
                     }
-                } else if (dropRepeatHelper.shouldAction(controller.bindings().DROP)) {
+                } else if (dropRepeatHelper.shouldAction(controller.bindings().DROP_INGAME)) {
                     if (minecraft.player.drop(false)) {
                         dropRepeatHelper.onNavigate();
                         minecraft.player.swing(InteractionHand.MAIN_HAND);

@@ -45,11 +45,12 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
 
         Slot hoveredSlot = this.hoveredSlot.get();
-        if (hoveredSlot != null) {
-            if (controller.bindings().DROP.justPressed() && hoveredSlot.hasItem()) {
-                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.THROW);
+        if (!screen.getMenu().getCarried().isEmpty()) {
+            if (controller.bindings().DROP_INVENTORY.justPressed()) {
+                clickSlotFunction.clickSlot(null, -999, 0, ClickType.PICKUP);
             }
-
+        }
+        if (hoveredSlot != null) {
             if (controller.bindings().INV_SELECT.justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
             }
@@ -147,8 +148,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.DROP, ctx -> {
-                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                        new GuideAction<>(bindings.DROP_INVENTORY, ctx -> {
+                                            if (!ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.drop"));
                                             return Optional.empty();
                                         }),
@@ -171,7 +172,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 ))
                                 .element(new GuideActionRenderer<>(
                                         new GuideAction<>(bindings.INV_QUICK_MOVE, ctx -> {
-                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem() && ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
                                             return Optional.empty();
                                         }),

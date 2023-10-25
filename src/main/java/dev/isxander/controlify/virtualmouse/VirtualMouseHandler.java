@@ -14,14 +14,18 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.navigation.ScreenAxis;
+import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.RoundingMode;
 import org.joml.Vector2d;
+import org.joml.Vector2dc;
 import org.joml.Vector2i;
 import org.lwjgl.glfw.GLFW;
 
@@ -41,6 +45,8 @@ public class VirtualMouseHandler {
 
     private Set<SnapPoint> snapPoints;
     private SnapPoint lastSnappedPoint;
+
+    private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 6);
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
@@ -91,6 +97,20 @@ public class VirtualMouseHandler {
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
         scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
+
+        if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_UP)) {
+            snapInDirection(ScreenDirection.UP);
+            holdRepeatHelper.onNavigate();
+        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_DOWN)) {
+            snapInDirection(ScreenDirection.DOWN);
+            holdRepeatHelper.onNavigate();
+        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_LEFT)) {
+            snapInDirection(ScreenDirection.LEFT);
+            holdRepeatHelper.onNavigate();
+        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_RIGHT)) {
+            snapInDirection(ScreenDirection.RIGHT);
+            holdRepeatHelper.onNavigate();
+        }
 
         if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
             handleCompatibilityBinds(controller);
@@ -169,12 +189,56 @@ public class VirtualMouseHandler {
                 .orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
 
         if (closestSnapPoint != null) {
-            lastSnappedPoint = closestSnapPoint;
-
-            targetX = currentX = closestSnapPoint.position().x() / scaleFactor.x();
-            targetY = currentY = closestSnapPoint.position().y() / scaleFactor.y();
-            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+            snapToPoint(closestSnapPoint, scaleFactor);
         }
+    }
+
+    private void snapInDirection(ScreenDirection direction) {
+        var window = minecraft.getWindow();
+        var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+        var target = new Vector2d(targetX, targetY).mul(scaleFactor);
+
+        var closestSnapPoint = snapPoints.stream()
+                .filter(snapPoint -> !snapPoint.equals(lastSnappedPoint)) // don't snap to the point currently over snapped point
+                .map(snapPoint -> new Pair<>(snapPoint, new Vector2d(snapPoint.position().x() - target.x(), snapPoint.position().y() - target.y()))) // map with distance to current pos
+                // filter points that are not in the correct direction
+                .filter(pair -> {
+                    Vector2d dist = pair.getSecond();
+
+                    double axis = direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y;
+                    double positive = direction.isPositive() ? 1 : -1;
+
+                    return axis * positive > 0;
+                })
+                .filter(pair -> {
+                    SnapPoint snapPoint = pair.getFirst();
+                    Vector2d dist = pair.getSecond();
+
+                    double distance = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y);
+                    double deviation = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.y : dist.x);
+
+                    pair.getSecond().set(distance, deviation);
+
+                    return distance >= snapPoint.range();
+                })
+                // pick the closest point
+                .min(Comparator.comparingDouble(pair -> {
+                    Vector2d distDev = pair.getSecond();
+                    return distDev.x + distDev.y;
+                }))
+                .map(Pair::getFirst);
+
+        closestSnapPoint.ifPresent(snapPoint -> {
+            snapToPoint(snapPoint, scaleFactor);
+        });
+    }
+
+    public void snapToPoint(SnapPoint snapPoint, Vector2dc scaleFactor) {
+        lastSnappedPoint = snapPoint;
+
+        targetX = currentX = snapPoint.position().x() / scaleFactor.x();
+        targetY = currentY = snapPoint.position().y() / scaleFactor.y();
+        ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
     }
 
     public void onScreenChanged() {

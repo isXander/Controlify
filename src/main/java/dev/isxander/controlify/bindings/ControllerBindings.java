@@ -49,7 +49,7 @@ public class ControllerBindings<T extends ControllerState> {
             JUMP, SNEAK,
             ATTACK, USE,
             SPRINT,
-            DROP, DROP_STACK,
+            DROP_INGAME, DROP_STACK, DROP_INVENTORY,
             NEXT_SLOT, PREV_SLOT,
             PAUSE,
             INVENTORY,
@@ -67,6 +67,7 @@ public class ControllerBindings<T extends ControllerState> {
             RADIAL_MENU, RADIAL_AXIS_UP, RADIAL_AXIS_DOWN, RADIAL_AXIS_LEFT, RADIAL_AXIS_RIGHT,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
+            VMOUSE_SNAP_UP, VMOUSE_SNAP_DOWN, VMOUSE_SNAP_LEFT, VMOUSE_SNAP_RIGHT,
             VMOUSE_SCROLL_UP, VMOUSE_SCROLL_DOWN,
             VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
@@ -173,7 +174,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .context(BindContexts.INGAME)
                 .vanillaOverride(options.keyUse, () -> false)
                 .build());
-        register(DROP = ControllerBindingBuilder.create(controller)
+        register(DROP_INGAME = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "drop")
                 .defaultBind(GamepadBinds.DPAD_DOWN)
                 .category(GAMEPLAY_CATEGORY)
@@ -186,6 +187,12 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.TNT))
+                .build());
+        register(DROP_INVENTORY = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "drop_inventory")
+                .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INVENTORY)
                 .build());
         register(NEXT_SLOT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "next_slot")
@@ -393,6 +400,30 @@ public class ControllerBindings<T extends ControllerState> {
         register(VMOUSE_SHIFT_CLICK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_shift_click")
                 .defaultBind(GamepadBinds.Y_BUTTON)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_SNAP_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_snap_up")
+                .defaultBind(GamepadBinds.DPAD_UP)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_SNAP_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_snap_down")
+                .defaultBind(GamepadBinds.DPAD_DOWN)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_SNAP_LEFT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_snap_left")
+                .defaultBind(GamepadBinds.DPAD_LEFT)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_SNAP_RIGHT = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_snap_right")
+                .defaultBind(GamepadBinds.DPAD_RIGHT)
                 .category(VMOUSE_CATEGORY)
                 .context(BindContexts.GUI_VMOUSE)
                 .build());
