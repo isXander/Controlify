@@ -43,13 +43,16 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
                     ))
                     .build());
             case EAT, DRINK -> startRumble(ContinuousRumbleEffect.builder()
-                    .constant(0.05f, 0.1f)
+                    .constant(0.1f, 0.2f)
                     .build());
             case TOOT_HORN -> startRumble(ContinuousRumbleEffect.builder()
                     .byTick(tick -> new RumbleState(
                             Math.min(1f, tick / 10f),
                             0.25f
                     ))
+                    .build());
+            case SPEAR -> startRumble(ContinuousRumbleEffect.builder()
+                    .constant(0.3f, 0.3f)
                     .build());
         }
     }
