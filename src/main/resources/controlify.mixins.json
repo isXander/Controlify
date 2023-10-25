@@ -85,6 +85,7 @@
     "feature.screenop.vanilla.TitleScreenMixin",
     "feature.screenop.vanilla.WorldSelectionListEntryMixin",
     "feature.settingsbutton.ControlsScreenMixin",
+    "feature.util.ConnectScreenMixin",
     "feature.virtualmouse.GameRendererMixin",
     "feature.virtualmouse.InputConstantsMixin",
     "feature.virtualmouse.KeyboardHandlerAccessor",

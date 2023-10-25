@@ -23,10 +23,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
-import dev.isxander.controlify.utils.ControllerUtils;
-import dev.isxander.controlify.utils.DebugLog;
-import dev.isxander.controlify.utils.Log;
-import dev.isxander.controlify.utils.ToastUtils;
+import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
 import io.github.libsdl4j.api.rwops.SDL_RWops;
@@ -40,6 +37,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -48,7 +46,6 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
@@ -186,6 +183,9 @@ public class Controlify implements ControlifyApi {
         ClientTickEvents.START_CLIENT_TICK.register(this::tick);
         ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
             controllerHIDService().stop();
+        });
+        ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
+            notifyNewServer(data);
         });
 
         // set up the hotplugging callback with GLFW
@@ -664,8 +664,12 @@ public class Controlify implements ControlifyApi {
         }
         lastInputSwitchTime = Blaze3D.getTime();
 
-        if (this.currentInputMode.isController())
+        if (this.currentInputMode.isController()) {
             getCurrentController().ifPresent(Controller::clearState);
+            if (minecraft.getCurrentServer() != null) {
+                notifyNewServer(minecraft.getCurrentServer());
+            }
+        }
 
         ControllerPlayerMovement.updatePlayerInput(minecraft.player);
 
@@ -725,6 +729,20 @@ public class Controlify implements ControlifyApi {
                     Component.translatable("controlify.new_features." + foundVersion),
                     true
             );
+        }
+    }
+
+    private void notifyNewServer(ServerData data) {
+        if (!currentInputMode().isController())
+            return;
+
+        if (config().globalSettings().seenServers.add(data.ip)) {
+            ToastUtils.sendToast(
+                    Component.translatable("controlify.toast.new_server.title"),
+                    Component.translatable("controlify.toast.new_server.description", data.name),
+                    true
+            );
+            config().save();
         }
     }
 

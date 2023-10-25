@@ -37,7 +37,7 @@ public class ControllerPlayerMovement extends Input {
         this.forwardImpulse = bindings.WALK_FORWARD.state() - bindings.WALK_BACKWARD.state();
         this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
 
-        if (Controlify.instance().config().globalSettings().keyboardMovement) {
+        if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
             float threshold = controller.config().buttonActivationThreshold;
 
             this.forwardImpulse = Math.abs(this.forwardImpulse) >= threshold ? Math.copySign(1, this.forwardImpulse) : 0;
