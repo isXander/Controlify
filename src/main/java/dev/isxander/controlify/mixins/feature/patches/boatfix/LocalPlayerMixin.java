@@ -18,8 +18,8 @@ public class LocalPlayerMixin {
 
     @WrapOperation(method = "rideTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setInput(ZZZZ)V"))
     private void useAnalogInput(Boat boat, boolean pressingLeft, boolean pressingRight, boolean pressingForward, boolean pressingBack, Operation<Void> original) {
-        if (ControlifyApi.get().currentInputMode().isController() && !Controlify.instance().config().globalSettings().keyboardMovement) {
-            ((AnalogBoatInput) boat).setAnalogInput(
+        if (ControlifyApi.get().currentInputMode().isController() && !Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
+            ((AnalogBoatInput) boat).controlify$setAnalogInput(
                     input.forwardImpulse,
                     -input.leftImpulse
             );

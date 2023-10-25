@@ -50,7 +50,7 @@ public abstract class BoatMixin implements AnalogBoatInput {
     }
 
     @Override
-    public void setAnalogInput(float forward, float right) {
+    public void controlify$setAnalogInput(float forward, float right) {
         this.usingAnalogInput = true;
 
         this.analogForward = forward;
