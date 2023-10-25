@@ -66,6 +66,7 @@
     "feature.screenop.vanilla.AbstractContainerEventHandlerMixin",
     "feature.screenop.vanilla.AbstractContainerScreenMixin",
     "feature.screenop.vanilla.AbstractSelectionListMixin",
+    "feature.screenop.vanilla.AbstractSignEditScreenMixin",
     "feature.screenop.vanilla.AbstractSliderButtonMixin",
     "feature.screenop.vanilla.ContainerObjectSelectionListEntryMixin",
     "feature.screenop.vanilla.CreateWorldScreenMixin",

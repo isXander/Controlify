@@ -1,7 +1,6 @@
 package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -11,7 +10,7 @@ import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
-import dev.isxander.controlify.utils.NavigationHelper;
+import dev.isxander.controlify.utils.HoldRepeatHelper;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -39,12 +38,12 @@ public class InGameInputHandler {
 
     private boolean shouldShowPlayerList;
 
-    private final NavigationHelper dropRepeatHelper;
+    private final HoldRepeatHelper dropRepeatHelper;
 
     public InGameInputHandler(Controller<?, ?> controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
-        this.dropRepeatHelper = new NavigationHelper(20, 1);
+        this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
     }
 
     public void inputTick() {

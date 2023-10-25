@@ -2,13 +2,13 @@ package dev.isxander.controlify.utils;
 
 import dev.isxander.controlify.api.bind.ControllerBinding;
 
-public class NavigationHelper {
+public class HoldRepeatHelper {
     private final int initialDelay, repeatDelay;
     private int currentDelay;
 
     private boolean hasResetThisTick = false;
 
-    public NavigationHelper(int initialDelay, int repeatDelay) {
+    public HoldRepeatHelper(int initialDelay, int repeatDelay) {
         this.initialDelay = initialDelay;
         this.repeatDelay = repeatDelay;
         this.currentDelay = 0;

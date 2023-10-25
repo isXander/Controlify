@@ -8,14 +8,13 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
 import dev.isxander.controlify.sound.ControlifySounds;
-import dev.isxander.controlify.utils.NavigationHelper;
+import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
@@ -31,7 +30,7 @@ import java.util.*;
 
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
-    protected final NavigationHelper navigationHelper = new NavigationHelper(10, 3);
+    protected final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
     protected static final Minecraft minecraft = Minecraft.getInstance();
 
     public ScreenProcessor(T screen) {
@@ -88,7 +87,7 @@ public class ScreenProcessor<T extends Screen> {
 
         var accessor = (ScreenAccessor) screen;
 
-        boolean repeatEventAvailable = navigationHelper.canNavigate();
+        boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
 
         var bindings = controller.bindings();
 
@@ -97,43 +96,43 @@ public class ScreenProcessor<T extends Screen> {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
 
             if (!bindings.GUI_NAVI_RIGHT.prevHeld())
-                navigationHelper.reset();
+                holdRepeatHelper.reset();
         } else if (bindings.GUI_NAVI_LEFT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_LEFT.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
 
             if (!bindings.GUI_NAVI_LEFT.prevHeld())
-                navigationHelper.reset();
+                holdRepeatHelper.reset();
         } else if (bindings.GUI_NAVI_UP.held() && (repeatEventAvailable || !bindings.GUI_NAVI_UP.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
 
             if (!bindings.GUI_NAVI_UP.prevHeld())
-                navigationHelper.reset();
+                holdRepeatHelper.reset();
         } else if (bindings.GUI_NAVI_DOWN.held() && (repeatEventAvailable || !bindings.GUI_NAVI_DOWN.prevHeld())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
 
             if (!bindings.GUI_NAVI_DOWN.prevHeld())
-                navigationHelper.reset();
+                holdRepeatHelper.reset();
         } else if (controller.state() instanceof GamepadState state && controller.prevState() instanceof GamepadState prevState) {
             if (state.gamepadButtons().dpadRight() && (repeatEventAvailable || !prevState.gamepadButtons().dpadRight())) {
                 event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
 
                 if (!prevState.gamepadButtons().dpadRight())
-                    navigationHelper.reset();
+                    holdRepeatHelper.reset();
             } else if (state.gamepadButtons().dpadLeft() && (repeatEventAvailable || !prevState.gamepadButtons().dpadLeft())) {
                 event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
 
                 if (!prevState.gamepadButtons().dpadLeft())
-                    navigationHelper.reset();
+                    holdRepeatHelper.reset();
             } else if (state.gamepadButtons().dpadUp() && (repeatEventAvailable || !prevState.gamepadButtons().dpadUp())) {
                 event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
 
                 if (!prevState.gamepadButtons().dpadUp())
-                    navigationHelper.reset();
+                    holdRepeatHelper.reset();
             } else if (state.gamepadButtons().dpadDown() && (repeatEventAvailable || !prevState.gamepadButtons().dpadDown())) {
                 event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
 
                 if (!prevState.gamepadButtons().dpadDown())
-                    navigationHelper.reset();
+                    holdRepeatHelper.reset();
             }
         }
 
@@ -142,7 +141,7 @@ public class ScreenProcessor<T extends Screen> {
             if (path != null) {
                 accessor.invokeChangeFocus(path);
 
-                navigationHelper.onNavigate();
+                holdRepeatHelper.onNavigate();
 
                 if (Controlify.instance().config().globalSettings().uiSounds)
                     minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
@@ -235,7 +234,7 @@ public class ScreenProcessor<T extends Screen> {
             ComponentPath path = screen.nextFocusPath(accessor.invokeCreateArrowEvent(ScreenDirection.DOWN));
             if (path != null) {
                 accessor.invokeChangeFocus(path);
-                navigationHelper.clearDelay();
+                holdRepeatHelper.clearDelay();
             }
         }
     }
