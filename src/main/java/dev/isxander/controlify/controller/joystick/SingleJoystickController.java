@@ -112,7 +112,7 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
 
         // the duration doesn't matter because we are not updating the joystick state,
         // so there is never any SDL check to stop the rumble after the desired time.
-        if (SDL_JoystickRumbleTriggers(ptrJoystick, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 1) != 0) {
+        if (SDL_JoystickRumble(ptrJoystick, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 1) != 0) {
             Log.LOGGER.error("Could not rumble controller " + name() + ": " + SDL_GetError());
             return false;
         }

@@ -4,6 +4,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.BatteryLevel;
+import dev.isxander.controlify.driver.gamepad.BasicGamepadInputDriver;
+import dev.isxander.controlify.driver.gamepad.GamepadDrivers;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;

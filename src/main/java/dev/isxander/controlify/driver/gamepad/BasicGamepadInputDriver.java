@@ -1,6 +1,7 @@
-package dev.isxander.controlify.driver;
+package dev.isxander.controlify.driver.gamepad;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.driver.Driver;
 
 public interface BasicGamepadInputDriver extends Driver {
 

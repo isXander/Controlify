@@ -1,7 +1,8 @@
-package dev.isxander.controlify.driver;
+package dev.isxander.controlify.driver.gamepad;
 
 import com.google.common.collect.Sets;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
 

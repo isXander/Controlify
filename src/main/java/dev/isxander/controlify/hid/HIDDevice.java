@@ -1,6 +1,11 @@
 package dev.isxander.controlify.hid;
 
-public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly {
+import com.sun.jna.Memory;
+import io.github.libsdl4j.api.hidapi.SDL_hid_device;
+import io.github.libsdl4j.api.hidapi.SdlHidApi;
+import io.github.libsdl4j.jna.size_t;
+
+public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, HIDDevice.SDLHidApi {
     int vendorID();
 
     int productID();
@@ -86,6 +91,71 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly {
         @Override
         public int write(byte[] buffer, int packetLength, byte reportId) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    final class SDLHidApi implements HIDDevice {
+        private final int vendorId;
+        private final int productId;
+        private final String path;
+
+        private SDL_hid_device device;
+
+        public SDLHidApi(int vendorId, int productId, String path) {
+            this.vendorId = vendorId;
+            this.productId = productId;
+            this.path = path;
+            this.device = null;
+        }
+
+        @Override
+        public int vendorID() {
+            return vendorId;
+        }
+
+        @Override
+        public int productID() {
+            return productId;
+        }
+
+        @Override
+        public String path() {
+            return path;
+        }
+
+        @Override
+        public boolean supportsCommunication() {
+            return true;
+        }
+
+        @Override
+        public void open() {
+            device = SdlHidApi.SDL_hid_open_path(path, 0);
+            SdlHidApi.SDL_hid_set_nonblocking(device, 1);
+        }
+
+        @Override
+        public void close() {
+            SdlHidApi.SDL_hid_close(device);
+            device = null;
+        }
+
+        @Override
+        public int read(byte[] buffer) {
+            try (Memory memory = new Memory(buffer.length)) {
+                int ret = SdlHidApi.SDL_hid_read(device, memory, new size_t(buffer.length));
+                memory.read(0, buffer, 0, buffer.length);
+                return ret;
+            }
+        }
+
+        @Override
+        public int write(byte[] buffer, int packetLength, byte reportId) {
+            try (Memory memory = new Memory(buffer.length + 1)) {
+                memory.setByte(buffer.length, reportId);
+                memory.write(1, buffer, 0, buffer.length);
+                return SdlHidApi.SDL_hid_write(device, memory, new size_t(buffer.length));
+            }
         }
     }
 }

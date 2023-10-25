@@ -1,6 +1,7 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.driver.gamepad.BasicGamepadInputDriver;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
 
@@ -157,9 +158,9 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
             //      .6 - X
             //      .7 - A
             //      .12 - Select
-            // .13 - STEAM
-            // .14 - Start
-            // .15 - L5
+            //      .13 - STEAM
+            //      .14 - Start
+            //      .15 - L5
             //      .16 - R5
             //      .17 - L trackpad click
             //      .18 - R trackpad click
@@ -170,11 +171,11 @@ public class SteamDeckDriver implements GyroDriver, BasicGamepadInputDriver {
             int buttons1BitMap,
 
             // Buttons 2:
-            //  .9 - L4
+            //  .9  - L4
             //  .10 - R4
             //  .14 - L3 touch
             //  .15 - R3 touch
-            //       .18 - (...)
+            //  .18 - (...)
             int buttons2BitMap,
 
             short leftTrackpadX,

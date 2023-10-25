@@ -164,7 +164,7 @@ public class ControllerHIDService {
                 Log.LOGGER.info("Using SDL to identify controller type.");
                 return Optional.of(new ControllerHIDInfo(
                         ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
-                        Optional.of(new HIDDevice.IDOnly(vid, pid, path))
+                        Optional.of(new HIDDevice.SDLHidApi(vid, pid, path))
                 ));
             }
         }

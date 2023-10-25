@@ -1,6 +1,8 @@
-package dev.isxander.controlify.driver;
+package dev.isxander.controlify.driver.gamepad;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.driver.GUIDProvider;
+import dev.isxander.controlify.driver.NameProviderDriver;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWGamepadState;
 
