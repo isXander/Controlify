@@ -218,7 +218,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.use"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().DROP, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(controller.bindings().DROP_INGAME, ActionLocation.RIGHT, (ctx) -> {
             var holdingItem = ctx.player().getInventory().getSelected();
             if (!holdingItem.isEmpty())
                 return Optional.of(Component.translatable("controlify.guide.ingame.drop"));
