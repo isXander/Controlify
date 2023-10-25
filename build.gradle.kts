@@ -2,7 +2,6 @@ plugins {
     java
 
     alias(libs.plugins.loom)
-    alias(libs.plugins.loom.vineflower)
 
     alias(libs.plugins.mod.publish.plugin)
     alias(libs.plugins.machete)
@@ -15,8 +14,8 @@ group = "dev.isxander"
 version = "1.7.0-beta.2+1.20"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
-if (isAlpha) println("Alpha version detected.")
-if (isBeta) println("Beta version detected.")
+if (isAlpha) println("Controlify alpha version detected.")
+if (isBeta) println("Controlify beta version detected.")
 
 repositories {
     mavenCentral()
@@ -87,7 +86,7 @@ dependencies {
         modRuntimeOnly(fabricApi.module(it, libs.versions.fabric.api.get()))
     }
 
-    modImplementation(libs.yet.another.config.lib)
+    modApi(libs.yet.another.config.lib)
     modImplementation(libs.mod.menu)
 
     api(libs.mixin.extras)
@@ -98,7 +97,7 @@ dependencies {
     implementation(libs.hid4java)
     include(libs.hid4java)
 
-    // controller rumble
+    // lots of controller stuff
     implementation(libs.libsdl4j)
     include(libs.libsdl4j)
 
