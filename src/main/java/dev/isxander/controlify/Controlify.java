@@ -56,6 +56,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
 import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.SDL_GameControllerAddMappingsFromRW;
+import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.SDL_GameControllerNumMappings;
 import static io.github.libsdl4j.api.rwops.SdlRWops.SDL_RWFromConstMem;
 
 public class Controlify implements ControlifyApi {
@@ -426,6 +427,8 @@ public class Controlify implements ControlifyApi {
      * @param resource the already located `gamecontrollerdb.txt` resource
      */
     private void loadGamepadMappings(Resource resource) {
+        Log.LOGGER.debug("Loading gamepad mappings...");
+
         try (InputStream is = resource.open()) {
             byte[] bytes = ByteStreams.toByteArray(is);
 

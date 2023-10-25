@@ -21,7 +21,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
     private final SDL_GameController ptrGamepad;
     private BasicGamepadState state = BasicGamepadState.EMPTY;
     private GamepadState.GyroState gyroDelta = new GamepadState.GyroState(0, 0, 0);
-    private final boolean isGyroSupported, isRumbleSupported;
+    private final boolean isGyroSupported, isRumbleSupported, isTriggerRumbleSupported;
     private final String guid;
 
     public SDL2GamepadDriver(int jid) {
@@ -29,6 +29,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
         this.guid = SDL_JoystickGetGUID(SDL_GameControllerGetJoystick(ptrGamepad)).toString();
         this.isGyroSupported = SDL_GameControllerHasSensor(ptrGamepad, SDL_SENSOR_GYRO);
         this.isRumbleSupported = SDL_GameControllerHasRumble(ptrGamepad);
+        this.isTriggerRumbleSupported = SDL_GameControllerHasRumbleTriggers(ptrGamepad);
 
         if (this.isGyroSupported()) {
             SDL_GameControllerSetSensorEnabled(ptrGamepad, SDL_SENSOR_GYRO, true);
@@ -94,9 +95,23 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
     @Override
     public boolean rumble(float strongMagnitude, float weakMagnitude) {
+        if (!isRumbleSupported()) return false;
+
         // duration of 0 is infinite
-        if (SDL_GameControllerRumble(ptrGamepad, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 0) != 0) {
+        if (SDL_GameControllerRumble(ptrGamepad, (short)(strongMagnitude * 0xFFFF), (short)(weakMagnitude * 0xFFFF), 0) != 0) {
             Log.LOGGER.error("Could not rumble controller: " + SDL_GetError());
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean rumbleTrigger(float left, float right) {
+        if (!isTriggerRumbleSupported()) return false;
+
+        // duration of 0 is infinite
+        if (SDL_GameControllerRumbleTriggers(ptrGamepad, (short)(left * 0xFFFF), (short)(right * 0xFFFF), 0) != 0) {
+            Log.LOGGER.error("Could not rumble controller trigger: " + SDL_GetError());
             return false;
         }
         return true;
@@ -133,6 +148,11 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
     }
 
     @Override
+    public boolean isTriggerRumbleSupported() {
+        return isTriggerRumbleSupported;
+    }
+
+    @Override
     public String getGUID() {
         return guid;
     }
@@ -149,7 +169,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
     @Override
     public String getRumbleDetails() {
-        return "SDL2gp supported=" + isRumbleSupported();
+        return "SDL2gp supported=" + isRumbleSupported() + " trigger=" + isTriggerRumbleSupported();
     }
 
     @Override

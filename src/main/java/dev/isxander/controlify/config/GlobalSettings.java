@@ -19,11 +19,11 @@ public class GlobalSettings {
             AbstractContainerScreen.class
     );
 
-    @SerializedName("keyboardMovement")
-    public boolean alwaysKeyboardMovement = false;
+    @SerializedName("keyboardMovement") public boolean alwaysKeyboardMovement = false;
     public List<String> keyboardMovementWhitelist = new ArrayList<>();
     public boolean outOfFocusInput = false;
     public boolean loadVibrationNatives = false;
+    public String customVibrationNativesPath = "";
     public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
     public boolean allowServerRumble = true;

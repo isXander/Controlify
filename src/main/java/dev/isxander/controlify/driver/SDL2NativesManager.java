@@ -1,8 +1,8 @@
 package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
-import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.TrackingBodySubscriber;
 import dev.isxander.controlify.utils.TrackingConsumer;
@@ -10,22 +10,12 @@ import io.github.libsdl4j.jna.SdlNativeLibraryLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import org.apache.commons.lang3.Validate;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.Comparator;
+import java.nio.file.*;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -46,7 +36,6 @@ public class SDL2NativesManager {
             new Target(Util.OS.OSX, true, true), new NativeFileInfo("darwin-aarch64", "macos-aarch64", "dylib")
     );
     private static final String NATIVE_LIBRARY_URL = "https://maven.isxander.dev/releases/dev/isxander/libsdl4j-natives/%s/".formatted(SDL2_VERSION);
-    private static final Path NATIVES_PATH = FabricLoader.getInstance().getGameDir().resolve("controlify-natives");
 
     private static boolean loaded = false;
     private static boolean attemptedLoad = false;
@@ -65,7 +54,7 @@ public class SDL2NativesManager {
 
         attemptedLoad = true;
 
-        Path localLibraryPath = NATIVES_PATH.resolve(Target.CURRENT.getArtifactName());
+        Path localLibraryPath = getNativesFolderPath().resolve(Target.CURRENT.getArtifactName());
 
         if (Files.exists(localLibraryPath)) {
             boolean success = loadAndStart(localLibraryPath);
@@ -117,7 +106,7 @@ public class SDL2NativesManager {
     }
 
     private static CompletableFuture<Boolean> downloadAndStart(Path localLibraryPath) {
-        return downloadLibrary()
+        return downloadLibrary(localLibraryPath)
                 .thenCompose(success -> {
                     if (!success) {
                         return CompletableFuture.completedFuture(false);
@@ -128,9 +117,7 @@ public class SDL2NativesManager {
                 .thenCompose(success -> Minecraft.getInstance().submit(() -> success));
     }
 
-    private static CompletableFuture<Boolean> downloadLibrary() {
-        Path path = NATIVES_PATH.resolve(Target.CURRENT.getArtifactName());
-
+    private static CompletableFuture<Boolean> downloadLibrary(Path path) {
         try {
             Files.deleteIfExists(path);
             Files.createDirectories(path.getParent());
@@ -189,6 +176,22 @@ public class SDL2NativesManager {
 
     public static boolean hasAttemptedLoad() {
         return attemptedLoad;
+    }
+
+    private static Path getNativesFolderPath() {
+        Path nativesFolderPath = FabricLoader.getInstance().getGameDir();
+        ControlifyConfig config = Controlify.instance().config();
+        String customPath = config.globalSettings().customVibrationNativesPath;
+        if (!customPath.isEmpty()) {
+            try {
+                nativesFolderPath = Path.of(customPath);
+            } catch (InvalidPathException e) {
+                Log.LOGGER.error("Invalid custom SDL2 native library path. Using default and resetting custom path.", e);
+                config.globalSettings().customVibrationNativesPath = "";
+                config.save();
+            }
+        }
+        return nativesFolderPath.resolve("controlify-natives");
     }
 
     public record Target(Util.OS os, boolean is64Bit, boolean isARM) {

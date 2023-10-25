@@ -5,6 +5,10 @@ public interface RumbleDriver extends Driver {
 
     boolean isRumbleSupported();
 
+    boolean rumbleTrigger(float left, float right);
+
+    boolean isTriggerRumbleSupported();
+
     String getRumbleDetails();
 
     RumbleDriver UNSUPPORTED = new RumbleDriver() {
@@ -19,6 +23,16 @@ public interface RumbleDriver extends Driver {
 
         @Override
         public boolean isRumbleSupported() {
+            return false;
+        }
+
+        @Override
+        public boolean rumbleTrigger(float left, float right) {
+            return false;
+        }
+
+        @Override
+        public boolean isTriggerRumbleSupported() {
             return false;
         }
 
