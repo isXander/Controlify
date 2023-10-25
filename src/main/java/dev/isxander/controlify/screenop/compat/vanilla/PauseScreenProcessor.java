@@ -28,7 +28,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
             minecraft.setScreen(new OptionsScreen(screen, minecraft.options));
         }
         if (controller.bindings().GUI_ABSTRACT_ACTION_2.justPressed()) {
-            disconnectButtonSupplier.get().onPress();
+            screen.setFocused(disconnectButtonSupplier.get());
         }
     }
 
@@ -51,7 +51,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
             );
             ButtonGuideApi.addGuideToButtonBuiltin(
                     disconnectButtonSupplier.get(),
-                    bindings -> bindings.GUI_ABSTRACT_ACTION_2,
+                    bindings -> disconnectButtonSupplier.get().isFocused() ? bindings.GUI_PRESS : bindings.GUI_ABSTRACT_ACTION_2,
                     ButtonRenderPosition.TEXT,
                     ButtonGuidePredicate.ALWAYS
             );

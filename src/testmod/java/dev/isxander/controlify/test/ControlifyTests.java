@@ -56,7 +56,7 @@ public class ControlifyTests {
 
     @Test.Entrypoint("Screen component registry setup test")
     void setupScreenComponentRegistry() {
-        ScreenProcessorProvider.REGISTRY.register(TitleScreen.class, ts -> new ScreenProcessor<>(ts){
+        ScreenProcessorProvider.registerProvider(TitleScreen.class, ts -> new ScreenProcessor<>(ts){
             @Override
             public void onWidgetRebuild() {
                 super.onWidgetRebuild();
