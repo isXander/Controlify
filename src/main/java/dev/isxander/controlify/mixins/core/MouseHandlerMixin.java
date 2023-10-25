@@ -3,18 +3,22 @@ package dev.isxander.controlify.mixins.core;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(MouseHandler.class)
-public class MouseHandlerMixin {
+public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
     @Shadow @Final private Minecraft minecraft;
+
+    @Unique private boolean calledFromMinecraftSetScreen = false;
 
     // method_22686 is lambda for GLFW mouse click hook - do it outside of the `onPress` method due to fake inputs
     @Inject(method = "method_22686", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onPress(JIII)V"))
@@ -34,6 +38,7 @@ public class MouseHandlerMixin {
         onMouse(window);
     }
 
+    @Unique
     private void onMouse(long window) {
         if (window == minecraft.getWindow().getWindow()) {
             if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
@@ -49,8 +54,19 @@ public class MouseHandlerMixin {
      */
     @Inject(method = "releaseMouse", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"))
     private void moveMouseIfNecessary(CallbackInfo ci) {
-        if (ControlifyApi.get().currentInputMode().isController()) {
+        if (!calledFromMinecraftSetScreen && ControlifyApi.get().currentInputMode().isController()) {
             Controlify.instance().hideMouse(true, true);
         }
+    }
+
+    // shift after RETURN to escape the if statement scope
+    @Inject(method = "releaseMouse", at = @At(value = "RETURN"))
+    private void resetCalledFromMinecraftSetScreen(CallbackInfo ci) {
+        calledFromMinecraftSetScreen = false;
+    }
+
+    @Override
+    public void imFromMinecraftSetScreen() {
+        calledFromMinecraftSetScreen = true;
     }
 }

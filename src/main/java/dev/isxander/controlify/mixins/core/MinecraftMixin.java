@@ -3,12 +3,16 @@ package dev.isxander.controlify.mixins.core;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.ControllerManager;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.utils.Animator;
+import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.server.packs.resources.ReloadInstance;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,7 +25,29 @@ public abstract class MinecraftMixin {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
     @Shadow public abstract float getDeltaFrameTime();
 
+    @Shadow @Final public MouseHandler mouseHandler;
     @Unique private boolean initNextTick = false;
+
+    // Ideally, this would be done in MouseHandler#releaseMouse, but moving
+    // the mouse before the screen init is bad, because some mods (e.g. PuzzleLib)
+    // have custom mouse events that call into screens, events that have not been
+    // initialised yet in Screen#init. Causing NPEs and many strange issues.
+    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;releaseMouse()V", shift = At.Shift.BEFORE))
+    private void notifyInjectionToNotRun(Screen screen, CallbackInfo ci) {
+        ((MouseMinecraftCallNotifier) mouseHandler).imFromMinecraftSetScreen();
+    }
+
+    /**
+     * Without this, the mouse would be left in the middle of the
+     * screen, hovering over whatever is there which would look wrong
+     * as there is a focus as well.
+     */
+    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V", shift = At.Shift.AFTER))
+    private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
+        if (ControlifyApi.get().currentInputMode().isController()) {
+            Controlify.instance().hideMouse(true, true);
+        }
+    }
 
     @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;createReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/server/packs/resources/ReloadInstance;"))
     private ReloadInstance onInputInitialized(ReloadInstance resourceReload) {
