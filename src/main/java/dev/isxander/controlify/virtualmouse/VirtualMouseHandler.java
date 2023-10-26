@@ -217,9 +217,9 @@ public class VirtualMouseHandler {
                     double distance = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y);
                     double deviation = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.y : dist.x);
 
-                    pair.getSecond().set(distance, deviation);
+                    pair.getSecond().set(distance, deviation * 4);
 
-                    return distance >= snapPoint.range();
+                    return distance >= snapPoint.range() && (deviation < distance * 2);
                 })
                 // pick the closest point
                 .min(Comparator.comparingDouble(pair -> {
