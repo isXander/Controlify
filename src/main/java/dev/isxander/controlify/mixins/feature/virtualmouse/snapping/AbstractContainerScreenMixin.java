@@ -31,7 +31,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
     @Override
     public Set<SnapPoint> getSnapPoints() {
         return getMenu().slots.stream()
-                .map(slot -> new SnapPoint(new Vector2i(leftPos + slot.x + 8, topPos + slot.y + 8), 14))
+                .map(slot -> new SnapPoint(new Vector2i(leftPos + slot.x + 8, topPos + slot.y + 8), 15))
                 .collect(Collectors.toSet());
     }
 }

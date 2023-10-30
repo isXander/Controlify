@@ -14,6 +14,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.client.Minecraft;
@@ -23,14 +24,13 @@ import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import org.joml.RoundingMode;
-import org.joml.Vector2d;
-import org.joml.Vector2dc;
-import org.joml.Vector2i;
+import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.Math;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.function.Function;
 
 public class VirtualMouseHandler {
     private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
@@ -68,10 +68,19 @@ public class VirtualMouseHandler {
             return;
         }
 
-        var impulseY = controller.bindings().VMOUSE_MOVE_DOWN.state() - controller.bindings().VMOUSE_MOVE_UP.state();
-        var impulseX = controller.bindings().VMOUSE_MOVE_RIGHT.state() - controller.bindings().VMOUSE_MOVE_LEFT.state();
-        var prevImpulseY = controller.bindings().VMOUSE_MOVE_DOWN.prevState() - controller.bindings().VMOUSE_MOVE_UP.prevState();
-        var prevImpulseX = controller.bindings().VMOUSE_MOVE_RIGHT.prevState() - controller.bindings().VMOUSE_MOVE_LEFT.prevState();
+
+        // apply an easing function directly to the vector's length
+        // if you do easing(x), easing(y), then the diagonals where it's something like (~0.8, ~0.8) will incorrectly ease
+        Vector2f impulse = ControllerUtils.applyEasingToLength(
+                controller.bindings().VMOUSE_MOVE_RIGHT.state() - controller.bindings().VMOUSE_MOVE_LEFT.state(),
+                controller.bindings().VMOUSE_MOVE_DOWN.state() - controller.bindings().VMOUSE_MOVE_UP.state(),
+                x -> (float) Math.pow(x, 3)
+        );
+        Vector2f prevImpulse = ControllerUtils.applyEasingToLength(
+                controller.bindings().VMOUSE_MOVE_RIGHT.prevState() - controller.bindings().VMOUSE_MOVE_LEFT.prevState(),
+                controller.bindings().VMOUSE_MOVE_DOWN.prevState() - controller.bindings().VMOUSE_MOVE_UP.prevState(),
+                x -> (float) Math.pow(x, 3)
+        );
 
         if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
             snapPoints = snapBehaviour.getSnapPoints();
@@ -80,18 +89,18 @@ public class VirtualMouseHandler {
         }
 
         // if just released stick, snap to nearest snap point
-        if (impulseX == 0 && impulseY == 0) {
-            if ((prevImpulseX != 0 || prevImpulseY != 0))
+        if (impulse.x == 0 && impulse.y == 0) {
+            if ((prevImpulse.x != 0 || prevImpulse.y != 0))
                 snapToClosestPoint();
         }
 
         var sensitivity = controller.config().virtualMouseSensitivity;
         var windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
-        // quadratic function to make small movements smaller
+        // cubic function to make small movements smaller
         // abs to keep sign
-        targetX += impulseX * Mth.abs(impulseX) * 20f * sensitivity * windowSizeModifier;
-        targetY += impulseY * Mth.abs(impulseY) * 20f * sensitivity * windowSizeModifier;
+        targetX += impulse.x * 20f * sensitivity * windowSizeModifier;
+        targetY += impulse.y * 20f * sensitivity * windowSizeModifier;
 
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());

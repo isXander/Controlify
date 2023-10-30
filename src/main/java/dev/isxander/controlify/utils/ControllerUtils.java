@@ -6,9 +6,11 @@ import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import net.minecraft.util.Mth;
+import org.joml.Vector2f;
 
 import java.util.HexFormat;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class ControllerUtils {
     public static String createControllerString(Controller<?, ?> controller) {
@@ -36,6 +38,16 @@ public class ControllerUtils {
     }
     public static float applyCircularityY(float x, float y) {
         return (float) (y * Math.sqrt(1 - (x * x) / 2));
+    }
+
+    public static Vector2f applyEasingToLength(float x, float y, Function<Float, Float> easing) {
+        float length = Mth.sqrt(x * x + y * y);
+        float easedLength = easing.apply(length);
+        float angle = (float) Mth.atan2(y, x);
+        return new Vector2f(
+                Mth.cos(angle) * easedLength,
+                Mth.sin(angle) * easedLength
+        );
     }
 
     public static boolean shouldApplyAntiSnapBack(float x, float y, float px, float py, float threshold) {

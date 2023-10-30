@@ -141,7 +141,7 @@ public class InGameInputHandler {
             return;
         }
 
-        var isAiming = isAiming(player);
+        boolean isAiming = isAiming(player);
 
         float impulseY = 0f;
         float impulseX = 0f;
@@ -162,13 +162,13 @@ public class InGameInputHandler {
                         }, 0, turnAngle));
             }
         } else {
+            // TODO: refactor this function majorly, so you can easily multiply the impulse vec's length
+            //       possibly separate the flick stick code into its own function?
             // normal look input
             impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
             impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
-            impulseX *= Math.abs(impulseX) * 10f; // 10 degrees per second
-            impulseY *= Math.abs(impulseY) * 10f;
-            impulseX *= controller.config().horizontalLookSensitivity;
-            impulseY *= controller.config().verticalLookSensitivity;
+            impulseX *= controller.config().horizontalLookSensitivity * 10f; // 10 degrees per second at 100% sensitivity
+            impulseY *= controller.config().verticalLookSensitivity * 10f;
 
             if (controller.config().reduceAimingSensitivity && player.isUsingItem()) {
                 float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
