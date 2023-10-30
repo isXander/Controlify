@@ -71,12 +71,19 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     protected void init() {
         refreshControllers();
 
-        var artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
+        Component donateText = Component.translatable("controlify.gui.carousel.donate")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        FakePositionPlainTextButton donateBtn = this.addRenderableWidget(new FakePositionPlainTextButton(donateText, font, 3, 3, btn -> {
+            Util.getPlatform().openUri("https://ko-fi.com/isxander");
+        }));
+        donateBtn.setFakePosition(new ScreenRectangle(0, height, width, 1));
+
+        Component artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
                 .withStyle(ChatFormatting.DARK_GRAY);
-        var artCreditBtn = this.addRenderableWidget(new FakePositionPlainTextButton(artCreditText, font, width - font.width(artCreditText) - 3, 3, btn -> {
+        FakePositionPlainTextButton artCreditBtn = this.addRenderableWidget(new FakePositionPlainTextButton(artCreditText, font, width - font.width(artCreditText) - 3, 3, btn -> {
             Util.getPlatform().openUri("https://github.com/Andrew6rant");
         }));
-        artCreditBtn.setFakePosition(new ScreenRectangle(0, height, width, 1));
+        artCreditBtn.setFakePosition(new ScreenRectangle(0, height + 1, width, 1));
 
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
