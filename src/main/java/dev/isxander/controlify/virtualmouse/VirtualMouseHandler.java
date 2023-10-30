@@ -214,16 +214,21 @@ public class VirtualMouseHandler {
                     SnapPoint snapPoint = pair.getFirst();
                     Vector2d dist = pair.getSecond();
 
+                    // distance in the correct orthogonal direction
                     double distance = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y);
+                    // distance in the incorrect orthogonal direction
                     double deviation = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.y : dist.x);
 
-                    pair.getSecond().set(distance, deviation);
+                    // punish deviation significantly
+                    pair.getSecond().set(distance, deviation * 4);
 
-                    return distance >= snapPoint.range();
+                    // reject if the deviation is double the correct direction away
+                    return distance >= snapPoint.range() && (deviation < distance * 2);
                 })
                 // pick the closest point
                 .min(Comparator.comparingDouble(pair -> {
                     Vector2d distDev = pair.getSecond();
+                    // x = dist, y = deviation
                     return distDev.x + distDev.y;
                 }))
                 .map(Pair::getFirst);
