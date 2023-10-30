@@ -132,6 +132,8 @@
   "controlify.gui.radial_menu.btn_text": "CONFIGURE",
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
+  "controlify.gui.reset_all_binds": "Reset All Binds",
+  "controlify.gui.reset_all_binds.tooltip": "Sets all binds to their default values. This can be undone by pressing the undo button.",
   "controlify.gui.bind_input_awaiting": "Press any button",
 
   "controlify.gui.format.ticks": "%s ticks",

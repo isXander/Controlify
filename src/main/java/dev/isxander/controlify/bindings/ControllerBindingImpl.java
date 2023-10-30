@@ -122,16 +122,13 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         return Optional.ofNullable(this.radialIcon);
     }
 
-    public IBind<T> currentBind() {
-        return bind;
-    }
-
     public void setCurrentBind(IBind<T> bind) {
         this.bind = bind;
         this.renderer = new BindRendererImpl(bind);
         Controlify.instance().config().setDirty();
     }
 
+    @Override
     public IBind<T> defaultBind() {
         return defaultBind;
     }
@@ -182,7 +179,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
 
     @Override
     public JsonObject toJson() {
-        return currentBind().toJson();
+        return getBind().toJson();
     }
 
     @Override
@@ -194,7 +191,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     public Option.Builder<?> startYACLOption() {
         Option.Builder<IBind<T>> option = Option.<IBind<T>>createBuilder()
                 .name(name())
-                .binding(new EmptyBind<>(), this::currentBind, this::setCurrentBind)
+                .binding(new EmptyBind<>(), this::getBind, this::setCurrentBind)
                 .description(OptionDescription.of(this.description()));
 
         if (controller instanceof GamepadController gamepad) {

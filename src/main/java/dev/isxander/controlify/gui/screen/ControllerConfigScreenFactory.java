@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerConfigScreenFactory {
-    private static final Function<Float, Component> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
-    private static final Function<Float, Component> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.apply(v);
+    private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
+    private static final ValueFormatter<Float> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.format(v);
     private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
 
     private final List<Option<?>> newOptions = new ArrayList<>();
@@ -99,7 +99,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.horizontalLookSensitivity, () -> config.horizontalLookSensitivity, v -> config.horizontalLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0.1f, 2f).step(0.05f).valueFormatter(percentFormatter))
+                                .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.vertical_look_sensitivity"))
@@ -108,7 +108,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.verticalLookSensitivity, () -> config.verticalLookSensitivity, v -> config.verticalLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0.1f, 2f).step(0.05f).valueFormatter(percentFormatter))
+                                .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.vmouse_sensitivity"))
@@ -117,7 +117,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.virtualMouseSensitivity, () -> config.virtualMouseSensitivity, v -> config.virtualMouseSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0.1f, 2f).step(0.05f).valueFormatter(percentFormatter))
+                                .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.reduce_aiming_sensitivity"))
@@ -132,7 +132,7 @@ public class ControllerConfigScreenFactory {
     }
 
     private OptionGroup makeControlsGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
-        Function<Boolean, Component> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
+        ValueFormatter<Boolean> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
         return OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.controls"))
@@ -143,7 +143,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.toggleSprint, () -> config.toggleSprint, v -> config.toggleSprint = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
-                                .valueFormatter(holdToggleFormatter)
+                                .formatValue(holdToggleFormatter)
                                 .coloured(false))
                         .build())
                 .option(Option.<Boolean>createBuilder()
@@ -153,7 +153,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.toggleSneak, () -> config.toggleSneak, v -> config.toggleSneak = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
-                                .valueFormatter(holdToggleFormatter)
+                                .formatValue(holdToggleFormatter)
                                 .coloured(false))
                         .build())
                 .option(Option.<Boolean>createBuilder()
@@ -195,7 +195,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.of(Component.translatable("controlify.gui.ingame_button_guide_position.tooltip")))
                         .binding(def.ingameGuideBottom, () -> config.ingameGuideBottom, v -> config.ingameGuideBottom = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
-                                .valueFormatter(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
+                                .formatValue(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
                         .flag(mc -> Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::refreshLayout))
                         .build())
                 .option(Option.<Boolean>createBuilder()
@@ -214,7 +214,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.chatKeyboardHeight, () -> config.chatKeyboardHeight, v -> config.chatKeyboardHeight = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0f, 8f).step(0.1f).valueFormatter(percentFormatter))
+                                .range(0f, 8f).step(0.1f).formatValue(percentFormatter))
                         .build())
                 .build();
     }
@@ -241,7 +241,7 @@ public class ControllerConfigScreenFactory {
                     )
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
                             .range(0f, 1f).step(0.01f)
-                            .valueFormatter(percentFormatter))
+                            .formatValue(percentFormatter))
                     .build();
 
             Option<Float> right = Option.<Float>createBuilder()
@@ -257,7 +257,7 @@ public class ControllerConfigScreenFactory {
                     )
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
                             .range(0f, 1f).step(0.01f)
-                            .valueFormatter(percentFormatter))
+                            .formatValue(percentFormatter))
                     .build();
 
             group.option(left);
@@ -292,7 +292,7 @@ public class ControllerConfigScreenFactory {
                         .binding(jsCfgDef.getDeadzone(i), () -> jsCfg.getDeadzone(i), v -> jsCfg.setDeadzone(i, v))
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0f, 1f).step(0.01f)
-                                .valueFormatter(percentFormatter))
+                                .formatValue(percentFormatter))
                         .build();
                 group.option(deadzoneOpt);
                 deadzoneOpts.add(deadzoneOpt);
@@ -307,7 +307,7 @@ public class ControllerConfigScreenFactory {
                 .binding(def.buttonActivationThreshold, () -> config.buttonActivationThreshold, v -> config.buttonActivationThreshold = v)
                 .controller(opt -> FloatSliderControllerBuilder.create(opt)
                         .range(0f, 1f).step(0.01f)
-                        .valueFormatter(percentFormatter))
+                        .formatValue(percentFormatter))
                 .build());
 
         group.option(ButtonOption.createBuilder()
@@ -378,6 +378,19 @@ public class ControllerConfigScreenFactory {
         });
         updateConflictingBinds(optionBinds);
 
+        category.option(ButtonOption.createBuilder()
+                .name(Component.translatable("controlify.gui.reset_all_binds"))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.reset_all_binds.tooltip"))
+                        .build())
+                .action((screen, opt) -> {
+                    for (OptionBindPair pair : optionBinds) {
+                        // who needs a type system?
+                        ((Option<Object>) pair.option()).requestSet(pair.binding.defaultBind());
+                    }
+                })
+                .build());
+
         return category.build();
     }
 
@@ -438,7 +451,7 @@ public class ControllerConfigScreenFactory {
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0f, 2f)
                                 .step(0.05f)
-                                .valueFormatter(percentOrOffFormatter))
+                                .formatValue(percentOrOffFormatter))
                         .available(allowVibrationOption.pendingValue())
                         .build();
                 strengthOptions.add(option);
@@ -493,7 +506,7 @@ public class ControllerConfigScreenFactory {
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
                             .range(0f, 3f)
                             .step(0.1f)
-                            .valueFormatter(percentOrOffFormatter))
+                            .formatValue(percentOrOffFormatter))
                     .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
                         o.setAvailable(sensitivity > 0);
                         o.requestSetDefault();
@@ -507,7 +520,7 @@ public class ControllerConfigScreenFactory {
                             .build())
                     .binding(gpCfgDef.relativeGyroMode, () -> gpCfg.relativeGyroMode, v -> gpCfg.relativeGyroMode = v)
                     .controller(opt -> BooleanControllerBuilder.create(opt)
-                            .valueFormatter(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
+                            .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
                     .build();
             gyroGroup.option(relativeModeOpt);
             gyroGroup.option(Util.make(() -> {
