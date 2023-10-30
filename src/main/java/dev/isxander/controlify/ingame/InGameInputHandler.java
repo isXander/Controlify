@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.Animator;
+import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.Easings;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import net.minecraft.client.CameraType;
@@ -23,6 +24,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2fc;
 import org.joml.Vector3f;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -162,11 +164,21 @@ public class InGameInputHandler {
                         }, 0, turnAngle));
             }
         } else {
-            // TODO: refactor this function majorly, so you can easily multiply the impulse vec's length
+            // TODO: refactor this function majorly - this is truly awful
             //       possibly separate the flick stick code into its own function?
             // normal look input
             impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
             impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
+
+            // apply the easing on its length to preserve circularity
+            Vector2fc easedImpulse = ControllerUtils.applyEasingToLength(
+                    impulseX,
+                    impulseY,
+                    x -> x * Math.abs(x)
+            );
+            impulseX = easedImpulse.x();
+            impulseY = easedImpulse.y();
+
             impulseX *= controller.config().horizontalLookSensitivity * 10f; // 10 degrees per second at 100% sensitivity
             impulseY *= controller.config().verticalLookSensitivity * 10f;
 
@@ -209,7 +221,7 @@ public class InGameInputHandler {
                         .mul(gamepad.config().gyroLookSensitivity);
 
                 impulseY += -thisInput.pitch() * (gamepad.config().invertGyroY ? -1 : 1);
-                impulseX += (-thisInput.roll() + -thisInput.yaw()) * (gamepad.config().invertGyroX ? -1 : 1);
+                impulseX += (-thisInput.roll() - thisInput.yaw()) * (gamepad.config().invertGyroX ? -1 : 1);
             }
         }
 
