@@ -64,6 +64,7 @@ public class ControllerBindings<T extends ControllerState> {
             TOGGLE_HUD_VISIBILITY,
             SHOW_PLAYER_LIST,
             TAKE_SCREENSHOT,
+            TOGGLE_DEBUG_MENU,
             RADIAL_MENU, RADIAL_AXIS_UP, RADIAL_AXIS_DOWN, RADIAL_AXIS_LEFT, RADIAL_AXIS_RIGHT,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
@@ -330,6 +331,13 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.SPYGLASS))
+                .build());
+        register(TOGGLE_DEBUG_MENU = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "toggle_debug_menu")
+                .defaultBind(new EmptyBind<>())
+                .category(MISC_CATEGORY)
+                .context(BindContexts.INGAME)
+                .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK))
                 .build());
         register(RADIAL_MENU = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "radial_menu")

@@ -113,6 +113,10 @@ public class InGameInputHandler {
             shouldShowPlayerList = !shouldShowPlayerList;
         }
 
+        if (controller.bindings().TOGGLE_DEBUG_MENU.justPressed()) {
+            minecraft.getDebugOverlay().toggleOverlay();
+        }
+
         if (controller.bindings().TAKE_SCREENSHOT.justPressed()) {
             Screenshot.grab(
                     this.minecraft.gameDirectory,
