@@ -5,10 +5,23 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
 public final class ControlifyEvents {
+    public static final Event<ControllerConnected> CONTROLLER_CONNECTED = EventFactory.createArrayBacked(ControllerConnected.class, callbacks -> (controller, hotplugged, newController) -> {
+        for (ControllerConnected callback : callbacks) {
+            callback.onControllerConnected(controller, hotplugged, newController);
+        }
+    });
+
+    public static final Event<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventFactory.createArrayBacked(ControllerDisconnected.class, callbacks -> controller -> {
+        for (ControllerDisconnected callback : callbacks) {
+            callback.onControllerDisconnected(controller);
+        }
+    });
+
     /**
      * Triggers when the input mode is changed from keyboard to controller or vice versa.
      */
@@ -81,6 +94,16 @@ public final class ControlifyEvents {
             return y;
         }
     });
+
+    @FunctionalInterface
+    public interface ControllerConnected {
+        void onControllerConnected(Controller<?, ?> controller, boolean hotplugged, boolean newController);
+    }
+
+    @FunctionalInterface
+    public interface ControllerDisconnected {
+        void onControllerDisconnected(Controller<?, ?> controller);
+    }
 
     @FunctionalInterface
     public interface InputModeChanged {

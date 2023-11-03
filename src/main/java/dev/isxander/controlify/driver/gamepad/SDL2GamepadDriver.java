@@ -7,6 +7,7 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.utils.Log;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
+import io.github.libsdl4j.api.joystick.SdlJoystick;
 import net.minecraft.util.Mth;
 
 import static io.github.libsdl4j.api.error.SdlError.*;
@@ -26,6 +27,9 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
     public SDL2GamepadDriver(int jid) {
         this.ptrGamepad =  SDL_GameControllerOpen(jid);
+        if (ptrGamepad == null)
+            throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
+
         this.guid = SDL_JoystickGetGUID(SDL_GameControllerGetJoystick(ptrGamepad)).toString();
         this.isGyroSupported = SDL_GameControllerHasSensor(ptrGamepad, SDL_SENSOR_GYRO);
         this.isRumbleSupported = SDL_GameControllerHasRumble(ptrGamepad);

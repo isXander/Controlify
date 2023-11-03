@@ -1,9 +1,9 @@
 package dev.isxander.controlify.wireless;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
 
@@ -24,7 +24,11 @@ public class LowBatteryNotifier {
         if (!Controlify.instance().config().globalSettings().notifyLowBattery)
             return;
 
-        for (Controller<?, ?> controller : ControllerManager.getConnectedControllers()) {
+        ControllerManager controllerManager = Controlify.instance().getControllerManager().orElse(null);
+        if (controllerManager == null)
+            return;
+
+        for (Controller<?, ?> controller : controllerManager.getConnectedControllers()) {
             BatteryLevel batteryLevel = controller.batteryLevel();
             if (batteryLevel == BatteryLevel.UNKNOWN) {
                 continue;

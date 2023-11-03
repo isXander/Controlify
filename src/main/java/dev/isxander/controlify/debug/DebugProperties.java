@@ -23,7 +23,7 @@ public class DebugProperties {
     /** Print what drivers are being used */
     public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
     /** Print the state of the left and right triggers on gamepads */
-    public static final boolean PRINT_TRIGGER_STATE = boolProp("controlify.debug.print_trigger_state", false, false);
+    public static final boolean PRINT_GAMEPAD_STATE = boolProp("controlify.debug.print_gamepad_state", false, true);
     /** Use experimental anti-snapback */
     public static final boolean USE_SNAPBACK = boolProp("controlify.debug.use_snapback", false, false);
 

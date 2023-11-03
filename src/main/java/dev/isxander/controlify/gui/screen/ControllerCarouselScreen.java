@@ -2,17 +2,17 @@ package dev.isxander.controlify.gui.screen;
 
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.driver.SDL2NativesManager;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.Animator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -47,24 +47,27 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     private int carouselIndex;
     private Animator.AnimationInstance carouselAnimation = null;
 
+    private final Controlify controlify;
+    private final ControllerManager controllerManager;
+
     private Button globalSettingsButton, doneButton;
 
     private ControllerCarouselScreen(Screen parent) {
         super(Component.translatable("controlify.gui.carousel.title"));
         this.parent = parent;
-        this.carouselIndex = Controlify.instance().getCurrentController().map(c -> ControllerManager.getConnectedControllers().indexOf(c)).orElse(0);
+
+        this.controlify = Controlify.instance();
+        this.controllerManager = controlify.getControllerManager().orElseThrow();
+
+        this.carouselIndex = controlify.getCurrentController().map(c -> controllerManager.getConnectedControllers().indexOf(c)).orElse(0);
     }
 
-    public static Screen createConfigScreen(Screen parent) {
+    public static void openConfigScreen(Screen parent) {
         var controlify = Controlify.instance();
 
-        if (controlify.config().globalSettings().delegateSetup) {
-            controlify.discoverControllers();
-            controlify.config().globalSettings().delegateSetup = false;
-            controlify.config().save();
-        }
-
-        return new ControllerCarouselScreen(parent);
+        controlify.finishControlifyInit().whenComplete((v, th) -> {
+            Minecraft.getInstance().setScreen(new ControllerCarouselScreen(parent));
+        });
     }
 
     @Override
@@ -109,7 +112,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             prevSelectedController = null;
         }
 
-        carouselEntries = ControllerManager.getConnectedControllers().stream()
+        carouselEntries = controllerManager.getConnectedControllers().stream()
                 .map(c -> new CarouselEntry(c, this.width / 3, this.height - 66))
                 .peek(this::addRenderableWidget)
                 .toList();
@@ -118,7 +121,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 .findFirst()
                 .map(carouselEntries::indexOf)
                 .orElse(Controlify.instance().getCurrentController()
-                        .map(c -> ControllerManager.getConnectedControllers().indexOf(c))
+                        .map(c -> controllerManager.getConnectedControllers().indexOf(c))
                         .orElse(0)
                 );
         if (!carouselEntries.isEmpty())
@@ -220,7 +223,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             this.hasNickname = this.controller.config().customName != null;
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
-            this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller)).width(settingsButton.getWidth()).build();
+            this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller, true)).width(settingsButton.getWidth()).build();
             this.children = ImmutableList.of(settingsButton, useControllerButton);
 
             this.prevUse = isCurrentlyUsed();

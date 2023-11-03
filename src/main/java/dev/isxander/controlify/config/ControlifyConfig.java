@@ -2,7 +2,6 @@ package dev.isxander.controlify.config;
 
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
@@ -96,10 +95,13 @@ public class ControlifyConfig {
 
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
-        for (var controller : ControllerManager.getConnectedControllers()) {
-            // `add` replaces if already existing
-            newControllerData.add(controller.uid(), generateControllerConfig(controller));
-        }
+        controlify.getControllerManager().ifPresent(controllerManager -> {
+            for (Controller<?, ?> controller : controllerManager.getConnectedControllers()) {
+                // `add` replaces if already existing
+                newControllerData.add(controller.uid(), generateControllerConfig(controller));
+            }
+        });
+
 
         controllerData = newControllerData;
         config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null));
@@ -137,8 +139,10 @@ public class ControlifyConfig {
         JsonObject controllers = object.getAsJsonObject("controllers");
         if (controllers != null) {
             this.controllerData = controllers;
-            for (var controller : ControllerManager.getConnectedControllers()) {
-                loadOrCreateControllerData(controller);
+            if (controlify.getControllerManager().isPresent()) {
+                for (var controller : controlify.getControllerManager().get().getConnectedControllers()) {
+                    loadOrCreateControllerData(controller);
+                }
             }
         } else {
             setDirty();

@@ -2,9 +2,8 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
@@ -72,7 +71,7 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
     private void onMinecraftClose(CallbackInfo ci) {
-        ControllerManager.getConnectedControllers().forEach(Controller::close);
+        Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
     }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))

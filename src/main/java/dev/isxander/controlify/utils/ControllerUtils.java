@@ -5,6 +5,9 @@ import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.util.Mth;
 import org.joml.Vector2f;
 
@@ -27,6 +30,19 @@ public class ControllerUtils {
                         .orElse(ControllerType.UNKNOWN)
                         .friendlyName()
         );
+    }
+
+    public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?, ?> controller) {
+        try {
+            runnable.run();
+        } catch (Throwable e) {
+            CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
+            CrashReportCategory category = crashReport.addCategory("Affected controller");
+            category.setDetail("Controller name", controller.name());
+            category.setDetail("Controller identification", controller.type().toString());
+            category.setDetail("Controller type", controller.getClass().getCanonicalName());
+            throw new ReportedException(crashReport);
+        }
     }
 
     public static float deadzone(float value, float deadzone) {

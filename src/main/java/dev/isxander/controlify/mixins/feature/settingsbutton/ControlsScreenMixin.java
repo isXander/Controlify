@@ -37,9 +37,6 @@ public class ControlsScreenMixin extends OptionsSubScreen {
 
     @Unique
     private void openControllerSettings() {
-        Controlify.instance().askNatives()
-                .whenComplete((result, error) ->
-                        minecraft.setScreen(ControllerCarouselScreen.createConfigScreen(lastScreen))
-                );
+        ControllerCarouselScreen.openConfigScreen(this);
     }
 }

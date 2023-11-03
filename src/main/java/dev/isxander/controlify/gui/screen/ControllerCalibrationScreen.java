@@ -1,12 +1,12 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.ControllerManager;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -33,6 +33,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     private static final ResourceLocation GREEN_BACK_BAR = new ResourceLocation("boss_bar/green_background");
     private static final ResourceLocation GREEN_FRONT_BAR = new ResourceLocation("boss_bar/green_progress");
 
+    protected final Controlify controlify;
+    protected final ControllerManager controllerManager;
     protected final Controller<?, ?> controller;
     private final Supplier<Screen> parent;
 
@@ -52,6 +54,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     public ControllerCalibrationScreen(Controller<?, ?> controller, Supplier<Screen> parent) {
         super(Component.translatable("controlify.calibration.title"));
+        this.controlify = Controlify.instance();
+        this.controllerManager = controlify.getControllerManager().orElseThrow();
         this.controller = controller;
         this.parent = parent;
         this.axisData = new double[controller.axisCount() * CALIBRATION_TIME];
@@ -129,7 +133,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     @Override
     public void tick() {
-        if (!ControllerManager.isControllerConnected(controller.uid())) {
+        if (!controllerManager.isControllerConnected(controller.uid())) {
             onClose();
             return;
         }
@@ -161,7 +165,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             controller.config().delayedCalibration = false;
             // no need to save because of setCurrentController
 
-            Controlify.instance().setCurrentController(controller);
+            Controlify.instance().setCurrentController(controller, true);
         }
     }
 
@@ -231,7 +235,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             if (!controller.config().deadzonesCalibrated) {
                 controller.config().delayedCalibration = true;
                 Controlify.instance().config().setDirty();
-                Controlify.instance().setCurrentController(null);
+                Controlify.instance().setCurrentController(null, true);
             }
 
             onClose();

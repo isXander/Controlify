@@ -1,6 +1,5 @@
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.Controlify;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -21,10 +20,7 @@ public class ModConfigOpenerScreen extends Screen {
         Minecraft minecraft = Minecraft.getInstance();
         this.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
 
-        Controlify.instance().askNatives()
-                .whenComplete((result, error) ->
-                        minecraft.setScreen(ControllerCarouselScreen.createConfigScreen(lastScreen))
-                );
+        ControllerCarouselScreen.openConfigScreen(lastScreen);
     }
 
     @Override

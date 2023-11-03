@@ -194,11 +194,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
     }
 
     public void use() {
-        Controlify.instance().setCurrentController(this);
+        Controlify.instance().setCurrentController(this, true);
     }
 
     public void finish() {
-        Controlify.instance().setCurrentController(null);
+        Controlify.instance().setCurrentController(null, true);
     }
 
     @Override

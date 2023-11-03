@@ -29,7 +29,7 @@ public class GlobalSettings {
     public boolean allowServerRumble = true;
     public boolean uiSounds = false;
     public boolean notifyLowBattery = true;
-    public boolean delegateSetup = false;
+    public boolean quietMode = false;
     public float ingameButtonGuideScale = 1f;
 
     public Set<String> seenServers = new HashSet<>();

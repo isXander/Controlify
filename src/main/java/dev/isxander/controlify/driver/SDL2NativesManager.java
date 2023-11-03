@@ -97,7 +97,7 @@ public class SDL2NativesManager {
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");
 
         // initialise SDL with just joystick and gamecontroller subsystems
-        if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) {
+        if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
             Log.LOGGER.error("Failed to initialise SDL2: " + SDL_GetError());
             throw new RuntimeException("Failed to initialise SDL2: " + SDL_GetError());
         }

@@ -73,6 +73,11 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         uniqueDrivers.forEach(Driver::update);
 
         BasicGamepadInputDriver.BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
+
+        if (DebugProperties.PRINT_GAMEPAD_STATE) {
+            Log.LOGGER.info(basicState.toString());
+        }
+
         GamepadState.AxesState deadzoneAxesState = basicState.axes()
                 .leftJoystickDeadZone(config().getLeftStickDeadzone())
                 .rightJoystickDeadZone(config().getRightStickDeadzone());
@@ -99,11 +104,6 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         this.absoluteGyro.add(gyroState);
 
         state = new GamepadState(deadzoneAxesState, basicState.axes(), basicState.buttons(), gyroState, absoluteGyro);
-
-        if (DebugProperties.PRINT_TRIGGER_STATE) {
-            Log.LOGGER.info("Left Trigger: " + state.gamepadAxes().leftTrigger());
-            Log.LOGGER.info("Right Trigger: " + state.gamepadAxes().rightTrigger());
-        }
     }
 
     public GamepadState.GyroState absoluteGyroState() {

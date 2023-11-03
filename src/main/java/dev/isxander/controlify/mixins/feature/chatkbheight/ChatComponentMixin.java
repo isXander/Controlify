@@ -24,10 +24,12 @@ public class ChatComponentMixin {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
-        Controller<?, ?> controller = Controlify.instance().currentController();
-        graphics.pose().pushPose();
-        if (controller.config().chatKeyboardHeight == 0) return;
-        graphics.pose().translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
+        Controlify.instance().getCurrentController().ifPresent(controller -> {
+            graphics.pose().pushPose();
+            if (controller.config().chatKeyboardHeight == 0) return;
+            graphics.pose().translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
+        });
+
     }
 
     @Inject(method = "render", at = @At("TAIL"))
