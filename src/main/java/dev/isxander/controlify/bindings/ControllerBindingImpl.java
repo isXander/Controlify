@@ -17,6 +17,8 @@ import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
@@ -39,9 +41,9 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
-    private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new HashMap<>();
+    private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new Object2ObjectOpenHashMap<>();
 
-    private int fakePressState = 0;
+    private byte fakePressState = 0;
 
     private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
@@ -219,7 +221,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     }
 
     private static void addPressedBind(ControllerBindingImpl<?> binding) {
-        pressedBinds.computeIfAbsent(binding.controller, c -> new HashSet<>()).addAll(getBinds(binding.bind));
+        pressedBinds.computeIfAbsent(binding.controller, c -> new ObjectOpenHashSet<>()).addAll(getBinds(binding.bind));
     }
 
     private static Set<IBind<?>> getBinds(IBind<?> bind) {

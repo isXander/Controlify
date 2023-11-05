@@ -5,11 +5,15 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.driver.SDL2NativesManager;
+import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.utils.Log;
 import io.github.libsdl4j.api.event.SDL_Event;
 import io.github.libsdl4j.api.event.SDL_EventFilter;
 import io.github.libsdl4j.api.rwops.SDL_RWops;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import org.apache.commons.lang3.Validate;
@@ -17,17 +21,17 @@ import org.apache.commons.lang3.Validate;
 import java.io.InputStream;
 import java.util.Optional;
 
-import static io.github.libsdl4j.api.error.SdlError.SDL_GetError;
+import static io.github.libsdl4j.api.error.SdlError.*;
 import static io.github.libsdl4j.api.event.SDL_EventType.*;
 import static io.github.libsdl4j.api.event.SdlEvents.*;
 import static io.github.libsdl4j.api.gamecontroller.SdlGamecontroller.*;
 import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
-import static io.github.libsdl4j.api.rwops.SdlRWops.SDL_RWFromConstMem;
+import static io.github.libsdl4j.api.rwops.SdlRWops.*;
 
 public class SDLControllerManager extends AbstractControllerManager {
     private final Controlify controlify;
-    private final Minecraft minecraft;
 
+    private final Int2ObjectMap<Controller<?, ?>> controllersByJid = new Int2ObjectArrayMap<>();
     private final SDL_Event event = new SDL_Event();
 
     // must keep a reference to prevent GC from collecting it and the callback failing
@@ -38,32 +42,32 @@ public class SDLControllerManager extends AbstractControllerManager {
         Validate.isTrue(SDL2NativesManager.isLoaded(), "SDL2 natives must be loaded before creating SDLControllerManager");
 
         this.controlify = Controlify.instance();
-        this.minecraft = Minecraft.getInstance();
 
         SDL_SetEventFilter(eventFilter = new EventFilter(), Pointer.NULL);
     }
 
     @Override
     public void tick(boolean outOfFocus) {
+        super.tick(outOfFocus);
+
+        // SDL identifiers controllers in two different ways:
+        // device index, and device instance ID.
         while (SDL_PollEvent(event) == 1) {
             switch (event.type) {
+                // On added, `which` refers to the device index
                 case SDL_JOYDEVICEADDED -> {
-                    int jid = event.jdevice.which;
-                    Optional<Controller<?, ?>> controllerOpt = createOrGet(jid, controlify.controllerHIDService().fetchType(jid));
-                    controllerOpt.ifPresent(controller -> onControllerConnected(controller, true));
-                }
-                case SDL_CONTROLLERDEVICEADDED -> {
-                    int jid = event.cdevice.which;
-                    Optional<Controller<?, ?>> controllerOpt = createOrGet(jid, controlify.controllerHIDService().fetchType(jid));
+                    int deviceIndex = event.jdevice.which;
+                    Optional<Controller<?, ?>> controllerOpt = createOrGet(
+                            deviceIndex,
+                            ControllerHIDService.fetchTypeFromSDL(deviceIndex)
+                                    .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()))
+                    );
                     controllerOpt.ifPresent(controller -> onControllerConnected(controller, true));
                 }
 
+                // On removed, `which` refers to the device instance ID
                 case SDL_JOYDEVICEREMOVED -> {
                     int jid = event.jdevice.which;
-                    getController(jid).ifPresent(this::onControllerRemoved);
-                }
-                case SDL_CONTROLLERDEVICEREMOVED -> {
-                    int jid = event.cdevice.which;
                     getController(jid).ifPresent(this::onControllerRemoved);
                 }
             }
@@ -94,6 +98,19 @@ public class SDLControllerManager extends AbstractControllerManager {
     }
 
     @Override
+    protected void addController(int index, Controller<?, ?> controller) {
+        super.addController(index, controller);
+
+        // the instance id is technically a long, but it's usually only like 0, 1, 2, 3, etc.
+        int joystickId = SDL_JoystickGetDeviceInstanceID(index).intValue();
+        controllersByJid.put(joystickId, controller);
+    }
+
+    private Optional<Controller<?, ?>> getController(int joystickId) {
+        return Optional.ofNullable(controllersByJid.get(joystickId));
+    }
+
+    @Override
     protected void loadGamepadMappings(Resource resource) {
         Log.LOGGER.debug("Loading gamepad mappings...");
 
@@ -119,8 +136,6 @@ public class SDLControllerManager extends AbstractControllerManager {
             switch (event.type) {
                 case SDL_JOYDEVICEADDED:
                 case SDL_JOYDEVICEREMOVED:
-                case SDL_CONTROLLERDEVICEADDED:
-                case SDL_CONTROLLERDEVICEREMOVED:
                     return 1;
                 default:
                     return 0;

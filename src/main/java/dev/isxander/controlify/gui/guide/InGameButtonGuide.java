@@ -201,7 +201,10 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         registerGuideAction(controller.bindings().ATTACK, ActionLocation.RIGHT, (ctx) -> {
             var hitResult = ctx.hitResult();
             if (hitResult.getType() == HitResult.Type.ENTITY)
-                return Optional.of(Component.translatable("controlify.guide.ingame.attack"));
+                if (player.isSpectator())
+                    return Optional.of(Component.translatable("controlify.guide.ingame.spectate"));
+                else
+                    return Optional.of(Component.translatable("controlify.guide.ingame.attack"));
             if (hitResult.getType() == HitResult.Type.BLOCK)
                 return Optional.of(Component.translatable("controlify.guide.ingame.break"));
             return Optional.empty();

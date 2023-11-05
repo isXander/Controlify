@@ -14,8 +14,6 @@ public interface ControllerManager {
 
     List<Controller<?, ?>> getConnectedControllers();
 
-    Optional<Controller<?, ?>> getController(int jid);
-
     boolean isControllerConnected(String uid);
 
     boolean isControllerGamepad(int jid);

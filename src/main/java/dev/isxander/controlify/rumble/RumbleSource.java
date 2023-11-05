@@ -2,12 +2,13 @@ package dev.isxander.controlify.rumble;
 
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.utils.Log;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
 public record RumbleSource(ResourceLocation id) {
-    private static final Map<ResourceLocation, RumbleSource> SOURCES = new LinkedHashMap<>();
+    private static final Map<ResourceLocation, RumbleSource> SOURCES = new Object2ObjectLinkedOpenHashMap<>();
 
     public static final RumbleSource
             MASTER = register("master"),

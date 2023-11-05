@@ -1,8 +1,8 @@
 package dev.isxander.controlify.screenop;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -13,8 +13,8 @@ public class Registry<T, U> {
     private final Map<T, U> cache;
 
     public Registry() {
-        this.registry = new HashMap<>();
-        this.cache = new HashMap<>();
+        this.registry = new Object2ObjectOpenHashMap<>();
+        this.cache = new Object2ObjectOpenHashMap<>();
     }
 
     /**

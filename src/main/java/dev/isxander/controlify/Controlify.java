@@ -3,6 +3,7 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
@@ -63,10 +64,12 @@ public class Controlify implements ControlifyApi {
     private boolean probeMode = false;
 
     private Controller<?, ?> currentController = null;
+    private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
+
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
-    private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
+
     private ControllerHIDService controllerHIDService;
 
     private CompletableFuture<Boolean> nativeOnboardingFuture = null;
@@ -80,10 +83,6 @@ public class Controlify implements ControlifyApi {
     private double lastInputSwitchTime = 0;
 
     private int showMouseTicks = 0;
-
-    private @Nullable Controller<?, ?> switchableController = null;
-    private double askSwitchTime = 0;
-    private ToastUtils.ControlifyToast askSwitchToast = null;
 
     /**
      * Called at usual fabric client entrypoint.
@@ -178,10 +177,6 @@ public class Controlify implements ControlifyApi {
             ClientTickEvents.END_CLIENT_TICK.register(client -> this.probeTick());
         }
 
-        // initialise and compatability modules that controlify implements itself
-        // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
-        ControlifyCompat.init();
-
         // register events
         ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
             controllerHIDService().stop();
@@ -211,18 +206,27 @@ public class Controlify implements ControlifyApi {
             Log.LOGGER.info("No controllers found.");
         }
 
-        // if no controller is currently selected, select the first one
+        // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            Controller<?, ?> controller = controllerManager.getConnectedControllers().stream().findFirst().orElse(null);
-            if (controller != null && (controller.config().delayedCalibration || !controller.config().deadzonesCalibrated)) {
-                controller = null;
-            }
+            Optional<Controller<?, ?>> lastUsedController = controllerManager.getConnectedControllers()
+                    .stream()
+                    .filter(c -> c.uid().equals(config().currentControllerUid()))
+                    .findAny();
 
-            this.setCurrentController(controller, false);
-        } else {
-            // setCurrentController saves config so there is no need to set dirty to save
-            config().saveIfDirty();
+            if (lastUsedController.isPresent()) {
+                this.setCurrentController(lastUsedController.get(), false);
+            } else {
+                Controller<?, ?> anyController = controllerManager.getConnectedControllers()
+                        .stream()
+                        .filter(c -> !c.config().delayedCalibration && c.config().deadzonesCalibrated)
+                        .findFirst()
+                        .orElse(null);
+
+                this.setCurrentController(anyController, false);
+            }
         }
+
+        config().saveIfDirty();
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
@@ -233,10 +237,16 @@ public class Controlify implements ControlifyApi {
         });
     }
 
+    /**
+     * Completely finishes controlify initialization.
+     * This can be run at any point during the game's lifecycle.
+     * @return the future that completes when controlify has finished initializing
+     */
     public CompletableFuture<Void> finishControlifyInit() {
         if (finishedInit) {
             return CompletableFuture.completedFuture(null);
         }
+        probeMode = false;
         finishedInit = true;
 
         askNatives().whenComplete((loaded, th) -> {
@@ -248,12 +258,33 @@ public class Controlify implements ControlifyApi {
             ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
                 notifyNewServer(data);
             });
+
+            // initialise and compatability modules that controlify implements itself
+            // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
+            ControlifyCompat.init();
+
+            // make sure people don't someone add binds after controllers could have been created
+            ControllerBindings.lockRegistry();
+
+            if (config().globalSettings().quietMode) {
+                config().globalSettings().quietMode = false;
+                config().setDirty();
+            }
+
             discoverControllers();
         });
 
         return askNatives().thenApply(loaded -> null);
     }
 
+    /**
+     * Called when a controller is connected. Either from controller
+     * discovery or hotplugging.
+     *
+     * @param controller the new controller
+     * @param hotplugged if this was a result of hotplugging
+     * @param newController if this controller has never been seen before
+     */
     private void onControllerAdded(Controller<?, ?> controller, boolean hotplugged, boolean newController) {
         if (SubmitUnknownControllerScreen.canSubmit(controller)) {
             minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
@@ -264,12 +295,10 @@ public class Controlify implements ControlifyApi {
             config().setDirty();
         }
 
-        if (hotplugged) {
-            if (controller.config().deadzonesCalibrated) {
-                setCurrentController(controller, hotplugged);
-            } else {
-                calibrationQueue.add(controller);
-            }
+        if (!controller.config().deadzonesCalibrated) {
+            calibrationQueue.add(controller);
+        } else if (hotplugged) {
+            setCurrentController(controller, true);
         }
 
         if (controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
@@ -278,7 +307,7 @@ public class Controlify implements ControlifyApi {
                     Component.translatable("controlify.toast.unmapped_joystick.description", controller.name()),
                     true
             );
-        } else {
+        } else if (hotplugged) {
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.controller_connected.title"),
                     Component.translatable("controlify.toast.controller_connected.description", controller.name()),
@@ -289,8 +318,17 @@ public class Controlify implements ControlifyApi {
         if (minecraft.screen instanceof ControllerCarouselScreen controllerListScreen) {
             controllerListScreen.refreshControllers();
         }
+
+        // saved after discovery
+        if (hotplugged) {
+            config().saveIfDirty();
+        }
     }
 
+    /**
+     * Called when a controller is disconnected.
+     * @param controller controller that has been disconnected
+     */
     private void onControllerRemoved(Controller<?, ?> controller) {
         this.setCurrentController(
                 controllerManager.getConnectedControllers()
@@ -324,6 +362,14 @@ public class Controlify implements ControlifyApi {
         // if the future already exists, just return it
         if (nativeOnboardingFuture != null)
             return nativeOnboardingFuture;
+
+        // just say no if the platform doesn't support it
+        if (!SDL2NativesManager.isSupportedOnThisPlatform()) {
+            Log.LOGGER.warn("SDL is not supported on this platform. Platform: {}", SDL2NativesManager.Target.CURRENT);
+            nativeOnboardingFuture = new CompletableFuture<>();
+            minecraft.setScreen(new NoSDLScreen(() -> nativeOnboardingFuture.complete(false), minecraft.screen));
+            return nativeOnboardingFuture;
+        }
 
         // the user has already been asked, initialise SDL if necessary
         // and return a completed future
@@ -373,19 +419,10 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
+        // handles updating state of all controllers
         controllerManager.tick(outOfFocus);
 
-        if (switchableController != null && Blaze3D.getTime() - askSwitchTime <= 10000) {
-            if (switchableController.state().hasAnyInput()) {
-                switchableController.clearState();
-                this.setCurrentController(switchableController, true); // setCurrentController sets switchableController to null
-                if (askSwitchToast != null) {
-                    askSwitchToast.remove();
-                    askSwitchToast = null;
-                }
-            }
-        }
-
+        // handle showing/hiding mouse whilst in mixed input mode
         if (minecraft.mouseHandler.isMouseGrabbed())
             showMouseTicks = 0;
         if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
@@ -400,6 +437,7 @@ public class Controlify implements ControlifyApi {
 
         LowBatteryNotifier.tick();
 
+        // if splitscreen ever happens this can tick over every controller
         getCurrentController().ifPresent(currentController -> {
             wrapControllerError(
                     () -> tickController(currentController, outOfFocus),
@@ -409,6 +447,12 @@ public class Controlify implements ControlifyApi {
         });
     }
 
+    /**
+     * Ticks a specific controller.
+     *
+     * @param controller controller to tick
+     * @param outOfFocus if the window is out of focus
+     */
     private void tickController(Controller<?, ?> controller, boolean outOfFocus) {
         ControllerState state = controller.state();
 
@@ -479,10 +523,6 @@ public class Controlify implements ControlifyApi {
 
         this.currentController = controller;
 
-        if (switchableController == controller) {
-            switchableController = null;
-        }
-
         if (controller == null) {
             this.setInputMode(InputMode.KEYBOARD_MOUSE);
             this.inGameInputHandler = null;
@@ -495,7 +535,7 @@ public class Controlify implements ControlifyApi {
         DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 
         if (!controller.uid().equals(config().currentControllerUid())) {
-            config().save();
+            config().setDirty();
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
@@ -504,6 +544,8 @@ public class Controlify implements ControlifyApi {
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);
+
+        config().saveIfDirty();
     }
 
     public Optional<ControllerManager> getControllerManager() {

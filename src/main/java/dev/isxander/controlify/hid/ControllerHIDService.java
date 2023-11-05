@@ -7,9 +7,9 @@ import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.Log;
 import dev.isxander.controlify.utils.ToastUtils;
+import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -154,17 +154,17 @@ public class ControllerHIDService {
         }
     }
 
-    private Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
+    public static Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
         if (SDL2NativesManager.isLoaded()) {
             int vid = SDL_JoystickGetDeviceVendor(jid);
             int pid = SDL_JoystickGetDeviceProduct(jid);
-            String path = GLFW.glfwGetJoystickGUID(jid);
+            SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(jid);
 
             if (vid != 0 && pid != 0) {
                 Log.LOGGER.info("Using SDL to identify controller type.");
                 return Optional.of(new ControllerHIDInfo(
                         ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
-                        Optional.of(new HIDDevice.SDLHidApi(vid, pid, path))
+                        Optional.of(new HIDDevice.SDLHidApi(vid, pid, guid.toString()))
                 ));
             }
         }

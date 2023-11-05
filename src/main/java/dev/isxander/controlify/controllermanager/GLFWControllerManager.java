@@ -59,11 +59,6 @@ public class GLFWControllerManager extends AbstractControllerManager {
     }
 
     @Override
-    public void tick(boolean outOfFocus) {
-
-    }
-
-    @Override
     protected void loadGamepadMappings(Resource resource) {
         Log.LOGGER.debug("Loading gamepad mappings...");
 
@@ -77,6 +72,10 @@ public class GLFWControllerManager extends AbstractControllerManager {
         } catch (Throwable e) {
             Log.LOGGER.error("Failed to load gamepad mappings: {}", e.getMessage());
         }
+    }
+
+    private Optional<Controller<?, ?>> getController(int joystickId) {
+        return controllersByUid.values().stream().filter(controller -> controller.joystickId() == joystickId).findAny();
     }
 
     @Override

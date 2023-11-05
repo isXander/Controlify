@@ -3,7 +3,6 @@ package dev.isxander.controlify.api.bind;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.IBind;
-import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.yacl3.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;

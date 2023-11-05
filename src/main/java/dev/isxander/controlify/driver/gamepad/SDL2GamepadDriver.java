@@ -63,12 +63,12 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
         // Triggers are in the range [0, 32767] (thanks SDL!)
         // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetAxis
         GamepadState.AxesState axes = new GamepadState.AxesState(
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTX), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTY), Short.MIN_VALUE, Short.MAX_VALUE) * 2f - 1f,
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT), 0, Short.MAX_VALUE),
-                Mth.inverseLerp(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT), 0, Short.MAX_VALUE)
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTX)),
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_LEFTY)),
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTX)),
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_RIGHTY)),
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERLEFT)),
+                mapShortToFloat(SDL_GameControllerGetAxis(ptrGamepad, SDL_CONTROLLER_AXIS_TRIGGERRIGHT))
         );
         // Button values return 1 if pressed, 0 if not
         // https://wiki.libsdl.org/SDL2/SDL_GameControllerGetButton
@@ -189,5 +189,10 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
     @Override
     public String getBasicGamepadDetails() {
         return "SDL2gp";
+    }
+
+    private static float mapShortToFloat(short value) {
+        return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
+                + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
     }
 }

@@ -54,6 +54,11 @@ public class SDL2NativesManager {
 
         attemptedLoad = true;
 
+        if (!isSupportedOnThisPlatform()) {
+            Log.LOGGER.warn("No native library for current platform, skipping SDL2 load");
+            return initFuture = CompletableFuture.completedFuture(false);
+        }
+
         Path localLibraryPath = getNativesFolderPath().resolve(Target.CURRENT.getArtifactName());
 
         if (Files.exists(localLibraryPath)) {
@@ -176,6 +181,10 @@ public class SDL2NativesManager {
 
     public static boolean hasAttemptedLoad() {
         return attemptedLoad;
+    }
+
+    public static boolean isSupportedOnThisPlatform() {
+        return Target.CURRENT.hasNativeLibrary();
     }
 
     private static Path getNativesFolderPath() {

@@ -14,6 +14,7 @@ import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
 import dev.isxander.controlify.utils.Log;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
@@ -23,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
+import org.apache.commons.lang3.Validate;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -32,6 +34,7 @@ import java.util.function.UnaryOperator;
 public class ControllerBindings<T extends ControllerState> {
     private static final Map<ResourceLocation, Function<ControllerBindings<?>, ControllerBinding>> CUSTOM_BINDS = new LinkedHashMap<>();
     private static final Set<KeyMapping> EXCLUDED_VANILLA_BINDS = new HashSet<>();
+    private static boolean lockRegistry = false;
 
     public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
     public static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
@@ -75,7 +78,7 @@ public class ControllerBindings<T extends ControllerState> {
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
-    private final Map<ResourceLocation, ControllerBinding> registry = new LinkedHashMap<>();
+    private final Map<ResourceLocation, ControllerBinding> registry = new Object2ObjectLinkedOpenHashMap<>();
 
     private final Controller<T, ?> controller;
 
@@ -643,11 +646,18 @@ public class ControllerBindings<T extends ControllerState> {
         }
     }
 
+    public static void lockRegistry() {
+        Api.INSTANCE.lockRegistry();
+    }
+
     public static final class Api implements ControlifyBindingsApi {
         public static final Api INSTANCE = new Api();
 
+        private boolean lockedRegistry = false;
+
         @Override
         public dev.isxander.controlify.api.bind.BindingSupplier registerBind(ResourceLocation id, UnaryOperator<ControllerBindingBuilder<?>> builder) {
+            checkLocked();
             CUSTOM_BINDS.put(id, bindings -> bindings.create(b -> builder.apply(b).identifier(id)));
             return controller -> controller.bindings().get(id);
         }
@@ -655,6 +665,7 @@ public class ControllerBindings<T extends ControllerState> {
         @Deprecated
         @Override
         public dev.isxander.controlify.api.bind.BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id) {
+            checkLocked();
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id));
             return controller -> controller.bindings().get(id);
         }
@@ -662,18 +673,29 @@ public class ControllerBindings<T extends ControllerState> {
         @Deprecated
         @Override
         public dev.isxander.controlify.api.bind.BindingSupplier registerBind(GamepadBinds bind, ResourceLocation id, KeyMapping override, BooleanSupplier toggleOverride) {
+            checkLocked();
             CUSTOM_BINDS.put(id, bindings -> bindings.create(bind, id, override, toggleOverride));
             return controller -> controller.bindings().get(id);
         }
 
         @Override
         public void excludeVanillaBind(KeyMapping... keyMappings) {
+            checkLocked();
             EXCLUDED_VANILLA_BINDS.addAll(Arrays.asList(keyMappings));
         }
 
         @Override
         public void registerRadialIcon(ResourceLocation id, RadialIcon icon) {
+            checkLocked();
             RadialIcons.registerIcon(id, icon);
+        }
+
+        public void lockRegistry() {
+            this.lockedRegistry = true;
+        }
+
+        private void checkLocked() {
+            Validate.isTrue(!lockedRegistry, "Cannot register new binds after registry is locked! You most likely tried to register a binding too late in Controlify's lifecycle.");
         }
     }
 }

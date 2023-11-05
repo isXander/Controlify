@@ -29,11 +29,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
     protected C config, defaultConfig;
 
     public AbstractController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
-        if (joystickId > GLFW.GLFW_JOYSTICK_LAST || joystickId < 0)
-            throw new IllegalArgumentException("Joystick ID " + joystickId + " is out of range!");
-        if (!GLFW.glfwJoystickPresent(joystickId))
-            throw new IllegalArgumentException("Joystick " + joystickId + " is not present and cannot be initialised!");
-
         this.hidInfo = hidInfo;
 
         this.joystickId = joystickId;

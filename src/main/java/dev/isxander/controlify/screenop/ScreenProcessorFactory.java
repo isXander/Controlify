@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.function.Function;
 
 @SuppressWarnings("unchecked")
 public final class ScreenProcessorFactory {
-    private static final Map<Class<? extends Screen>, Factory<?>> factories = new HashMap<>();
+    private static final Map<Class<? extends Screen>, Factory<?>> factories = new Object2ObjectOpenHashMap<>();
 
     private ScreenProcessorFactory() {
     }

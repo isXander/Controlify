@@ -147,6 +147,9 @@
 
   "controlify.gui.controller_unavailable": "Controller unavailable and cannot be edited.",
 
+  "controlify.gui.no_sdl.title": "Controlify Native Library Incompatible",
+  "controlify.gui.no_sdl.message": "Controlify uses an extra native library to add more features for controller support. Your system does not support this library. You will be missing out on features such as:\n - controller vibration\n - enhanced controller identification\n - gyroscope controls",
+
   "controlify.new_features.title": "Controlify updated to %s!",
   "controlify.new_features.1.5.0": "Added a radial menu that can be configured to any action you want. You can find it in your controller settings.",
 
@@ -175,10 +178,8 @@
   "controlify.toast.vmouse_disabled.description": "Controlify virtual mouse is now disabled for this screen.",
   "controlify.toast.vmouse_unavailable.title": "Virtual Mouse Unavailable",
   "controlify.toast.vmouse_unavailable.description": "This screen is forcing a specific virtual mouse mode and you cannot change it.",
-  "controlify.toast.ask_to_switch.title": "Switch Controller?",
-  "controlify.toast.ask_to_switch.description": "A new controller named '%s' has just been connected. Press any button to switch to it.",
-  "controlify.toast.default_controller_connected.title": "Controller Connected",
-  "controlify.toast.default_controller_connected.description": "Your primary controller has been connected and automatically switched to.",
+  "controlify.toast.controller_connected.title": "Controller Connected",
+  "controlify.toast.controller_connected.description": "A controller named `%s` has been connected. It has automatically been switched to.",
   "controlify.toast.controller_disconnected.title": "Controller Disconnected",
   "controlify.toast.controller_disconnected.description": "'%s' was disconnected.",
   "controlify.toast.faulty_input.title": "Controller disabled",

@@ -2,13 +2,15 @@ package dev.isxander.controlify.controller.joystick;
 
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Object2FloatOpenHashMap;
 import org.apache.commons.lang3.Validate;
 
 import java.util.*;
 
 public class JoystickConfig extends ControllerConfig {
     private Map<String, Float> deadzones;
-    private Set<Integer> triggerAxes = new HashSet<>();
+    private Set<Integer> triggerAxes = new IntOpenHashSet();
 
     private transient JoystickController<?> controller;
 
@@ -55,7 +57,7 @@ public class JoystickConfig extends ControllerConfig {
         this.controller = controller;
 
         if (this.deadzones == null) {
-            deadzones = new HashMap<>();
+            deadzones = new Object2FloatOpenHashMap<>();
             for (int i = 0; i < controller.mapping().axes().length; i++) {
                 JoystickMapping.Axis axis = controller.mapping().axes()[i];
 

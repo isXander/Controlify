@@ -63,8 +63,8 @@ public class ControlifyConfig {
         Log.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
-            firstLaunch = true;
             if (lastSeenVersion == null) {
+                firstLaunch = true;
                 try {
                     lastSeenVersion = Version.parse("0.0.0");
                 } catch (VersionParsingException e) {
