@@ -1,7 +1,5 @@
 package dev.isxander.controlify.mixins.feature.chatkbheight;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
@@ -24,12 +22,12 @@ public class ChatComponentMixin {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
+        graphics.pose().pushPose();
+
         Controlify.instance().getCurrentController().ifPresent(controller -> {
-            graphics.pose().pushPose();
             if (controller.config().chatKeyboardHeight == 0) return;
             graphics.pose().translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
         });
-
     }
 
     @Inject(method = "render", at = @At("TAIL"))
