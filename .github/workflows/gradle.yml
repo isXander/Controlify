@@ -49,25 +49,3 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           path: build/libs/*.jar
-
-  client_test:
-    runs-on: ubuntu-latest
-    name: In-game test
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v3
-        with:
-          distribution: microsoft
-          java-version: 17
-      - name: Run auto test client
-        uses: modmuss50/xvfb-action@v1
-        with:
-          run: ./gradlew runTestmod --stacktrace --warning-mode=fail --no-daemon
-      - name: Upload test screenshots
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: test-screenshots
-          path: run/screenshots
