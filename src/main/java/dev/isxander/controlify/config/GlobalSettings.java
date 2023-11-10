@@ -37,6 +37,6 @@ public class GlobalSettings {
     public boolean shouldUseKeyboardMovement() {
         ServerData server = Minecraft.getInstance().getCurrentServer();
         return alwaysKeyboardMovement
-                || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::equalsIgnoreCase));
+                || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith));
     }
 }
