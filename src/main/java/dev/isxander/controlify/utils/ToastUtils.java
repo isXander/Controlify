@@ -22,7 +22,7 @@ public class ToastUtils {
         private boolean removed;
 
         private ControlifyToast(Component title, List<FormattedCharSequence> description, int maxWidth, boolean longer) {
-            super(longer ? SystemToastIds.UNSECURE_SERVER_WARNING : SystemToastIds.PERIODIC_NOTIFICATION, title, description, maxWidth);
+            super(longer ? SystemToastId.UNSECURE_SERVER_WARNING : SystemToastId.PERIODIC_NOTIFICATION, title, description, maxWidth);
         }
 
         @Override

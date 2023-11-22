@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.7.0+1.20.2"
+version = "1.7.0+1.20.3"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
@@ -61,7 +61,9 @@ val minecraftVersion = libs.versions.minecraft.get()
 dependencies {
     minecraft(libs.minecraft)
     mappings(loom.layered {
-        mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.${libs.versions.quilt.mappings.get()}:intermediary-v2")
+        libs.versions.quilt.mappings.orNull?.takeIf { it != "0" }?.let {
+            mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.$it:intermediary-v2")
+        }
         officialMojangMappings()
     })
     modImplementation(libs.fabric.loader)
@@ -106,17 +108,17 @@ dependencies {
     include(libs.quilt.json5)
 
     // sodium compat
-    modImplementation(libs.sodium)
+    modCompileOnly(libs.sodium)
     // iris compat
-    modImplementation(libs.iris)
-    modRuntimeOnly("org.anarres:jcpp:1.4.14")
-    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+    modCompileOnly(libs.iris)
+//    modRuntimeOnly("org.anarres:jcpp:1.4.14")
+//    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
-    modImplementation(libs.immediately.fast)
-    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modCompileOnly(libs.immediately.fast)
+    //modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // simple-voice-chat compat
-    modImplementation(libs.simple.voice.chat)
+    modCompileOnly(libs.simple.voice.chat)
 
     // testmod
     "testmodImplementation"(sourceSets.main.get().output)
