@@ -31,8 +31,6 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
     public GamepadController(int joystickId, ControllerHIDService.ControllerHIDInfo hidInfo) {
         super(joystickId, hidInfo);
-        if (!GLFW.glfwJoystickIsGamepad(joystickId))
-            throw new IllegalArgumentException("Joystick " + joystickId + " is not a gamepad!");
 
         this.drivers = GamepadDrivers.forController(joystickId, hidInfo.hidDevice());
         this.uniqueDrivers = drivers.getUniqueDrivers();
