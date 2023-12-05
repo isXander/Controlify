@@ -38,7 +38,7 @@
   "accessWidener": "controlify.accesswidener",
   "depends": {
     "fabricloader": ">=0.14.21",
-    "minecraft": "~1.20.2",
+    "minecraft": "1.20.3",
     "java": ">=17",
     "yet_another_config_lib_v3": ">=3.0.0-",
     "fabric-api": "*"

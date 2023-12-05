@@ -78,7 +78,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         this.operationalCheckbox = this.addRenderableWidget(
                 Checkbox.builder(operationalText, font)
                         .pos(this.width / 2 - font.width(operationalText) / 2 - 8, y)
-                        .selected(false)
+                        .selected(true)
                         .build()
         );
         y += checkboxHeight + checkboxPadding;
