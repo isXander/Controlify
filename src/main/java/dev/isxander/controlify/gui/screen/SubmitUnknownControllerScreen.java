@@ -76,14 +76,10 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         var operationalText = Component.translatable("controlify.controller_submission.operational_checkbox")
                 .withStyle(ChatFormatting.BOLD);
         this.operationalCheckbox = this.addRenderableWidget(
-                new Checkbox(
-                        this.width / 2 - font.width(operationalText) / 2 - 8,
-                        y,
-                        150,
-                        checkboxHeight,
-                        operationalText,
-                        true
-                )
+                Checkbox.builder(operationalText, font)
+                        .pos(this.width / 2 - font.width(operationalText) / 2 - 8, y)
+                        .selected(true)
+                        .build()
         );
         y += checkboxHeight + checkboxPadding;
 
