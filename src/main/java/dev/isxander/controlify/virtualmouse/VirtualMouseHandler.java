@@ -1,7 +1,6 @@
 package dev.isxander.controlify.virtualmouse;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
@@ -9,6 +8,8 @@ import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
+import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
@@ -19,8 +20,11 @@ import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.gui.screens.inventory.CraftingScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -30,7 +34,6 @@ import org.lwjgl.glfw.GLFW;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.function.Function;
 
 public class VirtualMouseHandler {
     private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
@@ -119,6 +122,21 @@ public class VirtualMouseHandler {
         } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_RIGHT)) {
             snapInDirection(ScreenDirection.RIGHT);
             holdRepeatHelper.onNavigate();
+        }
+
+        if (minecraft.screen != null && minecraft.screen instanceof CraftingScreen craftingScreen) {
+            RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) craftingScreen.getRecipeBookComponent();
+            RecipeBookPage page = componentAccessor.getRecipeBookPage();
+            RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) page;
+            StateSwitchingButton button;
+            if (controller.bindings().VMOUSE_PAGE_NEXT.justPressed()) {
+                button = pageAccessor.getForwardButton();
+                page.mouseClicked(button.getX(), button.getY(), 0, 0, 0, 0, 0);
+            }
+            if (controller.bindings().VMOUSE_PAGE_PREV.justPressed()) {
+                button = pageAccessor.getBackButton();
+                page.mouseClicked(button.getX(), button.getY(), 0, 0, 0, 0, 0);
+            }
         }
 
         if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
