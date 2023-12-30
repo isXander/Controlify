@@ -52,6 +52,8 @@ public class InGameInputHandler {
         handlePlayerLookInput();
         handleKeybinds();
         preventFlyDrifting();
+
+        ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
     }
 
     protected void handleKeybinds() {

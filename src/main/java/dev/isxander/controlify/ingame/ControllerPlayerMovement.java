@@ -82,7 +82,7 @@ public class ControllerPlayerMovement extends Input {
         if (player == null)
             return;
 
-        if (Controlify.instance().getCurrentController().isPresent() && Controlify.instance().currentInputMode().isController()) {
+        if (shouldBeControllerInput()) {
             player.input = new DualInput(
                     new KeyboardInput(Minecraft.getInstance().options),
                     new ControllerPlayerMovement(Controlify.instance().getCurrentController().get(), player)
@@ -90,6 +90,18 @@ public class ControllerPlayerMovement extends Input {
         } else if (!(player.input instanceof KeyboardInput)) {
             player.input = new KeyboardInput(Minecraft.getInstance().options);
         }
+    }
 
+    public static void ensureCorrectInput(@Nullable LocalPlayer player) {
+        if (player == null)
+            return;
+
+        if (shouldBeControllerInput() && player.input.getClass() == KeyboardInput.class) {
+            updatePlayerInput(player);
+        }
+    }
+
+    public static boolean shouldBeControllerInput() {
+        return Controlify.instance().getCurrentController().isPresent() && Controlify.instance().currentInputMode().isController();
     }
 }
