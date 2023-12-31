@@ -24,7 +24,9 @@ import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
+import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -33,6 +35,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.lang.Math;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 public class VirtualMouseHandler {
@@ -125,18 +128,36 @@ public class VirtualMouseHandler {
         }
 
         if (minecraft.screen != null && minecraft.screen instanceof CraftingScreen craftingScreen) {
-            RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) craftingScreen.getRecipeBookComponent();
-            RecipeBookPage page = componentAccessor.getRecipeBookPage();
-            RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) page;
+            RecipeBookComponent recipeBookComponent = craftingScreen.getRecipeBookComponent();
+            RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
+            RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
+            List<RecipeBookTabButton> tabs = componentAccessor.getTabButtons();
+            RecipeBookTabButton selectedTab = componentAccessor.getSelectedTab();
+
             StateSwitchingButton button;
             if (controller.bindings().VMOUSE_PAGE_NEXT.justPressed()) {
                 button = pageAccessor.getForwardButton();
-                page.mouseClicked(button.getX(), button.getY(), 0, 0, 0, 0, 0);
+                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
             }
             if (controller.bindings().VMOUSE_PAGE_PREV.justPressed()) {
                 button = pageAccessor.getBackButton();
-                page.mouseClicked(button.getX(), button.getY(), 0, 0, 0, 0, 0);
+                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
             }
+            if (controller.bindings().VMOUSE_PAGE_DOWN.justPressed()) {
+                int index = tabs.indexOf(selectedTab);
+                if (index != tabs.size() - 1) {
+                    button = tabs.get(index + 1);
+                    recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+                }
+            }
+            if (controller.bindings().VMOUSE_PAGE_UP.justPressed()) {
+                int index = tabs.indexOf(selectedTab);
+                if (index != 0) {
+                    button = tabs.get(index - 1);
+                    recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+                }
+            }
+
         }
 
         if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().isDefaultOr(VirtualMouseBehaviour.ENABLED)) {

@@ -76,6 +76,7 @@ public class ControllerBindings<T extends ControllerState> {
             VMOUSE_SHIFT,
             VMOUSE_TOGGLE,
             VMOUSE_PAGE_NEXT, VMOUSE_PAGE_PREV,
+            VMOUSE_PAGE_DOWN, VMOUSE_PAGE_UP,
             GUI_NAVI_UP, GUI_NAVI_DOWN, GUI_NAVI_LEFT, GUI_NAVI_RIGHT,
             CYCLE_OPT_FORWARD, CYCLE_OPT_BACKWARD;
 
@@ -472,6 +473,18 @@ public class ControllerBindings<T extends ControllerState> {
         register(VMOUSE_PAGE_PREV = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_page_prev")
                 .defaultBind(GamepadBinds.LEFT_BUMPER)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_PAGE_DOWN = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_page_down")
+                .defaultBind(GamepadBinds.RIGHT_TRIGGER)
+                .category(VMOUSE_CATEGORY)
+                .context(BindContexts.GUI_VMOUSE)
+                .build());
+        register(VMOUSE_PAGE_UP = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "vmouse_page_up")
+                .defaultBind(GamepadBinds.LEFT_TRIGGER)
                 .category(VMOUSE_CATEGORY)
                 .context(BindContexts.GUI_VMOUSE)
                 .build());

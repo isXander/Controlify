@@ -18,5 +18,8 @@ public interface RecipeBookComponentAccessor {
     List<RecipeBookTabButton> getTabButtons();
 
     @Accessor
+    RecipeBookTabButton getSelectedTab();
+
+    @Accessor
     StateSwitchingButton getFilterButton();
 }
