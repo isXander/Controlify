@@ -208,8 +208,13 @@ public class ScreenProcessor<T extends Screen> {
                         if (newIndex >= tabs.size()) newIndex = 0;
 
                         navBar.selectTab(newIndex, true);
+                        onTabChanged(controller);
                     });
         }
+    }
+
+    protected void onTabChanged(Controller<?, ?> controller) {
+
     }
 
     public void onWidgetRebuild() {

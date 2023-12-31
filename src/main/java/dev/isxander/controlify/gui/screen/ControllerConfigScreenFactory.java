@@ -353,7 +353,6 @@ public class ControllerConfigScreenFactory {
                 .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, true, screen)))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
-        newOptions.add(editRadialButton);
         Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
                 .listener((opt, val) -> updateConflictingBinds(optionBinds))
                 .build();
