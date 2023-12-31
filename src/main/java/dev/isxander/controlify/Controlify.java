@@ -548,7 +548,7 @@ public class Controlify implements ControlifyApi {
             setInputMode(InputMode.CONTROLLER);
 
         if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
-            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController));
+            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController, minecraft.screen));
         }
 
         config().saveIfDirty();

@@ -47,9 +47,12 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
     );
     private Stage currentStage = null;
 
-    public GamepadEmulationMappingCreatorScreen(EmulatedGamepadController controller) {
+    private final Screen lastScreen;
+
+    public GamepadEmulationMappingCreatorScreen(EmulatedGamepadController controller, Screen lastScreen) {
         super(Component.literal("Gamepad Emulation Mapping Creator"));
         this.controller = controller;
+        this.lastScreen = lastScreen;
     }
 
     @Override
@@ -173,7 +176,7 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
 
     @Override
     public void onClose() {
-        super.onClose();
+        minecraft.setScreen(lastScreen);
         controller.config().mapping = mappingBuilder.build();
         Controlify.instance().config().save();
     }
