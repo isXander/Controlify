@@ -7,7 +7,6 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.utils.Log;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
-import io.github.libsdl4j.api.joystick.SdlJoystick;
 import net.minecraft.util.Mth;
 
 import static io.github.libsdl4j.api.error.SdlError.*;

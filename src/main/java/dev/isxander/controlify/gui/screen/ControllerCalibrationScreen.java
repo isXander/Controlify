@@ -3,6 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
@@ -176,8 +177,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     }
 
     private void processGyroData() {
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            accumulatedGyroVelocity.add(gamepad.drivers.gyroDriver().getGyroState());
+        if (controller instanceof GamepadLike<?> gamepad && gamepad.supportsGyro()) {
+            accumulatedGyroVelocity.add(gamepad.gyroState());
         }
     }
 
@@ -208,7 +209,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     }
 
     private void generateGyroCalibration() {
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+        if (controller instanceof GamepadLike<?> gamepad && gamepad.supportsGyro()) {
             gamepad.config().gyroCalibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
         }
     }

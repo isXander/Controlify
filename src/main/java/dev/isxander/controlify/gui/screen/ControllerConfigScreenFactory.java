@@ -7,6 +7,7 @@ import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.driver.SteamDeckDriver;
@@ -28,7 +29,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -224,7 +224,7 @@ public class ControllerConfigScreenFactory {
 
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
-        if (controller instanceof GamepadController gamepad) {
+        if (controller instanceof GamepadLike<?> gamepad) {
             var gpCfg = gamepad.config();
             var gpCfgDef = gamepad.defaultConfig();
 
@@ -482,8 +482,8 @@ public class ControllerConfigScreenFactory {
     }
 
     private OptionGroup makeGyroGroup(Controller<?, ?> controller) {
-        GamepadController gamepad = (controller instanceof GamepadController) ? (GamepadController) controller : null;
-        boolean hasGyro = gamepad != null && gamepad.hasGyro();
+        GamepadLike<?> gamepad = (controller instanceof GamepadLike<?>) ? (GamepadLike<?>) controller : null;
+        boolean hasGyro = gamepad != null && gamepad.supportsGyro();
 
         var gpCfg = gamepad != null ? gamepad.config() : null;
         var gpCfgDef = gamepad != null ? gamepad.defaultConfig() : null;

@@ -23,7 +23,7 @@ public class ControllerUtils {
         return String.format("'%s'#%s-%s (%s, %s: %s)",
                 controller.name(),
                 controller.joystickId(),
-                controller instanceof GamepadController ? "gamepad" : "joy",
+                controller.kind(),
                 hid.map(device -> hexFormat.toHexDigits(device.vendorID())).orElse("?"),
                 hid.map(device -> hexFormat.toHexDigits(device.productID())).orElse("?"),
                 controller.hidInfo().map(ControllerHIDService.ControllerHIDInfo::type)

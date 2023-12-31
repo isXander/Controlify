@@ -5,6 +5,8 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
+import dev.isxander.controlify.controller.gamepademulated.mapping.UserGamepadMapping;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -544,6 +546,10 @@ public class Controlify implements ControlifyApi {
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);
+
+        if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
+            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController));
+        }
 
         config().saveIfDirty();
     }

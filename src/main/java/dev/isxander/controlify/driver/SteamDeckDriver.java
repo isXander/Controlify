@@ -2,6 +2,7 @@ package dev.isxander.controlify.driver;
 
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.driver.gamepad.BasicGamepadInputDriver;
+import dev.isxander.controlify.driver.gamepad.BasicGamepadState;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.Log;
 

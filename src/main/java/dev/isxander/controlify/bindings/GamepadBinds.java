@@ -1,7 +1,10 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.controller.AbstractController;
+import dev.isxander.controlify.controller.gamepad.GamepadConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 
 import java.util.Optional;
@@ -48,7 +51,7 @@ public enum GamepadBinds {
         this(state1 -> state.apply(state1) ? 1f : 0f, identifier, true);
     }
 
-    public GamepadBind forGamepad(GamepadController gamepad) {
+    public GamepadBind forGamepad(GamepadLike<?> gamepad) {
         return new GamepadBind(state, identifier, gamepad);
     }
 

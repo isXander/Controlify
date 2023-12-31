@@ -5,6 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -59,9 +60,13 @@ public abstract class AbstractControllerManager implements ControllerManager {
                 return Optional.of(controller);
             }
 
-            SingleJoystickController controller = new SingleJoystickController(joystickIndex, hidInfo);
+            EmulatedGamepadController controller = new EmulatedGamepadController(joystickIndex, hidInfo);
             this.addController(joystickIndex, controller);
             return Optional.of(controller);
+
+//            SingleJoystickController controller = new SingleJoystickController(joystickIndex, hidInfo);
+//            this.addController(joystickIndex, controller);
+//            return Optional.of(controller);
         } catch (Throwable e) {
             CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + joystickIndex);
             CrashReportCategory category = crashReport.addCategory("Controller Info");

@@ -5,6 +5,7 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
@@ -141,7 +142,7 @@ public class InGameInputHandler {
 
     protected void handlePlayerLookInput() {
         var player = this.minecraft.player;
-        var gamepad = controller instanceof GamepadController ? (GamepadController) controller : null;
+        var gamepad = controller instanceof GamepadLike<?> ? (GamepadLike<?>) controller : null;
 
         if (!minecraft.mouseHandler.isMouseGrabbed() || (!minecraft.isWindowActive() && !Controlify.instance().config().globalSettings().outOfFocusInput) || minecraft.screen != null || player == null) {
             lookInputX = 0;
@@ -200,7 +201,7 @@ public class InGameInputHandler {
         }
 
         // gyro input
-        if (gamepad != null && gamepad.hasGyro()) {
+        if (gamepad != null && gamepad.supportsGyro()) {
             boolean useGyro = false;
 
             if (gamepad.config().gyroRequiresButton) {

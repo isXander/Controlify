@@ -205,6 +205,8 @@ public final class GamepadState implements ControllerState {
     }
 
     public interface GyroStateC extends Vector3fc {
+        GyroStateC ZERO = new GyroState(0, 0, 0);
+
         float pitch();
 
         float yaw();

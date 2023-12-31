@@ -3,6 +3,8 @@ package dev.isxander.controlify.bindings;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,7 +28,7 @@ public interface IBind<S extends ControllerState> {
         if (type.equals(EmptyBind.BIND_ID))
             return new EmptyBind<>();
 
-        if (controller instanceof GamepadController gamepad && type.equals(GamepadBinds.BIND_ID)) {
+        if (controller instanceof GamepadLike<?> gamepad && type.equals(GamepadBinds.BIND_ID)) {
             return GamepadBinds.fromJson(json).map(bind -> (IBind<T>) bind.forGamepad(gamepad)).orElse(new EmptyBind<>());
         } else if (controller instanceof SingleJoystickController joystick) {
             return (IBind<T>) switch (type) {
