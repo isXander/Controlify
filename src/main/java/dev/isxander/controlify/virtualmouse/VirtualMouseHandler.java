@@ -27,6 +27,7 @@ import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookPage;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
+import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -127,7 +128,7 @@ public class VirtualMouseHandler {
             holdRepeatHelper.onNavigate();
         }
 
-        if (minecraft.screen != null && minecraft.screen instanceof CraftingScreen craftingScreen) {
+        if (minecraft.screen != null && minecraft.screen instanceof RecipeUpdateListener craftingScreen) {
             RecipeBookComponent recipeBookComponent = craftingScreen.getRecipeBookComponent();
             RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
             RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
