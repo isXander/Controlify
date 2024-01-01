@@ -303,6 +303,10 @@ public class Controlify implements ControlifyApi {
             setCurrentController(controller, true);
         }
 
+        if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
+            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController, minecraft.screen));
+        }
+
         if (controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.unmapped_joystick.title"),
@@ -482,7 +486,6 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
-        this.virtualMouseHandler().handleControllerInput(controller);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
         }
@@ -546,10 +549,6 @@ public class Controlify implements ControlifyApi {
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);
-
-        if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
-            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController, minecraft.screen));
-        }
 
         config().saveIfDirty();
     }

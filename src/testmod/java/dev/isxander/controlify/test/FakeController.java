@@ -171,6 +171,11 @@ public class FakeController implements JoystickController<JoystickConfig> {
         return 1;
     }
 
+    @Override
+    public String kind() {
+        return "fake";
+    }
+
     public void setAxis(float axis, boolean clearNextTick) {
         this.axisState = axis;
         this.shouldClearAxisNextTick = clearNextTick;

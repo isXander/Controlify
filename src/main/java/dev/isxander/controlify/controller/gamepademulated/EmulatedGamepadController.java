@@ -12,12 +12,14 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepademulated.mapping.AxisMapping;
 import dev.isxander.controlify.controller.gamepademulated.mapping.ButtonMapping;
 import dev.isxander.controlify.controller.gamepademulated.mapping.GamepadMapping;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.gamepad.BasicGamepadState;
 import dev.isxander.controlify.driver.joystick.BasicJoystickState;
 import dev.isxander.controlify.driver.joystick.JoystickDrivers;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.utils.Log;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
@@ -95,6 +97,10 @@ public class EmulatedGamepadController extends AbstractController<GamepadState, 
                 .rightJoystickDeadZone(config.getRightStickDeadzone());
 
         state = new GamepadState(deadzoneAxesState, basicGamepadState.axes(), basicGamepadState.buttons(), new GamepadState.GyroState(), new GamepadState.GyroState());
+
+        if (DebugProperties.PRINT_GAMEPAD_STATE) {
+            Log.LOGGER.info(state.toString());
+        }
     }
 
     @Override
@@ -149,8 +155,8 @@ public class EmulatedGamepadController extends AbstractController<GamepadState, 
     @Override
     public void setConfig(Gson gson, JsonElement json) {
         gson = gson.newBuilder()
-                .registerTypeHierarchyAdapter(ButtonMapping.class, new ButtonMapping.ButtonMappingSerializer())
-                .registerTypeHierarchyAdapter(AxisMapping.class, new AxisMapping.AxisMappingSerializer())
+                .registerTypeAdapter(ButtonMapping.class, new ButtonMapping.ButtonMappingSerializer())
+                .registerTypeAdapter(AxisMapping.class, new AxisMapping.AxisMappingSerializer())
                 .create();
         super.setConfig(gson, json);
         System.out.println(config.mapping);

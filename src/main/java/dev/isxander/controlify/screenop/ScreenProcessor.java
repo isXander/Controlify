@@ -39,6 +39,8 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     public void onControllerUpdate(Controller<?, ?> controller) {
+        Controlify.instance().virtualMouseHandler().handleControllerInput(controller);
+
         if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
             if (!handleComponentNavOverride(controller))
                 handleComponentNavigation(controller);
