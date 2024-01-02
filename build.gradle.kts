@@ -56,6 +56,13 @@ loom {
     createRemapConfigurations(testmod.get())
 }
 
+// dependencies sometimes force an older version of the loader, so we force it back
+configurations.all {
+    resolutionStrategy {
+        force(libs.fabric.loader)
+    }
+}
+
 val minecraftVersion = libs.versions.minecraft.get()
 
 dependencies {
@@ -91,9 +98,6 @@ dependencies {
     modApi(libs.yet.another.config.lib)
     modImplementation(libs.mod.menu)
 
-    api(libs.mixin.extras)
-    annotationProcessor(libs.mixin.extras)
-    include(libs.mixin.extras)
 
     // used to identify controller connections
     implementation(libs.hid4java)
