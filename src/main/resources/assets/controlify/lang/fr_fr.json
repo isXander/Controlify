@@ -88,8 +88,6 @@
   "controlify.gui.axis_deadzone": "Zone morte de %s",
   "controlify.gui.axis_deadzone.tooltip": "Distance à laquelle l'axe '%s' doit être poussé avant d'enregistrer une entrée.",
   "controlify.gui.stickdrift_warning": "Attention : Un réglage trop faible peut provoquer du drift sur votre manette ! C'est lorsque les composants internes de votre manette deviennent mal calibrés et enregistrent des petits mouvements alors qu’il ne devrait pas.",
-  "controlify.gui.auto_calibration": "Calibration automatique de la zone morte",
-  "controlify.gui.auto_calibration.tooltip": "Calibrer automatiquement la zone morte de votre manette.",
   "controlify.gui.button_activation_threshold": "Seuil d'activation des boutons",
   "controlify.gui.button_activation_threshold.tooltip": "Distance à laquelle un bouton doit être enfoncé avant d'être enregistré comme pressé.",
   "controlify.config.category.advanced": "Avancé",

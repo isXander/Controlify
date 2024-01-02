@@ -86,8 +86,6 @@
     "controlify.gui.axis_deadzone": "%s",
     "controlify.gui.axis_deadzone.tooltip": "Насколько %s должен быть смещён перед регистрацией какого либо ввода.",
     "controlify.gui.stickdrift_warning": "Внимание: Слишком низкое значение этой настройки приведет к дрифту! В этом случае внутренние компоненты контроллера оказываются неправильно откалиброванными и регистрируют малые значения входного сигнала, которых не должно быть.",
-    "controlify.gui.auto_calibration": "Автоматическая калибровка мёртвых зон",
-    "controlify.gui.auto_calibration.tooltip": "Автоматически откалибровать мёртвые зоны контроллера.",
     "controlify.gui.button_activation_threshold": "Порог срабатывания кнопок",
     "controlify.gui.button_activation_threshold.tooltip": "Насколько далеко должна быть нажата кнопка, чтобы она была зарегистрирована как нажатая.",
     "controlify.config.category.advanced": "Продвинутые",

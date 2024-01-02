@@ -73,8 +73,6 @@
   "controlify.gui.axis_deadzone": "Toter Bereich %s",
   "controlify.gui.axis_deadzone.tooltip": "Wie weit der %s gedrückt werden muss, damit eine Eingabe registriert wird.",
   "controlify.gui.stickdrift_warning": "Achtung: Niedrige Werte können zu Stick-Driften führen! Stick-Drift bedeutet dein Kontroller ist fehl kalibriert und registriert kleine, nicht existente Eingaben.",
-  "controlify.gui.auto_calibration": "Auto-Kalibrierung des toten Bereichs",
-  "controlify.gui.auto_calibration.tooltip": "Kalibriert die toten Bereiche deines Kontrollers automatisch.",
   "controlify.gui.button_activation_threshold": "Knopfdruck-Schwellwert",
   "controlify.gui.button_activation_threshold.tooltip": "Wie weit Knöpfe gedrückt werden müssen, bevor sie eine Eingabe auslösen.",
   "controlify.gui.test_vibration": "Test Vibration",

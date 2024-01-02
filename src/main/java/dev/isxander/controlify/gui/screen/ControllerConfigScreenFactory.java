@@ -42,6 +42,7 @@ public class ControllerConfigScreenFactory {
     private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
 
     private final List<Option<?>> newOptions = new ArrayList<>();
+    private final List<Option<Float>> deadzoneOpts = new ArrayList<>();
 
     public static Screen generateConfigScreen(Screen parent, Controller<?, ?> controller) {
         return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
@@ -224,8 +225,6 @@ public class ControllerConfigScreenFactory {
     }
 
     private OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
-        var deadzoneOpts = new ArrayList<Option<Float>>();
-
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
         if (controller instanceof GamepadController gamepad) {
@@ -580,6 +579,16 @@ public class ControllerConfigScreenFactory {
                 gyroOptions.add(opt);
                 return opt;
             }));
+            gyroGroup.option(ButtonOption.createBuilder()
+                    .name(Component.translatable("controlify.gui.auto_calibration"))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.auto_calibration.tooltip"))
+                            .build())
+                    .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerCalibrationScreen(controller, () -> {
+                        deadzoneOpts.forEach(Option::forgetPendingValue);
+                        return screen;
+                    })))
+                    .build());
         } else {
             boolean isSteamDeck = gamepad != null && gamepad.hidInfo().map(hid -> hid.hidDevice().map(d -> SteamDeckDriver.isSteamDeck(d.vendorID(), d.productID())).orElse(false)).orElse(false);
             gyroGroup.option(LabelOption.create(Component.translatable(!isSteamDeck ? "controlify.gui.group.gyro.no_gyro.tooltip" : "controlify.gui.group.gyro.no_gyro_steamdeck.tooltip").withStyle(ChatFormatting.RED)));
