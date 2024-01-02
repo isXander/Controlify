@@ -12,6 +12,7 @@ import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.driver.SteamDeckDriver;
 import dev.isxander.controlify.gui.controllers.AbstractBindController;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
+import dev.isxander.controlify.mixins.compat.yacl.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -19,6 +20,9 @@ import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
+import dev.isxander.yacl3.gui.AbstractWidget;
+import dev.isxander.yacl3.gui.OptionListWidget;
+import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -367,6 +371,22 @@ public class ControllerConfigScreenFactory {
             controlsGroup.options(bindGroup.stream().map(binding -> {
                 Option.Builder<?> option = binding.startYACLOption()
                         .listener((opt, val) -> updateConflictingBinds(optionBinds));
+//                ButtonOption.Builder option = ButtonOption.createBuilder()
+//                        .name(binding.name())
+//                        .action((screen, button) -> {
+//                            if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
+//                                OptionListWidget optionListWidget = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList().getList();
+//                                AbstractWidget widget = optionListWidget.children().stream()
+//                                        .filter(entry -> entry instanceof OptionListWidget.OptionEntry)
+//                                        .map(entry -> (OptionListWidget.OptionEntry) entry)
+//                                        .filter(entry -> entry.option == button)
+//                                        .findAny()
+//                                        .map(entry -> (AbstractWidget) entry.children().get(0))
+//                                        .orElseThrow();
+//
+//                                Minecraft.getInstance().setScreen(new BindConsumerScreen(controller, widget, screen));
+//                            }
+//                        });
 
                 Option<?> built = option.build();
                 optionBinds.add(new OptionBindPair(built, binding));
@@ -375,7 +395,7 @@ public class ControllerConfigScreenFactory {
 
             category.group(controlsGroup.build());
         });
-        updateConflictingBinds(optionBinds);
+        //updateConflictingBinds(optionBinds);
 
         category.option(ButtonOption.createBuilder()
                 .name(Component.translatable("controlify.gui.reset_all_binds"))
