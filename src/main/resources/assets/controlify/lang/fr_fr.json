@@ -5,7 +5,7 @@
   "controlify.gui.carousel.entry.use": "Utiliser",
   "controlify.gui.carousel.entry.in_use": "Actuellement utilisée",
   "controlify.gui.carousel.donate": "Faites un don !",
-  "controlify.gui.carousel.art_credit": "Art des manettes par %s."
+  "controlify.gui.carousel.art_credit": "Art des manettes par %s.",
 
   "controlify.gui.global_settings.title": "Paramètres globaux",
   "controlify.gui.natives": "Natives",
@@ -18,7 +18,7 @@
   "controlify.gui.custom_natives_path.none": "Non défini",
   "controlify.gui.server_options": "Options du serveur",
   "controlify.gui.miscellaneous": "Divers",
-  "controlify.gui.reach_around": "Contournement des blocs"
+  "controlify.gui.reach_around": "Contournement des blocs",
   "controlify.gui.reach_around.tooltip": "Si activé, vous pouvez interagir avec le bloc sur lequel vous vous tenez dans la direction où vous regardez.",
   "controlify.gui.reach_around.tooltip.parity": "Cela correspond à l'édition Bedrock où cette fonctionnalité est également présente.",
   "controlify.gui.reach_around.tooltip.warning": "AVERTISSEMENT : Cela confère un avantage déloyal sur les autres joueurs sans Controlify, et vous risquez d'être repéré par de nombreux anti-triches. Ceci ne devrait être utilisé que dans des situations où tous les joueurs reconnaissent que vous avez cette capacité et l'acceptent.",
@@ -27,7 +27,7 @@
   "controlify.reach_around.singleplayer_only": "Uniquement en solo",
   "controlify.reach_around.singleplayer_and_lan": "Solo et LAN",
   "controlify.reach_around.everywhere": "Partout",
-  "controlify.gui.ui_sounds": "Sons de l'interface utilisateur"
+  "controlify.gui.ui_sounds": "Sons de l'interface utilisateur",
   "controlify.gui.ui_sounds.tooltip": "Si activé, Controlify émettra des sons d'interface utilisateur lorsque vous interagissez avec l'interface, comme dans les éditions console classiques de Minecraft.",
   "controlify.gui.allow_server_rumble": "Autoriser la vibration serveur",
   "controlify.gui.allow_server_rumble.tooltip": "Accepte les paquets de vibration des serveurs et fait vibrer votre manette. Si un serveur le fait de manière malveillante, vous pouvez le désactiver ici.",
@@ -44,7 +44,7 @@
   "controlify.gui.ingame_button_guide_scale": "Échelle du guide des boutons en jeu",
   "controlify.gui.ingame_button_guide_scale.tooltip": "Détermine la taille du guide des boutons en jeu. Il s'agit d'un pourcentage de l'échelle d'interface actuellement sélectionnée. 100% correspondra à l'échelle habituelle.",
   "controlify.gui.ingame_button_guide_scale.tooltip.warning": "Cela peut provoquer des problèmes d'échelle et rendre le rendu médiocre avec une valeur autre que 100%.",
-  "controlify.gui.open_issue_tracker": "Ouvrir le suivi des problèmes"
+  "controlify.gui.open_issue_tracker": "Ouvrir le suivi des problèmes",
 
   "controlify.gui.new_options": "Nouveautés de cette mise à jour",
   "controlify.gui.new_options.tooltip": "Présentation des nouvelles options dans les dernières mises à jour.",
@@ -66,7 +66,7 @@
   "controlify.gui.toggle_sneak": "Accroupir",
   "controlify.gui.toggle_sneak.tooltip": "Comportement de l'état du bouton d'accroupissement.",
   "controlify.gui.toggle_sprint": "Courir",
-  "controlify.gui.toggle_sprint.tooltip": "Comportement de l'état du bouton de course."
+  "controlify.gui.toggle_sprint.tooltip": "Comportement de l'état du bouton de course.",
   "controlify.gui.auto_jump": "Saut automatique",
   "controlify.gui.auto_jump.tooltip": "Détermine si le joueur doit sauter automatiquement lorsqu'il atteint un bloc.",
   "controlify.gui.no_fly_drifting": "Pas de dérive en vol",
@@ -81,7 +81,7 @@
   "controlify.gui.chat_screen_offset": "Hauteur du clavier à l'écran",
   "controlify.gui.chat_screen_offset.tooltip": "Hauteur du clavier à l'écran du système. Cela décale la boîte de discussion vers le haut pour voir la discussion pendant la saisie.\nCeci est extrêmement utile sur le Steam Deck.",
   "controlify.gui.controller_theme": "Thème de la manette",
-  "controlify.gui.controller_theme.tooltip": "Thème à utiliser pour l'affichage des boutons de la manette."
+  "controlify.gui.controller_theme.tooltip": "Thème à utiliser pour l'affichage des boutons de la manette.",
   "controlify.config.group.deadzones": "Zones mortes",
   "controlify.gui.left_stick": "Joystick gauche",
   "controlify.gui.right_stick": "Joystick droit",
@@ -97,7 +97,7 @@
   "controlify.gui.group.vibration.tooltip": "Ajustez la façon dont votre manette vibre.",
   "controlify.gui.allow_vibrations": "Autoriser les vibrations",
   "controlify.gui.allow_vibrations.tooltip": "Si la manette doit vibrer lorsque vous effectuez certaines actions.",
-  "controlify.gui.allow_vibrations.not_available": "Votre manette ne prend pas en charge les vibrations ou les pilotes de vibration ne sont pas chargés."
+  "controlify.gui.allow_vibrations.not_available": "Votre manette ne prend pas en charge les vibrations ou les pilotes de vibration ne sont pas chargés.",
   "controlify.gui.group.gyro": "Gyroscope",
   "controlify.gui.group.gyro.tooltip": "Ajuster la façon dont Controlify traite le gyroscope intégré de votre manette.\nUn gyroscope mesure l’orientation de votre manette.",
   "controlify.gui.group.gyro.no_gyro.tooltip": "Cette manette ne prend pas en charge le gyroscope. Vous devez posséder une manette DualSense™ ou une autre manette compatible pour utiliser cette fonctionnalité.",
@@ -118,12 +118,12 @@
   "controlify.gui.gyro_requires_button.tooltip": "Si le gyroscope doit être utilisé uniquement lorsque la commande gyroscopique est enfoncée (faites défiler vers le bas pour les commandes).",
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Modifie le comportement des boutons vue haut/bas/gauche/droite pour faire tourner la vue à 90 degrés dans la direction appuyée.",
-  "controlify.gui.group.advanced": "Avancé"
+  "controlify.gui.group.advanced": "Avancé",
   "controlify.gui.group.advanced.tooltip": "Paramètres que vous ne devriez probablement pas modifier !",
   "controlify.gui.screen_repeat_navi_delay": "Délai de répétition de la navigation sur l'écran",
   "controlify.gui.screen_repeat_navi_delay.tooltip": "Vitesse de répétition d'une action de navigation sur l'écran.",
   "controlify.gui.test_vibration": "Tester la vibration",
-  "controlify.gui.test_vibration.tooltip": "Teste la vibration de votre manette."
+  "controlify.gui.test_vibration.tooltip": "Teste la vibration de votre manette.",
 
   "controlify.gui.radial_menu": "Menu radial",
   "controlify.gui.radial_menu.tooltip": "Ouvre le menu radial pour configurer les actions de chaque bouton.",
@@ -132,24 +132,24 @@
   "controlify.gui.group.controls.tooltip": "Ajuste les contrôles de la manette.",
   "controlify.gui.reset_all_binds": "Réinitialiser tous les contrôles",
   "controlify.gui.reset_all_binds.tooltip": "Réinitialise tous les contrôles à leurs valeurs par défaut. Cela peut être annulé en appuyant sur le bouton d'annulation.",
-  "controlify.gui.bind_input_awaiting": "Appuyez sur n'importe quel bouton"
+  "controlify.gui.bind_input_awaiting": "Appuyez sur n'importe quel bouton",
 
   "controlify.gui.format.ticks": "%s ticks",
   "controlify.gui.format.hold_toggle.hold": "Maintenir",
   "controlify.gui.format.hold_toggle.toggle": "Basculer",
   "controlify.gui.format.open": "OUVRIR L'URL",
   "controlify.gui.format.top": "Haut",
-  "controlify.gui.format.bottom": "Bas"
+  "controlify.gui.format.bottom": "Bas",
 
-  "controlify.gui.button": "Paramètres de la manette..."
+  "controlify.gui.button": "Paramètres de la manette...",
 
-  "controlify.gui.controller_unavailable": "Manette non disponible et ne peut pas être éditée."
+  "controlify.gui.controller_unavailable": "Manette non disponible et ne peut pas être éditée.",
 
   "controlify.gui.no_sdl.title": "Bibliothèque native incompatible avec Controlify",
   "controlify.gui.no_sdl.message": "Controlify utilise une bibliothèque native supplémentaire pour ajouter plus de fonctionnalités pour la prise en charge des manettes. Votre système ne prend pas en charge cette bibliothèque. Vous manquerez des fonctionnalités telles que :\n - vibration de la manette\n - identification améliorée de la manette\n - contrôles gyroscope",
 
   "controlify.new_features.title": "Controlify mis à jour vers %s !",
-  "controlify.new_features.1.5.0": "Ajout d'un menu radial pouvant être configuré pour n'importe quelle action souhaitée. Vous pouvez le trouver dans les paramètres de votre manette."
+  "controlify.new_features.1.5.0": "Ajout d'un menu radial pouvant être configuré pour n'importe quelle action souhaitée. Vous pouvez le trouver dans les paramètres de votre manette.",
 
   "controlify.vibration_strength.controlify.master": "Principal",
   "controlify.vibration_strength.controlify.master.tooltip": "La force de toutes les vibrations. Affectera également la force de toutes les autres sources.",
@@ -168,7 +168,7 @@
   "controlify.vibration_strength.controlify.global_event": "Événement global",
   "controlify.vibration_strength.controlify.global_event.tooltip": "Lorsqu'un événement global se produit, comme l'apparition du Wither ou la mort de l'Ender Dragon.",
   "controlify.vibration_strength.controlify.misc": "Divers",
-  "controlify.vibration_strength.controlify.misc.tooltip": "Effets divers."
+  "controlify.vibration_strength.controlify.misc.tooltip": "Effets divers.",
 
   "controlify.toast.vmouse_enabled.title": "Souris virtuelle activée",
   "controlify.toast.vmouse_enabled.description": "La souris virtuelle de Controlify est maintenant activée pour cet écran.",
@@ -191,14 +191,14 @@
   "controlify.toast.unmapped_joystick.title": "Joystick à configurer !",
   "controlify.toast.unmapped_joystick.description": "%s est un joystick, ce qui signifie qu'il possède un nombre abstrait d'entrées et les contrôles ne peuvent pas être configurés automatiquement. Vous devez configurer manuellement vos contrôles dans les paramètres. S'il s'agit d'une erreur, vous êtes probablement sous Linux !",
   "controlify.toast.new_server.title": "Nouveau serveur détecté",
-  "controlify.toast.new_server.description": "Assurez-vous que les règles de ce serveur permettent le mouvement analogique des manettes. Sinon, ajoutez le serveur à la liste blanche des serveurs avec émulation des mouvements clavier dans les paramètres globaux de Controlify."
+  "controlify.toast.new_server.description": "Assurez-vous que les règles de ce serveur permettent le mouvement analogique des manettes. Sinon, ajoutez le serveur à la liste blanche des serveurs avec émulation des mouvements clavier dans les paramètres globaux de Controlify.",
 
   "controlify.sdl2_onboarding.title": "Bibliothèque native Controlify",
   "controlify.sdl2_onboarding.message": "De nombreuses fonctionnalités de Controlify nécessitent une bibliothèque supplémentaire à télécharger pour votre système. Si vous ne téléchargez pas cette bibliothèque, vous perdrez l'accès à de nombreuses fonctionnalités telles que : la vibration de la manette, le contrôle gyroscope, une meilleure identification de la manette. Ce processus est transparent et ne prendra que quelques secondes. Si vous choisissez non, vous pourrez changer d'avis plus tard dans les paramètres de Controlify, mais vous n'aurez pas accès à ces fonctionnalités entre-temps.",
   "controlify.sdl2_onboarding.message_mac": "Comme vous êtes sur macOS ARM, cette bibliothèque est nécessaire pour toute sorte d'identification de manette. Sans elle, toutes les manettes seront non identifiées. Cela affectera considérablement l'expérience utilisateur si vous choisissez de ne pas les télécharger.",
   "controlify.sdl2_onboarding.question": "Souhaitez-vous les télécharger ?",
   "controlify.downloading_sdl.title": "Téléchargement de SDL",
-  "controlify.downloading_sdl.info": "Téléchargement d'une mise à jour de la bibliothèque native utilisée par Controlify. Vous voyez ceci car vous avez choisi de télécharger les fichiers natifs lors du premier lancement.\nCela prendra seulement quelques secondes."
+  "controlify.downloading_sdl.info": "Téléchargement d'une mise à jour de la bibliothèque native utilisée par Controlify. Vous voyez ceci car vous avez choisi de télécharger les fichiers natifs lors du premier lancement.\nCela prendra seulement quelques secondes.",
 
   "controlify.controller_theme.default": "Par défaut",
   "controlify.controller_theme.xbox_one": "Xbox",
@@ -273,12 +273,12 @@
   "controlify.binding.controlify.gui_navi_right": "Navigation dans l'interface - Droite",
   "controlify.binding.controlify.cycle_opt_forward": "Avancer dans les options",
   "controlify.binding.controlify.cycle_opt_backward": "Reculer dans les options",
-  "controlify.binding.controlify.clear_binding": "Effacer la liaison"
+  "controlify.binding.controlify.clear_binding": "Effacer la liaison",
 
   "controlify.binding_category.gui": "Interface utilisateur (GUI)",
   "controlify.binding_category.vmouse": "Souris virtuelle",
 
-  "controlify.custom_binding.vanilla_description": "Configuration automatique des touches générée par l'API Fabric."
+  "controlify.custom_binding.vanilla_description": "Configuration automatique des touches générée par l'API Fabric.",
 
   "controlify.guide.ingame.inventory": "Ouvrir l'inventaire",
   "controlify.guide.ingame.swim_up": "Nager vers le haut",
@@ -301,7 +301,7 @@
   "controlify.guide.ingame.use": "Utiliser",
   "controlify.guide.ingame.spectate": "Spectateur",
   "controlify.guide.ingame.interact": "Interagir",
-  "controlify.guide.ingame.pick_block": "Sélectionner un bloc"
+  "controlify.guide.ingame.pick_block": "Sélectionner un bloc",
 
   "controlify.guide.container.place_all": "Placer tout",
   "controlify.guide.container.place_one": "Placer",
@@ -311,7 +311,7 @@
   "controlify.guide.container.exit": "Sortir",
   "controlify.guide.container.take_half": "Prendre la moitié",
   "controlify.guide.container.take_one": "Placer un",
-  "controlify.guide.container.quick_move": "Déplacement rapide"
+  "controlify.guide.container.quick_move": "Déplacement rapide",
 
   "controlify.calibration.title": "Calibration de la manette pour '%s'",
   "controlify.calibration.info": "Cette calibration optimise les paramètres de votre manette pour éliminer le drift des joysticks et créer une lecture précise du gyroscope (si votre manette le supporte). Avant de commencer, assurez-vous de poser votre manette sur une surface plane et de ne pas toucher les joysticks.\n\nCela ne prendra que quelques secondes.",
@@ -321,7 +321,7 @@
   "controlify.calibration.done": "Terminé",
   "controlify.calibration.calibrating": "Calibrage en cours...",
   "controlify.calibration.later": "Peut-être plus tard",
-  "controlify.calibration.later.tooltip": "Vous devez calibrer la manette pour pouvoir l’utiliser. Appuyer sur ceci désactivera la manette et vous devrez revenir pour la calibrer."
+  "controlify.calibration.later.tooltip": "Vous devez calibrer la manette pour pouvoir l’utiliser. Appuyer sur ceci désactivera la manette et vous devrez revenir pour la calibrer.",
 
   "controlify.radial_menu.configure_hint": "Configure les actions dans les paramètres de la manette.",
 
@@ -332,17 +332,17 @@
   "controlify.controller_submission.skip": "Passer",
   "controlify.controller_submission.name_hint": "Nom de la manette",
   "controlify.controller_submission.name_narration": "Champ de saisie du nom du contrôleur",
-  "controlify.controller_submission.invalid_name": "Nom de contrôleur non valide. Utilisez uniquement des lettres, des chiffres et des espaces."
+  "controlify.controller_submission.invalid_name": "Nom de contrôleur non valide. Utilisez uniquement des lettres, des chiffres et des espaces.",
 
   "controlify.error.hid": "Détection du contrôleur désactivée",
-  "controlify.error.hid.desc": "L'identification de la manette a échoué, donc les changements de configuration de la manette ne seront pas persistants. Consultez les logs pour plus d'informations."
+  "controlify.error.hid.desc": "L'identification de la manette a échoué, donc les changements de configuration de la manette ne seront pas persistants. Consultez les logs pour plus d'informations.",
 
   "controlify.battery_level.unknown": "Inconnu",
   "controlify.battery_level.empty": "Vide",
   "controlify.battery_level.low": "Faible",
   "controlify.battery_level.medium": "Moyen",
   "controlify.battery_level.high": "Élevé",
-  "controlify.battery_level.full": "Plein"
+  "controlify.battery_level.full": "Plein",
 
   "controlify.command.vibratecontroller.static.single": "A fait vibrer la manette d’un joueur.",
   "controlify.command.vibratecontroller.static.multiple": "A fait vibrer la manette de %s joueurs.",
@@ -363,7 +363,7 @@
   "controlify.joystick_mapping.unmapped.button": "Bouton #%s",
   "controlify.joystick_mapping.unmapped.hat": "#%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Négatif)",
-  "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positif)"
+  "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positif)",
 
 
 
