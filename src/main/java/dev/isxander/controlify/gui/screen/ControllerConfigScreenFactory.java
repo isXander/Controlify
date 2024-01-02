@@ -371,22 +371,6 @@ public class ControllerConfigScreenFactory {
             controlsGroup.options(bindGroup.stream().map(binding -> {
                 Option.Builder<?> option = binding.startYACLOption()
                         .listener((opt, val) -> updateConflictingBinds(optionBinds));
-//                ButtonOption.Builder option = ButtonOption.createBuilder()
-//                        .name(binding.name())
-//                        .action((screen, button) -> {
-//                            if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
-//                                OptionListWidget optionListWidget = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList().getList();
-//                                AbstractWidget widget = optionListWidget.children().stream()
-//                                        .filter(entry -> entry instanceof OptionListWidget.OptionEntry)
-//                                        .map(entry -> (OptionListWidget.OptionEntry) entry)
-//                                        .filter(entry -> entry.option == button)
-//                                        .findAny()
-//                                        .map(entry -> (AbstractWidget) entry.children().get(0))
-//                                        .orElseThrow();
-//
-//                                Minecraft.getInstance().setScreen(new BindConsumerScreen(controller, widget, screen));
-//                            }
-//                        });
 
                 Option<?> built = option.build();
                 optionBinds.add(new OptionBindPair(built, binding));
@@ -395,7 +379,7 @@ public class ControllerConfigScreenFactory {
 
             category.group(controlsGroup.build());
         });
-        //updateConflictingBinds(optionBinds);
+        updateConflictingBinds(optionBinds);
 
         category.option(ButtonOption.createBuilder()
                 .name(Component.translatable("controlify.gui.reset_all_binds"))
