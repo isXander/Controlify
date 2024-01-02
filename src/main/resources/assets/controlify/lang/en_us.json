@@ -4,6 +4,8 @@
   "controlify.gui.carousel.entry.settings": "Settings",
   "controlify.gui.carousel.entry.use": "Use",
   "controlify.gui.carousel.entry.in_use": "Currently in use",
+  "controlify.gui.carousel.controller_not_detected_btn": "Controller not detected?",
+  "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Open the wiki to troubleshoot why your controller is not working.",
   "controlify.gui.carousel.donate": "Donate!",
   "controlify.gui.carousel.art_credit": "Controller art by %s.",
 

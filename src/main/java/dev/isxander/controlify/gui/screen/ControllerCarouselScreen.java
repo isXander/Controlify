@@ -17,6 +17,7 @@ import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.layouts.FrameLayout;
@@ -51,6 +52,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     private final ControllerManager controllerManager;
 
     private Button globalSettingsButton, doneButton;
+    private Button controllerNotDetectedButton;
 
     private ControllerCarouselScreen(Screen parent) {
         super(Component.translatable("controlify.gui.carousel.title"));
@@ -99,6 +101,17 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         grid.arrangeElements();
         FrameLayout.centerInRectangle(grid, 0, this.height - 36, this.width, 36);
 
+        controllerNotDetectedButton = this.addRenderableWidget(
+                Button.builder(
+                        Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
+                        btn -> Util.getPlatform().openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
+                )
+                        .pos(width / 2 - 75, (this.height - 36) / 2 + 10)
+                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
+                        .build()
+        );
+        controllerNotDetectedButton.visible = carouselEntries.isEmpty();
+
         ButtonGuideApi.addGuideToButtonBuiltin(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
         ButtonGuideApi.addGuideToButtonBuiltin(doneButton, bindings -> bindings.GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
     }
@@ -133,6 +146,9 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             entry.setX(offsetX + (this.width / 2f) * i);
             entry.setY(i == carouselIndex ? 20 : 10);
         }
+
+        if (controllerNotDetectedButton != null)
+            controllerNotDetectedButton.visible = carouselEntries.isEmpty();
     }
 
     @Override
