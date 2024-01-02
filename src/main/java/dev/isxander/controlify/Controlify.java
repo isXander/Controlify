@@ -480,7 +480,6 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
-        this.virtualMouseHandler().handleControllerInput(controller);
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
         }
