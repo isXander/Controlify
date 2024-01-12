@@ -361,6 +361,8 @@
   "controlify.gui.gamepademulationmappingcreator.go_back": "I made a mistake",
   "controlify.gui.gamepademulationmappingcreator.go_back.tooltip": "Go back to the previous step.",
   "controlify.gui.gamepademulationmappingcreator.please_wait": "Please wait...",
+  "controlify.gui.gamepademulationmappingcreator.no_map": "I don't have this input",
+  "controlify.gui.gamepademulationmappingcreator.no_map.tooltip": "Leaves the mapping for this input blank, it can never be activated.",
   "controlify.gui.gamepademulationmappingcreator.instruction.button": "Press the button you want to use for %s and quickly release it.",
   "controlify.gui.gamepademulationmappingcreator.instruction.face_down": "'face down'",
   "controlify.gui.gamepademulationmappingcreator.instruction.face_left": "'face left'",

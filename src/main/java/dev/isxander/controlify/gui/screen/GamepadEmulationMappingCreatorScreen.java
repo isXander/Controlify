@@ -69,8 +69,17 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
                         Component.translatable("controlify.gui.gamepademulationmappingcreator.go_back"),
                         button -> goBackStage()
                 )
-                        .bounds(width / 2 - 50, height - 60, 100, 20)
+                        .bounds(width / 2 - 152, height - 60, 150, 20)
                         .tooltip(Tooltip.create(Component.translatable("controlify.gui.gamepademulationmappingcreator.go_back.tooltip")))
+                        .build()
+        );
+        addRenderableWidget(
+                Button.builder(
+                        Component.translatable("controlify.gui.gamepademulationmappingcreator.no_map"),
+                        button -> mapAsNone()
+                )
+                        .bounds(width / 2 + 2, height - 60, 150, 20)
+                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.gamepademulationmappingcreator.no_map.tooltip")))
                         .build()
         );
         goBackButton.active = false;
@@ -189,6 +198,15 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
         currentStage = stage;
     }
 
+    private void mapAsNone() {
+        if (currentStage instanceof ButtonStage stage) {
+            stage.setMapping(new ButtonMapping.FromNothing(false));
+        } else if (currentStage instanceof AxisStage stage) {
+            stage.setMapping(new AxisMapping.FromNothing(0f));
+        }
+        delayTillNextStage = 0;
+    }
+
     @Override
     public void onClose() {
         minecraft.setScreen(lastScreen);
@@ -223,7 +241,7 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
         float scale = safeZone / 32f;
 
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(width / 2f, 10, 0);
+        guiGraphics.pose().translate(width / 2f, -5, 0);
         guiGraphics.pose().translate(-32 * scale / 2f, 0, 0);
         guiGraphics.pose().scale(scale, scale, 1f);
 

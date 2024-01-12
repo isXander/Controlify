@@ -1,5 +1,5 @@
 [versions]
-loom = "1.4.+"
+loom = "1.5.+"
 mod_publish_plugin = "0.2.+"
 machete = "2.+"
 grgit = "5.0.+"
