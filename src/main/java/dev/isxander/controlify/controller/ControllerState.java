@@ -8,7 +8,7 @@ public interface ControllerState {
 
     List<Boolean> buttons();
 
-    boolean hasAnyInput();
+    boolean shouldSwitchTo();
 
     ControllerState EMPTY = new ControllerState() {
         @Override
@@ -27,7 +27,7 @@ public interface ControllerState {
         }
 
         @Override
-        public boolean hasAnyInput() {
+        public boolean shouldSwitchTo() {
             return false;
         }
     };

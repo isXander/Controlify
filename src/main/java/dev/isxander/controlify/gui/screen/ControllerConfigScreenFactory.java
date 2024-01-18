@@ -6,13 +6,13 @@ import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.driver.SteamDeckDriver;
 import dev.isxander.controlify.gui.controllers.AbstractBindController;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
-import dev.isxander.controlify.mixins.compat.yacl.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -20,9 +20,6 @@ import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
-import dev.isxander.yacl3.gui.AbstractWidget;
-import dev.isxander.yacl3.gui.OptionListWidget;
-import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -32,7 +29,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -42,7 +38,6 @@ public class ControllerConfigScreenFactory {
     private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
 
     private final List<Option<?>> newOptions = new ArrayList<>();
-    private final List<Option<Float>> deadzoneOpts = new ArrayList<>();
 
     public static Screen generateConfigScreen(Screen parent, Controller<?, ?> controller) {
         return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
@@ -225,9 +220,11 @@ public class ControllerConfigScreenFactory {
     }
 
     private OptionGroup makeDeadzoneGroup(Controller<?, ?> controller, ControllerConfig def, ControllerConfig config) {
+        var deadzoneOpts = new ArrayList<Option<Float>>();
+
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
-        if (controller instanceof GamepadController gamepad) {
+        if (controller instanceof GamepadLike<?> gamepad) {
             var gpCfg = gamepad.config();
             var gpCfgDef = gamepad.defaultConfig();
 
@@ -328,93 +325,33 @@ public class ControllerConfigScreenFactory {
     }
 
     private ConfigCategory createAdvancedCategory(Controller<?, ?> controller) {
-        return ConfigCategory.createBuilder()
+        ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.mixed_input"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
                         .binding(controller.defaultConfig().mixedInput, () -> controller.config().mixedInput, v -> controller.config().mixedInput = v)
                         .controller(TickBoxControllerBuilder::create)
-                        .build())
-                .group(makeVibrationGroup(controller))
-                .group(makeGyroGroup(controller))
-                .build();
-    }
-
-    private ConfigCategory createBindsCategory(Controller<?, ?> controller) {
-        var category = ConfigCategory.createBuilder()
-                .name(Component.translatable("controlify.gui.group.controls"));
-
-        List<OptionBindPair> optionBinds = new ArrayList<>();
-
-        ButtonOption editRadialButton = ButtonOption.createBuilder()
-                .name(Component.translatable("controlify.gui.radial_menu").withStyle(ChatFormatting.GOLD))
-                .description(OptionDescription.createBuilder()
-                        .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
-                        .text(newOptionLabel)
-                        .build())
-                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, true, screen)))
-                .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
-                .build();
-        Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
-                .listener((opt, val) -> updateConflictingBinds(optionBinds))
-                .build();
-        optionBinds.add(new OptionBindPair(radialBind, controller.bindings().RADIAL_MENU));
-        category.option(editRadialButton);
-        category.option(radialBind);
-
-        groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
-            var controlsGroup = OptionGroup.createBuilder()
-                    .name(categoryName);
-
-            controlsGroup.options(bindGroup.stream().map(binding -> {
-                Option.Builder<?> option = binding.startYACLOption()
-                        .listener((opt, val) -> updateConflictingBinds(optionBinds));
-
-                Option<?> built = option.build();
-                optionBinds.add(new OptionBindPair(built, binding));
-                return built;
-            }).toList());
-
-            category.group(controlsGroup.build());
-        });
-        updateConflictingBinds(optionBinds);
-
-        category.option(ButtonOption.createBuilder()
-                .name(Component.translatable("controlify.gui.reset_all_binds"))
-                .description(OptionDescription.createBuilder()
-                        .text(Component.translatable("controlify.gui.reset_all_binds.tooltip"))
-                        .build())
-                .action((screen, opt) -> {
-                    for (OptionBindPair pair : optionBinds) {
-                        // who needs a type system?
-                        ((Option<Object>) pair.option()).requestSet(pair.binding.defaultBind());
-                    }
-                })
-                .build());
-
-        return category.build();
-    }
-
-    private void updateConflictingBinds(List<OptionBindPair> all) {
-        all.forEach(pair -> ((AbstractBindController<?>) pair.option().controller()).setConflicting(false));
-
-        for (OptionBindPair opt : all) {
-            var ctxs = BindContext.flatten(opt.binding().contexts());
-
-            List<OptionBindPair> conflicting = all.stream()
-                    .filter(pair -> pair.binding() != opt.binding())
-                    .filter(pair -> {
-                        boolean contextsMatch = BindContext.flatten(pair.binding().contexts())
-                                .stream()
-                                .anyMatch(ctxs::contains);
-                        boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
-                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyBind<?>);
-                        return contextsMatch && bindMatches && bindIsNotEmpty;
-                    }).toList();
-
-            conflicting.forEach(conflict -> ((AbstractBindController<?>) conflict.option().controller()).setConflicting(true));
+                        .build());
+        if (controller instanceof EmulatedGamepadController emulatedGamepadController) {
+            builder.group(makeGamepadEmulationGroup(emulatedGamepadController));
         }
+        builder.group(makeVibrationGroup(controller));
+        builder.group(makeGyroGroup(controller));
+        return builder.build();
+    }
+
+    private OptionGroup makeGamepadEmulationGroup(EmulatedGamepadController controller) {
+        return OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.gamepad_emulation"))
+                .option(LabelOption.create(Component.translatable("controlify.gui.gamepad_emulation.explanation")))
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.remap_joystick"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.remap_joystick.tooltip")))
+                        .action((screen, button) -> Minecraft.getInstance().setScreen(new GamepadEmulationMappingCreatorScreen(controller, screen)))
+                        .build())
+                .collapsed(true)
+                .build();
     }
 
     private OptionGroup makeVibrationGroup(Controller<?, ?> controller) {
@@ -484,8 +421,8 @@ public class ControllerConfigScreenFactory {
     }
 
     private OptionGroup makeGyroGroup(Controller<?, ?> controller) {
-        GamepadController gamepad = (controller instanceof GamepadController) ? (GamepadController) controller : null;
-        boolean hasGyro = gamepad != null && gamepad.hasGyro();
+        GamepadLike<?> gamepad = (controller instanceof GamepadLike<?>) ? (GamepadLike<?>) controller : null;
+        boolean hasGyro = gamepad != null && gamepad.supportsGyro();
 
         var gpCfg = gamepad != null ? gamepad.config() : null;
         var gpCfgDef = gamepad != null ? gamepad.defaultConfig() : null;
@@ -579,22 +516,89 @@ public class ControllerConfigScreenFactory {
                 gyroOptions.add(opt);
                 return opt;
             }));
-            gyroGroup.option(ButtonOption.createBuilder()
-                    .name(Component.translatable("controlify.gui.auto_calibration"))
-                    .description(OptionDescription.createBuilder()
-                            .text(Component.translatable("controlify.gui.auto_calibration.tooltip"))
-                            .build())
-                    .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerCalibrationScreen(controller, () -> {
-                        deadzoneOpts.forEach(Option::forgetPendingValue);
-                        return screen;
-                    })))
-                    .build());
         } else {
             boolean isSteamDeck = gamepad != null && gamepad.hidInfo().map(hid -> hid.hidDevice().map(d -> SteamDeckDriver.isSteamDeck(d.vendorID(), d.productID())).orElse(false)).orElse(false);
             gyroGroup.option(LabelOption.create(Component.translatable(!isSteamDeck ? "controlify.gui.group.gyro.no_gyro.tooltip" : "controlify.gui.group.gyro.no_gyro_steamdeck.tooltip").withStyle(ChatFormatting.RED)));
         }
 
         return gyroGroup.build();
+    }
+
+    private ConfigCategory createBindsCategory(Controller<?, ?> controller) {
+        var category = ConfigCategory.createBuilder()
+                .name(Component.translatable("controlify.gui.group.controls"));
+
+        List<OptionBindPair> optionBinds = new ArrayList<>();
+
+        ButtonOption editRadialButton = ButtonOption.createBuilder()
+                .name(Component.translatable("controlify.gui.radial_menu").withStyle(ChatFormatting.GOLD))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
+                        .text(newOptionLabel)
+                        .build())
+                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, true, screen)))
+                .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
+                .build();
+        newOptions.add(editRadialButton);
+        Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
+                .listener((opt, val) -> updateConflictingBinds(optionBinds))
+                .build();
+        optionBinds.add(new OptionBindPair(radialBind, controller.bindings().RADIAL_MENU));
+        category.option(editRadialButton);
+        category.option(radialBind);
+
+        groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
+            var controlsGroup = OptionGroup.createBuilder()
+                    .name(categoryName);
+
+            controlsGroup.options(bindGroup.stream().map(binding -> {
+                Option.Builder<?> option = binding.startYACLOption()
+                        .listener((opt, val) -> updateConflictingBinds(optionBinds));
+
+                Option<?> built = option.build();
+                optionBinds.add(new OptionBindPair(built, binding));
+                return built;
+            }).toList());
+
+            category.group(controlsGroup.build());
+        });
+        updateConflictingBinds(optionBinds);
+
+        category.option(ButtonOption.createBuilder()
+                .name(Component.translatable("controlify.gui.reset_all_binds"))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.reset_all_binds.tooltip"))
+                        .build())
+                .action((screen, opt) -> {
+                    for (OptionBindPair pair : optionBinds) {
+                        // who needs a type system?
+                        ((Option<Object>) pair.option()).requestSet(pair.binding.defaultBind());
+                    }
+                })
+                .build());
+
+        return category.build();
+    }
+
+    private void updateConflictingBinds(List<OptionBindPair> all) {
+        all.forEach(pair -> ((AbstractBindController<?>) pair.option().controller()).setConflicting(false));
+
+        for (OptionBindPair opt : all) {
+            var ctxs = BindContext.flatten(opt.binding().contexts());
+
+            List<OptionBindPair> conflicting = all.stream()
+                    .filter(pair -> pair.binding() != opt.binding())
+                    .filter(pair -> {
+                        boolean contextsMatch = BindContext.flatten(pair.binding().contexts())
+                                .stream()
+                                .anyMatch(ctxs::contains);
+                        boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
+                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyBind<?>);
+                        return contextsMatch && bindMatches && bindIsNotEmpty;
+                    }).toList();
+
+            conflicting.forEach(conflict -> ((AbstractBindController<?>) conflict.option().controller()).setConflicting(true));
+        }
     }
 
     private static Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {

@@ -137,5 +137,8 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
         this.rumbleManager = null;
     }
 
-
+    @Override
+    public String kind() {
+        return "joystick";
+    }
 }

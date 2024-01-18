@@ -87,7 +87,7 @@ public final class GamepadState implements ControllerState {
     }
 
     @Override
-    public boolean hasAnyInput() {
+    public boolean shouldSwitchTo() {
         return !this.gamepadAxes().equals(AxesState.EMPTY) || !this.gamepadButtons().equals(ButtonState.EMPTY);
     }
 
@@ -205,6 +205,8 @@ public final class GamepadState implements ControllerState {
     }
 
     public interface GyroStateC extends Vector3fc {
+        GyroStateC ZERO = new GyroState(0, 0, 0);
+
         float pitch();
 
         float yaw();

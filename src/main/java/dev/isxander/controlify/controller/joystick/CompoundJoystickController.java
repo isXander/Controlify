@@ -190,4 +190,9 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
     public Optional<ControllerHIDService.ControllerHIDInfo> hidInfo() {
         return Optional.empty();
     }
+
+    @Override
+    public String kind() {
+        return "compound_joystick";
+    }
 }

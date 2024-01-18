@@ -10,6 +10,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
@@ -134,7 +135,7 @@ public class ControllerBindings<T extends ControllerState> {
                 .category(MOVEMENT_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+        if (controller instanceof GamepadLike<?> gamepad && gamepad.supportsGyro()) {
             register(GAMEPAD_GYRO_BUTTON = ControllerBindingBuilder.create(controller)
                     .identifier("controlify", "gamepad_gyro_button")
                     .defaultBind(new EmptyBind<>())

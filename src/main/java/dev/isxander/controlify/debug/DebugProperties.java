@@ -15,7 +15,7 @@ public class DebugProperties {
     /** Renders debug overlay for vmouse snapping */
     public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
     /** Forces all gamepads to be treated as a regular joystick */
-    public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, false);
+    public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, true);
     /** Prints joystick input counts for making joystick mappings */
     public static final boolean PRINT_JOY_STATE = boolProp("controlify.debug.print_joy_state", false, false);
     /** Print gyro data if supported */

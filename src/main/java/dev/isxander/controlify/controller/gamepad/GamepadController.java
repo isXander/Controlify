@@ -4,7 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.BatteryLevel;
-import dev.isxander.controlify.driver.gamepad.BasicGamepadInputDriver;
+import dev.isxander.controlify.driver.gamepad.BasicGamepadState;
 import dev.isxander.controlify.driver.gamepad.GamepadDrivers;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -13,11 +13,10 @@ import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.Log;
 import net.minecraft.resources.ResourceLocation;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Set;
 
-public class GamepadController extends AbstractController<GamepadState, GamepadConfig> {
+public class GamepadController extends AbstractController<GamepadState, GamepadConfig> implements GamepadLike<GamepadConfig> {
     private GamepadState state = GamepadState.EMPTY;
     private GamepadState prevState = GamepadState.EMPTY;
 
@@ -70,7 +69,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
 
         uniqueDrivers.forEach(Driver::update);
 
-        BasicGamepadInputDriver.BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
+        BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
 
         if (DebugProperties.PRINT_GAMEPAD_STATE) {
             Log.LOGGER.info(basicState.toString());
@@ -108,7 +107,13 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         return absoluteGyro;
     }
 
-    public boolean hasGyro() {
+    @Override
+    public GamepadState.GyroStateC gyroState() {
+        return drivers.gyroDriver().getGyroState();
+    }
+
+    @Override
+    public boolean supportsGyro() {
         return drivers.gyroDriver().isGyroSupported();
     }
 
@@ -163,5 +168,10 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
     @Override
     public int hatCount() {
         return 0;
+    }
+
+    @Override
+    public String kind() {
+        return "gamepad";
     }
 }

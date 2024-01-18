@@ -56,6 +56,8 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
 
     int hatCount();
 
+    String kind();
+
     @Deprecated
     Controller<?, ?> DUMMY = new Controller<>() {
         private final ControllerBindings<ControllerState> bindings = new ControllerBindings<>(this);
@@ -140,6 +142,11 @@ public interface Controller<S extends ControllerState, C extends ControllerConfi
         @Override
         public String name() {
             return "DUMMY";
+        }
+
+        @Override
+        public String kind() {
+            return "dummy";
         }
 
         @Override

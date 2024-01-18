@@ -8,7 +8,14 @@ import dev.isxander.controlify.utils.Log;
 
 import java.util.*;
 
-public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, GyroDriver gyroDriver, RumbleDriver rumbleDriver, BatteryDriver batteryDriver, GUIDProvider guidProviderDriver, NameProviderDriver nameProviderDriver) {
+public record GamepadDrivers(
+        BasicGamepadInputDriver basicGamepadInputDriver,
+        GyroDriver gyroDriver,
+        RumbleDriver rumbleDriver,
+        BatteryDriver batteryDriver,
+        GUIDProvider guidProviderDriver,
+        NameProviderDriver nameProviderDriver
+) {
     public Set<Driver> getUniqueDrivers() {
         Set<Driver> drivers = Sets.newIdentityHashSet();
         drivers.addAll(List.of(basicGamepadInputDriver, gyroDriver, rumbleDriver, batteryDriver));
@@ -45,7 +52,6 @@ public record GamepadDrivers(BasicGamepadInputDriver basicGamepadInputDriver, Gy
             gyroDriver = sdl2Driver;
             rumbleDriver = sdl2Driver;
             batteryDriver = sdl2Driver;
-            // SDL2 bypasses XInput abstraction
             guidProviderDriver = sdl2Driver;
         }
 

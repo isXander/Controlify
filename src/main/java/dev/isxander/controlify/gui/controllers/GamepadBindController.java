@@ -3,7 +3,11 @@ package dev.isxander.controlify.gui.controllers;
 import dev.isxander.controlify.bindings.GamepadBind;
 import dev.isxander.controlify.bindings.GamepadBinds;
 import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.controller.AbstractController;
+import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.gamepad.GamepadConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
@@ -12,7 +16,7 @@ import dev.isxander.yacl3.gui.YACLScreen;
 import java.util.Optional;
 
 public class GamepadBindController extends AbstractBindController<GamepadState> {
-    public GamepadBindController(Option<IBind<GamepadState>> option, GamepadController controller) {
+    public GamepadBindController(Option<IBind<GamepadState>> option, Controller<GamepadState, ?> controller) {
         super(option, controller);
     }
 
@@ -28,7 +32,7 @@ public class GamepadBindController extends AbstractBindController<GamepadState> 
 
         @Override
         public Optional<IBind<GamepadState>> getPressedBind() {
-            var gamepad = (GamepadController) control.controller;
+            var gamepad = (GamepadLike<?>) control.controller;
 
             for (var bindType : GamepadBinds.values()) {
                 GamepadBind bind = bindType.forGamepad(gamepad);

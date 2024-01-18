@@ -1,10 +1,9 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.controller.AbstractController;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.gamepad.BuiltinGamepadTheme;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.controller.gamepad.*;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -15,9 +14,9 @@ import java.util.function.Function;
 public class GamepadBind implements IBind<GamepadState> {
     private final Function<GamepadState, Float> stateSupplier;
     private final String identifier;
-    private final GamepadController gamepad;
+    private final GamepadLike<?> gamepad;
 
-    public GamepadBind(Function<GamepadState, Float> stateSupplier, String identifier, GamepadController gamepad) {
+    public GamepadBind(Function<GamepadState, Float> stateSupplier, String identifier, GamepadLike<?> gamepad) {
         this.stateSupplier = stateSupplier;
         this.identifier = identifier;
         this.gamepad = gamepad;

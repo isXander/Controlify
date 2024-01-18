@@ -5,6 +5,8 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
+import dev.isxander.controlify.controller.gamepademulated.mapping.UserGamepadMapping;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -33,9 +35,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -252,6 +251,10 @@ public class Controlify implements ControlifyApi {
         askNatives().whenComplete((loaded, th) -> {
             Log.LOGGER.info("Finishing Controlify init...");
 
+            if (!loaded) {
+                Log.LOGGER.error("CONTROLIFY DID NOT LOAD SDL2 NATIVES. MANY FEATURES DISABLED!");
+            }
+
             controllerManager = loaded ? new SDLControllerManager() : new GLFWControllerManager();
 
             ClientTickEvents.START_CLIENT_TICK.register(this::tick);
@@ -299,6 +302,10 @@ public class Controlify implements ControlifyApi {
             calibrationQueue.add(controller);
         } else if (hotplugged) {
             setCurrentController(controller, true);
+        }
+
+        if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
+            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController, minecraft.screen));
         }
 
         if (controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
@@ -464,7 +471,7 @@ public class Controlify implements ControlifyApi {
             controller.rumbleManager().tick();
         }
 
-        if (state.hasAnyInput()) {
+        if (state.shouldSwitchTo()) {
             this.setInputMode(controller.config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
         }
 

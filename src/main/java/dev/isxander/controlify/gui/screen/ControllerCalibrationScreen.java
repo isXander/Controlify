@@ -3,10 +3,12 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.utils.ClientUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -30,8 +32,6 @@ import java.util.function.Supplier;
  */
 public class ControllerCalibrationScreen extends Screen implements DontInteruptScreen {
     private static final int CALIBRATION_TIME = 100;
-    private static final ResourceLocation GREEN_BACK_BAR = new ResourceLocation("boss_bar/green_background");
-    private static final ResourceLocation GREEN_FRONT_BAR = new ResourceLocation("boss_bar/green_progress");
 
     protected final Controlify controlify;
     protected final ControllerManager controllerManager;
@@ -102,7 +102,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         graphics.pose().scale(2f, 2f, 1f);
 
         float progress = (calibrationTicks - 1 + delta) / 100f;
-        drawBar(graphics, width / 2 / 2, 30 / 2, progress);
+        progress = 1 - (float)Math.pow(1 - progress, 3);
+        ClientUtils.drawBar(graphics, width / 2 / 2, 30 / 2, progress);
 
         graphics.pose().popPose();
 
@@ -119,16 +120,6 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         graphics.pose().scale(scale, scale, 1f);
         graphics.blit(controller.icon(), 0, 0, 0f, 0f, 64, 64, 64, 64);
         graphics.pose().popPose();
-    }
-
-    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
-        int width = Mth.lerpDiscrete(1 - (float)Math.pow(1 - progress, 3), 0, 182);
-
-        int x = centerX - 182 / 2;
-        graphics.blitSprite(GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
-        if (width > 0) {
-            graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
-        }
     }
 
     @Override
@@ -176,8 +167,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     }
 
     private void processGyroData() {
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
-            accumulatedGyroVelocity.add(gamepad.drivers.gyroDriver().getGyroState());
+        if (controller instanceof GamepadLike<?> gamepad && gamepad.supportsGyro()) {
+            accumulatedGyroVelocity.add(gamepad.gyroState());
         }
     }
 
@@ -208,7 +199,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     }
 
     private void generateGyroCalibration() {
-        if (controller instanceof GamepadController gamepad && gamepad.hasGyro()) {
+        if (controller instanceof GamepadLike<?> gamepad && gamepad.supportsGyro()) {
             gamepad.config().gyroCalibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
         }
     }

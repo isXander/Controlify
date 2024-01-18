@@ -6,6 +6,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
+import dev.isxander.controlify.controller.gamepad.GamepadLike;
+import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.gui.controllers.GamepadBindController;
 import dev.isxander.controlify.gui.controllers.JoystickBindController;
 import dev.isxander.controlify.controller.Controller;
@@ -196,7 +198,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 .binding(new EmptyBind<>(), this::getBind, this::setCurrentBind)
                 .description(OptionDescription.of(this.description()));
 
-        if (controller instanceof GamepadController gamepad) {
+        if (controller instanceof GamepadLike<?> gamepad) {
             ((Option.Builder<IBind<GamepadState>>) (Object) option).customController(opt -> new GamepadBindController(opt, gamepad));
         } else if (controller instanceof JoystickController<?> joystick) {
             ((Option.Builder<IBind<JoystickState>>) (Object) option).customController(opt -> new JoystickBindController(opt, joystick));
@@ -262,7 +264,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         @Override
         @SuppressWarnings("unchecked")
         public ControllerBindingBuilder<T> defaultBind(GamepadBinds gamepadBind) {
-            if (controller instanceof GamepadController gamepad) {
+            if (controller instanceof GamepadLike<?> gamepad) {
                 this.bind = (IBind<T>) gamepadBind.forGamepad(gamepad);
             } else {
                 this.bind = new EmptyBind<>();
