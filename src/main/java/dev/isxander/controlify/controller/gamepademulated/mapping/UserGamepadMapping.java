@@ -70,10 +70,14 @@ public record UserGamepadMapping(
         );
     }
 
+    public boolean isNoMapping() {
+        return this.inputDriverName().equals(NO_MAPPING.inputDriverName());
+    }
+
     public static final UserGamepadMapping NO_MAPPING = new Builder().build();
 
     public static class Builder {
-        private String inputDriverName = "Unknown";
+        private String inputDriverName = "None";
 
         private ButtonMapping faceDownButton = new ButtonMapping.FromNothing(false);
         private ButtonMapping faceLeftButton = new ButtonMapping.FromNothing(false);

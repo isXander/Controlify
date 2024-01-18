@@ -103,7 +103,6 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         C newConfig;
         try {
             newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
-            System.out.println(newConfig);
         } catch (Throwable e) {
             Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead. Printing json: " + json.toString(), e);
             Controlify.instance().config().setDirty();

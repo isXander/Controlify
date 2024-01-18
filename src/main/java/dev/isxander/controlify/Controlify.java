@@ -6,7 +6,6 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
-import dev.isxander.controlify.controller.gamepademulated.mapping.UserGamepadMapping;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMapping;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -75,7 +74,8 @@ public class Controlify implements ControlifyApi {
 
     private final ControlifyConfig config = new ControlifyConfig(this);
 
-    private final Queue<Controller<?, ?>> calibrationQueue = new ArrayDeque<>();
+    private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
+    private ControllerSetupWizard currentSetupWizard = null;
     private boolean hasDiscoveredControllers = false;
 
     private int consecutiveInputSwitches = 0;
@@ -289,24 +289,28 @@ public class Controlify implements ControlifyApi {
      * @param newController if this controller has never been seen before
      */
     private void onControllerAdded(Controller<?, ?> controller, boolean hotplugged, boolean newController) {
-        if (SubmitUnknownControllerScreen.canSubmit(controller)) {
-            minecraft.setScreen(new SubmitUnknownControllerScreen(controller, minecraft.screen));
-        }
+        ControllerSetupWizard wizard = new ControllerSetupWizard();
+
+        wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
         if (controller.config().allowVibrations && !SDL2NativesManager.isLoaded()) {
             controller.config().allowVibrations = false;
             config().setDirty();
         }
 
-        if (!controller.config().deadzonesCalibrated) {
-            calibrationQueue.add(controller);
-        } else if (hotplugged) {
+        boolean deadzonesCalibrated = controller.config().deadzonesCalibrated;
+        if (hotplugged && deadzonesCalibrated) {
             setCurrentController(controller, true);
         }
 
-        if (controller instanceof EmulatedGamepadController emulatedGamepadController && emulatedGamepadController.config().mapping == UserGamepadMapping.NO_MAPPING) {
-            minecraft.setScreen(new GamepadEmulationMappingCreatorScreen(emulatedGamepadController, minecraft.screen));
-        }
+        wizard.addStage(
+                () -> controller instanceof EmulatedGamepadController emulated && emulated.config().mapping.isNoMapping(),
+                nextScreen -> new GamepadEmulationMappingCreatorScreen((EmulatedGamepadController) controller, nextScreen)
+        );
+        wizard.addStage(
+                () -> !deadzonesCalibrated,
+                nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
+        );
 
         if (controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
             ToastUtils.sendToast(
@@ -330,6 +334,8 @@ public class Controlify implements ControlifyApi {
         if (hotplugged) {
             config().saveIfDirty();
         }
+
+        setupWizards.add(wizard);
     }
 
     /**
@@ -415,12 +421,13 @@ public class Controlify implements ControlifyApi {
      */
     public void tick(Minecraft client) {
         if (minecraft.getOverlay() == null) {
-            if (!calibrationQueue.isEmpty() && !(minecraft.screen instanceof DontInteruptScreen)) {
-                Screen screen = minecraft.screen;
-                while (!calibrationQueue.isEmpty()) {
-                    screen = new ControllerCalibrationScreen(calibrationQueue.poll(), screen);
-                }
-                minecraft.setScreen(screen);
+            if (currentSetupWizard != null && currentSetupWizard.isDone()) {
+                currentSetupWizard = null;
+            }
+
+            if (!setupWizards.isEmpty() && !(minecraft.screen instanceof DontInteruptScreen)) {
+                currentSetupWizard = setupWizards.poll();
+                minecraft.setScreen(currentSetupWizard.start(minecraft.screen));
             }
         }
 
