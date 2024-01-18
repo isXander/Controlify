@@ -180,7 +180,6 @@ tasks {
     register("releaseMod") {
         group = "mod"
 
-        dependsOn(downloadHidDb)
         dependsOn("publishMods")
         dependsOn("publish")
     }
