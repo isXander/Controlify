@@ -88,8 +88,6 @@
   "controlify.gui.axis_deadzone": "%s 死區",
   "controlify.gui.axis_deadzone.tooltip": "在註冊輸入前，「%s」軸需要被推動的距離。",
   "controlify.gui.stickdrift_warning": "警告：將此設定得太低會導致搖桿漂移！這是指你控制器的內部校準不正確，會在不應該的時候註冊小量輸入。",
-  "controlify.gui.auto_calibration": "自動死區校準",
-  "controlify.gui.auto_calibration.tooltip": "自動校準你的控制器死區。",
   "controlify.gui.button_activation_threshold": "按鈕啟動閾值",
   "controlify.gui.button_activation_threshold.tooltip": "在註冊為按下之前，按鈕需要被推動的距離。",
   "controlify.config.category.advanced": "進階",

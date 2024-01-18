@@ -42,6 +42,7 @@ public class InGameInputHandler {
     private boolean shouldShowPlayerList;
 
     private final HoldRepeatHelper dropRepeatHelper;
+    private boolean dropRepeating;
 
     public InGameInputHandler(Controller<?, ?> controller) {
         this.controller = controller;
@@ -77,10 +78,18 @@ public class InGameInputHandler {
                     if (minecraft.player.drop(true)) {
                         minecraft.player.swing(InteractionHand.MAIN_HAND);
                     }
-                } else if (dropRepeatHelper.shouldAction(controller.bindings().DROP_INGAME)) {
-                    if (minecraft.player.drop(false)) {
-                        dropRepeatHelper.onNavigate();
-                        minecraft.player.swing(InteractionHand.MAIN_HAND);
+                } else {
+                    if (controller.bindings().DROP_INGAME.justPressed()) {
+                        dropRepeating = true;
+                    } else if (controller.bindings().DROP_INGAME.justReleased()) {
+                        dropRepeating = false;
+                    }
+
+                    if (dropRepeating && dropRepeatHelper.shouldAction(controller.bindings().DROP_INGAME)) {
+                        if (minecraft.player.drop(false)) {
+                            dropRepeatHelper.onNavigate();
+                            minecraft.player.swing(InteractionHand.MAIN_HAND);
+                        }
                     }
                 }
 

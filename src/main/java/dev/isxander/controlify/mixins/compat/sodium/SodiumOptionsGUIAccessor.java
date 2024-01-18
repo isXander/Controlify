@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.compat.sodium;
 
 import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
 import me.jellysquid.mods.sodium.client.gui.options.OptionPage;
+import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -16,4 +17,7 @@ public interface SodiumOptionsGUIAccessor {
 
     @Accessor
     OptionPage getCurrentPage();
+
+    @Accessor
+    List<ControlElement<?>> getControls();
 }

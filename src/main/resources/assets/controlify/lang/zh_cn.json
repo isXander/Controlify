@@ -74,8 +74,6 @@
   "controlify.gui.axis_deadzone": "%s盲区",
   "controlify.gui.axis_deadzone.tooltip": "‘%s’轴需要被推多远才能被标记为已输入。",
   "controlify.gui.stickdrift_warning": "警告：设置太低会导致漂移！这是你的手柄内部校准错误且在不应该的情况下标记为少量输入。",
-  "controlify.gui.auto_calibration": "自动盲区校准",
-  "controlify.gui.auto_calibration.tooltip": "自动校准你的手柄盲区。",
   "controlify.gui.button_activation_threshold": "按钮激活阈值",
   "controlify.gui.button_activation_threshold.tooltip": "一个按钮需要按多远才能标记为已按下。",
   "controlify.config.category.advanced": "高级",

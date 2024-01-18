@@ -74,8 +74,6 @@
   "controlify.gui.axis_deadzone": "Vùng chết %s",
   "controlify.gui.axis_deadzone.tooltip": "Cần phải đẩy trục '%s' bao xa trước khi đăng ký đầu vào.",
   "controlify.gui.stickdrift_warning": "Cảnh báo: Đặt giá trị này quá thấp sẽ gây ra hiện tượng trượt bánh! Đây là nơi các bộ phận bên trong bộ điều khiển của bạn bị hiệu chỉnh sai và nhận một lượng nhỏ đầu vào khi không nên.",
-  "controlify.gui.auto_calibration": "Hiệu chuẩn Vùng chết tự động",
-  "controlify.gui.auto_calibration.tooltip": "Tự động hiệu chỉnh vùng chết của bộ điều khiển của bạn.",
   "controlify.gui.button_activation_threshold": "Ngưỡng kích hoạt nút",
   "controlify.gui.button_activation_threshold.tooltip": "Khoảng cách một nút cần được đẩy trước khi nhận là được nhấn.",
   "controlify.config.category.advanced": "Nâng cao",

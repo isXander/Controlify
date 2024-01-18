@@ -4,6 +4,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.gui.screen.BindConsumerScreen;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.yacl3.api.Controller;
@@ -12,6 +13,7 @@ import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -49,9 +51,8 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
     @Override
     public abstract AbstractBindControllerElement<T> provideWidget(YACLScreen yaclScreen, Dimension<Integer> dimension);
 
-    public abstract static class AbstractBindControllerElement<T extends ControllerState> extends ControllerWidget<AbstractBindController<T>> implements ComponentProcessor, ControlifyEvents.ControllerStateUpdate {
-        private boolean awaitingControllerInput = false;
-        private boolean justTookInput = false;
+    public abstract static class AbstractBindControllerElement<T extends ControllerState> extends ControllerWidget<AbstractBindController<T>> implements ComponentProcessor {
+        public boolean awaitingControllerInput = false;
         private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
         public AbstractBindControllerElement(AbstractBindController<T> control, YACLScreen screen, Dimension<Integer> dim) {
@@ -70,9 +71,8 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
 
         @Override
         public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-            if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER && !awaitingControllerInput) {
-                awaitingControllerInput = true;
-                ControllerBindHandler.setBindListener(this);
+            if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER) {
+                openConsumerScreen();
                 return true;
             }
 
@@ -82,51 +82,28 @@ public abstract class AbstractBindController<T extends ControllerState> implemen
         @Override
         public boolean mouseClicked(double mouseX, double mouseY, int button) {
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
-                awaitingControllerInput = true;
-                ControllerBindHandler.setBindListener(this);
+                openConsumerScreen();
                 return true;
             }
 
             return false;
+        }
+
+        private void openConsumerScreen() {
+            awaitingControllerInput = true;
+            Minecraft.getInstance().setScreen(new BindConsumerScreen<>(this::getPressedBind, control.option(), this, Minecraft.getInstance().screen));
         }
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
             if (controller != control.controller) return true;
 
-            if (!justTookInput && !awaitingControllerInput) {
-                if (controller.bindings().GUI_PRESS.justPressed()) {
-                    ControllerBindHandler.setBindListener(this);
-                    return awaitingControllerInput = true;
-                }
-            }
-
-            if (justTookInput) {
-                justTookInput = false;
+            if (controller.bindings().GUI_PRESS.justPressed()) {
+                openConsumerScreen();
                 return true;
             }
 
             return false;
-        }
-
-        @Override
-        public void onControllerStateUpdate(dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            if (controller != control.controller) return;
-
-            if (!awaitingControllerInput) return;
-
-            Optional<IBind<T>> pressedBind = getPressedBind();
-            if (pressedBind.isPresent()) {
-                control.option().requestSet(pressedBind.get());
-                awaitingControllerInput = false;
-                justTookInput = true;
-                ControllerBindHandler.clearBindListener();
-            }
-        }
-
-        @Override
-        public boolean overrideControllerNavigation(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?, ?> controller) {
-            return awaitingControllerInput || justTookInput;
         }
 
         @Override

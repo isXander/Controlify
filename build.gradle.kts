@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.7.0+1.20.4"
+version = "1.8.0+1.20.4"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
@@ -54,6 +54,10 @@ loom {
     }
 
     createRemapConfigurations(testmod.get())
+
+    mixin {
+        useLegacyMixinAp.set(false)
+    }
 }
 
 val minecraftVersion = libs.versions.minecraft.get()
@@ -91,9 +95,6 @@ dependencies {
     modApi(libs.yet.another.config.lib)
     modImplementation(libs.mod.menu)
 
-    api(libs.mixin.extras)
-    annotationProcessor(libs.mixin.extras)
-    include(libs.mixin.extras)
 
     // used to identify controller connections
     implementation(libs.hid4java)
@@ -108,14 +109,14 @@ dependencies {
     include(libs.quilt.json5)
 
     // sodium compat
-    modCompileOnly(libs.sodium)
+    modImplementation(libs.sodium)
     // iris compat
     modCompileOnly(libs.iris)
 //    modRuntimeOnly("org.anarres:jcpp:1.4.14")
 //    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
-    modCompileOnly(libs.immediately.fast)
-    //modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modImplementation(libs.immediately.fast)
+    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // simple-voice-chat compat
     modCompileOnly(libs.simple.voice.chat)
@@ -157,6 +158,12 @@ tasks {
                 "version" to project.version,
                 "github" to githubProject,
             )
+        }
+
+        eachFile {
+            if (name.endsWith(".psd")) {
+                exclude()
+            }
         }
     }
 
