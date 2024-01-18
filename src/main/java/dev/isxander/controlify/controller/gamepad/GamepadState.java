@@ -87,7 +87,7 @@ public final class GamepadState implements ControllerState {
     }
 
     @Override
-    public boolean hasAnyInput() {
+    public boolean shouldSwitchTo() {
         return !this.gamepadAxes().equals(AxesState.EMPTY) || !this.gamepadButtons().equals(ButtonState.EMPTY);
     }
 

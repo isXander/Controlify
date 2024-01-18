@@ -60,6 +60,9 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
         super(Component.literal("Gamepad Emulation Mapping Creator"));
         this.controller = controller;
         this.lastScreen = lastScreen;
+
+        this.mappingBuilder.inputDriverName(controller.drivers.basicJoystickInputDriver().getBasicJoystickDetails());
+        controller.config().mapping = UserGamepadMapping.NO_MAPPING;
     }
 
     @Override
@@ -150,7 +153,7 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
             JoystickState.HatState now = stateNow.hats()[i];
             JoystickState.HatState prev = statePrev.hats()[i];
             if (now != prev) {
-                ButtonMapping mapping = new ButtonMapping.FromHat(i, prev, false);
+                ButtonMapping mapping = new ButtonMapping.FromHat(i, now, false);
                 buttonStage.setMapping(mapping);
                 return;
             }

@@ -5,6 +5,8 @@ import dev.isxander.controlify.driver.gamepad.BasicGamepadState;
 import dev.isxander.controlify.driver.joystick.BasicJoystickState;
 
 public record UserGamepadMapping(
+        String inputDriverName,
+
         ButtonMapping faceDownButton,
         ButtonMapping faceLeftButton,
         ButtonMapping faceRightButton,
@@ -71,6 +73,8 @@ public record UserGamepadMapping(
     public static final UserGamepadMapping NO_MAPPING = new Builder().build();
 
     public static class Builder {
+        private String inputDriverName = "Unknown";
+
         private ButtonMapping faceDownButton = new ButtonMapping.FromNothing(false);
         private ButtonMapping faceLeftButton = new ButtonMapping.FromNothing(false);
         private ButtonMapping faceRightButton = new ButtonMapping.FromNothing(false);
@@ -198,8 +202,15 @@ public record UserGamepadMapping(
             return this;
         }
 
+        public Builder inputDriverName(String inputDriverName) {
+            this.inputDriverName = inputDriverName;
+            return this;
+        }
+
         public UserGamepadMapping build() {
             return new UserGamepadMapping(
+                    inputDriverName,
+
                     faceDownButton,
                     faceLeftButton,
                     faceRightButton,

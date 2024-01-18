@@ -53,7 +53,7 @@ public class JoystickState implements ControllerState {
     }
 
     @Override
-    public boolean hasAnyInput() {
+    public boolean shouldSwitchTo() {
         return IntStream.range(0, axes().size()).anyMatch(i -> !mapping.axes()[i].isAxisResting(axes().get(i)))
                 || buttons().stream().anyMatch(Boolean::booleanValue)
                 || hats().stream().anyMatch(hat -> hat != HatState.CENTERED);

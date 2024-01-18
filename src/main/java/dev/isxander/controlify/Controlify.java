@@ -35,9 +35,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -253,6 +250,10 @@ public class Controlify implements ControlifyApi {
 
         askNatives().whenComplete((loaded, th) -> {
             Log.LOGGER.info("Finishing Controlify init...");
+
+            if (!loaded) {
+                Log.LOGGER.error("CONTROLIFY DID NOT LOAD SDL2 NATIVES. MANY FEATURES DISABLED!");
+            }
 
             controllerManager = loaded ? new SDLControllerManager() : new GLFWControllerManager();
 
@@ -470,7 +471,7 @@ public class Controlify implements ControlifyApi {
             controller.rumbleManager().tick();
         }
 
-        if (state.hasAnyInput()) {
+        if (state.shouldSwitchTo()) {
             this.setInputMode(controller.config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
         }
 

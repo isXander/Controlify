@@ -97,16 +97,16 @@ public class GLFWJoystickDriver implements BasicJoystickInputDriver, NameProvide
 
     @Override
     public String getBasicJoystickDetails() {
-        return "GLFWjoy#" + jid;
+        return "GLFWjoy";
     }
 
     @Override
     public String getNameProviderDetails() {
-        return "GLFWjoy#" + jid;
+        return "GLFWjoy";
     }
 
     @Override
     public String getGUIDProviderDetails() {
-        return "GLFWjoy#" + jid;
+        return "GLFWjoy";
     }
 }

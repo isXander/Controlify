@@ -12,6 +12,7 @@ import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.controller.gamepademulated.mapping.AxisMapping;
 import dev.isxander.controlify.controller.gamepademulated.mapping.ButtonMapping;
 import dev.isxander.controlify.controller.gamepademulated.mapping.GamepadMapping;
+import dev.isxander.controlify.controller.gamepademulated.mapping.UserGamepadMapping;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.gamepad.BasicGamepadState;
@@ -159,7 +160,14 @@ public class EmulatedGamepadController extends AbstractController<GamepadState, 
                 .registerTypeAdapter(AxisMapping.class, new AxisMapping.AxisMappingSerializer())
                 .create();
         super.setConfig(gson, json);
-        System.out.println(config.mapping);
+
+        String mappingInputDriverName = config.mapping.inputDriverName();
+        String currentInputDriverName = drivers.basicJoystickInputDriver().getBasicJoystickDetails();
+        if (!config.mapping.inputDriverName().equals(UserGamepadMapping.NO_MAPPING.inputDriverName()) && !mappingInputDriverName.equals(currentInputDriverName)) {
+            config.mapping = UserGamepadMapping.NO_MAPPING;
+            Log.LOGGER.warn("Mapping input driver name does not match current name. This makes the mapping incompatible. Resetting.");
+        }
+        Log.LOGGER.info("Loaded mapping: " + config.mapping);
     }
 
     @Override
