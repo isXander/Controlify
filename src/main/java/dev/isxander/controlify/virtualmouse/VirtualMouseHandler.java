@@ -1,7 +1,6 @@
 package dev.isxander.controlify.virtualmouse;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
@@ -30,7 +29,6 @@ import org.lwjgl.glfw.GLFW;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.Set;
-import java.util.function.Function;
 
 public class VirtualMouseHandler {
     private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
