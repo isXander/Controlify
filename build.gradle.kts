@@ -1,3 +1,5 @@
+import de.undercouch.gradle.tasks.download.Download
+
 plugins {
     java
 
@@ -7,6 +9,7 @@ plugins {
     alias(libs.plugins.machete)
     alias(libs.plugins.grgit)
     alias(libs.plugins.blossom)
+    alias(libs.plugins.download)
     `maven-publish`
 }
 
@@ -135,6 +138,13 @@ java {
     withJavadocJar()
 }
 
+val downloadHidDb by tasks.registering(Download::class) {
+    group = "mod"
+
+    src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
+    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb.txt")
+}
+
 tasks {
     processResources {
         val modId: String by project
@@ -170,6 +180,7 @@ tasks {
     register("releaseMod") {
         group = "mod"
 
+        dependsOn(downloadHidDb)
         dependsOn("publishMods")
         dependsOn("publish")
     }
