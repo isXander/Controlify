@@ -11,7 +11,7 @@ plugins {
 }
 
 group = "dev.isxander"
-version = "1.7.0+1.20.4"
+version = "1.8.0+1.20.4"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
@@ -54,12 +54,9 @@ loom {
     }
 
     createRemapConfigurations(testmod.get())
-}
 
-// dependencies sometimes force an older version of the loader, so we force it back
-configurations.all {
-    resolutionStrategy {
-        force(libs.fabric.loader)
+    mixin {
+        useLegacyMixinAp.set(false)
     }
 }
 
@@ -161,6 +158,12 @@ tasks {
                 "version" to project.version,
                 "github" to githubProject,
             )
+        }
+
+        eachFile {
+            if (name.endsWith(".psd")) {
+                exclude()
+            }
         }
     }
 
