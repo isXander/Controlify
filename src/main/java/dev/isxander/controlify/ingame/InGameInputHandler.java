@@ -200,7 +200,7 @@ public class InGameInputHandler {
 
             if (controller.config().reduceAimingSensitivity && player.isUsingItem()) {
                 float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
-                    case BOW, CROSSBOW, SPEAR -> 0.6f;
+                    case BOW, SPEAR -> 0.6f;
                     case SPYGLASS -> 0.2f;
                     default -> 1f;
                 };
