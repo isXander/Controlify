@@ -35,6 +35,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
@@ -470,11 +471,10 @@ public class Controlify implements ControlifyApi {
     private void tickController(Controller<?, ?> controller, boolean outOfFocus) {
         ControllerState state = controller.state();
 
+        controller.rumbleManager().setSilent(outOfFocus || minecraft.isPaused() || minecraft.screen instanceof PauseScreen);
         if (outOfFocus) {
             state = ControllerState.EMPTY;
-            controller.rumbleManager().setSilent(true);
         } else {
-            controller.rumbleManager().setSilent(false);
             controller.rumbleManager().tick();
         }
 
