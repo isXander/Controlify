@@ -112,14 +112,14 @@ dependencies {
     include(libs.quilt.json5)
 
     // sodium compat
-    modCompileOnly(libs.sodium)
+    modImplementation(libs.sodium)
     // iris compat
     modCompileOnly(libs.iris)
 //    modRuntimeOnly("org.anarres:jcpp:1.4.14")
 //    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
-    modCompileOnly(libs.immediately.fast)
-    //modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modImplementation(libs.immediately.fast)
+    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // simple-voice-chat compat
     modCompileOnly(libs.simple.voice.chat)

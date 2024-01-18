@@ -100,5 +100,8 @@
     "feature.virtualmouse.snapping.RecipeBookComponentAccessor",
     "feature.virtualmouse.snapping.RecipeBookPageAccessor",
     "feature.virtualmouse.snapping.ScreenMixin"
+  ],
+  "mixins": [
+    "compat.sodium.AbstractWidgetMixin"
   ]
 }

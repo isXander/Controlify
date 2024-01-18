@@ -1,9 +1,13 @@
 package dev.isxander.controlify.compatibility.sodium;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.mixins.compat.sodium.SodiumOptionsGUIAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
+import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
+
+import java.util.List;
 
 public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> {
     public SodiumGuiScreenProcessor(SodiumOptionsGUI screen) {
@@ -31,5 +35,16 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
         }
 
         super.handleButtons(controller);
+    }
+
+    @Override
+    protected void setInitialFocus() {
+        if (screen.getFocused() == null && Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+            List<ControlElement<?>> controls = ((SodiumOptionsGUIAccessor) screen).getControls();
+            var first = controls.get(0);
+            if (first != null) {
+                screen.setFocused(first);
+            }
+        }
     }
 }
