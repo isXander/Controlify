@@ -5,6 +5,7 @@
 
     "hids": [
       [0x45e, 0x202], // Xbox Controller
+      [0x45e, 0x2e0], // Xbox One Wireless Controller
       [0x45e, 0x2ff], // Xbox One S Controller (Bluetooth)
       [0x45e, 0x2ea], // Xbox One Controller
       [0x45e, 0xb12], // Xbox Controller
