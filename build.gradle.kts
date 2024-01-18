@@ -202,7 +202,7 @@ publishMods {
     modLoaders.add("fabric")
 
     // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = listOf("1.20.3", "1.20.4")
+    val stableMCVersions = listOf("1.20.4")
 
     val modrinthId: String by project
     if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
