@@ -15,6 +15,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
     private final int timeout;
     private final int minTime;
     private int tick;
+    private int age;
     private boolean stopped;
     private BooleanSupplier stopCondition;
 
@@ -29,6 +30,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
     @Override
     public void tick() {
         tick++;
+        age++;
         if (stopCondition.getAsBoolean())
             stop();
     }
@@ -45,6 +47,10 @@ public class ContinuousRumbleEffect implements RumbleEffect {
         stopped = true;
     }
 
+    public void heartbeat() {
+        age = 0;
+    }
+
     @Override
     public int age() {
         return tick;
@@ -52,7 +58,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
 
     @Override
     public boolean isFinished() {
-        return (stopped || (timeout > 0 && tick >= timeout)) && tick >= minTime;
+        return (stopped || (timeout > 0 && age >= timeout)) && tick >= minTime;
     }
 
     @Override
