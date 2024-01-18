@@ -105,6 +105,8 @@
     "feature.virtualmouse.snapping.ScreenMixin"
   ],
   "mixins": [
-    "compat.sodium.AbstractWidgetMixin"
+    "compat.sodium.AbstractWidgetMixin",
+    "feature.rumble.damage.LivingEntityMixin",
+    "feature.rumble.damage.PlayerMixin"
   ]
 }

@@ -1,45 +1,45 @@
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
-import com.mojang.authlib.GameProfile;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends AbstractClientPlayer {
-    @Unique private float lastHealth = getHealth();
-    @Unique private boolean skipTick = true;
+public abstract class LocalPlayerMixin extends PlayerMixin {
+    // the goal is only one of these runs.
+    // because they're both on the same tick, try and rely on the hurttime being less to
+    // indicate which is the first/only to run
 
-    public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
-        super(world, profile);
+    // both can run, or either will run, but we want this to trigger once.
+    // if both run, hurt time will be set to 10 on the first, so we know if it is >=10 it has already ran
+
+    // runs first, but only if the health actually runs down
+    @Override
+    protected void onHealthChangedDamage(DamageSource source, CallbackInfo ci) {
+        if (hurtTime < 10) {
+            doDamageRumble();
+        }
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
-    private void checkHealthTick(CallbackInfo ci) {
-        var damageTaken = Math.max(0, lastHealth - getHealth());
-        lastHealth = getHealth();
-
-        if (damageTaken > 0 && !skipTick) {
-            float minMagnitude = 0.4f;
-            float smallestDamage = 2; // the damage that results in minMagnitude
-            float maxDamage = 15; // the damage that results in magnitude 1.0f
-
-            float magnitude = (Mth.clamp(damageTaken, smallestDamage, maxDamage) - smallestDamage) / (maxDamage - smallestDamage) * (1 - minMagnitude) + minMagnitude;
-            ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(
-                    RumbleSource.DAMAGE,
-                    BasicRumbleEffect.constant(magnitude, 0f, magnitude >= 0.75f ? 8 : 5)
-            ));
+    // runs second, but only if the damage was caused by an entity
+    @Override
+    protected void onEntityHurtMeDamage(float yaw, CallbackInfo ci) {
+        if (hurtTime < 10) {
+            doDamageRumble();
         }
-        // skip first tick from spawn
-        skipTick = false;
+    }
+
+
+    @Unique
+    private void doDamageRumble() {
+        ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(
+                RumbleSource.DAMAGE,
+                BasicRumbleEffect.constant(0.8f, 0.5f, 5)
+        ));
     }
 }
