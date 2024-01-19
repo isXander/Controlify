@@ -41,8 +41,8 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
     protected void setInitialFocus() {
         if (screen.getFocused() == null && Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
             List<ControlElement<?>> controls = ((SodiumOptionsGUIAccessor) screen).getControls();
-            var first = controls.get(0);
-            if (first != null) {
+            if (!controls.isEmpty()) {
+                var first = controls.get(0);
                 screen.setFocused(first);
             }
         }
