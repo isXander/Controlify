@@ -26,9 +26,13 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
         super.handleButtons(controller);
 
         RecipeBookComponent recipeBookComponent = ((RecipeUpdateListener) screen).getRecipeBookComponent();
+        if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
         RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
-        List<RecipeBookTabButton> tabs = componentAccessor.getTabButtons();
+        List<RecipeBookTabButton> tabs = componentAccessor
+                .getTabButtons()
+                .stream().filter(tab -> tab.visible)
+                .toList();
         RecipeBookTabButton selectedTab = componentAccessor.getSelectedTab();
 
         StateSwitchingButton button;
