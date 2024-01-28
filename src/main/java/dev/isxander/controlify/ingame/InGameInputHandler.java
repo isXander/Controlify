@@ -237,7 +237,11 @@ public class InGameInputHandler {
                         .mul(gamepad.config().gyroLookSensitivity);
 
                 impulseY += -thisInput.pitch() * (gamepad.config().invertGyroY ? -1 : 1);
-                impulseX += (-thisInput.roll() - thisInput.yaw()) * (gamepad.config().invertGyroX ? -1 : 1);
+                impulseX += switch (gamepad.config().gyroYawMode) {
+                    case YAW -> -thisInput.yaw();
+                    case ROLL -> -thisInput.roll();
+                    case BOTH -> -thisInput.yaw() - thisInput.roll();
+                } * (gamepad.config().invertGyroX ? -1 : 1);
             }
         }
 

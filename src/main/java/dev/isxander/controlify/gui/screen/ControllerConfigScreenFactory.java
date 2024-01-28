@@ -7,6 +7,7 @@ import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.gamepad.GamepadLike;
+import dev.isxander.controlify.controller.gamepad.GyroYawMode;
 import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
@@ -462,6 +463,21 @@ public class ControllerConfigScreenFactory {
                             .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
                     .build();
             gyroGroup.option(relativeModeOpt);
+            gyroGroup.option(Util.make(() -> {
+                var option = Option.<GyroYawMode>createBuilder()
+                        .name(Component.translatable("controlify.gui.gyro_yaw_mode"))
+                        .description(val -> OptionDescription.createBuilder()
+                                .text(Component.translatable("controlify.gui.gyro_yaw_mode.tooltip"))
+                                .text(val == GyroYawMode.YAW ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.yaw_only") : Component.empty())
+                                .text(val == GyroYawMode.ROLL ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.roll_only") : Component.empty())
+                                .text(val == GyroYawMode.BOTH ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.both") : Component.empty())
+                                .build())
+                        .binding(gpCfgDef.gyroYawMode, () -> gpCfg.gyroYawMode, v -> gpCfg.gyroYawMode = v)
+                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroYawMode.class))
+                        .build();
+                gyroOptions.add(option);
+                return option;
+            }));
             gyroGroup.option(Util.make(() -> {
                 var opt = Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.gyro_invert_x"))

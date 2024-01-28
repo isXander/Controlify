@@ -207,11 +207,17 @@ public final class GamepadState implements ControllerState {
     public interface GyroStateC extends Vector3fc {
         GyroStateC ZERO = new GyroState(0, 0, 0);
 
-        float pitch();
+        default float pitch() {
+            return x();
+        }
 
-        float yaw();
+        default float yaw() {
+            return y();
+        }
 
-        float roll();
+        default float roll() {
+            return z();
+        }
     }
 
     public static class GyroState extends Vector3f implements GyroStateC {
@@ -224,21 +230,6 @@ public final class GamepadState implements ControllerState {
         }
 
         public GyroState() {
-        }
-
-        @Override
-        public float pitch() {
-            return x;
-        }
-
-        @Override
-        public float yaw() {
-            return y;
-        }
-
-        @Override
-        public float roll() {
-            return z;
         }
 
         @Override
