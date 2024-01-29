@@ -8,13 +8,12 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.hid.ControllerHIDService;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import io.github.libsdl4j.api.event.SDL_Event;
 import io.github.libsdl4j.api.event.SDL_EventFilter;
 import io.github.libsdl4j.api.rwops.SDL_RWops;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import org.apache.commons.lang3.Validate;
 
@@ -112,7 +111,7 @@ public class SDLControllerManager extends AbstractControllerManager {
 
     @Override
     protected void loadGamepadMappings(Resource resource) {
-        Log.LOGGER.debug("Loading gamepad mappings...");
+        CUtil.LOGGER.debug("Loading gamepad mappings...");
 
         try (InputStream is = resource.open()) {
             byte[] bytes = ByteStreams.toByteArray(is);
@@ -122,11 +121,11 @@ public class SDLControllerManager extends AbstractControllerManager {
                 SDL_RWops rw = SDL_RWFromConstMem(memory, bytes.length);
                 int count = SDL_GameControllerAddMappingsFromRW(rw, 1);
                 if (count < 1) {
-                    Log.LOGGER.error("Failed to load gamepad mappings: {}", SDL_GetError());
+                    CUtil.LOGGER.error("Failed to load gamepad mappings: {}", SDL_GetError());
                 }
             }
         } catch (Throwable e) {
-            Log.LOGGER.error("Failed to load gamepad mappings", e);
+            CUtil.LOGGER.error("Failed to load gamepad mappings", e);
         }
     }
 

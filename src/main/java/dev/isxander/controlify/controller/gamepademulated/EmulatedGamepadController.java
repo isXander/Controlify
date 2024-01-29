@@ -20,7 +20,7 @@ import dev.isxander.controlify.driver.joystick.BasicJoystickState;
 import dev.isxander.controlify.driver.joystick.JoystickDrivers;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
@@ -100,7 +100,7 @@ public class EmulatedGamepadController extends AbstractController<GamepadState, 
         state = new GamepadState(deadzoneAxesState, basicGamepadState.axes(), basicGamepadState.buttons(), new GamepadState.GyroState(), new GamepadState.GyroState());
 
         if (DebugProperties.PRINT_GAMEPAD_STATE) {
-            Log.LOGGER.info(state.toString());
+            CUtil.LOGGER.info(state.toString());
         }
     }
 
@@ -165,9 +165,9 @@ public class EmulatedGamepadController extends AbstractController<GamepadState, 
         String currentInputDriverName = drivers.basicJoystickInputDriver().getBasicJoystickDetails();
         if (!config.mapping.inputDriverName().equals(UserGamepadMapping.NO_MAPPING.inputDriverName()) && !mappingInputDriverName.equals(currentInputDriverName)) {
             config.mapping = UserGamepadMapping.NO_MAPPING;
-            Log.LOGGER.warn("Mapping input driver name does not match current name. This makes the mapping incompatible. Resetting.");
+            CUtil.LOGGER.warn("Mapping input driver name does not match current name. This makes the mapping incompatible. Resetting.");
         }
-        Log.LOGGER.info("Loaded mapping: " + config.mapping);
+        CUtil.LOGGER.info("Loaded mapping: " + config.mapping);
     }
 
     @Override

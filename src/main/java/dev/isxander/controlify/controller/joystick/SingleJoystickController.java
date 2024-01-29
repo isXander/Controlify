@@ -10,7 +10,7 @@ import dev.isxander.controlify.controller.joystick.mapping.RPJoystickMapping;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
 import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import io.github.libsdl4j.api.joystick.SDL_Joystick;
 
 import java.util.Objects;
@@ -113,7 +113,7 @@ public class SingleJoystickController extends AbstractController<JoystickState, 
         // the duration doesn't matter because we are not updating the joystick state,
         // so there is never any SDL check to stop the rumble after the desired time.
         if (SDL_JoystickRumble(ptrJoystick, (short)(strongMagnitude * 65535.0F), (short)(weakMagnitude * 65535.0F), 1) != 0) {
-            Log.LOGGER.error("Could not rumble controller " + name() + ": " + SDL_GetError());
+            CUtil.LOGGER.error("Could not rumble controller " + name() + ": " + SDL_GetError());
             return false;
         }
         return true;

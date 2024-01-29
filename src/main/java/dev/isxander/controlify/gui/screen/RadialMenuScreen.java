@@ -17,7 +17,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.Easings;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -223,7 +223,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
             ResourceLocation binding = controller.config().radialActions[index];
             if (controller.bindings().get(binding) == null) {
-                Log.LOGGER.warn("Binding {} does not exist!", binding);
+                CUtil.LOGGER.warn("Binding {} does not exist!", binding);
                 controller.config().radialActions[index] = EMPTY_ACTION;
                 Controlify.instance().config().setDirty();
             }

@@ -11,7 +11,7 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.utils.ControllerUtils;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Set;
@@ -72,7 +72,7 @@ public class GamepadController extends AbstractController<GamepadState, GamepadC
         BasicGamepadState basicState = drivers.basicGamepadInputDriver().getBasicGamepadState();
 
         if (DebugProperties.PRINT_GAMEPAD_STATE) {
-            Log.LOGGER.info(basicState.toString());
+            CUtil.LOGGER.info(basicState.toString());
         }
 
         GamepadState.AxesState deadzoneAxesState = basicState.axes()

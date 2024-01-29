@@ -1,7 +1,7 @@
 package dev.isxander.controlify.rumble;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 
@@ -24,7 +24,7 @@ public record RumbleSource(ResourceLocation id) {
     public static RumbleSource get(ResourceLocation id) {
         RumbleSource source = SOURCES.get(id);
         if (source == null) {
-            Log.LOGGER.warn("Unknown rumble source: {}. Using master.", id);
+            CUtil.LOGGER.warn("Unknown rumble source: {}. Using master.", id);
             return MASTER;
         }
         return source;

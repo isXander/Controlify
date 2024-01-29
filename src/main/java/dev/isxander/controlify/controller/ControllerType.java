@@ -2,7 +2,7 @@ package dev.isxander.controlify.controller;
 
 import com.google.common.collect.ImmutableMap;
 import dev.isxander.controlify.hid.HIDIdentifier;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -21,7 +21,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
         if (getTypeMap().containsKey(hid)) {
             return getTypeMap().get(hid);
         } else {
-            Log.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid);
+            CUtil.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid);
             return ControllerType.UNKNOWN;
         }
     }
@@ -43,7 +43,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                     readControllerIdFiles(reader);
 
                 } catch (Exception e) {
-                    Log.LOGGER.error("Failed to load HID DB from source", e);
+                    CUtil.LOGGER.error("Failed to load HID DB from source", e);
                 }
             }
         } catch (Exception e) {
@@ -83,7 +83,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                                 } else if (productId == -1) {
                                     productId = reader.nextInt();
                                 } else {
-                                    Log.LOGGER.warn("Too many values in HID array. Skipping...");
+                                    CUtil.LOGGER.warn("Too many values in HID array. Skipping...");
                                     reader.skipValue();
                                 }
                             }
@@ -95,7 +95,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                     case "force_joystick" -> forceJoystick = reader.nextBoolean();
                     case "dont_load" -> dontLoad = reader.nextBoolean();
                     default -> {
-                        Log.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
+                        CUtil.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
                         reader.skipValue();
                     }
                 }
@@ -103,13 +103,13 @@ public record ControllerType(String friendlyName, String mappingId, String theme
             reader.endObject();
 
             if (legacyIdentifier != null) {
-                Log.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
+                CUtil.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
                 themeId = legacyIdentifier;
                 mappingId = legacyIdentifier;
             }
 
             if (friendlyName == null || themeId == null || hids.isEmpty()) {
-                Log.LOGGER.warn("Invalid entry in HID DB. Skipping...");
+                CUtil.LOGGER.warn("Invalid entry in HID DB. Skipping...");
                 continue;
             }
 

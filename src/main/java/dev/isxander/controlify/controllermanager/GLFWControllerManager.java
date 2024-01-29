@@ -3,7 +3,7 @@ package dev.isxander.controlify.controllermanager;
 import com.google.common.io.ByteStreams;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import org.lwjgl.glfw.GLFW;
@@ -37,7 +37,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
                     getController(jid).ifPresent(this::onControllerRemoved);
                 }
             } catch (Throwable e) {
-                Log.LOGGER.error("Failed to handle controller connect/disconnect event", e);
+                CUtil.LOGGER.error("Failed to handle controller connect/disconnect event", e);
             }
         });
     }
@@ -60,17 +60,17 @@ public class GLFWControllerManager extends AbstractControllerManager {
 
     @Override
     protected void loadGamepadMappings(Resource resource) {
-        Log.LOGGER.debug("Loading gamepad mappings...");
+        CUtil.LOGGER.debug("Loading gamepad mappings...");
 
         try (InputStream is = resource.open()) {
             byte[] bytes = ByteStreams.toByteArray(is);
             ByteBuffer buffer = MemoryUtil.memASCIISafe(new String(bytes));
 
             if (!GLFW.glfwUpdateGamepadMappings(buffer)) {
-                Log.LOGGER.error("Failed to load gamepad mappings: {}", GLFW.glfwGetError(null));
+                CUtil.LOGGER.error("Failed to load gamepad mappings: {}", GLFW.glfwGetError(null));
             }
         } catch (Throwable e) {
-            Log.LOGGER.error("Failed to load gamepad mappings: {}", e.getMessage());
+            CUtil.LOGGER.error("Failed to load gamepad mappings: {}", e.getMessage());
         }
     }
 

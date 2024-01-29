@@ -41,6 +41,8 @@
     "feature.guide.screen.AbstractContainerScreenAccessor",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
+    "feature.handheld.autokeybard.ChatScreenMixin",
+    "feature.handheld.autokeybard.ScreenMixin",
     "feature.input.MinecraftMixin",
     "feature.oofinput.GameRendererMixin",
     "feature.patches.boatfix.BoatMixin",

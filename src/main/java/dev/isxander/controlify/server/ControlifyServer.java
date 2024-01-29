@@ -1,7 +1,7 @@
 package dev.isxander.controlify.server;
 
 import dev.isxander.controlify.sound.ControlifySounds;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -23,8 +23,8 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
         ControlifyServerConfig.INSTANCE.load();
         ControlifyServerConfig.INSTANCE.save();
 
-        Log.LOGGER.info("Reach-around policy: " + ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy);
-        Log.LOGGER.info("No-fly drift policy: " + ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy);
+        CUtil.LOGGER.info("Reach-around policy: " + ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy);
+        CUtil.LOGGER.info("No-fly drift policy: " + ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy);
 
         ServerPlayConnectionEvents.INIT.register((handler, server) -> {
             ServerPlayNetworking.send(handler.getPlayer(), new ServerPolicyPacket(ServerPolicies.REACH_AROUND.getId(), ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));

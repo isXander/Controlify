@@ -9,7 +9,7 @@ import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import org.apache.commons.lang3.SerializationUtils;
 import org.lwjgl.glfw.GLFW;
 
@@ -104,7 +104,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         try {
             newConfig = gson.fromJson(json, new TypeToken<C>(getClass()){}.getType());
         } catch (Throwable e) {
-            Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead. Printing json: " + json.toString(), e);
+            CUtil.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead. Printing json: " + json.toString(), e);
             Controlify.instance().config().setDirty();
             return;
         }
@@ -112,7 +112,7 @@ public abstract class AbstractController<S extends ControllerState, C extends Co
         if (newConfig != null) {
             this.config = newConfig;
         } else {
-            Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
+            CUtil.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = SerializationUtils.clone(defaultConfig());
             Controlify.instance().config().setDirty();
         }

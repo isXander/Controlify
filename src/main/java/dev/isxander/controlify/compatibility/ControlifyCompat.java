@@ -2,7 +2,7 @@ package dev.isxander.controlify.compatibility;
 
 import dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat;
 import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 
@@ -35,7 +35,7 @@ public class ControlifyCompat {
             try {
                 runnable.run();
             } catch (Throwable t) {
-                Log.LOGGER.error("Failed to run compatibility code for {}, potentially unsupported version? Disabling '{}' compat for this instance.", modid, modid, t);
+                CUtil.LOGGER.error("Failed to run compatibility code for {}, potentially unsupported version? Disabling '{}' compat for this instance.", modid, modid, t);
             }
         }
     }

@@ -5,7 +5,7 @@ import dev.isxander.controlify.controller.BatteryLevel;
 import dev.isxander.controlify.controller.gamepad.GamepadState;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.*;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import io.github.libsdl4j.api.gamecontroller.SDL_GameController;
 import net.minecraft.util.Mth;
 
@@ -49,9 +49,9 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
                     memory.read(0, gyro, 0, gyro.length);
 
                     gyroDelta = new GamepadState.GyroState(gyro[0], gyro[1], gyro[2]);
-                    if (DebugProperties.PRINT_GYRO) Log.LOGGER.info("Gyro delta: " + gyroDelta);
+                    if (DebugProperties.PRINT_GYRO) CUtil.LOGGER.info("Gyro delta: " + gyroDelta);
                 } else {
-                    Log.LOGGER.error("Could not get gyro data: " + SDL_GetError());
+                    CUtil.LOGGER.error("Could not get gyro data: " + SDL_GetError());
                 }
             }
 
@@ -102,7 +102,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
         // duration of 0 is infinite
         if (SDL_GameControllerRumble(ptrGamepad, (short)(strongMagnitude * 0xFFFF), (short)(weakMagnitude * 0xFFFF), 0) != 0) {
-            Log.LOGGER.error("Could not rumble controller: " + SDL_GetError());
+            CUtil.LOGGER.error("Could not rumble controller: " + SDL_GetError());
             return false;
         }
         return true;
@@ -114,7 +114,7 @@ public class SDL2GamepadDriver implements BasicGamepadInputDriver, GyroDriver, R
 
         // duration of 0 is infinite
         if (SDL_GameControllerRumbleTriggers(ptrGamepad, (short)(left * 0xFFFF), (short)(right * 0xFFFF), 0) != 0) {
-            Log.LOGGER.error("Could not rumble controller trigger: " + SDL_GetError());
+            CUtil.LOGGER.error("Could not rumble controller trigger: " + SDL_GetError());
             return false;
         }
         return true;

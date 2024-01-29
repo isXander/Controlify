@@ -5,7 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
@@ -48,7 +48,7 @@ public class ControlifyConfig {
     }
 
     public void save() {
-        Log.LOGGER.info("Saving Controlify config...");
+        CUtil.LOGGER.info("Saving Controlify config...");
 
         try {
             Files.deleteIfExists(CONFIG_PATH);
@@ -60,7 +60,7 @@ public class ControlifyConfig {
     }
 
     public void load() {
-        Log.LOGGER.info("Loading Controlify config...");
+        CUtil.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
             if (lastSeenVersion == null) {
@@ -79,7 +79,7 @@ public class ControlifyConfig {
         try {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
         } catch (Exception e) {
-            Log.LOGGER.error("Failed to load Controlify config!", e);
+            CUtil.LOGGER.error("Failed to load Controlify config!", e);
         }
 
         if (dirty) {
@@ -91,7 +91,7 @@ public class ControlifyConfig {
     private JsonObject generateConfig() {
         JsonObject config = new JsonObject();
 
-        config.addProperty("last_seen_version", Log.VERSION.getFriendlyString());
+        config.addProperty("last_seen_version", CUtil.VERSION.getFriendlyString());
 
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
@@ -125,7 +125,7 @@ public class ControlifyConfig {
         if (lastSeenVersion == null) {
             boolean hasLastSeenVersion = object.has("last_seen_version");
             lastSeenVersion = hasLastSeenVersion ? Version.parse(object.get("last_seen_version").getAsString()) : Version.parse("0.0.0");
-            if (!hasLastSeenVersion || lastSeenVersion.compareTo(Log.VERSION) < 0) {
+            if (!hasLastSeenVersion || lastSeenVersion.compareTo(CUtil.VERSION) < 0) {
                 setDirty();
             }
         }
@@ -186,7 +186,7 @@ public class ControlifyConfig {
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
             controller.setConfig(GSON, object.getAsJsonObject("config"));
         } catch (Exception e) {
-            Log.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
+            CUtil.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
             controller.resetConfig();
             save();
         }

@@ -7,13 +7,12 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
 import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
-import dev.isxander.controlify.controller.joystick.SingleJoystickController;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.DebugLog;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -91,7 +90,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerConnected(Controller<?, ?> controller, boolean hotplug) {
-        Log.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
+        CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
         boolean newController = controlify.config().loadOrCreateControllerData(controller);
 
@@ -99,7 +98,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerRemoved(Controller<?, ?> controller) {
-        Log.LOGGER.info("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
+        CUtil.LOGGER.info("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
 
         controller.hidInfo().ifPresent(controlify.controllerHIDService()::unconsumeController);
         removeController(controller.uid());
@@ -145,12 +144,12 @@ public abstract class AbstractControllerManager implements ControllerManager {
         Controlify.instance().config().getCompoundJoysticks().values().forEach(info -> {
             try {
                 if (info.isLoaded() && !info.canBeUsed()) {
-                    Log.LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
+                    CUtil.LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
                     removeController(info.type().mappingId());
                 }
 
                 if (!info.isLoaded() && info.canBeUsed()) {
-                    Log.LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
+                    CUtil.LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
                     CompoundJoystickController controller = info.attemptCreate().orElseThrow();
                     controllersByUid.put(info.type().mappingId(), controller);
                     Controlify.instance().config().loadOrCreateControllerData(controller);

@@ -5,7 +5,7 @@ import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.controller.joystick.render.JoystickRenderer;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,7 +48,7 @@ public class RPJoystickMapping implements JoystickMapping {
                     hats = readHats(reader, type);
                 }
                 default -> {
-                    Log.LOGGER.warn("Unknown field in joystick mapping: " + name + ". Expected values: ['axes', 'buttons', 'hats']");
+                    CUtil.LOGGER.warn("Unknown field in joystick mapping: " + name + ". Expected values: ['axes', 'buttons', 'hats']");
                     reader.skipValue();
                 }
             }
@@ -111,7 +111,7 @@ public class RPJoystickMapping implements JoystickMapping {
                                     }
                                     default -> {
                                         reader.skipValue();
-                                        Log.LOGGER.info("Unknown axis range property: " + rangeName + ". Expected are ['in', 'out']");
+                                        CUtil.LOGGER.info("Unknown axis range property: " + rangeName + ". Expected are ['in', 'out']");
                                     }
                                 }
                             }
@@ -135,7 +135,7 @@ public class RPJoystickMapping implements JoystickMapping {
                     }
                     default -> {
                         reader.skipValue();
-                        Log.LOGGER.info("Unknown axis property: " + name + ". Expected are ['identifier', 'axis_names', 'ids', 'range', 'rest', 'deadzone']");
+                        CUtil.LOGGER.info("Unknown axis property: " + name + ". Expected are ['identifier', 'axis_names', 'ids', 'range', 'rest', 'deadzone']");
                     }
                 }
             }
@@ -166,7 +166,7 @@ public class RPJoystickMapping implements JoystickMapping {
                     case "name" -> btnName = reader.nextString();
                     default -> {
                         reader.skipValue();
-                        Log.LOGGER.info("Unknown button property: " + name + ". Expected are ['button', 'name']");
+                        CUtil.LOGGER.info("Unknown button property: " + name + ". Expected are ['button', 'name']");
                     }
                 }
             }
@@ -214,11 +214,11 @@ public class RPJoystickMapping implements JoystickMapping {
                         reader.endObject();
 
                         if (axisId == -1) {
-                            Log.LOGGER.error("No axis id defined for emulated hat " + hatName + "! Skipping.");
+                            CUtil.LOGGER.error("No axis id defined for emulated hat " + hatName + "! Skipping.");
                             continue;
                         }
                         if (states.size() != JoystickState.HatState.values().length) {
-                            Log.LOGGER.error("Not all hat states are defined for emulated hat " + hatName + "! Skipping.");
+                            CUtil.LOGGER.error("Not all hat states are defined for emulated hat " + hatName + "! Skipping.");
                             continue;
                         }
 
@@ -226,7 +226,7 @@ public class RPJoystickMapping implements JoystickMapping {
                     }
                     default -> {
                         reader.skipValue();
-                        Log.LOGGER.info("Unknown hat property: " + name + ". Expected are ['hat', 'name']");
+                        CUtil.LOGGER.info("Unknown hat property: " + name + ". Expected are ['hat', 'name']");
                     }
                 }
             }
@@ -257,14 +257,14 @@ public class RPJoystickMapping implements JoystickMapping {
     public static JoystickMapping fromType(JoystickController<?> joystick) {
         var resource = Minecraft.getInstance().getResourceManager().getResource(new ResourceLocation("controlify", "mappings/" + joystick.type().mappingId() + ".json"));
         if (resource.isEmpty()) {
-            Log.LOGGER.warn("No joystick mapping found for controller type: '{}' - using unmapped", joystick.type().mappingId());
+            CUtil.LOGGER.warn("No joystick mapping found for controller type: '{}' - using unmapped", joystick.type().mappingId());
             return new UnmappedJoystickMapping(joystick.joystickId());
         }
 
         try (var reader = JsonReader.json5(resource.get().openAsReader())) {
             return new RPJoystickMapping(reader, joystick.type());
         } catch (Exception e) {
-            Log.LOGGER.error("Failed to load joystick mapping for controller: '" + joystick.type().mappingId() + "'", e);
+            CUtil.LOGGER.error("Failed to load joystick mapping for controller: '" + joystick.type().mappingId() + "'", e);
             return new UnmappedJoystickMapping(joystick.joystickId());
         }
     }

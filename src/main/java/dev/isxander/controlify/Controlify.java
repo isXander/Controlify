@@ -11,6 +11,7 @@ import dev.isxander.controlify.controller.joystick.mapping.UnmappedJoystickMappi
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.controller.Controller;
@@ -94,7 +95,7 @@ public class Controlify implements ControlifyApi {
     public void preInitialiseControlify() {
         DebugProperties.printProperties();
 
-        Log.LOGGER.info("Pre-initializing Controlify...");
+        CUtil.LOGGER.info("Pre-initializing Controlify...");
 
         this.inGameInputHandler = null; // set when the current controller changes
         this.virtualMouseHandler = new VirtualMouseHandler();
@@ -123,7 +124,7 @@ public class Controlify implements ControlifyApi {
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(ServerPolicyPacket.TYPE, (packet, player, sender) -> {
-            Log.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
+            CUtil.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
@@ -135,7 +136,7 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControlifyPreInit(this);
             } catch (Exception e) {
-                Log.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
             }
         });
     }
@@ -148,7 +149,7 @@ public class Controlify implements ControlifyApi {
      * as one or more controllers are connected.
      */
     public void initializeControlify() {
-        Log.LOGGER.info("Initializing Controlify...");
+        CUtil.LOGGER.info("Initializing Controlify...");
 
         config().load();
 
@@ -193,7 +194,7 @@ public class Controlify implements ControlifyApi {
      */
     public void discoverControllers() {
         if (hasDiscoveredControllers) {
-            Log.LOGGER.warn("Attempted to discover controllers twice!");
+            CUtil.LOGGER.warn("Attempted to discover controllers twice!");
             return;
         }
         hasDiscoveredControllers = true;
@@ -203,7 +204,7 @@ public class Controlify implements ControlifyApi {
         controllerManager.discoverControllers();
 
         if (controllerManager.getConnectedControllers().isEmpty()) {
-            Log.LOGGER.info("No controllers found.");
+            CUtil.LOGGER.info("No controllers found.");
         }
 
         // if no controller is currently selected, pick one
@@ -232,7 +233,7 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControllersDiscovered(this);
             } catch (Throwable e) {
-                Log.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
             }
         });
     }
@@ -250,13 +251,14 @@ public class Controlify implements ControlifyApi {
         finishedInit = true;
 
         askNatives().whenComplete((loaded, th) -> {
-            Log.LOGGER.info("Finishing Controlify init...");
+            CUtil.LOGGER.info("Finishing Controlify init...");
 
             if (!loaded) {
-                Log.LOGGER.error("CONTROLIFY DID NOT LOAD SDL2 NATIVES. MANY FEATURES DISABLED!");
+                CUtil.LOGGER.error("CONTROLIFY DID NOT LOAD SDL2 NATIVES. MANY FEATURES DISABLED!");
             }
 
             controllerManager = loaded ? new SDLControllerManager() : new GLFWControllerManager();
+            GlobalDriver.createInstance();
 
             ClientTickEvents.START_CLIENT_TICK.register(this::tick);
             ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
@@ -379,7 +381,7 @@ public class Controlify implements ControlifyApi {
 
         // just say no if the platform doesn't support it
         if (!SDL2NativesManager.isSupportedOnThisPlatform()) {
-            Log.LOGGER.warn("SDL is not supported on this platform. Platform: {}", SDL2NativesManager.Target.CURRENT);
+            CUtil.LOGGER.warn("SDL is not supported on this platform. Platform: {}", SDL2NativesManager.Target.CURRENT);
             nativeOnboardingFuture = new CompletableFuture<>();
             minecraft.setScreen(new NoSDLScreen(() -> nativeOnboardingFuture.complete(false), minecraft.screen));
             return nativeOnboardingFuture;
@@ -483,7 +485,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (consecutiveInputSwitches > 100) {
-            Log.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
+            CUtil.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
                     Component.translatable("controlify.toast.faulty_input.description"),
@@ -668,7 +670,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (foundVersion != null) {
-            Log.LOGGER.info("Sending new features toast for {}", foundVersion);
+            CUtil.LOGGER.info("Sending new features toast for {}", foundVersion);
             ToastUtils.sendToast(
                     Component.translatable("controlify.new_features.title", foundVersion),
                     Component.translatable("controlify.new_features." + foundVersion),

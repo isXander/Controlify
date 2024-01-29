@@ -12,7 +12,7 @@ import dev.isxander.controlify.rumble.RumbleCapable;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -107,7 +107,7 @@ public class CompoundJoystickController implements JoystickController<JoystickCo
         if (newConfig != null) {
             this.config = newConfig;
         } else {
-            Log.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
+            CUtil.LOGGER.error("Could not set config for controller " + name() + " (" + uid() + ")! Using default config instead.");
             this.config = defaultConfig();
         }
         this.config.setup(this);

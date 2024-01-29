@@ -5,7 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.driver.SDL2NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ToastUtils;
 import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
 import net.minecraft.network.chat.Component;
@@ -43,7 +43,7 @@ public class ControllerHIDService {
             services = HidManager.getHidServices(specification);
             services.start();
         } catch (HidException e) {
-            Log.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
+            CUtil.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
             disabled = true;
         }
     }
@@ -60,14 +60,14 @@ public class ControllerHIDService {
         try {
             info = fetchType0(jid);
         } catch (Throwable e) {
-            Log.LOGGER.error("Failed to fetch controller type!", e);
+            CUtil.LOGGER.error("Failed to fetch controller type!", e);
             info = new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
         if (DebugProperties.PRINT_VID_PID) {
             info.hidDevice.ifPresent(hid -> {
                 var hex = HexFormat.of().withPrefix("0x");
-                Log.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
+                CUtil.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
             });
         }
 
@@ -97,7 +97,7 @@ public class ControllerHIDService {
 
         Pair<HidDevice, HIDIdentifier> hid = unconsumedControllerHIDs.poll();
         if (hid == null) {
-            Log.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
+            CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
 
             return fetchTypeFromSDL(jid)
                     .orElse(new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()));
@@ -161,7 +161,7 @@ public class ControllerHIDService {
             SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(jid);
 
             if (vid != 0 && pid != 0) {
-                Log.LOGGER.info("Using SDL to identify controller type.");
+                CUtil.LOGGER.info("Using SDL to identify controller type.");
                 return Optional.of(new ControllerHIDInfo(
                         ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
                         Optional.of(new HIDDevice.SDLHidApi(vid, pid, guid.toString()))

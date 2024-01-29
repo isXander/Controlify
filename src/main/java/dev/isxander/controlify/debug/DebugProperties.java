@@ -1,6 +1,6 @@
 package dev.isxander.controlify.debug;
 
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.util.ArrayList;
@@ -32,17 +32,17 @@ public class DebugProperties {
             return;
 
         String header = "*----------------- Controlify Debug Properties -----------------*";
-        Log.LOGGER.error(header);
+        CUtil.LOGGER.error(header);
 
         int maxWidth = properties.stream().mapToInt(prop -> prop.name().length()).max().orElse(0);
         for (var prop : properties) {
             String line = "| %s%s = %s".formatted(prop.name(), " ".repeat(maxWidth - prop.name().length()), prop.enabled());
             line += " ".repeat(header.length() - line.length() - 1) + "|";
 
-            Log.LOGGER.error(line);
+            CUtil.LOGGER.error(line);
         }
 
-        Log.LOGGER.error("*---------------------------------------------------------------*");
+        CUtil.LOGGER.error("*---------------------------------------------------------------*");
     }
 
     private static boolean boolProp(String name, boolean defProd, boolean defDev) {

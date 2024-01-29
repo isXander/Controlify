@@ -7,7 +7,7 @@ import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.ClientUtils;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
@@ -149,14 +149,14 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() / 100 != 2) {
-                Log.LOGGER.error("Received non-2xx status code from '{}', got {} with body '{}'", SUBMISSION_URL, response.statusCode(), response.body());
+                CUtil.LOGGER.error("Received non-2xx status code from '{}', got {} with body '{}'", SUBMISSION_URL, response.statusCode(), response.body());
                 return false;
             }
 
-            Log.LOGGER.info("Successfully sent controller information to '{}'", SUBMISSION_URL);
+            CUtil.LOGGER.info("Successfully sent controller information to '{}'", SUBMISSION_URL);
             return true;
         } catch (Exception e) {
-            Log.LOGGER.error("Failed to submit controller to '%s'".formatted(SUBMISSION_URL), e);
+            CUtil.LOGGER.error("Failed to submit controller to '%s'".formatted(SUBMISSION_URL), e);
             return false;
         }
     }

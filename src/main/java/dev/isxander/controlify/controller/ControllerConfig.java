@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.resources.ResourceLocation;
@@ -29,7 +30,8 @@ public abstract class ControllerConfig implements Serializable {
     public boolean ingameGuideBottom = false;
     public boolean showScreenGuide = true;
 
-    public float chatKeyboardHeight = 0f;
+    public boolean showOnScreenKeyboard = GlobalDriver.get().onScreenKeyboard().isOnScreenKeyboardSupported();
+    public float chatKeyboardHeight = showOnScreenKeyboard ? 0.5f : 0f;
 
     public boolean reduceAimingSensitivity = true;
 

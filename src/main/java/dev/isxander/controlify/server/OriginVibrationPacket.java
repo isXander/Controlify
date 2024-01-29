@@ -2,7 +2,6 @@ package dev.isxander.controlify.server;
 
 import dev.isxander.controlify.rumble.*;
 import dev.isxander.controlify.utils.Easings;
-import dev.isxander.controlify.utils.Log;
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;

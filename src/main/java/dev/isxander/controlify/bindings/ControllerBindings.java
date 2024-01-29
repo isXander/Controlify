@@ -9,12 +9,11 @@ import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
 import dev.isxander.controlify.controller.gamepad.GamepadLike;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.ChatFormatting;
@@ -595,14 +594,14 @@ public class ControllerBindings<T extends ControllerState> {
         boolean clean = true;
         for (var binding : registry().values()) {
             if (!json.has(binding.id().toString())) {
-                Log.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
+                CUtil.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
                 clean = false;
                 continue;
             }
 
             var bind = json.get(binding.id().toString()).getAsJsonObject();
             if (bind == null) {
-                Log.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
+                CUtil.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
                 clean = false;
                 continue;
             }
@@ -641,7 +640,7 @@ public class ControllerBindings<T extends ControllerState> {
 
                 register(binding);
             } catch (Exception e) {
-                Log.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
+                CUtil.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
             }
         }
     }

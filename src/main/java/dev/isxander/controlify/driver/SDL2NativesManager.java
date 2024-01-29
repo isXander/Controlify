@@ -3,7 +3,7 @@ package dev.isxander.controlify.driver;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.TrackingBodySubscriber;
 import dev.isxander.controlify.utils.TrackingConsumer;
 import io.github.libsdl4j.jna.SdlNativeLibraryLoader;
@@ -55,7 +55,7 @@ public class SDL2NativesManager {
         attemptedLoad = true;
 
         if (!isSupportedOnThisPlatform()) {
-            Log.LOGGER.warn("No native library for current platform, skipping SDL2 load");
+            CUtil.LOGGER.warn("No native library for current platform, skipping SDL2 load");
             return initFuture = CompletableFuture.completedFuture(false);
         }
 
@@ -66,7 +66,7 @@ public class SDL2NativesManager {
             if (success)
                 return initFuture = CompletableFuture.completedFuture(true);
 
-            Log.LOGGER.warn("Failed to load SDL2 from local file, attempting to re-download");
+            CUtil.LOGGER.warn("Failed to load SDL2 from local file, attempting to re-download");
         }
         return initFuture = downloadAndStart(localLibraryPath);
     }
@@ -80,7 +80,7 @@ public class SDL2NativesManager {
             loaded = true;
             return true;
         } catch (Throwable e) {
-            Log.LOGGER.error("Failed to start SDL2", e);
+            CUtil.LOGGER.error("Failed to start SDL2", e);
             return false;
         }
     }
@@ -103,11 +103,11 @@ public class SDL2NativesManager {
 
         // initialise SDL with just joystick and gamecontroller subsystems
         if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER | SDL_INIT_EVENTS) != 0) {
-            Log.LOGGER.error("Failed to initialise SDL2: " + SDL_GetError());
+            CUtil.LOGGER.error("Failed to initialise SDL2: " + SDL_GetError());
             throw new RuntimeException("Failed to initialise SDL2: " + SDL_GetError());
         }
 
-        Log.LOGGER.info("Initialised SDL4j {}", SDL2_VERSION);
+        CUtil.LOGGER.info("Initialised SDL4j {}", SDL2_VERSION);
     }
 
     private static CompletableFuture<Boolean> downloadAndStart(Path localLibraryPath) {
@@ -128,7 +128,7 @@ public class SDL2NativesManager {
             Files.createDirectories(path.getParent());
             Files.createFile(path);
         } catch (Exception e) {
-            Log.LOGGER.error("Failed to delete existing SDL2 native library file", e);
+            CUtil.LOGGER.error("Failed to delete existing SDL2 native library file", e);
             return CompletableFuture.completedFuture(false);
         }
 
@@ -156,10 +156,10 @@ public class SDL2NativesManager {
                                 (received, total) -> downloadScreen.get().updateDownloadProgress(received),
                                 error -> {
                                     if (error.isPresent()) {
-                                        Log.LOGGER.error("Failed to download SDL2 native library", error.get());
+                                        CUtil.LOGGER.error("Failed to download SDL2 native library", error.get());
                                         minecraft.execute(() -> downloadScreen.get().failDownload(error.get()));
                                     } else {
-                                        Log.LOGGER.debug("Finished downloading SDL2 native library");
+                                        CUtil.LOGGER.debug("Finished downloading SDL2 native library");
                                         minecraft.execute(() -> downloadScreen.get().finishDownload());
                                     }
                                 }
@@ -167,7 +167,7 @@ public class SDL2NativesManager {
                 )
         ).handle((response, throwable) -> {
             if (throwable != null) {
-                Log.LOGGER.error("Failed to download SDL2 native library", throwable);
+                CUtil.LOGGER.error("Failed to download SDL2 native library", throwable);
                 return false;
             }
 
@@ -195,7 +195,7 @@ public class SDL2NativesManager {
             try {
                 nativesFolderPath = Path.of(customPath);
             } catch (InvalidPathException e) {
-                Log.LOGGER.error("Invalid custom SDL2 native library path. Using default and resetting custom path.", e);
+                CUtil.LOGGER.error("Invalid custom SDL2 native library path. Using default and resetting custom path.", e);
                 config.globalSettings().customVibrationNativesPath = "";
                 config.save();
             }

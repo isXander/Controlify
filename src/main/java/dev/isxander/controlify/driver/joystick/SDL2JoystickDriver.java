@@ -6,7 +6,7 @@ import dev.isxander.controlify.driver.BatteryDriver;
 import dev.isxander.controlify.driver.GUIDProvider;
 import dev.isxander.controlify.driver.NameProviderDriver;
 import dev.isxander.controlify.driver.RumbleDriver;
-import dev.isxander.controlify.utils.Log;
+import dev.isxander.controlify.utils.CUtil;
 import io.github.libsdl4j.api.joystick.SDL_Joystick;
 import net.minecraft.util.Mth;
 
@@ -99,7 +99,7 @@ public class SDL2JoystickDriver implements BasicJoystickInputDriver, RumbleDrive
 
         // duration of 0 is infinite
         if (SDL_JoystickRumble(ptrJoystick, (short)(strongMagnitude * 0xFFFF), (short)(weakMagnitude * 0xFFFF), 0) != 0) {
-            Log.LOGGER.error("Could not rumble controller: " + SDL_GetError());
+            CUtil.LOGGER.error("Could not rumble controller: " + SDL_GetError());
             return false;
         }
         return true;
@@ -111,7 +111,7 @@ public class SDL2JoystickDriver implements BasicJoystickInputDriver, RumbleDrive
 
         // duration of 0 is infinite
         if (SDL_JoystickRumbleTriggers(ptrJoystick, (short)(left * 0xFFFF), (short)(right * 0xFFFF), 0) != 0) {
-            Log.LOGGER.error("Could not rumble controller trigger: " + SDL_GetError());
+            CUtil.LOGGER.error("Could not rumble controller trigger: " + SDL_GetError());
             return false;
         }
         return true;
