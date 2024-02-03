@@ -13,7 +13,7 @@ public class CreateWorldScreenProcessor extends ScreenProcessor<CreateWorldScree
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             this.onCreateButton.run();
             this.playClackSound();

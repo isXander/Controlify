@@ -47,7 +47,7 @@ import java.util.Optional;
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
-    private final Controller<?, ?> controller;
+    private final Controller<?> controller;
     private final boolean editMode;
     private final Screen parent;
 
@@ -60,7 +60,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private final Processor processor = new Processor(this);
 
-    public RadialMenuScreen(Controller<?, ?> controller, boolean editMode, Screen parent) {
+    public RadialMenuScreen(Controller<?> controller, boolean editMode, Screen parent) {
         super(Component.empty());
         this.controller = controller;
         this.editMode = editMode;
@@ -110,7 +110,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     @Override
-    public void onControllerInput(Controller<?, ?> controller) {
+    public void onControllerInput(Controller<?> controller) {
         if (this.controller != controller) return;
 
         if (!editMode && !controller.bindings().RADIAL_MENU.held()) {
@@ -306,7 +306,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
             if (editMode && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
@@ -385,7 +385,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
             if (controller == RadialMenuScreen.this.controller) {
                 if (controller.bindings().GUI_BACK.justPressed()) {
                     finishEditing();
@@ -498,7 +498,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
 
             @Override
-            public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+            public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
                 if (controller == RadialMenuScreen.this.controller) {
                     if (controller.bindings().GUI_PRESS.justPressed()) {
                         controller.config().radialActions[radialIndex] = binding;

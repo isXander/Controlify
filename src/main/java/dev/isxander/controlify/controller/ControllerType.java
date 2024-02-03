@@ -1,21 +1,27 @@
 package dev.isxander.controlify.controller;
 
 import com.google.common.collect.ImmutableMap;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import org.jetbrains.annotations.Nullable;
 import org.quiltmc.json5.JsonReader;
 
 import java.io.IOException;
 import java.util.*;
 
-public record ControllerType(String friendlyName, String mappingId, String themeId, boolean forceJoystick, boolean dontLoad) {
-    public static final ControllerType UNKNOWN = new ControllerType("Unknown", "unknown", "unknown", false, false);
+public record ControllerType(@Nullable String friendlyName, String mappingId, String namespace, boolean forceJoystick, boolean dontLoad) {
+    public static final ControllerType UNKNOWN = new ControllerType(null, "unknown", "unknown", false, false);
 
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
+
+    public ResourceLocation getIconSprite() {
+        return Controlify.id("inputs/" + namespace + "/icon");
+    }
 
     public static ControllerType getTypeForHID(HIDIdentifier hid) {
         if (getTypeMap().containsKey(hid)) {
@@ -56,7 +62,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
         while (reader.hasNext()) {
             String friendlyName = null;
             String legacyIdentifier = null;
-            String themeId = null;
+            String namespace = "unknown";
             String mappingId = "unmapped";
             boolean forceJoystick = false;
             boolean dontLoad = false;
@@ -69,7 +75,7 @@ public record ControllerType(String friendlyName, String mappingId, String theme
                 switch (name) {
                     case "name" -> friendlyName = reader.nextString();
                     case "identifier" -> legacyIdentifier = reader.nextString();
-                    case "theme" -> themeId = reader.nextString();
+                    case "theme" -> namespace = reader.nextString();
                     case "mapping" -> mappingId = reader.nextString();
                     case "hids" -> {
                         reader.beginArray();
@@ -104,17 +110,17 @@ public record ControllerType(String friendlyName, String mappingId, String theme
 
             if (legacyIdentifier != null) {
                 CUtil.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
-                themeId = legacyIdentifier;
+                namespace = legacyIdentifier;
                 mappingId = legacyIdentifier;
             }
 
-            if (friendlyName == null || themeId == null || hids.isEmpty()) {
-                CUtil.LOGGER.warn("Invalid entry in HID DB. Skipping...");
+            if (hids.isEmpty()) {
+                CUtil.LOGGER.warn("HID DB entry does not specify any VID/PID. Skipping...");
                 continue;
             }
 
-            var type = new ControllerType(friendlyName, mappingId, themeId, forceJoystick, dontLoad);
-            for (var hid : hids) {
+            var type = new ControllerType(friendlyName, mappingId, namespace, forceJoystick, dontLoad);
+            for (HIDIdentifier hid : hids) {
                 typeMap.put(hid, type);
             }
         }

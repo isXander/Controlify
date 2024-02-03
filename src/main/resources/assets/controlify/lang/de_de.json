@@ -127,10 +127,10 @@
   "controlify.toast.low_battery.title": "Niedriger Akkustand",
   "controlify.toast.low_battery.message": "Der Akkustand deines Kontrollers '%s' ist niedrig. Bitte in Kürze aufladen.",
 
-  "controlify.sdl2_onboarding.title": "Controlify Native Dateien",
-  "controlify.sdl2_onboarding.message": "Viele Funktionen in Controlify benötigen zusätzliche herunterladbare Dateien. Falls du diese Dateien nicht runterlädst, werden einige Funktionen nicht verfügbar sein: Vibrationen, das Gyroskop, sowie bessere Kontroller-Erkennung. Das Runterladen ist ein nahtloser Prozess und dauert nur wenige Sekunden. Falls du dich dagegen entscheidest, kannst du das jederzeit nachholen, jedoch werden die genannten Funktionen bis dahin nicht verfügbar sein.",
-  "controlify.sdl2_onboarding.message_mac": "Auf MacOS werden die Dateien für jegliche Kontroller-Erkennung benötigt. Ohne werden alle Kontroller unidentifiziert bleiben und die Nutzererfahrung erheblich beeinträchtigt.",
-  "controlify.sdl2_onboarding.question": "Würdest du sie gerne herunterladen?",
+  "controlify.sdl3_onboarding.title": "Controlify Native Dateien",
+  "controlify.sdl3_onboarding.message": "Viele Funktionen in Controlify benötigen zusätzliche herunterladbare Dateien. Falls du diese Dateien nicht runterlädst, werden einige Funktionen nicht verfügbar sein: Vibrationen, das Gyroskop, sowie bessere Kontroller-Erkennung. Das Runterladen ist ein nahtloser Prozess und dauert nur wenige Sekunden. Falls du dich dagegen entscheidest, kannst du das jederzeit nachholen, jedoch werden die genannten Funktionen bis dahin nicht verfügbar sein.",
+  "controlify.sdl3_onboarding.message_mac": "Auf MacOS werden die Dateien für jegliche Kontroller-Erkennung benötigt. Ohne werden alle Kontroller unidentifiziert bleiben und die Nutzererfahrung erheblich beeinträchtigt.",
+  "controlify.sdl3_onboarding.question": "Würdest du sie gerne herunterladen?",
 
   "controlify.controller_theme.default": "Standard",
   "controlify.controller_theme.xbox_one": "Xbox",

@@ -9,11 +9,11 @@ import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.Nullable;
 
 public class ControllerPlayerMovement extends Input {
-    private final Controller<?, ?> controller;
+    private final Controller<?> controller;
     private final LocalPlayer player;
     private boolean wasFlying, wasPassenger;
 
-    public ControllerPlayerMovement(Controller<?, ?> controller, LocalPlayer player) {
+    public ControllerPlayerMovement(Controller<?> controller, LocalPlayer player) {
         this.controller = controller;
         this.player = player;
     }

@@ -13,7 +13,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
                 ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress();
@@ -25,7 +25,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     }
 
     @Override
-    protected void onTabChanged(Controller<?, ?> controller) {
+    protected void onTabChanged(Controller<?> controller) {
         if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
             ListHolderWidget<OptionListWidget> optionListHolder = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList();
             OptionListWidget optionList = optionListHolder.getList();

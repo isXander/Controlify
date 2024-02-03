@@ -3,7 +3,6 @@ package dev.isxander.controlify.controllermanager;
 import dev.isxander.controlify.controller.Controller;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ControllerManager {
     void discoverControllers();
@@ -12,11 +11,11 @@ public interface ControllerManager {
 
     boolean probeConnectedControllers();
 
-    List<Controller<?, ?>> getConnectedControllers();
+    List<Controller<?>> getConnectedControllers();
 
     boolean isControllerConnected(String uid);
 
-    boolean isControllerGamepad(int jid);
+    boolean isControllerGamepad(UniqueControllerID ucid);
 
     void close();
 }

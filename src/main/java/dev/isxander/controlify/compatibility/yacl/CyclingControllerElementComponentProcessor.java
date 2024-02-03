@@ -15,7 +15,7 @@ public class CyclingControllerElementComponentProcessor implements ComponentProc
     }
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?> controller) {
         var left = controller.bindings().CYCLE_OPT_BACKWARD.held();
         var right = controller.bindings().CYCLE_OPT_FORWARD.held();
 

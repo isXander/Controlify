@@ -13,7 +13,7 @@ public abstract class AbstractSliderComponentProcessor implements ComponentProce
     private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(15, 3);
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?> controller) {
         var left = controller.bindings().CYCLE_OPT_BACKWARD.held();
         var leftPrev = controller.bindings().CYCLE_OPT_BACKWARD.prevHeld();
         var right = controller.bindings().CYCLE_OPT_FORWARD.held();

@@ -22,14 +22,7 @@ public interface ControlifyApi {
      * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
      * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
      */
-    @NotNull Optional<Controller<?, ?>> getCurrentController();
-
-    /**
-     * @deprecated Use {@link #getCurrentController()} instead.
-     * @return the controller currently in use. If disabled, this will return {@link Controller#DUMMY}
-     */
-    @Deprecated
-    @NotNull Controller<?, ?> currentController();
+    @NotNull Optional<Controller<?>> getCurrentController();
 
     /**
      * The last input received: a controller or keyboard/mouse.

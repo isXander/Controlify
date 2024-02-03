@@ -2,44 +2,39 @@ package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.composable.ComposableControllerState;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
-public interface ControllerBindingBuilder<T extends ControllerState> {
-    static <T extends ControllerState> ControllerBindingBuilder<T> create(Controller<T, ?> controller) {
-        return new ControllerBindingImpl.ControllerBindingBuilderImpl<>(controller);
+public interface ControllerBindingBuilder {
+    static ControllerBindingBuilder create(Controller<?> controller) {
+        return new ControllerBindingImpl.ControllerBindingBuilderImpl(controller);
     }
 
     /**
      * Sets the identifier for the binding.
      * @param id the identifier for the binding, the namespace should be your modid.
      */
-    ControllerBindingBuilder<T> identifier(ResourceLocation id);
+    ControllerBindingBuilder identifier(ResourceLocation id);
 
     /**
      * Sets the identifier for the binding.
      * @param namespace the namespace for the binding, should be your modid.
      * @param path the path for the binding.
      */
-    ControllerBindingBuilder<T> identifier(String namespace, String path);
+    ControllerBindingBuilder identifier(String namespace, String path);
 
     /**
-     * The default bind for the binding. This is usually inaccessible due to unknown
-     * generics and {@link ControllerBindingBuilder#defaultBind(GamepadBinds)} should be used instead.
+     * The default bind for the binding.
      * @param bind the default bind
      */
-    ControllerBindingBuilder<T> defaultBind(IBind<T> bind);
+    ControllerBindingBuilder defaultBind(IBind bind);
 
-    /**
-     * Sets the default gamepad bind for the binding.
-     * If the controller is not a gamepad, the default is unbound.
-     * @param gamepadBind the default gamepad bind
-     */
-    ControllerBindingBuilder<T> defaultBind(GamepadBinds gamepadBind);
+    ControllerBindingBuilder hardcodedBind(Function<ComposableControllerState, Float> bind);
 
     /**
      * Sets the name of the binding.
@@ -50,7 +45,7 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      *
      * @param name the name of the binding
      */
-    ControllerBindingBuilder<T> name(Component name);
+    ControllerBindingBuilder name(Component name);
 
     /**
      * Sets the description of the binding.
@@ -61,7 +56,7 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      *
      * @param description the description of the binding
      */
-    ControllerBindingBuilder<T> description(Component description);
+    ControllerBindingBuilder description(Component description);
 
     /**
      * Sets the category of the binding.
@@ -69,11 +64,11 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      *
      * @param category the category of the binding
      */
-    ControllerBindingBuilder<T> category(Component category);
+    ControllerBindingBuilder category(Component category);
 
-    ControllerBindingBuilder<T> context(BindContext... contexts);
+    ControllerBindingBuilder context(BindContext... contexts);
 
-    ControllerBindingBuilder<T> radialCandidate(ResourceLocation icon);
+    ControllerBindingBuilder radialCandidate(ResourceLocation icon);
 
     /**
      * Specifies are vanilla override for the binding.
@@ -83,7 +78,7 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      * @param keyMapping the vanilla keybind to emulate
      * @param toggleable if the binding should be toggleable
      */
-    ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable);
+    ControllerBindingBuilder vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable);
 
     /**
      * Specifies are vanilla override for the binding.
@@ -92,7 +87,7 @@ public interface ControllerBindingBuilder<T extends ControllerState> {
      *
      * @param keyMapping the vanilla keybind to emulate
      */
-    ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping);
+    ControllerBindingBuilder vanillaOverride(KeyMapping keyMapping);
 
     ControllerBinding build();
 }

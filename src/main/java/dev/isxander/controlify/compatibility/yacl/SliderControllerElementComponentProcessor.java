@@ -15,7 +15,7 @@ public class SliderControllerElementComponentProcessor implements ComponentProce
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         var left = controller.bindings().CYCLE_OPT_BACKWARD.held();
         var leftPrev = controller.bindings().CYCLE_OPT_BACKWARD.prevHeld();
         var right = controller.bindings().CYCLE_OPT_FORWARD.held();

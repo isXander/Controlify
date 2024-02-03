@@ -7,7 +7,7 @@ import dev.isxander.controlify.mixins.feature.screenop.vanilla.JoinMultiplayerSc
 
 public class ServerSelectionListEntryComponentProcessor implements ComponentProcessor {
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             screen.screen.setFocused(((JoinMultiplayerScreenAccessor) screen.screen).getSelectButton());
             return true;

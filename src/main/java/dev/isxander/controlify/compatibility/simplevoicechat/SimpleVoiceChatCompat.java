@@ -31,25 +31,25 @@ public class SimpleVoiceChatCompat {
         pttHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_hold"), builder -> builder
                 .name(Component.translatable("key.push_to_talk").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
                 .category(category)
-                .defaultBind(new EmptyBind<>()));
+                .defaultBind(new EmptyBind()));
         pttToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_toggle"), builder -> builder
                 .name(Component.translatable("key.push_to_talk").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
                 .category(category)
-                .defaultBind(new EmptyBind<>())
+                .defaultBind(new EmptyBind())
                 .radialCandidate(pttIcon));
         whisperHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_hold"), builder -> builder
                 .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
                 .category(category)
-                .defaultBind(new EmptyBind<>()));
+                .defaultBind(new EmptyBind()));
         whisperToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_toggle"), builder -> builder
                 .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
                 .category(category)
-                .defaultBind(new EmptyBind<>())
+                .defaultBind(new EmptyBind())
                 .radialCandidate(whisperIcon));
         ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "mute_microphone"), builder -> builder
                 .name(Component.translatable("key.mute_microphone"))
                 .category(category)
-                .defaultBind(new EmptyBind<>())
+                .defaultBind(new EmptyBind())
                 .vanillaOverride(KeyEvents.KEY_MUTE)
                 .radialCandidate(muteIcon));
 

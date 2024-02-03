@@ -43,8 +43,10 @@ public class ChatComponentMixin {
         if (!(minecraft.screen instanceof ChatScreen))
             return original;
 
-        Controller<?, ?> controller = Controlify.instance().currentController();
-        if (controller.config().chatKeyboardHeight == 0) return original;
+        float kbHeight = Controlify.instance().getCurrentController()
+                .map(c -> c.config().chatKeyboardHeight)
+                .orElse(0f);
+        if (kbHeight == 0) return original;
         return 16;
     }
 
@@ -53,11 +55,13 @@ public class ChatComponentMixin {
         if (!(minecraft.screen instanceof ChatScreen))
             return original;
 
-        Controller<?, ?> controller = Controlify.instance().currentController();
-        if (controller.config().chatKeyboardHeight == 0) return original;
+        float kbHeight = Controlify.instance().getCurrentController()
+                .map(c -> c.config().chatKeyboardHeight)
+                .orElse(0f);
+        if (kbHeight == 0) return original;
 
         return original
-                - controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight()
+                - kbHeight * minecraft.getWindow().getGuiScaledHeight()
                 + 24;
     }
 }

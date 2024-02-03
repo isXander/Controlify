@@ -172,10 +172,10 @@
   "controlify.toast.reach_around_disallowed.title": "Tiếp cận xung quanh bị cấm",
   "controlify.toast.reach_around_disallowed.description": "Máy chủ này đã cấm sử dụng tiếp cận khối xung quanh vị trí mà bạn đã bật.",
 
-  "controlify.sdl2_onboarding.title": "Thư viện gốc của Controlify",
-  "controlify.sdl2_onboarding.message": "Nhiều tính năng trong Controlify yêu cầu một thư viện bổ sung cần được tải xuống cho hệ thống của bạn. Nếu bạn không tải xuống thư viện này, bạn sẽ mất quyền truy cập vào nhiều tính năng như: rung bộ điều khiển, điều khiển con quay hồi chuyển, nhận dạng bộ điều khiển tốt hơn. Đây là một quá trình liền mạch và sẽ chỉ mất vài giây. Nếu chọn không, bạn có thể đổi ý sau trong cài đặt Controlify, nhưng bạn sẽ không có quyền truy cập vào các tính năng này trong thời gian chờ đợi.",
-  "controlify.sdl2_onboarding.message_mac": "Vì bạn đang sử dụng macOS ARM nên thư viện này là bắt buộc đối với bất kỳ loại nhận dạng bộ điều khiển nào. Không có nó, tất cả các bộ điều khiển sẽ không được xác định. Điều này sẽ ảnh hưởng nghiêm trọng đến trải nghiệm người dùng nếu bạn chọn không tải chúng xuống.",
-  "controlify.sdl2_onboarding.question": "Bạn có muốn tải chúng xuống không?",
+  "controlify.sdl3_onboarding.title": "Thư viện gốc của Controlify",
+  "controlify.sdl3_onboarding.message": "Nhiều tính năng trong Controlify yêu cầu một thư viện bổ sung cần được tải xuống cho hệ thống của bạn. Nếu bạn không tải xuống thư viện này, bạn sẽ mất quyền truy cập vào nhiều tính năng như: rung bộ điều khiển, điều khiển con quay hồi chuyển, nhận dạng bộ điều khiển tốt hơn. Đây là một quá trình liền mạch và sẽ chỉ mất vài giây. Nếu chọn không, bạn có thể đổi ý sau trong cài đặt Controlify, nhưng bạn sẽ không có quyền truy cập vào các tính năng này trong thời gian chờ đợi.",
+  "controlify.sdl3_onboarding.message_mac": "Vì bạn đang sử dụng macOS ARM nên thư viện này là bắt buộc đối với bất kỳ loại nhận dạng bộ điều khiển nào. Không có nó, tất cả các bộ điều khiển sẽ không được xác định. Điều này sẽ ảnh hưởng nghiêm trọng đến trải nghiệm người dùng nếu bạn chọn không tải chúng xuống.",
+  "controlify.sdl3_onboarding.question": "Bạn có muốn tải chúng xuống không?",
 
   "controlify.controller_theme.default": "Mặc định",
   "controlify.controller_theme.xbox_one": "Xbox",

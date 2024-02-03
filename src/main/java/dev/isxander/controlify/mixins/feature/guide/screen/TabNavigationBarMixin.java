@@ -2,7 +2,6 @@ package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.Controller;
@@ -34,7 +33,7 @@ public class TabNavigationBarMixin {
         }
     }
 
-    private void renderControllerButtonOverlay(GuiGraphics graphics, Controller<?, ?> controller) {
+    private void renderControllerButtonOverlay(GuiGraphics graphics, Controller<?> controller) {
         ControlifyCompat.ifBeginHudBatching();
 
         TabButton firstTab = tabButtons.get(0);

@@ -14,7 +14,7 @@ public class LanguageSelectionListComponentProcessor implements ComponentProcess
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             var minecraft = Minecraft.getInstance();
             var languageManager = minecraft.getLanguageManager();

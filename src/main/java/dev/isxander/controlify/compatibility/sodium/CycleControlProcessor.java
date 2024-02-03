@@ -14,7 +14,7 @@ public class CycleControlProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (controller.bindings().CYCLE_OPT_FORWARD.justPressed() || controller.bindings().GUI_PRESS.justPressed()) {
             cycleMethod.accept(false);
             return true;

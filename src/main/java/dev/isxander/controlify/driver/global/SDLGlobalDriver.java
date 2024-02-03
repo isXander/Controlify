@@ -9,7 +9,7 @@ public class SDLGlobalDriver implements OnScreenKeyboardDriver {
 
     public SDLGlobalDriver() {
         screenKeyboardSupported = SDL_HasScreenKeyboardSupport();
-        CUtil.LOGGER.info("SDL2 screen keyboard supported: " + screenKeyboardSupported);
+        CUtil.LOGGER.info("SDL3 screen keyboard supported: " + screenKeyboardSupported);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class SDLGlobalDriver implements OnScreenKeyboardDriver {
 
     @Override
     public boolean isKeyboardShown() {
-        return SDL_IsScreenKeyboardShown(null);
+        return SDL_TextInputShown();
     }
 
     @Override
@@ -38,6 +38,6 @@ public class SDLGlobalDriver implements OnScreenKeyboardDriver {
 
     @Override
     public String keyboardDriverDetails() {
-        return "SDL2.supported=" + screenKeyboardSupported;
+        return "SDL3.supported=" + screenKeyboardSupported;
     }
 }

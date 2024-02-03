@@ -19,5 +19,5 @@ public record IngameGuideContext(Minecraft client,
                                  LocalPlayer player,
                                  ClientLevel level,
                                  HitResult hitResult,
-                                 Controller<?, ?> controller) {
+                                 Controller<?> controller) {
 }

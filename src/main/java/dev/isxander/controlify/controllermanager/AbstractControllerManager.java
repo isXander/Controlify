@@ -4,10 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
-import dev.isxander.controlify.controller.joystick.CompoundJoystickController;
-import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.ControllerUtils;
@@ -30,7 +26,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
     protected final Controlify controlify;
     protected final Minecraft minecraft;
 
-    protected final Map<String, Controller<?, ?>> controllersByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<UniqueControllerID, Controller<?>> controllersByJid = new Object2ObjectOpenHashMap<>();
+    protected final Map<String, Controller<?>> controllersByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<String, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
 
     public AbstractControllerManager() {
         this.controlify = Controlify.instance();
@@ -41,7 +39,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
                 .ifPresent(this::loadGamepadMappings);
     }
 
-    public Optional<Controller<?, ?>> createOrGet(int joystickIndex, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    public Optional<Controller<?>> createOrGet(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
         try {
             Optional<String> uid = hidInfo.createControllerUID();
             if (uid.isPresent() && controllersByUid.containsKey(uid.get())) {
@@ -49,34 +47,27 @@ public abstract class AbstractControllerManager implements ControllerManager {
             }
 
             if (hidInfo.type().dontLoad()) {
-                DebugLog.log("Preventing load of controller #" + joystickIndex + " because its type prevents loading.");
+                DebugLog.log("Preventing load of controller #" + ucid + " because its type prevents loading.");
                 return Optional.empty();
             }
 
-            if (this.isControllerGamepad(joystickIndex) && !DebugProperties.FORCE_JOYSTICK && !hidInfo.type().forceJoystick()) {
-                GamepadController controller = new GamepadController(joystickIndex, hidInfo);
-                this.addController(joystickIndex, controller);
-                return Optional.of(controller);
-            }
-
-            EmulatedGamepadController controller = new EmulatedGamepadController(joystickIndex, hidInfo);
-            this.addController(joystickIndex, controller);
-            return Optional.of(controller);
-
-//            SingleJoystickController controller = new SingleJoystickController(joystickIndex, hidInfo);
-//            this.addController(joystickIndex, controller);
-//            return Optional.of(controller);
+            Optional<Controller<?>> controller = createController(ucid, hidInfo);
+            controller.ifPresent(c -> addController(ucid, c));
+            return controller;
         } catch (Throwable e) {
-            CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + joystickIndex);
+            CUtil.LOGGER.error("Failed to create controller #" + ucid + "!", e);
+            CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
             CrashReportCategory category = crashReport.addCategory("Controller Info");
-            category.setDetail("Joystick ID", joystickIndex);
+            category.setDetail("Unique controller ID", ucid);
             category.setDetail("Controller identification", hidInfo.type());
             category.setDetail("HID path", hidInfo.hidDevice().map(HIDDevice::path).orElse("N/A"));
             category.setDetail("HID service status", Controlify.instance().controllerHIDService().isDisabled() ? "Disabled" : "Enabled");
-            category.setDetail("GLFW name", Optional.ofNullable(getControllerSystemName(joystickIndex)).orElse("N/A"));
+            category.setDetail("System name", Optional.ofNullable(getControllerSystemName(ucid)).orElse("N/A"));
             throw new ReportedException(crashReport);
         }
     }
+
+    protected abstract Optional<Controller<?>> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo);
 
     @Override
     public void tick(boolean outOfFocus) {
@@ -89,7 +80,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         }
     }
 
-    protected void onControllerConnected(Controller<?, ?> controller, boolean hotplug) {
+    protected void onControllerConnected(Controller<?> controller, boolean hotplug) {
         CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
         boolean newController = controlify.config().loadOrCreateControllerData(controller);
@@ -97,32 +88,31 @@ public abstract class AbstractControllerManager implements ControllerManager {
         ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
     }
 
-    protected void onControllerRemoved(Controller<?, ?> controller) {
+    protected void onControllerRemoved(Controller<?> controller) {
         CUtil.LOGGER.info("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
 
-        controller.hidInfo().ifPresent(controlify.controllerHIDService()::unconsumeController);
         removeController(controller.uid());
-        checkCompoundJoysticks();
 
         ControlifyEvents.CONTROLLER_DISCONNECTED.invoker().onControllerDisconnected(controller);
     }
 
-    protected void addController(int id, Controller<?, ?> controller) {
+    protected void addController(UniqueControllerID ucid, Controller<?> controller) {
         controllersByUid.put(controller.uid(), controller);
-        checkCompoundJoysticks();
+        controllersByJid.put(ucid, controller);
     }
 
     protected void removeController(String uid) {
-        Controller<?, ?> prev = controllersByUid.remove(uid);
+        Controller<?> prev = controllersByUid.remove(uid);
         if (prev != null) {
             prev.close();
         }
 
-        checkCompoundJoysticks();
+        Optional.ofNullable(hidInfoByUid.remove(uid))
+                .ifPresent(controlify.controllerHIDService()::unconsumeController);
     }
 
     @Override
-    public List<Controller<?, ?>> getConnectedControllers() {
+    public List<Controller<?>> getConnectedControllers() {
         return ImmutableList.copyOf(controllersByUid.values());
     }
 
@@ -138,25 +128,5 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     protected abstract void loadGamepadMappings(Resource resource);
 
-    protected abstract String getControllerSystemName(int joystickId);
-
-    private void checkCompoundJoysticks() {
-        Controlify.instance().config().getCompoundJoysticks().values().forEach(info -> {
-            try {
-                if (info.isLoaded() && !info.canBeUsed()) {
-                    CUtil.LOGGER.warn("Unloading compound joystick " + info.friendlyName() + " due to missing controllers.");
-                    removeController(info.type().mappingId());
-                }
-
-                if (!info.isLoaded() && info.canBeUsed()) {
-                    CUtil.LOGGER.info("Loading compound joystick " + info.type().mappingId() + ".");
-                    CompoundJoystickController controller = info.attemptCreate().orElseThrow();
-                    controllersByUid.put(info.type().mappingId(), controller);
-                    Controlify.instance().config().loadOrCreateControllerData(controller);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    protected abstract String getControllerSystemName(UniqueControllerID ucid);
 }

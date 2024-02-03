@@ -1,7 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.driver.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL3NativesManager;
 import it.unimi.dsi.fastutil.booleans.BooleanConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
@@ -22,15 +22,15 @@ public class SDLOnboardingScreen extends ConfirmScreen implements DontInteruptSc
                     Minecraft.getInstance().setScreen(lastScreen.get());
                     onAnswered.accept(yes);
                 },
-                Component.translatable("controlify.sdl2_onboarding.title").withStyle(ChatFormatting.BOLD),
+                Component.translatable("controlify.sdl3_onboarding.title").withStyle(ChatFormatting.BOLD),
                 Util.make(() -> {
-                    var message = Component.translatable("controlify.sdl2_onboarding.message");
+                    var message = Component.translatable("controlify.sdl3_onboarding.message");
 
-                    if (SDL2NativesManager.Target.CURRENT.isMacArm()) {
-                        message.append("\n").append(Component.translatable("controlify.sdl2_onboarding.message_mac").withStyle(ChatFormatting.RED));
+                    if (SDL3NativesManager.Target.CURRENT.isMacArm()) {
+                        message.append("\n").append(Component.translatable("controlify.sdl3_onboarding.message_mac").withStyle(ChatFormatting.RED));
                     }
 
-                    message.append("\n\n").append(Component.translatable("controlify.sdl2_onboarding.question"));
+                    message.append("\n\n").append(Component.translatable("controlify.sdl3_onboarding.question"));
 
                     return message;
                 })

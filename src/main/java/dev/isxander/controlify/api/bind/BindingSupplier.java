@@ -5,5 +5,5 @@ import org.jetbrains.annotations.NotNull;
 
 @FunctionalInterface
 public interface BindingSupplier {
-    ControllerBinding onController(@NotNull Controller<?, ?> controller);
+    ControllerBinding onController(@NotNull Controller<?> controller);
 }

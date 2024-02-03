@@ -4,9 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.controller.ControllerConfig;
 import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.composable.HatState;
 import dev.isxander.controlify.hid.ControllerHIDService;
-import dev.isxander.controlify.controller.joystick.JoystickConfig;
+import dev.isxander.controlify.controller.composable.joystick.JoystickConfig;
 import dev.isxander.controlify.controller.joystick.JoystickController;
 import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.controller.joystick.mapping.JoystickMapping;
@@ -32,7 +34,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
     private float axisState;
     private boolean shouldClearAxisNextTick;
     private boolean buttonState, shouldButtonPressNextTick;
-    private JoystickState.HatState hatState = JoystickState.HatState.CENTERED;
+    private HatState hatState = HatState.CENTERED;
     private boolean shouldCenterHatNextTick;
 
     public FakeController() {
@@ -52,7 +54,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
             }
 
             @Override
-            public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source) {
+            public RumbleState applyRumbleSourceStrength(RumbleState state, RumbleSource source, ControllerConfig config) {
                 return state;
             }
         });
@@ -127,7 +129,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
         }
         if (shouldCenterHatNextTick) {
             shouldCenterHatNextTick = false;
-            hatState = JoystickState.HatState.CENTERED;
+            hatState = HatState.CENTERED;
         }
     }
 
@@ -189,7 +191,7 @@ public class FakeController implements JoystickController<JoystickConfig> {
         this.shouldButtonPressNextTick = true;
     }
 
-    public void setHat(JoystickState.HatState hatState, boolean clearNextTick) {
+    public void setHat(HatState hatState, boolean clearNextTick) {
         this.hatState = hatState;
         this.shouldCenterHatNextTick = clearNextTick;
     }

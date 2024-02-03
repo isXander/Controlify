@@ -21,7 +21,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         super.handleButtons(controller);
 
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {

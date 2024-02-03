@@ -193,10 +193,10 @@
   "controlify.toast.new_server.title": "Nouveau serveur détecté",
   "controlify.toast.new_server.description": "Assurez-vous que les règles de ce serveur permettent le mouvement analogique des manettes. Sinon, ajoutez le serveur à la liste blanche des serveurs avec émulation des mouvements clavier dans les paramètres globaux de Controlify.",
 
-  "controlify.sdl2_onboarding.title": "Bibliothèque native Controlify",
-  "controlify.sdl2_onboarding.message": "De nombreuses fonctionnalités de Controlify nécessitent une bibliothèque supplémentaire à télécharger pour votre système. Si vous ne téléchargez pas cette bibliothèque, vous perdrez l'accès à de nombreuses fonctionnalités telles que : la vibration de la manette, le contrôle gyroscope, une meilleure identification de la manette. Ce processus est transparent et ne prendra que quelques secondes. Si vous choisissez non, vous pourrez changer d'avis plus tard dans les paramètres de Controlify, mais vous n'aurez pas accès à ces fonctionnalités entre-temps.",
-  "controlify.sdl2_onboarding.message_mac": "Comme vous êtes sur macOS ARM, cette bibliothèque est nécessaire pour toute sorte d'identification de manette. Sans elle, toutes les manettes seront non identifiées. Cela affectera considérablement l'expérience utilisateur si vous choisissez de ne pas les télécharger.",
-  "controlify.sdl2_onboarding.question": "Souhaitez-vous les télécharger ?",
+  "controlify.sdl3_onboarding.title": "Bibliothèque native Controlify",
+  "controlify.sdl3_onboarding.message": "De nombreuses fonctionnalités de Controlify nécessitent une bibliothèque supplémentaire à télécharger pour votre système. Si vous ne téléchargez pas cette bibliothèque, vous perdrez l'accès à de nombreuses fonctionnalités telles que : la vibration de la manette, le contrôle gyroscope, une meilleure identification de la manette. Ce processus est transparent et ne prendra que quelques secondes. Si vous choisissez non, vous pourrez changer d'avis plus tard dans les paramètres de Controlify, mais vous n'aurez pas accès à ces fonctionnalités entre-temps.",
+  "controlify.sdl3_onboarding.message_mac": "Comme vous êtes sur macOS ARM, cette bibliothèque est nécessaire pour toute sorte d'identification de manette. Sans elle, toutes les manettes seront non identifiées. Cela affectera considérablement l'expérience utilisateur si vous choisissez de ne pas les télécharger.",
+  "controlify.sdl3_onboarding.question": "Souhaitez-vous les télécharger ?",
   "controlify.downloading_sdl.title": "Téléchargement de SDL",
   "controlify.downloading_sdl.info": "Téléchargement d'une mise à jour de la bibliothèque native utilisée par Controlify. Vous voyez ceci car vous avez choisi de télécharger les fichiers natifs lors du premier lancement.\nCela prendra seulement quelques secondes.",
 

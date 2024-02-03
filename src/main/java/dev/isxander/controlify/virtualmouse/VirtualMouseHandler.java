@@ -7,6 +7,8 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.composable.TouchpadState;
+import dev.isxander.controlify.controller.composable.gamepad.GamepadInputs;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -28,6 +30,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.lang.Math;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Set;
 
 public class VirtualMouseHandler {
@@ -37,6 +40,8 @@ public class VirtualMouseHandler {
     private double currentX, currentY;
 
     private double scrollX, scrollY;
+
+    private float prevXFinger, prevYFinger;
 
     private final Minecraft minecraft;
     private boolean virtualMouseEnabled;
@@ -57,7 +62,7 @@ public class VirtualMouseHandler {
         ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
     }
 
-    public void handleControllerInput(Controller<?, ?> controller) {
+    public void handleControllerInput(Controller<?> controller) {
         if (controller.bindings().VMOUSE_TOGGLE.justPressed()) {
             toggleVirtualMouse();
         }
@@ -66,6 +71,21 @@ public class VirtualMouseHandler {
             return;
         }
 
+        List<TouchpadState.Finger> fingerDeltas = ControllerUtils.deltaFingers(
+                controller.state().getTouchpadState(),
+                controller.prevState().getTouchpadState()
+        );
+        float xImpulseFinger = 0;
+        float yImpulseFinger = 0;
+        if (!fingerDeltas.isEmpty()) {
+            TouchpadState.Finger finger = fingerDeltas.get(0);
+            xImpulseFinger = finger.position().x();
+            yImpulseFinger = finger.position().y();
+
+            // finger pos is in range 0-1, so we need to scale it up loads
+            xImpulseFinger *= 20;
+            yImpulseFinger *= 20;
+        }
 
         // apply an easing function directly to the vector's length
         // if you do easing(x), easing(y), then the diagonals where it's something like (~0.8, ~0.8) will incorrectly ease
@@ -79,6 +99,15 @@ public class VirtualMouseHandler {
                 controller.bindings().VMOUSE_MOVE_DOWN.prevState() - controller.bindings().VMOUSE_MOVE_UP.prevState(),
                 x -> (float) Math.pow(x, 3)
         );
+
+        Vector2f fingerImpulse = ControllerUtils.applyEasingToLength(xImpulseFinger, yImpulseFinger, x -> (float) Math.pow(x, 1.5));
+        Vector2f prevFingerImpulse = ControllerUtils.applyEasingToLength(prevXFinger, prevYFinger, x -> (float) Math.pow(x, 1.5));
+
+        impulse.add(fingerImpulse);
+        prevImpulse.add(prevFingerImpulse);
+
+        prevXFinger = xImpulseFinger;
+        prevYFinger = yImpulseFinger;
 
         if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
             snapPoints = snapBehaviour.getSnapPoints();
@@ -129,19 +158,25 @@ public class VirtualMouseHandler {
         }
     }
 
-    public void handleCompatibilityBinds(Controller<?, ?> controller) {
+    public void handleCompatibilityBinds(Controller<?> controller) {
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
         var keyboardHandler = (KeyboardHandlerAccessor) minecraft.keyboardHandler;
 
-        if (controller.bindings().VMOUSE_LCLICK.justPressed()) {
+        TouchpadState touchpadState = controller.state().getTouchpadState();
+        TouchpadState prevTouchpadState = controller.prevState().getTouchpadState();
+
+        boolean touchpadPressed = controller.state().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        boolean prevTouchpadPressed = controller.prevState().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+
+        if (controller.bindings().VMOUSE_LCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.fingers().size() == 1)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_LCLICK.justReleased()) {
+        } else if (controller.bindings().VMOUSE_LCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_RCLICK.justPressed()) {
+        if (controller.bindings().VMOUSE_RCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.fingers().size() == 2)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_RCLICK.justReleased()) {
+        } else if (controller.bindings().VMOUSE_RCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_RELEASE, 0);
         }
 

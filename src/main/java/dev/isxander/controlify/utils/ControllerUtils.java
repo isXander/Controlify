@@ -2,7 +2,7 @@ package dev.isxander.controlify.utils;
 
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
+import dev.isxander.controlify.controller.composable.TouchpadState;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import net.minecraft.CrashReport;
@@ -12,27 +12,23 @@ import net.minecraft.util.Mth;
 import org.joml.Vector2f;
 
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ControllerUtils {
-    public static String createControllerString(Controller<?, ?> controller) {
-        Optional<HIDDevice> hid = controller.hidInfo().flatMap(ControllerHIDService.ControllerHIDInfo::hidDevice);
-        HexFormat hexFormat = HexFormat.of().withPrefix("0x");
-
-        return String.format("'%s'#%s-%s (%s, %s: %s)",
+    public static String createControllerString(Controller<?> controller) {
+        return String.format("'%s'#%s-%s (%s)",
                 controller.name(),
                 controller.joystickId(),
                 controller.kind(),
-                hid.map(device -> hexFormat.toHexDigits(device.vendorID())).orElse("?"),
-                hid.map(device -> hexFormat.toHexDigits(device.productID())).orElse("?"),
-                controller.hidInfo().map(ControllerHIDService.ControllerHIDInfo::type)
-                        .orElse(ControllerType.UNKNOWN)
-                        .friendlyName()
+                controller.type().friendlyName()
         );
     }
 
-    public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?, ?> controller) {
+    public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?> controller) {
         try {
             runnable.run();
         } catch (Throwable e) {
@@ -88,5 +84,21 @@ public class ControllerUtils {
         }
 
         return false;
+    }
+
+    public static List<TouchpadState.Finger> deltaFingers(TouchpadState now, TouchpadState then) {
+        if (now.fingers().size() != then.fingers().size()) {
+            return List.of();
+        }
+
+        return IntStream.range(0, now.fingers().size())
+                .mapToObj(i -> new TouchpadState.Finger(
+                        new Vector2f(
+                                now.fingers().get(i).position().x() - then.fingers().get(i).position().x(),
+                                now.fingers().get(i).position().y() - then.fingers().get(i).position().y()
+                        ),
+                        now.fingers().get(i).pressure() - then.fingers().get(i).pressure()
+                ))
+                .toList();
     }
 }

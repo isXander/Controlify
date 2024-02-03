@@ -1,7 +1,7 @@
 package dev.isxander.controlify.driver.global;
 
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.driver.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.utils.CUtil;
 
 public record GlobalDriver(OnScreenKeyboardDriver onScreenKeyboard) {
@@ -17,7 +17,7 @@ public record GlobalDriver(OnScreenKeyboardDriver onScreenKeyboard) {
     public static void createInstance() {
         OnScreenKeyboardDriver kbDriver = OnScreenKeyboardDriver.EMPTY;
 
-        if (SDL2NativesManager.isLoaded()) {
+        if (SDL3NativesManager.isLoaded()) {
             SDLGlobalDriver sdlDriver = new SDLGlobalDriver();
 
             kbDriver = sdlDriver;

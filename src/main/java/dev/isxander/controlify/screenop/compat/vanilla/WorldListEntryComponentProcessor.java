@@ -8,7 +8,7 @@ import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 
 public class WorldListEntryComponentProcessor implements ComponentProcessor {
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             var selectWorldScreen = (SelectWorldScreen) screen.screen;
             selectWorldScreen.setFocused(((SelectWorldScreenAccessor) selectWorldScreen).getSelectButton());

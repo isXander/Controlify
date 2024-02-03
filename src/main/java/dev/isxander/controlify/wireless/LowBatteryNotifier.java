@@ -28,7 +28,7 @@ public class LowBatteryNotifier {
         if (controllerManager == null)
             return;
 
-        for (Controller<?, ?> controller : controllerManager.getConnectedControllers()) {
+        for (Controller<?> controller : controllerManager.getConnectedControllers()) {
             BatteryLevel batteryLevel = controller.batteryLevel();
             if (batteryLevel == BatteryLevel.UNKNOWN) {
                 continue;

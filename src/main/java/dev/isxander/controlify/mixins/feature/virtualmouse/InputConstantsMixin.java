@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.virtualmouse;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,9 +15,12 @@ public class InputConstantsMixin {
     @ModifyReturnValue(method = "isKeyDown", at = @At("RETURN"))
     private static boolean modifyIsKeyDown(boolean keyDown, long window, int key) {
         if (key == GLFW.GLFW_KEY_LEFT_SHIFT && window == Minecraft.getInstance().getWindow().getWindow()) {
+            Controller<?> controller = Controlify.instance().getCurrentController().orElse(null);
+            if (controller == null) return keyDown;
+
             return keyDown
-                    || Controlify.instance().currentController().bindings().VMOUSE_SHIFT_CLICK.held()
-                    || Controlify.instance().currentController().bindings().VMOUSE_SHIFT.held();
+                    || controller.bindings().VMOUSE_SHIFT_CLICK.held()
+                    || controller.bindings().VMOUSE_SHIFT.held();
         }
 
         return keyDown;

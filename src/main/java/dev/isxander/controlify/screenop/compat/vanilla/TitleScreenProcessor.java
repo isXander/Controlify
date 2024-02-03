@@ -15,7 +15,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         if (controller.bindings().GUI_BACK.justPressed()) {
             screen.setFocused(getWidget("menu.quit").orElseThrow());
             playClackSound();

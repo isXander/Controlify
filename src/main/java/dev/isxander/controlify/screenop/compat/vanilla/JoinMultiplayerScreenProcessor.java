@@ -21,7 +21,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         if (controller.bindings().GUI_BACK.justPressed()) {
             this.getWidget(CommonComponents.GUI_BACK).ifPresent(back -> {
                 if (!back.isFocused()) {

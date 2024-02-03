@@ -40,7 +40,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
         var accessor = (AbstractContainerScreenAccessor) screen;
         ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
 
@@ -89,7 +89,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
     @Override
     public void onWidgetRebuild() {
-        ControllerBindings<?> bindings = ControlifyApi.get().getCurrentController()
+        ControllerBindings bindings = ControlifyApi.get().getCurrentController()
                 .map(Controller::bindings)
                 .orElse(null);
 

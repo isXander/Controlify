@@ -26,7 +26,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     public static final String SUBMISSION_URL = "https://api-controlify.isxander.dev/api/v1/submit";
     public static final Pattern NAME_PATTERN = Pattern.compile("^[\\w\\- ]{3,32}$");
 
-    private final Controller<?, ?> controller;
+    private final Controller<?> controller;
 
     private Checkbox operationalCheckbox;
 
@@ -37,7 +37,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     private Button submitButton;
     private EditBox nameField;
 
-    public SubmitUnknownControllerScreen(Controller<?, ?> controller, Screen lastScreen) {
+    public SubmitUnknownControllerScreen(Controller<?> controller, Screen lastScreen) {
         super(Component.translatable("controlify.controller_submission.title").withStyle(ChatFormatting.BOLD));
         if (!canSubmit(controller))
             throw new IllegalArgumentException("Controller ineligible for submission!");
@@ -162,12 +162,13 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private String generateRequestBody() {
-        HIDDevice hid = controller.hidInfo().orElseThrow().hidDevice().orElseThrow();
+        // TODO
+//        HIDDevice hid = controller.hidInfo().orElseThrow().hidDevice().orElseThrow();
 
         JsonObject object = new JsonObject();
-        object.addProperty("vendorID", hid.vendorID());
-        object.addProperty("productID", hid.productID());
-        object.addProperty("GUID", GLFW.glfwGetJoystickGUID(controller.joystickId()));
+//        object.addProperty("vendorID", hid.vendorID());
+//        object.addProperty("productID", hid.productID());
+//        object.addProperty("GUID", controller.guid());
         object.addProperty("reportedName", nameField.getValue());
         object.addProperty("controlifyVersion", FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion().getFriendlyString());
         object.addProperty("operational", operationalCheckbox.selected());
@@ -198,11 +199,11 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         return false;
     }
 
-    public static boolean canSubmit(Controller<?, ?> controller) {
+    public static boolean canSubmit(Controller<?> controller) {
         return controller.type() == ControllerType.UNKNOWN
                 && !controller.config().dontShowControllerSubmission
-                && controller.hidInfo()
+                /*&& controller.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())
-                        .orElse(false);
+                        .orElse(false)*/;
     }
 }

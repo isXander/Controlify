@@ -3,6 +3,7 @@ package dev.isxander.controlify.utils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,10 @@ public class CUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger("Controlify");
 
     public static final Version VERSION = FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion();
+
+    public static ResourceLocation addSuffix(ResourceLocation rl, String suffix) {
+        return new ResourceLocation(rl.getNamespace(), rl.getPath() + suffix);
+    }
 
     /**
      * Opens a URI using the system's default handler.

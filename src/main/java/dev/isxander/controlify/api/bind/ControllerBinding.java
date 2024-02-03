@@ -59,8 +59,8 @@ public interface ControllerBinding {
      */
     @Nullable KeyMappingOverride override();
 
-    IBind<?> getBind();
-    IBind<?> defaultBind();
+    IBind getBind();
+    IBind defaultBind();
     void resetBind();
     boolean isUnbound();
 

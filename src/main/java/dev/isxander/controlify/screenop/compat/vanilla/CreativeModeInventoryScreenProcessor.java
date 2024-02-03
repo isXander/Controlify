@@ -22,7 +22,7 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
         var ext = (CreativeGuiExtensions) screen;
 

@@ -130,7 +130,7 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
 
         @Override
         public void open() {
-            device = SdlHidApi.SDL_hid_open_path(path, 0);
+            device = SdlHidApi.SDL_hid_open_path(path);
             SdlHidApi.SDL_hid_set_nonblocking(device, 1);
         }
 

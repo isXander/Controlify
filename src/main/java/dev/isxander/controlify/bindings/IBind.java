@@ -1,44 +1,41 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadLike;
-import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
-import dev.isxander.controlify.controller.joystick.SingleJoystickController;
+import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.composable.HatState;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
-public interface IBind<S extends ControllerState> {
-    float state(S state);
-    default boolean held(S state) {
-        return state(state) > controller().config().buttonActivationThreshold;
-    }
+public interface IBind {
+    float state(ComposableControllerState state);
 
-    void draw(GuiGraphics graphics, int x, int centerY);
+    void draw(GuiGraphics graphics, int x, int centerY, Controller<?> controller);
     DrawSize drawSize();
 
     JsonObject toJson();
 
-    Controller<S, ?> controller();
-
-    @SuppressWarnings("unchecked")
-    static <T extends ControllerState> IBind<T> fromJson(JsonObject json, Controller<T, ?> controller) {
+    static IBind fromJson(JsonObject json) {
         var type = json.get("type").getAsString();
-        if (type.equals(EmptyBind.BIND_ID))
-            return new EmptyBind<>();
 
-        if (controller instanceof GamepadLike<?> gamepad && type.equals(GamepadBinds.BIND_ID)) {
-            return GamepadBinds.fromJson(json).map(bind -> (IBind<T>) bind.forGamepad(gamepad)).orElse(new EmptyBind<>());
-        } else if (controller instanceof SingleJoystickController joystick) {
-            return (IBind<T>) switch (type) {
-                case JoystickButtonBind.BIND_ID -> JoystickButtonBind.fromJson(json, joystick);
-                case JoystickHatBind.BIND_ID -> JoystickHatBind.fromJson(json, joystick);
-                case JoystickAxisBind.BIND_ID -> JoystickAxisBind.fromJson(json, joystick);
-                default -> throw new IllegalStateException("Unknown bind type for joystick: " + type);
-            };
-        }
+        return switch (type) {
+            case EmptyBind.BIND_ID -> new EmptyBind();
 
-        throw new IllegalStateException("Unknown controller type: " + controller.getClass().getName());
+            case ButtonBind.BIND_ID -> {
+                var button = new ResourceLocation(json.get("button").getAsString());
+                yield new ButtonBind(button);
+            }
+            case AxisBind.BIND_ID -> {
+                var axis = new ResourceLocation(json.get("axis").getAsString());
+                yield new AxisBind(axis);
+            }
+            case HatBind.BIND_ID -> {
+                var hat = new ResourceLocation(json.get("hat").getAsString());
+                var targetState = json.get("targetState").getAsString();
+                yield new HatBind(hat, HatState.valueOf(targetState));
+            }
+            default -> throw new IllegalArgumentException("Unknown bind type: " + type);
+        };
     }
 }

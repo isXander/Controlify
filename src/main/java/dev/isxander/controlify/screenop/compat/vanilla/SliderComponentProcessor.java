@@ -25,7 +25,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?> controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         var canSliderChange = ++lastSliderChange > SLIDER_CHANGE_DELAY;
@@ -50,7 +50,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
         if (controller.bindings().GUI_BACK.justPressed()) {
@@ -62,7 +62,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public void onFocusGained(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public void onFocusGained(ScreenProcessor<?> screen, Controller<?> controller) {
         this.canChangeValueSetter.accept(false);
     }
 }

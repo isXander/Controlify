@@ -1,7 +1,12 @@
 package dev.isxander.controlify.driver.joystick;
 
-import dev.isxander.controlify.controller.joystick.JoystickState;
+import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.composable.HatState;
+import dev.isxander.controlify.controller.composable.ModifiableControllerState;
+import dev.isxander.controlify.controller.composable.impl.ComposableControllerStateImpl;
+import dev.isxander.controlify.controller.composable.joystick.JoystickInputs;
 import dev.isxander.controlify.driver.GUIDProvider;
+import dev.isxander.controlify.driver.InputDriver;
 import dev.isxander.controlify.driver.NameProviderDriver;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.glfw.GLFW;
@@ -9,12 +14,12 @@ import org.lwjgl.glfw.GLFW;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
-public class GLFWJoystickDriver implements BasicJoystickInputDriver, NameProviderDriver, GUIDProvider {
+public class GLFWJoystickDriver implements InputDriver, NameProviderDriver, GUIDProvider {
     private final int jid;
     private final String guid;
     private final String name;
 
-    private BasicJoystickState state = BasicJoystickState.EMPTY;
+    private ComposableControllerState state = ComposableControllerState.EMPTY;
 
     public GLFWJoystickDriver(int jid) {
         this.jid = jid;
@@ -36,53 +41,59 @@ public class GLFWJoystickDriver implements BasicJoystickInputDriver, NameProvide
         int numButtons = buttonsBuf.limit();
         int numHats = hatsBuf.limit();
 
-        float[] axes = new float[numAxes];
+        ModifiableControllerState state = new ComposableControllerStateImpl();
+
         for (int i = 0; i < numAxes; i++) {
-            axes[i] = axesBuf.get(i);
+            state.setAxis(JoystickInputs.axis(i), axesBuf.get(i));
         }
 
-        boolean[] buttons = new boolean[numButtons];
         for (int i = 0; i < numButtons; i++) {
-            buttons[i] = buttonsBuf.get(i) == GLFW.GLFW_PRESS;
+            state.setButton(JoystickInputs.button(i), buttonsBuf.get(i) == GLFW.GLFW_PRESS);
         }
 
-        JoystickState.HatState[] hats = new JoystickState.HatState[numHats];
         for (int i = 0; i < numHats; i++) {
-            hats[i] = switch (hatsBuf.get(i)) {
-                case GLFW.GLFW_HAT_CENTERED -> JoystickState.HatState.CENTERED;
-                case GLFW.GLFW_HAT_UP -> JoystickState.HatState.UP;
-                case GLFW.GLFW_HAT_RIGHT -> JoystickState.HatState.RIGHT;
-                case GLFW.GLFW_HAT_DOWN -> JoystickState.HatState.DOWN;
-                case GLFW.GLFW_HAT_LEFT -> JoystickState.HatState.LEFT;
-                case GLFW.GLFW_HAT_RIGHT_UP -> JoystickState.HatState.RIGHT_UP;
-                case GLFW.GLFW_HAT_RIGHT_DOWN -> JoystickState.HatState.RIGHT_DOWN;
-                case GLFW.GLFW_HAT_LEFT_UP -> JoystickState.HatState.LEFT_UP;
-                case GLFW.GLFW_HAT_LEFT_DOWN -> JoystickState.HatState.LEFT_DOWN;
+            HatState hatState = switch (hatsBuf.get(i)) {
+                case GLFW.GLFW_HAT_CENTERED -> HatState.CENTERED;
+                case GLFW.GLFW_HAT_UP -> HatState.UP;
+                case GLFW.GLFW_HAT_RIGHT -> HatState.RIGHT;
+                case GLFW.GLFW_HAT_DOWN -> HatState.DOWN;
+                case GLFW.GLFW_HAT_LEFT -> HatState.LEFT;
+                case GLFW.GLFW_HAT_RIGHT_UP -> HatState.RIGHT_UP;
+                case GLFW.GLFW_HAT_RIGHT_DOWN -> HatState.RIGHT_DOWN;
+                case GLFW.GLFW_HAT_LEFT_UP -> HatState.LEFT_UP;
+                case GLFW.GLFW_HAT_LEFT_DOWN -> HatState.LEFT_DOWN;
                 default -> throw new IllegalStateException("Unexpected value: " + hatsBuf.get(i));
             };
+
+            state.setHat(JoystickInputs.hat(i), hatState);
         }
 
-        this.state = new BasicJoystickState(buttons, axes, hats);
+        this.state = state;
     }
 
     @Override
-    public BasicJoystickState getBasicJoystickState() {
+    public ComposableControllerState getInputState() {
         return state;
     }
 
     @Override
-    public int getNumAxes() {
-        return 0;
+    public int numButtons() {
+        return state.getButtons().size();
     }
 
     @Override
-    public int getNumButtons() {
-        return 0;
+    public int numAxes() {
+        return state.getAxes().size();
     }
 
     @Override
-    public int getNumHats() {
-        return 0;
+    public int numHats() {
+        return state.getHats().size();
+    }
+
+    @Override
+    public boolean isGyroSupported() {
+        return false;
     }
 
     @Override
@@ -96,7 +107,7 @@ public class GLFWJoystickDriver implements BasicJoystickInputDriver, NameProvide
     }
 
     @Override
-    public String getBasicJoystickDetails() {
+    public String getInputDriverDetails() {
         return "GLFWjoy";
     }
 

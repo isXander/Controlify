@@ -14,7 +14,7 @@ public class SelectWorldScreenProcessor extends ScreenProcessor<SelectWorldScree
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             this.playClackSound();
             CreateWorldScreen.openFresh(Minecraft.getInstance(), screen);

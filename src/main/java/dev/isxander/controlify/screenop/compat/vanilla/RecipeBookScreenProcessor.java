@@ -22,7 +22,7 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?, ?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
         super.handleButtons(controller);
 
         RecipeBookComponent recipeBookComponent = ((RecipeUpdateListener) screen).getRecipeBookComponent();

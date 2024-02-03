@@ -4,9 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadLike;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
+import dev.isxander.controlify.controller.composable.gyro.GyroState;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.Animator;
@@ -32,11 +30,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 public class InGameInputHandler {
-    private final Controller<?, ?> controller;
+    private final Controller<?> controller;
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY; // in degrees per tick
-    private final GamepadState.GyroState gyroInput = new GamepadState.GyroState();
+    private final GyroState gyroInput = new GyroState();
     private boolean wasAiming;
 
     private boolean shouldShowPlayerList;
@@ -44,7 +42,7 @@ public class InGameInputHandler {
     private final HoldRepeatHelper dropRepeatHelper;
     private boolean dropRepeating;
 
-    public InGameInputHandler(Controller<?, ?> controller) {
+    public InGameInputHandler(Controller<?> controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
@@ -151,7 +149,6 @@ public class InGameInputHandler {
 
     protected void handlePlayerLookInput() {
         var player = this.minecraft.player;
-        var gamepad = controller instanceof GamepadLike<?> ? (GamepadLike<?>) controller : null;
 
         if (!minecraft.mouseHandler.isMouseGrabbed() || (!minecraft.isWindowActive() && !Controlify.instance().config().globalSettings().outOfFocusInput) || minecraft.screen != null || player == null) {
             lookInputX = 0;
@@ -166,7 +163,7 @@ public class InGameInputHandler {
 
         // flick stick - turn 90 degrees immediately upon turning
         // should be paired with gyro controls
-        if (gamepad != null && gamepad.config().flickStick) {
+        if (controller.config().flickStick) {
             var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
 
             float flick = controller.bindings().LOOK_DOWN.justPressed() || controller.bindings().LOOK_RIGHT.justPressed() ? 1 : controller.bindings().LOOK_UP.justPressed() || controller.bindings().LOOK_LEFT.justPressed() ? -1 : 0;
@@ -210,38 +207,38 @@ public class InGameInputHandler {
         }
 
         // gyro input
-        if (gamepad != null && gamepad.supportsGyro()) {
+        if (controller.supportsGyro()) {
             boolean useGyro = false;
 
-            if (gamepad.config().gyroRequiresButton) {
-                if (gamepad.bindings().GAMEPAD_GYRO_BUTTON.justPressed() || (isAiming && !wasAiming))
+            if (controller.config().gyroRequiresButton) {
+                if (controller.bindings().GAMEPAD_GYRO_BUTTON.justPressed() || (isAiming && !wasAiming))
                     gyroInput.set(0);
 
-                if (gamepad.bindings().GAMEPAD_GYRO_BUTTON.held() || isAiming) {
-                    if (gamepad.config().relativeGyroMode)
-                        gyroInput.add(new Vector3f(gamepad.state().gyroDelta()).mul(0.1f));
+                if (controller.bindings().GAMEPAD_GYRO_BUTTON.held() || isAiming) {
+                    if (controller.config().relativeGyroMode)
+                        gyroInput.add(new GyroState(controller.state().getGyroState()).mul(0.1f));
                     else
-                        gyroInput.set(gamepad.state().gyroDelta());
+                        gyroInput.set(controller.state().getGyroState());
                     useGyro = true;
                 }
             } else {
-                gyroInput.set(gamepad.state().gyroDelta());
+                gyroInput.set(controller.state().getGyroState());
                 useGyro = true;
             }
 
             if (useGyro) {
                 // convert radians per second into degrees per tick
-                GamepadState.GyroState thisInput = new GamepadState.GyroState(gyroInput)
+                GyroState thisInput = new GyroState(gyroInput)
                         .mul(Mth.RAD_TO_DEG)
                         .div(20)
-                        .mul(gamepad.config().gyroLookSensitivity);
+                        .mul(controller.config().gyroLookSensitivity);
 
-                impulseY += -thisInput.pitch() * (gamepad.config().invertGyroY ? -1 : 1);
-                impulseX += switch (gamepad.config().gyroYawMode) {
+                impulseY += -thisInput.pitch() * (controller.config().invertGyroY ? -1 : 1);
+                impulseX += switch (controller.config().gyroYawMode) {
                     case YAW -> -thisInput.yaw();
                     case ROLL -> -thisInput.roll();
                     case BOTH -> -thisInput.yaw() - thisInput.roll();
-                } * (gamepad.config().invertGyroX ? -1 : 1);
+                } * (controller.config().invertGyroX ? -1 : 1);
             }
         }
 
@@ -298,14 +295,14 @@ public class InGameInputHandler {
         };
     }
 
-    public record FunctionalLookInputModifier(BiFunction<Float, Controller<?, ?>, Float> x, BiFunction<Float, Controller<?, ?>, Float> y) implements LookInputModifier {
+    public record FunctionalLookInputModifier(BiFunction<Float, Controller<?>, Float> x, BiFunction<Float, Controller<?>, Float> y) implements LookInputModifier {
         @Override
-        public float modifyX(float x, Controller<?, ?> controller) {
+        public float modifyX(float x, Controller<?> controller) {
             return this.x.apply(x, controller);
         }
 
         @Override
-        public float modifyY(float y, Controller<?, ?> controller) {
+        public float modifyY(float y, Controller<?> controller) {
             return this.y.apply(y, controller);
         }
     }

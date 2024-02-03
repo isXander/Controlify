@@ -3,7 +3,6 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.joystick.CompoundJoystickInfo;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
@@ -36,7 +35,6 @@ public class ControlifyConfig {
 
     private String currentControllerUid;
     private JsonObject controllerData = new JsonObject();
-    private Map<String, CompoundJoystickInfo> compoundJoysticks = Map.of();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
     private Version lastSeenVersion = null;
@@ -96,7 +94,7 @@ public class ControlifyConfig {
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
         controlify.getControllerManager().ifPresent(controllerManager -> {
-            for (Controller<?, ?> controller : controllerManager.getConnectedControllers()) {
+            for (Controller<?> controller : controllerManager.getConnectedControllers()) {
                 // `add` replaces if already existing
                 newControllerData.add(controller.uid(), generateControllerConfig(controller));
             }
@@ -106,13 +104,12 @@ public class ControlifyConfig {
         controllerData = newControllerData;
         config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null));
         config.add("controllers", controllerData);
-        config.add("compound_joysticks", GSON.toJsonTree(compoundJoysticks.values().toArray(new CompoundJoystickInfo[0])));
         config.add("global", GSON.toJsonTree(globalSettings));
 
         return config;
     }
 
-    private JsonObject generateControllerConfig(Controller<?, ?> controller) {
+    private JsonObject generateControllerConfig(Controller<?> controller) {
         JsonObject object = new JsonObject();
 
         object.add("config", GSON.toJsonTree(controller.config()));
@@ -148,17 +145,6 @@ public class ControlifyConfig {
             setDirty();
         }
 
-        if (object.has("compound_joysticks")) {
-            this.compoundJoysticks = object
-                    .getAsJsonArray("compound_joysticks")
-                    .asList()
-                    .stream()
-                    .map(element -> GSON.fromJson(element, CompoundJoystickInfo.class))
-                    .collect(Collectors.toMap(info -> info.type().mappingId(), Function.identity()));
-        } else {
-            this.compoundJoysticks = Map.of();
-        }
-
         if (object.has("current_controller")) {
             JsonElement element = object.get("current_controller");
             currentControllerUid = element.isJsonNull() ? null : element.getAsString();
@@ -168,7 +154,7 @@ public class ControlifyConfig {
         }
     }
 
-    public boolean loadOrCreateControllerData(Controller<?, ?> controller) {
+    public boolean loadOrCreateControllerData(Controller<?> controller) {
         var uid = controller.uid();
         if (controllerData.has(uid)) {
             DebugLog.log("Loading controller data for " + uid);
@@ -181,7 +167,7 @@ public class ControlifyConfig {
         }
     }
 
-    private void applyControllerConfig(Controller<?, ?> controller, JsonObject object) {
+    private void applyControllerConfig(Controller<?> controller, JsonObject object) {
         try {
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
             controller.setConfig(GSON, object.getAsJsonObject("config"));
@@ -201,10 +187,6 @@ public class ControlifyConfig {
             DebugLog.log("Config is dirty. Saving...");
             save();
         }
-    }
-
-    public Map<String, CompoundJoystickInfo> getCompoundJoysticks() {
-        return compoundJoysticks;
     }
 
     public GlobalSettings globalSettings() {

@@ -111,6 +111,7 @@
   "mixins": [
     "compat.sodium.AbstractWidgetMixin",
     "feature.rumble.damage.LivingEntityMixin",
-    "feature.rumble.damage.PlayerMixin"
+    "feature.rumble.damage.PlayerMixin",
+    "tempfix.SdlJoystickMixin"
   ]
 }

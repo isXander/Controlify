@@ -44,7 +44,7 @@ public final class ButtonGuideApi {
      */
     public static <T extends AbstractButton> void addGuideToButtonBuiltin(
             T button,
-            Function<ControllerBindings<?>, ControllerBinding> binding,
+            Function<ControllerBindings, ControllerBinding> binding,
             ButtonRenderPosition position,
             ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, controller -> binding.apply(controller.bindings()), position, renderPredicate);

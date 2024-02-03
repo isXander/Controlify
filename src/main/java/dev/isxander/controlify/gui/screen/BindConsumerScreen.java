@@ -2,30 +2,28 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.bindings.IBind;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.gui.controllers.AbstractBindController;
+import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
-import dev.isxander.yacl3.gui.AbstractWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
 import java.util.Optional;
 
-public class BindConsumerScreen<T extends ControllerState> extends Screen implements ScreenProcessorProvider {
-    private final BindConsumer<T> bindConsumer;
-    private final Option<IBind<T>> option;
+public class BindConsumerScreen extends Screen implements ScreenProcessorProvider {
+    private final BindConsumer bindConsumer;
+    private final Option<IBind> option;
     private final Screen backgroundScreen;
-    private final AbstractBindController.AbstractBindControllerElement<T> widgetToFocus;
+    private final BindController.BindControllerElement widgetToFocus;
     private final ScreenProcessorImpl screenProcessor = new ScreenProcessorImpl(this);
 
     private int ticksTillClose;
     private int ticksTillInput;
 
-    public BindConsumerScreen(BindConsumer<T> bindConsumer, Option<IBind<T>> option, AbstractBindController.AbstractBindControllerElement<T> widgetToFocus, Screen backgroundScreen) {
+    public BindConsumerScreen(BindConsumer bindConsumer, Option<IBind> option, BindController.BindControllerElement widgetToFocus, Screen backgroundScreen) {
         super(Component.empty());
         this.bindConsumer = bindConsumer;
         this.option = option;
@@ -80,7 +78,7 @@ public class BindConsumerScreen<T extends ControllerState> extends Screen implem
 
         // tick runs after all controller input ticks
 
-        Optional<IBind<T>> pressedBind = bindConsumer.getPressedBind();
+        Optional<IBind> pressedBind = bindConsumer.getPressedBind();
         if (pressedBind.isPresent()) {
             option.requestSet(pressedBind.get());
             returnToBackground();
@@ -136,17 +134,17 @@ public class BindConsumerScreen<T extends ControllerState> extends Screen implem
         return screenProcessor;
     }
 
-    public interface BindConsumer<T extends ControllerState> {
-        Optional<IBind<T>> getPressedBind();
+    public interface BindConsumer {
+        Optional<IBind> getPressedBind();
     }
 
-    private static class ScreenProcessorImpl extends ScreenProcessor<BindConsumerScreen<?>> {
-        public ScreenProcessorImpl(BindConsumerScreen<?> screen) {
+    private static class ScreenProcessorImpl extends ScreenProcessor<BindConsumerScreen> {
+        public ScreenProcessorImpl(BindConsumerScreen screen) {
             super(screen);
         }
 
         @Override
-        public void onControllerUpdate(Controller<?, ?> controller) {
+        public void onControllerUpdate(Controller<?> controller) {
             // prevent all other controller input logic
         }
     }

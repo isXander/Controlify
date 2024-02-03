@@ -21,7 +21,7 @@ public interface LookInputModifier {
      * @param controller the current active controller
      * @return the modified value of the x axis
      */
-    float modifyX(float x, Controller<?, ?> controller);
+    float modifyX(float x, Controller<?> controller);
 
     /**
      * Modifies the y axis value of the controller's look input.
@@ -30,7 +30,7 @@ public interface LookInputModifier {
      * @param controller the current active controller
      * @return the modified value of the y axis
      */
-    float modifyY(float y, Controller<?, ?> controller);
+    float modifyY(float y, Controller<?> controller);
 
     /**
      * Creates a new LookInputModifier using the given x and y axis modifying functions.
@@ -39,7 +39,7 @@ public interface LookInputModifier {
      * @param y the function for modifying the y axis
      * @return the new LookInputModifier object
      */
-    static LookInputModifier functional(BiFunction<Float, Controller<?, ?>, Float> x, BiFunction<Float, Controller<?, ?>, Float> y) {
+    static LookInputModifier functional(BiFunction<Float, Controller<?>, Float> x, BiFunction<Float, Controller<?>, Float> y) {
         return new InGameInputHandler.FunctionalLookInputModifier(x, y);
     }
 

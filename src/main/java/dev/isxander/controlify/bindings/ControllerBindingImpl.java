@@ -6,16 +6,9 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
-import dev.isxander.controlify.controller.gamepad.GamepadLike;
-import dev.isxander.controlify.controller.gamepademulated.EmulatedGamepadController;
-import dev.isxander.controlify.gui.controllers.GamepadBindController;
-import dev.isxander.controlify.gui.controllers.JoystickBindController;
+import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.gamepad.GamepadController;
-import dev.isxander.controlify.controller.gamepad.GamepadState;
-import dev.isxander.controlify.controller.joystick.JoystickController;
-import dev.isxander.controlify.controller.joystick.JoystickState;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
@@ -31,11 +24,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.*;
 import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
-public class ControllerBindingImpl<T extends ControllerState> implements ControllerBinding {
-    private final Controller<T, ?> controller;
-    private IBind<T> bind;
-    private final IBind<T> defaultBind;
+public class ControllerBindingImpl implements ControllerBinding {
+    private final Controller<?> controller;
+    private IBind bind;
+    private final IBind defaultBind;
+    private final Function<ComposableControllerState, Float> hardcodedBind;
     private BindRenderer renderer;
     private final ResourceLocation id;
     private final Component name, description, category;
@@ -43,14 +38,15 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
-    private static final Map<Controller<?, ?>, Set<IBind<?>>> pressedBinds = new Object2ObjectOpenHashMap<>();
+    private static final Map<Controller<?>, Set<IBind>> pressedBinds = new Object2ObjectOpenHashMap<>();
 
     private byte fakePressState = 0;
 
-    private ControllerBindingImpl(Controller<T, ?> controller, IBind<T> defaultBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
+    private ControllerBindingImpl(Controller<?> controller, IBind defaultBind, Function<ComposableControllerState, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
-        this.renderer = new BindRendererImpl(bind);
+        this.hardcodedBind = hardcodedBind;
+        this.renderer = new BindRendererImpl(bind, controller);
         this.id = id;
         this.override = vanillaOverride;
         this.name = name;
@@ -64,24 +60,28 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     public float state() {
         if (fakePressState == 1)
             return 1f;
-        return bind.state(controller.state());
+        return Math.max(bind.state(controller.state()), hardcodedBind.apply(controller.state()));
     }
 
     @Override
     public float prevState() {
         if (fakePressState == 2)
             return 1f;
-        return bind.state(controller.prevState());
+        return Math.max(bind.state(controller.prevState()), hardcodedBind.apply(controller.prevState()));
     }
 
     @Override
     public boolean held() {
-        return fakePressState == 2 || bind.held(controller.state());
+        return fakePressState == 2 || analogue2Digital(bind.state(controller.state()));
     }
 
     @Override
     public boolean prevHeld() {
-        return fakePressState == 3 || bind.held(controller.prevState());
+        return fakePressState == 3 || analogue2Digital(bind.state(controller.prevState()));
+    }
+
+    private boolean analogue2Digital(float analogue) {
+        return analogue > controller.config().buttonActivationThreshold;
     }
 
     @Override
@@ -126,14 +126,14 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
         return Optional.ofNullable(this.radialIcon);
     }
 
-    public void setCurrentBind(IBind<T> bind) {
+    public void setCurrentBind(IBind bind) {
         this.bind = bind;
-        this.renderer = new BindRendererImpl(bind);
+        this.renderer = new BindRendererImpl(bind, controller);
         Controlify.instance().config().setDirty();
     }
 
     @Override
-    public IBind<T> defaultBind() {
+    public IBind defaultBind() {
         return defaultBind;
     }
 
@@ -167,7 +167,7 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     }
 
     @Override
-    public IBind<T> getBind() {
+    public IBind getBind() {
         return bind;
     }
 
@@ -192,124 +192,111 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
     }
 
     @Override
-    public Option.Builder<?> startYACLOption() {
-        Option.Builder<IBind<T>> option = Option.<IBind<T>>createBuilder()
+    public Option.Builder<IBind> startYACLOption() {
+        return Option.<IBind>createBuilder()
                 .name(name())
-                .binding(new EmptyBind<>(), this::getBind, this::setCurrentBind)
-                .description(OptionDescription.of(this.description()));
-
-        if (controller instanceof GamepadLike<?> gamepad) {
-            ((Option.Builder<IBind<GamepadState>>) (Object) option).customController(opt -> new GamepadBindController(opt, gamepad));
-        } else if (controller instanceof JoystickController<?> joystick) {
-            ((Option.Builder<IBind<JoystickState>>) (Object) option).customController(opt -> new JoystickBindController(opt, joystick));
-        } else {
-            throw new IllegalStateException("Unknown controller type: " + controller.getClass().getName());
-        }
-
-        return option;
+                .binding(new EmptyBind(), this::getBind, this::setCurrentBind)
+                .description(OptionDescription.of(this.description()))
+                .customController(opt -> new BindController(opt, controller));
     }
 
     // FIXME: very hack solution please remove me
 
-    public static void clearPressedBinds(Controller<?, ?> controller) {
+    public static void clearPressedBinds(Controller<?> controller) {
         if (pressedBinds.containsKey(controller)) {
             pressedBinds.get(controller).clear();
         }
     }
 
-    private static boolean hasBindPressed(ControllerBindingImpl<?> binding) {
+    private static boolean hasBindPressed(ControllerBindingImpl binding) {
         var pressed = pressedBinds.getOrDefault(binding.controller, Set.of());
         return pressed.containsAll(getBinds(binding.bind));
     }
 
-    private static void addPressedBind(ControllerBindingImpl<?> binding) {
+    private static void addPressedBind(ControllerBindingImpl binding) {
         pressedBinds.computeIfAbsent(binding.controller, c -> new ObjectOpenHashSet<>()).addAll(getBinds(binding.bind));
     }
 
-    private static Set<IBind<?>> getBinds(IBind<?> bind) {
+    private static Set<IBind> getBinds(IBind bind) {
         return Set.of(bind);
     }
 
     @ApiStatus.Internal
-    public static final class ControllerBindingBuilderImpl<T extends ControllerState> implements ControllerBindingBuilder<T> {
-        private final Controller<T, ?> controller;
-        private IBind<T> bind;
+    public static final class ControllerBindingBuilderImpl implements ControllerBindingBuilder {
+        private final Controller<?> controller;
+        private IBind bind;
+        private Function<ComposableControllerState, Float> hardcodedBind = state -> 0f;
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
         private KeyMappingOverride override = null;
         private final Set<BindContext> contexts = new HashSet<>();
         private ResourceLocation radialIcon = null;
 
-        public ControllerBindingBuilderImpl(Controller<T, ?> controller) {
+        public ControllerBindingBuilderImpl(Controller<?> controller) {
             this.controller = controller;
         }
 
         @Override
-        public ControllerBindingBuilder<T> identifier(ResourceLocation id) {
+        public ControllerBindingBuilder identifier(ResourceLocation id) {
             this.id = id;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> identifier(String namespace, String path) {
+        public ControllerBindingBuilder identifier(String namespace, String path) {
             return identifier(new ResourceLocation(namespace, path));
         }
 
         @Override
-        public ControllerBindingBuilder<T> defaultBind(IBind<T> bind) {
+        public ControllerBindingBuilder defaultBind(IBind bind) {
             this.bind = bind;
             return this;
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public ControllerBindingBuilder<T> defaultBind(GamepadBinds gamepadBind) {
-            if (controller instanceof GamepadLike<?> gamepad) {
-                this.bind = (IBind<T>) gamepadBind.forGamepad(gamepad);
-            } else {
-                this.bind = new EmptyBind<>();
-            }
+        public ControllerBindingBuilder hardcodedBind(Function<ComposableControllerState, Float> bind) {
+            this.hardcodedBind = bind;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> name(Component name) {
+        public ControllerBindingBuilder name(Component name) {
             this.name = name;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> description(Component description) {
+        public ControllerBindingBuilder description(Component description) {
             this.description = description;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> category(Component category) {
+        public ControllerBindingBuilder category(Component category) {
             this.category = category;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> context(BindContext... contexts) {
+        public ControllerBindingBuilder context(BindContext... contexts) {
             this.contexts.addAll(Set.of(contexts));
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> radialCandidate(ResourceLocation icon) {
+        public ControllerBindingBuilder radialCandidate(ResourceLocation icon) {
             this.radialIcon = icon;
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
+        public ControllerBindingBuilder vanillaOverride(KeyMapping keyMapping, BooleanSupplier toggleable) {
             this.override = new KeyMappingOverride(keyMapping, toggleable);
             return this;
         }
 
         @Override
-        public ControllerBindingBuilder<T> vanillaOverride(KeyMapping keyMapping) {
+        public ControllerBindingBuilder vanillaOverride(KeyMapping keyMapping) {
             return vanillaOverride(keyMapping, () -> false);
         }
 
@@ -330,14 +317,14 @@ public class ControllerBindingImpl<T extends ControllerState> implements Control
                 }
             }
 
-            return new ControllerBindingImpl<>(controller, bind, id, override, name, description, category, contexts, radialIcon);
+            return new ControllerBindingImpl(controller, bind, hardcodedBind, id, override, name, description, category, contexts, radialIcon);
         }
     }
 
-    private record BindRendererImpl(IBind<?> bind) implements BindRenderer {
+    private record BindRendererImpl(IBind bind, Controller<?> controller) implements BindRenderer {
         @Override
         public void render(GuiGraphics graphics, int x, int centerY) {
-            bind.draw(graphics, x, centerY);
+            bind.draw(graphics, x, centerY, controller);
         }
 
         @Override

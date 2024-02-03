@@ -193,10 +193,10 @@
   "controlify.toast.new_server.title": "偵測到新伺服器",
   "controlify.toast.new_server.description": "請確保此伺服器的規則允許使用控制器進行模擬的移動。如果不允許，請將伺服器增加到 Controlify 全域設定中的鍵盤模擬移動列表中。",
 
-  "controlify.sdl2_onboarding.title": "Controlify 原生程式庫",
-  "controlify.sdl2_onboarding.message": "Controlify 的許多功能需要額外的程式庫，需要下載到你的系統中。如果你不下載此程式庫，你將失去許多功能，如：控制器震動、陀螺儀控制、更好的控制器偵測。這是一個無縫的過程，只會花費幾秒鐘。如果你選擇否，你以後可以在 Controlify 設定中改變心意，但在此期間你將無法訪問這些功能。",
-  "controlify.sdl2_onboarding.message_mac": "因為你使用 macOS，此程式庫對於任何形式的控制器偵測都是必需的。如果沒有它，所有控制器都將無法偵測。如果你選擇不下載它，這將嚴重影響使用者經驗。",
-  "controlify.sdl2_onboarding.question": "你想要下載嗎？",
+  "controlify.sdl3_onboarding.title": "Controlify 原生程式庫",
+  "controlify.sdl3_onboarding.message": "Controlify 的許多功能需要額外的程式庫，需要下載到你的系統中。如果你不下載此程式庫，你將失去許多功能，如：控制器震動、陀螺儀控制、更好的控制器偵測。這是一個無縫的過程，只會花費幾秒鐘。如果你選擇否，你以後可以在 Controlify 設定中改變心意，但在此期間你將無法訪問這些功能。",
+  "controlify.sdl3_onboarding.message_mac": "因為你使用 macOS，此程式庫對於任何形式的控制器偵測都是必需的。如果沒有它，所有控制器都將無法偵測。如果你選擇不下載它，這將嚴重影響使用者經驗。",
+  "controlify.sdl3_onboarding.question": "你想要下載嗎？",
   "controlify.downloading_sdl.title": "正在下載 SDL",
   "controlify.downloading_sdl.info": "正在下載 Controlify 使用的原生程式庫的更新。你看到這個是因為你選擇在首次啟動時下載原生程式庫。\n這只會花費幾秒鐘。",
 

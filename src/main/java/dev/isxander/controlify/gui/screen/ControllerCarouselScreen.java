@@ -117,7 +117,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     public void refreshControllers() {
-        Controller<?, ?> prevSelectedController;
+        Controller<?> prevSelectedController;
         if (carouselEntries != null && !carouselEntries.isEmpty()) {
             carouselEntries.forEach(this::removeWidget);
             prevSelectedController = carouselEntries.get(carouselIndex).controller;
@@ -200,7 +200,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void onControllerInput(Controller<?, ?> controller) {
+    public void onControllerInput(Controller<?> controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             globalSettingsButton.onPress();
         }
@@ -216,7 +216,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         private final int width, height;
         private float translationX, translationY;
 
-        private final Controller<?, ?> controller;
+        private final Controller<?> controller;
         private final boolean hasNickname;
 
         private final Button useControllerButton;
@@ -231,7 +231,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         private boolean hovered = false;
 
-        private CarouselEntry(Controller<?, ?> controller, int width, int height) {
+        private CarouselEntry(Controller<?> controller, int width, int height) {
             this.width = width;
             this.height = height;
 
@@ -287,7 +287,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             graphics.pose().pushPose();
             graphics.pose().translate(x + width / 2 - iconSize / 2, y + font.lineHeight + 12 + iconHeight / 2 - iconSize / 2, 0);
             graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
-            graphics.blit(controller.icon(), 0, 0, 0f, 0f, 64, 64, 64, 64);
+            graphics.blitSprite(controller.type().getIconSprite(), 0, 0, 64, 64);
             graphics.pose().popPose();
 
             graphics.pose().translate(0, 0, 1);

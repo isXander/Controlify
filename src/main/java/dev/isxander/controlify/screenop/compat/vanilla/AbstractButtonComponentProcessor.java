@@ -14,7 +14,7 @@ public class AbstractButtonComponentProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?, ?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             button.playDownSound(Minecraft.getInstance().getSoundManager());
             button.onPress();

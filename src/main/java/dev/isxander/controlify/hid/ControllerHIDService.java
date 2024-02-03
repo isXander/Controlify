@@ -3,11 +3,12 @@ package dev.isxander.controlify.hid;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.driver.SDL2NativesManager;
+import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ToastUtils;
 import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
+import io.github.libsdl4j.api.joystick.SDL_JoystickID;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
 
@@ -77,8 +78,8 @@ public class ControllerHIDService {
     private ControllerHIDInfo fetchType0(int jid) {
         if (firstFetch) {
             firstFetch = false;
-            if (isDisabled() && !SDL2NativesManager.isLoaded()) {
-                if (Controlify.instance().controllerHIDService().isDisabled() && !SDL2NativesManager.isLoaded()) {
+            if (isDisabled() && !SDL3NativesManager.isLoaded()) {
+                if (Controlify.instance().controllerHIDService().isDisabled() && !SDL3NativesManager.isLoaded()) {
                     ToastUtils.sendToast(
                             Component.translatable("controlify.error.hid"),
                             Component.translatable("controlify.error.hid.desc"),
@@ -89,8 +90,7 @@ public class ControllerHIDService {
         }
 
         if (disabled) {
-            return fetchTypeFromSDL(jid)
-                    .orElse(new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()));
+            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
         doScanOnThisThread();
@@ -99,8 +99,7 @@ public class ControllerHIDService {
         if (hid == null) {
             CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
 
-            return fetchTypeFromSDL(jid)
-                    .orElse(new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()));
+            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
         }
 
         ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
@@ -152,23 +151,6 @@ public class ControllerHIDService {
             // Update the attached devices map
             removeList.forEach(this.attachedDevices.keySet()::remove);
         }
-    }
-
-    public static Optional<ControllerHIDInfo> fetchTypeFromSDL(int jid) {
-        if (SDL2NativesManager.isLoaded()) {
-            int vid = SDL_JoystickGetDeviceVendor(jid);
-            int pid = SDL_JoystickGetDeviceProduct(jid);
-            SDL_JoystickGUID guid = SDL_JoystickGetDeviceGUID(jid);
-
-            if (vid != 0 && pid != 0) {
-                CUtil.LOGGER.info("Using SDL to identify controller type.");
-                return Optional.of(new ControllerHIDInfo(
-                        ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
-                        Optional.of(new HIDDevice.SDLHidApi(vid, pid, guid.toString()))
-                ));
-            }
-        }
-        return Optional.empty();
     }
 
     public void unconsumeController(ControllerHIDInfo hid) {

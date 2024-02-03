@@ -28,7 +28,7 @@ import org.joml.Matrix4f;
 import java.util.*;
 
 public class InGameButtonGuide implements IngameGuideRegistry {
-    private final Controller<?, ?> controller;
+    private final Controller<?> controller;
     private final LocalPlayer player;
     private final Minecraft minecraft = Minecraft.getInstance();
 
@@ -38,7 +38,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> leftLayout;
     private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> rightLayout;
 
-    public InGameButtonGuide(Controller<?, ?> controller, LocalPlayer localPlayer) {
+    public InGameButtonGuide(Controller<?> controller, LocalPlayer localPlayer) {
         this.controller = controller;
         this.player = localPlayer;
 

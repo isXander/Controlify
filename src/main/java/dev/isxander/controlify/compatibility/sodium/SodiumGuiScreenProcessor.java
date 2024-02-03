@@ -15,12 +15,12 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
     }
 
     @Override
-    protected void handleComponentNavigation(Controller<?, ?> controller) {
+    protected void handleComponentNavigation(Controller<?> controller) {
         super.handleComponentNavigation(controller);
     }
 
     @Override
-    protected void handleButtons(Controller<?, ?> controller) {
+    protected void handleButtons(Controller<?> controller) {
         var accessor = (SodiumOptionsGUIAccessor) screen;
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
