@@ -3,8 +3,8 @@ package dev.isxander.controlify.api.event;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
+import dev.isxander.controlify.controller.ControllerEntity;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
@@ -78,7 +78,7 @@ public final class ControlifyEvents {
      */
     public static final Event<LookInputModifier> LOOK_INPUT_MODIFIER = EventFactory.createArrayBacked(LookInputModifier.class, callbacks -> new LookInputModifier() {
         @Override
-        public float modifyX(float x, Controller<?> controller) {
+        public float modifyX(float x, ControllerEntity controller) {
             for (LookInputModifier callback : callbacks) {
                 x = callback.modifyX(x, controller);
             }
@@ -86,7 +86,7 @@ public final class ControlifyEvents {
         }
 
         @Override
-        public float modifyY(float y, Controller<?> controller) {
+        public float modifyY(float y, ControllerEntity controller) {
             for (LookInputModifier callback : callbacks) {
                 y = callback.modifyY(y, controller);
             }
@@ -96,12 +96,12 @@ public final class ControlifyEvents {
 
     @FunctionalInterface
     public interface ControllerConnected {
-        void onControllerConnected(Controller<?> controller, boolean hotplugged, boolean newController);
+        void onControllerConnected(ControllerEntity controller, boolean hotplugged, boolean newController);
     }
 
     @FunctionalInterface
     public interface ControllerDisconnected {
-        void onControllerDisconnected(Controller<?> controller);
+        void onControllerDisconnected(ControllerEntity controller);
     }
 
     @FunctionalInterface
@@ -111,7 +111,7 @@ public final class ControlifyEvents {
 
     @FunctionalInterface
     public interface ControllerStateUpdate {
-        void onControllerStateUpdate(Controller<?> controller);
+        void onControllerStateUpdate(ControllerEntity controller);
     }
 
     @FunctionalInterface

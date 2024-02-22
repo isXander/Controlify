@@ -6,9 +6,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.TouchpadState;
-import dev.isxander.controlify.controller.composable.gamepad.GamepadInputs;
+import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -31,6 +29,7 @@ import org.lwjgl.glfw.GLFW;
 import java.lang.Math;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public class VirtualMouseHandler {
@@ -62,7 +61,7 @@ public class VirtualMouseHandler {
         ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
     }
 
-    public void handleControllerInput(Controller<?> controller) {
+    public void handleControllerInput(ControllerEntity controller) {
         if (controller.bindings().VMOUSE_TOGGLE.justPressed()) {
             toggleVirtualMouse();
         }
@@ -71,10 +70,14 @@ public class VirtualMouseHandler {
             return;
         }
 
-        List<TouchpadState.Finger> fingerDeltas = ControllerUtils.deltaFingers(
-                controller.state().getTouchpadState(),
-                controller.prevState().getTouchpadState()
-        );
+        InputComponent input = controller.input().orElseThrow();
+        Optional<TouchpadComponent> touchpad = controller.touchpad();
+
+        List<TouchpadState.Finger> fingerDeltas = touchpad.map(state -> ControllerUtils.deltaFingers(
+                state.fingersNow(),
+                state.fingersThen()
+        )).orElse(List.of());
+
         float xImpulseFinger = 0;
         float yImpulseFinger = 0;
         if (!fingerDeltas.isEmpty()) {
@@ -121,7 +124,7 @@ public class VirtualMouseHandler {
                 snapToClosestPoint();
         }
 
-        var sensitivity = controller.config().virtualMouseSensitivity;
+        var sensitivity = input.config().config().virtualMouseSensitivity;
         var windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
         // cubic function to make small movements smaller
@@ -158,23 +161,25 @@ public class VirtualMouseHandler {
         }
     }
 
-    public void handleCompatibilityBinds(Controller<?> controller) {
+    public void handleCompatibilityBinds(ControllerEntity controller) {
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
         var keyboardHandler = (KeyboardHandlerAccessor) minecraft.keyboardHandler;
 
-        TouchpadState touchpadState = controller.state().getTouchpadState();
-        TouchpadState prevTouchpadState = controller.prevState().getTouchpadState();
+        Optional<TouchpadComponent> touchpad = controller.touchpad();
+        List<TouchpadState.Finger> touchpadState = touchpad.map(TouchpadComponent::fingersNow).orElse(List.of());
+        List<TouchpadState.Finger> prevTouchpadState = touchpad.map(TouchpadComponent::fingersThen).orElse(List.of());
 
-        boolean touchpadPressed = controller.state().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
-        boolean prevTouchpadPressed = controller.prevState().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        InputComponent input = controller.input().orElseThrow();
+        boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
 
-        if (controller.bindings().VMOUSE_LCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.fingers().size() == 1)) {
+        if (controller.bindings().VMOUSE_LCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 1)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
         } else if (controller.bindings().VMOUSE_LCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_RCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.fingers().size() == 2)) {
+        if (controller.bindings().VMOUSE_RCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 2)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_PRESS, 0);
         } else if (controller.bindings().VMOUSE_RCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_RELEASE, 0);

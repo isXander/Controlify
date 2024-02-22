@@ -35,7 +35,9 @@ public abstract class BoatMixin implements AnalogBoatInput {
         if (!usingAnalogInput)
             return forwardVelocity;
 
+        // these values are what vanilla boat uses
         float velocity = analogForward > 0 ? analogForward * 0.04f : analogForward * 0.005f;
+
         return forwardVelocity + velocity;
     }
 

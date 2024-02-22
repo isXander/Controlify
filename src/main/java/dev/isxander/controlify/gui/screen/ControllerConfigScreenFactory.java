@@ -4,10 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.EmptyBind;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerConfig;
-import dev.isxander.controlify.controller.composable.GyroYawMode;
-import dev.isxander.controlify.controller.composable.Inputs;
+import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
@@ -27,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class ControllerConfigScreenFactory {
     private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
@@ -36,17 +32,14 @@ public class ControllerConfigScreenFactory {
 
     private final List<Option<?>> newOptions = new ArrayList<>();
 
-    public static Screen generateConfigScreen(Screen parent, Controller<?> controller) {
+    public static Screen generateConfigScreen(Screen parent, ControllerEntity controller) {
         return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
     }
 
-    private Screen generateConfigScreen0(Screen parent, Controller<?> controller) {
-        ControllerConfig def = controller.defaultConfig();
-        ControllerConfig config = controller.config();
-
+    private Screen generateConfigScreen0(Screen parent, ControllerEntity controller) {
         var advancedCategory = createAdvancedCategory(controller);
         var bindsCategory = createBindsCategory(controller);
-        var basicCategory = createBasicCategory(controller, def, config); // must be last for new options
+        var basicCategory = createBasicCategory(controller); // must be last for new options
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.literal("Controlify"))
@@ -57,18 +50,21 @@ public class ControllerConfigScreenFactory {
                 .build().generateScreen(parent);
     }
 
-    private ConfigCategory createBasicCategory(Controller<?> controller, ControllerConfig def, ControllerConfig config) {
-        var sensitivityGroup = makeSensitivityGroup(controller, def, config);
-        var controlsGroup = makeControlsGroup(controller, def, config);
-        var accessibilityGroup = makeAccessibilityGroup(controller, def, config);
-        var deadzoneGroup = makeDeadzoneGroup(controller, def, config);
+    private ConfigCategory createBasicCategory(ControllerEntity controller) {
+        var sensitivityGroup = makeSensitivityGroup(controller);
+        var controlsGroup = makeControlsGroup(controller);
+        var accessibilityGroup = makeAccessibilityGroup(controller);
+        var deadzoneGroup = makeDeadzoneGroup(controller);
+
+        GenericControllerConfig config = controller.genericConfig().config();
+        GenericControllerConfig def = controller.genericConfig().defaultConfig();
 
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.config.category.basic"))
                 .option(Option.<String>createBuilder()
                         .name(Component.translatable("controlify.gui.custom_name"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.custom_name.tooltip")))
-                        .binding(def.customName == null ? "" : def.customName, () -> config.customName == null ? "" : config.customName, v -> config.customName = (v.equals("") ? null : v))
+                        .binding(def.nickname == null ? "" : def.nickname, () -> config.nickname == null ? "" : config.nickname, v -> config.nickname = (v.isEmpty() ? null : v))
                         .controller(StringControllerBuilder::create)
                         .build());
         if (!newOptions.isEmpty()) {
@@ -78,23 +74,31 @@ public class ControllerConfigScreenFactory {
                     .options(newOptions)
                     .build());
         }
-        builder.group(sensitivityGroup)
-                .group(controlsGroup)
-                .group(accessibilityGroup)
-                .group(deadzoneGroup);
+
+        sensitivityGroup.ifPresent(builder::group);
+        controlsGroup.ifPresent(builder::group);
+        accessibilityGroup.ifPresent(builder::group);
+        deadzoneGroup.ifPresent(builder::group);
 
         return builder.build();
     }
 
-    private OptionGroup makeSensitivityGroup(Controller<?> controller, ControllerConfig def, ControllerConfig config) {
-        return OptionGroup.createBuilder()
+    private Optional<OptionGroup> makeSensitivityGroup(ControllerEntity controller) {
+        Optional<InputComponent> inputOpt = controller.input();
+        if (inputOpt.isEmpty())
+            return Optional.empty();
+
+        InputComponent.Config config = inputOpt.get().confObj();
+        InputComponent.Config def = inputOpt.get().defObj();
+
+        return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.sensitivity"))
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.horizontal_look_sensitivity"))
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.horizontal_look_sensitivity.tooltip"))
                                 .build())
-                        .binding(def.horizontalLookSensitivity, () -> config.horizontalLookSensitivity, v -> config.horizontalLookSensitivity = v)
+                        .binding(def.hLookSensitivity, () -> config.hLookSensitivity, v -> config.hLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
@@ -103,7 +107,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.vertical_look_sensitivity.tooltip"))
                                 .build())
-                        .binding(def.verticalLookSensitivity, () -> config.verticalLookSensitivity, v -> config.verticalLookSensitivity = v)
+                        .binding(def.vLookSensitivity, () -> config.vLookSensitivity, v -> config.vLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
@@ -125,13 +129,16 @@ public class ControllerConfigScreenFactory {
                         .binding(def.reduceAimingSensitivity, () -> config.reduceAimingSensitivity, v -> config.reduceAimingSensitivity = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
-                .build();
+                .build());
     }
 
-    private OptionGroup makeControlsGroup(Controller<?> controller, ControllerConfig def, ControllerConfig config) {
+    private Optional<OptionGroup> makeControlsGroup(ControllerEntity controller) {
         ValueFormatter<Boolean> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
-        return OptionGroup.createBuilder()
+        GenericControllerConfig config = controller.genericConfig().config();
+        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+
+        return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.controls"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.toggle_sprint"))
@@ -172,11 +179,14 @@ public class ControllerConfigScreenFactory {
                         .controller(TickBoxControllerBuilder::create)
                         .available(ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed())
                         .build())
-                .build();
+                .build());
     }
 
-    private OptionGroup makeAccessibilityGroup(Controller<?> controller, ControllerConfig def, ControllerConfig config) {
-        return OptionGroup.createBuilder()
+    private Optional<OptionGroup> makeAccessibilityGroup(ControllerEntity controller) {
+        GenericControllerConfig config = controller.genericConfig().config();
+        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+
+        return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.accessibility"))
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.show_ingame_guide"))
@@ -201,7 +211,7 @@ public class ControllerConfigScreenFactory {
                                 .text(Component.translatable("controlify.gui.show_screen_guide.tooltip"))
                                 .webpImage(screenshot("screen-button-guide.webp"))
                                 .build())
-                        .binding(def.showScreenGuide, () -> config.showScreenGuide, v -> config.showScreenGuide = v)
+                        .binding(def.showScreenGuides, () -> config.showScreenGuides, v -> config.showScreenGuides = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<Boolean>createBuilder()
@@ -222,16 +232,23 @@ public class ControllerConfigScreenFactory {
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0f, 8f).step(0.1f).formatValue(percentFormatter))
                         .build())
-                .build();
+                .build());
     }
 
-    private OptionGroup makeDeadzoneGroup(Controller<?> controller, ControllerConfig def, ControllerConfig config) {
+    private Optional<OptionGroup> makeDeadzoneGroup(ControllerEntity controller) {
+        Optional<InputComponent> inputOpt = controller.input();
+        if (inputOpt.isEmpty())
+            return Optional.empty();
+
+        InputComponent.Config config = inputOpt.get().confObj();
+        InputComponent.Config def = inputOpt.get().defObj();
+
         var deadzoneOpts = new ArrayList<Option<Float>>();
 
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
 
-        for (ResourceLocation deadzoneAxis : controller.config().deadzones.keySet()) {
+        for (ResourceLocation deadzoneAxis : config.deadzones.keySet()) {
             Component name = Inputs.getInputComponent(deadzoneAxis);
 
             Option<Float> deadzoneOpt = Option.<Float>createBuilder()
@@ -275,24 +292,28 @@ public class ControllerConfigScreenFactory {
                 })))
                 .build());
 
-        return group.build();
+        return Optional.of(group.build());
     }
 
-    private ConfigCategory createAdvancedCategory(Controller<?> controller) {
+    private ConfigCategory createAdvancedCategory(ControllerEntity controller) {
+        Optional<InputComponent> input = controller.input();
+        
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"))
-                .option(Option.<Boolean>createBuilder()
+                .optionIf(input.isPresent(), Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.mixed_input"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
-                        .binding(controller.defaultConfig().mixedInput, () -> controller.config().mixedInput, v -> controller.config().mixedInput = v)
+                        .binding(input.get().defObj().mixedInput, () -> input.get().defObj().mixedInput, v -> input.get().defObj().mixedInput = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build());
         // TODO
 //        if (controller instanceof EmulatedGamepadController emulatedGamepadController) {
 //            builder.group(makeGamepadEmulationGroup(emulatedGamepadController));
 //        }
-        builder.group(makeVibrationGroup(controller));
-        builder.group(makeGyroGroup(controller));
+
+        makeVibrationGroup(controller).ifPresent(builder::group);
+        makeGyroGroup(controller).ifPresent(builder::group);
+
         return builder.build();
     }
 
@@ -309,189 +330,195 @@ public class ControllerConfigScreenFactory {
 //                .build();
 //    }
 
-    private OptionGroup makeVibrationGroup(Controller<?> controller) {
-        boolean canRumble = controller.supportsRumble();
-        var config = controller.config();
-        var def = controller.defaultConfig();
-
+    private Optional<OptionGroup> makeVibrationGroup(ControllerEntity controller) {
         var vibrationGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.vibration"))
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.group.vibration.tooltip"))
                         .build());
-        if (canRumble) {
-            List<Option<Float>> strengthOptions = new ArrayList<>();
-            Option<Boolean> allowVibrationOption;
-            vibrationGroup.option(allowVibrationOption = Option.<Boolean>createBuilder()
-                    .name(Component.translatable("controlify.gui.allow_vibrations"))
-                    .description(OptionDescription.createBuilder()
-                            .text(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
-                            .build())
-                    .binding(def.allowVibrations, () -> config.allowVibrations, v -> config.allowVibrations = v)
-                    .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
-                    .controller(TickBoxControllerBuilder::create)
-                    .build());
-            for (RumbleSource source : RumbleSource.values()) {
-                var option = Option.<Float>createBuilder()
-                        .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
-                        .description(OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
-                                .build())
-                        .binding(
-                                def.getRumbleStrength(source),
-                                () -> config.getRumbleStrength(source),
-                                v -> config.setRumbleStrength(source, v)
-                        )
-                        .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0f, 2f)
-                                .step(0.05f)
-                                .formatValue(percentOrOffFormatter))
-                        .available(allowVibrationOption.pendingValue())
-                        .build();
-                strengthOptions.add(option);
-                vibrationGroup.option(option);
-            }
-            vibrationGroup.option(ButtonOption.createBuilder()
-                    .name(Component.translatable("controlify.gui.test_vibration"))
-                    .description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
-                    .action((screen, btn) -> {
-                        controller.rumbleManager().play(
-                                RumbleSource.MASTER,
-                                BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-                                        .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
-                                        .repeat(3)
-                                        .join(BasicRumbleEffect.constant(1f, 0f, 5)
-                                                .join(BasicRumbleEffect.constant(0f, 1f, 5))
-                                                .repeat(10)
-                                        )
-                                        .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
-                        );
-                    })
-                    .build());
-        } else {
+
+        Optional<RumbleComponent> rumbleOpt = controller.rumble();
+        if (rumbleOpt.isEmpty()) {
             vibrationGroup.option(LabelOption.create(Component.translatable("controlify.gui.allow_vibrations.not_available").withStyle(ChatFormatting.RED)));
+            return Optional.of(vibrationGroup.build());
         }
 
-        return vibrationGroup.build();
+        RumbleComponent rumble = rumbleOpt.get();
+
+        RumbleComponent.Config config = rumble.confObj();
+        RumbleComponent.Config def = rumble.defObj();
+
+        List<Option<Float>> strengthOptions = new ArrayList<>();
+        Option<Boolean> allowVibrationOption;
+        vibrationGroup.option(allowVibrationOption = Option.<Boolean>createBuilder()
+                .name(Component.translatable("controlify.gui.allow_vibrations"))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
+                        .build())
+                .binding(def.enabled, () -> config.enabled, v -> config.enabled = v)
+                .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
+                .controller(TickBoxControllerBuilder::create)
+                .build());
+        for (RumbleSource source : RumbleSource.values()) {
+            var option = Option.<Float>createBuilder()
+                    .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
+                            .build())
+                    .binding(
+                            def.vibrationStrengths.get(source.id()),
+                            () -> config.vibrationStrengths.get(source.id()),
+                            v -> config.vibrationStrengths.put(source.id(), v)
+                    )
+                    .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                            .range(0f, 2f)
+                            .step(0.05f)
+                            .formatValue(percentOrOffFormatter))
+                    .available(allowVibrationOption.pendingValue())
+                    .build();
+            strengthOptions.add(option);
+            vibrationGroup.option(option);
+        }
+        vibrationGroup.option(ButtonOption.createBuilder()
+                .name(Component.translatable("controlify.gui.test_vibration"))
+                .description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
+                .action((screen, btn) -> {
+                    rumble.rumbleManager().play(
+                            RumbleSource.MASTER,
+                            BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
+                                    .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+                                    .repeat(3)
+                                    .join(BasicRumbleEffect.constant(1f, 0f, 5)
+                                            .join(BasicRumbleEffect.constant(0f, 1f, 5))
+                                            .repeat(10)
+                                    )
+                                    .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
+                    );
+                })
+                .build());
+
+        return Optional.of(vibrationGroup.build());
     }
 
-    private OptionGroup makeGyroGroup(Controller<?> controller) {
-        boolean hasGyro = controller.supportsGyro();
-        var config = controller.config();
-        var def = controller.defaultConfig();
-
-        Option<Float> gyroSensitivity;
-        List<Option<?>> gyroOptions = new ArrayList<>();
+    private Optional<OptionGroup> makeGyroGroup(ControllerEntity controller) {
         var gyroGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.gyro"))
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.group.gyro.tooltip"))
-                        .build())
-                .collapsed(!hasGyro);
-        if (hasGyro) {
-            gyroGroup.option(gyroSensitivity = Option.<Float>createBuilder()
-                    .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
-                    .description(OptionDescription.createBuilder()
-                            .text(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
-                            .build())
-                    .binding(def.gyroLookSensitivity, () -> config.gyroLookSensitivity, v -> config.gyroLookSensitivity = v)
-                    .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                            .range(0f, 3f)
-                            .step(0.1f)
-                            .formatValue(percentOrOffFormatter))
-                    .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
-                        o.setAvailable(sensitivity > 0);
-                        o.requestSetDefault();
-                    }))
-                    .build());
-            var relativeModeOpt = Option.<Boolean>createBuilder()
-                    .name(Component.translatable("controlify.gui.gyro_behaviour"))
-                    .description(val -> OptionDescription.createBuilder()
-                            .text(Component.translatable("controlify.gui.gyro_behaviour.tooltip"))
-                            .text(val ? Component.translatable("controlify.gui.gyro_behaviour.relative.tooltip") : Component.translatable("controlify.gui.gyro_behaviour.absolute.tooltip"))
-                            .build())
-                    .binding(def.relativeGyroMode, () -> config.relativeGyroMode, v -> config.relativeGyroMode = v)
-                    .controller(opt -> BooleanControllerBuilder.create(opt)
-                            .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
-                    .build();
-            gyroGroup.option(relativeModeOpt);
-            gyroGroup.option(Util.make(() -> {
-                var option = Option.<GyroYawMode>createBuilder()
-                        .name(Component.translatable("controlify.gui.gyro_yaw_mode"))
-                        .description(val -> OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.gui.gyro_yaw_mode.tooltip"))
-                                .text(val == GyroYawMode.YAW ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.yaw_only") : Component.empty())
-                                .text(val == GyroYawMode.ROLL ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.roll_only") : Component.empty())
-                                .text(val == GyroYawMode.BOTH ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.both") : Component.empty())
-                                .build())
-                        .binding(def.gyroYawMode, () -> config.gyroYawMode, v -> config.gyroYawMode = v)
-                        .controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroYawMode.class))
-                        .build();
-                gyroOptions.add(option);
-                return option;
-            }));
-            gyroGroup.option(Util.make(() -> {
-                var opt = Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.gyro_invert_x"))
-                        .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
-                        .binding(def.invertGyroX, () -> config.invertGyroX, v -> config.invertGyroX = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .build();
-                gyroOptions.add(opt);
-                return opt;
-            }));
-            gyroGroup.option(Util.make(() -> {
-                var opt = Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.gyro_invert_y"))
-                        .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
-                        .binding(def.invertGyroY, () -> config.invertGyroY, v -> config.invertGyroY = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .build();
-                gyroOptions.add(opt);
-                return opt;
-            }));
-            gyroGroup.option(Util.make(() -> {
-                var opt = Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.gyro_requires_button"))
-                        .description(OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
-                                .build())
-                        .binding(def.gyroRequiresButton, () -> config.gyroRequiresButton, v -> config.gyroRequiresButton = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .available(gyroSensitivity.pendingValue() > 0)
-                        .listener((o, val) -> {
-                            if (val) {
-                                relativeModeOpt.setAvailable(gyroSensitivity.pendingValue() > 0);
-                            } else {
-                                relativeModeOpt.setAvailable(false);
-                                relativeModeOpt.requestSet(false);
-                            }
-                        })
-                        .build();
-                gyroOptions.add(opt);
-                return opt;
-            }));
-            gyroGroup.option(Util.make(() -> {
-                var opt = Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.flick_stick"))
-                        .description(OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.gui.flick_stick.tooltip"))
-                                .build())
-                        .binding(def.flickStick, () -> config.flickStick, v -> config.flickStick = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .available(gyroSensitivity.pendingValue() > 0)
-                        .build();
-                gyroOptions.add(opt);
-                return opt;
-            }));
-        } else {
+                        .build());
+
+        Optional<GyroComponent> gyroOpt = controller.gyro();
+        if (gyroOpt.isEmpty()) {
+            gyroGroup.collapsed(true);
             gyroGroup.option(LabelOption.create(Component.translatable("controlify.gui.group.gyro.no_gyro.tooltip").withStyle(ChatFormatting.RED)));
+            return Optional.of(gyroGroup.build());
         }
 
-        return gyroGroup.build();
+        GyroComponent.Config config = gyroOpt.get().confObj();
+        GyroComponent.Config def = gyroOpt.get().defObj();
+
+        Option<Float> gyroSensitivity;
+        List<Option<?>> gyroOptions = new ArrayList<>();
+        gyroGroup.option(gyroSensitivity = Option.<Float>createBuilder()
+                .name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
+                        .build())
+                .binding(def.lookSensitivity, () -> config.lookSensitivity, v -> config.lookSensitivity = v)
+                .controller(opt -> FloatSliderControllerBuilder.create(opt)
+                        .range(0f, 3f)
+                        .step(0.1f)
+                        .formatValue(percentOrOffFormatter))
+                .listener((opt, sensitivity) -> gyroOptions.forEach(o -> {
+                    o.setAvailable(sensitivity > 0);
+                    o.requestSetDefault();
+                }))
+                .build());
+        var relativeModeOpt = Option.<Boolean>createBuilder()
+                .name(Component.translatable("controlify.gui.gyro_behaviour"))
+                .description(val -> OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.gyro_behaviour.tooltip"))
+                        .text(val ? Component.translatable("controlify.gui.gyro_behaviour.relative.tooltip") : Component.translatable("controlify.gui.gyro_behaviour.absolute.tooltip"))
+                        .build())
+                .binding(def.relativeGyroMode, () -> config.relativeGyroMode, v -> config.relativeGyroMode = v)
+                .controller(opt -> BooleanControllerBuilder.create(opt)
+                        .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
+                .build();
+        gyroGroup.option(relativeModeOpt);
+        gyroGroup.option(Util.make(() -> {
+            var option = Option.<GyroYawMode>createBuilder()
+                    .name(Component.translatable("controlify.gui.gyro_yaw_mode"))
+                    .description(val -> OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.gyro_yaw_mode.tooltip"))
+                            .text(val == GyroYawMode.YAW ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.yaw_only") : Component.empty())
+                            .text(val == GyroYawMode.ROLL ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.roll_only") : Component.empty())
+                            .text(val == GyroYawMode.BOTH ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.both") : Component.empty())
+                            .build())
+                    .binding(def.yawMode, () -> config.yawMode, v -> config.yawMode = v)
+                    .controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroYawMode.class))
+                    .build();
+            gyroOptions.add(option);
+            return option;
+        }));
+        gyroGroup.option(Util.make(() -> {
+            var opt = Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.gyro_invert_x"))
+                    .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
+                    .binding(def.invertX, () -> config.invertX, v -> config.invertX = v)
+                    .controller(TickBoxControllerBuilder::create)
+                    .build();
+            gyroOptions.add(opt);
+            return opt;
+        }));
+        gyroGroup.option(Util.make(() -> {
+            var opt = Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.gyro_invert_y"))
+                    .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
+                    .binding(def.invertY, () -> config.invertY, v -> config.invertY = v)
+                    .controller(TickBoxControllerBuilder::create)
+                    .build();
+            gyroOptions.add(opt);
+            return opt;
+        }));
+        gyroGroup.option(Util.make(() -> {
+            var opt = Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.gyro_requires_button"))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
+                            .build())
+                    .binding(def.requiresButton, () -> config.requiresButton, v -> config.requiresButton = v)
+                    .controller(TickBoxControllerBuilder::create)
+                    .available(gyroSensitivity.pendingValue() > 0)
+                    .listener((o, val) -> {
+                        if (val) {
+                            relativeModeOpt.setAvailable(gyroSensitivity.pendingValue() > 0);
+                        } else {
+                            relativeModeOpt.setAvailable(false);
+                            relativeModeOpt.requestSet(false);
+                        }
+                    })
+                    .build();
+            gyroOptions.add(opt);
+            return opt;
+        }));
+        gyroGroup.option(Util.make(() -> {
+            var opt = Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.flick_stick"))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.flick_stick.tooltip"))
+                            .build())
+                    .binding(def.flickStick, () -> config.flickStick, v -> config.flickStick = v)
+                    .controller(TickBoxControllerBuilder::create)
+                    .available(gyroSensitivity.pendingValue() > 0)
+                    .build();
+            gyroOptions.add(opt);
+            return opt;
+        }));
+
+        return Optional.of(gyroGroup.build());
     }
 
-    private ConfigCategory createBindsCategory(Controller<?> controller) {
+    private ConfigCategory createBindsCategory(ControllerEntity controller) {
         var category = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
 

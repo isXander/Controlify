@@ -3,8 +3,7 @@ package dev.isxander.controlify.gui.controllers;
 import dev.isxander.controlify.bindings.ButtonBind;
 import dev.isxander.controlify.bindings.HatBind;
 import dev.isxander.controlify.bindings.IBind;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
-import dev.isxander.controlify.controller.composable.HatState;
+import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.gui.screen.BindConsumerScreen;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -24,10 +23,10 @@ import java.util.Optional;
 
 public class BindController implements Controller<IBind> {
     private final Option<IBind> option;
-    public final dev.isxander.controlify.controller.Controller<?> controller;
+    public final ControllerEntity controller;
     private boolean conflicting;
 
-    public BindController(Option<IBind> option, dev.isxander.controlify.controller.Controller<?> controller) {
+    public BindController(Option<IBind> option, ControllerEntity controller) {
         this.option = option;
         this.controller = controller;
     }
@@ -99,7 +98,7 @@ public class BindController implements Controller<IBind> {
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, dev.isxander.controlify.controller.Controller<?> controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (controller != control.controller) return true;
 
             if (controller.bindings().GUI_PRESS.justPressed()) {
@@ -129,8 +128,9 @@ public class BindController implements Controller<IBind> {
         }
 
         public Optional<IBind> getPressedBind() {
-            ComposableControllerState state = control.controller.state();
-            ComposableControllerState prevState = control.controller.prevState();
+            InputComponent input = control.controller.input().orElseThrow();
+            ControllerStateView state = input.stateNow();
+            ControllerStateView prevState = input.stateThen();
 
             for (ResourceLocation button : state.getButtons()) {
                 if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {

@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -66,7 +67,8 @@ public class MultiPlayerGameModeMixin {
 
         blockBreakRumble = effect;
         ControlifyApi.get().getCurrentController()
-                .ifPresent(controller -> controller.rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect));
+                .flatMap(ControllerEntity::rumble)
+                .ifPresent(rumble -> rumble.rumbleManager().play(RumbleSource.BLOCK_DESTROY, effect));
     }
 
     @Unique

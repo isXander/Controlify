@@ -1,7 +1,7 @@
 package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
 import net.minecraft.client.player.KeyboardInput;
@@ -9,11 +9,11 @@ import net.minecraft.client.player.LocalPlayer;
 import org.jetbrains.annotations.Nullable;
 
 public class ControllerPlayerMovement extends Input {
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
     private final LocalPlayer player;
     private boolean wasFlying, wasPassenger;
 
-    public ControllerPlayerMovement(Controller<?> controller, LocalPlayer player) {
+    public ControllerPlayerMovement(ControllerEntity controller, LocalPlayer player) {
         this.controller = controller;
         this.player = player;
     }
@@ -38,7 +38,7 @@ public class ControllerPlayerMovement extends Input {
         this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
 
         if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
-            float threshold = controller.config().buttonActivationThreshold;
+            float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
 
             this.forwardImpulse = Math.abs(this.forwardImpulse) >= threshold ? Math.copySign(1, this.forwardImpulse) : 0;
             this.leftImpulse = Math.abs(this.leftImpulse) >= threshold ? Math.copySign(1, this.leftImpulse) : 0;
@@ -60,7 +60,7 @@ public class ControllerPlayerMovement extends Input {
         if (!bindings.JUMP.held())
             this.jumping = false;
 
-        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.config().toggleSneak) {
+        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.genericConfig().config().toggleSneak) {
             if (bindings.SNEAK.justPressed())
                 this.shiftKeyDown = true;
             if (!bindings.SNEAK.held())

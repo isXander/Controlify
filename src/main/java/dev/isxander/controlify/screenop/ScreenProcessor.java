@@ -2,10 +2,8 @@ package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
-import dev.isxander.controlify.controller.composable.gamepad.GamepadInputs;
+import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
 import dev.isxander.controlify.sound.ControlifySounds;
@@ -39,7 +37,7 @@ public class ScreenProcessor<T extends Screen> {
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
     }
 
-    public void onControllerUpdate(Controller<?> controller) {
+    public void onControllerUpdate(ControllerEntity controller) {
         Controlify.instance().virtualMouseHandler().handleControllerInput(controller);
 
         if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
@@ -59,7 +57,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    public void render(Controller<?> controller, GuiGraphics graphics, float tickDelta) {
+    public void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta) {
         var vmouse = Controlify.instance().virtualMouseHandler();
         this.render(controller, graphics, tickDelta, vmouse.isVirtualMouseEnabled() ? Optional.of(vmouse) : Optional.empty());
     }
@@ -82,7 +80,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleComponentNavigation(Controller<?> controller) {
+    protected void handleComponentNavigation(ControllerEntity controller) {
         if (screen.getFocused() == null)
             setInitialFocus();
 
@@ -93,8 +91,9 @@ public class ScreenProcessor<T extends Screen> {
         boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
 
         var bindings = controller.bindings();
-        ComposableControllerState state = controller.state();
-        ComposableControllerState prevState = controller.prevState();
+        InputComponent input = controller.input().orElseThrow();
+        ControllerStateView state = input.stateNow();
+        ControllerStateView prevState = input.stateThen();
 
         FocusNavigationEvent.ArrowNavigation event = null;
         if (bindings.GUI_NAVI_RIGHT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_RIGHT.prevHeld())) {
@@ -157,10 +156,11 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         boolean vmouseEnabled = Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled();
-        boolean touchpadPressed = controller.state().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
-        boolean prevTouchpadPressed = controller.prevState().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        InputComponent input = controller.input().orElseThrow();
+        boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
 
         if (controller.bindings().GUI_PRESS.justPressed() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
@@ -171,11 +171,11 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
 
     }
 
-    protected boolean handleComponentButtonOverride(Controller<?> controller) {
+    protected boolean handleComponentButtonOverride(ControllerEntity controller) {
         var focusTree = getFocusTree();
         while (!focusTree.isEmpty()) {
             var focused = focusTree.poll();
@@ -186,7 +186,7 @@ public class ScreenProcessor<T extends Screen> {
         return false;
     }
 
-    protected boolean handleComponentNavOverride(Controller<?> controller) {
+    protected boolean handleComponentNavOverride(ControllerEntity controller) {
         var focusTree = getFocusTree();
         while (!focusTree.isEmpty()) {
             var focused = focusTree.poll();
@@ -196,7 +196,7 @@ public class ScreenProcessor<T extends Screen> {
         return false;
     }
 
-    protected void handleTabNavigation(Controller<?> controller) {
+    protected void handleTabNavigation(ControllerEntity controller) {
         var nextTab = controller.bindings().GUI_NEXT_TAB.justPressed();
         var prevTab = controller.bindings().GUI_PREV_TAB.justPressed();
 
@@ -220,7 +220,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void onTabChanged(Controller<?> controller) {
+    protected void onTabChanged(ControllerEntity controller) {
 
     }
 
@@ -236,7 +236,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void render(Controller<?> controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+    protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
 
     }
 

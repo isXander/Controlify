@@ -6,9 +6,9 @@ import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.composable.gamepad.GamepadInputs;
+import dev.isxander.controlify.controller.GamepadInputs;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
@@ -81,9 +81,9 @@ public class ControllerBindings {
 
     private final Map<ResourceLocation, ControllerBinding> registry = new Object2ObjectLinkedOpenHashMap<>();
 
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
 
-    public ControllerBindings(Controller<?> controller) {
+    public ControllerBindings(ControllerEntity controller) {
         this.controller = controller;
         var options = Minecraft.getInstance().options;
 
@@ -135,7 +135,7 @@ public class ControllerBindings {
                 .category(MOVEMENT_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
-        if (controller.supportsGyro()) {
+        if (controller.gyro().isPresent()) {
             register(GAMEPAD_GYRO_BUTTON = ControllerBindingBuilder.create(controller)
                     .identifier("controlify", "gyro_button")
                     .defaultBind(new EmptyBind())
@@ -157,7 +157,7 @@ public class ControllerBindings {
                 .defaultBind(GamepadInputs.getBind(GamepadInputs.LEFT_STICK_BUTTON))
                 .category(MOVEMENT_CATEGORY)
                 .context(BindContexts.INGAME)
-                .vanillaOverride(options.keySprint, () -> controller.config().toggleSprint)
+                .vanillaOverride(options.keySprint, () -> controller.genericConfig().config().toggleSprint)
                 .build());
         register(SNEAK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "sneak")

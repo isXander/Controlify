@@ -1,8 +1,11 @@
 package dev.isxander.controlify.driver;
 
-public interface Driver {
-    void update();
+import dev.isxander.controlify.controller.ControllerEntity;
 
-    default void close() {
-    }
+public interface Driver {
+    void update(boolean outOfFocus);
+
+    ControllerEntity getController();
+
+    void close();
 }

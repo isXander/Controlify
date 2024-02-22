@@ -2,9 +2,11 @@ package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.composable.gyro.GyroState;
+import dev.isxander.controlify.controller.GyroState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.GyroComponent;
+import dev.isxander.controlify.controller.InputComponent;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.Animator;
@@ -24,13 +26,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2fc;
-import org.joml.Vector3f;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 public class InGameInputHandler {
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY; // in degrees per tick
@@ -42,7 +44,7 @@ public class InGameInputHandler {
     private final HoldRepeatHelper dropRepeatHelper;
     private boolean dropRepeating;
 
-    public InGameInputHandler(Controller<?> controller) {
+    public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
@@ -163,7 +165,8 @@ public class InGameInputHandler {
 
         // flick stick - turn 90 degrees immediately upon turning
         // should be paired with gyro controls
-        if (controller.config().flickStick) {
+        Optional<GyroComponent> gyroOpt = controller.gyro();
+        if (gyroOpt.isPresent() && gyroOpt.get().config().config().flickStick) {
             var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
 
             float flick = controller.bindings().LOOK_DOWN.justPressed() || controller.bindings().LOOK_RIGHT.justPressed() ? 1 : controller.bindings().LOOK_UP.justPressed() || controller.bindings().LOOK_LEFT.justPressed() ? -1 : 0;
@@ -177,6 +180,8 @@ public class InGameInputHandler {
                         }, 0, turnAngle));
             }
         } else {
+            InputComponent.Config inputConfig = controller.input().orElseThrow().config().config();
+
             // TODO: refactor this function majorly - this is truly awful
             //       possibly separate the flick stick code into its own function?
             // normal look input
@@ -192,10 +197,10 @@ public class InGameInputHandler {
             impulseX = easedImpulse.x();
             impulseY = easedImpulse.y();
 
-            impulseX *= controller.config().horizontalLookSensitivity * 10f; // 10 degrees per second at 100% sensitivity
-            impulseY *= controller.config().verticalLookSensitivity * 10f;
+            impulseX *= inputConfig.hLookSensitivity * 10f; // 10 degrees per second at 100% sensitivity
+            impulseY *= inputConfig.vLookSensitivity * 10f;
 
-            if (controller.config().reduceAimingSensitivity && player.isUsingItem()) {
+            if (inputConfig.reduceAimingSensitivity && player.isUsingItem()) {
                 float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
                     case BOW, SPEAR -> 0.6f;
                     case SPYGLASS -> 0.2f;
@@ -207,22 +212,25 @@ public class InGameInputHandler {
         }
 
         // gyro input
-        if (controller.supportsGyro()) {
+        if (gyroOpt.isPresent()) {
+            GyroComponent gyro = gyroOpt.get();
+            GyroComponent.Config gyroConfig = gyro.config().config();
+
             boolean useGyro = false;
 
-            if (controller.config().gyroRequiresButton) {
+            if (gyroConfig.requiresButton) {
                 if (controller.bindings().GAMEPAD_GYRO_BUTTON.justPressed() || (isAiming && !wasAiming))
                     gyroInput.set(0);
 
                 if (controller.bindings().GAMEPAD_GYRO_BUTTON.held() || isAiming) {
-                    if (controller.config().relativeGyroMode)
-                        gyroInput.add(new GyroState(controller.state().getGyroState()).mul(0.1f));
+                    if (gyroConfig.relativeGyroMode)
+                        gyroInput.add(new GyroState(gyro.getState()).mul(0.1f));
                     else
-                        gyroInput.set(controller.state().getGyroState());
+                        gyroInput.set(gyro.getState());
                     useGyro = true;
                 }
             } else {
-                gyroInput.set(controller.state().getGyroState());
+                gyroInput.set(gyro.getState());
                 useGyro = true;
             }
 
@@ -231,14 +239,14 @@ public class InGameInputHandler {
                 GyroState thisInput = new GyroState(gyroInput)
                         .mul(Mth.RAD_TO_DEG)
                         .div(20)
-                        .mul(controller.config().gyroLookSensitivity);
+                        .mul(gyroConfig.lookSensitivity);
 
-                impulseY += -thisInput.pitch() * (controller.config().invertGyroY ? -1 : 1);
-                impulseX += switch (controller.config().gyroYawMode) {
+                impulseY += -thisInput.pitch() * (gyroConfig.invertY ? -1 : 1);
+                impulseX += switch (gyroConfig.yawMode) {
                     case YAW -> -thisInput.yaw();
                     case ROLL -> -thisInput.roll();
                     case BOTH -> -thisInput.yaw() - thisInput.roll();
-                } * (controller.config().invertGyroX ? -1 : 1);
+                } * (gyroConfig.invertX ? -1 : 1);
             }
         }
 
@@ -263,7 +271,7 @@ public class InGameInputHandler {
     }
 
     public void preventFlyDrifting() {
-        if (!controller.config().disableFlyDrifting || !ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed()) {
+        if (!controller.genericConfig().config().disableFlyDrifting || !ServerPolicies.DISABLE_FLY_DRIFTING.get().isAllowed()) {
             return;
         }
 
@@ -295,14 +303,14 @@ public class InGameInputHandler {
         };
     }
 
-    public record FunctionalLookInputModifier(BiFunction<Float, Controller<?>, Float> x, BiFunction<Float, Controller<?>, Float> y) implements LookInputModifier {
+    public record FunctionalLookInputModifier(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) implements LookInputModifier {
         @Override
-        public float modifyX(float x, Controller<?> controller) {
+        public float modifyX(float x, ControllerEntity controller) {
             return this.x.apply(x, controller);
         }
 
         @Override
-        public float modifyY(float y, Controller<?> controller) {
+        public float modifyY(float y, ControllerEntity controller) {
             return this.y.apply(y, controller);
         }
     }

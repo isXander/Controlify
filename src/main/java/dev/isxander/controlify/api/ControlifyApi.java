@@ -2,7 +2,7 @@ package dev.isxander.controlify.api;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -22,7 +22,7 @@ public interface ControlifyApi {
      * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
      * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
      */
-    @NotNull Optional<Controller<?>> getCurrentController();
+    @NotNull Optional<ControllerEntity> getCurrentController();
 
     /**
      * The last input received: a controller or keyboard/mouse.

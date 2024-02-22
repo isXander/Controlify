@@ -1,7 +1,7 @@
 package dev.isxander.controlify.compatibility.sodium;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.sodium.SodiumOptionsGUIAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
@@ -15,12 +15,12 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
     }
 
     @Override
-    protected void handleComponentNavigation(Controller<?> controller) {
+    protected void handleComponentNavigation(ControllerEntity controller) {
         super.handleComponentNavigation(controller);
     }
 
     @Override
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         var accessor = (SodiumOptionsGUIAccessor) screen;
 
         if (controller.bindings().GUI_NEXT_TAB.justPressed()) {

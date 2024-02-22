@@ -1,8 +1,10 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.gyro.GyroState;
+import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.GyroState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.InputComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ClientUtils;
 import net.minecraft.ChatFormatting;
@@ -13,9 +15,11 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -31,7 +35,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     protected final Controlify controlify;
     protected final ControllerManager controllerManager;
-    protected final Controller<?> controller;
+    protected final ControllerEntity controller;
     private final Supplier<Screen> parent;
 
     private MultiLineLabel waitLabel, infoLabel, completeLabel;
@@ -41,20 +45,23 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     protected boolean calibrating = false, calibrated = false;
     protected int calibrationTicks = 0;
 
+    @Nullable
     private final Map<ResourceLocation, float[]> axisData;
     private GyroState accumulatedGyroVelocity = new GyroState();
 
-    public ControllerCalibrationScreen(Controller<?> controller, Screen parent) {
+    public ControllerCalibrationScreen(ControllerEntity controller, Screen parent) {
         this(controller, () -> parent);
     }
 
-    public ControllerCalibrationScreen(Controller<?> controller, Supplier<Screen> parent) {
+    public ControllerCalibrationScreen(ControllerEntity controller, Supplier<Screen> parent) {
         super(Component.translatable("controlify.calibration.title"));
         this.controlify = Controlify.instance();
         this.controllerManager = controlify.getControllerManager().orElseThrow();
         this.controller = controller;
         this.parent = parent;
-        this.axisData = new HashMap<>(controller.axisCount());
+
+        Optional<InputComponent> inputOpt = controller.input();
+        this.axisData = inputOpt.map(inputComponent -> new HashMap<ResourceLocation, float[]>(inputComponent.axisCount())).orElse(null);
     }
 
     @Override
@@ -114,13 +121,13 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
         graphics.pose().translate(width / 2f - 32 * scale, 55 + font.lineHeight * label.getLineCount(), 0f);
         graphics.pose().scale(scale, scale, 1f);
-        graphics.blitSprite(controller.type().getIconSprite(), 0, 0, 64, 64);
+        graphics.blitSprite(controller.info().type().getIconSprite(), 0, 0, 64, 64);
         graphics.pose().popPose();
     }
 
     @Override
     public void tick() {
-        if (!controllerManager.isControllerConnected(controller.uid())) {
+        if (!controllerManager.isControllerConnected(controller.info().uid())) {
             onClose();
             return;
         }
@@ -130,7 +137,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         if (stateChanged()) {
             calibrationTicks = 0;
-            axisData.clear();
+            if (axisData != null)
+                axisData.clear();
             accumulatedGyroVelocity = new GyroState();
         }
 
@@ -148,8 +156,13 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             readyButton.active = true;
             readyButton.setMessage(Component.translatable("controlify.calibration.done"));
 
-            controller.config().deadzonesCalibrated = true;
-            controller.config().delayedCalibration = false;
+            controller.input().map(input -> input.config().config()).ifPresent(config -> {
+                config.deadzonesCalibrated = true;
+                config.delayedCalibration = false;
+            });
+            controller.gyro().map(gyro -> gyro.config().config()).ifPresent(config -> {
+                config.calibrated = true;
+            });
             // no need to save because of setCurrentController
 
             Controlify.instance().setCurrentController(controller, true);
@@ -157,22 +170,30 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     }
 
     private void processAxisData(int tick) {
-        for (ResourceLocation axis : controller.state().getAxes()) {
+        if (axisData == null)
+            return;
+
+        ControllerState state = controller.input().orElseThrow().rawStateNow();
+        for (ResourceLocation axis : state.getAxes()) {
             float[] axisData = this.axisData.computeIfAbsent(axis, k -> new float[CALIBRATION_TIME]);
-            axisData[tick] = controller.state().getAxisState(axis);
+            axisData[tick] = state.getAxisState(axis);
         }
     }
 
     private void processGyroData() {
-        if (controller.supportsGyro()) {
-            accumulatedGyroVelocity.add(controller.state().getGyroState());
-        }
+        controller.gyro().ifPresent(gyro -> {
+            accumulatedGyroVelocity.add(gyro.getState());
+        });
     }
 
     private void calibrateAxis() {
-        controller.config().deadzones.clear();
+        if (axisData == null)
+            return;
+        InputComponent input = controller.input().orElseThrow();
 
-        for (ResourceLocation axis : controller.state().getAxes()) {
+        input.config().config().deadzones.clear();
+
+        for (ResourceLocation axis : input.rawStateNow().getAxes()) {
             float[] axisData = this.axisData.get(axis);
             if (axisData == null)
                 continue;
@@ -183,24 +204,29 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
                 maxAbs = Math.max(maxAbs, Math.abs(axisValue));
             }
 
-            controller.config().deadzones.put(axis, maxAbs + 0.08f);
+            input.config().config().deadzones.put(axis, maxAbs + 0.08f);
         }
     }
 
     private void generateGyroCalibration() {
-        controller.config().gyroCalibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
+        controller.gyro().ifPresent(gyro -> {
+            gyro.config().config().calibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
+        });
+
     }
 
     private boolean stateChanged() {
+        InputComponent input = controller.input().orElseThrow();
+
         var amt = 0.4f;
 
-        for (ResourceLocation axis : controller.state().getAxes()) {
+        for (ResourceLocation axis : input.rawStateNow().getAxes()) {
             float[] axisData = this.axisData.get(axis);
             if (axisData == null)
                 continue;
 
-            float axisValue = controller.state().getAxisState(axis);
-            float prevAxisValue = controller.prevState().getAxisState(axis);
+            float axisValue = input.rawStateNow().getAxisState(axis);
+            float prevAxisValue = input.rawStateThen().getAxisState(axis);
 
             if (Math.abs(axisValue - prevAxisValue) > amt)
                 return true;
@@ -221,8 +247,15 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     private void onLaterButtonPress() {
         if (!calibrated) {
-            if (!controller.config().deadzonesCalibrated) {
-                controller.config().delayedCalibration = true;
+            boolean dirty = false;
+            dirty |= controller.input()
+                    .map(input -> input.config().config().delayedCalibration = true)
+                    .orElse(false);
+            dirty |= controller.gyro()
+                    .map(gyro -> gyro.config().config().delayedCalibration = true)
+                    .orElse(false);
+
+            if (dirty) {
                 Controlify.instance().config().setDirty();
                 Controlify.instance().setCurrentController(null, true);
             }

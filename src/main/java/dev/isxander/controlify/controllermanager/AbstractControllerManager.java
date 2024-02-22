@@ -3,7 +3,8 @@ package dev.isxander.controlify.controllermanager;
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.utils.ControllerUtils;
@@ -20,15 +21,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
-
 public abstract class AbstractControllerManager implements ControllerManager {
     protected final Controlify controlify;
     protected final Minecraft minecraft;
 
-    protected final Map<UniqueControllerID, Controller<?>> controllersByJid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, Controller<?>> controllersByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<UniqueControllerID, ControllerEntity> controllersByJid = new Object2ObjectOpenHashMap<>();
+    protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
     protected final Map<String, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
+
+    protected final Map<String, Driver> driversByUid = new Object2ObjectOpenHashMap<>();
 
     public AbstractControllerManager() {
         this.controlify = Controlify.instance();
@@ -39,7 +40,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
                 .ifPresent(this::loadGamepadMappings);
     }
 
-    public Optional<Controller<?>> createOrGet(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    public Optional<ControllerEntity> createOrGet(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
         try {
             Optional<String> uid = hidInfo.createControllerUID();
             if (uid.isPresent() && controllersByUid.containsKey(uid.get())) {
@@ -51,9 +52,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
                 return Optional.empty();
             }
 
-            Optional<Controller<?>> controller = createController(ucid, hidInfo);
-            controller.ifPresent(c -> addController(ucid, c));
-            return controller;
+            return createController(ucid, hidInfo);
         } catch (Throwable e) {
             CUtil.LOGGER.error("Failed to create controller #" + ucid + "!", e);
             CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
@@ -67,20 +66,17 @@ public abstract class AbstractControllerManager implements ControllerManager {
         }
     }
 
-    protected abstract Optional<Controller<?>> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo);
+    protected abstract Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo);
 
     @Override
     public void tick(boolean outOfFocus) {
-        for (var controller : this.getConnectedControllers()) {
-            if (!outOfFocus)
-                wrapControllerError(controller::updateState, "Updating controller state", controller);
-            else
-                wrapControllerError(controller::clearState, "Clearing controller state", controller);
-            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoker().onControllerStateUpdate(controller);
+        for (Driver driver : driversByUid.values()) {
+            driver.update(outOfFocus);
+            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoker().onControllerStateUpdate(driver.getController());
         }
     }
 
-    protected void onControllerConnected(Controller<?> controller, boolean hotplug) {
+    protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
         CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
         boolean newController = controlify.config().loadOrCreateControllerData(controller);
@@ -88,31 +84,35 @@ public abstract class AbstractControllerManager implements ControllerManager {
         ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
     }
 
-    protected void onControllerRemoved(Controller<?> controller) {
+    protected void onControllerRemoved(ControllerEntity controller) {
         CUtil.LOGGER.info("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
 
-        removeController(controller.uid());
+        removeController(controller.info().uid());
 
         ControlifyEvents.CONTROLLER_DISCONNECTED.invoker().onControllerDisconnected(controller);
     }
 
-    protected void addController(UniqueControllerID ucid, Controller<?> controller) {
-        controllersByUid.put(controller.uid(), controller);
+    protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {
+        controllersByUid.put(controller.info().uid(), controller);
         controllersByJid.put(ucid, controller);
+        driversByUid.put(controller.info().uid(), driver);
     }
 
     protected void removeController(String uid) {
-        Controller<?> prev = controllersByUid.remove(uid);
-        if (prev != null) {
-            prev.close();
-        }
-
+        controllersByUid.remove(uid);
         Optional.ofNullable(hidInfoByUid.remove(uid))
                 .ifPresent(controlify.controllerHIDService()::unconsumeController);
+        closeController(uid);
+        driversByUid.remove(uid);
     }
 
     @Override
-    public List<Controller<?>> getConnectedControllers() {
+    public void closeController(String uid) {
+        driversByUid.get(uid).close();
+    }
+
+    @Override
+    public List<ControllerEntity> getConnectedControllers() {
         return ImmutableList.copyOf(controllersByUid.values());
     }
 
@@ -123,7 +123,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     @Override
     public void close() {
-        controllersByUid.values().forEach(Controller::close);
+        driversByUid.values().forEach(Driver::close);
     }
 
     protected abstract void loadGamepadMappings(Resource resource);

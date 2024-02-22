@@ -7,15 +7,11 @@ import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ToastUtils;
-import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
-import io.github.libsdl4j.api.joystick.SDL_JoystickID;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
 
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
 
 public class ControllerHIDService {
     private final HidServicesSpecification specification;

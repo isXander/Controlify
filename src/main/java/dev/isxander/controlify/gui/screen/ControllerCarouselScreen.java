@@ -5,7 +5,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
@@ -117,7 +118,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     public void refreshControllers() {
-        Controller<?> prevSelectedController;
+        ControllerEntity prevSelectedController;
         if (carouselEntries != null && !carouselEntries.isEmpty()) {
             carouselEntries.forEach(this::removeWidget);
             prevSelectedController = carouselEntries.get(carouselIndex).controller;
@@ -200,7 +201,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void onControllerInput(Controller<?> controller) {
+    public void onControllerInput(ControllerEntity controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             globalSettingsButton.onPress();
         }
@@ -216,7 +217,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         private final int width, height;
         private float translationX, translationY;
 
-        private final Controller<?> controller;
+        private final ControllerEntity controller;
         private final boolean hasNickname;
 
         private final Button useControllerButton;
@@ -231,12 +232,12 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         private boolean hovered = false;
 
-        private CarouselEntry(Controller<?> controller, int width, int height) {
+        private CarouselEntry(ControllerEntity controller, int width, int height) {
             this.width = width;
             this.height = height;
 
             this.controller = controller;
-            this.hasNickname = this.controller.config().customName != null;
+            this.hasNickname = this.controller.genericConfig().config().nickname != null;
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
             this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller, true)).width(settingsButton.getWidth()).build();
@@ -263,10 +264,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight - (hasNickname ? font.lineHeight + 1 : 0), 0xFFFFFF);
             if (hasNickname) {
-                String nickname = controller.config().customName;
-                controller.config().customName = null;
+                GenericControllerConfig config = this.controller.genericConfig().config();
+                String nickname = config.nickname;
+                config.nickname = null;
                 graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight, 0xAAAAAA);
-                controller.config().customName = nickname;
+                config.nickname = nickname;
             }
 
             Component currentlyInUseText = Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN);
@@ -285,9 +287,9 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             int iconSize = Mth.roundToward(Math.min(iconHeight, iconWidth), 2);
 
             graphics.pose().pushPose();
-            graphics.pose().translate(x + width / 2 - iconSize / 2, y + font.lineHeight + 12 + iconHeight / 2 - iconSize / 2, 0);
+            graphics.pose().translate(x + width / 2f - iconSize / 2f, y + font.lineHeight + 12 + iconHeight / 2f - iconSize / 2f, 0);
             graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
-            graphics.blitSprite(controller.type().getIconSprite(), 0, 0, 64, 64);
+            graphics.blitSprite(controller.info().type().getIconSprite(), 0, 0, 64, 64);
             graphics.pose().popPose();
 
             graphics.pose().translate(0, 0, 1);

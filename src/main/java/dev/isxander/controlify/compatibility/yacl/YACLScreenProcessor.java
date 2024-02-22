@@ -1,6 +1,6 @@
 package dev.isxander.controlify.compatibility.yacl;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.yacl.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.yacl3.gui.OptionListWidget;
@@ -13,7 +13,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     }
 
     @Override
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
                 ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress();
@@ -25,7 +25,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     }
 
     @Override
-    protected void onTabChanged(Controller<?> controller) {
+    protected void onTabChanged(ControllerEntity controller) {
         if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
             ListHolderWidget<OptionListWidget> optionListHolder = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList();
             OptionListWidget optionList = optionListHolder.getList();

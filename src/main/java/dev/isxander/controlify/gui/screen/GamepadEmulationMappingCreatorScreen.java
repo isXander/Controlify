@@ -6,7 +6,7 @@
 //import dev.isxander.controlify.controller.composable.emulatedgp.mapping.AxisMapping;
 //import dev.isxander.controlify.controller.composable.emulatedgp.mapping.MappingEntry;
 //import dev.isxander.controlify.controller.composable.emulatedgp.mapping.UserGamepadMapping;
-//import dev.isxander.controlify.controller.composable.HatState;
+//import dev.isxander.controlify.controller.HatState;
 //import dev.isxander.controlify.driver.joystick.BasicJoystickState;
 //import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 //import dev.isxander.controlify.screenop.ScreenProcessor;

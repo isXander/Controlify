@@ -1,7 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.bindings.IBind;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -144,7 +144,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         }
 
         @Override
-        public void onControllerUpdate(Controller<?> controller) {
+        public void onControllerUpdate(ControllerEntity controller) {
             // prevent all other controller input logic
         }
     }

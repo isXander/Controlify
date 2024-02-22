@@ -3,7 +3,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.guide.ContainerGuideCtx;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
@@ -40,7 +40,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         var accessor = (AbstractContainerScreenAccessor) screen;
         ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
 
@@ -90,7 +90,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     @Override
     public void onWidgetRebuild() {
         ControllerBindings bindings = ControlifyApi.get().getCurrentController()
-                .map(Controller::bindings)
+                .map(ControllerEntity::bindings)
                 .orElse(null);
 
         if (bindings == null) {
@@ -196,7 +196,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     }
 
     private void setRenderGuide(boolean render) {
-        render &= ControlifyApi.get().getCurrentController().map(c -> c.config().showScreenGuide).orElse(false);
+        render &= ControlifyApi.get().getCurrentController().map(c -> c.genericConfig().config().showScreenGuides).orElse(false);
 
         List<Renderable> renderables = ((ScreenAccessor) screen).getRenderables();
 

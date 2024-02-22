@@ -8,8 +8,8 @@ import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
 import dev.isxander.controlify.api.ingameguide.*;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
@@ -28,7 +28,7 @@ import org.joml.Matrix4f;
 import java.util.*;
 
 public class InGameButtonGuide implements IngameGuideRegistry {
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
     private final LocalPlayer player;
     private final Minecraft minecraft = Minecraft.getInstance();
 
@@ -38,7 +38,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> leftLayout;
     private PositionedComponent<ColumnLayoutComponent<GuideActionRenderer<IngameGuideContext>>> rightLayout;
 
-    public InGameButtonGuide(Controller<?> controller, LocalPlayer localPlayer) {
+    public InGameButtonGuide(ControllerEntity controller, LocalPlayer localPlayer) {
         this.controller = controller;
         this.player = localPlayer;
 
@@ -52,7 +52,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     public void refreshLayout() {
-        boolean bottom = controller.config().ingameGuideBottom;
+        boolean bottom = controller.genericConfig().config().ingameGuideBottom;
 
         leftLayout = new PositionedComponent<>(
                 ColumnLayoutComponent.<GuideActionRenderer<IngameGuideContext>>builder()
@@ -80,7 +80,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     public void renderHud(GuiGraphics graphics, float tickDelta, int width, int height) {
-        if (!controller.config().showIngameGuide || minecraft.screen != null || minecraft.gui.getDebugOverlay().showDebugScreen())
+        if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || minecraft.gui.getDebugOverlay().showDebugScreen())
             return;
 
         float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
@@ -165,7 +165,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_down"));
             if (player.isInWater() && !player.onGround())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_down"));
-            if (ctx.controller().config().toggleSneak) {
+            if (ctx.controller().genericConfig().config().toggleSneak) {
                 return Optional.of(Component.translatable(player.input.shiftKeyDown ? "controlify.guide.ingame.stop_sneaking" : "controlify.guide.ingame.start_sneaking"));
             } else {
                 if (!player.input.shiftKeyDown)
@@ -181,7 +181,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                         return Optional.of(Component.translatable("controlify.guide.ingame.start_swimming"));
                     return Optional.of(Component.translatable("controlify.guide.ingame.start_sprinting"));
                 }
-            } else if (ctx.controller().config().toggleSprint) {
+            } else if (ctx.controller().genericConfig().config().toggleSprint) {
                 if (player.isUnderWater())
                     return Optional.of(Component.translatable("controlify.guide.ingame.stop_swimming"));
                 return Optional.of(Component.translatable("controlify.guide.ingame.stop_sprinting"));

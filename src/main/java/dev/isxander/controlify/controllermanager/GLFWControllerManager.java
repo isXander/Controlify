@@ -2,17 +2,13 @@ package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.ComposableController;
-import dev.isxander.controlify.controller.composable.gamepad.GamepadConfig;
-import dev.isxander.controlify.controller.composable.impl.*;
-import dev.isxander.controlify.controller.composable.joystick.JoystickConfig;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
-import dev.isxander.controlify.driver.gamepad.GLFWGamepadDriver;
-import dev.isxander.controlify.driver.gamepad.SDL3GamepadDriver;
-import dev.isxander.controlify.driver.joystick.GLFWJoystickDriver;
-import dev.isxander.controlify.driver.joystick.SDL3JoystickDriver;
+import dev.isxander.controlify.driver.glfw.GLFWGamepadDriver;
+import dev.isxander.controlify.driver.glfw.GLFWJoystickDriver;
 import dev.isxander.controlify.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
@@ -22,7 +18,6 @@ import org.lwjgl.system.MemoryUtil;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 public class GLFWControllerManager extends AbstractControllerManager {
@@ -59,58 +54,25 @@ public class GLFWControllerManager extends AbstractControllerManager {
 
             UniqueControllerID ucid = new GLFWUniqueControllerID(i);
 
-            Optional<Controller<?>> controllerOpt = createOrGet(ucid, controlify.controllerHIDService().fetchType(i));
+            Optional<ControllerEntity> controllerOpt = createOrGet(ucid, controlify.controllerHIDService().fetchType(i));
             controllerOpt.ifPresent(controller -> onControllerConnected(controller, false));
         }
     }
 
     @Override
-    protected Optional<Controller<?>> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    protected Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
         int jid = ((GLFWUniqueControllerID) ucid).jid;
 
+        Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
-            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid);
-
-            var deadzoneModifier = new DeadzoneControllerStateModifier();
-            var stateProvider = new ComposableControllerStateProviderImpl(driver, deadzoneModifier);
-            var configModule = new ComposableControllerConfigImpl<>(new GamepadConfig());
-            var infoModule = new ComposableControllerInfoImpl(
-                    hidInfo.createControllerUID().orElse("unknown-uid-" + jid),
-                    ucid,
-                    driver,
-                    driver
-            );
-
-            return Optional.of(new ComposableController<>(
-                    infoModule,
-                    stateProvider,
-                    configModule,
-                    new NotRumbleCapableImpl(), // TODO
-                    hidInfo.type(),
-                    Set.of(driver)
-            ));
+            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), hidInfo.createControllerUID().orElseThrow(), ucid, hid);
+            this.addController(ucid, driver.getController(), driver);
+            return Optional.of(driver.getController());
         } else {
-            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid);
-
-            var deadzoneModifier = new DeadzoneControllerStateModifier();
-            var stateProvider = new ComposableControllerStateProviderImpl(driver, deadzoneModifier);
-            var configModule = new ComposableControllerConfigImpl<>(new JoystickConfig());
-            var infoModule = new ComposableControllerInfoImpl(
-                    hidInfo.createControllerUID().orElse("unknown-uid-" + jid),
-                    ucid,
-                    driver,
-                    driver
-            );
-
-            return Optional.of(new ComposableController<>(
-                    infoModule,
-                    stateProvider,
-                    configModule,
-                    new NotRumbleCapableImpl(), // TODO
-                    hidInfo.type(),
-                    Set.of(driver)
-            ));
+            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), hidInfo.createControllerUID().orElseThrow(), ucid, hid);
+            this.addController(ucid, driver.getController(), driver);
+            return Optional.of(driver.getController());
         }
     }
 
@@ -135,8 +97,8 @@ public class GLFWControllerManager extends AbstractControllerManager {
         }
     }
 
-    private Optional<Controller<?>> getController(GLFWUniqueControllerID joystickId) {
-        return controllersByUid.values().stream().filter(controller -> controller.joystickId().equals(joystickId)).findAny();
+    private Optional<ControllerEntity> getController(GLFWUniqueControllerID joystickId) {
+        return controllersByUid.values().stream().filter(controller -> controller.info().ucid().equals(joystickId)).findAny();
     }
 
     @Override

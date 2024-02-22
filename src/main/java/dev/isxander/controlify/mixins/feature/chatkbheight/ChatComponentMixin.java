@@ -1,7 +1,6 @@
 package dev.isxander.controlify.mixins.feature.chatkbheight;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
@@ -25,8 +24,8 @@ public class ChatComponentMixin {
         graphics.pose().pushPose();
 
         Controlify.instance().getCurrentController().ifPresent(controller -> {
-            if (controller.config().chatKeyboardHeight == 0) return;
-            graphics.pose().translate(0, -controller.config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
+            if (controller.genericConfig().config().chatKeyboardHeight == 0) return;
+            graphics.pose().translate(0, -controller.genericConfig().config().chatKeyboardHeight * minecraft.getWindow().getGuiScaledHeight(), 0);
         });
     }
 
@@ -44,7 +43,7 @@ public class ChatComponentMixin {
             return original;
 
         float kbHeight = Controlify.instance().getCurrentController()
-                .map(c -> c.config().chatKeyboardHeight)
+                .map(c -> c.genericConfig().config().chatKeyboardHeight)
                 .orElse(0f);
         if (kbHeight == 0) return original;
         return 16;
@@ -56,7 +55,7 @@ public class ChatComponentMixin {
             return original;
 
         float kbHeight = Controlify.instance().getCurrentController()
-                .map(c -> c.config().chatKeyboardHeight)
+                .map(c -> c.genericConfig().config().chatKeyboardHeight)
                 .orElse(0f);
         if (kbHeight == 0) return original;
 

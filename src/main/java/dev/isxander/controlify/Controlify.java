@@ -5,17 +5,17 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
 import dev.isxander.controlify.gui.screen.*;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
@@ -60,7 +60,7 @@ public class Controlify implements ControlifyApi {
     private boolean finishedInit = false;
     private boolean probeMode = false;
 
-    private Controller<?> currentController = null;
+    private ControllerEntity currentController = null;
     private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
 
     private InGameInputHandler inGameInputHandler;
@@ -104,20 +104,20 @@ public class Controlify implements ControlifyApi {
 
         ClientPlayNetworking.registerGlobalReceiver(VibrationPacket.TYPE, (packet, player, sender) -> {
             if (config().globalSettings().allowServerRumble) {
-                getCurrentController().ifPresent(controller ->
-                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(OriginVibrationPacket.TYPE, (packet, player, sender) -> {
             if (config().globalSettings().allowServerRumble) {
-                getCurrentController().ifPresent(controller ->
-                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(EntityVibrationPacket.TYPE, (packet, player, sender) -> {
             if (config().globalSettings().allowServerRumble) {
-                getCurrentController().ifPresent(controller ->
-                        controller.rumbleManager().play(packet.source(), packet.createEffect()));
+                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(ServerPolicyPacket.TYPE, (packet, player, sender) -> {
@@ -206,17 +206,18 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            Optional<Controller<?>> lastUsedController = controllerManager.getConnectedControllers()
+            Optional<ControllerEntity> lastUsedController = controllerManager.getConnectedControllers()
                     .stream()
-                    .filter(c -> c.uid().equals(config().currentControllerUid()))
+                    .filter(c -> c.info().uid().equals(config().currentControllerUid()))
                     .findAny();
 
             if (lastUsedController.isPresent()) {
                 this.setCurrentController(lastUsedController.get(), false);
             } else {
-                Controller<?> anyController = controllerManager.getConnectedControllers()
+                ControllerEntity anyController = controllerManager.getConnectedControllers()
                         .stream()
-                        .filter(c -> !c.config().delayedCalibration && c.config().deadzonesCalibrated)
+                        .filter(c -> c.input().map(input -> input.config().config().deadzonesCalibrated).orElse(true)
+                                || c.gyro().map(gyro -> gyro.config().config().calibrated).orElse(true))
                         .findFirst()
                         .orElse(null);
 
@@ -294,18 +295,14 @@ public class Controlify implements ControlifyApi {
      * @param hotplugged if this was a result of hotplugging
      * @param newController if this controller has never been seen before
      */
-    private void onControllerAdded(Controller<?> controller, boolean hotplugged, boolean newController) {
+    private void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
 
         wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
-        if (controller.config().allowVibrations && !SDL3NativesManager.isLoaded()) {
-            controller.config().allowVibrations = false;
-            config().setDirty();
-        }
-
-        boolean deadzonesCalibrated = controller.config().deadzonesCalibrated;
-        if (hotplugged && deadzonesCalibrated) {
+        boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
+                || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
+        if (hotplugged && calibrated) {
             setCurrentController(controller, true);
         }
 
@@ -314,7 +311,7 @@ public class Controlify implements ControlifyApi {
 //                nextScreen -> new GamepadEmulationMappingCreatorScreen((EmulatedGamepadController) controller, nextScreen)
 //        );
         wizard.addStage(
-                () -> !deadzonesCalibrated,
+                () -> !calibrated,
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
 
@@ -348,7 +345,7 @@ public class Controlify implements ControlifyApi {
      * Called when a controller is disconnected.
      * @param controller controller that has been disconnected
      */
-    private void onControllerRemoved(Controller<?> controller) {
+    private void onControllerRemoved(ControllerEntity controller) {
         this.setCurrentController(
                 controllerManager.getConnectedControllers()
                         .stream()
@@ -473,19 +470,23 @@ public class Controlify implements ControlifyApi {
      * @param controller controller to tick
      * @param outOfFocus if the window is out of focus
      */
-    private void tickController(Controller<?> controller, boolean outOfFocus) {
-        ComposableControllerState state = controller.state();
+    private void tickController(ControllerEntity controller, boolean outOfFocus) {
+        InputComponent input = controller.input().orElseThrow();
+        ControllerStateView state = input.stateNow();
+        Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
 
-        controller.rumbleManager().setSilent(outOfFocus || minecraft.isPaused() || minecraft.screen instanceof PauseScreen);
+        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || minecraft.isPaused() || minecraft.screen instanceof PauseScreen));
         if (outOfFocus) {
-            state = ComposableControllerState.EMPTY;
+            state = ControllerState.EMPTY;
         } else {
-            controller.rumbleManager().tick();
+            rumbleManager.ifPresent(RumbleManager::tick);
         }
 
         boolean givingInput = state.getButtons().stream().anyMatch(state::isButtonDown);
-        if (givingInput) {
-            this.setInputMode(controller.config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+        if (givingInput && !this.currentInputMode().isController()) {
+            this.setInputMode(input.config().config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+
+            return; // don't process input if this is changing mode.
         }
 
         if (consecutiveInputSwitches > 100) {
@@ -500,14 +501,16 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
-        if (minecraft.screen != null) {
-            ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
-        }
-        if (minecraft.level != null) {
-            this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
-        }
+        if (this.currentInputMode().isController()) { // only process input if in correct input mode
+            if (minecraft.screen != null) {
+                ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
+            }
+            if (minecraft.level != null) {
+                this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
+            }
 
-        ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
+            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
+        }
     }
 
     private void probeTick() {
@@ -524,11 +527,11 @@ public class Controlify implements ControlifyApi {
     }
 
     @Override
-    public @NotNull Optional<Controller<?>> getCurrentController() {
+    public @NotNull Optional<ControllerEntity> getCurrentController() {
         return Optional.ofNullable(currentController);
     }
 
-    public void setCurrentController(@Nullable Controller<?> controller, boolean changeInputMode) {
+    public void setCurrentController(@Nullable ControllerEntity controller, boolean changeInputMode) {
         if (this.currentController == controller) return;
 
         this.currentController = controller;
@@ -542,15 +545,15 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
-        DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
+        DebugLog.log("Updated current controller to {}({})", controller.name(), controller.info().uid());
 
-        if (!controller.uid().equals(config().currentControllerUid())) {
+        if (!controller.info().uid().equals(config().currentControllerUid())) {
             config().setDirty();
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
 
-        if (controller.config().mixedInput)
+        if (controller.input().map(input -> input.config().config().mixedInput).orElse(false))
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);
@@ -607,7 +610,10 @@ public class Controlify implements ControlifyApi {
         lastInputSwitchTime = Blaze3D.getTime();
 
         if (this.currentInputMode.isController()) {
-            getCurrentController().ifPresent(Controller::clearState);
+            getCurrentController().flatMap(ControllerEntity::input).ifPresent(state -> {
+                state.rawStateNow().clearState();
+                state.rawStateThen().clearState();
+            });
             if (minecraft.getCurrentServer() != null) {
                 notifyNewServer(minecraft.getCurrentServer());
             }

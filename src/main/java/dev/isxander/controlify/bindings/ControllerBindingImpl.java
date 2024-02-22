@@ -6,9 +6,11 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerStateView;
+import dev.isxander.controlify.controller.InputComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
@@ -27,10 +29,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public class ControllerBindingImpl implements ControllerBinding {
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
     private IBind bind;
     private final IBind defaultBind;
-    private final Function<ComposableControllerState, Float> hardcodedBind;
+    private final Function<ControllerStateView, Float> hardcodedBind;
     private BindRenderer renderer;
     private final ResourceLocation id;
     private final Component name, description, category;
@@ -38,11 +40,11 @@ public class ControllerBindingImpl implements ControllerBinding {
     private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
-    private static final Map<Controller<?>, Set<IBind>> pressedBinds = new Object2ObjectOpenHashMap<>();
+    private static final Map<ControllerEntity, Set<IBind>> pressedBinds = new Object2ObjectOpenHashMap<>();
 
     private byte fakePressState = 0;
 
-    private ControllerBindingImpl(Controller<?> controller, IBind defaultBind, Function<ComposableControllerState, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
+    private ControllerBindingImpl(ControllerEntity controller, IBind defaultBind, Function<ControllerStateView, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.hardcodedBind = hardcodedBind;
@@ -60,28 +62,28 @@ public class ControllerBindingImpl implements ControllerBinding {
     public float state() {
         if (fakePressState == 1)
             return 1f;
-        return Math.max(bind.state(controller.state()), hardcodedBind.apply(controller.state()));
+        return Math.max(bind.state(input().stateNow()), hardcodedBind.apply(input().stateNow()));
     }
 
     @Override
     public float prevState() {
         if (fakePressState == 2)
             return 1f;
-        return Math.max(bind.state(controller.prevState()), hardcodedBind.apply(controller.prevState()));
+        return Math.max(bind.state(input().stateThen()), hardcodedBind.apply(input().stateThen()));
     }
 
     @Override
     public boolean held() {
-        return fakePressState == 2 || analogue2Digital(bind.state(controller.state()));
+        return fakePressState == 2 || analogue2Digital(bind.state(input().stateNow()));
     }
 
     @Override
     public boolean prevHeld() {
-        return fakePressState == 3 || analogue2Digital(bind.state(controller.prevState()));
+        return fakePressState == 3 || analogue2Digital(bind.state(input().stateThen()));
     }
 
     private boolean analogue2Digital(float analogue) {
-        return analogue > controller.config().buttonActivationThreshold;
+        return analogue > input().config().config().buttonActivationThreshold;
     }
 
     @Override
@@ -200,9 +202,13 @@ public class ControllerBindingImpl implements ControllerBinding {
                 .customController(opt -> new BindController(opt, controller));
     }
 
+    private InputComponent input() {
+        return this.controller.input().orElseThrow();
+    }
+
     // FIXME: very hack solution please remove me
 
-    public static void clearPressedBinds(Controller<?> controller) {
+    public static void clearPressedBinds(ControllerEntity controller) {
         if (pressedBinds.containsKey(controller)) {
             pressedBinds.get(controller).clear();
         }
@@ -223,16 +229,16 @@ public class ControllerBindingImpl implements ControllerBinding {
 
     @ApiStatus.Internal
     public static final class ControllerBindingBuilderImpl implements ControllerBindingBuilder {
-        private final Controller<?> controller;
+        private final ControllerEntity controller;
         private IBind bind;
-        private Function<ComposableControllerState, Float> hardcodedBind = state -> 0f;
+        private Function<ControllerStateView, Float> hardcodedBind = state -> 0f;
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
         private KeyMappingOverride override = null;
         private final Set<BindContext> contexts = new HashSet<>();
         private ResourceLocation radialIcon = null;
 
-        public ControllerBindingBuilderImpl(Controller<?> controller) {
+        public ControllerBindingBuilderImpl(ControllerEntity controller) {
             this.controller = controller;
         }
 
@@ -254,7 +260,7 @@ public class ControllerBindingImpl implements ControllerBinding {
         }
 
         @Override
-        public ControllerBindingBuilder hardcodedBind(Function<ComposableControllerState, Float> bind) {
+        public ControllerBindingBuilder hardcodedBind(Function<ControllerStateView, Float> bind) {
             this.hardcodedBind = bind;
             return this;
         }
@@ -321,7 +327,7 @@ public class ControllerBindingImpl implements ControllerBinding {
         }
     }
 
-    private record BindRendererImpl(IBind bind, Controller<?> controller) implements BindRenderer {
+    private record BindRendererImpl(IBind bind, ControllerEntity controller) implements BindRenderer {
         @Override
         public void render(GuiGraphics graphics, int x, int centerY) {
             bind.draw(graphics, x, centerY, controller);

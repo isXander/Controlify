@@ -5,7 +5,7 @@ import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.RadialIcons;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
@@ -47,7 +47,7 @@ import java.util.Optional;
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
     private final boolean editMode;
     private final Screen parent;
 
@@ -60,7 +60,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private final Processor processor = new Processor(this);
 
-    public RadialMenuScreen(Controller<?> controller, boolean editMode, Screen parent) {
+    public RadialMenuScreen(ControllerEntity controller, boolean editMode, Screen parent) {
         super(Component.empty());
         this.controller = controller;
         this.editMode = editMode;
@@ -110,7 +110,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     @Override
-    public void onControllerInput(Controller<?> controller) {
+    public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
 
         if (!editMode && !controller.bindings().RADIAL_MENU.held()) {
@@ -129,7 +129,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         if (!isEditing) {
             float x = controller.bindings().RADIAL_AXIS_RIGHT.state() - controller.bindings().RADIAL_AXIS_LEFT.state();
             float y = controller.bindings().RADIAL_AXIS_DOWN.state() - controller.bindings().RADIAL_AXIS_UP.state();
-            float threshold = controller.config().buttonActivationThreshold;
+            float threshold = controller.input().orElseThrow().config().config().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
                 float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;
@@ -221,10 +221,11 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.setX(x);
             this.setY(y);
 
-            ResourceLocation binding = controller.config().radialActions[index];
+            ResourceLocation[] radialActions = controller.genericConfig().config().radialActions;
+            ResourceLocation binding = radialActions[index];
             if (controller.bindings().get(binding) == null) {
                 CUtil.LOGGER.warn("Binding {} does not exist!", binding);
-                controller.config().radialActions[index] = EMPTY_ACTION;
+                radialActions[index] = EMPTY_ACTION;
                 Controlify.instance().config().setDirty();
             }
             this.setAction(binding);
@@ -306,7 +307,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (editMode && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
@@ -361,7 +362,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     .map(Map.Entry::getKey)
                     .forEach(id -> children.add(new ActionEntry(id)));
 
-            var selectedBind = controller.config().radialActions[radialIndex];
+            var selectedBind = controller.genericConfig().config().radialActions[radialIndex];
             children.stream()
                     .filter(action -> action.binding.equals(selectedBind))
                     .findAny()
@@ -385,7 +386,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
+        public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (controller == RadialMenuScreen.this.controller) {
                 if (controller.bindings().GUI_BACK.justPressed()) {
                     finishEditing();
@@ -498,10 +499,10 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
 
             @Override
-            public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
+            public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
                 if (controller == RadialMenuScreen.this.controller) {
                     if (controller.bindings().GUI_PRESS.justPressed()) {
-                        controller.config().radialActions[radialIndex] = binding;
+                        controller.genericConfig().config().radialActions[radialIndex] = binding;
                         Controlify.instance().config().setDirty();
 
                         buttons[radialIndex].setAction(binding);

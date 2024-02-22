@@ -11,7 +11,7 @@ public abstract class ChatScreenMixin extends ScreenMixin {
     @Override
     protected void openOnScreenKeyboard(CallbackInfo ci) {
         Controlify.instance().getCurrentController().ifPresent(controller -> {
-            if (controller.config().showOnScreenKeyboard) {
+            if (controller.genericConfig().config().showOnScreenKeyboard) {
                 GlobalDriver.get().onScreenKeyboard().openOnScreenKeyboard(0, 0, 0, 0);
             }
         });

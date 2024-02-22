@@ -3,6 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
@@ -86,7 +87,9 @@ public class GlobalSettingsScreenFactory {
                                         .binding(GlobalSettings.DEFAULT.allowServerRumble, () -> globalSettings.allowServerRumble, v -> globalSettings.allowServerRumble = v)
                                         .controller(TickBoxControllerBuilder::create)
                                         .listener((opt, val) -> {
-                                            if (!val) ControlifyApi.get().getCurrentController().ifPresent(c -> c.rumbleManager().clearEffects());
+                                            ControlifyApi.get().getCurrentController()
+                                                    .flatMap(ControllerEntity::rumble)
+                                                    .ifPresent(rumble -> rumble.rumbleManager().clearEffects());
                                         })
                                         .build())
                                 .option(Option.<Boolean>createBuilder()

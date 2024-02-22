@@ -1,5 +1,6 @@
 package dev.isxander.controlify.rumble;
 
+import dev.isxander.controlify.controller.RumbleComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -7,12 +8,12 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class RumbleManager {
-    private final RumbleCapable controller;
+    private final RumbleComponent controller;
     private final Queue<RumbleEffectInstance> effectQueue;
 
     private boolean silent, wasSilent;
 
-    public RumbleManager(RumbleCapable controller) {
+    public RumbleManager(RumbleComponent controller) {
         this.controller = controller;
         this.effectQueue = new PriorityQueue<>(Comparator.comparing(RumbleEffectInstance::effect));
     }
@@ -23,9 +24,6 @@ public class RumbleManager {
     }
 
     public void play(RumbleSource source, RumbleEffect effect) {
-        if (!controller.supportsRumble())
-            return;
-
         effectQueue.add(new RumbleEffectInstance(source, effect));
     }
 
@@ -40,7 +38,7 @@ public class RumbleManager {
 
         float strong = 0f, weak = 0f;
         for (RumbleEffectInstance effect : effectQueue) {
-            RumbleState effectState = controller.applyRumbleSourceStrength(effect.effect().currentState(), effect.source());
+            RumbleState effectState = controller.config().config().applyRumbleStrength(effect.effect().currentState(), effect.source());
             strong = Math.max(strong, effectState.strong());
             weak = Math.max(weak, effectState.weak());
         }
@@ -54,7 +52,7 @@ public class RumbleManager {
         if (silent) {
             clearRumble();
         } else {
-            controller.setRumble(state.strong(), state.weak());
+            controller.queueRumble(state);
             wasSilent = false;
         }
     }
@@ -63,7 +61,7 @@ public class RumbleManager {
         if (wasSilent)
             return;
 
-        controller.setRumble(0f, 0f);
+        controller.queueRumble(RumbleState.NONE);
         wasSilent = true;
     }
 

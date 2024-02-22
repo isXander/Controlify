@@ -3,7 +3,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -21,7 +21,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
     }
 
     @Override
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         if (controller.bindings().GUI_BACK.justPressed()) {
             this.getWidget(CommonComponents.GUI_BACK).ifPresent(back -> {
                 if (!back.isFocused()) {

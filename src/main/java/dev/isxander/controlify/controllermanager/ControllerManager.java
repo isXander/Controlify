@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controllermanager;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 
 import java.util.List;
 
@@ -11,11 +11,13 @@ public interface ControllerManager {
 
     boolean probeConnectedControllers();
 
-    List<Controller<?>> getConnectedControllers();
+    List<ControllerEntity> getConnectedControllers();
 
     boolean isControllerConnected(String uid);
 
     boolean isControllerGamepad(UniqueControllerID ucid);
+
+    void closeController(String uid);
 
     void close();
 }

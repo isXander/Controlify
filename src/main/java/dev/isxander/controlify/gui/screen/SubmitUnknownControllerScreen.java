@@ -3,9 +3,9 @@ package dev.isxander.controlify.gui.screen;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,7 +25,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     public static final String SUBMISSION_URL = "https://api-controlify.isxander.dev/api/v1/submit";
     public static final Pattern NAME_PATTERN = Pattern.compile("^[\\w\\- ]{3,32}$");
 
-    private final Controller<?> controller;
+    private final ControllerEntity controller;
 
     private Checkbox operationalCheckbox;
 
@@ -37,7 +36,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     private Button submitButton;
     private EditBox nameField;
 
-    public SubmitUnknownControllerScreen(Controller<?> controller, Screen lastScreen) {
+    public SubmitUnknownControllerScreen(ControllerEntity controller, Screen lastScreen) {
         super(Component.translatable("controlify.controller_submission.title").withStyle(ChatFormatting.BOLD));
         if (!canSubmit(controller))
             throw new IllegalArgumentException("Controller ineligible for submission!");
@@ -162,13 +161,12 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private String generateRequestBody() {
-        // TODO
-//        HIDDevice hid = controller.hidInfo().orElseThrow().hidDevice().orElseThrow();
+        HIDIdentifier hid = controller.info().hid().orElseThrow();
 
         JsonObject object = new JsonObject();
-//        object.addProperty("vendorID", hid.vendorID());
-//        object.addProperty("productID", hid.productID());
-//        object.addProperty("GUID", controller.guid());
+        object.addProperty("vendorID", hid.vendorId());
+        object.addProperty("productID", hid.productId());
+        object.addProperty("GUID", controller.info().guid());
         object.addProperty("reportedName", nameField.getValue());
         object.addProperty("controlifyVersion", FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion().getFriendlyString());
         object.addProperty("operational", operationalCheckbox.selected());
@@ -182,7 +180,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private void dontShowAgain() {
-        controller.config().dontShowControllerSubmission = true;
+        controller.genericConfig().config().dontShowControllerSubmission = true;
         Controlify.instance().config().setDirty();
     }
 
@@ -199,9 +197,9 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         return false;
     }
 
-    public static boolean canSubmit(Controller<?> controller) {
-        return controller.type() == ControllerType.UNKNOWN
-                && !controller.config().dontShowControllerSubmission
+    public static boolean canSubmit(ControllerEntity controller) {
+        return controller.info().type() == ControllerType.UNKNOWN
+                && !controller.genericConfig().config().dontShowControllerSubmission
                 /*&& controller.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())
                         .orElse(false)*/;

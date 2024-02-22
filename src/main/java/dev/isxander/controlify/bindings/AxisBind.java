@@ -1,9 +1,9 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
-import dev.isxander.controlify.controller.composable.Inputs;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerStateView;
+import dev.isxander.controlify.controller.Inputs;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -18,13 +18,13 @@ public class AxisBind implements IBind {
     }
 
     @Override
-    public float state(ComposableControllerState state) {
+    public float state(ControllerStateView state) {
         return state.getAxisState(axis);
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int centerY, Controller<?> controller) {
-        graphics.blitSprite(Inputs.getThemedSprite(axis, controller.type().namespace()), x, centerY  - 11, 22, 22);
+    public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
+        graphics.blitSprite(Inputs.getThemedSprite(axis, controller.info().type().namespace()), x, centerY  - 11, 22, 22);
     }
 
     @Override

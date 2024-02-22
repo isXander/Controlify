@@ -1,41 +1,36 @@
 package dev.isxander.controlify.utils;
 
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.composable.TouchpadState;
-import dev.isxander.controlify.hid.ControllerHIDService;
-import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.controller.TouchpadState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.util.Mth;
 import org.joml.Vector2f;
 
-import java.util.HexFormat;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class ControllerUtils {
-    public static String createControllerString(Controller<?> controller) {
+    public static String createControllerString(ControllerEntity controller) {
         return String.format("'%s'#%s-%s (%s)",
                 controller.name(),
-                controller.joystickId(),
-                controller.kind(),
-                controller.type().friendlyName()
+                controller.info().ucid().toString(),
+                controller.info().hid().map(HIDIdentifier::toString).orElse("hid"),
+                controller.info().type().friendlyName()
         );
     }
 
-    public static void wrapControllerError(Runnable runnable, String errorTitle, Controller<?> controller) {
+    public static void wrapControllerError(Runnable runnable, String errorTitle, ControllerEntity controller) {
         try {
             runnable.run();
         } catch (Throwable e) {
             CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
             CrashReportCategory category = crashReport.addCategory("Affected controller");
             category.setDetail("Controller name", controller.name());
-            category.setDetail("Controller identification", controller.type().toString());
+            category.setDetail("Controller identification", controller.info().type().friendlyName());
             category.setDetail("Controller type", controller.getClass().getCanonicalName());
             throw new ReportedException(crashReport);
         }
@@ -86,18 +81,18 @@ public class ControllerUtils {
         return false;
     }
 
-    public static List<TouchpadState.Finger> deltaFingers(TouchpadState now, TouchpadState then) {
-        if (now.fingers().size() != then.fingers().size()) {
+    public static List<TouchpadState.Finger> deltaFingers(List<TouchpadState.Finger> now, List<TouchpadState.Finger> then) {
+        if (now.size() != then.size()) {
             return List.of();
         }
 
-        return IntStream.range(0, now.fingers().size())
+        return IntStream.range(0, now.size())
                 .mapToObj(i -> new TouchpadState.Finger(
                         new Vector2f(
-                                now.fingers().get(i).position().x() - then.fingers().get(i).position().x(),
-                                now.fingers().get(i).position().y() - then.fingers().get(i).position().y()
+                                now.get(i).position().x() - then.get(i).position().x(),
+                                now.get(i).position().y() - then.get(i).position().y()
                         ),
-                        now.fingers().get(i).pressure() - then.fingers().get(i).pressure()
+                        now.get(i).pressure() - then.get(i).pressure()
                 ))
                 .toList();
     }

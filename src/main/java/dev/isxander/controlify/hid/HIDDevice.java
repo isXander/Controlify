@@ -7,16 +7,21 @@ import io.github.libsdl4j.jna.size_t;
 
 public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, HIDDevice.SDLHidApi {
     int vendorID();
-
     int productID();
 
     String path();
 
     boolean supportsCommunication();
+
     void open();
     void close();
+
     int read(byte[] buffer);
     int write(byte[] buffer, int packetLength, byte reportId);
+
+    default HIDIdentifier asIdentifier() {
+        return new HIDIdentifier(this.vendorID(), this.productID());
+    }
 
     final class Hid4Java implements HIDDevice {
         private final org.hid4java.HidDevice hidDevice;

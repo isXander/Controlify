@@ -1,6 +1,7 @@
 package dev.isxander.controlify.mixins.feature.rumble.explosion;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -26,16 +27,18 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
         float initialMagnitude = calculateMagnitude(packet);
 
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(
-                RumbleSource.EXPLOSION,
-                BasicRumbleEffect.join(
-                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
-                        BasicRumbleEffect.byTime(t -> {
-                            float magnitude = calculateMagnitude(packet);
-                            return new RumbleState(0f, magnitude - t * magnitude);
-                        }, 20) // explosion
-                )
-        ));
+        ControlifyApi.get().getCurrentController()
+                .flatMap(ControllerEntity::rumble)
+                .ifPresent(rumble -> rumble.rumbleManager().play(
+                        RumbleSource.EXPLOSION,
+                        BasicRumbleEffect.join(
+                                BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+                                BasicRumbleEffect.byTime(t -> {
+                                    float magnitude = calculateMagnitude(packet);
+                                    return new RumbleState(0f, magnitude - t * magnitude);
+                                }, 20) // explosion
+                        )
+                ));
     }
 
     private float calculateMagnitude(ClientboundExplodePacket packet) {

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.client.player.LocalPlayer;
@@ -37,9 +38,11 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 
     @Unique
     private void doDamageRumble() {
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(
-                RumbleSource.DAMAGE,
-                BasicRumbleEffect.constant(0.8f, 0.5f, 5)
-        ));
+        ControlifyApi.get().getCurrentController()
+                .flatMap(ControllerEntity::rumble)
+                .ifPresent(rumble -> rumble.rumbleManager().play(
+                        RumbleSource.DAMAGE,
+                        BasicRumbleEffect.constant(0.8f, 0.5f, 5)
+                ));
     }
 }

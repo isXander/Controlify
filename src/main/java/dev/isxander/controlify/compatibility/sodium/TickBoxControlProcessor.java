@@ -1,6 +1,6 @@
 package dev.isxander.controlify.compatibility.sodium;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 
@@ -12,7 +12,7 @@ public class TickBoxControlProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
         if (controller.bindings().GUI_PRESS.justPressed()) {
             toggleMethod.run();
             return true;

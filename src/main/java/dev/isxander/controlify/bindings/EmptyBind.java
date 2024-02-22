@@ -1,8 +1,8 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerStateView;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -10,12 +10,12 @@ public class EmptyBind implements IBind {
     public static final String BIND_ID = "empty";
 
     @Override
-    public float state(ComposableControllerState state) {
+    public float state(ControllerStateView state) {
         return 0;
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int centerY, Controller<?> controller) {
+    public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
 
     }
 

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.*;
 import dev.isxander.controlify.rumble.effects.UseItemEffectHolder;
 import net.minecraft.client.player.LocalPlayer;
@@ -72,10 +73,12 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
 
     @Unique
     private void startRumble(ContinuousRumbleEffect effect) {
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-            controller.rumbleManager().play(RumbleSource.USE_ITEM, effect);
-            useItemRumble = effect;
-        });
+        ControlifyApi.get().getCurrentController()
+                .flatMap(ControllerEntity::rumble)
+                .ifPresent(controller -> {
+                    controller.rumbleManager().play(RumbleSource.USE_ITEM, effect);
+                    useItemRumble = effect;
+                });
     }
 
     @Override

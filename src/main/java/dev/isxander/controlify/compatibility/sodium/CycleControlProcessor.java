@@ -1,6 +1,6 @@
 package dev.isxander.controlify.compatibility.sodium;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 
@@ -14,7 +14,7 @@ public class CycleControlProcessor implements ComponentProcessor {
     }
 
     @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, Controller<?> controller) {
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
         if (controller.bindings().CYCLE_OPT_FORWARD.justPressed() || controller.bindings().GUI_PRESS.justPressed()) {
             cycleMethod.accept(false);
             return true;

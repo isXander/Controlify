@@ -23,7 +23,7 @@ public abstract class ChatScreenMixin extends Screen {
         graphics.pose().pushPose();
 
         Controlify.instance().getCurrentController().ifPresent(c -> {
-            graphics.pose().translate(0, -c.config().chatKeyboardHeight * this.height, 0);
+            graphics.pose().translate(0, -c.genericConfig().config().chatKeyboardHeight * this.height, 0);
         });
     }
 
@@ -34,7 +34,9 @@ public abstract class ChatScreenMixin extends Screen {
 
     @ModifyVariable(method = "mouseClicked", at = @At("HEAD"), ordinal = 1, argsOnly = true)
     private double modifyClickY(double original) {
-        float yOffset = ControlifyApi.get().getCurrentController().map(c -> c.config().chatKeyboardHeight * this.height).orElse(0f);
+        float yOffset = ControlifyApi.get().getCurrentController()
+                .map(c -> c.genericConfig().config().chatKeyboardHeight * this.height)
+                .orElse(0f);
         return original + yOffset;
     }
 }

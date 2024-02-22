@@ -1,8 +1,9 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.*;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
+import dev.isxander.controlify.controller.ControllerState;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerStateView;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +12,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public interface ControllerBindingBuilder {
-    static ControllerBindingBuilder create(Controller<?> controller) {
+    static ControllerBindingBuilder create(ControllerEntity controller) {
         return new ControllerBindingImpl.ControllerBindingBuilderImpl(controller);
     }
 
@@ -34,7 +35,7 @@ public interface ControllerBindingBuilder {
      */
     ControllerBindingBuilder defaultBind(IBind bind);
 
-    ControllerBindingBuilder hardcodedBind(Function<ComposableControllerState, Float> bind);
+    ControllerBindingBuilder hardcodedBind(Function<ControllerStateView, Float> bind);
 
     /**
      * Sets the name of the binding.

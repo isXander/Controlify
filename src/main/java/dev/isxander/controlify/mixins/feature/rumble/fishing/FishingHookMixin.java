@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.feature.rumble.fishing;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,13 +28,15 @@ public class FishingHookMixin {
         var biting = (boolean) bitingObj;
         if (isLocalPlayerHook) {
             if (biting && !this.biting) {
-                ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-                    bitingRumble = ContinuousRumbleEffect.builder()
-                            .constant(0f, 0.05f)
-                            .build();
+                ControlifyApi.get().getCurrentController()
+                        .flatMap(ControllerEntity::rumble)
+                        .ifPresent(controller -> {
+                            bitingRumble = ContinuousRumbleEffect.builder()
+                                    .constant(0f, 0.05f)
+                                    .build();
 
-                    controller.rumbleManager().play(RumbleSource.MISC, bitingRumble);
-                });
+                            controller.rumbleManager().play(RumbleSource.MISC, bitingRumble);
+                        });
             } else if (!biting && this.biting) {
                 stopBitingRumble();
             }

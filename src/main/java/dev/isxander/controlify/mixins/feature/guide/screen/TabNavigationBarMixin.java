@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.TabButton;
@@ -26,14 +26,14 @@ public class TabNavigationBarMixin {
     private void renderControllerButtonOverlay(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode().isController()) {
             Controlify.instance().getCurrentController().ifPresent(c -> {
-                if (c.config().showScreenGuide) {
+                if (c.genericConfig().config().showScreenGuides) {
                     this.renderControllerButtonOverlay(graphics, c);
                 }
             });
         }
     }
 
-    private void renderControllerButtonOverlay(GuiGraphics graphics, Controller<?> controller) {
+    private void renderControllerButtonOverlay(GuiGraphics graphics, ControllerEntity controller) {
         ControlifyCompat.ifBeginHudBatching();
 
         TabButton firstTab = tabButtons.get(0);

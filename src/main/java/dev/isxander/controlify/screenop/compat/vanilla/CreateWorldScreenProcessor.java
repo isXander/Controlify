@@ -1,6 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 
@@ -13,7 +13,7 @@ public class CreateWorldScreenProcessor extends ScreenProcessor<CreateWorldScree
     }
 
     @Override
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
             this.onCreateButton.run();
             this.playClackSound();

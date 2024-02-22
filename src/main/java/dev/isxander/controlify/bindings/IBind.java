@@ -1,17 +1,17 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.Controller;
-import dev.isxander.controlify.controller.composable.ComposableControllerState;
-import dev.isxander.controlify.controller.composable.HatState;
+import dev.isxander.controlify.controller.ControllerStateView;
+import dev.isxander.controlify.controller.HatState;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 public interface IBind {
-    float state(ComposableControllerState state);
+    float state(ControllerStateView state);
 
-    void draw(GuiGraphics graphics, int x, int centerY, Controller<?> controller);
+    void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller);
     DrawSize drawSize();
 
     JsonObject toJson();

@@ -1,6 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
@@ -22,7 +22,7 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
         var ext = (CreativeGuiExtensions) screen;
 

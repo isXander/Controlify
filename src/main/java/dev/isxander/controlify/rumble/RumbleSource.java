@@ -42,6 +42,16 @@ public record RumbleSource(ResourceLocation id) {
         return object;
     }
 
+    public static Map<ResourceLocation, Float> getDefaultMap() {
+        Map<ResourceLocation, Float> map = new HashMap<>();
+
+        for (RumbleSource source : SOURCES.values()) {
+            map.put(source.id(), 1f);
+        }
+
+        return map;
+    }
+
     public static RumbleSource register(ResourceLocation id) {
         var source = new RumbleSource(id);
         SOURCES.put(id, source);

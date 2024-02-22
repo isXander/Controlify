@@ -1,6 +1,6 @@
 package dev.isxander.controlify.screenop.compat;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
@@ -13,7 +13,7 @@ public abstract class AbstractSliderComponentProcessor implements ComponentProce
     private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(15, 3);
 
     @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, Controller<?> controller) {
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
         var left = controller.bindings().CYCLE_OPT_BACKWARD.held();
         var leftPrev = controller.bindings().CYCLE_OPT_BACKWARD.prevHeld();
         var right = controller.bindings().CYCLE_OPT_FORWARD.held();

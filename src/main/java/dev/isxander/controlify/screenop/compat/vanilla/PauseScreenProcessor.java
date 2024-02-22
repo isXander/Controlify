@@ -3,7 +3,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
@@ -21,7 +21,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     }
 
     @Override
-    protected void handleButtons(Controller<?> controller) {
+    protected void handleButtons(ControllerEntity controller) {
         super.handleButtons(controller);
 
         if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {

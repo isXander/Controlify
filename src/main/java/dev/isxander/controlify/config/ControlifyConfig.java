@@ -2,7 +2,7 @@ package dev.isxander.controlify.config;
 
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
@@ -15,9 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class ControlifyConfig {
     public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("controlify.json");
@@ -94,25 +91,27 @@ public class ControlifyConfig {
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
         controlify.getControllerManager().ifPresent(controllerManager -> {
-            for (Controller<?> controller : controllerManager.getConnectedControllers()) {
+            for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
                 // `add` replaces if already existing
-                newControllerData.add(controller.uid(), generateControllerConfig(controller));
+                newControllerData.add(controller.info().uid(), generateControllerConfig(controller));
             }
         });
 
 
         controllerData = newControllerData;
-        config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null));
+        config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(c -> c.info().uid()).orElse(null));
         config.add("controllers", controllerData);
         config.add("global", GSON.toJsonTree(globalSettings));
 
         return config;
     }
 
-    private JsonObject generateControllerConfig(Controller<?> controller) {
+    private JsonObject generateControllerConfig(ControllerEntity controller) {
         JsonObject object = new JsonObject();
+        JsonObject config = new JsonObject();
+        controller.serializeToObject(config, GSON);
 
-        object.add("config", GSON.toJsonTree(controller.config()));
+        object.add("config", config);
         object.add("bindings", controller.bindings().toJson());
 
         return object;
@@ -149,13 +148,13 @@ public class ControlifyConfig {
             JsonElement element = object.get("current_controller");
             currentControllerUid = element.isJsonNull() ? null : element.getAsString();
         } else {
-            currentControllerUid = controlify.getCurrentController().map(Controller::uid).orElse(null);
+            currentControllerUid = controlify.getCurrentController().map(c -> c.info().uid()).orElse(null);
             setDirty();
         }
     }
 
-    public boolean loadOrCreateControllerData(Controller<?> controller) {
-        var uid = controller.uid();
+    public boolean loadOrCreateControllerData(ControllerEntity controller) {
+        var uid = controller.info().uid();
         if (controllerData.has(uid)) {
             DebugLog.log("Loading controller data for " + uid);
             applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
@@ -167,13 +166,13 @@ public class ControlifyConfig {
         }
     }
 
-    private void applyControllerConfig(Controller<?> controller, JsonObject object) {
+    private void applyControllerConfig(ControllerEntity controller, JsonObject object) {
         try {
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
-            controller.setConfig(GSON, object.getAsJsonObject("config"));
+            controller.serializeToObject(object.getAsJsonObject("config"), GSON);
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to load controller data for " + controller.uid() + ". Resetting to default!", e);
-            controller.resetConfig();
+            CUtil.LOGGER.error("Failed to load controller data for " + controller.info().uid() + ". Resetting to default!", e);
+            controller.resetToDefaultConfig();
             save();
         }
     }

@@ -1,6 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
-import dev.isxander.controlify.controller.Controller;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -22,7 +22,7 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
     }
 
     @Override
-    protected void handleScreenVMouse(Controller<?> controller, VirtualMouseHandler vmouse) {
+    protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         super.handleButtons(controller);
 
         RecipeBookComponent recipeBookComponent = ((RecipeUpdateListener) screen).getRecipeBookComponent();

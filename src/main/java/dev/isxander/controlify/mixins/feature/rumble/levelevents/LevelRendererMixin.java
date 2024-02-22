@@ -1,6 +1,7 @@
 package dev.isxander.controlify.mixins.feature.rumble.levelevents;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.LevelEvent;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -56,7 +58,10 @@ public class LevelRendererMixin {
         }
     }
 
+    @Unique
     private void rumble(RumbleSource source, RumbleEffect effect) {
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> controller.rumbleManager().play(source, effect));
+        ControlifyApi.get().getCurrentController()
+                .flatMap(ControllerEntity::rumble)
+                .ifPresent(rumble -> rumble.rumbleManager().play(source, effect));
     }
 }
