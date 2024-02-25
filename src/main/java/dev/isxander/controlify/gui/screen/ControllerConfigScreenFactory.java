@@ -253,14 +253,15 @@ public class ControllerConfigScreenFactory {
         var group = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.deadzones"));
 
+        group.option(LabelOption.create(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED)));
+
         for (ResourceLocation deadzoneAxis : config.deadzones.keySet()) {
-            Component name = Inputs.getInputComponent(deadzoneAxis);
+            Component name = Component.translatable("controlify.deadzone_group." + deadzoneAxis.getNamespace() + "." + deadzoneAxis.getPath());
 
             Option<Float> deadzoneOpt = Option.<Float>createBuilder()
                     .name(name)
                     .description(OptionDescription.createBuilder()
                             .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", name))
-                            .text(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED))
                             .build())
                     .binding(
                             def.deadzones.getOrDefault(deadzoneAxis, 0f),
@@ -311,29 +312,38 @@ public class ControllerConfigScreenFactory {
                         .binding(input.get().defObj().mixedInput, () -> input.get().defObj().mixedInput, v -> input.get().defObj().mixedInput = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build());
-        // TODO
-//        if (controller instanceof EmulatedGamepadController emulatedGamepadController) {
-//            builder.group(makeGamepadEmulationGroup(emulatedGamepadController));
-//        }
 
         makeVibrationGroup(controller).ifPresent(builder::group);
         makeGyroGroup(controller).ifPresent(builder::group);
+        makeControllerMappingGroup(controller).ifPresent(builder::group);
 
         return builder.build();
     }
 
-//    private OptionGroup makeGamepadEmulationGroup(EmulatedGamepadController controller) {
-//        return OptionGroup.createBuilder()
-//                .name(Component.translatable("controlify.gui.group.gamepad_emulation"))
-//                .option(LabelOption.create(Component.translatable("controlify.gui.gamepad_emulation.explanation")))
-//                .option(ButtonOption.createBuilder()
-//                        .name(Component.translatable("controlify.gui.remap_joystick"))
-//                        .description(OptionDescription.of(Component.translatable("controlify.gui.remap_joystick.tooltip")))
-//                        .action((screen, button) -> Minecraft.getInstance().setScreen(new GamepadEmulationMappingCreatorScreen(controller, screen)))
-//                        .build())
-//                .collapsed(true)
-//                .build();
-//    }
+    private Optional<OptionGroup> makeControllerMappingGroup(ControllerEntity controller) {
+        Optional<InputComponent> inputOpt = controller.input();
+        if (inputOpt.isEmpty())
+            return Optional.empty();
+        InputComponent input = inputOpt.get();
+        InputComponent.Config config = input.confObj();
+        InputComponent.Config def = input.defObj();
+
+        return Optional.of(OptionGroup.createBuilder()
+                .name(Component.translatable("controlify.gui.group.controller_mapping"))
+                .option(LabelOption.create(Component.translatable("controlify.gui.controller_mapping.explanation")))
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.create_gamepad_mapping"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.create_gamepad_mapping.tooltip")))
+                        .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerMappingMakerScreen(input, screen, ControllerMappingMakerScreen.GAMEPAD_STAGES)))
+                        .build())
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.clear_mapping"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.clear_mapping.tooltip")))
+                        .action((screen, button) -> config.mapping = def.mapping)
+                        .build())
+                .collapsed(true)
+                .build());
+    }
 
     private Optional<OptionGroup> makeVibrationGroup(ControllerEntity controller) {
         var vibrationGroup = OptionGroup.createBuilder()

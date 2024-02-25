@@ -1,11 +1,13 @@
 package dev.isxander.controlify.controller.input;
 
+import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.AxisBind;
 import dev.isxander.controlify.bindings.ButtonBind;
 import dev.isxander.controlify.bindings.IBind;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Set;
 
 public final class GamepadInputs {
@@ -55,18 +57,20 @@ public final class GamepadInputs {
 
     public static final ResourceLocation TOUCHPAD_BUTTON = button("touchpad");
 
-
-
-    public static final Set<ResourceLocation> DEADZONE_AXES = Set.of(
-            LEFT_STICK_AXIS_UP,
-            LEFT_STICK_AXIS_DOWN,
-            LEFT_STICK_AXIS_LEFT,
-            LEFT_STICK_AXIS_RIGHT,
-            RIGHT_STICK_AXIS_UP,
-            RIGHT_STICK_AXIS_DOWN,
-            RIGHT_STICK_AXIS_LEFT,
-            RIGHT_STICK_AXIS_RIGHT
-    );
+    public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
+            new DeadzoneGroup(Controlify.id("left_stick"), Set.of(
+                    LEFT_STICK_AXIS_UP,
+                    LEFT_STICK_AXIS_DOWN,
+                    LEFT_STICK_AXIS_LEFT,
+                    LEFT_STICK_AXIS_RIGHT
+            )),
+            new DeadzoneGroup(Controlify.id("right_stick"), Set.of(
+                    RIGHT_STICK_AXIS_UP,
+                    RIGHT_STICK_AXIS_DOWN,
+                    RIGHT_STICK_AXIS_LEFT,
+                    RIGHT_STICK_AXIS_RIGHT
+            ))
+    ));
 
     public static IBind getBind(ResourceLocation id) {
         return switch (id.getPath().split("/")[0]) {

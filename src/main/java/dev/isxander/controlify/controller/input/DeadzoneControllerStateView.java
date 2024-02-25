@@ -4,15 +4,16 @@ import dev.isxander.controlify.controller.IConfig;
 import dev.isxander.controlify.utils.ControllerUtils;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class DeadzoneControllerStateView implements ControllerStateView {
     private final ControllerStateView view;
-    private final IConfig<InputComponent.Config> config;
+    private final InputComponent input;
 
-    public DeadzoneControllerStateView(ControllerStateView view, IConfig<InputComponent.Config> config) {
+    public DeadzoneControllerStateView(ControllerStateView view, InputComponent input) {
         this.view = view;
-        this.config = config;
+        this.input = input;
     }
 
     @Override
@@ -28,7 +29,8 @@ public class DeadzoneControllerStateView implements ControllerStateView {
     @Override
     public float getAxisState(ResourceLocation axis) {
         float rawAxis = view.getAxisState(axis);
-        float deadzone = config.config().deadzones.getOrDefault(axis, 0f);
+        Optional<ResourceLocation> deadzoneId = input.getDeadzoneForAxis(axis);
+        float deadzone = deadzoneId.map(id -> input.confObj().deadzones.get(id)).orElse(0f);
 
         return ControllerUtils.deadzone(rawAxis, deadzone);
     }

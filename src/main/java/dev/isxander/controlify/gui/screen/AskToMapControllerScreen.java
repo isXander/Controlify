@@ -11,7 +11,7 @@ public class AskToMapControllerScreen extends ConfirmScreen {
         super(
                 (confirmed) -> {
                     if (confirmed) {
-                        Minecraft.getInstance().setScreen(new GamepadEmulationMappingCreatorScreen(controller.input().orElseThrow(), lastScreen, GamepadEmulationMappingCreatorScreen.GAMEPAD_STAGES));
+                        Minecraft.getInstance().setScreen(new ControllerMappingMakerScreen(controller.input().orElseThrow(), lastScreen, ControllerMappingMakerScreen.GAMEPAD_STAGES));
                     } else {
                         Minecraft.getInstance().setScreen(lastScreen);
                     }

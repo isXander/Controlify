@@ -19,10 +19,10 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class GamepadEmulationMappingCreatorScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
+public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
     private final InputComponent inputComponent;
     private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder();
-    private final ScreenProcessor<GamepadEmulationMappingCreatorScreen> screenProcessor = new ScreenProcessorImpl(this);
+    private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);
 
     private int delayTillNextStage = 20;
 
@@ -55,7 +55,7 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
     private Button goBackButton;
     private final Screen lastScreen;
 
-    public GamepadEmulationMappingCreatorScreen(InputComponent inputComponent, Screen lastScreen, List<MappingStage> stages) {
+    public ControllerMappingMakerScreen(InputComponent inputComponent, Screen lastScreen, List<MappingStage> stages) {
         super(Component.literal("Gamepad Emulation Mapping Creator"));
         this.inputComponent = inputComponent;
         this.lastScreen = lastScreen;
@@ -121,21 +121,23 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
         }
     }
 
-    private void processStage(MappingStage buttonStage, ControllerStateView stateNow, ControllerStateView stateThen) {
+    private void processStage(MappingStage stage, ControllerStateView stateNow, ControllerStateView stateThen) {
         for (ResourceLocation button : stateNow.getButtons()) {
             boolean now = stateNow.isButtonDown(button);
             boolean prev = stateThen.isButtonDown(button);
             if (now != prev) {
-                MappingEntry mapping = switch (buttonStage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromButton.ToButton(buttonStage.originInput(), button, !now);
-                    case AXIS -> new MappingEntry.FromButton.ToAxis(buttonStage.originInput(), button, prev ? 1 : 0, now ? 1 : 0);
+                System.out.println(button);
+                MappingEntry mapping = switch (stage.outputType()) {
+                    case BUTTON -> new MappingEntry.FromButton.ToButton(stage.originInput(), button, !now);
+                    case AXIS -> new MappingEntry.FromButton.ToAxis(stage.originInput(), button, prev ? 1 : 0, now ? 1 : 0);
                     case HAT -> {
                         HatState state = now ? HatState.DOWN : HatState.UP;
-                        yield new MappingEntry.FromButton.ToHat(buttonStage.originInput(), button, HatState.CENTERED, state);
+                        yield new MappingEntry.FromButton.ToHat(stage.originInput(), button, HatState.CENTERED, state);
                     }
                     case NOTHING -> null;
                 };
                 mappingBuilder.putMapping(mapping);
+                stage.setSatisfied(true);
                 return;
             }
         }
@@ -145,13 +147,14 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
             float prev = stateThen.getAxisState(axis);
             float diff = prev - now;
             if (Math.abs(diff) > 0.3f) {
-                MappingEntry mapping = switch (buttonStage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromAxis.ToButton(buttonStage.originInput(), axis, 0.5f);
-                    case AXIS -> new MappingEntry.FromAxis.ToAxis(buttonStage.originInput(), axis, -1, 1, -1, 1);
-                    case HAT -> new MappingEntry.FromAxis.ToHat(buttonStage.originInput(), axis, 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
+                MappingEntry mapping = switch (stage.outputType()) {
+                    case BUTTON -> new MappingEntry.FromAxis.ToButton(stage.originInput(), axis, 0.5f);
+                    case AXIS -> new MappingEntry.FromAxis.ToAxis(stage.originInput(), axis, -1, 1, -1, 1);
+                    case HAT -> new MappingEntry.FromAxis.ToHat(stage.originInput(), axis, 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
                     case NOTHING -> null;
                 };
                 mappingBuilder.putMapping(mapping);
+                stage.setSatisfied(true);
                 return;
             }
         }
@@ -160,13 +163,14 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
             HatState now = stateNow.getHatState(hat);
             HatState prev = stateThen.getHatState(hat);
             if (now != prev) {
-                MappingEntry mapping = switch (buttonStage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromHat.ToButton(buttonStage.originInput(), hat, prev);
-                    case AXIS -> new MappingEntry.FromHat.ToAxis(buttonStage.originInput(), hat, prev, 0, 1);
-                    case HAT -> new MappingEntry.FromHat.ToHat(buttonStage.originInput(), hat);
+                MappingEntry mapping = switch (stage.outputType()) {
+                    case BUTTON -> new MappingEntry.FromHat.ToButton(stage.originInput(), hat, prev);
+                    case AXIS -> new MappingEntry.FromHat.ToAxis(stage.originInput(), hat, prev, 0, 1);
+                    case HAT -> new MappingEntry.FromHat.ToHat(stage.originInput(), hat);
                     case NOTHING -> null;
                 };
                 mappingBuilder.putMapping(mapping);
+                stage.setSatisfied(true);
                 return;
             }
         }
@@ -307,8 +311,8 @@ public class GamepadEmulationMappingCreatorScreen extends Screen implements Scre
         }
     }
 
-    private static class ScreenProcessorImpl extends ScreenProcessor<GamepadEmulationMappingCreatorScreen> {
-        public ScreenProcessorImpl(GamepadEmulationMappingCreatorScreen screen) {
+    private static class ScreenProcessorImpl extends ScreenProcessor<ControllerMappingMakerScreen> {
+        public ScreenProcessorImpl(ControllerMappingMakerScreen screen) {
             super(screen);
         }
 

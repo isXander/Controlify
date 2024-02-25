@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ClientUtils;
@@ -175,9 +176,15 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         InputComponent input = controller.input().orElseThrow();
         ControllerState state = input.rawStateNow();
-        for (ResourceLocation axis : input.getDeadzoneAxes()) {
-            float[] axisData = this.axisData.computeIfAbsent(axis, k -> new float[CALIBRATION_TIME]);
-            axisData[tick] = state.getAxisState(axis);
+        for (DeadzoneGroup group : input.getDeadzoneGroups()) {
+            float[] axisData = this.axisData.computeIfAbsent(group.name(), k -> new float[CALIBRATION_TIME]);
+
+            float max = 0;
+            for (ResourceLocation axis : group.axes()) {
+                max = Math.max(max, Math.abs(state.getAxisState(axis)));
+            }
+
+            axisData[tick] = max;
         }
     }
 
@@ -194,8 +201,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         input.config().config().deadzones.clear();
 
-        for (ResourceLocation axis : input.rawStateNow().getAxes()) {
-            float[] axisData = this.axisData.get(axis);
+        for (DeadzoneGroup group : input.getDeadzoneGroups()) {
+            float[] axisData = this.axisData.get(group.name());
             if (axisData == null)
                 continue;
 
@@ -205,7 +212,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
                 maxAbs = Math.max(maxAbs, Math.abs(axisValue));
             }
 
-            input.config().config().deadzones.put(axis, maxAbs + 0.08f);
+            input.config().config().deadzones.put(group.name(), maxAbs + 0.08f);
         }
     }
 

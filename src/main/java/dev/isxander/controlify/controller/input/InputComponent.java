@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.input;
 
+import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.mapping.UserGamepadMapping;
@@ -19,18 +20,18 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     private DeadzoneControllerStateView deadzoneStateNow, deadzoneStateThen;
 
     private final int buttonCount, axisCount, hatCount;
-    private final Set<ResourceLocation> deadzoneAxes;
+    private final Set<DeadzoneGroup> deadzoneAxes;
     private final boolean definitelyGamepad;
 
     private final IConfig<Config> config;
 
-    public InputComponent(int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<ResourceLocation> deadzoneAxes) {
+    public InputComponent(int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes) {
         this.buttonCount = buttonCount;
         this.axisCount = axisCount;
         this.hatCount = hatCount;
         this.config = new ConfigImpl<>(Config::new, Config.class);
         this.definitelyGamepad = definitelyGamepad;
-        this.deadzoneAxes = deadzoneAxes;
+        this.deadzoneAxes = Sets.newLinkedHashSet(deadzoneAxes);
         this.updateDeadzoneView();
     }
 
@@ -75,7 +76,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         return this.definitelyGamepad;
     }
 
-    public Set<ResourceLocation> getDeadzoneAxes() {
+    public Set<DeadzoneGroup> getDeadzoneGroups() {
         if (!confObj().deadzoneOverrides.isEmpty()) {
             return confObj().deadzoneOverrides;
         } else {
@@ -89,8 +90,17 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     private void updateDeadzoneView() {
-        this.deadzoneStateNow = new DeadzoneControllerStateView(this.stateNow, this.config);
-        this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this.config);
+        this.deadzoneStateNow = new DeadzoneControllerStateView(this.stateNow, this);
+        this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this);
+    }
+
+    Optional<ResourceLocation> getDeadzoneForAxis(ResourceLocation axis) {
+        for (DeadzoneGroup group : this.getDeadzoneGroups()) {
+            if (group.axes().contains(axis)) {
+                return Optional.of(group.name());
+            }
+        }
+        return Optional.empty();
     }
 
     public static class Config implements ConfigClass {
@@ -110,6 +120,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         @Nullable
         public UserGamepadMapping mapping = null;
 
-        public Set<ResourceLocation> deadzoneOverrides = new HashSet<>();
+        public Set<DeadzoneGroup> deadzoneOverrides = new LinkedHashSet<>();
     }
+
 }

@@ -1,8 +1,0 @@
-{
-  "package": "dev.isxander.controlify.test.mixins",
-  "required": true,
-  "minVersion": "0.8",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ]
-}

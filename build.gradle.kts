@@ -37,26 +37,8 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
-val testmod by sourceSets.registering {
-    compileClasspath += sourceSets.main.get().compileClasspath
-    runtimeClasspath += sourceSets.main.get().runtimeClasspath
-}
-
 loom {
     accessWidenerPath.set(file("src/main/resources/controlify.accesswidener"))
-
-    runs {
-        register("testmod") {
-            client()
-            ideConfigGenerated(true)
-            name("Test Mod")
-            source(testmod.get())
-        }
-
-        named("server") { ideConfigGenerated(false) }
-    }
-
-    createRemapConfigurations(testmod.get())
 
     mixin {
         useLegacyMixinAp.set(false)
@@ -123,9 +105,6 @@ dependencies {
 
     // simple-voice-chat compat
     modCompileOnly(libs.simple.voice.chat)
-
-    // testmod
-    "testmodImplementation"(sourceSets.main.get().output)
 }
 
 blossom {
