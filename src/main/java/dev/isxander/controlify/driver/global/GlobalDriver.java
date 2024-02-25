@@ -17,17 +17,17 @@ public record GlobalDriver(OnScreenKeyboardDriver onScreenKeyboard) {
     public static void createInstance() {
         OnScreenKeyboardDriver kbDriver = OnScreenKeyboardDriver.EMPTY;
 
-        if (SDL3NativesManager.isLoaded()) {
-            SDLGlobalDriver sdlDriver = new SDLGlobalDriver();
-
-            kbDriver = sdlDriver;
-        }
-
         // SDL does the exact same thing under the hood, but not sure what else it does...
         if (SteamGlobalDriver.IS_STEAM_DECK) {
             SteamGlobalDriver steamDriver = new SteamGlobalDriver();
 
             kbDriver = steamDriver;
+        }
+
+        if (SDL3NativesManager.isLoaded()) {
+            SDLGlobalDriver sdlDriver = new SDLGlobalDriver();
+
+            kbDriver = sdlDriver;
         }
 
         instance = new GlobalDriver(kbDriver);
