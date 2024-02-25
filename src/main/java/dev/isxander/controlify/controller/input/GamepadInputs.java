@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.AxisBind;

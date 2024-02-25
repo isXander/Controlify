@@ -169,7 +169,7 @@ public class ControlifyConfig {
     private void applyControllerConfig(ControllerEntity controller, JsonObject object) {
         try {
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
-            controller.serializeToObject(object.getAsJsonObject("config"), GSON);
+            controller.deserializeFromObject(object.getAsJsonObject("config"), GSON);
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load controller data for " + controller.info().uid() + ". Resetting to default!", e);
             controller.resetToDefaultConfig();

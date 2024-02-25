@@ -4,8 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.impl.ECSEntityImpl;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
+import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.SerializationException;
 
@@ -98,7 +104,7 @@ public class ControllerEntity extends ECSEntityImpl {
             ResourceLocation key = entry.getKey();
             IConfig<?> config = entry.getValue();
 
-            object.add(key.toString(), config.serialize(gson));
+            object.add(key.toString(), config.serialize(gson, this));
         }
     }
 
@@ -108,7 +114,7 @@ public class ControllerEntity extends ECSEntityImpl {
             IConfig<?> config = entry.getValue();
 
             JsonElement element = object.get(key.toString());
-            config.deserialize(element, gson);
+            config.deserialize(element, gson, this);
         }
     }
 

@@ -1,11 +1,15 @@
 package dev.isxander.controlify.driver.sdl;
 
-import dev.isxander.controlify.controller.BatteryLevel;
+import dev.isxander.controlify.controller.battery.BatteryLevel;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.HatState;
-import dev.isxander.controlify.controller.JoystickInputs;
+import dev.isxander.controlify.controller.input.HatState;
+import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.input.JoystickInputs;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
+import dev.isxander.controlify.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -18,6 +22,7 @@ import io.github.libsdl4j.api.properties.SDL_PropertiesID;
 import net.minecraft.util.Mth;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static io.github.libsdl4j.api.error.SdlError.SDL_GetError;
 import static io.github.libsdl4j.api.joystick.SDL_JoystickPowerLevel.*;
@@ -56,7 +61,7 @@ public class SDL3JoystickDriver implements Driver {
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
         this.numHats = SDL_GetNumJoystickHats(ptrJoystick);
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats, false, Set.of()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isRumbleSupported) {
             this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);

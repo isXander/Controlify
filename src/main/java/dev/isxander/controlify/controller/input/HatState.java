@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.input;
 
 import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;

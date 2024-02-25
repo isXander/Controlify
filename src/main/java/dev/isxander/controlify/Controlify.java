@@ -6,6 +6,10 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.input.ControllerState;
+import dev.isxander.controlify.controller.input.ControllerStateView;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
@@ -306,22 +310,16 @@ public class Controlify implements ControlifyApi {
             setCurrentController(controller, true);
         }
 
-//        wizard.addStage(
-//                () -> controller instanceof EmulatedGamepadController emulated && emulated.config().mapping.isNoMapping(),
-//                nextScreen -> new GamepadEmulationMappingCreatorScreen((EmulatedGamepadController) controller, nextScreen)
-//        );
+        wizard.addStage(
+                () -> !controller.input().orElseThrow().isDefinitelyGamepad(),
+                nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
+        );
         wizard.addStage(
                 () -> !calibrated,
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
 
-        /*if (controller instanceof JoystickController<?> joystick && joystick.mapping() instanceof UnmappedJoystickMapping) {
-            ToastUtils.sendToast(
-                    Component.translatable("controlify.toast.unmapped_joystick.title"),
-                    Component.translatable("controlify.toast.unmapped_joystick.description", controller.name()),
-                    true
-            );
-        } else*/ if (hotplugged) {
+        if (hotplugged) {
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.controller_connected.title"),
                     Component.translatable("controlify.toast.controller_connected.description", controller.name()),

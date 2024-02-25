@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.input;
 
 import net.minecraft.resources.ResourceLocation;
 

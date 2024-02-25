@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.battery;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

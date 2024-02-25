@@ -1,6 +1,7 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.rumble;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;

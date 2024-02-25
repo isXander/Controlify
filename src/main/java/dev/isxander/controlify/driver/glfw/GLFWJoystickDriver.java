@@ -1,11 +1,11 @@
 package dev.isxander.controlify.driver.glfw;
 
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.HatState;
-import dev.isxander.controlify.controller.JoystickInputs;
+import dev.isxander.controlify.controller.input.HatState;
+import dev.isxander.controlify.controller.input.JoystickInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerInfo;
-import dev.isxander.controlify.controller.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
@@ -16,6 +16,7 @@ import org.lwjgl.glfw.GLFW;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -40,7 +41,7 @@ public class GLFWJoystickDriver implements Driver {
         this.numAxes = testState.axes().limit();
         this.numHats = testState.hats().limit();
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats, false, Set.of()), InputComponent.ID);
 
         this.controller.finalise();
     }

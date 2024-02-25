@@ -1,6 +1,10 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.gyro;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ConfigClass;
+import dev.isxander.controlify.controller.ConfigHolder;
+import dev.isxander.controlify.controller.ECSComponent;
+import dev.isxander.controlify.controller.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,7 +27,7 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
         return this.config;
     }
 
-    public static class Config {
+    public static class Config implements ConfigClass {
         public boolean calibrated = false;
         public boolean delayedCalibration = false;
 

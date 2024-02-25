@@ -1,6 +1,10 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.rumble;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ConfigClass;
+import dev.isxander.controlify.controller.ConfigHolder;
+import dev.isxander.controlify.controller.ECSComponent;
+import dev.isxander.controlify.controller.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
@@ -41,8 +45,8 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
         return this.config;
     }
 
-    public static class Config {
-        public boolean enabled;
+    public static class Config implements ConfigClass {
+        public boolean enabled = true;
 
         public Map<ResourceLocation, Float> vibrationStrengths = RumbleSource.getDefaultMap();
 

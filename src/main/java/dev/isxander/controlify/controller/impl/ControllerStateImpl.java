@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.impl;
 
-import dev.isxander.controlify.controller.HatState;
-import dev.isxander.controlify.controller.ModifiableControllerState;
+import dev.isxander.controlify.controller.input.HatState;
+import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;

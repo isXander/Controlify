@@ -1,6 +1,6 @@
 package dev.isxander.controlify.rumble;
 
-import dev.isxander.controlify.controller.RumbleComponent;
+import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;

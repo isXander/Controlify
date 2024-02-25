@@ -1,9 +1,8 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.*;
-import dev.isxander.controlify.controller.ControllerState;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.ControllerStateView;
+import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

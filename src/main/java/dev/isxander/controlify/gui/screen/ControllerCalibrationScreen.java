@@ -1,10 +1,10 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.GyroState;
+import dev.isxander.controlify.controller.input.ControllerState;
+import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ClientUtils;
 import net.minecraft.ChatFormatting;
@@ -173,8 +173,9 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         if (axisData == null)
             return;
 
-        ControllerState state = controller.input().orElseThrow().rawStateNow();
-        for (ResourceLocation axis : state.getAxes()) {
+        InputComponent input = controller.input().orElseThrow();
+        ControllerState state = input.rawStateNow();
+        for (ResourceLocation axis : input.getDeadzoneAxes()) {
             float[] axisData = this.axisData.computeIfAbsent(axis, k -> new float[CALIBRATION_TIME]);
             axisData[tick] = state.getAxisState(axis);
         }

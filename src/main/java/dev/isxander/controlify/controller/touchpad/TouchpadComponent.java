@@ -1,6 +1,7 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.touchpad;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ECSComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;

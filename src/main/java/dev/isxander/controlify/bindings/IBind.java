@@ -1,8 +1,8 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.ControllerStateView;
-import dev.isxander.controlify.controller.HatState;
+import dev.isxander.controlify.controller.input.ControllerStateView;
+import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;

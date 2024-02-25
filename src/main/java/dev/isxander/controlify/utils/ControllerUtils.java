@@ -1,6 +1,6 @@
 package dev.isxander.controlify.utils;
 
-import dev.isxander.controlify.controller.TouchpadState;
+import dev.isxander.controlify.controller.touchpad.TouchpadState;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import net.minecraft.CrashReport;

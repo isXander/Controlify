@@ -1,10 +1,10 @@
 package dev.isxander.controlify.driver.glfw;
 
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.GamepadInputs;
+import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerInfo;
-import dev.isxander.controlify.controller.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
@@ -32,7 +32,7 @@ public class GLFWGamepadDriver implements Driver {
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
         this.controller = new ControllerEntity(info);
 
-        this.controller.setComponent(new InputComponent(15, 10, 0), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(15, 10, 0, true, GamepadInputs.DEADZONE_AXES), InputComponent.ID);
 
         this.controller.finalise();
     }

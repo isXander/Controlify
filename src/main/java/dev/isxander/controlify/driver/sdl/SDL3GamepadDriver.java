@@ -3,13 +3,19 @@ package dev.isxander.controlify.driver.sdl;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.FloatByReference;
-import dev.isxander.controlify.controller.BatteryLevel;
+import dev.isxander.controlify.controller.battery.BatteryLevel;
 import dev.isxander.controlify.controller.ControllerType;
-import dev.isxander.controlify.controller.TouchpadState;
-import dev.isxander.controlify.controller.GamepadInputs;
-import dev.isxander.controlify.controller.GyroState;
+import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
+import dev.isxander.controlify.controller.touchpad.TouchpadState;
+import dev.isxander.controlify.controller.gyro.GyroComponent;
+import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -70,7 +76,7 @@ public class SDL3GamepadDriver implements Driver {
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
         this.controller = new ControllerEntity(info);
 
-        this.controller.setComponent(new InputComponent(21, 10, 0), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_AXES), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);

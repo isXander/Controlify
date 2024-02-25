@@ -7,7 +7,7 @@ import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.GamepadInputs;
+import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;

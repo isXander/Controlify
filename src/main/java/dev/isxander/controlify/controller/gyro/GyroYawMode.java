@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.gyro;
 
 public enum GyroYawMode {
     YAW,

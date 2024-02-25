@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.gyro;
 
 import org.joml.Vector3fc;
 

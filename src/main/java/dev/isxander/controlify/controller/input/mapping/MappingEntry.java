@@ -1,25 +1,27 @@
-package dev.isxander.controlify.controller.emulatedgp.mapping;
+package dev.isxander.controlify.controller.input.mapping;
 
-import dev.isxander.controlify.controller.ControllerState;
-import dev.isxander.controlify.controller.HatState;
-import dev.isxander.controlify.controller.ModifiableControllerState;
+import dev.isxander.controlify.controller.input.ControllerState;
+import dev.isxander.controlify.controller.input.HatState;
+import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
-public interface MappingEntry {
+public sealed interface MappingEntry {
     void apply(ControllerState oldState, ModifiableControllerState newState);
 
     MapType outputType();
 
     sealed interface FromButton extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, MapType outputType) implements FromButton {
-            public ToButton(ResourceLocation from, ResourceLocation to) {
-                this(from, to, MapType.BUTTON);
+        record ToButton(ResourceLocation from, ResourceLocation to, boolean invert, MapType outputType) implements FromButton {
+            public ToButton(ResourceLocation from, ResourceLocation to, boolean invert) {
+                this(from, to, invert, MapType.BUTTON);
             }
 
             @Override
             public void apply(ControllerState oldState, ModifiableControllerState newState) {
-                newState.setButton(to, oldState.isButtonDown(from));
+                boolean fromState = oldState.isButtonDown(from);
+                if (invert()) fromState = !fromState;
+                newState.setButton(to, fromState);
             }
         }
 

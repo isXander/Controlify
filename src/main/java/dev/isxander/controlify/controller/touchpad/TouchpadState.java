@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.touchpad;
 
 import org.joml.Vector2fc;
 

@@ -1,8 +1,8 @@
 package dev.isxander.controlify.wireless;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.BatteryLevel;
-import dev.isxander.controlify.controller.BatteryLevelComponent;
+import dev.isxander.controlify.controller.battery.BatteryLevel;
+import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ToastUtils;
