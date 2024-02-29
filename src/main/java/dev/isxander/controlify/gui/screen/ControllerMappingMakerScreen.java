@@ -125,8 +125,8 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         for (ResourceLocation button : stateNow.getButtons()) {
             boolean now = stateNow.isButtonDown(button);
             boolean prev = stateThen.isButtonDown(button);
+
             if (now != prev) {
-                System.out.println(button);
                 MappingEntry mapping = switch (stage.outputType()) {
                     case BUTTON -> new MappingEntry.FromButton.ToButton(stage.originInput(), button, !now);
                     case AXIS -> new MappingEntry.FromButton.ToAxis(stage.originInput(), button, prev ? 1 : 0, now ? 1 : 0);

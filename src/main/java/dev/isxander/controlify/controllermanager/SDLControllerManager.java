@@ -60,6 +60,7 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
                     SDL_JoystickID jid = event.jdevice.which;
+
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
 
                     Optional<ControllerEntity> controllerOpt = createOrGet(
@@ -75,7 +76,12 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On removed, `which` refers to the device instance ID
                 case SDL_EVENT_JOYSTICK_REMOVED -> {
                     SDL_JoystickID jid = event.jdevice.which;
-                    getController(new SDLUniqueControllerID(jid)).ifPresent(this::onControllerRemoved);
+                    CUtil.LOGGER.info("Controller removed: {}", jid.intValue());
+                    getController(new SDLUniqueControllerID(jid))
+                            .ifPresentOrElse(
+                                    this::onControllerRemoved,
+                                    () -> CUtil.LOGGER.warn("Controller removed but not found: {}", jid.intValue())
+                            );
                 }
             }
         }
@@ -106,12 +112,13 @@ public class SDLControllerManager extends AbstractControllerManager {
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
             SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
-            this.addController(ucid, driver.getController(), driver);
+            System.out.println(driver.getUcid());
+            this.addController(driver.getUcid(), driver.getController(), driver);
 
             return Optional.of(driver.getController());
         } else {
             SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hid);
-            this.addController(ucid, driver.getController(), driver);
+            this.addController(driver.getUcid(), driver.getController(), driver);
 
             return Optional.of(driver.getController());
         }

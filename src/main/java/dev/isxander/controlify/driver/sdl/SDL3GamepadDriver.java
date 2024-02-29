@@ -16,6 +16,7 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
+import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -57,11 +58,14 @@ public class SDL3GamepadDriver implements Driver {
     private final String guid;
     private final String name;
 
+    private final UniqueControllerID ucid;
+
     public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
         this.ptrGamepad = SDL_OpenGamepad(jid);
         if (this.ptrGamepad == null) {
             throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
         }
+        this.ucid = new SDLControllerManager.SDLUniqueControllerID(SDL_GetGamepadInstanceID(ptrGamepad));
 
         SDL_PropertiesID properties = SDL_GetGamepadProperties(ptrGamepad);
 
@@ -93,6 +97,10 @@ public class SDL3GamepadDriver implements Driver {
         }
 
         this.controller.finalise();
+    }
+
+    public UniqueControllerID getUcid() {
+        return this.ucid;
     }
 
     @Override
