@@ -25,6 +25,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 import java.util.Optional;
@@ -33,6 +34,7 @@ import java.util.function.BiFunction;
 
 public class InGameInputHandler {
     private final ControllerEntity controller;
+    private final Controlify controlify;
     private final Minecraft minecraft;
 
     private double lookInputX, lookInputY; // in degrees per tick
@@ -47,11 +49,13 @@ public class InGameInputHandler {
     public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
+        this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
     }
 
     public void inputTick() {
-        handlePlayerLookInput();
+        //handlePlayerLookInput();
+        handlePlayerLookInputNew();
         handleKeybinds();
         preventFlyDrifting();
 
@@ -146,6 +150,116 @@ public class InGameInputHandler {
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {
             minecraft.setScreen(new RadialMenuScreen(controller, false, null));
+        }
+    }
+
+    protected void handlePlayerLookInputNew() {
+        LocalPlayer player = this.minecraft.player;
+
+        boolean mouseNotGrabbed = minecraft.mouseHandler.isMouseGrabbed();
+        boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
+        boolean screenVisible = minecraft.screen != null;
+        boolean playerExists = minecraft.player != null;
+        if (mouseNotGrabbed || outOfFocus || screenVisible || !playerExists) {
+            lookInputX = 0;
+            lookInputY = 0;
+            return;
+        }
+
+        boolean aiming = isAiming(player);
+
+        Vector2f lookImpulse = new Vector2f();
+        controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
+
+        if (controller.gyro().map(gyro -> gyro.confObj().flickStick).orElse(false)) {
+            handleFlickStick(player);
+        } else {
+            controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
+        }
+
+        LookInputModifier lookInputModifier = ControlifyEvents.LOOK_INPUT_MODIFIER.invoker();
+        lookImpulse.x = lookInputModifier.modifyX(lookImpulse.x, controller);
+        lookImpulse.y = lookInputModifier.modifyY(lookImpulse.y, controller);
+
+        lookInputX = lookImpulse.x;
+        lookInputY = lookImpulse.y;
+
+        wasAiming = aiming;
+    }
+
+    protected void handleRegularLook(InputComponent input, Vector2f impulse, boolean aiming, LocalPlayer player) {
+        InputComponent.Config config = input.confObj();
+
+        // TODO: refactor this function majorly - this is truly awful
+        //       possibly separate the flick stick code into its own function?
+        // normal look input
+        float impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
+        float impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
+
+        // apply the easing on its length to preserve circularity
+        Vector2fc easedImpulse = ControllerUtils.applyEasingToLength(
+                impulseX,
+                impulseY,
+                x -> x * Math.abs(x)
+        );
+        impulseX = easedImpulse.x();
+        impulseY = easedImpulse.y();
+
+        impulseX *= config.hLookSensitivity * 10f; // 10 degrees per second at 100% sensitivity
+        impulseY *= config.vLookSensitivity * 10f;
+
+        if (config.reduceAimingSensitivity && player.isUsingItem()) {
+            float aimMultiplier = switch (player.getUseItem().getUseAnimation()) {
+                case BOW, SPEAR -> 0.6f;
+                case SPYGLASS -> 0.2f;
+                default -> 1f;
+            };
+            impulseX *= aimMultiplier;
+            impulseY *= aimMultiplier;
+        }
+
+        impulse.x += impulseX;
+        impulse.y += impulseY;
+    }
+
+    protected void handleGyroLook(GyroComponent gyro, Vector2f impulse, boolean aiming) {
+        GyroComponent.Config config = gyro.confObj();
+
+        if (config.requiresButton && (!controller.bindings().GAMEPAD_GYRO_BUTTON.held() && !aiming)) {
+            gyroInput.set(0);
+        } else {
+            if (config.relativeGyroMode)
+                gyroInput.add(new GyroState(gyro.getState()).mul(0.1f));
+            else
+                gyroInput.set(gyro.getState());
+        }
+
+        // convert radians per second into degrees per tick
+        GyroState thisInput = new GyroState(gyroInput)
+                .mul(Mth.RAD_TO_DEG)
+                .div(20)
+                .mul(config.lookSensitivity);
+
+        impulse.y += -thisInput.pitch() * (config.invertY ? -1 : 1);
+        impulse.x += switch (config.yawMode) {
+            case YAW -> -thisInput.yaw();
+            case ROLL -> -thisInput.roll();
+            case BOTH -> -thisInput.yaw() - thisInput.roll();
+        } * (config.invertX ? -1 : 1);
+    }
+
+    protected void handleFlickStick(LocalPlayer player) {
+        var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
+
+        float flick = controller.bindings().LOOK_DOWN.justPressed() || controller.bindings().LOOK_RIGHT.justPressed() ? 1 : controller.bindings().LOOK_UP.justPressed() || controller.bindings().LOOK_LEFT.justPressed() ? -1 : 0;
+
+        if (flick != 0f) {
+            AtomicReference<Float> lastAngle = new AtomicReference<>(0f);
+            Animator.INSTANCE.play(new Animator.AnimationInstance(10, Easings::easeOutExpo)
+                    .addConsumer(angle -> {
+                        player.turn((angle - lastAngle.get()) * flick, 0);
+                        lastAngle.set(angle);
+                    }, 0, turnAngle));
         }
     }
 

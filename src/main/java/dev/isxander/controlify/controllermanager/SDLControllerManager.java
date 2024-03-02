@@ -60,6 +60,7 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
                     SDL_JoystickID jid = event.jdevice.which;
+                    CUtil.LOGGER.info("Controller added: {}", jid.longValue());
 
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
 
@@ -76,7 +77,7 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On removed, `which` refers to the device instance ID
                 case SDL_EVENT_JOYSTICK_REMOVED -> {
                     SDL_JoystickID jid = event.jdevice.which;
-                    CUtil.LOGGER.info("Controller removed: {}", jid.intValue());
+                    CUtil.LOGGER.info("Controller removed: {}", jid.longValue());
                     getController(new SDLUniqueControllerID(jid))
                             .ifPresentOrElse(
                                     this::onControllerRemoved,
@@ -94,6 +95,7 @@ public class SDLControllerManager extends AbstractControllerManager {
     public void discoverControllers() {
         SDL_JoystickID[] joysticks = SDL_GetJoysticks();
         for (SDL_JoystickID jid : joysticks) {
+            CUtil.LOGGER.info("Controller discovered: {}", jid.longValue());
             Optional<ControllerEntity> controllerOpt = createOrGet(
                     new SDLUniqueControllerID(jid),
                     fetchTypeFromSDL(jid)
@@ -190,12 +192,12 @@ public class SDLControllerManager extends AbstractControllerManager {
 
         @Override
         public String toString() {
-            return "SDL-" + jid.intValue();
+            return "SDL-" + jid.longValue();
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(jid.intValue());
+            return Objects.hash(jid.longValue());
         }
     }
 
