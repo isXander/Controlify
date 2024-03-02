@@ -176,7 +176,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         InputComponent input = controller.input().orElseThrow();
         ControllerState state = input.rawStateNow();
-        for (DeadzoneGroup group : input.getDeadzoneGroups()) {
+        for (DeadzoneGroup group : input.getDeadzoneGroups().values()) {
             float[] axisData = this.axisData.computeIfAbsent(group.name(), k -> new float[CALIBRATION_TIME]);
 
             float max = 0;
@@ -201,7 +201,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         input.config().config().deadzones.clear();
 
-        for (DeadzoneGroup group : input.getDeadzoneGroups()) {
+        for (DeadzoneGroup group : input.getDeadzoneGroups().values()) {
             float[] axisData = this.axisData.get(group.name());
             if (axisData == null)
                 continue;

@@ -1,6 +1,5 @@
 package dev.isxander.controlify.controller.input;
 
-import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.mapping.UserGamepadMapping;
@@ -10,6 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config> {
     public static final ResourceLocation ID = Controlify.id("input");
@@ -20,7 +21,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     private DeadzoneControllerStateView deadzoneStateNow, deadzoneStateThen;
 
     private final int buttonCount, axisCount, hatCount;
-    private final Set<DeadzoneGroup> deadzoneAxes;
+    private final Map<ResourceLocation, DeadzoneGroup> deadzoneAxes;
     private final boolean definitelyGamepad;
 
     private final IConfig<Config> config;
@@ -31,7 +32,8 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         this.hatCount = hatCount;
         this.config = new ConfigImpl<>(Config::new, Config.class);
         this.definitelyGamepad = definitelyGamepad;
-        this.deadzoneAxes = Sets.newLinkedHashSet(deadzoneAxes);
+        this.deadzoneAxes = deadzoneAxes.stream()
+                .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
         this.updateDeadzoneView();
     }
 
@@ -76,9 +78,11 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         return this.definitelyGamepad;
     }
 
-    public Set<DeadzoneGroup> getDeadzoneGroups() {
+    public Map<ResourceLocation, DeadzoneGroup> getDeadzoneGroups() {
         if (!confObj().deadzoneOverrides.isEmpty()) {
-            return confObj().deadzoneOverrides;
+            return confObj().deadzoneOverrides
+                    .stream()
+                    .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
         } else {
             return this.deadzoneAxes;
         }
@@ -95,7 +99,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     Optional<ResourceLocation> getDeadzoneForAxis(ResourceLocation axis) {
-        for (DeadzoneGroup group : this.getDeadzoneGroups()) {
+        for (DeadzoneGroup group : this.getDeadzoneGroups().values()) {
             if (group.axes().contains(axis)) {
                 return Optional.of(group.name());
             }

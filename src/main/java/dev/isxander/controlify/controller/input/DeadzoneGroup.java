@@ -2,10 +2,10 @@ package dev.isxander.controlify.controller.input;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.Set;
+import java.util.List;
 
 public record DeadzoneGroup(
         ResourceLocation name,
-        Set<ResourceLocation> axes
+        List<ResourceLocation> axes
 ) {
 }

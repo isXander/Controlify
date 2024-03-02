@@ -90,7 +90,7 @@ public class SDL3NativesManager {
         // better rumble
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS3, "1");
         SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_PS4_RUMBLE, "1");
-        SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");
+        SDL_SetHint("SDL_JOYSTICK_HIDAPI_STEAMDECK", "1");
 
         // initialise SDL with just joystick and gamecontroller subsystems
         if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS) != 0) {
@@ -216,6 +216,10 @@ public class SDL3NativesManager {
 
         public boolean isMacArm() {
             return os == Util.OS.OSX && isARM;
+        }
+
+        public String formatted() {
+            return os().name() + " 64bit=" + is64Bit() + ";isARM=" + isARM();
         }
     }
 

@@ -7,10 +7,11 @@ import dev.isxander.controlify.bindings.EmptyBind;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
+import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
-import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
+import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
@@ -28,6 +29,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class ControllerConfigScreenFactory {
@@ -245,8 +248,9 @@ public class ControllerConfigScreenFactory {
         if (inputOpt.isEmpty())
             return Optional.empty();
 
-        InputComponent.Config config = inputOpt.get().confObj();
-        InputComponent.Config def = inputOpt.get().defObj();
+        InputComponent input = inputOpt.get();
+        InputComponent.Config config = input.confObj();
+        InputComponent.Config def = input.defObj();
 
         var deadzoneOpts = new ArrayList<Option<Float>>();
 
@@ -255,23 +259,27 @@ public class ControllerConfigScreenFactory {
 
         group.option(LabelOption.create(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED)));
 
-        for (ResourceLocation deadzoneAxis : config.deadzones.keySet()) {
-            Component name = Component.translatable("controlify.deadzone_group." + deadzoneAxis.getNamespace() + "." + deadzoneAxis.getPath());
+        for (DeadzoneGroup deadzoneGroup : input.getDeadzoneGroups().values()) {
+            ResourceLocation groupName = deadzoneGroup.name();
+            Component name = Component.translatable("controlify.deadzone_group." + groupName.getNamespace() + "." + groupName.getPath());
 
+            AtomicReference<Option<Float>> deadzoneRef = new AtomicReference<>();
             Option<Float> deadzoneOpt = Option.<Float>createBuilder()
                     .name(name)
                     .description(OptionDescription.createBuilder()
                             .text(Component.translatable("controlify.gui.axis_deadzone.tooltip", name))
+                            .customImage(CompletableFuture.completedFuture(deadzoneGroup.axes().size() == 4 ? Optional.of(new Deadzone2DImageRenderer(input, deadzoneGroup, deadzoneRef::get)) : Optional.empty()))
                             .build())
                     .binding(
-                            def.deadzones.getOrDefault(deadzoneAxis, 0f),
-                            () -> config.deadzones.getOrDefault(deadzoneAxis, 0f),
-                            v -> config.deadzones.put(deadzoneAxis, v)
+                            def.deadzones.getOrDefault(groupName, 0f),
+                            () -> config.deadzones.getOrDefault(groupName, 0f),
+                            v -> config.deadzones.put(groupName, v)
                     )
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
                             .range(0f, 1f).step(0.02f)
                             .formatValue(percentFormatter))
                     .build();
+            deadzoneRef.set(deadzoneOpt);
             group.option(deadzoneOpt);
             deadzoneOpts.add(deadzoneOpt);
         }

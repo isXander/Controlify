@@ -58,13 +58,13 @@ public final class GamepadInputs {
     public static final ResourceLocation TOUCHPAD_BUTTON = button("touchpad");
 
     public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
-            new DeadzoneGroup(Controlify.id("left_stick"), Set.of(
+            new DeadzoneGroup(Controlify.id("left_stick"), List.of(
                     LEFT_STICK_AXIS_UP,
                     LEFT_STICK_AXIS_DOWN,
                     LEFT_STICK_AXIS_LEFT,
                     LEFT_STICK_AXIS_RIGHT
             )),
-            new DeadzoneGroup(Controlify.id("right_stick"), Set.of(
+            new DeadzoneGroup(Controlify.id("right_stick"), List.of(
                     RIGHT_STICK_AXIS_UP,
                     RIGHT_STICK_AXIS_DOWN,
                     RIGHT_STICK_AXIS_LEFT,
