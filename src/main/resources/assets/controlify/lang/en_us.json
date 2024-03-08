@@ -47,6 +47,8 @@
   "controlify.gui.ingame_button_guide_scale.tooltip": "How big the ingame button guide is. This is a percentage of the currently selected GUI scale. 100% will match the usual scale.",
   "controlify.gui.ingame_button_guide_scale.tooltip.warning": "This may cause scaling issues that will make it to look bad at anything but 100%.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
+  "controlify.gui.copy_debug_dump": "Copy Debug Dump To Clipboard",
+  "controlify.gui.copy_debug_dump.tooltip": "Copies a Controlify debug dump to your clipboard. You may be asked to use this if you are seeking support.",
 
   "controlify.gui.new_options": "New This Update",
   "controlify.gui.new_options.tooltip": "A showcase of the new options in the latest updates.",

@@ -5,10 +5,10 @@ import java.util.HexFormat;
 public record HIDIdentifier(int vendorId, int productId) {
     @Override
     public String toString() {
-        var hex = HexFormat.of().withPrefix("0x");
-        return "HIDIdentifier[" +
-                "vendorId=" + hex.toHexDigits(vendorId) +
-                ", productId=" + hex.toHexDigits(productId) +
+        var hex = HexFormat.of();
+        return "HID[" +
+                "VID=0x" + hex.toHexDigits(vendorId, 4) +
+                ", PID=0x" + hex.toHexDigits(productId, 4) +
                 ']';
     }
 }

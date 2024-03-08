@@ -55,12 +55,10 @@ public class SDLControllerManager extends AbstractControllerManager {
         // SDL identifiers controllers in two different ways:
         // device index, and device instance ID.
         while (SDL_PollEvent(event)) {
-            System.out.println(event.type);
             switch (event.type) {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
                     SDL_JoystickID jid = event.jdevice.which;
-                    CUtil.LOGGER.info("Controller added: {}", jid.longValue());
 
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
 
@@ -77,7 +75,6 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On removed, `which` refers to the device instance ID
                 case SDL_EVENT_JOYSTICK_REMOVED -> {
                     SDL_JoystickID jid = event.jdevice.which;
-                    CUtil.LOGGER.info("Controller removed: {}", jid.longValue());
                     getController(new SDLUniqueControllerID(jid))
                             .ifPresentOrElse(
                                     this::onControllerRemoved,
@@ -95,7 +92,6 @@ public class SDLControllerManager extends AbstractControllerManager {
     public void discoverControllers() {
         SDL_JoystickID[] joysticks = SDL_GetJoysticks();
         for (SDL_JoystickID jid : joysticks) {
-            CUtil.LOGGER.info("Controller discovered: {}", jid.longValue());
             Optional<ControllerEntity> controllerOpt = createOrGet(
                     new SDLUniqueControllerID(jid),
                     fetchTypeFromSDL(jid)
@@ -114,13 +110,12 @@ public class SDLControllerManager extends AbstractControllerManager {
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
             SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
-            System.out.println(driver.getUcid());
-            this.addController(driver.getUcid(), driver.getController(), driver);
+            this.addController(ucid, driver.getController(), driver);
 
             return Optional.of(driver.getController());
         } else {
             SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hid);
-            this.addController(driver.getUcid(), driver.getController(), driver);
+            this.addController(ucid, driver.getController(), driver);
 
             return Optional.of(driver.getController());
         }

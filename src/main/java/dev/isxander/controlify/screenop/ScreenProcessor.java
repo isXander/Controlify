@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.hdhaptic.HapticEffects;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -150,6 +151,7 @@ public class ScreenProcessor<T extends Screen> {
 
                 if (Controlify.instance().config().globalSettings().uiSounds)
                     minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
+                controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 
                 var newFocusTree = getFocusTree();
                 while (!newFocusTree.isEmpty() && !focuses.contains(newFocusTree.peek())) {

@@ -18,7 +18,7 @@ sodium = "mc1.20.3-0.5.5"
 iris = "1.6.14+1.20.4"
 immediately_fast = "1.2.8+1.20.4-fabric"
 simple_voice_chat = "fabric-1.20.4-2.4.32"
-libsdl4j = "3.7c089f4-26"
+libsdl4j = "3.1b86a1c-30"
 
 [libraries]
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }

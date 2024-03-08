@@ -16,16 +16,10 @@ public class DebugProperties {
     public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
     /** Forces all gamepads to be treated as a regular joystick */
     public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, false);
-    /** Prints joystick input counts for making joystick mappings */
-    public static final boolean PRINT_JOY_STATE = boolProp("controlify.debug.print_joy_state", false, false);
-    /** Print gyro data if supported */
-    public static final boolean PRINT_GYRO = boolProp("controlify.debug.print_gyro", false, false);
     /** Print what drivers are being used */
     public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
-    /** Print the state of the left and right triggers on gamepads */
-    public static final boolean PRINT_GAMEPAD_STATE = boolProp("controlify.debug.print_gamepad_state", false, false);
-    /** Use experimental anti-snapback */
-    public static final boolean USE_SNAPBACK = boolProp("controlify.debug.use_snapback", false, false);
+    /** Debug dumps after finishing init */
+    public static final boolean INIT_DUMP = boolProp("controlify.debug.init_dump", false, true);
 
     public static void printProperties() {
         if (properties.stream().noneMatch(prop -> prop.enabled() != prop.def()))

@@ -8,6 +8,7 @@ import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
+import dev.isxander.controlify.utils.DebugDump;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
@@ -164,6 +165,23 @@ public class GlobalSettingsScreenFactory {
                                                 .build())
                                         .binding(GlobalSettings.DEFAULT.notifyLowBattery, () -> globalSettings.notifyLowBattery, v -> globalSettings.notifyLowBattery = v)
                                         .controller(TickBoxControllerBuilder::create)
+                                        .build())
+                                .option(ButtonOption.createBuilder()
+                                        .name(Component.translatable("controlify.gui.copy_debug_dump"))
+                                        .description(OptionDescription.createBuilder()
+                                                .text(Component.translatable("controlify.gui.copy_debug_dump.tooltip"))
+                                                .build())
+                                        .action((screen, btn) -> {
+                                            String dump = DebugDump.dumpDebug();
+                                            String formatted = """
+                                                    Here's my Controlify debug dump
+                                                    ```
+                                                    %s
+                                                    ```
+                                                    """.formatted(dump).stripIndent();
+
+                                            Minecraft.getInstance().keyboardHandler.setClipboard(formatted);
+                                        })
                                         .build())
                                 .build())
                         .build())

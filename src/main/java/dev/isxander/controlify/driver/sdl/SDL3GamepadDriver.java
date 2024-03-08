@@ -6,6 +6,8 @@ import com.sun.jna.ptr.FloatByReference;
 import dev.isxander.controlify.controller.battery.BatteryLevel;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
+import dev.isxander.controlify.controller.hdhaptic.HapticBufferLibrary;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadState;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
@@ -16,25 +18,29 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
+import io.github.libsdl4j.api.audio.*;
 import io.github.libsdl4j.api.gamepad.SDL_Gamepad;
 import io.github.libsdl4j.api.joystick.SDL_JoystickID;
 import io.github.libsdl4j.api.properties.SDL_PropertiesID;
 import io.github.libsdl4j.api.sensor.SDL_SensorType;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 
+import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static io.github.libsdl4j.api.audio.SdlAudio.*;
+import static io.github.libsdl4j.api.audio.SdlAudioConsts.*;
 import static io.github.libsdl4j.api.error.SdlError.*;
 import static io.github.libsdl4j.api.events.SdlEventsConst.*;
 import static io.github.libsdl4j.api.gamepad.SDL_GamepadAxis.*;
@@ -46,6 +52,8 @@ import static io.github.libsdl4j.api.properties.SdlProperties.*;
 import static io.github.libsdl4j.api.sensor.SDL_SensorType.*;
 
 public class SDL3GamepadDriver implements Driver {
+    private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
+
     private final SDL_Gamepad ptrGamepad;
     private final ControllerEntity controller;
 
@@ -58,14 +66,17 @@ public class SDL3GamepadDriver implements Driver {
     private final String guid;
     private final String name;
 
-    private final UniqueControllerID ucid;
+    @Nullable
+    private final SDL_AudioDeviceID dualsenseAudioDev;
+    @Nullable
+    private final SDL_AudioSpec dualsenseAudioSpec;
+    private final List<AudioStreamHandle> dualsenseAudioHandles;
 
     public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
         this.ptrGamepad = SDL_OpenGamepad(jid);
         if (this.ptrGamepad == null) {
             throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
         }
-        this.ucid = new SDLControllerManager.SDLUniqueControllerID(SDL_GetGamepadInstanceID(ptrGamepad));
 
         SDL_PropertiesID properties = SDL_GetGamepadProperties(ptrGamepad);
 
@@ -79,6 +90,37 @@ public class SDL3GamepadDriver implements Driver {
 
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
         this.controller = new ControllerEntity(info);
+
+        this.dualsenseAudioHandles = new ArrayList<>();
+        System.out.println(type);
+        if ("dualsense".equals(type.namespace())) {
+            SDL_AudioDeviceID dualsenseAudioDev = null;
+            SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
+
+            for (SDL_AudioDeviceID dev : SDL_GetAudioOutputDevices()) {
+                System.out.println(SDL_GetAudioDeviceName(dev));
+                if (SDL_GetAudioDeviceName(dev).contains("DualSense")) {
+                    SDL_GetAudioDeviceFormat(dev, devSpec, null);
+                    if (devSpec.channels == 4) {
+                        dualsenseAudioDev = dev;
+                        break;
+                    }
+                }
+            }
+
+            if (dualsenseAudioDev != null) {
+                this.dualsenseAudioSpec = devSpec;
+                this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
+
+                this.controller.setComponent(new HDHapticComponent(), HDHapticComponent.ID);
+            } else {
+                this.dualsenseAudioDev = null;
+                this.dualsenseAudioSpec = null;
+            }
+        } else {
+            this.dualsenseAudioDev = null;
+            this.dualsenseAudioSpec = null;
+        }
 
         this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
@@ -99,10 +141,6 @@ public class SDL3GamepadDriver implements Driver {
         this.controller.finalise();
     }
 
-    public UniqueControllerID getUcid() {
-        return this.ucid;
-    }
-
     @Override
     public ControllerEntity getController() {
         return this.controller;
@@ -115,6 +153,7 @@ public class SDL3GamepadDriver implements Driver {
         this.updateGyro();
         this.updateTouchpad();
         this.updateBatteryLevel();
+        this.updateHDHaptic();
     }
 
     @Override
@@ -253,6 +292,89 @@ public class SDL3GamepadDriver implements Driver {
         this.controller.batteryLevel().orElseThrow().setBatteryLevel(level);
     }
 
+    private void updateHDHaptic() {
+        Optional<HDHapticComponent> hapticsOpt = this.controller.hdHaptics();
+        if (hapticsOpt.isEmpty()) return;
+        HDHapticComponent haptics = hapticsOpt.get();
+
+        HapticBufferLibrary.HapticBuffer sound;
+        while ((sound = haptics.pollHaptic()) != null) {
+            SDL_AudioSpec spec = new SDL_AudioSpec();
+            spec.channels = sound.format().getChannels();
+            spec.freq = (int) sound.format().getSampleRate();
+
+            int ss = sound.format().getSampleSizeInBits();
+            int byteSs = ss / 8;
+            AudioFormat.Encoding encoding = sound.format().getEncoding();
+            if (ss == 8) {
+                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S8);
+                } else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_U8);
+                }
+            } else if (sound.format().isBigEndian()) {
+                if (ss == 16) {
+                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S16BE);
+                    }
+                } else if (ss == 32) {
+                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S32BE);
+                    } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_F32BE);
+                    }
+                }
+            } else {
+                if (ss == 16) {
+                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S16LE);
+                    }
+                } else if (ss == 32) {
+                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S32LE);
+                    } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+                        spec.format = new SDL_AudioFormat(SDL_AUDIO_F32LE);
+                    }
+                }
+            }
+
+            if (spec.format == null) {
+                throw new IllegalStateException("Unsupported format");
+            }
+
+            AudioStreamHandle handle = null;
+            for (AudioStreamHandle stream : dualsenseAudioHandles) {
+                SDL_AudioSpec streamSpec = stream.getSpec();
+                if (streamSpec.format.intValue() == spec.format.intValue()
+                        && streamSpec.freq == spec.freq
+                        && streamSpec.channels == spec.channels
+                        && !stream.isInUse()
+                ) {
+                    handle = stream;
+                    break;
+                }
+            }
+            int length = sound.audio().length / spec.freq / spec.channels / byteSs * 20;
+
+            if (handle != null) {
+                handle.queueAudio(sound.audio(), length);
+            } else {
+                AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
+                dualsenseAudioHandles.add(newHandle);
+            }
+        }
+
+        for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
+            AudioStreamHandle handle = dualsenseAudioHandles.get(i);
+            if (handle.isTimedOut()) {
+                handle.close();
+                dualsenseAudioHandles.remove(handle);
+            } else {
+                handle.tick();
+            }
+        }
+    }
+
     private static float positiveAxis(float value) {
         return value < 0 ? 0 : value;
     }
@@ -264,5 +386,63 @@ public class SDL3GamepadDriver implements Driver {
     private static float mapShortToFloat(short value) {
         return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
                 + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
+    }
+
+    private static class AudioStreamHandle {
+        private int streamLastPlayed;
+        private final SDL_AudioStream stream;
+        private final SDL_AudioSpec spec;
+
+        private AudioStreamHandle(SDL_AudioStream stream, SDL_AudioSpec spec) {
+            this.stream = stream;
+            this.spec = spec;
+            this.streamLastPlayed = 0;
+        }
+
+        public void queueAudio(byte[] audio, int tickLength) {
+            try (Memory memory = new Memory(audio.length)) {
+                memory.write(0, audio, 0, audio.length);
+                SDL_PutAudioStreamData(stream, memory, audio.length);
+
+                streamLastPlayed = Math.min(0, streamLastPlayed);
+                streamLastPlayed -= tickLength;
+            }
+        }
+
+        public SDL_AudioSpec getSpec() {
+            return this.spec;
+        }
+
+        public boolean isInUse() {
+            return streamLastPlayed < 0;
+        }
+
+        public boolean isTimedOut() {
+            return streamLastPlayed >= AUDIO_STREAM_TIMEOUT_TICKS;
+        }
+
+        public void tick() {
+            streamLastPlayed++;
+        }
+
+        public void close() {
+            SDL_DestroyAudioStream(stream);
+        }
+
+        public static AudioStreamHandle createWithAudio(SDL_AudioDeviceID device, SDL_AudioSpec audioSpec, SDL_AudioSpec devSpec, byte[] audio, int tickLength) {
+            SDL_AudioStream stream = SDL_CreateAudioStream(audioSpec, devSpec);
+            SDL_BindAudioStream(device, stream);
+
+            var handle = new AudioStreamHandle(stream, audioSpec);
+            handle.queueAudio(audio, tickLength);
+            return handle;
+        }
+
+        public static AudioStreamHandle createWithInitialTimeout(SDL_AudioDeviceID device, SDL_AudioSpec srcSpec, SDL_AudioSpec devSpec) {
+            SDL_AudioStream stream = SDL_CreateAudioStream(srcSpec, devSpec);
+            SDL_BindAudioStream(device, stream);
+
+            return new AudioStreamHandle(stream, srcSpec);
+        }
     }
 }

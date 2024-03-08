@@ -33,9 +33,13 @@ public record GlobalDriver(OnScreenKeyboardDriver onScreenKeyboard) {
         instance = new GlobalDriver(kbDriver);
 
         if (DebugProperties.PRINT_DRIVER) {
-            CUtil.LOGGER.info("Global driver: Keyboard = '{}'",
-                    kbDriver.keyboardDriverDetails()
-            );
+            CUtil.LOGGER.info(instance.details());
         }
+    }
+
+    public String details() {
+        return "Global driver: Keyboard = '%s'".formatted(
+                this.onScreenKeyboard().keyboardDriverDetails()
+        );
     }
 }

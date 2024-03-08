@@ -93,7 +93,7 @@ public class SDL3NativesManager {
         SDL_SetHint("SDL_JOYSTICK_HIDAPI_STEAMDECK", "1");
 
         // initialise SDL with just joystick and gamecontroller subsystems
-        if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS) != 0) {
+        if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS | SDL_INIT_AUDIO) != 0) {
             CUtil.LOGGER.error("Failed to initialise SDL3: " + SDL_GetError());
             throw new RuntimeException("Failed to initialise SDL3: " + SDL_GetError());
         }

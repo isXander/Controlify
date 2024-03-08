@@ -286,6 +286,10 @@ public class Controlify implements ControlifyApi {
             }
 
             discoverControllers();
+
+            if (DebugProperties.INIT_DUMP) {
+                CUtil.LOGGER.info("\n" + DebugDump.dumpDebug());
+            }
         });
 
         return askNatives().thenApply(loaded -> null);
