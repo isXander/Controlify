@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,7 +39,7 @@ public class ControllerEntity extends ECSEntityImpl {
         String nickname = this.genericConfig().config().nickname;
         if (nickname != null)
             return nickname;
-        return info().type().friendlyName();
+        return Strings.nullToEmpty(info().type().friendlyName());
     }
 
     public Optional<InputComponent> input() {
