@@ -5,5 +5,5 @@ import dev.isxander.controlify.hid.HIDIdentifier;
 
 import java.util.Optional;
 
-public record ControllerInfo(String uid, UniqueControllerID ucid, String guid, ControllerType type, Optional<HIDIdentifier> hid) {
+public record ControllerInfo(String uid, UniqueControllerID ucid, String guid, String driverName, ControllerType type, Optional<HIDIdentifier> hid) {
 }

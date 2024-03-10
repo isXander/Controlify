@@ -88,7 +88,7 @@ public class SDL3GamepadDriver implements Driver {
         this.numTouchpads = SDL_GetNumGamepadTouchpads(ptrGamepad);
         this.maxTouchpadFingers = IntStream.range(0, numTouchpads).map(i -> SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)).sum();
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
+        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
         this.controller = new ControllerEntity(info);
 
         this.dualsenseAudioHandles = new ArrayList<>();

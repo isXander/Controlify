@@ -55,7 +55,7 @@ public class SDL3JoystickDriver implements Driver {
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false);
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
+        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
         this.controller = new ControllerEntity(info);
 
         this.numAxes = SDL_GetNumJoystickAxes(ptrJoystick);

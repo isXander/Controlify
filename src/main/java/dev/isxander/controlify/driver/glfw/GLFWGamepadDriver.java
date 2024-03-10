@@ -29,7 +29,7 @@ public class GLFWGamepadDriver implements Driver {
 
         this.getGamepadState(); // test input ability so the create catches it
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
+        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, glfwGetGamepadName(jid), type, hid);
         this.controller = new ControllerEntity(info);
 
         this.controller.setComponent(new InputComponent(15, 10, 0, true, GamepadInputs.DEADZONE_GROUPS), InputComponent.ID);

@@ -15,6 +15,7 @@ import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.SerializationException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,11 +35,17 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.info;
     }
 
+    @NotNull
     public String name() {
         String nickname = this.genericConfig().config().nickname;
         if (nickname != null)
             return nickname;
-        return info().type().friendlyName();
+
+        String friendlyName = info().type().friendlyName();
+        if (friendlyName != null)
+            return friendlyName;
+
+        return info().driverName();
     }
 
     public Optional<InputComponent> input() {

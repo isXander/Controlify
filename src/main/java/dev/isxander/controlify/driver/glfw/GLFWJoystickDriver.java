@@ -33,7 +33,7 @@ public class GLFWJoystickDriver implements Driver {
         this.guid = glfwGetJoystickGUID(jid);
         this.name = glfwGetJoystickName(jid);
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, type, hid);
+        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
         this.controller = new ControllerEntity(info);
 
         GLFWJoystickState testState = this.getJoystickState();
