@@ -1,6 +1,5 @@
 package dev.isxander.controlify.controller.input;
 
-import dev.isxander.controlify.controller.IConfig;
 import dev.isxander.controlify.utils.ControllerUtils;
 import net.minecraft.resources.ResourceLocation;
 

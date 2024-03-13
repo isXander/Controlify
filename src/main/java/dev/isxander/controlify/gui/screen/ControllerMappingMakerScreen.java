@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
     private final InputComponent inputComponent;
-    private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder();
+    private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder().putDeadzoneGroups(GamepadInputs.DEADZONE_GROUPS);
     private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);
 
     private int delayTillNextStage = 20;
@@ -128,11 +128,11 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
             if (now != prev) {
                 MappingEntry mapping = switch (stage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromButton.ToButton(stage.originInput(), button, !now);
-                    case AXIS -> new MappingEntry.FromButton.ToAxis(stage.originInput(), button, prev ? 1 : 0, now ? 1 : 0);
+                    case BUTTON -> new MappingEntry.FromButton.ToButton(button, stage.originInput(), !now);
+                    case AXIS -> new MappingEntry.FromButton.ToAxis(button, stage.originInput(), prev ? 1 : 0, now ? 1 : 0);
                     case HAT -> {
                         HatState state = now ? HatState.DOWN : HatState.UP;
-                        yield new MappingEntry.FromButton.ToHat(stage.originInput(), button, HatState.CENTERED, state);
+                        yield new MappingEntry.FromButton.ToHat(button, stage.originInput(), HatState.CENTERED, state);
                     }
                     case NOTHING -> null;
                 };
@@ -148,9 +148,9 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             float diff = prev - now;
             if (Math.abs(diff) > 0.3f) {
                 MappingEntry mapping = switch (stage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromAxis.ToButton(stage.originInput(), axis, 0.5f);
-                    case AXIS -> new MappingEntry.FromAxis.ToAxis(stage.originInput(), axis, -1, 1, -1, 1);
-                    case HAT -> new MappingEntry.FromAxis.ToHat(stage.originInput(), axis, 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
+                    case BUTTON -> new MappingEntry.FromAxis.ToButton(axis, stage.originInput(), 0.5f);
+                    case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), -1, 1, -1, 1);
+                    case HAT -> new MappingEntry.FromAxis.ToHat(axis, stage.originInput(), 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
                     case NOTHING -> null;
                 };
                 mappingBuilder.putMapping(mapping);
@@ -164,9 +164,9 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             HatState prev = stateThen.getHatState(hat);
             if (now != prev) {
                 MappingEntry mapping = switch (stage.outputType()) {
-                    case BUTTON -> new MappingEntry.FromHat.ToButton(stage.originInput(), hat, prev);
-                    case AXIS -> new MappingEntry.FromHat.ToAxis(stage.originInput(), hat, prev, 0, 1);
-                    case HAT -> new MappingEntry.FromHat.ToHat(stage.originInput(), hat);
+                    case BUTTON -> new MappingEntry.FromHat.ToButton(hat, stage.originInput(), now);
+                    case AXIS -> new MappingEntry.FromHat.ToAxis(hat, stage.originInput(), now, 0, 1);
+                    case HAT -> new MappingEntry.FromHat.ToHat(hat, stage.originInput());
                     case NOTHING -> null;
                 };
                 mappingBuilder.putMapping(mapping);

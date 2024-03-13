@@ -1,14 +1,17 @@
 package dev.isxander.controlify.controller.input.mapping;
 
 import dev.isxander.controlify.controller.input.ControllerState;
+import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public record UserGamepadMapping(
-        List<MappingEntry> mappings
+        List<MappingEntry> mappings,
+        List<DeadzoneGroup> deadzones
 ) implements GamepadMapping {
     @Override
     public ControllerState mapJoystick(ControllerState state) {
@@ -29,6 +32,7 @@ public record UserGamepadMapping(
 
     public static class Builder {
         private final List<MappingEntry> mappings = new ArrayList<>();
+        private final List<DeadzoneGroup> deadzones = new ArrayList<>();
 
         public Builder putMapping(MappingEntry mapping) {
             if (mapping == null)
@@ -38,8 +42,13 @@ public record UserGamepadMapping(
             return this;
         }
 
+        public Builder putDeadzoneGroups(Collection<DeadzoneGroup> deadzoneGroup) {
+            this.deadzones.addAll(deadzoneGroup);
+            return this;
+        }
+
         public UserGamepadMapping build() {
-            return new UserGamepadMapping(mappings);
+            return new UserGamepadMapping(mappings, deadzones);
         }
     }
 }

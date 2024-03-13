@@ -57,9 +57,8 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             state = confObj().mapping.mapJoystick(state);
         }
 
-        ControllerState then = this.stateNow;
+        this.stateThen = this.stateNow;
         this.stateNow = state;
-        this.stateThen = then;
         this.updateDeadzoneView();
     }
 
