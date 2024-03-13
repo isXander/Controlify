@@ -12,6 +12,10 @@ public record UserGamepadMapping(
 ) implements GamepadMapping {
     @Override
     public ControllerState mapJoystick(ControllerState state) {
+        if (mappings.isEmpty()) {
+            return state;
+        }
+
         ModifiableControllerState newState = new ControllerStateImpl();
 
         for (MappingEntry mapping : mappings) {
