@@ -92,14 +92,13 @@ public class SDL3GamepadDriver implements Driver {
         this.controller = new ControllerEntity(info);
 
         this.dualsenseAudioHandles = new ArrayList<>();
-        System.out.println(type);
         if ("dualsense".equals(type.namespace())) {
             SDL_AudioDeviceID dualsenseAudioDev = null;
             SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
 
             for (SDL_AudioDeviceID dev : SDL_GetAudioOutputDevices()) {
-                System.out.println(SDL_GetAudioDeviceName(dev));
-                if (SDL_GetAudioDeviceName(dev).contains("DualSense")) {
+                String name = SDL_GetAudioDeviceName(dev).toLowerCase();
+                if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
                     SDL_GetAudioDeviceFormat(dev, devSpec, null);
                     if (devSpec.channels == 4) {
                         dualsenseAudioDev = dev;
@@ -207,7 +206,7 @@ public class SDL3GamepadDriver implements Driver {
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.TOUCHPAD_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
 
-        this.controller.<InputComponent>getComponent(InputComponent.ID).orElseThrow().pushState(state);
+        this.controller.input().orElseThrow().pushState(state);
     }
 
     private void updateRumble() {
@@ -384,6 +383,7 @@ public class SDL3GamepadDriver implements Driver {
     }
 
     private static float mapShortToFloat(short value) {
+        // we need to do this since signed short range / 2 != 0
         return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
                 + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
     }
