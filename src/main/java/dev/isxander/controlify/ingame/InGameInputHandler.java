@@ -156,7 +156,7 @@ public class InGameInputHandler {
     protected void handlePlayerLookInputNew() {
         LocalPlayer player = this.minecraft.player;
 
-        boolean mouseNotGrabbed = minecraft.mouseHandler.isMouseGrabbed();
+        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed();
         boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
         boolean screenVisible = minecraft.screen != null;
         boolean playerExists = minecraft.player != null;
@@ -171,7 +171,7 @@ public class InGameInputHandler {
         Vector2f lookImpulse = new Vector2f();
         controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
 
-        if (controller.gyro().map(gyro -> gyro.confObj().flickStick).orElse(false)) {
+        if (controller.gyro().map(gyro -> gyro.confObj().lookSensitivity > 0 && gyro.confObj().flickStick).orElse(false)) {
             handleFlickStick(player);
         } else {
             controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
@@ -190,8 +190,6 @@ public class InGameInputHandler {
     protected void handleRegularLook(InputComponent input, Vector2f impulse, boolean aiming, LocalPlayer player) {
         InputComponent.Config config = input.confObj();
 
-        // TODO: refactor this function majorly - this is truly awful
-        //       possibly separate the flick stick code into its own function?
         // normal look input
         float impulseY = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
         float impulseX = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
