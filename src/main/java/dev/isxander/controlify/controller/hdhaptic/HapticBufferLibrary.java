@@ -2,6 +2,7 @@ package dev.isxander.controlify.controller.hdhaptic;
 
 import dev.isxander.controlify.driver.sdl.DualsenseOggAudioStream;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceProvider;
 
@@ -17,7 +18,9 @@ public class HapticBufferLibrary {
     private final Map<ResourceLocation, CompletableFuture<HapticBuffer>> bufferMap;
     private final ResourceProvider resources;
 
-    public HapticBufferLibrary(ResourceProvider resources) {
+    public static final HapticBufferLibrary INSTANCE = new HapticBufferLibrary(Minecraft.getInstance().getResourceManager());
+
+    private HapticBufferLibrary(ResourceProvider resources) {
         this.bufferMap = new HashMap<>();
         this.resources = resources;
     }

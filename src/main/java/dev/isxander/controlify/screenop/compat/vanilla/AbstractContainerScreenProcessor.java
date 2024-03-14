@@ -4,6 +4,7 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.hdhaptic.HapticEffects;
 import dev.isxander.controlify.gui.guide.ContainerGuideCtx;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
@@ -48,24 +49,29 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         if (!screen.getMenu().getCarried().isEmpty()) {
             if (controller.bindings().DROP_INVENTORY.justPressed()) {
                 clickSlotFunction.clickSlot(null, -999, 0, ClickType.PICKUP);
+                hapticNavigate();
             }
         }
         if (hoveredSlot != null) {
             if (controller.bindings().INV_SELECT.justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
+                hapticNavigate();
             }
 
             if (controller.bindings().INV_QUICK_MOVE.justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.QUICK_MOVE);
+                hapticNavigate();
             }
 
             if (controller.bindings().INV_TAKE_HALF.justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, ClickType.PICKUP);
+                hapticNavigate();
             }
 
-            if (controller.bindings().SWAP_HANDS.justPressed()) {
-                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ClickType.SWAP);
-            }
+//            if (controller.bindings().SWAP_HANDS.justPressed()) {
+//                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ClickType.SWAP);
+//                hapticNavigate();
+//            }
         } else {
             vmouse.handleCompatibilityBinds(controller);
         }
@@ -212,6 +218,18 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
             renderables.remove(leftLayout);
             renderables.remove(rightLayout);
         }
+    }
+
+    public void onHoveredSlotChanged(Slot newSlot, Slot oldSlot) {
+        if (ControlifyApi.get().currentInputMode().isController()) {
+            hapticNavigate();
+        }
+    }
+
+    private void hapticNavigate() {
+        ControlifyApi.get().getCurrentController().flatMap(ControllerEntity::hdHaptics).ifPresent(hh -> {
+            hh.playHaptic(HapticEffects.NAVIGATE);
+        });
     }
 
     @Override

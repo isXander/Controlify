@@ -113,6 +113,8 @@
   "controlify.gui.allow_vibrations": "Allow Vibration",
   "controlify.gui.allow_vibrations.tooltip": "If the controller should vibrate when you do certain actions.",
   "controlify.gui.allow_vibrations.not_available": "You controller does not support vibration or the vibration natives are not loaded.",
+  "controlify.gui.hd_haptics": "HD Haptics",
+  "controlify.gui.hd_haptics.tooltip": "Enables experimental HD haptics support for your DualSense controller.",
   "controlify.gui.group.gyro": "Gyro",
   "controlify.gui.group.gyro.tooltip": "Adjust how Controlify treats your controller's built in gyroscope.\nA gyroscope determines how the controller is rotated.",
   "controlify.gui.group.gyro.no_gyro.tooltip": "This controller does not support Gyro. You must have a DualSense™ controller or other compatible controller to use this feature.",

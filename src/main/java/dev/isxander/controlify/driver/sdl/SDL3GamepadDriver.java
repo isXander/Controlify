@@ -54,7 +54,7 @@ import static io.github.libsdl4j.api.sensor.SDL_SensorType.*;
 public class SDL3GamepadDriver implements Driver {
     private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
-    private final SDL_Gamepad ptrGamepad;
+    private SDL_Gamepad ptrGamepad;
     private final ControllerEntity controller;
 
     private final boolean isGryoSupported;
@@ -111,7 +111,9 @@ public class SDL3GamepadDriver implements Driver {
                 this.dualsenseAudioSpec = devSpec;
                 this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
 
-                this.controller.setComponent(new HDHapticComponent(), HDHapticComponent.ID);
+                HDHapticComponent hdHapticComponent = new HDHapticComponent();
+                hdHapticComponent.getPlayHapticEvent().register(this::playHaptic);
+                this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
             } else {
                 this.dualsenseAudioDev = null;
                 this.dualsenseAudioSpec = null;
@@ -158,6 +160,14 @@ public class SDL3GamepadDriver implements Driver {
     @Override
     public void close() {
         SDL_CloseGamepad(ptrGamepad);
+        ptrGamepad = null;
+
+        if (dualsenseAudioDev != null) {
+            SDL_CloseAudioDevice(dualsenseAudioDev);
+        }
+        for (AudioStreamHandle handle : dualsenseAudioHandles) {
+            handle.close();
+        }
     }
 
     private void updateInput() {
@@ -292,77 +302,6 @@ public class SDL3GamepadDriver implements Driver {
     }
 
     private void updateHDHaptic() {
-        Optional<HDHapticComponent> hapticsOpt = this.controller.hdHaptics();
-        if (hapticsOpt.isEmpty()) return;
-        HDHapticComponent haptics = hapticsOpt.get();
-
-        HapticBufferLibrary.HapticBuffer sound;
-        while ((sound = haptics.pollHaptic()) != null) {
-            SDL_AudioSpec spec = new SDL_AudioSpec();
-            spec.channels = sound.format().getChannels();
-            spec.freq = (int) sound.format().getSampleRate();
-
-            int ss = sound.format().getSampleSizeInBits();
-            int byteSs = ss / 8;
-            AudioFormat.Encoding encoding = sound.format().getEncoding();
-            if (ss == 8) {
-                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S8);
-                } else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_U8);
-                }
-            } else if (sound.format().isBigEndian()) {
-                if (ss == 16) {
-                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S16BE);
-                    }
-                } else if (ss == 32) {
-                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S32BE);
-                    } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_F32BE);
-                    }
-                }
-            } else {
-                if (ss == 16) {
-                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S16LE);
-                    }
-                } else if (ss == 32) {
-                    if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_S32LE);
-                    } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                        spec.format = new SDL_AudioFormat(SDL_AUDIO_F32LE);
-                    }
-                }
-            }
-
-            if (spec.format == null) {
-                throw new IllegalStateException("Unsupported format");
-            }
-
-            AudioStreamHandle handle = null;
-            for (AudioStreamHandle stream : dualsenseAudioHandles) {
-                SDL_AudioSpec streamSpec = stream.getSpec();
-                if (streamSpec.format.intValue() == spec.format.intValue()
-                        && streamSpec.freq == spec.freq
-                        && streamSpec.channels == spec.channels
-                        && !stream.isInUse()
-                ) {
-                    handle = stream;
-                    break;
-                }
-            }
-            int length = sound.audio().length / spec.freq / spec.channels / byteSs * 20;
-
-            if (handle != null) {
-                handle.queueAudio(sound.audio(), length);
-            } else {
-                AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
-                dualsenseAudioHandles.add(newHandle);
-            }
-        }
-
         for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
             AudioStreamHandle handle = dualsenseAudioHandles.get(i);
             if (handle.isTimedOut()) {
@@ -371,6 +310,80 @@ public class SDL3GamepadDriver implements Driver {
             } else {
                 handle.tick();
             }
+        }
+    }
+
+    private void playHaptic(HapticBufferLibrary.HapticBuffer sound) {
+        if (ptrGamepad == null || dualsenseAudioDev == null || dualsenseAudioSpec == null) {
+            return;
+        }
+
+        SDL_AudioSpec spec = new SDL_AudioSpec();
+        spec.channels = sound.format().getChannels();
+        spec.freq = (int) sound.format().getSampleRate();
+
+        int ss = sound.format().getSampleSizeInBits();
+        int byteSs = ss / 8;
+        AudioFormat.Encoding encoding = sound.format().getEncoding();
+        if (ss == 8) {
+            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                spec.format = new SDL_AudioFormat(SDL_AUDIO_S8);
+            } else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
+                spec.format = new SDL_AudioFormat(SDL_AUDIO_U8);
+            }
+        } else if (sound.format().isBigEndian()) {
+            if (ss == 16) {
+                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S16BE);
+                }
+            } else if (ss == 32) {
+                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S32BE);
+                } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_F32BE);
+                }
+            }
+        } else {
+            if (ss == 16) {
+                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S16LE);
+                }
+            } else if (ss == 32) {
+                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S32LE);
+                } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+                    spec.format = new SDL_AudioFormat(SDL_AUDIO_F32LE);
+                }
+            }
+        }
+
+        if (spec.format == null) {
+            throw new IllegalStateException("Unsupported format");
+        }
+
+        AudioStreamHandle handle = null;
+        for (AudioStreamHandle stream : dualsenseAudioHandles) {
+            SDL_AudioSpec streamSpec = stream.getSpec();
+            if (streamSpec.format.intValue() == spec.format.intValue()
+                    && streamSpec.freq == spec.freq
+                    && streamSpec.channels == spec.channels
+                    && !stream.isInUse()
+            ) {
+                handle = stream;
+                break;
+            }
+        }
+        int length = sound.audio().length / spec.freq / spec.channels / byteSs * 20;
+
+        if (handle != null) {
+            handle.queueAudio(sound.audio(), length);
+        } else {
+            if (dualsenseAudioHandles.size() >= 16) {
+                dualsenseAudioHandles.remove(0).close();
+            }
+
+            AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
+            dualsenseAudioHandles.add(newHandle);
         }
     }
 

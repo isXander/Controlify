@@ -384,6 +384,18 @@ public class ControllerConfigScreenFactory {
                 .listener((opt, allowVibration) -> strengthOptions.forEach(so -> so.setAvailable(allowVibration)))
                 .controller(TickBoxControllerBuilder::create)
                 .build());
+
+        controller.hdHaptics().ifPresent(haptics -> {
+            vibrationGroup.option(Option.<Boolean>createBuilder()
+                    .name(Component.translatable("controlify.gui.hd_haptics"))
+                    .description(OptionDescription.createBuilder()
+                            .text(Component.translatable("controlify.gui.hd_haptics.tooltip"))
+                            .build())
+                    .binding(haptics.defObj().enabled, () -> haptics.confObj().enabled, v -> haptics.confObj().enabled = v)
+                    .controller(TickBoxControllerBuilder::create)
+                    .build());
+        });
+
         for (RumbleSource source : RumbleSource.values()) {
             var option = Option.<Float>createBuilder()
                     .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))

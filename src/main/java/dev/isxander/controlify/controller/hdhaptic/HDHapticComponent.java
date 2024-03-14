@@ -1,8 +1,13 @@
 package dev.isxander.controlify.controller.hdhaptic;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ConfigClass;
+import dev.isxander.controlify.controller.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.controller.IConfig;
+import dev.isxander.controlify.controller.impl.ConfigImpl;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -12,23 +17,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class HDHapticComponent implements ECSComponent {
+public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
     public static final ResourceLocation ID = Controlify.id("hd_haptics");
 
-    private final HapticBufferLibrary bufferLibrary;
-    private final Queue<HapticBufferLibrary.HapticBuffer> queuedSoundsNextTick;
+    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
+    private final Event<PlayHapticEvent> playHapticEvent;
     private final RandomSource randomSource;
 
     public HDHapticComponent() {
-        this.bufferLibrary = new HapticBufferLibrary(Minecraft.getInstance().getResourceManager());
-        this.queuedSoundsNextTick = new ArrayDeque<>();
+        this.playHapticEvent = EventFactory.createArrayBacked(PlayHapticEvent.class, listeners -> buffer -> {
+            for (PlayHapticEvent hapticBuffer : listeners) {
+                hapticBuffer.play(buffer);
+            }
+        });
         this.randomSource = RandomSource.create();
     }
 
     public void playHaptic(ResourceLocation haptic) {
-        CUtil.LOGGER.info("Playing haptic effect: {}", haptic);
-        bufferLibrary.getHaptic(haptic)
-                .thenAccept(queuedSoundsNextTick::add);
+        if (!confObj().enabled) return;
+
+        HapticBufferLibrary.INSTANCE.getHaptic(haptic)
+                .thenAccept(playHapticEvent.invoker()::play);
     }
 
     public void playSoundEvent(SoundEvent sound) {
@@ -38,8 +47,20 @@ public class HDHapticComponent implements ECSComponent {
         this.playHaptic(new ResourceLocation(location.getNamespace(), "sounds/" + location.getPath() + ".ogg"));
     }
 
-    @Nullable
-    public HapticBufferLibrary.HapticBuffer pollHaptic() {
-        return queuedSoundsNextTick.poll();
+    public Event<PlayHapticEvent> getPlayHapticEvent() {
+        return playHapticEvent;
+    }
+
+    @Override
+    public IConfig<Config> config() {
+        return config;
+    }
+
+    public static class Config implements ConfigClass {
+        public boolean enabled = true;
+    }
+
+    public interface PlayHapticEvent {
+        void play(HapticBufferLibrary.HapticBuffer buffer);
     }
 }
