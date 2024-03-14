@@ -164,9 +164,9 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             controller.gyro().map(gyro -> gyro.config().config()).ifPresent(config -> {
                 config.calibrated = true;
             });
-            // no need to save because of setCurrentController
-
+            Controlify.instance().config().setDirty();
             Controlify.instance().setCurrentController(controller, true);
+            Controlify.instance().config().saveIfDirty();
         }
     }
 

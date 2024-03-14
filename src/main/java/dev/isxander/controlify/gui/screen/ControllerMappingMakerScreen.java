@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
     private final InputComponent inputComponent;
-    private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder().putDeadzoneGroups(GamepadInputs.DEADZONE_GROUPS);
+    private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder();
     private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);
 
     private int delayTillNextStage = 20;
@@ -33,20 +33,24 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             new MappingStage(GamepadInputs.NORTH_BUTTON, MapType.BUTTON, button("face_up"), "face_up", "faceview"),
             new MappingStage(GamepadInputs.LEFT_SHOULDER_BUTTON, MapType.BUTTON, button("left_bumper"), "left_bumper", "triggerview"),
             new MappingStage(GamepadInputs.RIGHT_SHOULDER_BUTTON, MapType.BUTTON, button("right_bumper"), "right_bumper", "triggerview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_BUTTON, MapType.BUTTON, button("left_special"), "left_special", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_BUTTON, MapType.BUTTON, button("right_special"), "right_special", "faceview"),
+            new MappingStage(GamepadInputs.START_BUTTON, MapType.BUTTON, button("left_special"), "left_special", "faceview"),
+            new MappingStage(GamepadInputs.GUIDE_BUTTON, MapType.BUTTON, button("right_special"), "right_special", "faceview"),
             new MappingStage(GamepadInputs.LEFT_STICK_BUTTON, MapType.BUTTON, button("left_stick_down"), "left_stick_press", "faceview"),
             new MappingStage(GamepadInputs.RIGHT_STICK_BUTTON, MapType.BUTTON, button("right_stick_down"), "right_stick_press", "faceview"),
             new MappingStage(GamepadInputs.DPAD_UP_BUTTON, MapType.BUTTON, button("dpad_up"), "dpad_up", "faceview"),
             new MappingStage(GamepadInputs.DPAD_LEFT_BUTTON, MapType.BUTTON, button("dpad_left"), "dpad_left", "faceview"),
             new MappingStage(GamepadInputs.DPAD_DOWN_BUTTON, MapType.BUTTON, button("dpad_down"), "dpad_down", "faceview"),
             new MappingStage(GamepadInputs.DPAD_RIGHT_BUTTON, MapType.BUTTON, button("dpad_right"), "dpad_right", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, MapType.AXIS, axis("left_stick", true), "left_stick_x", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, MapType.AXIS, axis("left_stick", false), "left_stick_y", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, MapType.AXIS, axis("right_stick", true), "right_stick_x", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, MapType.AXIS, axis("right_stick", false), "right_stick_y", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction.left_trigger"), "left_trigger", "triggerview"),
-            new MappingStage(GamepadInputs.RIGHT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction.right_trigger"), "right_trigger", "triggerview")
+            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, true, axis("left_stick", true), "left_stick_left", "faceview"),
+            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_DOWN, false, axis("left_stick", false), "left_stick_down", "faceview"),
+            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_RIGHT, false, axis("left_stick", true), "left_stick_right", "faceview"),
+            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, true, axis("left_stick", false), "left_stick_up", "faceview"),
+            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, true, axis("right_stick", true), "right_stick_left", "faceview"),
+            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_DOWN, false, axis("right_stick", false), "right_stick_down", "faceview"),
+            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, false, axis("right_stick", true), "right_stick_right", "faceview"),
+            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, true, axis("right_stick", false), "right_stick_up", "faceview"),
+            new AxisMappingStage(GamepadInputs.LEFT_TRIGGER_AXIS, false, Component.translatable("controlify.gui.mapping_maker.instruction.left_trigger"), "left_trigger", "triggerview"),
+            new AxisMappingStage(GamepadInputs.RIGHT_TRIGGER_AXIS, false, Component.translatable("controlify.gui.mapping_maker.instruction.right_trigger"), "right_trigger", "triggerview")
     );
 
     private MappingStage currentStage = null;
@@ -55,33 +59,36 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     private Button goBackButton;
     private final Screen lastScreen;
 
-    public ControllerMappingMakerScreen(InputComponent inputComponent, Screen lastScreen, List<MappingStage> stages) {
+    public ControllerMappingMakerScreen(InputComponent inputComponent, Screen lastScreen, List<MappingStage> stages, Iterable<DeadzoneGroup> deadzoneGroups) {
         super(Component.literal("Gamepad Emulation Mapping Creator"));
         this.inputComponent = inputComponent;
         this.lastScreen = lastScreen;
         this.stages = stages;
+        mappingBuilder.putDeadzoneGroups(deadzoneGroups);
+    }
 
-        inputComponent.confObj().mapping = UserGamepadMapping.NO_MAPPING;
+    public static ControllerMappingMakerScreen createGamepadMapping(InputComponent inputComponent, Screen lastScreen) {
+        return new ControllerMappingMakerScreen(inputComponent, lastScreen, GAMEPAD_STAGES, GamepadInputs.DEADZONE_GROUPS);
     }
 
     @Override
     protected void init() {
         addRenderableWidget(
                 goBackButton = Button.builder(
-                        Component.translatable("controlify.gui.gamepademulationmappingcreator.go_back"),
+                        Component.translatable("controlify.gui.mapping_maker.go_back"),
                         button -> goBackStage()
                 )
                         .bounds(width / 2 - 152, height - 60, 150, 20)
-                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.gamepademulationmappingcreator.go_back.tooltip")))
+                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.mapping_maker.go_back.tooltip")))
                         .build()
         );
         addRenderableWidget(
                 Button.builder(
-                        Component.translatable("controlify.gui.gamepademulationmappingcreator.no_map"),
+                        Component.translatable("controlify.gui.mapping_maker.no_map"),
                         button -> mapAsNone()
                 )
                         .bounds(width / 2 + 2, height - 60, 150, 20)
-                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.gamepademulationmappingcreator.no_map.tooltip")))
+                        .tooltip(Tooltip.create(Component.translatable("controlify.gui.mapping_maker.no_map.tooltip")))
                         .build()
         );
         goBackButton.active = false;
@@ -147,9 +154,19 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             float prev = stateThen.getAxisState(axis);
             float diff = prev - now;
             if (Math.abs(diff) > 0.3f) {
+                float min = -1, max = 1;
+                if (stage instanceof AxisMappingStage axisStage) {
+                    if (axisStage.isNegative()) {
+                        max = -1;
+                        min = 0;
+                    } else {
+                        min = 0;
+                    }
+                }
+
                 MappingEntry mapping = switch (stage.outputType()) {
                     case BUTTON -> new MappingEntry.FromAxis.ToButton(axis, stage.originInput(), 0.5f);
-                    case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), -1, 1, -1, 1);
+                    case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), min, 0, max, 1);
                     case HAT -> new MappingEntry.FromAxis.ToHat(axis, stage.originInput(), 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
                     case NOTHING -> null;
                 };
@@ -213,11 +230,11 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         super.render(guiGraphics, i, j, f);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.gamepademulationmappingcreator.title"), width / 2, 15, 0xFFFFFF);
+        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFF);
 
         guiGraphics.drawCenteredString(
                 font,
-                currentStage == null ? Component.translatable("controlify.gui.gamepademulationmappingcreator.please_wait") : currentStage.name(),
+                currentStage == null ? Component.translatable("controlify.gui.mapping_maker.please_wait") : currentStage.name(),
                 width / 2, height - 20,
                 0xFFFFFF
         );
@@ -251,14 +268,14 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     }
 
     private static Component button(String buttonName) {
-        return Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction.button", Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction." + buttonName));
+        return Component.translatable("controlify.gui.mapping_maker.instruction.button", Component.translatable("controlify.gui.mapping_maker.instruction." + buttonName));
     }
 
     private static Component axis(String axisName, boolean horizontal) {
-        Component axis = Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction." + axisName);
+        Component axis = Component.translatable("controlify.gui.mapping_maker.instruction." + axisName);
         return horizontal
-                ? Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction.axis_x", axis)
-                : Component.translatable("controlify.gui.gamepademulationmappingcreator.instruction.axis_y", axis);
+                ? Component.translatable("controlify.gui.mapping_maker.instruction.axis_x", axis)
+                : Component.translatable("controlify.gui.mapping_maker.instruction.axis_y", axis);
     }
 
     @Override
@@ -266,7 +283,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         return screenProcessor;
     }
 
-    public static final class MappingStage {
+    public static class MappingStage {
         private final ResourceLocation originInput;
         private final MapType outputType;
         private final Component name;
@@ -308,6 +325,19 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
         public void setSatisfied(boolean satisfied) {
             this.satisfied = satisfied;
+        }
+    }
+
+    public static class AxisMappingStage extends MappingStage {
+        private final boolean negative;
+
+        public AxisMappingStage(ResourceLocation originInput, boolean negative, Component name, String foreground, String background) {
+            super(originInput, MapType.AXIS, name, foreground, background);
+            this.negative = negative;
+        }
+
+        public boolean isNegative() {
+            return this.negative;
         }
     }
 

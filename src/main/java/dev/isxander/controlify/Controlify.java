@@ -315,7 +315,14 @@ public class Controlify implements ControlifyApi {
         }
 
         wizard.addStage(
-                () -> !controller.input().orElseThrow().isDefinitelyGamepad(),
+                () -> {
+                    Optional<InputComponent> inputOpt = controller.input();
+                    if (inputOpt.isPresent()) {
+                        InputComponent input = inputOpt.get();
+                        return !input.isDefinitelyGamepad() && input.confObj().mapping == null;
+                    }
+                    return false;
+                },
                 nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
         );
         wizard.addStage(

@@ -53,8 +53,9 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public void pushState(ControllerState state) {
-        if (confObj().mapping != null) {
-            state = confObj().mapping.mapJoystick(state);
+        UserGamepadMapping mapping = confObj().mapping;
+        if (mapping != null) {
+            state = mapping.mapJoystick(state);
         }
 
         this.stateThen = this.stateNow;
@@ -78,10 +79,9 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public Map<ResourceLocation, DeadzoneGroup> getDeadzoneGroups() {
-        if (!confObj().deadzoneOverrides.isEmpty()) {
-            return confObj().deadzoneOverrides
-                    .stream()
-                    .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
+        UserGamepadMapping mapping = confObj().mapping;
+        if (mapping != null) {
+            return mapping.deadzones();
         } else {
             return this.deadzoneAxes;
         }
@@ -122,8 +122,6 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
         @Nullable
         public UserGamepadMapping mapping = null;
-
-        public Set<DeadzoneGroup> deadzoneOverrides = new LinkedHashSet<>();
     }
 
 }

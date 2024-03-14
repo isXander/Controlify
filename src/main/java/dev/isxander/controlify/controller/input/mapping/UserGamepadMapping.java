@@ -4,14 +4,13 @@ import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
+import net.minecraft.resources.ResourceLocation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public record UserGamepadMapping(
         List<MappingEntry> mappings,
-        List<DeadzoneGroup> deadzones
+        LinkedHashMap<ResourceLocation, DeadzoneGroup> deadzones
 ) implements GamepadMapping {
     @Override
     public ControllerState mapJoystick(ControllerState state) {
@@ -32,7 +31,7 @@ public record UserGamepadMapping(
 
     public static class Builder {
         private final List<MappingEntry> mappings = new ArrayList<>();
-        private final List<DeadzoneGroup> deadzones = new ArrayList<>();
+        private final LinkedHashMap<ResourceLocation, DeadzoneGroup> deadzones = new LinkedHashMap<>();
 
         public Builder putMapping(MappingEntry mapping) {
             if (mapping == null)
@@ -42,8 +41,10 @@ public record UserGamepadMapping(
             return this;
         }
 
-        public Builder putDeadzoneGroups(Collection<DeadzoneGroup> deadzoneGroup) {
-            this.deadzones.addAll(deadzoneGroup);
+        public Builder putDeadzoneGroups(Iterable<DeadzoneGroup> deadzoneGroup) {
+            for (DeadzoneGroup group : deadzoneGroup) {
+                this.deadzones.put(group.name(), group);
+            }
             return this;
         }
 

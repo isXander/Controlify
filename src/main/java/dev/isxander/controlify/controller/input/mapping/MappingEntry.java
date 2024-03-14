@@ -9,12 +9,14 @@ import net.minecraft.util.Mth;
 public sealed interface MappingEntry {
     void apply(ControllerState oldState, ModifiableControllerState newState);
 
+    MapType inputType();
+
     MapType outputType();
 
     sealed interface FromButton extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, boolean invert, MapType outputType) implements FromButton {
+        record ToButton(ResourceLocation from, ResourceLocation to, boolean invert, MapType inputType, MapType outputType) implements FromButton {
             public ToButton(ResourceLocation from, ResourceLocation to, boolean invert) {
-                this(from, to, invert, MapType.BUTTON);
+                this(from, to, invert, MapType.BUTTON, MapType.BUTTON);
             }
 
             @Override
@@ -25,9 +27,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, float offState, float onState, MapType outputType) implements FromButton {
+        record ToAxis(ResourceLocation from, ResourceLocation to, float offState, float onState, MapType inputType, MapType outputType) implements FromButton {
             public ToAxis(ResourceLocation from, ResourceLocation to, float offState, float onState) {
-                this(from, to, offState, onState, MapType.AXIS);
+                this(from, to, offState, onState, MapType.BUTTON, MapType.AXIS);
             }
 
             @Override
@@ -36,9 +38,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, HatState offState, HatState onState, MapType outputType) implements FromButton {
+        record ToHat(ResourceLocation from, ResourceLocation to, HatState offState, HatState onState, MapType inputType, MapType outputType) implements FromButton {
             public ToHat(ResourceLocation from, ResourceLocation to, HatState offState, HatState onState) {
-                this(from, to, offState, onState, MapType.HAT);
+                this(from, to, offState, onState, MapType.BUTTON, MapType.HAT);
             }
 
             @Override
@@ -49,9 +51,9 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromAxis extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, float threshold, MapType outputType) implements FromAxis {
+        record ToButton(ResourceLocation from, ResourceLocation to, float threshold, MapType inputType, MapType outputType) implements FromAxis {
             public ToButton(ResourceLocation from, ResourceLocation to, float threshold) {
-                this(from, to, threshold, MapType.BUTTON);
+                this(from, to, threshold, MapType.AXIS, MapType.BUTTON);
             }
 
             @Override
@@ -60,9 +62,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, float minIn, float minOut, float maxIn, float maxOut, MapType outputType) implements FromAxis {
+        record ToAxis(ResourceLocation from, ResourceLocation to, float minIn, float minOut, float maxIn, float maxOut, MapType inputType, MapType outputType) implements FromAxis {
             public ToAxis(ResourceLocation from, ResourceLocation to, float minIn, float minOut, float maxIn, float maxOut) {
-                this(from, to, minIn, minOut, maxIn, maxOut, MapType.AXIS);
+                this(from, to, minIn, minOut, maxIn, maxOut, MapType.AXIS, MapType.AXIS);
             }
 
             @Override
@@ -73,9 +75,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, float threshold, HatState targetState, MapType outputType) implements FromAxis {
+        record ToHat(ResourceLocation from, ResourceLocation to, float threshold, HatState targetState, MapType inputType, MapType outputType) implements FromAxis {
             public ToHat(ResourceLocation from, ResourceLocation to, float threshold, HatState targetState) {
-                this(from, to, threshold, targetState, MapType.HAT);
+                this(from, to, threshold, targetState, MapType.AXIS, MapType.HAT);
             }
 
             @Override
@@ -87,9 +89,9 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromHat extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, HatState targetState, MapType outputType) implements FromHat {
+        record ToButton(ResourceLocation from, ResourceLocation to, HatState targetState, MapType inputType, MapType outputType) implements FromHat {
             public ToButton(ResourceLocation from, ResourceLocation to, HatState targetState) {
-                this(from, to, targetState, MapType.BUTTON);
+                this(from, to, targetState, MapType.HAT, MapType.BUTTON);
             }
 
             @Override
@@ -98,9 +100,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, HatState targetState, float onState, float offState, MapType outputType) implements FromHat {
+        record ToAxis(ResourceLocation from, ResourceLocation to, HatState targetState, float onState, float offState, MapType inputType, MapType outputType) implements FromHat {
             public ToAxis(ResourceLocation from, ResourceLocation to, HatState targetState, float onState, float offState) {
-                this(from, to, targetState, onState, offState, MapType.AXIS);
+                this(from, to, targetState, onState, offState, MapType.HAT, MapType.AXIS);
             }
 
             @Override
@@ -109,9 +111,9 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, MapType outputType) implements FromHat {
+        record ToHat(ResourceLocation from, ResourceLocation to, MapType inputType, MapType outputType) implements FromHat {
             public ToHat(ResourceLocation from, ResourceLocation to) {
-                this(from, to, MapType.HAT);
+                this(from, to, MapType.HAT, MapType.HAT);
             }
 
             @Override
@@ -122,6 +124,11 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromNothing extends MappingEntry {
+        @Override
+        default MapType inputType() {
+            return MapType.NOTHING;
+        }
+
         record ToButton(ResourceLocation to, boolean state) implements FromNothing {
             @Override
             public void apply(ControllerState oldState, ModifiableControllerState newState) {

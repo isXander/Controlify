@@ -3,6 +3,8 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.input.mapping.MappingEntry;
+import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
@@ -26,6 +28,7 @@ public class ControlifyConfig {
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
             .registerTypeHierarchyAdapter(Version.class, new TypeAdapters.VersionTypeAdapter())
             .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
             .create();
 
     private final Controlify controlify;
@@ -96,7 +99,6 @@ public class ControlifyConfig {
                 newControllerData.add(controller.info().uid(), generateControllerConfig(controller));
             }
         });
-
 
         controllerData = newControllerData;
         config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(c -> c.info().uid()).orElse(null));

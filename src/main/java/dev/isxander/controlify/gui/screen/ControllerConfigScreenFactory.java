@@ -344,7 +344,7 @@ public class ControllerConfigScreenFactory {
                 .option(ButtonOption.createBuilder()
                         .name(Component.translatable("controlify.gui.create_gamepad_mapping"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.create_gamepad_mapping.tooltip")))
-                        .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerMappingMakerScreen(input, screen, ControllerMappingMakerScreen.GAMEPAD_STAGES)))
+                        .action((screen, button) -> Minecraft.getInstance().setScreen(ControllerMappingMakerScreen.createGamepadMapping(input, screen)))
                         .build())
                 .option(ButtonOption.createBuilder()
                         .name(Component.translatable("controlify.gui.clear_mapping"))
