@@ -26,7 +26,7 @@ public class GenericControllerConfig implements ConfigClass {
     public float chatKeyboardHeight = showOnScreenKeyboard ? 0.5f : 0f;
 
     public ResourceLocation[] radialActions = new ResourceLocation[8];
-    public int radialButtonFocusTimeoutMs = 1000;
+    public int radialButtonFocusTimeoutTicks = 20;
 
     public boolean dontShowControllerSubmission = false;
 

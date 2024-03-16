@@ -585,7 +585,9 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.radial_menu.btn_focus_timeout.tooltip"))
                                 .build())
-                        .binding(def.radialButtonFocusTimeoutMs, () -> config.radialButtonFocusTimeoutMs, v -> config.radialButtonFocusTimeoutMs = v)
+                        .binding(def.radialButtonFocusTimeoutTicks * 50,
+                                () -> config.radialButtonFocusTimeoutTicks * 50,
+                                v -> config.radialButtonFocusTimeoutTicks = Math.round(v / 50f)) // round input to nearest 50 to get tick count (50ms = 1 tick)
                         .controller(opt -> IntegerSliderControllerBuilder.create(opt)
                                 .range(100, 2000).step(50).formatValue(millisFormatter))
                         .build());
