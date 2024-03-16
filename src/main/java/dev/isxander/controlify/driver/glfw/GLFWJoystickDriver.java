@@ -41,7 +41,7 @@ public class GLFWJoystickDriver implements Driver {
         this.numAxes = testState.axes().limit();
         this.numHats = testState.hats().limit();
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats, false, Set.of()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(numButtons, numAxes * 2, numHats, false, Set.of()), InputComponent.ID);
 
         this.controller.finalise();
     }
@@ -67,7 +67,9 @@ public class GLFWJoystickDriver implements Driver {
         ControllerStateImpl state = new ControllerStateImpl();
 
         for (int i = 0; i < numAxes; i++) {
-            state.setAxis(JoystickInputs.axis(i), glfwState.axes().get(i));
+            float axis = glfwState.axes().get(i);
+            state.setAxis(JoystickInputs.axis(i, true), Math.max(axis, 0));
+            state.setAxis(JoystickInputs.axis(i, false), -Math.min(axis, 0));
         }
 
         for (int i = 0; i < numButtons; i++) {

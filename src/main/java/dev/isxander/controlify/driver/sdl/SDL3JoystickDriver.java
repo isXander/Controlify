@@ -62,7 +62,7 @@ public class SDL3JoystickDriver implements Driver {
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
         this.numHats = SDL_GetNumJoystickHats(ptrJoystick);
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes, numHats, false, Set.of()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(numButtons, numAxes * 2, numHats, false, Set.of()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isRumbleSupported) {
             this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
@@ -95,7 +95,14 @@ public class SDL3JoystickDriver implements Driver {
         ControllerStateImpl state = new ControllerStateImpl();
 
         for (int i = 0; i < numAxes; i++) {
-            state.setAxis(JoystickInputs.axis(i), mapShortToFloat(SDL_GetJoystickAxis(ptrJoystick, i)));
+            float axis = mapShortToFloat(SDL_GetJoystickAxis(ptrJoystick, i));
+
+            if (i == 0) {
+               // System.out.println(axis + " " + Math.max(axis, 0) + " " + -Math.min(axis, 0));
+            }
+
+            state.setAxis(JoystickInputs.axis(i, true), Math.max(axis, 0));
+            state.setAxis(JoystickInputs.axis(i, false), -Math.min(axis, 0));
         }
 
         for (int i = 0; i < numButtons; i++) {
@@ -103,7 +110,7 @@ public class SDL3JoystickDriver implements Driver {
         }
 
         for (int i = 0; i < numHats; i++) {
-            HatState hatState = switch(SDL_GetJoystickHat(ptrJoystick, i)) {
+            HatState hatState = switch (SDL_GetJoystickHat(ptrJoystick, i)) {
                 case SDL_HAT_CENTERED -> HatState.CENTERED;
                 case SDL_HAT_UP -> HatState.UP;
                 case SDL_HAT_RIGHT -> HatState.RIGHT;

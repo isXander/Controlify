@@ -12,10 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayDeque;
-import java.util.Queue;
 
 public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
     public static final ResourceLocation ID = Controlify.id("hd_haptics");

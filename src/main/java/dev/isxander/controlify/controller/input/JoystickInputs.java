@@ -5,7 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public final class JoystickInputs {
     private static final ResourceLocation[] BUTTONS = new ResourceLocation[256];
-    private static final ResourceLocation[] AXES = new ResourceLocation[256];
+    private static final ResourceLocation[] AXES = new ResourceLocation[512];
     private static final ResourceLocation[] HATS = new ResourceLocation[256];
 
     private JoystickInputs() {
@@ -21,11 +21,16 @@ public final class JoystickInputs {
         return cache;
     }
 
-    public static ResourceLocation axis(int index) {
-        ResourceLocation cache = AXES[index];
+    public static ResourceLocation axis(int index, boolean positive) {
+        int cacheIndex = index;
+        if (!positive) {
+            cacheIndex += 256;
+        }
+
+        ResourceLocation cache = AXES[cacheIndex];
 
         if (cache == null) {
-            AXES[index] = cache = Controlify.id("axis/" + index);
+            AXES[cacheIndex] = cache = Controlify.id("axis/" + index + "/" + (positive ? "positive" : "negative"));
         }
 
         return cache;

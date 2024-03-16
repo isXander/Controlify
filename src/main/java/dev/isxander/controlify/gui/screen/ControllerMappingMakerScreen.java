@@ -41,16 +41,16 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             new MappingStage(GamepadInputs.DPAD_LEFT_BUTTON, MapType.BUTTON, button("dpad_left"), "dpad_left", "faceview"),
             new MappingStage(GamepadInputs.DPAD_DOWN_BUTTON, MapType.BUTTON, button("dpad_down"), "dpad_down", "faceview"),
             new MappingStage(GamepadInputs.DPAD_RIGHT_BUTTON, MapType.BUTTON, button("dpad_right"), "dpad_right", "faceview"),
-            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, true, axis("left_stick", true), "left_stick_left", "faceview"),
-            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_DOWN, false, axis("left_stick", false), "left_stick_down", "faceview"),
-            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_RIGHT, false, axis("left_stick", true), "left_stick_right", "faceview"),
-            new AxisMappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, true, axis("left_stick", false), "left_stick_up", "faceview"),
-            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, true, axis("right_stick", true), "right_stick_left", "faceview"),
-            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_DOWN, false, axis("right_stick", false), "right_stick_down", "faceview"),
-            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, false, axis("right_stick", true), "right_stick_right", "faceview"),
-            new AxisMappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, true, axis("right_stick", false), "right_stick_up", "faceview"),
-            new AxisMappingStage(GamepadInputs.LEFT_TRIGGER_AXIS, false, Component.translatable("controlify.gui.mapping_maker.instruction.left_trigger"), "left_trigger", "triggerview"),
-            new AxisMappingStage(GamepadInputs.RIGHT_TRIGGER_AXIS, false, Component.translatable("controlify.gui.mapping_maker.instruction.right_trigger"), "right_trigger", "triggerview")
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, MapType.AXIS, axis("left_stick", true), "left_stick_left", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_DOWN, MapType.AXIS, axis("left_stick", false), "left_stick_down", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_RIGHT, MapType.AXIS, axis("left_stick", true), "left_stick_right", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, MapType.AXIS, axis("left_stick", false), "left_stick_up", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, MapType.AXIS, axis("right_stick", true), "right_stick_left", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_DOWN, MapType.AXIS, axis("right_stick", false), "right_stick_down", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, MapType.AXIS, axis("right_stick", true), "right_stick_right", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, MapType.AXIS, axis("right_stick", false), "right_stick_up", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.mapping_maker.instruction.left_trigger"), "left_trigger", "triggerview"),
+            new MappingStage(GamepadInputs.RIGHT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.mapping_maker.instruction.right_trigger"), "right_trigger", "triggerview")
     );
 
     private MappingStage currentStage = null;
@@ -65,6 +65,9 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         this.lastScreen = lastScreen;
         this.stages = stages;
         mappingBuilder.putDeadzoneGroups(deadzoneGroups);
+
+        // otherwise we will be mapping something that is already mapped
+        inputComponent.confObj().mapping = null;
     }
 
     public static ControllerMappingMakerScreen createGamepadMapping(InputComponent inputComponent, Screen lastScreen) {
@@ -154,19 +157,9 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             float prev = stateThen.getAxisState(axis);
             float diff = prev - now;
             if (Math.abs(diff) > 0.3f) {
-                float min = -1, max = 1;
-                if (stage instanceof AxisMappingStage axisStage) {
-                    if (axisStage.isNegative()) {
-                        max = -1;
-                        min = 0;
-                    } else {
-                        min = 0;
-                    }
-                }
-
                 MappingEntry mapping = switch (stage.outputType()) {
                     case BUTTON -> new MappingEntry.FromAxis.ToButton(axis, stage.originInput(), 0.5f);
-                    case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), min, 0, max, 1);
+                    case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), 0, 0, 1, 1);
                     case HAT -> new MappingEntry.FromAxis.ToHat(axis, stage.originInput(), 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
                     case NOTHING -> null;
                 };
@@ -325,19 +318,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
         public void setSatisfied(boolean satisfied) {
             this.satisfied = satisfied;
-        }
-    }
-
-    public static class AxisMappingStage extends MappingStage {
-        private final boolean negative;
-
-        public AxisMappingStage(ResourceLocation originInput, boolean negative, Component name, String foreground, String background) {
-            super(originInput, MapType.AXIS, name, foreground, background);
-            this.negative = negative;
-        }
-
-        public boolean isNegative() {
-            return this.negative;
         }
     }
 
