@@ -10,6 +10,7 @@ import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.impl.ECSEntityImpl;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
@@ -86,6 +87,10 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public Optional<IConfig<JoystickControllerConfig>> joystickConfig() {
         return this.getComponent(JoystickControllerConfig.ID);
+    }
+
+    public Optional<BluetoothDeviceComponent> bluetooth() {
+        return this.getComponent(BluetoothDeviceComponent.ID);
     }
 
     public ControllerBindings bindings() {

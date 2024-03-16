@@ -14,7 +14,6 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.driver.global.GlobalDriver;
-import dev.isxander.controlify.gui.controllers.ControllerBindHandler;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -104,8 +103,6 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
-        ControllerBindHandler.setup();
-
         ClientPlayNetworking.registerGlobalReceiver(VibrationPacket.TYPE, (packet, player, sender) -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
@@ -154,29 +151,30 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
-        boolean controllersConnected = GLFWControllerManager.areControllersConnected();
-
         ControlifyEvents.CONTROLLER_CONNECTED.register(this::onControllerAdded);
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(this::onControllerRemoved);
 
-        if (controllersConnected) {
-            if (config().globalSettings().quietMode) {
+        if (config().globalSettings().quietMode) {
+            // Use GLFW to probe for controllers without asking for natives
+            boolean controllersConnected = GLFWControllerManager.areControllersConnected();
+
+            if (controllersConnected) {
                 ToastUtils.sendToast(
                         Component.translatable("controlify.toast.setup_in_config.title"),
                         Component.translatable(
                                 "controlify.toast.setup_in_config.description",
                                 Component.translatable("options.title"),
-                                Component.translatable("controls.keybinds.title"),
+                                Component.translatable("controls.title"),
                                 Component.literal("Controlify")
                         ),
                         false
                 );
             } else {
-                finishControlifyInit();
+                probeMode = true;
+                ClientTickEvents.END_CLIENT_TICK.register(client -> this.probeTick());
             }
         } else {
-            probeMode = true;
-            ClientTickEvents.END_CLIENT_TICK.register(client -> this.probeTick());
+            finishControlifyInit();
         }
 
         // register events
@@ -280,6 +278,8 @@ public class Controlify implements ControlifyApi {
             // make sure people don't someone add binds after controllers could have been created
             ControllerBindings.lockRegistry();
 
+            // assume that if someone explicitly went into controlify settings,
+            // they have a controller and want the full experience.
             if (config().globalSettings().quietMode) {
                 config().globalSettings().quietMode = false;
                 config().setDirty();
@@ -328,6 +328,10 @@ public class Controlify implements ControlifyApi {
         wizard.addStage(
                 () -> !calibrated,
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
+        );
+        wizard.addStage(
+                () -> controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
+                nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
         );
 
         if (hotplugged) {

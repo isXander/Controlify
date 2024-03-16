@@ -230,6 +230,10 @@
   "controlify.controller_theme.dualshock4": "PS4",
   "controlify.controller_theme.steam_deck": "Steam Deck",
 
+  "controlify.bluetooth_warning.title": "Controller connected via Bluetooth",
+  "controlify.bluetooth_warning.desc": "Some controllers may be missing features when connected via Bluetooth. For example, HD haptics on DualSense. If you think you are missing a feature, try using USB before reporting.",
+  "controlify.bluetooth_warning.dont_show": "Don't show again",
+
   "controlify.binding.controlify.gamepad_gyro_button": "Activate Gyroscope",
   "controlify.binding.controlify.walk_forward": "Walk Forward",
   "controlify.binding.controlify.walk_backward": "Walk Backward",

@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
 import dev.isxander.controlify.controller.hdhaptic.HapticBufferLibrary;
+import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadState;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
@@ -91,6 +92,7 @@ public class SDL3GamepadDriver implements Driver {
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
         this.controller = new ControllerEntity(info);
 
+        // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
         if ("dualsense".equals(type.namespace())) {
             SDL_AudioDeviceID dualsenseAudioDev = null;
@@ -117,6 +119,8 @@ public class SDL3GamepadDriver implements Driver {
             } else {
                 this.dualsenseAudioDev = null;
                 this.dualsenseAudioSpec = null;
+
+                controller.setComponent(new BluetoothDeviceComponent(), BluetoothDeviceComponent.ID);
             }
         } else {
             this.dualsenseAudioDev = null;

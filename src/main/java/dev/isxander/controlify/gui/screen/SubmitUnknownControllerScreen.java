@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 
 public class SubmitUnknownControllerScreen extends Screen implements DontInteruptScreen {
     public static final String SUBMISSION_URL = "https://api-controlify.isxander.dev/api/v1/submit";
-    public static final Pattern NAME_PATTERN = Pattern.compile("^[\\w\\- ]{3,32}$");
+    public static final Pattern NAME_PATTERN = Pattern.compile("^[\\w\\- ]{3,64}$");
 
     private final ControllerEntity controller;
 
@@ -168,7 +168,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         object.addProperty("productID", hid.productId());
         object.addProperty("GUID", controller.info().guid());
         object.addProperty("reportedName", nameField.getValue());
-        object.addProperty("controlifyVersion", FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion().getFriendlyString());
+        object.addProperty("controlifyVersion", CUtil.VERSION.getFriendlyString());
         object.addProperty("operational", operationalCheckbox.selected());
 
         Gson gson = new Gson();
