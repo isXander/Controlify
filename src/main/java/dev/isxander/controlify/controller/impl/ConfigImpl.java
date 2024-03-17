@@ -47,11 +47,11 @@ public class ConfigImpl<T extends ConfigClass> implements IConfig<T> {
     public void deserialize(JsonElement element, Gson gson, ControllerEntity controller) throws SerializationException {
         try {
             this.instance = gson.fromJson(element, this.classOfT);
-            this.instance.onConfigSaveLoad(controller);
         } catch (Throwable e) {
             this.instance = this.defaultFactory.get();
             throw new SerializationException("Failed to deserialize type " + this.classOfT.getTypeName() + ". Resetting to default.", e);
         }
+        this.instance.onConfigSaveLoad(controller);
     }
 
     @Override

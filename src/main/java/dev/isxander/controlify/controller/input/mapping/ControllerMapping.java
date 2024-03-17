@@ -8,12 +8,12 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.*;
 
-public record UserGamepadMapping(
+public record ControllerMapping(
         List<MappingEntry> mappings,
         LinkedHashMap<ResourceLocation, DeadzoneGroup> deadzones
-) implements GamepadMapping {
+) implements StateMapper {
     @Override
-    public ControllerState mapJoystick(ControllerState state) {
+    public ControllerState mapState(ControllerState state) {
         if (mappings.isEmpty()) {
             return state;
         }
@@ -27,7 +27,7 @@ public record UserGamepadMapping(
         return newState;
     }
 
-    public static final UserGamepadMapping NO_MAPPING = new Builder().build();
+    public static final ControllerMapping NO_MAPPING = new Builder().build();
 
     public static class Builder {
         private final List<MappingEntry> mappings = new ArrayList<>();
@@ -48,8 +48,8 @@ public record UserGamepadMapping(
             return this;
         }
 
-        public UserGamepadMapping build() {
-            return new UserGamepadMapping(mappings, deadzones);
+        public ControllerMapping build() {
+            return new ControllerMapping(mappings, deadzones);
         }
     }
 }

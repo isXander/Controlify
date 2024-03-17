@@ -127,7 +127,7 @@ public class SDL3GamepadDriver implements Driver {
             this.dualsenseAudioSpec = null;
         }
 
-        this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);

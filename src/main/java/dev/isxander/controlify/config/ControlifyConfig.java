@@ -21,7 +21,7 @@ import java.nio.file.StandardOpenOption;
 public class ControlifyConfig {
     public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("controlify.json");
 
-    private static final Gson GSON = new GsonBuilder()
+    public static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

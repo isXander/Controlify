@@ -5,7 +5,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.*;
 import dev.isxander.controlify.controller.input.mapping.MapType;
 import dev.isxander.controlify.controller.input.mapping.MappingEntry;
-import dev.isxander.controlify.controller.input.mapping.UserGamepadMapping;
+import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
     private final InputComponent inputComponent;
-    private final UserGamepadMapping.Builder mappingBuilder = new UserGamepadMapping.Builder();
+    private final ControllerMapping.Builder mappingBuilder = new ControllerMapping.Builder();
     private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);
 
     private int delayTillNextStage = 20;

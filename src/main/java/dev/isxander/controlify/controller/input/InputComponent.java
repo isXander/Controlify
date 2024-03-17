@@ -2,8 +2,9 @@ package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.input.mapping.UserGamepadMapping;
+import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.controller.input.mapping.ControllerMappingStorage;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -26,11 +27,11 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
     private final IConfig<Config> config;
 
-    public InputComponent(int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes) {
+    public InputComponent(int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes, String mappingId) {
         this.buttonCount = buttonCount;
         this.axisCount = axisCount;
         this.hatCount = hatCount;
-        this.config = new ConfigImpl<>(Config::new, Config.class);
+        this.config = new ConfigImpl<>(() -> new Config(ControllerMappingStorage.get(mappingId)), Config.class);
         this.definitelyGamepad = definitelyGamepad;
         this.deadzoneAxes = deadzoneAxes.stream()
                 .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
@@ -53,9 +54,9 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public void pushState(ControllerState state) {
-        UserGamepadMapping mapping = confObj().mapping;
+        ControllerMapping mapping = confObj().mapping;
         if (mapping != null) {
-            state = mapping.mapJoystick(state);
+            state = mapping.mapState(state);
         }
 
         this.stateThen = this.stateNow;
@@ -79,7 +80,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public Map<ResourceLocation, DeadzoneGroup> getDeadzoneGroups() {
-        UserGamepadMapping mapping = confObj().mapping;
+        ControllerMapping mapping = confObj().mapping;
         if (mapping != null) {
             return mapping.deadzones();
         } else {
@@ -107,6 +108,14 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public static class Config implements ConfigClass {
+        public Config() {
+            // for gson
+        }
+
+        public Config(@Nullable ControllerMapping typeProvidedMapping) {
+            this.mapping = typeProvidedMapping;
+        }
+
         public float hLookSensitivity = 1f;
         public float vLookSensitivity = 0.9f;
         public float virtualMouseSensitivity = 1f;
@@ -121,7 +130,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         public boolean mixedInput = false;
 
         @Nullable
-        public UserGamepadMapping mapping = null;
+        public ControllerMapping mapping = null;
     }
 
 }
