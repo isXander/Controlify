@@ -8,6 +8,7 @@ import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
+import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -495,7 +496,9 @@ public class Controlify implements ControlifyApi {
             rumbleManager.ifPresent(RumbleManager::tick);
         }
 
-        boolean givingInput = state.getButtons().stream().anyMatch(state::isButtonDown);
+        boolean givingInput = state.getButtons().stream().anyMatch(state::isButtonDown)
+                || state.getAxes().stream().map(state::getAxisState).anyMatch(axis -> Math.abs(axis) > 0.1f)
+                || state.getHats().stream().map(state::getHatState).anyMatch(hat -> hat != HatState.CENTERED);
         if (givingInput && !this.currentInputMode().isController()) {
             this.setInputMode(input.config().config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
 
