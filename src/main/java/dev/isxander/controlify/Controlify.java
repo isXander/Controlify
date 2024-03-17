@@ -568,6 +568,7 @@ public class Controlify implements ControlifyApi {
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
+        ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
 
         if (controller.input().map(input -> input.config().config().mixedInput).orElse(false))
             setInputMode(InputMode.MIXED);

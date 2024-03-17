@@ -61,6 +61,7 @@
     "feature.rumble.useitem.ClientPacketListenerMixin",
     "feature.rumble.useitem.LivingEntityMixin",
     "feature.rumble.useitem.LocalPlayerMixin",
+    "feature.rumble.waterland.LocalPlayerMixin",
     "feature.screenop.ContainerEventHandlerMixin",
     "feature.screenop.GameRendererMixin",
     "feature.screenop.MinecraftMixin",
@@ -111,6 +112,7 @@
   "mixins": [
     "compat.sodium.AbstractWidgetMixin",
     "feature.rumble.damage.LivingEntityMixin",
-    "feature.rumble.damage.PlayerMixin"
+    "feature.rumble.damage.PlayerMixin",
+    "feature.rumble.waterland.PlayerMixin"
   ]
 }

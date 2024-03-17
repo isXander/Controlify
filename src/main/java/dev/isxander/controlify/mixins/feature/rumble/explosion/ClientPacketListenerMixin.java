@@ -30,7 +30,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
         ControlifyApi.get().getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(rumble -> rumble.rumbleManager().play(
-                        RumbleSource.EXPLOSION,
+                        RumbleSource.WORLD,
                         BasicRumbleEffect.join(
                                 BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
                                 BasicRumbleEffect.byTime(t -> {

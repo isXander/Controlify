@@ -403,8 +403,8 @@ public class ControllerConfigScreenFactory {
                             .text(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
                             .build())
                     .binding(
-                            def.vibrationStrengths.get(source.id()),
-                            () -> config.vibrationStrengths.get(source.id()),
+                            def.vibrationStrengths.getOrDefault(source.id(), 1f),
+                            () -> config.vibrationStrengths.getOrDefault(source.id(), 1f),
                             v -> config.vibrationStrengths.put(source.id(), v)
                     )
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)

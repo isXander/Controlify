@@ -18,7 +18,7 @@ public class LocalPlayerMixin extends LivingEntityMixin {
         ControlifyApi.get().getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(controller -> controller.rumbleManager().play(
-                        RumbleSource.ITEM_BREAK,
+                        RumbleSource.PLAYER,
                         BasicRumbleEffect.byTick(tick -> new RumbleState(tick <= 4 ? 1f : 0f, 1f), 10)
                 ));
     }

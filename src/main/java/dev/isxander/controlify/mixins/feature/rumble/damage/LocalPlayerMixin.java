@@ -41,7 +41,7 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
         ControlifyApi.get().getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(rumble -> rumble.rumbleManager().play(
-                        RumbleSource.DAMAGE,
+                        RumbleSource.PLAYER,
                         BasicRumbleEffect.constant(0.8f, 0.5f, 5)
                 ));
     }

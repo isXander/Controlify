@@ -2,6 +2,7 @@ package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
@@ -547,7 +548,12 @@ public class ControllerBindings {
         registry.put(binding.id(), binding);
 
         if (binding.override() != null) {
-            ((KeyMappingOverrideHolder) binding.override().keyMapping()).controlify$addOverride(binding);
+            ((KeyMappingOverrideHolder) binding.override().keyMapping()).controlify$addOverride(() ->
+                    ControlifyApi.get().getCurrentController().equals(Optional.of(controller))
+                            && Controlify.instance().currentInputMode().isController()
+                            && binding.held()
+                            && !binding.override().toggleable().getAsBoolean()
+            );
         }
 
         return binding;

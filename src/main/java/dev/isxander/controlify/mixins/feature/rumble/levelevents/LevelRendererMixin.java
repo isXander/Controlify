@@ -35,7 +35,7 @@ public class LevelRendererMixin {
     private void onGlobalLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
         switch (eventId) {
             case LevelEvent.SOUND_DRAGON_DEATH -> rumble(
-                    RumbleSource.GLOBAL_EVENT,
+                    RumbleSource.WORLD,
                     BasicRumbleEffect.join(
                             BasicRumbleEffect.constant(1f, 1f, 194),
                             BasicRumbleEffect.byTime(t -> {
@@ -45,7 +45,7 @@ public class LevelRendererMixin {
                     ).prioritised(10)
             );
             case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> rumble(
-                    RumbleSource.GLOBAL_EVENT,
+                    RumbleSource.WORLD,
                     BasicRumbleEffect.join(
                             BasicRumbleEffect.constant(1f, 1f, 9),
                             BasicRumbleEffect.constant(0.1f, 1f, 14),

@@ -18,7 +18,7 @@ public class LightningBoltMixin {
             ControlifyApi.get().getCurrentController()
                     .flatMap(ControllerEntity::rumble)
                     .ifPresent(controller -> controller.rumbleManager().play(
-                            RumbleSource.EXPLOSION,
+                            RumbleSource.WORLD,
                             BasicRumbleEffect.join(
                                     BasicRumbleEffect.constant(1f, 0.2f, 6), // initial boom
                                     BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t*0.2f), 10) // explosion

@@ -35,7 +35,7 @@ public class FishingHookMixin {
                                     .constant(0f, 0.05f)
                                     .build();
 
-                            controller.rumbleManager().play(RumbleSource.MISC, bitingRumble);
+                            controller.rumbleManager().play(RumbleSource.INTERACTION, bitingRumble);
                         });
             } else if (!biting && this.biting) {
                 stopBitingRumble();

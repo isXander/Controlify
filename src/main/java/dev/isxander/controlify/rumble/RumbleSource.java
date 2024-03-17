@@ -12,14 +12,10 @@ public record RumbleSource(ResourceLocation id) {
 
     public static final RumbleSource
             MASTER = register("master"),
-            DAMAGE = register("damage"),
-            BLOCK_DESTROY = register("block_destroy"),
-            USE_ITEM = register("use_item"),
-            ITEM_BREAK = register("item_break"),
-            GUI = register("gui"),
-            EXPLOSION = register("explosion"),
-            MISC = register("misc"),
-            GLOBAL_EVENT = register("global_event");
+            PLAYER = register("player"),
+            WORLD = register("world"),
+            INTERACTION = register("interaction"),
+            GUI = register("gui");
 
     public static RumbleSource get(ResourceLocation id) {
         RumbleSource source = SOURCES.get(id);
