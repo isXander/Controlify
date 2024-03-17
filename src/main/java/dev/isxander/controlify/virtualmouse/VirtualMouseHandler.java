@@ -200,8 +200,9 @@ public class VirtualMouseHandler {
         if (!virtualMouseEnabled) return;
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
-            currentX = Mth.lerp(minecraft.getFrameTime(), currentX, targetX);
-            currentY = Mth.lerp(minecraft.getFrameTime(), currentY, targetY);
+            float delta = minecraft.getDeltaFrameTime();
+            currentX = Mth.lerp(delta, currentX, targetX);
+            currentY = Mth.lerp(delta, currentY, targetY);
 
             ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
         } else {
