@@ -39,7 +39,7 @@ public class ControllerConfigScreenFactory {
     private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
     private static final ValueFormatter<Float> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.format(v);
     private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
-    private static final ValueFormatter<Integer> millisFormatter = v -> Component.literal(String.format("%03dms", v));
+    private static final ValueFormatter<Integer> ticksToMillisFormatter = v -> Component.literal(String.format("%03dms", v * 50));
 
     private final List<Option<?>> newOptions = new ArrayList<>();
 
@@ -585,11 +585,11 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.radial_menu.btn_focus_timeout.tooltip"))
                                 .build())
-                        .binding(def.radialButtonFocusTimeoutTicks * 50,
-                                () -> config.radialButtonFocusTimeoutTicks * 50,
-                                v -> config.radialButtonFocusTimeoutTicks = Math.round(v / 50f)) // round input to nearest 50 to get tick count (50ms = 1 tick)
+                        .binding(def.radialButtonFocusTimeoutTicks,
+                                () -> config.radialButtonFocusTimeoutTicks,
+                                v -> config.radialButtonFocusTimeoutTicks = v)
                         .controller(opt -> IntegerSliderControllerBuilder.create(opt)
-                                .range(100, 2000).step(50).formatValue(millisFormatter))
+                                .range(2, 40).step(1).formatValue(ticksToMillisFormatter))
                         .build());
 
         groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
