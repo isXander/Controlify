@@ -3,6 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlainTextButton;
@@ -23,7 +24,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
     private final Path nativePath;
 
     private long receivedBytes;
-    private final long totalBytes;
+    private long totalBytes;
     private final DecimalFormat format = new DecimalFormat("0.00 MB");
 
     public DownloadingSDLScreen(Screen screenOnFinish, long totalBytes, Path nativePath) {
@@ -97,14 +98,6 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
 
     }
 
-    @Override
-    public void added() {
-        CompletableFuture<Boolean> askNativesFuture = Controlify.instance().askNatives();
-        if (askNativesFuture.isDone()) {
-            minecraft.setScreen(screenOnFinish);
-        }
-    }
-
     public void updateDownloadProgress(long receivedBytes) {
         this.receivedBytes = receivedBytes;
     }
@@ -115,6 +108,10 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
 
     public void failDownload(Throwable th) {
         finishDownload();
+    }
+
+    public void increaseTotal(long increment) {
+        this.totalBytes += increment;
     }
 
     private void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {

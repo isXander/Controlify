@@ -1,5 +1,7 @@
 package dev.isxander.controlify.driver;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.Hashing;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
@@ -11,12 +13,15 @@ import io.github.libsdl4j.jna.SdlNativeLibraryLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -60,11 +65,19 @@ public class SDL3NativesManager {
             return initFuture = CompletableFuture.completedFuture(false);
         }
 
-        Path localLibraryPath = getNativesFolderPath().resolve(Target.CURRENT.getArtifactName());
+        Path nativesFolder = getNativesFolderPath();
+        Path localLibraryPath = nativesFolder.resolve(Target.CURRENT.getArtifactName());
+        Path checksumPath = nativesFolder.resolve(Target.CURRENT.getArtifactMD5Name());
 
         if (Files.exists(localLibraryPath)) {
-            boolean success = loadAndStart(localLibraryPath);
-            if (success)
+            // downloadAndStart asynchronously downloads checksum along with lib
+            // only download manually here if the lib is already downloaded
+            if (Files.notExists(checksumPath)) {
+                CUtil.LOGGER.info("Downloading checksum for existing SDL natives");
+                downloadChecksum(checksumPath);
+            }
+
+            if (verifyMd5(localLibraryPath, checksumPath, true) && loadAndStart(localLibraryPath))
                 return initFuture = CompletableFuture.completedFuture(true);
 
             CUtil.LOGGER.warn("Failed to load SDL3 from local file, attempting to re-download");
@@ -102,7 +115,7 @@ public class SDL3NativesManager {
     }
 
     private static CompletableFuture<Boolean> downloadAndStart(Path localLibraryPath) {
-        return downloadLibrary(localLibraryPath)
+        return downloadLibrary(localLibraryPath.getParent())
                 .thenCompose(success -> {
                     if (!success) {
                         return CompletableFuture.completedFuture(false);
@@ -113,57 +126,120 @@ public class SDL3NativesManager {
                 .thenCompose(success -> Minecraft.getInstance().submit(() -> success));
     }
 
-    private static CompletableFuture<Boolean> downloadLibrary(Path path) {
+    private static CompletableFuture<Boolean> downloadLibrary(Path targetFolder) {
+        String artifactName = Target.CURRENT.getArtifactName();
+        String md5Name = Target.CURRENT.getArtifactMD5Name();
+
+        Path artifactPath = targetFolder.resolve(artifactName);
+        Path md5Path = targetFolder.resolve(md5Name);
+
         try {
-            Files.deleteIfExists(path);
-            Files.createDirectories(path.getParent());
-            Files.createFile(path);
+            Files.deleteIfExists(artifactPath);
+            Files.deleteIfExists(md5Path);
+
+            Files.createDirectories(targetFolder);
+
+            Files.createFile(artifactPath);
+            Files.createFile(md5Path);
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to delete existing SDL3 native library file", e);
             return CompletableFuture.completedFuture(false);
         }
 
-        String url = NATIVE_LIBRARY_URL + Target.CURRENT.getArtifactName();
+        String url = NATIVE_LIBRARY_URL + artifactName;
+        String md5Url = NATIVE_LIBRARY_URL + md5Name;
 
         var httpClient = HttpClient.newHttpClient();
-        var httpRequest = HttpRequest.newBuilder()
-                .GET()
-                .uri(URI.create(url))
-                .build();
+        var libRequest = HttpRequest.newBuilder(URI.create(url)).build();
+        var hashRequest = HttpRequest.newBuilder(URI.create(md5Url)).build();
 
         // send the request asynchronously and track the progress on the download
-        AtomicReference<DownloadingSDLScreen> downloadScreen = new AtomicReference<>();
         Minecraft minecraft = Minecraft.getInstance();
-        return httpClient.sendAsync(
-                httpRequest,
+        DownloadingSDLScreen downloadScreen = new DownloadingSDLScreen(minecraft.screen, 0, artifactPath);
+        System.out.println(Thread.currentThread().getName());
+        minecraft.setScreen(downloadScreen);
+
+        CompletableFuture<?> libFuture = downloadTracked(httpClient, libRequest, downloadScreen, targetFolder, minecraft);
+        CompletableFuture<?> hashFuture = downloadTracked(httpClient, hashRequest, downloadScreen, targetFolder, minecraft);
+
+        return CompletableFuture.allOf(libFuture, hashFuture)
+                .handle((response, throwable) -> {
+                    if (throwable != null) {
+                        CUtil.LOGGER.error("Failed to download SDL3 native library", throwable);
+                        return false;
+                    }
+
+                    CUtil.LOGGER.debug("Finished downloading SDL3 native library");
+                    minecraft.execute(downloadScreen::finishDownload);
+
+                    return verifyMd5(artifactPath, md5Path, true);
+                });
+    }
+
+    private static boolean verifyMd5(Path filePath, Path md5Path, boolean deleteOnFail) {
+        try {
+            String fileMd5 = DigestUtils.md5Hex(Files.readAllBytes(filePath));
+            String checksum = Files.readString(md5Path);
+
+            if (!fileMd5.equals(checksum)) {
+                throw new Exception("Checksum did not match");
+            }
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to verify checksum for " + filePath, e);
+
+            if (deleteOnFail) {
+                try {
+                    Files.deleteIfExists(md5Path);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static CompletableFuture<?> downloadTracked(HttpClient client, HttpRequest request, DownloadingSDLScreen downloadScreen, Path folder, Minecraft minecraft) {
+        return client.sendAsync(
+                request,
                 TrackingBodySubscriber.bodyHandler(
-                        HttpResponse.BodyHandlers.ofFileDownload(path.getParent(), StandardOpenOption.WRITE),
+                        HttpResponse.BodyHandlers.ofFileDownload(folder, StandardOpenOption.WRITE),
                         new TrackingConsumer(
-                                total -> {
-                                    DownloadingSDLScreen screen = new DownloadingSDLScreen(minecraft.screen, total, path);
-                                    downloadScreen.set(screen);
-                                    minecraft.execute(() -> minecraft.setScreen(screen));
-                                },
-                                (received, total) -> downloadScreen.get().updateDownloadProgress(received),
+                                downloadScreen::increaseTotal,
+                                (received, total) -> downloadScreen.updateDownloadProgress(received),
                                 error -> {
                                     if (error.isPresent()) {
                                         CUtil.LOGGER.error("Failed to download SDL3 native library", error.get());
-                                        minecraft.execute(() -> downloadScreen.get().failDownload(error.get()));
-                                    } else {
-                                        CUtil.LOGGER.debug("Finished downloading SDL3 native library");
-                                        minecraft.execute(() -> downloadScreen.get().finishDownload());
+                                        minecraft.execute(() -> downloadScreen.failDownload(error.get()));
                                     }
                                 }
                         )
                 )
-        ).handle((response, throwable) -> {
-            if (throwable != null) {
-                CUtil.LOGGER.error("Failed to download SDL3 native library", throwable);
-                return false;
-            }
+        );
+    }
 
-            return true;
-        });
+    private static void downloadChecksum(Path checksumPath) {
+        try {
+            Path nativesFolder = checksumPath.getParent();
+
+            Files.deleteIfExists(checksumPath);
+            Files.createDirectories(nativesFolder);
+            Files.createFile(checksumPath);
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder(
+                    URI.create(NATIVE_LIBRARY_URL + Target.CURRENT.getArtifactMD5Name())
+            ).build();
+
+            client.send(
+                    request,
+                    HttpResponse.BodyHandlers.ofFileDownload(nativesFolder, StandardOpenOption.WRITE)
+            );
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to download checksum", e);
+        }
     }
 
     public static boolean isLoaded() {
@@ -212,6 +288,10 @@ public class SDL3NativesManager {
         public String getArtifactName() {
             NativeFileInfo file = NATIVE_LIBRARIES.get(this);
             return "libsdl4j-natives-" + SDL3_VERSION + "-" + file.downloadSuffix + "." + file.fileExtension;
+        }
+
+        public String getArtifactMD5Name() {
+            return this.getArtifactName() + ".md5";
         }
 
         public boolean isMacArm() {

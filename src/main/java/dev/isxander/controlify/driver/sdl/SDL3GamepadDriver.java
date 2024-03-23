@@ -336,29 +336,9 @@ public class SDL3GamepadDriver implements Driver {
                 spec.format = new SDL_AudioFormat(SDL_AUDIO_U8);
             }
         } else if (sound.format().isBigEndian()) {
-            if (ss == 16) {
-                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S16BE);
-                }
-            } else if (ss == 32) {
-                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S32BE);
-                } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_F32BE);
-                }
-            }
+            audioFmtEndian(spec, ss, encoding, SDL_AUDIO_S16BE, SDL_AUDIO_S32BE, SDL_AUDIO_F32BE);
         } else {
-            if (ss == 16) {
-                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S16LE);
-                }
-            } else if (ss == 32) {
-                if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_S32LE);
-                } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                    spec.format = new SDL_AudioFormat(SDL_AUDIO_F32LE);
-                }
-            }
+            audioFmtEndian(spec, ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
         }
 
         if (spec.format == null) {
@@ -388,6 +368,20 @@ public class SDL3GamepadDriver implements Driver {
 
             AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
             dualsenseAudioHandles.add(newHandle);
+        }
+    }
+
+    private static void audioFmtEndian(SDL_AudioSpec spec, int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
+        if (ss == 16) {
+            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                spec.format = new SDL_AudioFormat(signed16);
+            }
+        } else if (ss == 32) {
+            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+                spec.format = new SDL_AudioFormat(signed32);
+            } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+                spec.format = new SDL_AudioFormat(float32);
+            }
         }
     }
 
