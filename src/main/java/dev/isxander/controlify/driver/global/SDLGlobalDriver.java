@@ -2,7 +2,7 @@ package dev.isxander.controlify.driver.global;
 
 import dev.isxander.controlify.utils.CUtil;
 
-import static io.github.libsdl4j.api.keyboard.SdlKeyboard.*;
+import static dev.isxander.sdl3java.api.keyboard.SdlKeyboard.*;
 
 public class SDLGlobalDriver implements OnScreenKeyboardDriver {
     private final boolean screenKeyboardSupported;

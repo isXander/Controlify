@@ -20,7 +20,7 @@ public class EmptyBind implements IBind {
     }
 
     @Override
-    public DrawSize drawSize() {
+    public DrawSize drawSize(ControllerEntity controller) {
         return new DrawSize(0, 0);
     }
 

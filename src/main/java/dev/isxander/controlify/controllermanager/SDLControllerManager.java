@@ -15,12 +15,12 @@ import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
-import io.github.libsdl4j.api.events.SDL_EventFilter;
-import io.github.libsdl4j.api.events.events.SDL_Event;
-import io.github.libsdl4j.api.iostream.SDL_IOStream;
-import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
-import io.github.libsdl4j.api.joystick.SDL_JoystickID;
-import io.github.libsdl4j.jna.size_t;
+import dev.isxander.sdl3java.api.events.SDL_EventFilter;
+import dev.isxander.sdl3java.api.events.events.SDL_Event;
+import dev.isxander.sdl3java.api.iostream.SDL_IOStream;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
+import dev.isxander.sdl3java.jna.size_t;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.lang3.Validate;
@@ -29,12 +29,12 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
 
-import static io.github.libsdl4j.api.error.SdlError.*;
-import static io.github.libsdl4j.api.events.SDL_EventType.*;
-import static io.github.libsdl4j.api.events.SdlEvents.*;
-import static io.github.libsdl4j.api.gamepad.SdlGamepad.*;
-import static io.github.libsdl4j.api.iostream.SdlIOStream.*;
-import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
+import static dev.isxander.sdl3java.api.error.SdlError.*;
+import static dev.isxander.sdl3java.api.events.SDL_EventType.*;
+import static dev.isxander.sdl3java.api.events.SdlEvents.*;
+import static dev.isxander.sdl3java.api.gamepad.SdlGamepad.*;
+import static dev.isxander.sdl3java.api.iostream.SdlIOStream.*;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 
 public class SDLControllerManager extends AbstractControllerManager {
 

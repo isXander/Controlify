@@ -334,7 +334,7 @@ public class ControllerBindingImpl implements ControllerBinding {
 
         @Override
         public DrawSize size() {
-            return bind.drawSize();
+            return bind.drawSize(controller);
         }
     }
 }

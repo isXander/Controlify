@@ -17,21 +17,21 @@ import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
-import io.github.libsdl4j.api.joystick.SDL_Joystick;
-import io.github.libsdl4j.api.joystick.SDL_JoystickID;
-import io.github.libsdl4j.api.properties.SDL_PropertiesID;
+import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
+import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import net.minecraft.util.Mth;
 
 import java.util.Optional;
 import java.util.Set;
 
-import static io.github.libsdl4j.api.error.SdlError.SDL_GetError;
-import static io.github.libsdl4j.api.joystick.SDL_JoystickPowerLevel.*;
-import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
-import static io.github.libsdl4j.api.joystick.SdlJoystickHatConst.*;
-import static io.github.libsdl4j.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN;
-import static io.github.libsdl4j.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN;
-import static io.github.libsdl4j.api.properties.SdlProperties.SDL_GetBooleanProperty;
+import static dev.isxander.sdl3java.api.error.SdlError.SDL_GetError;
+import static dev.isxander.sdl3java.api.joystick.SDL_JoystickPowerLevel.*;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystickHatConst.*;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN;
+import static dev.isxander.sdl3java.api.properties.SdlProperties.SDL_GetBooleanProperty;
 
 public class SDL3JoystickDriver implements Driver {
     private final SDL_Joystick ptrJoystick;

@@ -1,9 +1,9 @@
 package dev.isxander.controlify.hid;
 
 import com.sun.jna.Memory;
-import io.github.libsdl4j.api.hidapi.SDL_hid_device;
-import io.github.libsdl4j.api.hidapi.SdlHidApi;
-import io.github.libsdl4j.jna.size_t;
+import dev.isxander.sdl3java.api.hidapi.SDL_hid_device;
+import dev.isxander.sdl3java.api.hidapi.SdlHidApi;
+import dev.isxander.sdl3java.jna.size_t;
 
 public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, HIDDevice.SDLHidApi {
     int vendorID();

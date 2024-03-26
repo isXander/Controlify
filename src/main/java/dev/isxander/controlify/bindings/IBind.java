@@ -12,7 +12,7 @@ public interface IBind {
     float state(ControllerStateView state);
 
     void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller);
-    DrawSize drawSize();
+    DrawSize drawSize(ControllerEntity controller);
 
     JsonObject toJson();
 

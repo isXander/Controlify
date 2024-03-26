@@ -8,8 +8,8 @@ import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.TrackingBodySubscriber;
 import dev.isxander.controlify.utils.TrackingConsumer;
-import io.github.libsdl4j.api.version.SdlVersionConst;
-import io.github.libsdl4j.jna.SdlNativeLibraryLoader;
+import dev.isxander.sdl3java.api.version.SdlVersionConst;
+import dev.isxander.sdl3java.jna.SdlNativeLibraryLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -26,11 +26,11 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.github.libsdl4j.api.SdlInit.*;
-import static io.github.libsdl4j.api.SdlSubSystemConst.*;
-import static io.github.libsdl4j.api.error.SdlError.*;
-import static io.github.libsdl4j.api.hints.SdlHints.*;
-import static io.github.libsdl4j.api.hints.SdlHintConsts.*;
+import static dev.isxander.sdl3java.api.SdlInit.*;
+import static dev.isxander.sdl3java.api.SdlSubSystemConst.*;
+import static dev.isxander.sdl3java.api.error.SdlError.*;
+import static dev.isxander.sdl3java.api.hints.SdlHints.*;
+import static dev.isxander.sdl3java.api.hints.SdlHintConsts.*;
 
 public class SDL3NativesManager {
     private static final String SDL3_VERSION = "3." + SdlVersionConst.SDL_COMMIT;

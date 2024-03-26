@@ -25,11 +25,11 @@ import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
-import io.github.libsdl4j.api.audio.*;
-import io.github.libsdl4j.api.gamepad.SDL_Gamepad;
-import io.github.libsdl4j.api.joystick.SDL_JoystickID;
-import io.github.libsdl4j.api.properties.SDL_PropertiesID;
-import io.github.libsdl4j.api.sensor.SDL_SensorType;
+import dev.isxander.sdl3java.api.audio.*;
+import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
+import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
+import dev.isxander.sdl3java.api.sensor.SDL_SensorType;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -40,17 +40,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static io.github.libsdl4j.api.audio.SdlAudio.*;
-import static io.github.libsdl4j.api.audio.SdlAudioConsts.*;
-import static io.github.libsdl4j.api.error.SdlError.*;
-import static io.github.libsdl4j.api.events.SdlEventsConst.*;
-import static io.github.libsdl4j.api.gamepad.SDL_GamepadAxis.*;
-import static io.github.libsdl4j.api.gamepad.SDL_GamepadButton.*;
-import static io.github.libsdl4j.api.gamepad.SdlGamepad.*;
-import static io.github.libsdl4j.api.gamepad.SdlGamepadPropsConst.*;
-import static io.github.libsdl4j.api.joystick.SDL_JoystickPowerLevel.*;
-import static io.github.libsdl4j.api.properties.SdlProperties.*;
-import static io.github.libsdl4j.api.sensor.SDL_SensorType.*;
+import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
+import static dev.isxander.sdl3java.api.audio.SdlAudioConsts.*;
+import static dev.isxander.sdl3java.api.error.SdlError.*;
+import static dev.isxander.sdl3java.api.events.SdlEventsConst.*;
+import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadAxis.*;
+import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadButton.*;
+import static dev.isxander.sdl3java.api.gamepad.SdlGamepad.*;
+import static dev.isxander.sdl3java.api.gamepad.SdlGamepadPropsConst.*;
+import static dev.isxander.sdl3java.api.joystick.SDL_JoystickPowerLevel.*;
+import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
+import static dev.isxander.sdl3java.api.sensor.SDL_SensorType.*;
 
 public class SDL3GamepadDriver implements Driver {
     private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes

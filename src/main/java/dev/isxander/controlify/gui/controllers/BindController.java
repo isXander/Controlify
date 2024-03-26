@@ -71,7 +71,7 @@ public class BindController implements Controller<IBind> {
                 graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
-                bind.draw(graphics, getDimension().xLimit() - bind.drawSize().width(), getDimension().centerY(), control.controller);
+                bind.draw(graphics, getDimension().xLimit() - bind.drawSize(control.controller).width(), getDimension().centerY(), control.controller);
             }
         }
 
@@ -122,7 +122,7 @@ public class BindController implements Controller<IBind> {
             if (awaitingControllerInput)
                 return textRenderer.width(awaitingText);
 
-            return control.option().pendingValue().drawSize().width();
+            return control.option().pendingValue().drawSize(control.controller).width();
         }
 
         @Override

@@ -27,11 +27,11 @@ public class HatBind implements IBind {
 
     @Override
     public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
-        graphics.blitSprite(Inputs.getThemedSprite(hat, controller.info().type().namespace()), x, centerY  - 11, 22, 22);
+        graphics.blitSprite(Inputs.getThemedSprite(hat, controller.info().type().namespace()).orElseThrow(), x, centerY  - 11, 22, 22);
     }
 
     @Override
-    public DrawSize drawSize() {
+    public DrawSize drawSize(ControllerEntity controller) {
         return new DrawSize(22, 22);
     }
 
