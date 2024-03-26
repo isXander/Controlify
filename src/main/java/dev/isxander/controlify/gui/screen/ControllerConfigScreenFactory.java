@@ -241,7 +241,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.chatKeyboardHeight, () -> config.chatKeyboardHeight, v -> config.chatKeyboardHeight = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
-                                .range(0f, 8f).step(0.1f).formatValue(percentFormatter))
+                                .range(0f, 1f).step(0.1f).formatValue(percentFormatter))
                         .build())
                 .build());
     }
