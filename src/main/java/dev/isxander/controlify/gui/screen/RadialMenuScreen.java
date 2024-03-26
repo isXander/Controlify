@@ -54,6 +54,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     private final RadialButton[] buttons = new RadialButton[8];
     private int selectedButton = -1;
     private int idleTicks;
+    private final int idleTicksTimeout;
     private boolean isEditing;
 
     private ActionSelectList actionSelectList;
@@ -65,6 +66,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         this.controller = controller;
         this.editMode = editMode;
         this.parent = parent;
+        this.idleTicksTimeout = controller.genericConfig().config().radialButtonFocusTimeoutTicks;
     }
 
     @Override
@@ -152,7 +154,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 idleTicks = 0;
             } else if (!editMode) {
                 idleTicks++;
-                if (idleTicks >= 20) {
+                if (idleTicks >= idleTicksTimeout) {
                     selectedButton = -1;
                     for (RadialButton button : buttons) {
                         button.setFocused(false);

@@ -153,6 +153,8 @@
   "controlify.gui.radial_menu": "Radial Menu",
   "controlify.gui.radial_menu.tooltip": "Open up the radial menu to configure what each button does.",
   "controlify.gui.radial_menu.btn_text": "CONFIGURE",
+  "controlify.gui.radial_menu.btn_focus_timeout": "Radial Menu: Button Focus Timeout",
+  "controlify.gui.radial_menu.btn_focus_timeout.tooltip": "How long (in milliseconds) the radial menu button stays focused (active) after centering the right stick.",
   "controlify.gui.group.controls": "Controls",
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.reset_all_binds": "Reset All Binds",
