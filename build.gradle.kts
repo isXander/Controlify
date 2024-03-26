@@ -118,10 +118,27 @@ java {
 }
 
 val downloadHidDb by tasks.registering(Download::class) {
+    finalizedBy("convertHidDBToSDL3")
+
     group = "mod"
 
     src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
-    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb.txt")
+    dest("$temporaryDir/hiddb.txt")
+}
+
+val convertHidDBToSDL3 by tasks.registering(Copy::class) {
+    mustRunAfter(downloadHidDb)
+    dependsOn(downloadHidDb)
+
+    group = "mod"
+
+    val file = downloadHidDb.get().outputs.files.singleFile
+    println(file)
+    from(file)
+    into("src/main/resources/assets/controlify/controllers")
+
+    rename { "gamecontrollerdb.txt" }
+    filter { it.replace("Mac OS X", "macOS") }
 }
 
 tasks {

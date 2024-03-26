@@ -16,9 +16,9 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import io.github.libsdl4j.api.events.SDL_EventFilter;
 import io.github.libsdl4j.api.events.events.SDL_Event;
+import io.github.libsdl4j.api.iostream.SDL_IOStream;
 import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
 import io.github.libsdl4j.api.joystick.SDL_JoystickID;
-import io.github.libsdl4j.api.rwops.SDL_RWops;
 import io.github.libsdl4j.jna.size_t;
 import net.minecraft.server.packs.resources.Resource;
 import org.apache.commons.lang3.Validate;
@@ -31,8 +31,8 @@ import static io.github.libsdl4j.api.error.SdlError.*;
 import static io.github.libsdl4j.api.events.SDL_EventType.*;
 import static io.github.libsdl4j.api.events.SdlEvents.*;
 import static io.github.libsdl4j.api.gamepad.SdlGamepad.*;
+import static io.github.libsdl4j.api.iostream.SdlIOStream.*;
 import static io.github.libsdl4j.api.joystick.SdlJoystick.*;
-import static io.github.libsdl4j.api.rwops.SdlRWops.*;
 
 public class SDLControllerManager extends AbstractControllerManager {
 
@@ -106,7 +106,9 @@ public class SDLControllerManager extends AbstractControllerManager {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
 
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
-        String uid = hidInfo.createControllerUID(controllersByUid.size()).orElse("unknown-uid-" + jid.intValue());
+        String uid = hidInfo.createControllerUID(
+                this.getControllerCountWithMatchingHID(hid.orElse(null))
+        ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
             SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
@@ -151,8 +153,10 @@ public class SDLControllerManager extends AbstractControllerManager {
 
             try (Memory memory = new Memory(bytes.length)) {
                 memory.write(0, bytes, 0, bytes.length);
-                SDL_RWops rw = SDL_RWFromConstMem(memory, new size_t(bytes.length));
-                int count = SDL_AddGamepadMappingsFromRW(rw, true);
+
+                SDL_IOStream stream = SDL_IOFromConstMem(memory, new size_t(bytes.length));
+                int count = SDL_AddGamepadMappingsFromIO(stream, true);
+                System.out.println(count);
                 if (count < 1) {
                     CUtil.LOGGER.error("Failed to load gamepad mappings: {}", SDL_GetError());
                 }

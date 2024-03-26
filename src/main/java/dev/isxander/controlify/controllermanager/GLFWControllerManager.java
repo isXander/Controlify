@@ -64,13 +64,16 @@ public class GLFWControllerManager extends AbstractControllerManager {
         int jid = ((GLFWUniqueControllerID) ucid).jid;
 
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
+        String uid = hidInfo.createControllerUID(
+                this.getControllerCountWithMatchingHID(hid.orElse(null))
+        ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
-            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), hidInfo.createControllerUID(controllersByUid.size()).orElseThrow(), ucid, hid);
+            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         } else {
-            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), hidInfo.createControllerUID(controllersByUid.size()).orElseThrow(), ucid, hid);
+            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), uid, ucid, hid);
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         }

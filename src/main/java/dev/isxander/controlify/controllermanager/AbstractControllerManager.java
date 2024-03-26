@@ -7,6 +7,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
@@ -16,6 +17,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -119,6 +121,12 @@ public abstract class AbstractControllerManager implements ControllerManager {
     @Override
     public boolean isControllerConnected(String uid) {
         return controllersByUid.containsKey(uid);
+    }
+
+    protected int getControllerCountWithMatchingHID(HIDIdentifier hid) {
+        return (int) controllersByJid.values().stream()
+                .filter(c -> c.info().hid().equals(Optional.ofNullable(hid)))
+                .count();
     }
 
     @Override

@@ -28,7 +28,7 @@ public class SDLGlobalDriver implements OnScreenKeyboardDriver {
 
     @Override
     public boolean isKeyboardShown() {
-        return SDL_TextInputShown();
+        return false;
     }
 
     @Override
