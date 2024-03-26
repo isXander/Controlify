@@ -17,6 +17,8 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -37,9 +39,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         this.controlify = Controlify.instance();
         this.minecraft = Minecraft.getInstance();
 
-        minecraft.getResourceManager()
-                .getResource(Controlify.id("controllers/gamecontrollerdb.txt"))
-                .ifPresent(this::loadGamepadMappings);
+        this.loadGamepadMappings(minecraft.getResourceManager());
     }
 
     public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
@@ -134,7 +134,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         driversByUid.values().forEach(Driver::close);
     }
 
-    protected abstract void loadGamepadMappings(Resource resource);
+    protected abstract void loadGamepadMappings(ResourceProvider resourceProvider);
 
     protected abstract String getControllerSystemName(UniqueControllerID ucid);
 }

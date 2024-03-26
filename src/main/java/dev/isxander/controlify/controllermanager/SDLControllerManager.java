@@ -3,6 +3,7 @@ package dev.isxander.controlify.controllermanager;
 import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -21,6 +22,7 @@ import io.github.libsdl4j.api.joystick.SDL_JoystickGUID;
 import io.github.libsdl4j.api.joystick.SDL_JoystickID;
 import io.github.libsdl4j.jna.size_t;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.lang3.Validate;
 
 import java.io.InputStream;
@@ -145,10 +147,17 @@ public class SDLControllerManager extends AbstractControllerManager {
     }
 
     @Override
-    protected void loadGamepadMappings(Resource resource) {
+    protected void loadGamepadMappings(ResourceProvider resourceProvider) {
         CUtil.LOGGER.debug("Loading gamepad mappings...");
 
-        try (InputStream is = resource.open()) {
+        Optional<Resource> resourceOpt = resourceProvider
+                .getResource(Controlify.id("controllers/gamecontrollerdb-sdl3.txt"));
+        if (resourceOpt.isEmpty()) {
+            CUtil.LOGGER.error("Failed to find game controller database.");
+            return;
+        }
+
+        try (InputStream is = resourceOpt.get().open()) {
             byte[] bytes = ByteStreams.toByteArray(is);
 
             try (Memory memory = new Memory(bytes.length)) {
@@ -156,9 +165,12 @@ public class SDLControllerManager extends AbstractControllerManager {
 
                 SDL_IOStream stream = SDL_IOFromConstMem(memory, new size_t(bytes.length));
                 int count = SDL_AddGamepadMappingsFromIO(stream, true);
-                System.out.println(count);
-                if (count < 1) {
+                if (count < 0) {
                     CUtil.LOGGER.error("Failed to load gamepad mappings: {}", SDL_GetError());
+                } else if (count == 0) {
+                    CUtil.LOGGER.warn("Successfully applied gamepad mappings but none were found for this platform. Unsupported OS?");
+                } else {
+                    CUtil.LOGGER.info("Successfully loaded {} gamepad mapping entries!", count);
                 }
             }
         } catch (Throwable e) {

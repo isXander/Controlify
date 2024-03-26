@@ -123,7 +123,7 @@ val downloadHidDb by tasks.registering(Download::class) {
     group = "mod"
 
     src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
-    dest("$temporaryDir/hiddb.txt")
+    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
 }
 
 val convertHidDBToSDL3 by tasks.registering(Copy::class) {
@@ -137,7 +137,7 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     from(file)
     into("src/main/resources/assets/controlify/controllers")
 
-    rename { "gamecontrollerdb.txt" }
+    rename { "gamecontrollerdb-sdl3.txt" }
     filter { it.replace("Mac OS X", "macOS") }
 }
 

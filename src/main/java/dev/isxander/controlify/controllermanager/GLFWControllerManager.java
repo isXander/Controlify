@@ -12,6 +12,7 @@ import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceProvider;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
@@ -23,10 +24,6 @@ import java.util.stream.IntStream;
 public class GLFWControllerManager extends AbstractControllerManager {
 
     public GLFWControllerManager() {
-        Minecraft.getInstance().getResourceManager()
-                .getResource(Controlify.id("controllers/gamecontrollerdb.txt"))
-                .ifPresent(this::loadGamepadMappings);
-
         this.setupCallbacks();
     }
 
@@ -85,10 +82,18 @@ public class GLFWControllerManager extends AbstractControllerManager {
     }
 
     @Override
-    protected void loadGamepadMappings(Resource resource) {
+    protected void loadGamepadMappings(ResourceProvider resourceProvider) {
         CUtil.LOGGER.debug("Loading gamepad mappings...");
 
-        try (InputStream is = resource.open()) {
+        // GLFW uses SDL2 format
+        Optional<Resource> resourceOpt = resourceProvider
+                .getResource(Controlify.id("controllers/gamecontrollerdb-sdl2.txt"));
+        if (resourceOpt.isEmpty()) {
+            CUtil.LOGGER.error("Failed to find game controller database.");
+            return;
+        }
+
+        try (InputStream is = resourceOpt.get().open()) {
             byte[] bytes = ByteStreams.toByteArray(is);
             ByteBuffer buffer = MemoryUtil.memASCIISafe(new String(bytes));
 
