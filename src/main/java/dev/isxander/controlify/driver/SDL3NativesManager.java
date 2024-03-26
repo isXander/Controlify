@@ -77,7 +77,8 @@ public class SDL3NativesManager {
                 downloadChecksum(checksumPath);
             }
 
-            if (verifyMd5(localLibraryPath, checksumPath, true) && loadAndStart(localLibraryPath))
+            if (verifyMd5(localLibraryPath, checksumPath, true)
+                    && loadAndStart(localLibraryPath))
                 return initFuture = CompletableFuture.completedFuture(true);
 
             CUtil.LOGGER.warn("Failed to load SDL3 from local file, attempting to re-download");
