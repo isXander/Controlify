@@ -40,11 +40,11 @@ public abstract class AbstractControllerManager implements ControllerManager {
                 .ifPresent(this::loadGamepadMappings);
     }
 
-    public Optional<ControllerEntity> createOrGet(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
         try {
-            Optional<String> uid = hidInfo.createControllerUID();
-            if (uid.isPresent() && controllersByUid.containsKey(uid.get())) {
-                return Optional.of(controllersByUid.get(uid.get()));
+            if (controllersByJid.containsKey(ucid)) {
+                CUtil.LOGGER.warn("Tried to create controller that already is initialised: {}", ucid);
+                return Optional.empty();
             }
 
             if (hidInfo.type().dontLoad()) {

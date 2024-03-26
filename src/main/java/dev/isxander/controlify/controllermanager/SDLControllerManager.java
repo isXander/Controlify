@@ -62,7 +62,7 @@ public class SDLControllerManager extends AbstractControllerManager {
 
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
 
-                    Optional<ControllerEntity> controllerOpt = createOrGet(
+                    Optional<ControllerEntity> controllerOpt = tryCreate(
                             ucid,
                             fetchTypeFromSDL(jid)
                                     .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()))
@@ -92,7 +92,7 @@ public class SDLControllerManager extends AbstractControllerManager {
     public void discoverControllers() {
         SDL_JoystickID[] joysticks = SDL_GetJoysticks();
         for (SDL_JoystickID jid : joysticks) {
-            Optional<ControllerEntity> controllerOpt = createOrGet(
+            Optional<ControllerEntity> controllerOpt = tryCreate(
                     new SDLUniqueControllerID(jid),
                     fetchTypeFromSDL(jid)
                             .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()))
@@ -106,7 +106,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
 
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
-        String uid = hidInfo.createControllerUID().orElse("unknown-uid-" + jid.intValue());
+        String uid = hidInfo.createControllerUID(controllersByUid.size()).orElse("unknown-uid-" + jid.intValue());
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
             SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hid);

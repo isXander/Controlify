@@ -35,7 +35,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
             try {
                 GLFWUniqueControllerID ucid = new GLFWUniqueControllerID(jid);
                 if (event == GLFW.GLFW_CONNECTED) {
-                    createOrGet(ucid, controlify.controllerHIDService().fetchType(jid))
+                    tryCreate(ucid, controlify.controllerHIDService().fetchType(jid))
                             .ifPresent(controller -> onControllerConnected(controller, true));
                 } else if (event == GLFW.GLFW_DISCONNECTED) {
                     getController(ucid).ifPresent(this::onControllerRemoved);
@@ -54,7 +54,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
 
             UniqueControllerID ucid = new GLFWUniqueControllerID(i);
 
-            Optional<ControllerEntity> controllerOpt = createOrGet(ucid, controlify.controllerHIDService().fetchType(i));
+            Optional<ControllerEntity> controllerOpt = tryCreate(ucid, controlify.controllerHIDService().fetchType(i));
             controllerOpt.ifPresent(controller -> onControllerConnected(controller, false));
         }
     }
@@ -66,11 +66,11 @@ public class GLFWControllerManager extends AbstractControllerManager {
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
-            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), hidInfo.createControllerUID().orElseThrow(), ucid, hid);
+            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), hidInfo.createControllerUID(controllersByUid.size()).orElseThrow(), ucid, hid);
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         } else {
-            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), hidInfo.createControllerUID().orElseThrow(), ucid, hid);
+            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), hidInfo.createControllerUID(controllersByUid.size()).orElseThrow(), ucid, hid);
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         }
