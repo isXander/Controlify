@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
@@ -45,6 +46,7 @@ public class GlobalSettingsScreenFactory {
                                         .binding(true, () -> globalSettings.loadVibrationNatives, v -> globalSettings.loadVibrationNatives = v)
                                         .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
                                         .flag(OptionFlag.GAME_RESTART)
+                                        .available(SDL3NativesManager.isSupportedOnThisPlatform())
                                         .build())
                                 .option(Option.<String>createBuilder()
                                         .name(Component.translatable("controlify.gui.custom_natives_path"))
