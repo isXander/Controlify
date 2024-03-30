@@ -4,8 +4,8 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
+import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
@@ -76,6 +76,6 @@ public abstract class MinecraftMixin {
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))
     private void tickAnimator(boolean tick, CallbackInfo ci) {
-        Animator.INSTANCE.progress(this.getDeltaFrameTime());
+        Animator.INSTANCE.tick(this.getDeltaFrameTime());
     }
 }

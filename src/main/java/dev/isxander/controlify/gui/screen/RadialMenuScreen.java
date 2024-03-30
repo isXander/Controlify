@@ -4,8 +4,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.hdhaptic.HapticEffects;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
@@ -15,9 +15,8 @@ import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifySounds;
-import dev.isxander.controlify.utils.Animator;
-import dev.isxander.controlify.utils.Easings;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.animation.api.Animation;
+import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -41,17 +40,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
 
     private final ControllerEntity controller;
-    private final boolean editMode;
+    private final @Nullable EditMode editMode;
     private final Screen parent;
 
-    private final RadialButton[] buttons = new RadialButton[8];
+    private final RadialItem[] items;
+    private final RadialButton[] buttons;
+    private float radialRadius;
+
+    private final ControllerBinding openBind;
+
     private int selectedButton = -1;
     private int idleTicks;
     private final int idleTicksTimeout;
@@ -61,12 +64,15 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private final Processor processor = new Processor(this);
 
-    public RadialMenuScreen(ControllerEntity controller, boolean editMode, Screen parent) {
+    public RadialMenuScreen(ControllerEntity controller, ControllerBinding openBind, RadialItem[] items, @Nullable EditMode editMode, Screen parent) {
         super(Component.empty());
         this.controller = controller;
+        this.items = items;
+        this.buttons = new RadialButton[items.length];
         this.editMode = editMode;
         this.parent = parent;
         this.idleTicksTimeout = controller.genericConfig().config().radialButtonFocusTimeoutTicks;
+        this.openBind = openBind;
     }
 
     @Override
@@ -74,24 +80,33 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         int centerX = this.width / 2;
         int centerY = this.height / 2;
 
-        RadialButton button;
-        addRenderableWidget(buttons[0] = button = new RadialButton(0, centerX - 16, centerY - 64 - 8));
-        addRenderableWidget(buttons[1] = button = new RadialButton(1, button.x + 32 + 8, button.y + 16));
-        addRenderableWidget(buttons[2] = button = new RadialButton(2, button.x + 16, button.y + 32 + 8));
-        addRenderableWidget(buttons[3] = button = new RadialButton(3, button.x - 16, button.y + 32 + 8));
-        addRenderableWidget(buttons[4] = button = new RadialButton(4, button.x - 32 - 8, button.y + 16));
-        addRenderableWidget(buttons[5] = button = new RadialButton(5, button.x - 32 - 8, button.y - 16));
-        addRenderableWidget(buttons[6] = button = new RadialButton(6, button.x - 16, button.y - 32 - 8));
-        addRenderableWidget(buttons[7]          = new RadialButton(7, button.x + 16, button.y - 32 - 8));
+        // get diameter of enclosing circle of a radial button
+        // w = 16, h = 16
+        // r = sqrt(w^2 + h^2) / 2
+        float buttonRadius = (float) Math.sqrt(32 * 32 + 32 * 32) + 8;
+        // add the amount of radii together to create the circumference of the circle they all fit around
+        float circumference = buttonRadius * items.length;
+        // c = 2 * pi * r
+        radialRadius = Math.max(circumference / Mth.TWO_PI, 43);
 
-        Animator.AnimationInstance animation = new Animator.AnimationInstance(5, Easings::easeOutQuad);
-        for (RadialButton radialButton : buttons) {
-            animation.addConsumer(radialButton::setX, centerX - 16, (float) radialButton.getX());
-            animation.addConsumer(radialButton::setY, centerY - 16, (float) radialButton.getY());
+        Animation animation = Animation.of(5)
+                .easing(EasingFunction.EASE_OUT_QUAD);
+        for (int i = 0; i < items.length; i++) {
+            float angle = Mth.TWO_PI * i / items.length - (90 * Mth.DEG_TO_RAD);
+            float x = centerX + Mth.cos(angle) * radialRadius;
+            float y = centerY + Mth.sin(angle) * radialRadius;
+
+            RadialButton button = buttons[i] = new RadialButton(items[i], centerX - 16, centerY - 16);
+
+            animation
+                    .consumerF(button::setX, centerX - 16, x - 16)
+                    .consumerF(button::setY, centerY - 16, y - 16);
+
+            addRenderableWidget(button);
         }
-        Animator.INSTANCE.play(animation);
+        animation.play();
 
-        if (editMode) {
+        if (editMode != null) {
             var exitGuide = addRenderableWidget(new PositionedComponent<>(
                     new GuideActionRenderer<>(
                             new GuideAction<>(
@@ -115,7 +130,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
 
-        if (!editMode && !controller.bindings().RADIAL_MENU.held()) {
+        if (editMode == null && !openBind.held()) {
             if (selectedButton != -1 && buttons[selectedButton].invoke()) {
                 playClickSound();
             }
@@ -123,7 +138,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             onClose();
         }
 
-        if (editMode && controller.bindings().GUI_BACK.justPressed()) {
+        if (editMode != null && controller.bindings().GUI_BACK.justPressed()) {
             playClickSound();
             onClose();
         }
@@ -141,6 +156,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 if (newSelected != selectedButton) {
                     selectedButton = newSelected;
                     minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1f));
+                    controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
                 }
 
                 for (int i = 0; i < buttons.length; i++) {
@@ -152,13 +168,14 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 }
 
                 idleTicks = 0;
-            } else if (!editMode) {
+            } else if (editMode == null) {
                 idleTicks++;
-                if (idleTicks >= idleTicksTimeout) {
+                if (idleTicks >= idleTicksTimeout && selectedButton != -1) {
                     selectedButton = -1;
                     for (RadialButton button : buttons) {
                         button.setFocused(false);
                     }
+                    controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
                 }
             }
         }
@@ -166,12 +183,12 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        if (editMode)
+        if (editMode != null)
             renderDirtBackground(graphics);
 
         super.render(graphics, mouseX, mouseY, delta);
 
-        if (!editMode) {
+        if (editMode == null) {
             graphics.drawCenteredString(
                     font,
                     Component.translatable("controlify.radial_menu.configure_hint"),
@@ -201,12 +218,26 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public boolean isPauseScreen() {
-        return editMode;
+        return editMode != null;
     }
 
     @Override
     public ScreenProcessor<?> screenProcessor() {
         return this.processor;
+    }
+
+    public interface RadialItem {
+        Component name();
+
+        RadialIcon icon();
+
+        boolean playAction();
+    }
+
+    public interface EditMode {
+        void setRadialItem(int index, RadialItem item);
+
+        List<RadialItem> getEditCandidates();
     }
 
     public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
@@ -215,22 +246,14 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         private int x, y;
         private float translateX, translateY;
         private boolean focused;
-        private ControllerBinding binding;
+        private RadialItem item;
         private MultiLineLabel name;
-        private RadialIcon icon;
 
-        private RadialButton(int index, float x, float y) {
+        private RadialButton(RadialItem item, float x, float y) {
             this.setX(x);
             this.setY(y);
 
-            ResourceLocation[] radialActions = controller.genericConfig().config().radialActions;
-            ResourceLocation binding = radialActions[index];
-            if (controller.bindings().get(binding) == null) {
-                CUtil.LOGGER.warn("Binding {} does not exist!", binding);
-                radialActions[index] = EMPTY_ACTION;
-                Controlify.instance().config().setDirty();
-            }
-            this.setAction(binding);
+            this.setAction(item);
         }
 
         @Override
@@ -243,11 +266,11 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             graphics.blit(TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
             graphics.pose().popPose();
 
-            if (!editMode || !focused) {
+            if (editMode == null || !focused) {
                 graphics.pose().pushPose();
                 graphics.pose().translate(4, 4, 0);
                 graphics.pose().scale(1.5f, 1.5f, 1);
-                this.icon.draw(graphics, 0, 0, delta);
+                this.item.icon().draw(graphics, 0, 0, delta);
                 graphics.pose().popPose();
             } else {
                 BindRenderer renderer = controller.bindings().GUI_PRESS.renderer();
@@ -261,23 +284,12 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         public boolean invoke() {
-            if (binding != null) {
-                binding.fakePress();
-                return true;
-            }
-            return false;
+            return this.item.playAction();
         }
 
-        public void setAction(ResourceLocation binding) {
-            if (!EMPTY_ACTION.equals(binding) && controller.bindings().get(binding) != null) {
-                this.binding = controller.bindings().get(binding);
-                this.icon = RadialIcons.getIcons().get(this.binding.radialIcon().orElseThrow());
-                this.name = MultiLineLabel.create(font, this.binding.name(), 76);
-            } else {
-                this.binding = null;
-                this.name = MultiLineLabel.EMPTY;
-                this.icon = RadialIcons.getIcons().get(RadialIcons.EMPTY);
-            }
+        public void setAction(RadialItem item) {
+            this.item = item;
+            this.name = MultiLineLabel.create(font, item.name(), (int)(radialRadius * 2 - 32));
         }
 
         public int getX() {
@@ -310,7 +322,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (editMode && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
+            if (editMode != null && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
                 actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
@@ -329,8 +341,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public void updateNarration(NarrationElementOutput builder) {
-            if (binding != null)
-                builder.add(NarratedElementType.TITLE, binding.name());
+            builder.add(NarratedElementType.TITLE, item.name());
         }
 
         @Override
@@ -359,17 +370,15 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             this.width = width;
             this.height = height;
 
-            controller.bindings().registry().entrySet().stream()
-                    .filter(entry -> entry.getValue().radialIcon().isPresent())
-                    .map(Map.Entry::getKey)
-                    .forEach(id -> children.add(new ActionEntry(id)));
+            for (RadialItem item : editMode.getEditCandidates()) {
+                children.add(new ActionEntry(item));
+            }
 
-            var selectedBind = controller.genericConfig().config().radialActions[radialIndex];
+            RadialItem item = items[radialIndex];
             children.stream()
-                    .filter(action -> action.binding.equals(selectedBind))
+                    .filter(action -> action.item.equals(item))
                     .findAny()
                     .ifPresent(this::setFocused);
-
         }
 
         @Override
@@ -455,19 +464,17 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         @Override
         public void updateNarration(NarrationElementOutput builder) {
             if (getFocused() != null) {
-                builder.add(NarratedElementType.TITLE, getFocused().name);
+                builder.add(NarratedElementType.TITLE, getFocused().item.name());
             }
         }
 
         public class ActionEntry implements GuiEventListener, ComponentProcessor {
             private int x, y;
             private boolean focused;
-            private final ResourceLocation binding;
-            private final Component name;
+            private final RadialItem item;
 
-            public ActionEntry(ResourceLocation binding) {
-                this.binding = binding;
-                this.name = controller.bindings().get(binding).name();
+            public ActionEntry(RadialItem item) {
+                this.item = item;
             }
 
             public void render(GuiGraphics graphics, int x, int y, int width, int itemHeight, int mouseX, int mouseY, float delta) {
@@ -476,7 +483,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
                 if (focused)
                     graphics.fill(x, y, x + width, y + itemHeight, 0xff000000);
-                graphics.drawString(RadialMenuScreen.this.font, name, x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
+                graphics.drawString(RadialMenuScreen.this.font, item.name(), x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
             }
 
             @Override
@@ -504,10 +511,10 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
                 if (controller == RadialMenuScreen.this.controller) {
                     if (controller.bindings().GUI_PRESS.justPressed()) {
-                        controller.genericConfig().config().radialActions[radialIndex] = binding;
+                        editMode.setRadialItem(radialIndex, item);
                         Controlify.instance().config().setDirty();
 
-                        buttons[radialIndex].setAction(binding);
+                        buttons[radialIndex].setAction(item);
 
                         playClickSound();
                         finishEditing();

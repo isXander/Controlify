@@ -10,7 +10,9 @@ import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
-import dev.isxander.controlify.utils.Animator;
+import dev.isxander.controlify.utils.animation.api.Animatable;
+import dev.isxander.controlify.utils.animation.api.Animation;
+import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -47,7 +49,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     private List<CarouselEntry> carouselEntries = null;
     private int carouselIndex;
-    private Animator.AnimationInstance carouselAnimation = null;
+    private Animatable carouselAnimation = null;
 
     private final Controlify controlify;
     private final ControllerManager controllerManager;
@@ -190,14 +192,15 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         carouselIndex = index;
 
-        carouselAnimation = new Animator.AnimationInstance(10, x -> x < 0.5f ? 4 * x * x * x : 1 - (float)Math.pow(-2 * x + 2, 3) / 2);
+        Animation animation = Animation.of(10)
+                .easing(EasingFunction.EASE_IN_OUT_CUBIC);
         for (CarouselEntry entry : carouselEntries) {
             boolean selected = carouselEntries.indexOf(entry) == index;
-            carouselAnimation.addConsumer(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
-            carouselAnimation.addConsumer(entry::setY, entry.getY(), selected ? 20f : 10f);
-            carouselAnimation.addConsumer(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
+            animation.consumerF(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
+            animation.consumerF(entry::setY, entry.getY(), selected ? 20f : 10f);
+            animation.consumerF(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
         }
-        Animator.INSTANCE.play(carouselAnimation);
+        carouselAnimation = animation.play();
     }
 
     @Override
@@ -226,7 +229,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         private boolean prevUse;
         private float currentlyUsedPos;
-        private Animator.AnimationInstance currentlyUsedAnimation;
+        private Animation currentlyUsedAnimation;
 
         private int overlayColor = 0x90000000;
 
@@ -301,9 +304,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             if (prevUse != isCurrentlyUsed()) {
                 if (currentlyUsedAnimation != null)
-                    currentlyUsedAnimation.finish();
-                currentlyUsedAnimation = Animator.INSTANCE.play(new Animator.AnimationInstance(20, t -> 1 - (float)Math.pow(1 - t, 5))
-                        .addConsumer(t -> currentlyUsedPos = t, currentlyUsedPos, isCurrentlyUsed() ? 0 : -1));
+                    currentlyUsedAnimation.skipToEnd();
+                currentlyUsedAnimation = Animation.of(20)
+                        .easing(EasingFunction.EASE_OUT_QUINT)
+                        .consumerF(t -> currentlyUsedPos = t, currentlyUsedPos, isCurrentlyUsed() ? 0 : -1)
+                        .play();
             }
             prevUse = isCurrentlyUsed();
         }

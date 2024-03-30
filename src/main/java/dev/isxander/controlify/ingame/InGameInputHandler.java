@@ -7,12 +7,13 @@ import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.gui.screen.RadialItems;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
-import dev.isxander.controlify.utils.Animator;
 import dev.isxander.controlify.utils.ControllerUtils;
-import dev.isxander.controlify.utils.Easings;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
+import dev.isxander.controlify.utils.animation.api.Animation;
+import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -39,6 +40,7 @@ public class InGameInputHandler {
     private double lookInputX, lookInputY; // in degrees per tick
     private final GyroState gyroInput = new GyroState();
     private boolean wasAiming;
+    private Animation flickAnimation;
 
     private boolean shouldShowPlayerList;
 
@@ -148,7 +150,11 @@ public class InGameInputHandler {
         }
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {
-            minecraft.setScreen(new RadialMenuScreen(controller, false, null));
+            minecraft.setScreen(new RadialMenuScreen(controller, controller.bindings().RADIAL_MENU, RadialItems.createBindings(controller), null, null));
+        }
+
+        if (controller.bindings().GAME_MODE_SWITCHER.justPressed()) {
+            minecraft.setScreen(new RadialMenuScreen(controller, controller.bindings().GAME_MODE_SWITCHER, RadialItems.createGameModes(), null, null));
         }
     }
 
@@ -246,18 +252,26 @@ public class InGameInputHandler {
     }
 
     protected void handleFlickStick(LocalPlayer player) {
-        var turnAngle = 90 / 0.15f; // Entity#turn multiplies cursor delta by 0.15 to get rotation
+        float y = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
+        float x = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
+        float flickAngle = (float) Mth.atan2(y, x) * Mth.RAD_TO_DEG;
+        float length = Mth.sqrt(x * x + y * y);
 
-        float flick = controller.bindings().LOOK_DOWN.justPressed() || controller.bindings().LOOK_RIGHT.justPressed() ? 1 : controller.bindings().LOOK_UP.justPressed() || controller.bindings().LOOK_LEFT.justPressed() ? -1 : 0;
-
-        if (flick != 0f) {
-            AtomicReference<Float> lastAngle = new AtomicReference<>(0f);
-            Animator.INSTANCE.play(new Animator.AnimationInstance(10, Easings::easeOutExpo)
-                    .addConsumer(angle -> {
-                        player.turn((angle - lastAngle.get()) * flick, 0);
-                        lastAngle.set(angle);
-                    }, 0, turnAngle));
+        if (length < 0.5f) {
+            return;
         }
+
+        if (flickAnimation != null && flickAnimation.isPlaying()) {
+            flickAnimation.abort();
+        }
+
+        float targetYaw = player.getYRot() + flickAngle;
+        float yawDiff = Mth.wrapDegrees(targetYaw - player.getYRot());
+
+        flickAnimation = Animation.of(8)
+                .easing(EasingFunction.EASE_OUT_EXPO)
+                .deltaConsumerD(angle -> player.turn(angle, 0), 0, yawDiff)
+                .play();
     }
 
     public void processPlayerLook(float deltaTime) {

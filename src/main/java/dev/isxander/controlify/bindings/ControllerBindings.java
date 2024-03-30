@@ -69,6 +69,7 @@ public class ControllerBindings {
             TAKE_SCREENSHOT,
             TOGGLE_DEBUG_MENU,
             RADIAL_MENU, RADIAL_AXIS_UP, RADIAL_AXIS_DOWN, RADIAL_AXIS_LEFT, RADIAL_AXIS_RIGHT,
+            GAME_MODE_SWITCHER,
             VMOUSE_MOVE_UP, VMOUSE_MOVE_DOWN, VMOUSE_MOVE_LEFT, VMOUSE_MOVE_RIGHT,
             VMOUSE_LCLICK, VMOUSE_RCLICK, VMOUSE_SHIFT_CLICK,
             VMOUSE_SNAP_UP, VMOUSE_SNAP_DOWN, VMOUSE_SNAP_LEFT, VMOUSE_SNAP_RIGHT,
@@ -374,6 +375,12 @@ public class ControllerBindings {
                 .defaultBind(GamepadInputs.getBind(GamepadInputs.RIGHT_STICK_AXIS_RIGHT))
                 .category(RADIAL_CATEGORY)
                 .context(BindContexts.GUI)
+                .build());
+        register(GAME_MODE_SWITCHER = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "game_mode_switcher")
+                .defaultBind(new EmptyBind())
+                .category(RADIAL_CATEGORY)
+                .context(BindContexts.INGAME)
                 .build());
         register(VMOUSE_MOVE_UP = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "vmouse_move_up")
