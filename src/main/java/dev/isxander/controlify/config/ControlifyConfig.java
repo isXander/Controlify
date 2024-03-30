@@ -38,11 +38,17 @@ public class ControlifyConfig {
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
     private Version lastSeenVersion = null;
+    private final Version zeroVersion;
 
     private boolean dirty;
 
     public ControlifyConfig(Controlify controlify) {
         this.controlify = controlify;
+        try {
+            zeroVersion = Version.parse("0.0.0");
+        } catch (VersionParsingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void save() {
@@ -63,11 +69,7 @@ public class ControlifyConfig {
         if (!Files.exists(CONFIG_PATH)) {
             if (lastSeenVersion == null) {
                 firstLaunch = true;
-                try {
-                    lastSeenVersion = Version.parse("0.0.0");
-                } catch (VersionParsingException e) {
-                    throw new RuntimeException(e);
-                }
+                lastSeenVersion = zeroVersion;
                 setDirty();
             }
             save();
@@ -78,6 +80,7 @@ public class ControlifyConfig {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load Controlify config!", e);
+            lastSeenVersion = zeroVersion;
         }
 
         if (dirty) {
