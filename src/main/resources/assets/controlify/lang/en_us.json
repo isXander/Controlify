@@ -241,6 +241,7 @@
   "controlify.binding.controlify.look_down": "Look Down",
   "controlify.binding.controlify.look_left": "Look Left",
   "controlify.binding.controlify.look_right": "Look Right",
+  "controlify.binding.controlify.gyro_button": "Gyro Button",
   "controlify.binding.controlify.jump": "Jump",
   "controlify.binding.controlify.sneak": "Sneak",
   "controlify.binding.controlify.attack": "Attack",
