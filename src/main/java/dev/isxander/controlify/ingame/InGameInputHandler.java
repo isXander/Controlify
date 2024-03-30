@@ -254,23 +254,23 @@ public class InGameInputHandler {
     protected void handleFlickStick(LocalPlayer player) {
         float y = controller.bindings().LOOK_DOWN.state() - controller.bindings().LOOK_UP.state();
         float x = controller.bindings().LOOK_RIGHT.state() - controller.bindings().LOOK_LEFT.state();
-        float flickAngle = (float) Mth.atan2(y, x) * Mth.RAD_TO_DEG;
-        float length = Mth.sqrt(x * x + y * y);
+        float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
-        if (length < 0.5f) {
+        if (!controller.bindings().LOOK_DOWN.justPressed()
+                && !controller.bindings().LOOK_UP.justPressed()
+                && !controller.bindings().LOOK_LEFT.justPressed()
+                && !controller.bindings().LOOK_RIGHT.justPressed()
+        ) {
             return;
         }
 
         if (flickAnimation != null && flickAnimation.isPlaying()) {
-            flickAnimation.abort();
+            flickAnimation.skipToEnd();
         }
-
-        float targetYaw = player.getYRot() + flickAngle;
-        float yawDiff = Mth.wrapDegrees(targetYaw - player.getYRot());
 
         flickAnimation = Animation.of(8)
                 .easing(EasingFunction.EASE_OUT_EXPO)
-                .deltaConsumerD(angle -> player.turn(angle, 0), 0, yawDiff)
+                .deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
                 .play();
     }
 
