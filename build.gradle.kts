@@ -187,6 +187,7 @@ machete {
 }
 
 publishMods {
+    displayName.set("Controlify $versionWithoutMC for MC $mcVersion")
     file.set(tasks.remapJar.get().archiveFile)
     changelog.set(
         rootProject.file("changelogs/${versionWithoutMC}.md")
