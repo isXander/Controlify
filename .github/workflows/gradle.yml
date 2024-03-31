@@ -45,7 +45,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Build with Gradle
-        run: ./gradlew build --no-daemon
+        run: ./gradlew chiseledBuild --no-daemon
       - uses: actions/upload-artifact@v3
         with:
-          path: build/libs/*.jar
+          path: versions/**/build/libs/*.jar

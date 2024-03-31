@@ -1,9 +1,10 @@
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.Controlify;
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlainTextButton;
@@ -11,15 +12,12 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
 
 import java.nio.file.Path;
 import java.text.DecimalFormat;
-import java.util.concurrent.CompletableFuture;
 
 public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
-    private static final ResourceLocation GREEN_BACK_BAR = new ResourceLocation("boss_bar/green_background");
-    private static final ResourceLocation GREEN_FRONT_BAR = new ResourceLocation("boss_bar/green_progress");
-
     private final Screen screenOnFinish;
     private final Path nativePath;
 
@@ -73,7 +71,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
         graphics.pose().pushPose();
         graphics.pose().scale(2f, 2f, 1f);
 
-        drawBar(graphics, width / 2 / 2, (int) ((30 + 9 * 2.5f + 40) / 2), (float) ((double) receivedBytes / totalBytes));
+        ClientUtils.drawBar(graphics, width / 2 / 2, (int) ((30 + 9 * 2.5f + 40) / 2), EasingFunction.EASE_OUT_EXPO.ease((float) ((double) receivedBytes / totalBytes)));
 
         graphics.pose().popPose();
 
@@ -112,15 +110,5 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
 
     public void increaseTotal(long increment) {
         this.totalBytes += increment;
-    }
-
-    private void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
-        int width = Mth.lerpDiscrete(1 - (float)Math.pow(1 - progress, 3), 0, 182);
-
-        int x = centerX - 182 / 2;
-        graphics.blitSprite(GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
-        if (width > 0) {
-            graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
-        }
     }
 }

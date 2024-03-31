@@ -4,6 +4,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.mixins.feature.screenop.vanilla.PauseScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
@@ -36,7 +37,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
 
-        if (screen.showsPauseMenu()) {
+        if (((PauseScreenAccessor) screen).getShowPauseMenu()) {
             ButtonGuideApi.addGuideToButtonBuiltin(
                     (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
                     bindings -> bindings.GUI_BACK,

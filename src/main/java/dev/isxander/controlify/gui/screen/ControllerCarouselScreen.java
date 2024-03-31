@@ -10,6 +10,7 @@ import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
@@ -43,7 +44,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation CHECKMARK = new ResourceLocation("icon/checkmark");
+    public static final ResourceLocation CHECKMARK = /*? if >=1.20.3 {*/
+            new ResourceLocation("icon/checkmark");
+    /*?} else {*//*
+            new ResourceLocation("textures/gui/checkmark.png");
+    *//*?} */
 
     private final Screen parent;
 
@@ -179,8 +184,13 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
-
+    /*? if >=1.20.4 {*/
+    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f)
+    /*?} else {*//*
+    public void renderBackground(GuiGraphics guiGraphics)
+        *//*?} */
+    {
+        // do not render background
     }
 
     public void focusOnEntry(int index) {
@@ -279,7 +289,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * currentlyUsedPos, 0, 0);
 
             if (currentlyUsedPos > -1) {
-                graphics.blitSprite(CHECKMARK, x + 4, y + 4, 9, 8);
+                ClientUtils.drawSprite(graphics, CHECKMARK, x + 4, y + 4, 9, 8);
                 graphics.drawString(font, currentlyInUseText, x + 17, y + 4, -1);
             }
             graphics.pose().popPose();
@@ -292,7 +302,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             graphics.pose().pushPose();
             graphics.pose().translate(x + width / 2f - iconSize / 2f, y + font.lineHeight + 12 + iconHeight / 2f - iconSize / 2f, 0);
             graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
-            graphics.blitSprite(controller.info().type().getIconSprite(), 0, 0, 64, 64);
+            ClientUtils.drawSprite(graphics, controller.info().type().getIconSprite(), 0, 0, 64, 64);
             graphics.pose().popPose();
 
             graphics.pose().translate(0, 0, 1);

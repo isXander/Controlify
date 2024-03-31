@@ -30,9 +30,14 @@ public class ButtonBind implements IBind {
     @Override
     public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
         Optional<ResourceLocation> spriteOpt = Inputs.getThemedSprite(button, controller.info().type().namespace());
-        ResourceLocation sprite = spriteOpt.orElse(Controlify.id("inputs/unknown/axis/blank"));
 
-        graphics.blitSprite(sprite, x, centerY  - 11, 22, 22);
+        /*? if >=1.20.3 {*/
+        ResourceLocation sprite = spriteOpt.orElse(Controlify.id("inputs/unknown/button/blank"));
+        graphics.blitSprite(sprite, x, centerY - 11, 22, 22);
+        /*?} else {*//*
+        ResourceLocation sprite = spriteOpt.orElse(Controlify.id("textures/gui/sprites/inputs/unknown/button/blank.png"));
+        graphics.blit(sprite, x, centerY - 11, 0, 0, 22, 22, 22, 22);
+        *//*?} */
 
         // if unknown, draw string over top
         if (spriteOpt.isEmpty()) {

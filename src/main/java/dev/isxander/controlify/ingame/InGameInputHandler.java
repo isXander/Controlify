@@ -19,9 +19,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
@@ -131,7 +134,11 @@ public class InGameInputHandler {
         }
 
         if (controller.bindings().TOGGLE_DEBUG_MENU.justPressed()) {
+            /*? if >=1.20.3 {*/
             minecraft.getDebugOverlay().toggleOverlay();
+            /*?} else {*//*
+            minecraft.options.renderDebug = !minecraft.options.renderDebug;
+            *//*?} */
         }
 
         if (controller.bindings().TAKE_SCREENSHOT.justPressed()) {

@@ -74,12 +74,15 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
 
         var operationalText = Component.translatable("controlify.controller_submission.operational_checkbox")
                 .withStyle(ChatFormatting.BOLD);
-        this.operationalCheckbox = this.addRenderableWidget(
-                Checkbox.builder(operationalText, font)
-                        .pos(this.width / 2 - font.width(operationalText) / 2 - 8, y)
-                        .selected(true)
-                        .build()
-        );
+        this.operationalCheckbox = /*? if >=1.20.3 {*/
+        Checkbox.builder(operationalText, font)
+                .pos(this.width / 2 - font.width(operationalText) / 2 - 8, y)
+                .selected(true)
+                .build();
+        /*?} else {*//*
+        new Checkbox(this.width / 2 - font.width(operationalText) / 2 - 8, y, 21 + font.width(operationalText), 17, operationalText, true);
+        *//*?}*/
+        this.addRenderableWidget(operationalCheckbox);
         y += checkboxHeight + checkboxPadding;
 
         this.submitButton = this.addRenderableWidget(
@@ -116,7 +119,11 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        /*? if >=1.20.4 {*/
         renderBackground(graphics, mouseX, mouseY, delta);
+        /*?} else {*//*
+        renderBackground(graphics);
+        *//*?} */
 
         super.render(graphics, mouseX, mouseY, delta);
 

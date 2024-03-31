@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.input;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SpriteContents;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -20,12 +21,21 @@ public final class Inputs {
 
     public static Optional<ResourceLocation> getThemedSprite(ResourceLocation input, String theme) {
         return CACHED_SPRITES.computeIfAbsent(new SpriteCacheKey(input, theme), key -> {
+            /*? if >=1.20.3 {*/
             var spriteLocation = new ResourceLocation(input.getNamespace(), "inputs/" + theme + "/" + input.getPath());
 
             TextureAtlasSprite sprite = Minecraft.getInstance().getGuiSprites().getSprite(spriteLocation);
             if (sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation())) {
                 return Optional.empty();
             }
+            /*?} else {*//*
+            var spriteLocation = new ResourceLocation(input.getNamespace(), "textures/gui/sprites/inputs/" + theme + "/" + input.getPath() + ".png");
+
+            if (Minecraft.getInstance().getResourceManager().getResource(spriteLocation).isEmpty()) {
+                return Optional.empty();
+            }
+            *//*?} */
+
 
             return Optional.of(spriteLocation);
         });

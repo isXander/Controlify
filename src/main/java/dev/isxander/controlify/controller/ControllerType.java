@@ -20,7 +20,12 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
 
     public ResourceLocation getIconSprite() {
+        /*? if >=1.20.3 {*/
         return Controlify.id("inputs/" + namespace + "/icon");
+        /*?} else {*//*
+        return Controlify.id("textures/gui/sprites/inputs/" + namespace + "/icon.png");
+        *//*?} */
+
     }
 
     public static ControllerType getTypeForHID(HIDIdentifier hid) {

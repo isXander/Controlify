@@ -96,7 +96,11 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        /*? if >=1.20.4 {*/
         renderBackground(graphics, mouseX, mouseY, delta);
+        /*?} else {*//*
+        renderBackground(graphics);
+        *//*?} */
 
         super.render(graphics, mouseX, mouseY, delta);
 
@@ -122,7 +126,8 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
         graphics.pose().translate(width / 2f - 32 * scale, 55 + font.lineHeight * label.getLineCount(), 0f);
         graphics.pose().scale(scale, scale, 1f);
-        graphics.blitSprite(controller.info().type().getIconSprite(), 0, 0, 64, 64);
+        ClientUtils.drawSprite(graphics, controller.info().type().getIconSprite(), 0, 0, 64, 64);
+
         graphics.pose().popPose();
     }
 

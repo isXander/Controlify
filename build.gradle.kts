@@ -3,22 +3,30 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
     java
 
-    alias(libs.plugins.loom)
+    id("fabric-loom") version "1.6.+"
 
-    alias(libs.plugins.mod.publish.plugin)
-    alias(libs.plugins.machete)
-    alias(libs.plugins.grgit)
-    alias(libs.plugins.blossom)
-    alias(libs.plugins.download)
+    id("me.modmuss50.mod-publish-plugin") version "0.5.+"
     `maven-publish`
+
+    id("io.github.p03w.machete") version "2.+"
+    id("org.ajoberstar.grgit") version "5.0.+"
+    id("de.undercouch.download") version "5.5.0"
 }
 
+val mcVersion = stonecutter.current.version
+val mcDep = property("fmj.mcDep").toString()
+
 group = "dev.isxander"
-version = "2.0.0-beta.2+1.20.4"
+val versionWithoutMC = "2.0.0-beta.2"
+version = "$versionWithoutMC+$mcVersion"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
 if (isBeta) println("Controlify beta version detected.")
+
+base {
+    archivesName.set(property("modName").toString())
+}
 
 repositories {
     mavenCentral()
@@ -38,25 +46,29 @@ repositories {
 }
 
 loom {
-    accessWidenerPath.set(file("src/main/resources/controlify.accesswidener"))
+    accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
+
+    if (stonecutter.current.isActive) {
+        runConfigs.all {
+            ideConfigGenerated(true)
+            runDir("../../run")
+        }
+    }
 
     mixin {
         useLegacyMixinAp.set(false)
     }
 }
 
-val minecraftVersion = libs.versions.minecraft.get()
-
 dependencies {
-    minecraft(libs.minecraft)
+    minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
-        libs.versions.quilt.mappings.orNull?.takeIf { it != "0" }?.let {
-            mappings("org.quiltmc:quilt-mappings:$minecraftVersion+build.$it:intermediary-v2")
-        }
+        mappings("org.quiltmc:quilt-mappings:$mcVersion+build.${property("deps.quiltMappings")}:intermediary-v2")
         officialMojangMappings()
     })
-    modImplementation(libs.fabric.loader)
+    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabricLoader")}")
 
+    val fapiVersion = property("deps.fabricApi").toString()
     listOf(
         "fabric-resource-loader-v0",
         "fabric-lifecycle-events-v1",
@@ -67,49 +79,40 @@ dependencies {
         "fabric-networking-api-v1",
         "fabric-item-group-api-v1",
     ).forEach {
-        modImplementation(fabricApi.module(it, libs.versions.fabric.api.get()))
+        modImplementation(fabricApi.module(it, fapiVersion))
     }
-    modRuntimeOnly(libs.fabric.api)
+    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
     listOf(
         "fabric-rendering-fluids-v1",
     ).forEach {
-        modRuntimeOnly(fabricApi.module(it, libs.versions.fabric.api.get()))
+        modRuntimeOnly(fabricApi.module(it, fapiVersion))
     }
 
-    modApi(libs.yet.another.config.lib)
-    modImplementation(libs.mod.menu)
-
+    modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}")
+    modImplementation("com.terraformersmc:modmenu:${property("deps.modMenu")}")
 
     // used to identify controller connections
-    implementation(libs.hid4java)
-    include(libs.hid4java)
+    implementation(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
 
     // lots of controller stuff
-    implementation(libs.libsdl4j)
-    include(libs.libsdl4j)
+    implementation(include("dev.isxander:libsdl4j:${property("deps.sdl34j")}")!!)
 
     // used to parse hiddb.json5
-    implementation(libs.quilt.json5)
-    include(libs.quilt.json5)
+    implementation(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
 
     // sodium compat
-    modImplementation(libs.sodium)
+    modImplementation("maven.modrinth:sodium:${property("deps.sodium")}")
     // iris compat
-    modCompileOnly(libs.iris)
+    modCompileOnly("maven.modrinth:iris:${property("deps.iris")}")
 //    modRuntimeOnly("org.anarres:jcpp:1.4.14")
 //    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     // immediately-fast compat
-    modImplementation(libs.immediately.fast)
+    modImplementation("maven.modrinth:immediatelyfast:${property("deps.immediatelyFast")}")
     modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
 
     // simple-voice-chat compat
-    modCompileOnly(libs.simple.voice.chat)
-}
-
-blossom {
-    val sdl2ManagerClass = "src/main/java/dev/isxander/controlify/driver/SDL2NativesManager.java"
-    replaceToken("<SDL2_VERSION>", libs.versions.libsdl4j.get(), sdl2ManagerClass)
+    modCompileOnly("maven.modrinth:simple-voice-chat:${property("deps.simpleVoiceChat")}")
 }
 
 java {
@@ -148,22 +151,20 @@ tasks {
         val modDescription: String by project
         val githubProject: String by project
 
-        inputs.property("id", modId)
-        inputs.property("group", project.group)
-        inputs.property("name", modName)
-        inputs.property("description", modDescription)
-        inputs.property("version", project.version)
-        inputs.property("github", githubProject)
+        val props = mapOf(
+            "id" to modId,
+            "group" to project.group,
+            "name" to modName,
+            "description" to modDescription,
+            "version" to project.version,
+            "github" to githubProject,
+            "mc" to mcDep
+        )
 
-        filesMatching(listOf("fabric.mod.json", "quilt.mod.json")) {
-            expand(
-                "id" to modId,
-                "group" to project.group,
-                "name" to modName,
-                "description" to modDescription,
-                "version" to project.version,
-                "github" to githubProject,
-            )
+        props.forEach(inputs::property)
+
+        filesMatching("fabric.mod.json") {
+            expand(props)
         }
 
         eachFile {
@@ -181,10 +182,14 @@ tasks {
     }
 }
 
+machete {
+    json.enabled.set(false)
+}
+
 publishMods {
     file.set(tasks.remapJar.get().archiveFile)
     changelog.set(
-        file("changelogs/${project.version}.md")
+        file("changelogs/${versionWithoutMC}.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."
@@ -197,7 +202,7 @@ publishMods {
     modLoaders.add("fabric")
 
     // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = listOf("1.20.4")
+    val stableMCVersions = listOf(mcVersion)
 
     val modrinthId: String by project
     if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {

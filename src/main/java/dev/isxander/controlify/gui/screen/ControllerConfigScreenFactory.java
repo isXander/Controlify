@@ -316,13 +316,14 @@ public class ControllerConfigScreenFactory {
         Optional<InputComponent> input = controller.input();
         
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
-                .name(Component.translatable("controlify.config.category.advanced"))
-                .optionIf(input.isPresent(), Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.mixed_input"))
-                        .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
-                        .binding(input.get().defObj().mixedInput, () -> input.get().defObj().mixedInput, v -> input.get().defObj().mixedInput = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .build());
+                .name(Component.translatable("controlify.config.category.advanced"));
+
+        input.ifPresent(inputComponent -> builder.option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("controlify.gui.mixed_input"))
+                .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
+                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.defObj().mixedInput, v -> inputComponent.defObj().mixedInput = v)
+                .controller(TickBoxControllerBuilder::create)
+                .build()));
 
         makeVibrationGroup(controller).ifPresent(builder::group);
         makeGyroGroup(controller).ifPresent(builder::group);
