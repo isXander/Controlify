@@ -189,7 +189,7 @@ machete {
 publishMods {
     file.set(tasks.remapJar.get().archiveFile)
     changelog.set(
-        file("changelogs/${versionWithoutMC}.md")
+        rootProject.file("changelogs/${versionWithoutMC}.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."
