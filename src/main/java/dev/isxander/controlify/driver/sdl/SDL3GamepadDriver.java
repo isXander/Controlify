@@ -220,6 +220,8 @@ public class SDL3GamepadDriver implements Driver {
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.TOUCHPAD_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
 
+        System.out.println(state.toDebugString());
+
         this.controller.input().orElseThrow().pushState(state);
     }
 

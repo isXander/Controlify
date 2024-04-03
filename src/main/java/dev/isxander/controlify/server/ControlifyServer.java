@@ -8,10 +8,21 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
+/*? if >1.20.4 {*/
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+/*?}*/
+
 public class ControlifyServer implements ModInitializer, DedicatedServerModInitializer {
     @Override
     public void onInitialize() {
         ControlifySounds.init();
+
+        /*? if >1.20.4 {*/
+        PayloadTypeRegistry.playS2C().register(VibrationPacket.TYPE, VibrationPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(ServerPolicyPacket.TYPE, ServerPolicyPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(EntityVibrationPacket.TYPE, EntityVibrationPacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(OriginVibrationPacket.TYPE, OriginVibrationPacket.CODEC);
+        /*?}*/
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, env) -> {
             VibrateCommand.register(dispatcher);
@@ -29,9 +40,6 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
         ServerPlayConnectionEvents.INIT.register((handler, server) -> {
             ServerPlayNetworking.send(handler.getPlayer(), new ServerPolicyPacket(ServerPolicies.REACH_AROUND.getId(), ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));
             ServerPlayNetworking.send(handler.getPlayer(), new ServerPolicyPacket(ServerPolicies.DISABLE_FLY_DRIFTING.getId(), ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy));
-
-            // backwards compat
-            ServerPlayNetworking.send(handler.getPlayer(), new LegacyReachAroundPolicyPacket(ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy));
         });
     }
 }

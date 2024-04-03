@@ -1,3 +1,4 @@
+/*? if iris {*//*
 package dev.isxander.controlify.compatibility.iris;
 
 import dev.isxander.controlify.screenop.compat.AbstractSliderComponentProcessor;
@@ -16,3 +17,4 @@ public class BaseOptionElementComponentProcessor extends AbstractSliderComponent
         this.cycleMethod.accept(reverse);
     }
 }
+*//*?}*/

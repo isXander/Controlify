@@ -1,11 +1,13 @@
 package dev.isxander.controlify.mixins.compat.iris;
 
+import org.spongepowered.asm.mixin.Mixin;
+
+/*? if iris {*//*
 import dev.isxander.controlify.compatibility.iris.BaseOptionElementComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import net.coderbot.iris.gui.NavigationController;
 import net.coderbot.iris.gui.element.widget.BaseOptionElementWidget;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -29,4 +31,11 @@ public abstract class BaseOptionElementWidgetMixin implements ComponentProcessor
             navigation.refresh();
         }
     }
+
 }
+*//*?} else {*/
+@Mixin(targets = {})
+public class BaseOptionElementWidgetMixin {
+
+}
+/*?}*/

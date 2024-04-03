@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -104,25 +106,25 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
-        ClientPlayNetworking.registerGlobalReceiver(VibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(VibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(OriginVibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(OriginVibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(EntityVibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(EntityVibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(ServerPolicyPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(ServerPolicyPacket.TYPE, packet -> {
             CUtil.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
@@ -139,6 +141,26 @@ public class Controlify implements ControlifyApi {
             }
         });
     }
+
+    /*? if >1.20.4 {*/
+    private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerGlobalReceiver(
+            net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type,
+            Consumer<T> packetConsumer
+    ) {
+        ClientPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
+            packetConsumer.accept(packet);
+        });
+    }
+    /*? } else {*//*
+    private static <T extends net.fabricmc.fabric.api.networking.v1.FabricPacket> void registerGlobalReceiver(
+            net.fabricmc.fabric.api.networking.v1.PacketType<T> type,
+            Consumer<T> packetConsumer
+    ) {
+        ClientPlayNetworking.registerGlobalReceiver(type, (packet, player, sender) -> {
+            packetConsumer.accept(packet);
+        });
+    }
+    *//*? }*/
 
     /**
      * Called once Minecraft has completely loaded.

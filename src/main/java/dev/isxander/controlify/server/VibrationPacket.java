@@ -4,20 +4,41 @@ import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
-public record VibrationPacket(RumbleSource source, RumbleState[] frames) implements FabricPacket {
-    public static final PacketType<VibrationPacket> TYPE = PacketType.create(new ResourceLocation("controlify", "vibration"), VibrationPacket::new);
+/*? if >1.20.4 {*/
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+/*? } else {*//*
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
+*//*? }*/
 
+public record VibrationPacket(RumbleSource source, RumbleState[] frames)
+        /*? if >1.20.4 {*/
+        implements CustomPacketPayload
+        /*? } else {*//*
+        implements FabricPacket
+        *//*? }*/
+{
+    public static final ResourceLocation ID = new ResourceLocation("controlify", "vibration");
+
+    /*? if >1.20.4 {*/
+    public static final CustomPacketPayload.Type<VibrationPacket> TYPE = new Type<>(ID);
+    public static final StreamCodec<RegistryFriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.ofMember(VibrationPacket::write, VibrationPacket::new);
+    /*? } else {*//*
+    public static final PacketType<VibrationPacket> TYPE = PacketType.create(ID, VibrationPacket::new);
+    *//*? }*/
     public VibrationPacket(FriendlyByteBuf buf) {
         this(RumbleSource.get(buf.readResourceLocation()), readFrames(buf));
     }
 
+    /*? if <=1.20.4 {*//*
     @Override
+    *//*? }*/
     public void write(FriendlyByteBuf buf) {
         buf.writeResourceLocation(source.id());
 
@@ -29,11 +50,6 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) impleme
             packedFrames[i] = (high << 16) | (low & 0xFFFF);
         }
         buf.writeVarIntArray(packedFrames);
-    }
-
-    @Override
-    public PacketType<?> getType() {
-        return TYPE;
     }
 
     public RumbleEffect createEffect() {
@@ -51,4 +67,16 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) impleme
         }
         return frames;
     }
+
+    /*? if >1.20.4 {*/
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+    /*? } else {*//*
+    @Override
+    public PacketType<?> getType() {
+        return TYPE;
+    }
+    *//*? }*/
 }

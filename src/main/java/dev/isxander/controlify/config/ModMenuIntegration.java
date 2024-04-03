@@ -1,3 +1,4 @@
+/*? if mod-menu {*//*
 package dev.isxander.controlify.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
@@ -10,3 +11,4 @@ public class ModMenuIntegration implements ModMenuApi {
         return ModConfigOpenerScreen::new;
     }
 }
+*//*?}*/

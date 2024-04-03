@@ -19,6 +19,7 @@ extensions.configure<StonecutterSettings> {
     centralScript("build.gradle.kts")
     shared {
         versions("1.20.1", "1.20.4")
+        vers("24w14potato", "1.20.5-alpha.24.12.potato")
         vcsVersion("1.20.4")
     }
     create(rootProject)

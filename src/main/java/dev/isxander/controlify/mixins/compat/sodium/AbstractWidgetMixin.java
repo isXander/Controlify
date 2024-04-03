@@ -1,10 +1,12 @@
 package dev.isxander.controlify.mixins.compat.sodium;
 
+import org.spongepowered.asm.mixin.Mixin;
+
+/*? if sodium {*//*
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import me.jellysquid.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.minecraft.client.InputType;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(AbstractWidget.class)
@@ -17,3 +19,9 @@ public class AbstractWidgetMixin {
         return type;
     }
 }
+*//*?} else {*/
+@Mixin(targets = {})
+public class AbstractWidgetMixin {
+
+}
+/*?}*/

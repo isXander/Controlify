@@ -1,3 +1,4 @@
+/*? if immediately-fast {*//*
 package dev.isxander.controlify.compatibility.immediatelyfast;
 
 import net.raphimc.immediatelyfastapi.ImmediatelyFastApi;
@@ -11,3 +12,4 @@ public class ImmediatelyFastCompat {
         ImmediatelyFastApi.getApiImpl().getBatching().endHudBatching();
     }
 }
+*//*?}*/

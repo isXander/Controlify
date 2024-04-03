@@ -1,5 +1,8 @@
 package dev.isxander.controlify.mixins.compat.sodium;
 
+import org.spongepowered.asm.mixin.*;
+
+/*? if sodium {*//*
 import dev.isxander.controlify.compatibility.sodium.SliderControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
@@ -7,7 +10,6 @@ import me.jellysquid.mods.sodium.client.gui.options.Option;
 import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
 import me.jellysquid.mods.sodium.client.util.Dim2i;
 import net.minecraft.util.Mth;
-import org.spongepowered.asm.mixin.*;
 
 @Pseudo
 @Mixin(targets = "me.jellysquid.mods.sodium.client.gui.options.control.SliderControl$Button", remap = false)
@@ -32,3 +34,8 @@ public abstract class SliderControlElementMixin extends ControlElement<Integer> 
         this.option.setValue(Mth.clamp(this.option.getValue() + (reverse ? -this.interval : this.interval), this.min, this.max));
     }
 }
+*//*?} else {*/
+@Mixin(targets = {})
+public class SliderControlElementMixin {
+}
+/*?}*/

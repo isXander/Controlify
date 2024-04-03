@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
@@ -19,6 +20,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractSelectionList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.Tooltip;
@@ -51,6 +53,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     *//*?} */
 
     private final Screen parent;
+    private int footerY;
 
     private List<CarouselEntry> carouselEntries = null;
     private int carouselIndex;
@@ -122,6 +125,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         ButtonGuideApi.addGuideToButtonBuiltin(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
         ButtonGuideApi.addGuideToButtonBuiltin(doneButton, bindings -> bindings.GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+
+        this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
     }
 
     public void refreshControllers() {
@@ -161,36 +166,59 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderDirtBackground(graphics);
+        /*? if =1.20.4 {*//*
+        renderBackground(graphics, mouseX, mouseY, delta);
+        *//*?} else <1.20.4 {*//*
+        renderBackground(graphics);
+        *//*?}*/
+        super.render(graphics, mouseX, mouseY, delta);
 
-        int footerY = Mth.roundToward(this.height - 36 - 2, 2);
-        graphics.blit(CreateWorldScreen.FOOTER_SEPERATOR, 0, footerY, 0.0F, 0.0F, this.width, 2, 32, 2);
-
-        graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
-        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
-        graphics.setColor(1f, 1f, 1f, 1f);
+        RenderSystem.enableBlend();
+        graphics.blit(
+                /*? if >1.20.4 { */
+                minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
+                /*? } else { *//*
+                CreateWorldScreen.FOOTER_SEPERATOR,
+                *//*?}*/
+                0, footerY,
+                0.0F, 0.0F,
+                this.width, 2,
+                32, 2
+        );
+        RenderSystem.disableBlend();
 
         if (carouselEntries.isEmpty()) {
             graphics.drawCenteredString(font, Component.translatable("controlify.gui.carousel.no_controllers"), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
         }
-
-        super.render(graphics, mouseX, mouseY, delta);
     }
 
     @Override
-    public void renderDirtBackground(GuiGraphics graphics) {
-        int scale = 32;
-        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0.0F, 0.0F, this.width, this.height, scale, scale);
-    }
+    public void renderBackground(
+            GuiGraphics graphics
+            /*? if >=1.20.4 {*/
+            , int i, int j, float f
+            /*?}*/
+    ) {
+        /*? if >1.20.4 { */
+        super.renderBackground(graphics, i, j, f);
 
-    @Override
-    /*? if >=1.20.4 {*/
-    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f)
-    /*?} else {*//*
-    public void renderBackground(GuiGraphics guiGraphics)
-        *//*?} */
-    {
-        // do not render background
+        RenderSystem.enableBlend();
+        graphics.blit(
+                minecraft.level == null ? AbstractSelectionList.MENU_LIST_BACKGROUND : AbstractSelectionList.INWORLD_MENU_LIST_BACKGROUND,
+                0, 0,
+                0f, 0f,
+                width, footerY,
+                32, 32
+        );
+        RenderSystem.disableBlend();
+        /*? } else { *//*
+        graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
+        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
+        graphics.setColor(1f, 1f, 1f, 1f);
+
+        graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, footerY, 0, 0f, 0f, this.width, this.height - footerY, 32, 32);
+        *//*?}*/
+
     }
 
     public void focusOnEntry(int index) {
@@ -269,7 +297,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             graphics.pose().pushPose();
             graphics.pose().translate(translationX, translationY, 0);
 
-            graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
+            //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
             graphics.renderOutline(x, y, width, height, 0x5AFFFFFF);
             useControllerButton.render(graphics, mouseX, mouseY, delta);

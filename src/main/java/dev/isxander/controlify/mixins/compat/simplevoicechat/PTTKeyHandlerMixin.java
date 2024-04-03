@@ -1,10 +1,12 @@
 package dev.isxander.controlify.mixins.compat.simplevoicechat;
 
+import org.spongepowered.asm.mixin.Mixin;
+
+/*? if simple-voice-chat {*//*
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -41,3 +43,9 @@ public class PTTKeyHandlerMixin {
         return keyDown || SimpleVoiceChatCompat.isWhisperDown();
     }
 }
+*//*?} else {*/
+@Mixin(targets = {})
+public class PTTKeyHandlerMixin {
+
+}
+/*?}*/

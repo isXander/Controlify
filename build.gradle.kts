@@ -18,7 +18,7 @@ val mcDep = property("fmj.mcDep").toString()
 
 group = "dev.isxander"
 val versionWithoutMC = "2.0.0-beta.2"
-version = "$versionWithoutMC+$mcVersion"
+version = "$versionWithoutMC+${stonecutter.current.project}"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
@@ -26,6 +26,32 @@ if (isBeta) println("Controlify beta version detected.")
 
 base {
     archivesName.set(property("modName").toString())
+}
+
+stonecutter.expression {
+    when (it) {
+        "immediately-fast" -> isPropDefined("deps.immediatelyFast")
+        "iris" -> isPropDefined("deps.iris")
+        "mod-menu" -> isPropDefined("deps.modMenu")
+        "sodium" -> isPropDefined("deps.sodium")
+        "simple-voice-chat" -> isPropDefined("deps.simpleVoiceChat")
+        else -> null
+    }
+}
+
+loom {
+    accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
+
+    if (stonecutter.current.isActive) {
+        runConfigs.all {
+            ideConfigGenerated(true)
+            runDir("../../run")
+        }
+    }
+
+    mixin {
+        useLegacyMixinAp.set(false)
+    }
 }
 
 repositories {
@@ -45,25 +71,14 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
-loom {
-    accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
-
-    if (stonecutter.current.isActive) {
-        runConfigs.all {
-            ideConfigGenerated(true)
-            runDir("../../run")
-        }
-    }
-
-    mixin {
-        useLegacyMixinAp.set(false)
-    }
-}
-
 dependencies {
-    minecraft("com.mojang:minecraft:$mcVersion")
+    if (mcVersion.endsWith("potato")) {
+        minecraft("com.mojang:minecraft:24w14potato")
+    } else minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
-        mappings("org.quiltmc:quilt-mappings:$mcVersion+build.${property("deps.quiltMappings")}:intermediary-v2")
+        optionalProp("deps.quiltMappings") {
+            mappings("org.quiltmc:quilt-mappings:$mcVersion+build.$it:intermediary-v2")
+        }
         officialMojangMappings()
     })
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabricLoader")}")
@@ -83,14 +98,12 @@ dependencies {
     }
     modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
-    listOf(
-        "fabric-rendering-fluids-v1",
-    ).forEach {
-        modRuntimeOnly(fabricApi.module(it, fapiVersion))
+    modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}") {
+        exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
     }
-
-    modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}")
-    modImplementation("com.terraformersmc:modmenu:${property("deps.modMenu")}")
+    if (stonecutter.current.version.endsWith("potato")) {
+        include("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}");
+    }
 
     // used to identify controller connections
     implementation(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
@@ -101,18 +114,37 @@ dependencies {
     // used to parse hiddb.json5
     implementation(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
 
+    // mod menu compat
+    optionalProp("deps.modMenu") {
+        modImplementation("com.terraformersmc:modmenu:$it")
+    }
+
     // sodium compat
-    modImplementation("maven.modrinth:sodium:${property("deps.sodium")}")
+    optionalProp("deps.sodium") {
+        modImplementation("maven.modrinth:sodium:$it")
+
+        listOf(
+            "fabric-rendering-fluids-v1",
+        ).forEach {
+            modRuntimeOnly(fabricApi.module(it, fapiVersion))
+        }
+    }
     // iris compat
-    modCompileOnly("maven.modrinth:iris:${property("deps.iris")}")
-//    modRuntimeOnly("org.anarres:jcpp:1.4.14")
-//    modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+    optionalProp("deps.iris") {
+        modCompileOnly("maven.modrinth:iris:$it")
+        // modRuntimeOnly("org.anarres:jcpp:1.4.14")
+        // modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+    }
     // immediately-fast compat
-    modImplementation("maven.modrinth:immediatelyfast:${property("deps.immediatelyFast")}")
-    modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    optionalProp("deps.immediatelyFast") {
+        modImplementation("maven.modrinth:immediatelyfast:$it")
+        modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    }
 
     // simple-voice-chat compat
-    modCompileOnly("maven.modrinth:simple-voice-chat:${property("deps.simpleVoiceChat")}")
+    optionalProp("deps.simpleVoiceChat") {
+        modCompileOnly("maven.modrinth:simple-voice-chat:$it")
+    }
 }
 
 java {
@@ -136,7 +168,6 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     group = "mod"
 
     val file = downloadHidDb.get().outputs.files.singleFile
-    println(file)
     from(file)
     into("src/main/resources/assets/controlify/controllers")
 
@@ -203,7 +234,7 @@ publishMods {
     modLoaders.add("fabric")
 
     // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = listOf(mcVersion)
+    val stableMCVersions = listOf(stonecutter.current.project)
 
     val modrinthId: String by project
     if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
@@ -285,5 +316,13 @@ publishing {
 
 tasks.getByName("generateMetadataFileForModPublication") {
     dependsOn("optimizeOutputsOfRemapJar")
+}
+
+fun <T> optionalProp(property: String, block: (String) -> T?) {
+    property(property)?.toString()?.takeUnless { it.isBlank() }?.let(block)
+}
+
+fun isPropDefined(property: String): Boolean {
+    return property(property)?.toString()?.isNotBlank() ?: false
 }
 

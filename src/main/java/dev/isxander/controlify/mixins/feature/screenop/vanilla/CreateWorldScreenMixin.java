@@ -1,5 +1,6 @@
 package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
@@ -7,6 +8,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.CreateWorldScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider {
@@ -22,22 +25,46 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
     @Unique private final ScreenProcessor<CreateWorldScreen> processor
             = new CreateWorldScreenProcessor((CreateWorldScreen) (Object) this, this::onCreate);
 
-    @ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 1))
-    private LayoutElement modifyCancelButton(LayoutElement button) {
+    @ModifyExpressionValue(
+            method = "init()V",
+            slice = @Slice(
+                    from = @At(
+                            value = "CONSTANT",
+                            args = "stringValue=selectWorld.create"
+                    )
+            ),
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+            )
+    )
+    private Button modifyCreateButton(Button button) {
         ButtonGuideApi.addGuideToButtonBuiltin(
-                (AbstractButton) button,
-                bindings -> bindings.GUI_BACK,
+                button,
+                bindings -> bindings.GUI_ABSTRACT_ACTION_1,
                 ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;
     }
 
-    @ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;addChild(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;", ordinal = 0))
-    private LayoutElement modifyCreateButton(LayoutElement button) {
+    @ModifyExpressionValue(
+            method = "init()V",
+            slice = @Slice(
+                    from = @At(
+                            value = "FIELD",
+                            target = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;"
+                    )
+            ),
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+            )
+    )
+    private Button modifyCancelButton(Button button) {
         ButtonGuideApi.addGuideToButtonBuiltin(
-                (AbstractButton) button,
-                bindings -> bindings.GUI_ABSTRACT_ACTION_1,
+                button,
+                bindings -> bindings.GUI_BACK,
                 ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
