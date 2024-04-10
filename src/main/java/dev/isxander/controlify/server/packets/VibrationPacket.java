@@ -1,4 +1,4 @@
-package dev.isxander.controlify.server;
+package dev.isxander.controlify.server.packets;
 
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
@@ -42,14 +42,10 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames)
     public void write(FriendlyByteBuf buf) {
         buf.writeResourceLocation(source.id());
 
-        int[] packedFrames = new int[frames.length];
-        for (int i = 0; i < frames.length; i++) {
-            RumbleState frame = frames[i];
-            int high = (int)(frame.strong() * 32767.0F);
-            int low = (int)(frame.weak() * 32767.0F);
-            packedFrames[i] = (high << 16) | (low & 0xFFFF);
+        buf.writeInt(frames.length); // amount of frames
+        for (RumbleState frame : frames) {
+            buf.writeInt(RumbleState.packToInt(frame));
         }
-        buf.writeVarIntArray(packedFrames);
     }
 
     public RumbleEffect createEffect() {
@@ -57,14 +53,12 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames)
     }
 
     private static RumbleState[] readFrames(FriendlyByteBuf buf) {
-        int[] packedFrames = buf.readVarIntArray();
-        RumbleState[] frames = new RumbleState[packedFrames.length];
-        for (int i = 0; i < packedFrames.length; i++) {
-            int packed = packedFrames[i];
-            float strong = (short)(packed >> 16) / 32767.0F;
-            float weak = (short)packed / 32767.0F;
-            frames[i] = new RumbleState(strong, weak);
+        RumbleState[] frames = new RumbleState[buf.readInt()]; // read the length
+
+        for (int i = 0; i < frames.length; i++) {
+            frames[i] = RumbleState.unpackFromInt(buf.readInt());
         }
+
         return frames;
     }
 

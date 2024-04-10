@@ -2,6 +2,9 @@ package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.serialization.ConfigClass;
+import dev.isxander.controlify.controller.serialization.ConfigHolder;
+import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.input.mapping.ControllerMappingStorage;

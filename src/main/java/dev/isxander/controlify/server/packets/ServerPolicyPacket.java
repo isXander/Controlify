@@ -1,4 +1,4 @@
-package dev.isxander.controlify.server;
+package dev.isxander.controlify.server.packets;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;

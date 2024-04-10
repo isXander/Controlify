@@ -18,9 +18,9 @@ extensions.configure<StonecutterSettings> {
     kotlinController(true)
     centralScript("build.gradle.kts")
     shared {
+        vers("1.20.5-pre1", "1.20.5-beta.1")
         versions("1.20.1", "1.20.4")
-        vers("24w14potato", "1.20.5-alpha.24.12.potato")
-        vcsVersion("1.20.4")
+        vcsVersion("1.20.5-pre1")
     }
     create(rootProject)
 }

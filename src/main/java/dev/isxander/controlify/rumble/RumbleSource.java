@@ -1,6 +1,7 @@
 package dev.isxander.controlify.rumble;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -8,6 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.*;
 
 public record RumbleSource(ResourceLocation id) {
+    public static final Codec<RumbleSource> CODEC = ResourceLocation.CODEC
+            .xmap(RumbleSource::get, RumbleSource::id);
+
     private static final Map<ResourceLocation, RumbleSource> SOURCES = new Object2ObjectLinkedOpenHashMap<>();
 
     public static final RumbleSource

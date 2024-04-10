@@ -72,9 +72,7 @@ repositories {
 }
 
 dependencies {
-    if (mcVersion.endsWith("potato")) {
-        minecraft("com.mojang:minecraft:24w14potato")
-    } else minecraft("com.mojang:minecraft:$mcVersion")
+    minecraft("com.mojang:minecraft:${stonecutter.current.project}")
     mappings(loom.layered {
         optionalProp("deps.quiltMappings") {
             mappings("org.quiltmc:quilt-mappings:$mcVersion+build.$it:intermediary-v2")
@@ -96,23 +94,20 @@ dependencies {
     ).forEach {
         modImplementation(fabricApi.module(it, fapiVersion))
     }
-    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
+    //modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
     modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}") {
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
     }
-    if (stonecutter.current.version.endsWith("potato")) {
-        include("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}");
-    }
 
     // used to identify controller connections
-    implementation(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
+    api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
 
     // lots of controller stuff
-    implementation(include("dev.isxander:libsdl4j:${property("deps.sdl34j")}")!!)
+    api(include("dev.isxander:libsdl4j:${property("deps.sdl34j")}")!!)
 
     // used to parse hiddb.json5
-    implementation(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
+    api(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
 
     // mod menu compat
     optionalProp("deps.modMenu") {
@@ -125,8 +120,9 @@ dependencies {
 
         listOf(
             "fabric-rendering-fluids-v1",
-        ).forEach {
-            modRuntimeOnly(fabricApi.module(it, fapiVersion))
+            "fabric-rendering-data-attachment-v1",
+        ).forEach { module ->
+            modRuntimeOnly(fabricApi.module(module, fapiVersion))
         }
     }
     // iris compat
@@ -319,10 +315,25 @@ tasks.getByName("generateMetadataFileForModPublication") {
 }
 
 fun <T> optionalProp(property: String, block: (String) -> T?) {
-    property(property)?.toString()?.takeUnless { it.isBlank() }?.let(block)
+    findProperty(property)?.toString()?.takeUnless { it.isBlank() }?.let(block)
 }
 
 fun isPropDefined(property: String): Boolean {
     return property(property)?.toString()?.isNotBlank() ?: false
+}
+
+fun semverToSnapshot(semver: String): String {
+    val snapshotSemverRegex = Regex("^\\d+\\.\\d+\\.\\d+-(?<type>alpha|beta)\\.(?<year>\\d+)\\.(?<week>\\d+)\\.(?<iter>[a-z]+)$")
+
+    val match = snapshotSemverRegex.matchEntire(semver) ?: return semver
+    when (match.groups["type"]?.value) {
+        "alpha" -> {
+            val year = match.groups["year"]?.value ?: return semver
+            val week = match.groups["week"]?.value ?: return semver
+            val iter = match.groups["iter"]?.value ?: return semver
+            return "${year}w$week$iter"
+        }
+        else -> return semver
+    }
 }
 

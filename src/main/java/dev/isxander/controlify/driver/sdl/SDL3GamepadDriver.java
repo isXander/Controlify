@@ -220,8 +220,6 @@ public class SDL3GamepadDriver implements Driver {
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.TOUCHPAD_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
 
-        System.out.println(state.toDebugString());
-
         this.controller.input().orElseThrow().pushState(state);
     }
 
@@ -233,8 +231,8 @@ public class SDL3GamepadDriver implements Driver {
                     .consumeRumble();
 
             stateOpt.ifPresent(state -> {
-                if (SDL_RumbleGamepad(ptrGamepad, (short)(state.strong() * 0xFFFF), (short)(state.weak() * 0xFFFF), 0) != 0) {
-                    CUtil.LOGGER.error("Could not rumble gamepad: " + SDL_GetError());
+                if (SDL_RumbleGamepad(ptrGamepad, (short)(state.strong() * 0xFFFF), (short)(state.weak() * 0xFFFF), 5000) != 0) {
+                    CUtil.LOGGER.error("Could not rumble gamepad: {}", SDL_GetError());
                 }
             });
         }
@@ -247,7 +245,7 @@ public class SDL3GamepadDriver implements Driver {
 
             stateOpt.ifPresent(state -> {
                 if (SDL_RumbleGamepadTriggers(ptrGamepad, (short)(state.left() * 0xFFFF), (short)(state.right() * 0xFFFF), 0) != 0) {
-                    CUtil.LOGGER.error("Could not rumble triggers gamepad: " + SDL_GetError());
+                    CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", SDL_GetError());
                 }
             });
         }
@@ -266,7 +264,7 @@ public class SDL3GamepadDriver implements Driver {
                         new GyroState(gyro[0], gyro[1], gyro[2])
                 );
             } else {
-                CUtil.LOGGER.error("Could not get gyro data: " + SDL_GetError());
+                CUtil.LOGGER.error("Could not get gyro data: {}", SDL_GetError());
             }
         }
     }

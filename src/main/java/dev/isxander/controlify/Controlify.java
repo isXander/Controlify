@@ -28,6 +28,10 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.server.packets.EntityVibrationPacket;
+import dev.isxander.controlify.server.packets.OriginVibrationPacket;
+import dev.isxander.controlify.server.packets.ServerPolicyPacket;
+import dev.isxander.controlify.server.packets.VibrationPacket;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
@@ -51,7 +55,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
@@ -137,7 +140,7 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControlifyPreInit(this);
             } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });
     }

@@ -24,6 +24,10 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 
     @Override
     protected void splashRumble(CallbackInfo ci) {
+        if (isSpectator()) {
+            return;
+        }
+
         ControlifyApi.get().getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble -> {
             Entity entity = Objects.requireNonNullElse(this.getControllingPassenger(), this);
             float f = entity == this ? 0.2F : 0.9F;

@@ -572,7 +572,14 @@ public class ControllerConfigScreenFactory {
                         .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
                         .text(newOptionLabel)
                         .build())
-                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, null, RadialItems.createBindings(controller), new RadialItems.BindingEditMode(controller), screen)))
+                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(
+                        controller,
+                        null,
+                        RadialItems.createBindings(controller),
+                        Component.empty(),
+                        new RadialItems.BindingEditMode(controller),
+                        screen
+                )))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
         Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()

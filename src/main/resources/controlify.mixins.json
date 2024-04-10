@@ -43,6 +43,7 @@
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.handheld.autokeybard.ChatScreenMixin",
     "feature.handheld.autokeybard.ScreenMixin",
+    "feature.hdhaptics.JOrbisAudioStreamMixin",
     "feature.input.MinecraftMixin",
     "feature.oofinput.GameRendererMixin",
     "feature.patches.boatfix.BoatMixin",

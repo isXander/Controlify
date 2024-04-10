@@ -19,11 +19,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -157,11 +156,54 @@ public class InGameInputHandler {
         }
 
         if (controller.bindings().RADIAL_MENU.justPressed()) {
-            minecraft.setScreen(new RadialMenuScreen(controller, controller.bindings().RADIAL_MENU, RadialItems.createBindings(controller), null, null));
+            minecraft.setScreen(new RadialMenuScreen(
+                    controller,
+                    controller.bindings().RADIAL_MENU,
+                    RadialItems.createBindings(controller),
+                    Component.translatable("controlify.radial_menu.configure_hint"),
+                    null, null
+            ));
         }
 
         if (controller.bindings().GAME_MODE_SWITCHER.justPressed()) {
-            minecraft.setScreen(new RadialMenuScreen(controller, controller.bindings().GAME_MODE_SWITCHER, RadialItems.createGameModes(), null, null));
+            minecraft.setScreen(new RadialMenuScreen(
+                    controller,
+                    controller.bindings().GAME_MODE_SWITCHER,
+                    RadialItems.createGameModes(),
+                    Component.empty(),
+                    null, null)
+            );
+        }
+
+        if (controller.bindings().HOTBAR_ITEM_SELECT_RADIAL.justPressed()) {
+            minecraft.setScreen(new RadialMenuScreen(
+                    controller,
+                    controller.bindings().HOTBAR_ITEM_SELECT_RADIAL,
+                    RadialItems.createHotbarItemSelect(),
+                    Component.empty(),
+                    null, null
+            ));
+        }
+
+        if (this.minecraft.gameMode.hasInfiniteItems()) {
+            if (controller.bindings().HOTBAR_LOAD_RADIAL.justPressed()) {
+                minecraft.setScreen(new RadialMenuScreen(
+                        controller,
+                        controller.bindings().HOTBAR_LOAD_RADIAL,
+                        RadialItems.createHotbarLoad(),
+                        Component.translatable("controlify.radial.hotbar_load_hint"),
+                        null, null
+                ));
+            }
+            if (controller.bindings().HOTBAR_SAVE_RADIAL.justPressed()) {
+                minecraft.setScreen(new RadialMenuScreen(
+                        controller,
+                        controller.bindings().HOTBAR_SAVE_RADIAL,
+                        RadialItems.createHotbarSave(),
+                        Component.translatable("controlify.radial.hotbar_save_hint"),
+                        null, null
+                ));
+            }
         }
     }
 

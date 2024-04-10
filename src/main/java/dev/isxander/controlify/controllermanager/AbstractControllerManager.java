@@ -56,7 +56,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
             return createController(ucid, hidInfo);
         } catch (Throwable e) {
-            CUtil.LOGGER.error("Failed to create controller #" + ucid + "!", e);
+            CUtil.LOGGER.error("Failed to create controller #{}!", ucid, e);
             CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
             CrashReportCategory category = crashReport.addCategory("Controller Info");
             category.setDetail("Unique controller ID", ucid);

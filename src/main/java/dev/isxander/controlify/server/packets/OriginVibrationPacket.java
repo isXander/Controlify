@@ -1,4 +1,4 @@
-package dev.isxander.controlify.server;
+package dev.isxander.controlify.server.packets;
 
 import dev.isxander.controlify.rumble.*;
 import dev.isxander.controlify.utils.Easings;
@@ -33,7 +33,7 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
     *//*? }*/
 
     public OriginVibrationPacket(FriendlyByteBuf buf) {
-        this(buf.readVector3f(), buf.readFloat(), buf.readVarInt(), readState(buf), RumbleSource.get(buf.readResourceLocation()));
+        this(buf.readVector3f(), buf.readFloat(), buf.readVarInt(), RumbleState.unpackFromInt(buf.readInt()), RumbleSource.get(buf.readResourceLocation()));
     }
 
     /*? if <=1.20.4 {*//*
@@ -43,11 +43,7 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
         buf.writeVector3f(origin);
         buf.writeFloat(effectRange);
         buf.writeVarInt(duration);
-
-        int high = (int)(state.strong() * 32767.0F);
-        int low = (int)(state.weak() * 32767.0F);
-        buf.writeInt((high << 16) | (low & 0xFFFF));
-
+        buf.writeInt(RumbleState.packToInt(state));
         buf.writeResourceLocation(source.id());
     }
 
@@ -58,13 +54,6 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
                 .inWorld(() -> originVec3, 0, 1, effectRange, Easings::easeInSine)
                 .timeout(duration)
                 .build();
-    }
-
-    public static RumbleState readState(FriendlyByteBuf buf) {
-        int packed = buf.readInt();
-        float strong = (short)(packed >> 16) / 32767.0F;
-        float weak = (short)packed / 32767.0F;
-        return new RumbleState(strong, weak);
     }
 
     /*? if >1.20.4 {*/

@@ -5,6 +5,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.serialization.ConfigHolder;
+import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
@@ -130,7 +132,7 @@ public class ControllerEntity extends ECSEntityImpl {
             ResourceLocation key = entry.getKey();
             IConfig<?> config = entry.getValue();
 
-            JsonElement element = object.get(key.toString());
+            JsonElement element = object.remove(key.toString()); // remove the used element
             config.deserialize(element, gson, this);
         }
     }

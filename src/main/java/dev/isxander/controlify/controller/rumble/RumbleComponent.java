@@ -1,10 +1,10 @@
 package dev.isxander.controlify.controller.rumble;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ConfigClass;
-import dev.isxander.controlify.controller.ConfigHolder;
+import dev.isxander.controlify.controller.serialization.ConfigClass;
+import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.IConfig;
+import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;

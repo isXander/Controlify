@@ -30,7 +30,7 @@ public abstract class BoatMixin implements AnalogBoatInput {
             this.deltaRotation += analogRight;
     }
 
-    @ModifyVariable(method = "controlBoat", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/vehicle/Boat;setYRot(F)V", shift = At.Shift.AFTER), ordinal = 0)
+    @ModifyVariable(method = "controlBoat", at = @At(value = "STORE", ordinal = 0), ordinal = 0)
     private float forwardBoatAnalog(float forwardVelocity) {
         if (!usingAnalogInput)
             return forwardVelocity;

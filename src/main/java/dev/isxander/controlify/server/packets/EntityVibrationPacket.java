@@ -1,4 +1,4 @@
-package dev.isxander.controlify.server;
+package dev.isxander.controlify.server.packets;
 
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
@@ -36,7 +36,7 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
     *//*? }*/
 
     public EntityVibrationPacket(FriendlyByteBuf buf) {
-        this(buf.readInt(), buf.readFloat(), buf.readInt(), OriginVibrationPacket.readState(buf), RumbleSource.get(buf.readResourceLocation()));
+        this(buf.readInt(), buf.readFloat(), buf.readInt(), RumbleState.unpackFromInt(buf.readInt()), RumbleSource.get(buf.readResourceLocation()));
     }
 
     /*? if <=1.20.4 {*//*
@@ -47,11 +47,7 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
         buf.writeInt(entityId);
         buf.writeFloat(range);
         buf.writeInt(duration);
-
-        int high = (int)(state.strong() * 32767.0F);
-        int low = (int)(state.weak() * 32767.0F);
-        buf.writeInt((high << 16) | (low & 0xFFFF));
-
+        buf.writeInt(RumbleState.packToInt(state));
         buf.writeResourceLocation(source.id());
     }
 

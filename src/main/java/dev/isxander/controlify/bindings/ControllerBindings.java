@@ -60,6 +60,8 @@ public class ControllerBindings {
             SWAP_HANDS,
             OPEN_CHAT,
             INV_SELECT, INV_QUICK_MOVE, INV_TAKE_HALF,
+            HOTBAR_ITEM_SELECT_RADIAL,
+            HOTBAR_LOAD_RADIAL, HOTBAR_SAVE_RADIAL,
             GUI_PRESS, GUI_BACK,
             GUI_NEXT_TAB, GUI_PREV_TAB,
             GUI_ABSTRACT_ACTION_1, GUI_ABSTRACT_ACTION_2,
@@ -303,6 +305,24 @@ public class ControllerBindings {
                 .defaultBind(GamepadInputs.getBind(GamepadInputs.WEST_BUTTON))
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INVENTORY)
+                .build());
+        register(HOTBAR_LOAD_RADIAL = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "hotbar_load_radial")
+                .defaultBind(new EmptyBind())
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INGAME)
+                .build());
+        register(HOTBAR_SAVE_RADIAL = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "hotbar_save_radial")
+                .defaultBind(new EmptyBind())
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INGAME)
+                .build());
+        register(HOTBAR_ITEM_SELECT_RADIAL = ControllerBindingBuilder.create(controller)
+                .identifier("controlify", "hotbar_item_select_radial")
+                .defaultBind(new EmptyBind())
+                .category(INVENTORY_CATEGORY)
+                .context(BindContexts.INGAME)
                 .build());
         register(PICK_BLOCK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "pick_block")
