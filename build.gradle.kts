@@ -1,7 +1,7 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    java
+    `java-library`
 
     id("fabric-loom") version "1.6.+"
 
@@ -13,12 +13,13 @@ plugins {
     id("de.undercouch.download") version "5.5.0"
 }
 
-val mcVersion = stonecutter.current.version
+val mcVersion = stonecutter.current.version // get this builds minecraft version
 val mcDep = property("fmj.mcDep").toString()
 
 group = "dev.isxander"
 val versionWithoutMC = "2.0.0-beta.2"
 version = "$versionWithoutMC+${stonecutter.current.project}"
+
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
 if (isAlpha) println("Controlify alpha version detected.")
@@ -28,6 +29,11 @@ base {
     archivesName.set(property("modName").toString())
 }
 
+java.toolchain {
+    languageVersion.set(JavaLanguageVersion.of(17))
+}
+
+// add custom expressions to stonecutter to allow optional dependencies at build-time
 stonecutter.expression {
     when (it) {
         "immediately-fast" -> isPropDefined("deps.immediatelyFast")
@@ -74,9 +80,11 @@ repositories {
 dependencies {
     minecraft("com.mojang:minecraft:${stonecutter.current.project}")
     mappings(loom.layered {
+        // quilt does not support pre-releases so it is necessary to only layer if they exist
         optionalProp("deps.quiltMappings") {
             mappings("org.quiltmc:quilt-mappings:$mcVersion+build.$it:intermediary-v2")
         }
+
         officialMojangMappings()
     })
     modImplementation("net.fabricmc:fabric-loader:${property("deps.fabricLoader")}")
@@ -94,17 +102,18 @@ dependencies {
     ).forEach {
         modImplementation(fabricApi.module(it, fapiVersion))
     }
-    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
+    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion") // so you can do `depends: fabric-api` in FMJ
 
     modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}") {
+        // was including old fapi version that broke things at runtime
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
     }
 
-    // used to identify controller connections
-    api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
-
-    // lots of controller stuff
+    // bindings for SDL3
     api(include("dev.isxander:libsdl4j:${property("deps.sdl34j")}")!!)
+
+    // used to identify controller PID/VID when SDL is not available
+    api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
 
     // used to parse hiddb.json5
     api(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
@@ -118,6 +127,8 @@ dependencies {
     optionalProp("deps.sodium") {
         modImplementation("maven.modrinth:sodium:$it")
 
+        // sodium needs more runtime fapi modules
+        // modrinth maven is obvi not transitive
         listOf(
             "fabric-rendering-fluids-v1",
             "fabric-rendering-data-attachment-v1",
@@ -128,6 +139,8 @@ dependencies {
     // iris compat
     optionalProp("deps.iris") {
         modCompileOnly("maven.modrinth:iris:$it")
+
+        // only necessary if above ^^ is in runtime
         // modRuntimeOnly("org.anarres:jcpp:1.4.14")
         // modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
     }
@@ -148,6 +161,7 @@ java {
     withJavadocJar()
 }
 
+// download the most up to date controller database for SDL2
 val downloadHidDb by tasks.registering(Download::class) {
     finalizedBy("convertHidDBToSDL3")
 
@@ -157,6 +171,7 @@ val downloadHidDb by tasks.registering(Download::class) {
     dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
 }
 
+// SDL3 renamed `Mac OS X` -> `macOS` and this change carried over to mappings
 val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     mustRunAfter(downloadHidDb)
     dependsOn(downloadHidDb)
@@ -165,7 +180,7 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
 
     val file = downloadHidDb.get().outputs.files.singleFile
     from(file)
-    into("src/main/resources/assets/controlify/controllers")
+    into(file.parent)
 
     rename { "gamecontrollerdb-sdl3.txt" }
     filter { it.replace("Mac OS X", "macOS") }
@@ -195,6 +210,7 @@ tasks {
         }
 
         eachFile {
+            // don't include photoshop files for the textures for development
             if (name.endsWith(".psd")) {
                 exclude()
             }
@@ -210,6 +226,7 @@ tasks {
 }
 
 machete {
+    // don't minify fabric.mod.json and mixin file
     json.enabled.set(false)
 }
 
@@ -321,19 +338,3 @@ fun <T> optionalProp(property: String, block: (String) -> T?) {
 fun isPropDefined(property: String): Boolean {
     return property(property)?.toString()?.isNotBlank() ?: false
 }
-
-fun semverToSnapshot(semver: String): String {
-    val snapshotSemverRegex = Regex("^\\d+\\.\\d+\\.\\d+-(?<type>alpha|beta)\\.(?<year>\\d+)\\.(?<week>\\d+)\\.(?<iter>[a-z]+)$")
-
-    val match = snapshotSemverRegex.matchEntire(semver) ?: return semver
-    when (match.groups["type"]?.value) {
-        "alpha" -> {
-            val year = match.groups["year"]?.value ?: return semver
-            val week = match.groups["week"]?.value ?: return semver
-            val iter = match.groups["iter"]?.value ?: return semver
-            return "${year}w$week$iter"
-        }
-        else -> return semver
-    }
-}
-
