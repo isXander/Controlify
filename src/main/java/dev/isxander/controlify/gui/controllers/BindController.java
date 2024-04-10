@@ -1,5 +1,6 @@
 package dev.isxander.controlify.gui.controllers;
 
+import dev.isxander.controlify.bindings.AxisBind;
 import dev.isxander.controlify.bindings.ButtonBind;
 import dev.isxander.controlify.bindings.HatBind;
 import dev.isxander.controlify.bindings.IBind;
@@ -143,7 +144,7 @@ public class BindController implements Controller<IBind> {
 
             for (ResourceLocation axis : state.getAxes()) {
                 if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
-                    return Optional.of(new ButtonBind(axis));
+                    return Optional.of(new AxisBind(axis));
                 }
             }
 

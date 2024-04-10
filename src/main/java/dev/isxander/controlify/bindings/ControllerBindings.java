@@ -610,14 +610,14 @@ public class ControllerBindings {
         boolean clean = true;
         for (var binding : registry().values()) {
             if (!json.has(binding.id().toString())) {
-                CUtil.LOGGER.warn("Missing binding: " + binding.id() + " in config file. Skipping!");
+                CUtil.LOGGER.warn("Missing binding: {} in config file. Skipping!", binding.id());
                 clean = false;
                 continue;
             }
 
             var bind = json.get(binding.id().toString()).getAsJsonObject();
             if (bind == null) {
-                CUtil.LOGGER.warn("Unknown binding: " + binding.id() + " in config file. Skipping!");
+                CUtil.LOGGER.warn("Unknown binding: {} in config file. Skipping!", binding.id());
                 clean = false;
                 continue;
             }
