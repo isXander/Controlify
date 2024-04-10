@@ -94,7 +94,7 @@ dependencies {
     ).forEach {
         modImplementation(fabricApi.module(it, fapiVersion))
     }
-    //modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
+    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
     modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}") {
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
