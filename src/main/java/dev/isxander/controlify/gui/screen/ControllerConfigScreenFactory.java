@@ -321,7 +321,7 @@ public class ControllerConfigScreenFactory {
         input.ifPresent(inputComponent -> builder.option(Option.<Boolean>createBuilder()
                 .name(Component.translatable("controlify.gui.mixed_input"))
                 .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
-                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.defObj().mixedInput, v -> inputComponent.defObj().mixedInput = v)
+                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.confObj().mixedInput, v -> inputComponent.confObj().mixedInput = v)
                 .controller(TickBoxControllerBuilder::create)
                 .build()));
 
