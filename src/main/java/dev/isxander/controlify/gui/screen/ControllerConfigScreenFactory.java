@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ControllerConfigScreenFactory {
     private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
@@ -604,13 +605,16 @@ public class ControllerConfigScreenFactory {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
 
-            controlsGroup.options(bindGroup.stream().map(binding -> {
-                Option.Builder<?> option = binding.startYACLOption()
-                        .listener((opt, val) -> updateConflictingBinds(optionBinds));
+            controlsGroup.options(bindGroup.stream().flatMap(binding -> {
+                if (binding != controller.bindings().RADIAL_MENU) {
+                    Option.Builder<?> option = binding.startYACLOption()
+                            .listener((opt, val) -> updateConflictingBinds(optionBinds));
 
-                Option<?> built = option.build();
-                optionBinds.add(new OptionBindPair(built, binding));
-                return built;
+                    Option<?> built = option.build();
+                    optionBinds.add(new OptionBindPair(built, binding));
+                    return Stream.of(built);
+                }
+                return Stream.empty();
             }).toList());
 
             category.group(controlsGroup.build());
