@@ -28,6 +28,10 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.server.packets.EntityVibrationPacket;
+import dev.isxander.controlify.server.packets.OriginVibrationPacket;
+import dev.isxander.controlify.server.packets.ServerPolicyPacket;
+import dev.isxander.controlify.server.packets.VibrationPacket;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
@@ -51,6 +55,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -104,25 +109,25 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
-        ClientPlayNetworking.registerGlobalReceiver(VibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(VibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(OriginVibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(OriginVibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(EntityVibrationPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(EntityVibrationPacket.TYPE, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(ServerPolicyPacket.TYPE, (packet, player, sender) -> {
+        registerGlobalReceiver(ServerPolicyPacket.TYPE, packet -> {
             CUtil.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
@@ -135,10 +140,30 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControlifyPreInit(this);
             } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });
     }
+
+    /*? if >1.20.4 {*/
+    private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerGlobalReceiver(
+            net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type,
+            Consumer<T> packetConsumer
+    ) {
+        ClientPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
+            packetConsumer.accept(packet);
+        });
+    }
+    /*? } else {*//*
+    private static <T extends net.fabricmc.fabric.api.networking.v1.FabricPacket> void registerGlobalReceiver(
+            net.fabricmc.fabric.api.networking.v1.PacketType<T> type,
+            Consumer<T> packetConsumer
+    ) {
+        ClientPlayNetworking.registerGlobalReceiver(type, (packet, player, sender) -> {
+            packetConsumer.accept(packet);
+        });
+    }
+    *//*? }*/
 
     /**
      * Called once Minecraft has completely loaded.
@@ -500,7 +525,7 @@ public class Controlify implements ControlifyApi {
                 || state.getAxes().stream().map(state::getAxisState).anyMatch(axis -> Math.abs(axis) > 0.1f)
                 || state.getHats().stream().map(state::getHatState).anyMatch(hat -> hat != HatState.CENTERED);
         if (givingInput && !this.currentInputMode().isController()) {
-            this.setInputMode(input.config().config().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+            this.setInputMode(input.confObj().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
 
             return; // don't process input if this is changing mode.
         }
@@ -518,11 +543,11 @@ public class Controlify implements ControlifyApi {
         }
 
         if (this.currentInputMode().isController()) { // only process input if in correct input mode
-            if (minecraft.screen != null) {
-                ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
-            }
             if (minecraft.level != null) {
                 this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
+            }
+            if (minecraft.screen != null) {
+                ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
             }
 
             ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);

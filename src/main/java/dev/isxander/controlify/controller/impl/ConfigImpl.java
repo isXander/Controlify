@@ -2,9 +2,9 @@ package dev.isxander.controlify.controller.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
-import dev.isxander.controlify.controller.ConfigClass;
+import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.IConfig;
+import dev.isxander.controlify.controller.serialization.IConfig;
 import org.apache.commons.lang3.SerializationException;
 
 import java.util.function.Supplier;

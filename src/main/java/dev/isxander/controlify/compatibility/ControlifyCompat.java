@@ -1,7 +1,5 @@
 package dev.isxander.controlify.compatibility;
 
-import dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat;
-import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
@@ -19,15 +17,30 @@ public class ControlifyCompat {
     public static final String SIMPLE_VOICE_CHAT = "voicechat";
 
     public static void init() {
-        wrapCompatCall(SIMPLE_VOICE_CHAT, SimpleVoiceChatCompat::init);
+        /*? if simple-voice-chat {*//*
+        wrapCompatCall(
+                SIMPLE_VOICE_CHAT,
+                dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat::init
+        );
+        *//*?}*/
     }
 
     public static void ifBeginHudBatching() {
-        wrapCompatCall(IMMEDIATELY_FAST, ImmediatelyFastCompat::beginHudBatching);
+        /*? if immediately-fast {*//*
+        wrapCompatCall(
+                IMMEDIATELY_FAST,
+                dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::beginHudBatching
+        );
+        *//*?}*/
     }
 
     public static void ifEndHudBatching() {
-        wrapCompatCall(IMMEDIATELY_FAST, ImmediatelyFastCompat::endHudBatching);
+        /*? if immediately-fast {*//*
+        wrapCompatCall(
+                IMMEDIATELY_FAST,
+                dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::endHudBatching
+        );
+        *//*?}*/
     }
 
     private static void wrapCompatCall(String modid, Runnable runnable) {
@@ -36,6 +49,7 @@ public class ControlifyCompat {
                 runnable.run();
             } catch (Throwable t) {
                 CUtil.LOGGER.error("Failed to run compatibility code for {}, potentially unsupported version? Disabling '{}' compat for this instance.", modid, modid, t);
+                disabledMods.add(modid);
             }
         }
     }

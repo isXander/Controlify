@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.impl;
 
+import com.google.common.base.Joiner;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
@@ -86,5 +87,14 @@ public class ControllerStateImpl implements ModifiableControllerState {
         this.axes.clear();
         this.restingAxes.clear();
         this.hats.clear();
+    }
+
+    public String toDebugString() {
+        Joiner.MapJoiner joiner = Joiner.on(",").withKeyValueSeparator("=");
+        return "ControllerState{axes:%s,buttons:%s,hats:%s}".formatted(
+                joiner.join(axes),
+                joiner.join(buttons),
+                joiner.join(hats)
+        );
     }
 }

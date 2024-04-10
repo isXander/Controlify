@@ -2,6 +2,7 @@ package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import net.minecraft.resources.ResourceLocation;

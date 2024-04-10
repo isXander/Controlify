@@ -48,6 +48,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     private final ControllerEntity controller;
     private final @Nullable EditMode editMode;
     private final Screen parent;
+    private final Component text;
 
     private final RadialItem[] items;
     private final RadialButton[] buttons;
@@ -64,8 +65,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private final Processor processor = new Processor(this);
 
-    public RadialMenuScreen(ControllerEntity controller, ControllerBinding openBind, RadialItem[] items, @Nullable EditMode editMode, Screen parent) {
-        super(Component.empty());
+    public RadialMenuScreen(ControllerEntity controller, ControllerBinding openBind, RadialItem[] items, Component text, @Nullable EditMode editMode, Screen parent) {
+        super(text);
+        this.text = text;
         this.controller = controller;
         this.items = items;
         this.buttons = new RadialButton[items.length];
@@ -183,15 +185,20 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        if (editMode != null)
+        if (editMode != null) {
+            /*? if >1.20.4 {*/
+            renderBackground(graphics, mouseX, mouseY, delta);
+            /*? } else {*//*
             renderDirtBackground(graphics);
+            *//*?}*/
+        }
 
         super.render(graphics, mouseX, mouseY, delta);
 
         if (editMode == null) {
             graphics.drawCenteredString(
                     font,
-                    Component.translatable("controlify.radial_menu.configure_hint"),
+                    text,
                     width / 2,
                     height - 39,
                     -1

@@ -6,8 +6,11 @@ import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 
@@ -39,6 +42,102 @@ public final class RadialItems {
         items[3] = new GameModeItem(GameType.SPECTATOR);
 
         return items;
+    }
+
+    public static RadialMenuScreen.RadialItem[] createHotbarSave() {
+        Minecraft mc = Minecraft.getInstance();
+        RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
+
+        for (int i = 0; i < 9; i++) {
+            int j = i;
+            items[i] = new RadialItemRecord(
+                    Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
+                    getIconForHotbar(i, true),
+                    () -> {
+                        CreativeModeInventoryScreen.handleHotbarLoadOrSave(mc, j, false, true);
+                        return true;
+                    },
+                    new ResourceLocation("controlify", "hotbar_save/" + j)
+            );
+        }
+
+        return items;
+    }
+
+    public static RadialMenuScreen.RadialItem[] createHotbarLoad() {
+        Minecraft mc = Minecraft.getInstance();
+        RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
+
+        for (int i = 0; i < items.length; i++) {
+            int j = i;
+            items[i] = new RadialItemRecord(
+                    Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
+                    getIconForHotbar(i, true),
+                    () -> {
+                        CreativeModeInventoryScreen.handleHotbarLoadOrSave(mc, j, true, false);
+                        return true;
+                    },
+                    new ResourceLocation("controlify", "hotbar_load/" + j)
+            );
+        }
+
+        return items;
+    }
+
+    public static RadialMenuScreen.RadialItem[] createHotbarItemSelect() {
+        Minecraft mc = Minecraft.getInstance();
+        RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
+
+        for (int i = 0; i < items.length; i++) {
+            int j = i;
+            items[i] = new RadialItemRecord(
+                    Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
+                    (graphics, x, y, tickDelta) -> {
+                        graphics.renderItem(mc.player.getInventory().getItem(j), x, y);
+                    },
+                    () -> {
+                        mc.player.getInventory().selected = j;
+                        return true;
+                    },
+                    new ResourceLocation("controlify", "hotbar_item_select/" + j)
+            );
+        }
+
+        return items;
+    }
+
+    private static RadialIcon getIconForHotbar(int hotbarIndex, boolean showNumbers) {
+        Minecraft mc = Minecraft.getInstance();
+        Hotbar hotbar = mc.getHotbarManager().get(hotbarIndex);
+
+        /*? if >1.20.4 {*/
+        List<ItemStack> hotbarItems = hotbar.load(mc.player.registryAccess());
+        /*? } else {*//*
+        List<ItemStack> hotbarItems = hotbar;
+        *//*?}*/
+
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = hotbarItems.get(i);
+
+            if (!stack.is(Items.AIR)) {
+                return (graphics, x, y, tickDelta) -> {
+                    graphics.renderItem(stack, x, y);
+
+                    if (showNumbers) {
+                        graphics.pose().pushPose();
+                        graphics.pose().translate(0, 0, 1000);
+                        graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
+                        graphics.pose().popPose();
+                    }
+                };
+            }
+        }
+
+        return (graphics, x, y, tickDelta) -> {
+            if (showNumbers) {
+                graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
+            }
+        };
     }
 
     private static RadialMenuScreen.RadialItem getItemForBinding(ResourceLocation id, ControllerEntity controller) {

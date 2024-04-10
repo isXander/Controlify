@@ -176,7 +176,7 @@ public class ControlifyConfig {
             dirty |= !controller.bindings().fromJson(object.getAsJsonObject("bindings"));
             controller.deserializeFromObject(object.getAsJsonObject("config"), GSON);
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to load controller data for " + controller.info().uid() + ". Resetting to default!", e);
+            CUtil.LOGGER.error("Failed to load controller data for {}. Resetting to default!", controller.info().uid(), e);
             controller.resetToDefaultConfig();
             save();
         }

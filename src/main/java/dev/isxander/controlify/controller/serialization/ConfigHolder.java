@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller;
+package dev.isxander.controlify.controller.serialization;
 
 public interface ConfigHolder<T extends ConfigClass> {
     IConfig<T> config();

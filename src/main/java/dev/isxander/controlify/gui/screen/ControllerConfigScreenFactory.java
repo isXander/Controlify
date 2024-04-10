@@ -34,6 +34,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ControllerConfigScreenFactory {
     private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
@@ -321,7 +322,7 @@ public class ControllerConfigScreenFactory {
         input.ifPresent(inputComponent -> builder.option(Option.<Boolean>createBuilder()
                 .name(Component.translatable("controlify.gui.mixed_input"))
                 .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
-                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.defObj().mixedInput, v -> inputComponent.defObj().mixedInput = v)
+                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.confObj().mixedInput, v -> inputComponent.confObj().mixedInput = v)
                 .controller(TickBoxControllerBuilder::create)
                 .build()));
 
@@ -572,7 +573,14 @@ public class ControllerConfigScreenFactory {
                         .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
                         .text(newOptionLabel)
                         .build())
-                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(controller, null, RadialItems.createBindings(controller), new RadialItems.BindingEditMode(controller), screen)))
+                .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(
+                        controller,
+                        null,
+                        RadialItems.createBindings(controller),
+                        Component.empty(),
+                        new RadialItems.BindingEditMode(controller),
+                        screen
+                )))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
         Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
@@ -597,13 +605,16 @@ public class ControllerConfigScreenFactory {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
 
-            controlsGroup.options(bindGroup.stream().map(binding -> {
-                Option.Builder<?> option = binding.startYACLOption()
-                        .listener((opt, val) -> updateConflictingBinds(optionBinds));
+            controlsGroup.options(bindGroup.stream().flatMap(binding -> {
+                if (binding != controller.bindings().RADIAL_MENU) {
+                    Option.Builder<?> option = binding.startYACLOption()
+                            .listener((opt, val) -> updateConflictingBinds(optionBinds));
 
-                Option<?> built = option.build();
-                optionBinds.add(new OptionBindPair(built, binding));
-                return built;
+                    Option<?> built = option.build();
+                    optionBinds.add(new OptionBindPair(built, binding));
+                    return Stream.of(built);
+                }
+                return Stream.empty();
             }).toList());
 
             category.group(controlsGroup.build());

@@ -16,8 +16,13 @@ public class ChatComponentMixin {
     @Shadow @Final private Minecraft minecraft;
 
     // the below TAIL injects inside the multiple conditional statements, so can't use HEAD, but the first target inside the inner-most if
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;isChatFocused()Z", ordinal = 0))
-    private void translateRender(GuiGraphics graphics, int tickDelta, int i, int j, CallbackInfo ci) {
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent;getScale()D", ordinal = 0))
+    /*?if >1.20.4 {*/
+    private void translateRender(GuiGraphics graphics, int tickCount, int x, int y, boolean bl, CallbackInfo ci)
+    /*? } else { *//*
+    private void translateRender(GuiGraphics graphics, int tickCount, int x, int y, CallbackInfo ci)
+    *//*?}*/
+    {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
@@ -30,7 +35,12 @@ public class ChatComponentMixin {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    private void finishTranslateRender(GuiGraphics graphics, int tickDelta, int i, int j, CallbackInfo ci) {
+    /*?if >1.20.4 {*/
+    private void finishTranslateRender(GuiGraphics graphics, int tickCount, int x, int y, boolean bl, CallbackInfo ci)
+        /*? } else { *//*
+    private void finishTranslateRender(GuiGraphics graphics, int tickCount, int x, int y, CallbackInfo ci)
+    *//*?}*/
+    {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 

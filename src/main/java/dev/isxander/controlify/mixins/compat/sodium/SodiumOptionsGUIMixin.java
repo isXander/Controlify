@@ -1,5 +1,8 @@
 package dev.isxander.controlify.mixins.compat.sodium;
 
+import org.spongepowered.asm.mixin.*;
+
+/*? if sodium {*//*
 import dev.isxander.controlify.compatibility.sodium.SodiumGuiScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -7,7 +10,6 @@ import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
 import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -36,3 +38,8 @@ public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProc
         return controlify$screenProcessor;
     }
 }
+*//*?} else {*/
+@Mixin(targets = {})
+public class SodiumOptionsGUIMixin {
+}
+/*?}*/

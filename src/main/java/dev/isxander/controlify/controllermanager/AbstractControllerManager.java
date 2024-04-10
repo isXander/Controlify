@@ -56,7 +56,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
             return createController(ucid, hidInfo);
         } catch (Throwable e) {
-            CUtil.LOGGER.error("Failed to create controller #" + ucid + "!", e);
+            CUtil.LOGGER.error("Failed to create controller #{}!", ucid, e);
             CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
             CrashReportCategory category = crashReport.addCategory("Controller Info");
             category.setDetail("Unique controller ID", ucid);
@@ -79,9 +79,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
-
         boolean newController = controlify.config().loadOrCreateControllerData(controller);
+
+        CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
         ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
     }
@@ -101,7 +101,8 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void removeController(String uid) {
-        controllersByUid.remove(uid);
+        ControllerEntity controller = controllersByUid.remove(uid);
+        controllersByJid.remove(controller.info().ucid());
         Optional.ofNullable(hidInfoByUid.remove(uid))
                 .ifPresent(controlify.controllerHIDService()::unconsumeController);
         closeController(uid);

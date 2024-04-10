@@ -6,6 +6,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -50,7 +51,16 @@ public final class RadialIcons {
         return prefixLocation("item", BuiltInRegistries.ITEM.getKey(item));
     }
 
-    public static ResourceLocation getEffect(MobEffect effect) {
+    public static ResourceLocation getEffect(
+            /*? if >1.20.4 {*/
+            Holder<MobEffect> effectHolder
+            /*? } else {*//*
+            MobEffect effect
+            *//*?}*/
+    ) {
+        /*? if >1.20.4 {*/
+        MobEffect effect = effectHolder.value();
+        /*?}*/
         return prefixLocation("effect", BuiltInRegistries.MOB_EFFECT.getKey(effect));
     }
 
@@ -70,7 +80,12 @@ public final class RadialIcons {
 
         BuiltInRegistries.MOB_EFFECT.entrySet().forEach(entry -> {
             ResourceKey<MobEffect> key = entry.getKey();
+
+            /*? if >1.20.4 {*/
+            Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(entry.getValue());
+            /*? } else {*//*
             MobEffect effect = entry.getValue();
+            *//*?}*/
 
             TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
             map.put(prefixLocation("effect", key.location()), (graphics, x, y, tickDelta) -> {

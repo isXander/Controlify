@@ -31,7 +31,7 @@ public abstract class MinecraftMixin {
     // the mouse before the screen init is bad, because some mods (e.g. PuzzleLib)
     // have custom mouse events that call into screens, events that have not been
     // initialised yet in Screen#init. Causing NPEs and many strange issues.
-    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;releaseMouse()V", shift = At.Shift.BEFORE))
+    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;releaseMouse()V"))
     private void notifyInjectionToNotRun(Screen screen, CallbackInfo ci) {
         ((MouseMinecraftCallNotifier) mouseHandler).imFromMinecraftSetScreen();
     }
@@ -64,7 +64,11 @@ public abstract class MinecraftMixin {
         }
     }
 
+    /*? if >1.20.4 {*/
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
+    /*? } else {*//*
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
+    *//*?}*/
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
         Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getDeltaFrameTime()));
     }

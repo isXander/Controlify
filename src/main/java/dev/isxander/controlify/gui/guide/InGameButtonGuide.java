@@ -79,7 +79,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         );
     }
 
-    public void renderHud(GuiGraphics graphics, float tickDelta, int width, int height) {
+    public void renderHud(GuiGraphics graphics, float tickDelta) {
         boolean debugOpen = /*? if >=1.20.3 {*/
         minecraft.getDebugOverlay().showDebugScreen();
         /*?} else {*//*
@@ -258,20 +258,32 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     private HitResult calculateHitResult() {
+        /*? if >1.20.4 {*/
+        double pickRange = minecraft.player.blockInteractionRange();
+        /*? } else {*//*
         double pickRange = minecraft.gameMode.getPickRange();
+        *//*?}*/
+
+        // block
         HitResult pickResult = player.pick(pickRange, 1f, false);
 
         Vec3 eyePos = player.getEyePosition(1f);
 
+        /*? if >1.20.4 {*/
+        pickRange = minecraft.player.entityInteractionRange();
+        /*? } else {*//*
         if (minecraft.gameMode.hasFarPickRange()) {
             pickRange = 6.0;
         }
+        *//*?}*/
+
         double maxPickRange = pickResult.getLocation().distanceToSqr(eyePos);
 
         Vec3 viewVec = player.getViewVector(1f);
         Vec3 reachVec = eyePos.add(viewVec.x * pickRange, viewVec.y * pickRange, viewVec.z * pickRange);
         AABB box = player.getBoundingBox().expandTowards(viewVec.scale(pickRange)).inflate(1d, 1d, 1d);
 
+        // entity
         EntityHitResult entityHitResult = ProjectileUtil.getEntityHitResult(
                 player, eyePos, reachVec, box, (entity) -> !entity.isSpectator() && entity.isPickable(), maxPickRange
         );

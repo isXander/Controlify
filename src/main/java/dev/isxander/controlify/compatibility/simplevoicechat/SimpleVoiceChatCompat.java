@@ -1,3 +1,4 @@
+/*? if simple-voice-chat {*//*
 package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
@@ -104,3 +105,4 @@ public class SimpleVoiceChatCompat {
         return location;
     }
 }
+*//*?}*/

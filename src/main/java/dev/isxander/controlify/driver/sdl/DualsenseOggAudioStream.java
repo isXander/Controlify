@@ -1,43 +1,73 @@
 package dev.isxander.controlify.driver.sdl;
 
-import com.mojang.blaze3d.audio.OggAudioStream;
+import it.unimi.dsi.fastutil.floats.FloatConsumer;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.FloatBuffer;
+
+/*? if >1.20.4 { */
+/*? } else {*//*
+import com.mojang.blaze3d.audio.OggAudioStream;
+*//*?}*/
 
 /**
- * Dualsense haptics work on channels 3 and 4 of the regular
+ * DualSense haptics work on channels 3 and 4 of the regular
  * audio stream of the output device. It is operated just like a speaker.
  */
-public class DualsenseOggAudioStream extends OggAudioStream {
+public class DualsenseOggAudioStream extends
+        /*? if >1.20.4 { */
+        net.minecraft.client.sounds.JOrbisAudioStream
+        /*? } else {*//*
+        com.mojang.blaze3d.audio.OggAudioStream
+        *//*?}*/
+{
 
     public DualsenseOggAudioStream(InputStream inputStream) throws IOException {
         super(inputStream);
     }
 
-    @Override
-    protected void convertMono(FloatBuffer buf, OutputConcat channels) {
-        while (buf.hasRemaining()) {
-            channels.put(0f); // channel 1
-            channels.put(0f); // channel 2
-            float sample = buf.get();
-            channels.put(sample); // channel 3
-            channels.put(sample); // channel 4
+    public static void convertMono(float[] buf, FloatConsumer sampleConsumer) {
+        for (float sample : buf) {
+            sampleConsumer.accept(0f);  // channel 1
+            sampleConsumer.accept(0f);  // channel 2
+            sampleConsumer.accept(sample); // channel 3
+            sampleConsumer.accept(sample); // channel 4
         }
     }
 
-    @Override
-    protected void convertStereo(FloatBuffer leftBuf, FloatBuffer rightBuf, OutputConcat channels) {
-        while (leftBuf.hasRemaining() && rightBuf.hasRemaining()) {
-            channels.put(0f); // channel 1
-            channels.put(0f); // channel 2
-            channels.put(leftBuf.get()); // channel 3
-            channels.put(rightBuf.get()); // channel 4
+    public static void convertStereo(float[] bufLeft, float[] bufRight, FloatConsumer sampleConsumer) {
+        for (int i = 0; i < bufLeft.length; i++) {
+            sampleConsumer.accept(0f);
+            sampleConsumer.accept(0f);
+            sampleConsumer.accept(bufLeft[i]);
+            sampleConsumer.accept(bufRight[i]);
         }
     }
+
+    /*? if <=1.20.4 {*//*
+    @Override
+    protected void convertMono(java.nio.FloatBuffer buf, OutputConcat channels) {
+        float[] bufArr = new float[buf.limit()];
+        buf.rewind();
+        buf.get(bufArr);
+
+        convertMono(bufArr, channels::put);
+    }
+
+    @Override
+    protected void convertStereo(java.nio.FloatBuffer leftBuf, FloatBuffer rightBuf, OutputConcat channels) {
+        float[] leftBufArr = new float[leftBuf.limit()];
+        leftBuf.rewind();
+        leftBuf.get(leftBufArr);
+        float[] rightBufArr = new float[rightBuf.limit()];
+        rightBuf.rewind();
+        rightBuf.get(rightBufArr);
+
+        convertStereo(leftBufArr, rightBufArr, channels::put);
+    }
+    *//*?}*/
 
     @Override
     public @NotNull AudioFormat getFormat() {
