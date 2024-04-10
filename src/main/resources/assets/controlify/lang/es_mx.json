@@ -8,7 +8,6 @@
   "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Abre la wiki para solucionar problemas por los que tu control no funciona.",
   "controlify.gui.carousel.donate": "¡Donar!",
   "controlify.gui.carousel.art_credit": "Arte del control por %s.",
-
   "controlify.gui.global_settings.title": "Configuración Global",
   "controlify.gui.natives": "Nativos",
   "controlify.gui.load_vibration_natives": "Cargar Nativos",
@@ -49,7 +48,6 @@
   "controlify.gui.open_issue_tracker": "Abrir Rastreador de Problemas",
   "controlify.gui.copy_debug_dump": "Copiar Volcado de Depuración al Portapapeles",
   "controlify.gui.copy_debug_dump.tooltip": "Copia un volcado de depuración de Controlify a tu portapapeles. Es posible que se te solicite usar esto si estás buscando soporte.",
-
   "controlify.gui.new_options": "Novedades en esta actualización",
   "controlify.gui.new_options.tooltip": "Una muestra de las nuevas opciones en las últimas actualizaciones.",
   "controlify.gui.new_options.label": "¡Esta opción es nueva!",
@@ -146,10 +144,8 @@
   "controlify.gui.screen_repeat_navi_delay.tooltip": "Qué tan rápido se repite una acción de navegación de pantalla.",
   "controlify.gui.test_vibration": "Probar Vibración",
   "controlify.gui.test_vibration.tooltip": "Prueba la vibración de tu control.",
-
   "controlify.deadzone_group.controlify.left_stick": "Stick Izquierdo",
   "controlify.deadzone_group.controlify.right_stick": "Stick Derecho",
-
   "controlify.gui.radial_menu": "Menú Radial",
   "controlify.gui.radial_menu.tooltip": "Abre el menú radial para configurar qué hace cada botón.",
   "controlify.gui.radial_menu.btn_text": "CONFIGURAR",
@@ -160,24 +156,18 @@
   "controlify.gui.reset_all_binds": "Restablecer Todos los Vínculos",
   "controlify.gui.reset_all_binds.tooltip": "Restablece todos los vínculos a sus valores predeterminados. Esto se puede deshacer presionando el botón de deshacer.",
   "controlify.gui.bind_input_awaiting": "Presiona cualquier botón",
-
   "controlify.gui.format.ticks": "%s ticks",
   "controlify.gui.format.hold_toggle.hold": "Mantener",
   "controlify.gui.format.hold_toggle.toggle": "Alternar",
   "controlify.gui.format.open": "ABRIR URL",
   "controlify.gui.format.top": "Arriba",
   "controlify.gui.format.bottom": "Abajo",
-
   "controlify.gui.button": "Configuración del control...",
-
   "controlify.gui.controller_unavailable": "Control no disponible y no se puede editar.",
-
   "controlify.gui.no_sdl.title": "Biblioteca Nativa de Controlify Incompatible",
   "controlify.gui.no_sdl.message": "Controlify utiliza una biblioteca nativa adicional para agregar más funciones para el soporte del control. Tu sistema no es compatible con esta biblioteca. Te perderás características como:\n - vibración del control\n - identificación mejorada del control\n - controles de giroscopio",
-
   "controlify.new_features.title": "¡Controlify actualizado a %s!",
   "controlify.new_features.1.5.0": "Se agregó un menú radial que se puede configurar con cualquier acción que desees. Puedes encontrarlo en la configuración de tu control.",
-
   "controlify.vibration_strength.controlify.master": "Principal",
   "controlify.vibration_strength.controlify.master.tooltip": "La intensidad de todas las vibraciones. También afectará la intensidad de todas las demás fuentes.",
   "controlify.vibration_strength.controlify.player": "Jugador",
@@ -192,7 +182,6 @@
   "controlify.vibration_strength.controlify.global_event.tooltip": "Cuando ocurre un evento global, como la aparición de un wither o la muerte de un dragón del End.",
   "controlify.vibration_strength.controlify.misc": "Misceláneo",
   "controlify.vibration_strength.controlify.misc.tooltip": "Efectos varios.",
-
   "controlify.toast.vmouse_enabled.title": "Mouse Virtual Habilitado",
   "controlify.toast.vmouse_enabled.description": "El mouse virtual de Controlify ahora está habilitado para esta pantalla.",
   "controlify.toast.vmouse_disabled.title": "Mouse Virtual Deshabilitado",
@@ -215,24 +204,19 @@
   "controlify.toast.unmapped_joystick.description": "%s es un joystick, lo que significa que tiene una cantidad abstracta de entradas y los controles no se pueden configurar automáticamente. Debes configurar manualmente tus controles en la configuración. Si esto es un error, ¡probablemente estés en Linux!",
   "controlify.toast.new_server.title": "Nuevo servidor detectado",
   "controlify.toast.new_server.description": "Asegúrate de que las reglas de este servidor permitan el movimiento analógico del control. Si no es así, agrega el servidor a la lista de movimiento similar al teclado en la configuración global de Controlify.",
-
   "controlify.sdl3_onboarding.title": "Biblioteca nativa de Controlify",
   "controlify.sdl3_onboarding.message": "Muchas funciones en Controlify requieren una biblioteca adicional que debe descargarse para tu sistema. Si no descargas esta biblioteca, perderás acceso a muchas funciones como la vibración del control, el control del giroscopio, una mejor identificación del control. Este es un proceso sin problemas y solo tomará unos segundos. Si eliges no hacerlo, puedes cambiar de opinión más tarde en la configuración de Controlify, pero no tendrás acceso a estas funciones mientras tanto.",
   "controlify.sdl3_onboarding.message_mac": "Debido a que estás en macOS ARM, esta biblioteca es necesaria para cualquier tipo de identificación del control. Sin ella, todos los controles serán no identificados. Esto afectará gravemente la experiencia del usuario si eliges no descargarlos.",
   "controlify.sdl3_onboarding.question": "¿Te gustaría descargarlos?",
   "controlify.downloading_sdl.title": "Descargando SDL",
   "controlify.downloading_sdl.info": "Descargando una actualización de la biblioteca nativa que utiliza Controlify. Estás viendo esto porque has elegido descargar los archivos nativos en el primer inicio.\nEsto solo tomará unos segundos.",
-
   "controlify.controller_theme.default": "Predeterminado",
   "controlify.controller_theme.xbox_one": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
   "controlify.controller_theme.steam_deck": "Steam Deck",
-
   "controlify.bluetooth_warning.title": "Control conectado a través de Bluetooth",
   "controlify.bluetooth_warning.desc": "Algunos controles pueden carecer de funciones cuando se conectan a través de Bluetooth. Por ejemplo, la retroalimentación háptica HD en DualSense. Si crees que te falta una función, intenta usar USB antes de informar.",
-
   "controlify.bluetooth_warning.dont_show": "No mostrar de nuevo",
-
   "controlify.binding.controlify.gamepad_gyro_button": "Activar Giroscopio",
   "controlify.binding.controlify.walk_forward": "Avanzar",
   "controlify.binding.controlify.walk_backward": "Retroceder",
@@ -304,13 +288,10 @@
   "controlify.binding.controlify.cycle_opt_forward": "Ciclar Opción hacia Adelante",
   "controlify.binding.controlify.cycle_opt_backward": "Ciclar Opción hacia Atrás",
   "controlify.binding.controlify.clear_binding": "Borrar Asignación",
-
-  "controlify.binding_category.gui": "Interfaz de usuario",
+  "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Mouse virtual",
-
   "controlify.custom_binding.vanilla_description": "Asignación de tecla generada automáticamente desde Fabric API.",
-
-  "controlify.guide.ingame.inventory": "Abrir inventario",
+  "controlify.guide.ingame.inventory": "Abrir Inventario",
   "controlify.guide.ingame.swim_up": "Nadar hacia arriba",
   "controlify.guide.ingame.start_elytra": "Abrir alas de elytra",
   "controlify.guide.ingame.fly_up": "Volar hacia arriba",
@@ -324,25 +305,23 @@
   "controlify.guide.ingame.sneak": "Agacharse",
   "controlify.guide.ingame.dismount": "Desmontar",
   "controlify.guide.ingame.swim_down": "Nadar hacia abajo",
-  "controlify.guide.ingame.drop": "Soltar objeto",
-  "controlify.guide.ingame.swap_hands": "Cambiar manos",
+  "controlify.guide.ingame.drop": "Soltar Objeto",
+  "controlify.guide.ingame.swap_hands": "Cambiar Manos",
   "controlify.guide.ingame.attack": "Atacar",
   "controlify.guide.ingame.break": "Romper",
   "controlify.guide.ingame.use": "Usar",
   "controlify.guide.ingame.spectate": "Espectar",
   "controlify.guide.ingame.interact": "Interactuar",
-  "controlify.guide.ingame.pick_block": "Seleccionar bloque",
-
+  "controlify.guide.ingame.pick_block": "Seleccionar Bloque",
   "controlify.guide.container.place_all": "Colocar todo",
   "controlify.guide.container.place_one": "Colocar",
   "controlify.guide.container.swap": "Intercambiar",
   "controlify.guide.container.drop": "Soltar",
   "controlify.guide.container.take": "Tomar",
   "controlify.guide.container.exit": "Salir",
-  "controlify.guide.container.take_half": "Tomar la mitad",
+  "controlify.guide.container.take_half": "Tomar la Mitad",
   "controlify.guide.container.take_one": "Colocar uno",
-  "controlify.guide.container.quick_move": "Movimiento rápido",
-
+  "controlify.guide.container.quick_move": "Movimiento Rápido",
   "controlify.calibration.title": "Calibración del control para '%s'",
   "controlify.calibration.info": "Esta calibración optimiza la configuración de tu control para eliminar el desplazamiento del joystick y crear una lectura precisa del giroscopio (si tu control lo admite). Antes de comenzar, asegúrate de colocar tu control sobre una superficie plana y no tocar los joysticks.\n\nEsto solo tomará unos segundos.",
   "controlify.calibration.wait": "Por favor, no toques los joysticks de tu control hasta que la barra de progreso esté completa. Asegúrate de no tocar tu control.\nEste proceso solo tomará unos segundos.",
@@ -352,9 +331,7 @@
   "controlify.calibration.calibrating": "Calibrando...",
   "controlify.calibration.later": "Quizás después",
   "controlify.calibration.later.tooltip": "Debes calibrar para usar el control. Al presionar esto, se desactivará el control y deberás usarlo nuevamente para calibrarlo.",
-
   "controlify.radial_menu.configure_hint": "Configura las acciones en la configuración del control.",
-
   "controlify.controller_submission.title": "Envío de control desconocido",
   "controlify.controller_submission.message": "Por favor, envía información sobre tu control a la base de datos de Controlify para que se agregue en una futura actualización.\n\nControlify envía la siguiente información:\n- Los IDs de proveedor y producto de tu control\n- El GUID de tu control\n- El nombre de tu control (en el cuadro de abajo)\n- La versión de Controlify que estás utilizando actualmente\n\nEsto es completamente anónimo y no almacena ninguna información personal o de tu cuenta.",
   "controlify.controller_submission.operational_checkbox": "¿Tu control funciona con Controlify?",
@@ -363,24 +340,20 @@
   "controlify.controller_submission.name_hint": "Nombre del control",
   "controlify.controller_submission.name_narration": "Campo de entrada de nombre del control",
   "controlify.controller_submission.invalid_name": "Nombre de control no válido. Utiliza solo letras, números y espacios.",
-
   "controlify.error.hid": "Detección de control desactivada",
   "controlify.error.hid.desc": "La identificación del control falló, por lo que cualquier cambio en la configuración del control no se mantendrá. Consulta los registros para obtener más información.",
-
   "controlify.battery_level.unknown": "Desconocido",
   "controlify.battery_level.empty": "Vacío",
   "controlify.battery_level.low": "Bajo",
   "controlify.battery_level.medium": "Medio",
   "controlify.battery_level.high": "Alto",
   "controlify.battery_level.full": "Completo",
-
   "controlify.command.vibratecontroller.static.single": "Se vibró el control de 1 jugador.",
   "controlify.command.vibratecontroller.static.multiple": "Se vibró el control de %s jugadores.",
   "controlify.command.vibratecontroller.pos.single": "Se vibró el control de 1 jugador en %s, %s, %s.",
   "controlify.command.vibratecontroller.pos.multiple": "Se vibró el control de %s jugadores en %s, %s, %s.",
   "controlify.command.vibratecontroller.entity.single": "Se vibró el control de 1 jugador desde la posición de %s.",
   "controlify.command.vibratecontroller.entity.multiple": "Se vibró el control de %s jugadores desde la posición de %s.",
-
   "controlify.gui.mapping_maker.title": "Creador de Mapeo",
   "controlify.gui.mapping_maker.go_back": "Cometí un error",
   "controlify.gui.mapping_maker.go_back.tooltip": "Volver al paso anterior.",
@@ -408,28 +381,21 @@
   "controlify.gui.mapping_maker.instruction.right_stick": "'Stick derecho'",
   "controlify.gui.mapping_maker.instruction.left_trigger": "Presiona el gatillo izquierdo y suéltalo rápidamente.",
   "controlify.gui.mapping_maker.instruction.right_trigger": "Presiona el gatillo derecho y suéltalo rápidamente.",
-
   "controlify.ask_to_map_controller.title": "¿Mapear control?",
   "controlify.ask_to_map_controller.message": "Parece que tu control puede no ser un gamepad, por lo que los controles predeterminados podrían no funcionar y podrías tener texturas faltantes en las guías de entrada. Mapear tu control te guiará para convertir las entradas de tu control en un estándar de gamepad regular.",
   "controlify.ask_to_map_controller.yes": "Mapear ahora",
   "controlify.ask_to_map_controller.no": "Quizás después",
-
   "controlify.compat.svc.hold": "(Mantener)",
   "controlify.compat.svc.toggle": "(Alternar)",
-
   "controlify.hat_state.up": "Arriba",
   "controlify.hat_state.down": "Abajo",
   "controlify.hat_state.left": "Izquierda",
   "controlify.hat_state.right": "Derecha",
-
   "controlify.joystick_mapping.unmapped.axis": "Eje #%s",
   "controlify.joystick_mapping.unmapped.button": "Botón #%s",
   "controlify.joystick_mapping.unmapped.hat": "Hat #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Negativo)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positivo)",
-
-
-
   "controlify.joystick_mapping.tm_t16000.axis.roll": "Giro",
   "controlify.joystick_mapping.tm_t16000.axis.pitch": "Inclinación",
   "controlify.joystick_mapping.tm_t16000.axis.yaw": "Desvio",
