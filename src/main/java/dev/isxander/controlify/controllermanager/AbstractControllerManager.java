@@ -79,9 +79,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
-
         boolean newController = controlify.config().loadOrCreateControllerData(controller);
+
+        CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
         ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
     }
@@ -101,7 +101,8 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void removeController(String uid) {
-        controllersByUid.remove(uid);
+        ControllerEntity controller = controllersByUid.remove(uid);
+        controllersByJid.remove(controller.info().ucid());
         Optional.ofNullable(hidInfoByUid.remove(uid))
                 .ifPresent(controlify.controllerHIDService()::unconsumeController);
         closeController(uid);
