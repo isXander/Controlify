@@ -30,8 +30,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 
 public class InGameInputHandler {
@@ -57,7 +55,6 @@ public class InGameInputHandler {
     }
 
     public void inputTick() {
-        //handlePlayerLookInput();
         handlePlayerLookInput();
         handleKeybinds();
         preventFlyDrifting();
