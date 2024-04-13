@@ -7,11 +7,6 @@ import javax.sound.sampled.AudioFormat;
 import java.io.IOException;
 import java.io.InputStream;
 
-/*? if >1.20.4 { */
-/*? } else {*//*
-import com.mojang.blaze3d.audio.OggAudioStream;
-*//*?}*/
-
 /**
  * DualSense haptics work on channels 3 and 4 of the regular
  * audio stream of the output device. It is operated just like a speaker.
@@ -57,7 +52,7 @@ public class DualsenseOggAudioStream extends
     }
 
     @Override
-    protected void convertStereo(java.nio.FloatBuffer leftBuf, FloatBuffer rightBuf, OutputConcat channels) {
+    protected void convertStereo(java.nio.FloatBuffer leftBuf, java.nio.FloatBuffer rightBuf, OutputConcat channels) {
         float[] leftBufArr = new float[leftBuf.limit()];
         leftBuf.rewind();
         leftBuf.get(leftBufArr);

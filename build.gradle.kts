@@ -29,10 +29,6 @@ base {
     archivesName.set(property("modName").toString())
 }
 
-java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(17))
-}
-
 // add custom expressions to stonecutter to allow optional dependencies at build-time
 stonecutter.expression {
     when (it) {
@@ -156,11 +152,6 @@ dependencies {
     }
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
-}
-
 // download the most up to date controller database for SDL2
 val downloadHidDb by tasks.registering(Download::class) {
     finalizedBy("convertHidDBToSDL3")
@@ -228,6 +219,23 @@ tasks {
 machete {
     // don't minify fabric.mod.json and mixin file
     json.enabled.set(false)
+}
+
+val javaMajorVersion = property("java.version").toString().toInt()
+java {
+    withSourcesJar()
+    withJavadocJar()
+
+    javaMajorVersion
+        .let { JavaVersion.values()[it - 1] }
+        .let {
+            sourceCompatibility = it
+            targetCompatibility = it
+        }
+}
+
+tasks.withType<JavaCompile> {
+    options.release = javaMajorVersion
 }
 
 publishMods {

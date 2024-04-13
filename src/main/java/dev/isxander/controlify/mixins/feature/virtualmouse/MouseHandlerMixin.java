@@ -1,6 +1,6 @@
 package dev.isxander.controlify.mixins.feature.virtualmouse;
 
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import net.minecraft.client.MouseHandler;

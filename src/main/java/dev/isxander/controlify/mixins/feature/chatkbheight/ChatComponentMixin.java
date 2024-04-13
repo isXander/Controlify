@@ -35,12 +35,13 @@ public class ChatComponentMixin {
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    /*?if >1.20.4 {*/
-    private void finishTranslateRender(GuiGraphics graphics, int tickCount, int x, int y, boolean bl, CallbackInfo ci)
-        /*? } else { *//*
-    private void finishTranslateRender(GuiGraphics graphics, int tickCount, int x, int y, CallbackInfo ci)
-    *//*?}*/
-    {
+    private void finishTranslateRender(
+            GuiGraphics graphics,
+            int tickCount,
+            int x, int y,
+            /*?if >1.20.4 {*/boolean bl,/*?}*/
+            CallbackInfo ci
+    ) {
         if (!(minecraft.screen instanceof ChatScreen))
             return;
 
