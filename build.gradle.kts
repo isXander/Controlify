@@ -13,11 +13,12 @@ plugins {
     id("de.undercouch.download") version "5.5.0"
 }
 
-val mcVersion = stonecutter.current.version // get this builds minecraft version
+val mcVersion = stonecutter.current.project
+val mcSemverVersion = stonecutter.current.version
 val mcDep = property("fmj.mcDep").toString()
 
 group = "dev.isxander"
-val versionWithoutMC = "2.0.0-beta.2"
+val versionWithoutMC = "2.0.0-beta.3"
 version = "$versionWithoutMC+${stonecutter.current.project}"
 
 val isAlpha = "alpha" in version.toString()
@@ -74,7 +75,7 @@ repositories {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:${stonecutter.current.project}")
+    minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
         // quilt does not support pre-releases so it is necessary to only layer if they exist
         optionalProp("deps.quiltMappings") {
@@ -254,8 +255,13 @@ publishMods {
     })
     modLoaders.add("fabric")
 
+    fun versionList(prop: String) = findProperty(prop)?.toString()
+        ?.split(',')
+        ?.map { it.trim() }
+        ?: emptyList()
+
     // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = listOf(stonecutter.current.project)
+    val stableMCVersions = versionList("pub.stableMC")
 
     val modrinthId: String by project
     if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
@@ -263,6 +269,7 @@ publishMods {
             projectId.set(modrinthId)
             accessToken.set(findProperty("modrinth.token")?.toString())
             minecraftVersions.addAll(stableMCVersions)
+            minecraftVersions.addAll(versionList("pub.modrinthMC"))
 
             requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }
@@ -280,6 +287,7 @@ publishMods {
             projectId.set(curseforgeId)
             accessToken.set(findProperty("curseforge.token")?.toString())
             minecraftVersions.addAll(stableMCVersions)
+            minecraftVersions.addAll(versionList("pub.curseMC"))
 
             requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }

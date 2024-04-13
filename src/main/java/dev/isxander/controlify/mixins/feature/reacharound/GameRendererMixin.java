@@ -14,7 +14,17 @@ import org.spongepowered.asm.mixin.injection.At;
 public class GameRendererMixin {
     @Shadow @Final Minecraft minecraft;
 
-    @ModifyExpressionValue(method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"))
+    @ModifyExpressionValue(
+            /*? if >1.20.4 {*/
+            method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;",
+            /*? } else { *//*
+            method = "pick",
+            *//*?}*/
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"
+            )
+    )
     private HitResult modifyPick(HitResult hitResult) {
         return ReachAroundHandler.getReachAroundHitResult(minecraft.getCameraEntity(), hitResult);
     }
