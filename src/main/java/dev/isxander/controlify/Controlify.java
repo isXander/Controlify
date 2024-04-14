@@ -5,6 +5,7 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
+import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -417,6 +418,17 @@ public class Controlify implements ControlifyApi {
         // if the future already exists, just return it
         if (nativeOnboardingFuture != null)
             return nativeOnboardingFuture;
+
+        GlobalSettings settings = config().globalSettings();
+
+        // try offline load without asking permission (because nothing is downloaded)
+        if ((!settings.vibrationOnboarded || settings.loadVibrationNatives) && SDL3NativesManager.tryOfflineLoadAndStart()) {
+            settings.vibrationOnboarded = true;
+            settings.loadVibrationNatives = true;
+            config().setDirty();
+
+            return nativeOnboardingFuture = SDL3NativesManager.maybeLoad(); // maybeLoad returns the completed initFuture
+        }
 
         // just say no if the platform doesn't support it
         if (!SDL3NativesManager.isSupportedOnThisPlatform()) {

@@ -1,4 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
+import dev.kikugie.stonecutter.processor.Expression
+import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
     `java-library`
@@ -8,12 +10,11 @@ plugins {
     id("me.modmuss50.mod-publish-plugin") version "0.5.+"
     `maven-publish`
 
-    id("io.github.p03w.machete") version "2.+"
     id("org.ajoberstar.grgit") version "5.0.+"
-    id("de.undercouch.download") version "5.5.0"
+    id("de.undercouch.download")
 }
 
-val mcVersion = stonecutter.current.project
+val mcVersion = property("mcVersion")!!.toString()
 val mcSemverVersion = stonecutter.current.version
 val mcDep = property("fmj.mcDep").toString()
 
@@ -31,7 +32,7 @@ base {
 }
 
 // add custom expressions to stonecutter to allow optional dependencies at build-time
-stonecutter.expression {
+val scExpression: Expression = {
     when (it) {
         "immediately-fast" -> isPropDefined("deps.immediatelyFast")
         "iris" -> isPropDefined("deps.iris")
@@ -41,6 +42,7 @@ stonecutter.expression {
         else -> null
     }
 }
+stonecutter.expression(scExpression)
 
 loom {
     accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
@@ -63,11 +65,13 @@ repositories {
     maven("https://maven.isxander.dev/releases")
     maven("https://maven.isxander.dev/snapshots")
     maven("https://maven.quiltmc.org/repository/release")
-    maven("https://api.modrinth.com/maven") {
-        name = "Modrinth"
-        content {
-            includeGroup("maven.modrinth")
-        }
+    exclusiveContent {
+        forRepository { maven("https://api.modrinth.com/maven") }
+        filter { includeGroup("maven.modrinth") }
+    }
+    exclusiveContent {
+        forRepository { maven("https://cursemaven.com") }
+        filter { includeGroup("curse.maven") }
     }
     maven("https://jitpack.io")
     maven("https://maven.flashyreese.me/snapshots")
@@ -107,7 +111,7 @@ dependencies {
     }
 
     // bindings for SDL3
-    api(include("dev.isxander:libsdl4j:${property("deps.sdl34j")}")!!)
+    api(include("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")!!)
 
     // used to identify controller PID/VID when SDL is not available
     api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
@@ -217,10 +221,38 @@ tasks {
     }
 }
 
-machete {
-    // don't minify fabric.mod.json and mixin file
-    json.enabled.set(false)
+/*
+val offlineChiseledBuild by tasks.registering(StonecutterTask::class) {
+    group = "offline"
+
+    toVersion.set(stonecutter.current)
+    expressions.set(listOf(scExpression, {
+        when (it) {
+            "offline" -> true
+            else -> null
+        }
+    }))
+
+    input.set(rootProject.file("./src").toPath())
+    output.set(layout.buildDirectory.get().asFile.toPath().resolve("src"))
 }
+ */
+
+val offlineRemapJar by tasks.registering(RemapJarTask::class) {
+    group = "offline"
+
+    val downloadTask = rootProject.tasks["downloadOfflineNatives"]
+
+    dependsOn(tasks.jar)
+    dependsOn(downloadTask)
+    inputFile.set(tasks.jar.get().archiveFile.get().asFile)
+
+    from(downloadTask.outputs.files)
+
+    archiveClassifier.set("offline")
+}
+
+tasks.build { dependsOn(offlineRemapJar) }
 
 val javaMajorVersion = property("java.version").toString().toInt()
 java {
@@ -242,6 +274,7 @@ tasks.withType<JavaCompile> {
 publishMods {
     displayName.set("Controlify $versionWithoutMC for MC $mcVersion")
     file.set(tasks.remapJar.get().archiveFile)
+    additionalFiles.setFrom(offlineRemapJar.get().archiveFile)
     changelog.set(
         rootProject.file("changelogs/${versionWithoutMC}.md")
             .takeIf { it.exists() }
@@ -275,10 +308,6 @@ publishMods {
             requires { slug.set("yacl") }
             optional { slug.set("modmenu") }
         }
-
-        tasks.getByName("publishModrinth") {
-            dependsOn("optimizeOutputsOfRemapJar")
-        }
     }
 
     val curseforgeId: String by project
@@ -293,10 +322,6 @@ publishMods {
             requires { slug.set("yacl") }
             optional { slug.set("modmenu") }
         }
-
-        tasks.getByName("publishCurseforge") {
-            dependsOn("optimizeOutputsOfRemapJar")
-        }
     }
 
     val githubProject: String by project
@@ -305,10 +330,6 @@ publishMods {
             repository.set(githubProject)
             accessToken.set(findProperty("github.token")?.toString())
             commitish.set(grgit.branch.current().name)
-        }
-
-        tasks.getByName("publishGithub") {
-            dependsOn("optimizeOutputsOfRemapJar")
         }
     }
 }
@@ -334,17 +355,10 @@ publishing {
                     this.password = password
                 }
             }
-            tasks.getByName("publishModPublicationToXanderReleasesRepository") {
-                dependsOn("optimizeOutputsOfRemapJar")
-            }
         } else {
             println("Xander Maven credentials not satisfied.")
         }
     }
-}
-
-tasks.getByName("generateMetadataFileForModPublication") {
-    dependsOn("optimizeOutputsOfRemapJar")
 }
 
 fun <T> optionalProp(property: String, block: (String) -> T?) {
@@ -352,5 +366,5 @@ fun <T> optionalProp(property: String, block: (String) -> T?) {
 }
 
 fun isPropDefined(property: String): Boolean {
-    return property(property)?.toString()?.isNotBlank() ?: false
+    return findProperty(property)?.toString()?.isNotBlank() ?: false
 }

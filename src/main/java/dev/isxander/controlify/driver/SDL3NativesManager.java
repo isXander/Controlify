@@ -1,7 +1,5 @@
 package dev.isxander.controlify.driver;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.Hashing;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
@@ -21,10 +19,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.*;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static dev.isxander.sdl3java.api.SdlInit.*;
 import static dev.isxander.sdl3java.api.SdlSubSystemConst.*;
@@ -60,6 +56,10 @@ public class SDL3NativesManager {
 
         attemptedLoad = true;
 
+        if (tryOfflineLoadAndStart()) {
+            return initFuture = CompletableFuture.completedFuture(true);
+        }
+
         if (!isSupportedOnThisPlatform()) {
             CUtil.LOGGER.warn("No native library for current platform, skipping SDL3 load");
             return initFuture = CompletableFuture.completedFuture(false);
@@ -84,6 +84,33 @@ public class SDL3NativesManager {
             CUtil.LOGGER.warn("Failed to load SDL3 from local file, attempting to re-download");
         }
         return initFuture = downloadAndStart(localLibraryPath);
+    }
+
+    public static boolean tryOfflineLoadAndStart() {
+        if (initFuture != null) {
+            throw new IllegalStateException("Tried to start offline mode but initialization already in progress.");
+        }
+
+        try {
+            SdlNativeLibraryLoader.loadLibSDL3FromFilePathNow("SDL3");
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        initFuture = new CompletableFuture<>();
+
+        try {
+            startSDL3();
+            loaded = true;
+            initFuture.complete(true);
+        } catch (Throwable t) {
+            CUtil.LOGGER.error("Failed to start SDL3", t);
+            initFuture.complete(false);
+            return false;
+        }
+
+        return true;
     }
 
     private static boolean loadAndStart(Path localLibraryPath) {
