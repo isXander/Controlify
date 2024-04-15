@@ -105,7 +105,7 @@ dependencies {
     }
     modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion") // so you can do `depends: fabric-api` in FMJ
 
-    modApi("dev.isxander.yacl:yet-another-config-lib-fabric:${property("deps.yacl")}") {
+    modApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
         // was including old fapi version that broke things at runtime
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
     }

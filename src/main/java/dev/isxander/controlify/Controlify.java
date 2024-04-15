@@ -20,6 +20,7 @@ import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -110,28 +111,29 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
-        registerGlobalReceiver(VibrationPacket.TYPE, packet -> {
+        SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        registerGlobalReceiver(OriginVibrationPacket.TYPE, packet -> {
+        SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        registerGlobalReceiver(EntityVibrationPacket.TYPE, packet -> {
+        SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
             if (config().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
-        registerGlobalReceiver(ServerPolicyPacket.TYPE, packet -> {
+        SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
             CUtil.LOGGER.info("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
+
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             DebugLog.log("Disconnected from server, resetting server policies");
             ServerPolicies.unsetAll();
@@ -145,26 +147,6 @@ public class Controlify implements ControlifyApi {
             }
         });
     }
-
-    /*? if >1.20.4 {*/
-    private static <T extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> void registerGlobalReceiver(
-            net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type<T> type,
-            Consumer<T> packetConsumer
-    ) {
-        ClientPlayNetworking.registerGlobalReceiver(type, (packet, context) -> {
-            packetConsumer.accept(packet);
-        });
-    }
-    /*? } else {*//*
-    private static <T extends net.fabricmc.fabric.api.networking.v1.FabricPacket> void registerGlobalReceiver(
-            net.fabricmc.fabric.api.networking.v1.PacketType<T> type,
-            Consumer<T> packetConsumer
-    ) {
-        ClientPlayNetworking.registerGlobalReceiver(type, (packet, player, sender) -> {
-            packetConsumer.accept(packet);
-        });
-    }
-    *//*? }*/
 
     /**
      * Called once Minecraft has completely loaded.

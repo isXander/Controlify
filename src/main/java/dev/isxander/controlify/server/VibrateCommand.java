@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.packets.EntityVibrationPacket;
@@ -100,13 +101,19 @@ public class VibrateCommand {
         );
     }
 
-    private static int vibrateStatic(CommandSourceStack source, Collection<ServerPlayer> targets, float lowFreqMagnitude, float highFreqMagnitude, int durationTicks, RumbleSource rumbleSource) {
+    private static int vibrateStatic(
+            CommandSourceStack source,
+            Collection<ServerPlayer> targets,
+            float lowFreqMagnitude, float highFreqMagnitude,
+            int durationTicks,
+            RumbleSource rumbleSource
+    ) {
         RumbleState[] frames = new RumbleState[durationTicks];
         Arrays.fill(frames, new RumbleState(lowFreqMagnitude, highFreqMagnitude));
 
         VibrationPacket packet = new VibrationPacket(rumbleSource, frames);
         for (var player : targets) {
-            ServerPlayNetworking.send(player, packet);
+            SidedNetworkApi.S2C().sendPacket(player, VibrationPacket.CHANNEL, packet);
         }
 
         source.sendSuccess(
@@ -119,12 +126,19 @@ public class VibrateCommand {
         return targets.size();
     }
 
-    private static int vibrateFromOrigin(CommandSourceStack source, Collection<ServerPlayer> targets, Vec3 origin, float effectRange, int duration, float lowFreqMagnitude, float highFreqMagnitude, RumbleSource rumbleSource) {
+    private static int vibrateFromOrigin(
+            CommandSourceStack source,
+            Collection<ServerPlayer> targets,
+            Vec3 origin,
+            float effectRange, int duration,
+            float lowFreqMagnitude, float highFreqMagnitude,
+            RumbleSource rumbleSource
+    ) {
         RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
         OriginVibrationPacket packet = new OriginVibrationPacket(origin.toVector3f(), effectRange, duration, state, rumbleSource);
         for (var player : targets) {
-            ServerPlayNetworking.send(player, packet);
+            SidedNetworkApi.S2C().sendPacket(player, OriginVibrationPacket.CHANNEL, packet);
         }
 
         source.sendSuccess(
@@ -137,12 +151,19 @@ public class VibrateCommand {
         return targets.size();
     }
 
-    private static int vibrateFromEntity(CommandSourceStack source, Collection<ServerPlayer> targets, Entity origin, float effectRange, int duration, float lowFreqMagnitude, float highFreqMagnitude, RumbleSource rumbleSource) {
+    private static int vibrateFromEntity(
+            CommandSourceStack source,
+            Collection<ServerPlayer> targets,
+            Entity origin,
+            float effectRange, int duration,
+            float lowFreqMagnitude, float highFreqMagnitude,
+            RumbleSource rumbleSource
+    ) {
         RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
         EntityVibrationPacket packet = new EntityVibrationPacket(origin.getId(), effectRange, duration, state, rumbleSource);
         for (var player : targets) {
-            ServerPlayNetworking.send(player, packet);
+            SidedNetworkApi.S2C().sendPacket(player, EntityVibrationPacket.CHANNEL, packet);
         }
 
         source.sendSuccess(
