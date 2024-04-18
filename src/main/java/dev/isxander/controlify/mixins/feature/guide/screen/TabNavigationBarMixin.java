@@ -39,18 +39,19 @@ public class TabNavigationBarMixin {
         TabButton firstTab = tabButtons.get(0);
         TabButton lastTab = tabButtons.get(tabButtons.size() - 1);
 
-        BindRenderer prevBind = controller.bindings().GUI_PREV_TAB.renderer();
-        DrawSize prevBindDrawSize = prevBind.size();
-        int firstButtonX = Math.max(firstTab.getX() - 2 - prevBindDrawSize.width(), firstTab.getX() / 2 - prevBindDrawSize.width() / 2);
-        int firstButtonY = 12;
-        prevBind.render(graphics, firstButtonX, firstButtonY);
-
-        BindRenderer nextBind = controller.bindings().GUI_NEXT_TAB.renderer();
-        DrawSize nextBindDrawSize = nextBind.size();
-        int lastButtonEnd = lastTab.getX() + lastTab.getWidth();
-        int lastButtonX = Math.min(lastTab.getX() + lastTab.getWidth() + 2, lastButtonEnd + (width - lastButtonEnd) / 2 - nextBindDrawSize.width() / 2);
-        int lastButtonY = 12;
-        nextBind.render(graphics, lastButtonX, lastButtonY);
+        // TODO
+//        BindRenderer prevBind = controller.bindings().GUI_PREV_TAB.renderer();
+//        DrawSize prevBindDrawSize = prevBind.size();
+//        int firstButtonX = Math.max(firstTab.getX() - 2 - prevBindDrawSize.width(), firstTab.getX() / 2 - prevBindDrawSize.width() / 2);
+//        int firstButtonY = 12;
+//        prevBind.render(graphics, firstButtonX, firstButtonY);
+//
+//        BindRenderer nextBind = controller.bindings().GUI_NEXT_TAB.renderer();
+//        DrawSize nextBindDrawSize = nextBind.size();
+//        int lastButtonEnd = lastTab.getX() + lastTab.getWidth();
+//        int lastButtonX = Math.min(lastTab.getX() + lastTab.getWidth() + 2, lastButtonEnd + (width - lastButtonEnd) / 2 - nextBindDrawSize.width() / 2);
+//        int lastButtonY = 12;
+//        nextBind.render(graphics, lastButtonX, lastButtonY);
 
         ControlifyCompat.ifEndHudBatching();
     }

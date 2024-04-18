@@ -3,19 +3,15 @@ package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.CreateWorldScreenProcessor;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(CreateWorldScreen.class)
@@ -42,7 +38,6 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
         ButtonGuideApi.addGuideToButtonBuiltin(
                 button,
                 bindings -> bindings.GUI_ABSTRACT_ACTION_1,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;
@@ -65,7 +60,6 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
         ButtonGuideApi.addGuideToButtonBuiltin(
                 button,
                 bindings -> bindings.GUI_BACK,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;

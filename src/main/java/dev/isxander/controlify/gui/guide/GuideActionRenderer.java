@@ -1,7 +1,6 @@
 package dev.isxander.controlify.gui.guide;
 
-import dev.isxander.controlify.api.bind.BindRenderer;
-import dev.isxander.controlify.gui.DrawSize;
+import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.layout.RenderComponent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -31,27 +30,17 @@ public class GuideActionRenderer<T> implements RenderComponent {
             return;
 
         Font font = Minecraft.getInstance().font;
-
-        BindRenderer renderer = guideAction.binding().renderer();
-        DrawSize drawSize = renderer.size();
-        int textWidth = font.width(name.get());
-
-        renderer.render(graphics, x + (!rtl ? 0 : textWidth + 2), y + drawSize.height() / 2);
-
-        int textX = x + (rtl ? 0 : drawSize.width() + 2);
-        int textY = y + drawSize.height() / 2 - font.lineHeight / 2;
+        int textWidth = name.map(font::width).orElse(0);
 
         if (textContrast)
-            graphics.fill(textX - 1, textY - 1, textX + textWidth + 1, textY + font.lineHeight + 1, 0x80000000);
-        graphics.drawString(font, name.get(), textX, textY, 0xFFFFFF, false);
+            graphics.fill(x - 1, y - 1, x + textWidth + 1, y + font.lineHeight + 1, 0x80000000);
+        graphics.drawString(font, name.get(), x, y, 0xFFFFFF, false);
     }
 
     @Override
     public Vector2ic size() {
-        DrawSize bindSize = guideAction.binding().renderer().size();
         Font font = Minecraft.getInstance().font;
-
-        return new Vector2i(bindSize.width() + 2 + name.map(font::width).orElse(-2), Math.max(bindSize.height(), font.lineHeight));
+        return new Vector2i(name.map(font::width).orElse(0), Math.max(22, font.lineHeight));
     }
 
     @Override
@@ -60,6 +49,13 @@ public class GuideActionRenderer<T> implements RenderComponent {
     }
 
     public void updateName(T ctx) {
-        name = guideAction.name().supply(ctx);
+        name = guideAction.name().supply(ctx)
+                .map(comp -> {
+                    var component = Component.empty();
+                    if (!rtl) component.append(BindingFontHelper.binding(guideAction.binding().id()));
+                    component.append(comp);
+                    if (rtl) component.append(BindingFontHelper.binding(guideAction.binding().id()));
+                    return component;
+                });
     }
 }

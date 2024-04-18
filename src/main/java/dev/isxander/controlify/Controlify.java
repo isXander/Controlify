@@ -16,6 +16,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.driver.global.GlobalDriver;
+import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -41,6 +42,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -48,6 +50,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -77,6 +80,7 @@ public class Controlify implements ControlifyApi {
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
+    private InputFontMapper inputFontMapper;
 
     private ControllerHIDService controllerHIDService;
 
@@ -107,6 +111,9 @@ public class Controlify implements ControlifyApi {
 
         this.inGameInputHandler = null; // set when the current controller changes
         this.virtualMouseHandler = new VirtualMouseHandler();
+
+        this.inputFontMapper = new InputFontMapper();
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(inputFontMapper);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
@@ -688,6 +695,10 @@ public class Controlify implements ControlifyApi {
                 virtualMouseHandler().disableVirtualMouse();
             }
         }
+    }
+
+    public InputFontMapper inputFontMapper() {
+        return inputFontMapper;
     }
 
     private void notifyOfNewFeatures() {

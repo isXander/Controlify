@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Optional;
 
 public class ButtonBind implements IBind {
@@ -25,6 +26,11 @@ public class ButtonBind implements IBind {
     @Override
     public float state(ControllerStateView state) {
         return state.isButtonDown(button) ? 1 : 0;
+    }
+
+    @Override
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of(button);
     }
 
     @Override

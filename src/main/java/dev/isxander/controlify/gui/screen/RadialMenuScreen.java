@@ -6,6 +6,7 @@ import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.hdhaptic.HapticEffects;
+import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
@@ -280,8 +281,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 this.item.icon().draw(graphics, 0, 0, delta);
                 graphics.pose().popPose();
             } else {
-                BindRenderer renderer = controller.bindings().GUI_PRESS.renderer();
-                renderer.render(graphics, 16 - renderer.size().width() / 2, 16);
+                Component bind = BindingFontHelper.binding(controller.bindings().GUI_PRESS);
+                graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 
             graphics.pose().popPose();

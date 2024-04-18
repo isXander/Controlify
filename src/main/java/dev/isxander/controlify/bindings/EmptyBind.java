@@ -5,6 +5,9 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class EmptyBind implements IBind {
     public static final String BIND_ID = "empty";
@@ -12,6 +15,11 @@ public class EmptyBind implements IBind {
     @Override
     public float state(ControllerStateView state) {
         return 0;
+    }
+
+    @Override
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of();
     }
 
     @Override

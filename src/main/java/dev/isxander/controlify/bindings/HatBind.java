@@ -10,6 +10,8 @@ import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public class HatBind implements IBind {
     public static final String BIND_ID = "hat";
 
@@ -24,6 +26,11 @@ public class HatBind implements IBind {
     @Override
     public float state(ControllerStateView state) {
         return state.getHatState(hat) == targetState ? 1 : 0;
+    }
+
+    @Override
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of(hat);
     }
 
     @Override

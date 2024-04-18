@@ -2,6 +2,8 @@ package dev.isxander.controlify.font;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.ControlifyApi;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentContents;
 import net.minecraft.network.chat.FormattedText;
@@ -14,7 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public final class BindComponentContents implements ComponentContents {
+public record BindComponentContents(ResourceLocation binding) implements ComponentContents {
     public static final MapCodec<BindComponentContents> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ResourceLocation.CODEC.fieldOf("binding")
@@ -23,45 +25,25 @@ public final class BindComponentContents implements ComponentContents {
     );
     public static final Type<BindComponentContents> TYPE = new Type<>(CODEC, "controlify:binding");
 
-    private final ResourceLocation binding;
-    private @Nullable Supplier<Component> inputSupplier;
-
-    public BindComponentContents(ResourceLocation binding) {
-        this.binding = binding;
+    @Override
+    public <T> @NotNull Optional<T> visit(FormattedText.ContentConsumer<T> contentConsumer) {
+        return this.getComponent().flatMap(c -> c.visit(contentConsumer));
     }
 
     @Override
-    public <T> Optional<T> visit(FormattedText.ContentConsumer<T> contentConsumer) {
-        return inputSupplier.get().visit(contentConsumer);
+    public <T> @NotNull Optional<T> visit(FormattedText.StyledContentConsumer<T> styledContentConsumer, Style style) {
+        return this.getComponent().flatMap(c -> c.visit(styledContentConsumer, style));
     }
 
-    @Override
-    public <T> Optional<T> visit(FormattedText.StyledContentConsumer<T> styledContentConsumer, Style style) {
-        return inputSupplier.get().visit(styledContentConsumer, style);
+    private Optional<Component> getComponent() {
+        return ControlifyApi.get().getCurrentController()
+                .map(controller -> Controlify.instance().inputFontMapper().getComponentFromBinding(
+                        controller.info().type().namespace(), controller.bindings().get(binding)));
     }
 
     @Override
     public @NotNull Type<?> type() {
         return TYPE;
-    }
-
-    public ResourceLocation binding() {
-        return binding;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj instanceof BindComponentContents contents) {
-            return Objects.equals(binding, contents.binding);
-        }
-        return false;
-    }
-
-    @Override
-    public String toString() {
-        return "BindComponentContents[" +
-                "binding=" + binding + ']';
     }
 
 }

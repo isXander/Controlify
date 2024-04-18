@@ -11,6 +11,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
 import java.util.Optional;
 
 public class AxisBind implements IBind {
@@ -70,6 +71,11 @@ public class AxisBind implements IBind {
         }
 
         return new DrawSize(width, 22);
+    }
+
+    @Override
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of(axis);
     }
 
     @Override
