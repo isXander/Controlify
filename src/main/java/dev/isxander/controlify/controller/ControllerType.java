@@ -1,6 +1,14 @@
 package dev.isxander.controlify.controller;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
@@ -8,13 +16,34 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import org.jetbrains.annotations.Nullable;
-import org.quiltmc.json5.JsonReader;
+import org.quiltmc.parsers.json.JsonReader;
+import org.quiltmc.parsers.json.gson.GsonReader;
 
-import java.io.IOException;
 import java.util.*;
 
 public record ControllerType(@Nullable String friendlyName, String mappingId, String namespace, boolean forceJoystick, boolean dontLoad) {
     public static final ControllerType UNKNOWN = new ControllerType(null, "unknown", "unknown", false, false);
+
+    public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.STRING.optionalFieldOf("name", null).forGetter(ControllerType::friendlyName),
+            Codec.STRING.optionalFieldOf("mapping", "unmapped").forGetter(ControllerType::mappingId),
+            Codec.STRING.optionalFieldOf("theme", "unknown").forGetter(ControllerType::namespace),
+            Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
+            Codec.BOOL.optionalFieldOf("dont_load", false).forGetter(ControllerType::dontLoad)
+    ).apply(instance, ControllerType::new));
+    private static final Codec<ControllerTypeEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.list(HIDIdentifier.LIST_CODEC)
+                    .comapFlatMap(list -> list.isEmpty() ? DataResult.error(() -> "At least one HID must be present") : DataResult.success(list), list -> list)
+                    .fieldOf("hids")
+                    .forGetter(ControllerTypeEntry::hid),
+            CODEC.forGetter(ControllerTypeEntry::type)
+    ).apply(instance, ControllerTypeEntry::new));
+
+    private static final Gson GSON = new GsonBuilder()
+            .setNumberToNumberStrategy(com.google.gson.stream.JsonReader::nextInt)
+            .create();
+
+    private record ControllerTypeEntry(List<HIDIdentifier> hid, ControllerType type) {}
 
     private static Map<HIDIdentifier, ControllerType> typeMap = null;
     private static final ResourceLocation hidDbLocation = new ResourceLocation("controlify", "controllers/controller_identification.json5");
@@ -50,86 +79,24 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
 
             for (var resource : dbs) {
                 try (var resourceReader = resource.openAsReader()) {
-                    JsonReader reader = JsonReader.json5(resourceReader);
-                    readControllerIdFiles(reader);
-
+                    var reader = new GsonReader(JsonReader.json5(resourceReader));
+                    JsonElement json = GSON.fromJson(reader, JsonElement.class);
+                    ENTRY_CODEC.listOf().parse(JsonOps.INSTANCE, json)
+                            .resultOrPartial(CUtil.LOGGER::error)
+                            .ifPresent(entries -> {
+                                for (var entry : entries) {
+                                    for (var hid : entry.hid()) {
+                                        typeMap.put(hid, entry.type());
+                                    }
+                                }
+                            });
                 } catch (Exception e) {
                     CUtil.LOGGER.error("Failed to load HID DB from source", e);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            CUtil.LOGGER.error("Failed to load HID DB from source", e);
         }
-    }
-
-    private static void readControllerIdFiles(JsonReader reader) throws IOException {
-        reader.beginArray();
-        while (reader.hasNext()) {
-            String friendlyName = null;
-            String legacyIdentifier = null;
-            String namespace = "unknown";
-            String mappingId = "unmapped";
-            boolean forceJoystick = false;
-            boolean dontLoad = false;
-            Set<HIDIdentifier> hids = new HashSet<>();
-
-            reader.beginObject();
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-
-                switch (name) {
-                    case "name" -> friendlyName = reader.nextString();
-                    case "identifier" -> legacyIdentifier = reader.nextString();
-                    case "theme" -> namespace = reader.nextString();
-                    case "mapping" -> mappingId = reader.nextString();
-                    case "hids" -> {
-                        reader.beginArray();
-                        while (reader.hasNext()) {
-                            int vendorId = -1;
-                            int productId = -1;
-                            reader.beginArray();
-                            while (reader.hasNext()) {
-                                if (vendorId == -1) {
-                                    vendorId = reader.nextInt();
-                                } else if (productId == -1) {
-                                    productId = reader.nextInt();
-                                } else {
-                                    CUtil.LOGGER.warn("Too many values in HID array. Skipping...");
-                                    reader.skipValue();
-                                }
-                            }
-                            reader.endArray();
-                            hids.add(new HIDIdentifier(vendorId, productId));
-                        }
-                        reader.endArray();
-                    }
-                    case "force_joystick" -> forceJoystick = reader.nextBoolean();
-                    case "dont_load" -> dontLoad = reader.nextBoolean();
-                    default -> {
-                        CUtil.LOGGER.warn("Unknown key in HID DB: " + name + ". Skipping...");
-                        reader.skipValue();
-                    }
-                }
-            }
-            reader.endObject();
-
-            if (legacyIdentifier != null) {
-                CUtil.LOGGER.warn("Legacy identifier found in HID DB. Please replace with `theme` and `mapping` (if needed).");
-                namespace = legacyIdentifier;
-                mappingId = legacyIdentifier;
-            }
-
-            if (hids.isEmpty()) {
-                CUtil.LOGGER.warn("HID DB entry does not specify any VID/PID. Skipping...");
-                continue;
-            }
-
-            var type = new ControllerType(friendlyName, mappingId, namespace, forceJoystick, dontLoad);
-            for (HIDIdentifier hid : hids) {
-                typeMap.put(hid, type);
-            }
-        }
-        reader.endArray();
     }
 
     public static ImmutableMap<HIDIdentifier, ControllerType> getTypeMap() {

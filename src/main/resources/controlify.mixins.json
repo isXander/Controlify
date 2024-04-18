@@ -117,5 +117,7 @@
     "feature.virtualmouse.snapping.ScreenMixin"
   ],
   "mixins": [
+    "feature.font.ComponentSerializationMixin",
+    "fix.TypeAdaptersJsonElementMixin"
   ]
 }

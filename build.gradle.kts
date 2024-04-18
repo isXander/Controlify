@@ -116,8 +116,13 @@ dependencies {
     // used to identify controller PID/VID when SDL is not available
     api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
 
-    // used to parse hiddb.json5
-    api(include("org.quiltmc:quilt-json5:${property("deps.quiltJson5")}")!!)
+    // A json5 reader that hooks into gson
+    listOf(
+        "json",
+        "gson",
+    ).forEach {
+        api(include("org.quiltmc.parsers:$it:${property("deps.quiltParsers")}")!!)
+    }
 
     // mod menu compat
     optionalProp("deps.modMenu") {
