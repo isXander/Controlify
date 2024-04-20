@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "Bộ điều khiển",
   "controlify.gui.carousel.no_controllers": "Không có bộ điều khiển nào được kết nối.",
   "controlify.gui.carousel.entry.settings": "Cài đặt",
