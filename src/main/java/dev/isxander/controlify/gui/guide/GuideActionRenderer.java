@@ -31,10 +31,11 @@ public class GuideActionRenderer<T> implements RenderComponent {
 
         Font font = Minecraft.getInstance().font;
         int textWidth = name.map(font::width).orElse(0);
+        int textHeight = name.map(c -> BindingFontHelper.getComponentHeight(font, c)).orElse(0);
 
         if (textContrast)
-            graphics.fill(x - 1, y - 1, x + textWidth + 1, y + font.lineHeight + 1, 0x80000000);
-        graphics.drawString(font, name.get(), x, y, 0xFFFFFF, false);
+            graphics.fill(x - 1, y - 1, x + textWidth + 1, y + textHeight + 1, 0x80000000);
+        graphics.drawString(font, name.get(), x, y + textHeight / 2 - font.lineHeight / 2, 0xFFFFFF, false);
     }
 
     @Override

@@ -2,7 +2,6 @@ package dev.isxander.controlify.mixins.compat.yacl;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.gui.components.Button;
 import org.spongepowered.asm.mixin.Final;
@@ -17,7 +16,7 @@ public class YACLScreenCategoryTabMixin {
     @Shadow @Final private Button saveFinishedButton;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void onConstructCategory(YACLScreen parentClassThis, ConfigCategory category, CallbackInfo ci) {
+    private void onConstructCategory(CallbackInfo ci) {
         ButtonGuideApi.addGuideToButtonBuiltin(saveFinishedButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
     }
 }

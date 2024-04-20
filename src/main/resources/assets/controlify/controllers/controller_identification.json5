@@ -27,7 +27,7 @@
     ]
   },
   {
-    "name": "Dualshock 4 Controller",
+    "name": "DualShock 4 Controller",
     "theme": "dualshock",
 
     "hids": [
@@ -37,7 +37,7 @@
     ]
   },
   {
-    "name": "Dualshock 3 Controller",
+    "name": "DualShock 3 Controller",
     "theme": "dualshock",
 
     "hids": [
@@ -45,12 +45,20 @@
     ]
   },
   {
-    "name": "Dualsense Controller",
+    "name": "DualSense Controller",
     "theme": "dualsense",
 
     "hids": [
       [0x54c, 0x0ce6],
       [0x54c, 0x0df2]
+    ]
+  },
+  {
+    "name": "Switch Controller",
+    "theme": "switch",
+
+    "hids": [
+      [0x57e, 0x2009], // Many other switch controllers spoof this ID
     ]
   },
   {
@@ -75,9 +83,7 @@
     "theme": "unknown",
 
     "hids": [
-      [0x57E, 0x2009],  // SN30 Pro - Switch Mode
       [0x2DC8, 0x6001], // SN30 Pro - DInput Mode
-      [0x2009, 0x057e], // Ultimate - Switch Mode
     ]
   },
   {

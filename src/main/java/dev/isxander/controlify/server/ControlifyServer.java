@@ -14,6 +14,8 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
     public void onInitialize() {
         ControlifySounds.init();
 
+        ControlifyHandshake.setupOnServer();
+
         SidedNetworkApi.S2C().registerPacket(VibrationPacket.CHANNEL, VibrationPacket.CODEC);
         SidedNetworkApi.S2C().registerPacket(OriginVibrationPacket.CHANNEL, OriginVibrationPacket.CODEC);
         SidedNetworkApi.S2C().registerPacket(EntityVibrationPacket.CHANNEL, EntityVibrationPacket.CODEC);

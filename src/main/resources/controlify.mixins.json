@@ -36,6 +36,8 @@
     "feature.bind.ToggleKeyMappingAccessor",
     "feature.chatkbheight.ChatComponentMixin",
     "feature.chatkbheight.ChatScreenMixin",
+    "feature.font.FontAccessor",
+    "feature.font.KeybindContentsMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",
     "feature.guide.ingame.GuiMixin",
     "feature.guide.screen.AbstractButtonMixin",
@@ -118,7 +120,5 @@
     "test.TitleScreenMixin"
   ],
   "mixins": [
-    "feature.font.ComponentSerializationMixin",
-    "fix.TypeAdaptersJsonElementMixin"
   ]
 }

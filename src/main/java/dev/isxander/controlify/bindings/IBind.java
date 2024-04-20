@@ -15,9 +15,6 @@ public interface IBind {
 
     List<ResourceLocation> getRelevantInputs();
 
-    void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller);
-    DrawSize drawSize(ControllerEntity controller);
-
     JsonObject toJson();
 
     static IBind fromJson(JsonObject json) {

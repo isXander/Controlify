@@ -1,17 +1,11 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.bind.BindRenderer;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarratableEntry;
-import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
@@ -55,11 +49,15 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     private void updateControllerMessage() {
         getBind().ifPresentOrElse(bind -> {
             var component = Component.empty();
-            if (!Minecraft.getInstance().font.isBidirectional())
+            if (!Minecraft.getInstance().font.isBidirectional()) {
                 component.append(BindingFontHelper.binding(bind));
+                component.append(" ");
+            }
             component.append(getActualMessage());
-            if (Minecraft.getInstance().font.isBidirectional())
+            if (Minecraft.getInstance().font.isBidirectional()) {
+                component.append(" ");
                 component.append(BindingFontHelper.binding(bind));
+            }
             controllerMessage = component;
         }, () -> controllerMessage = null);
     }

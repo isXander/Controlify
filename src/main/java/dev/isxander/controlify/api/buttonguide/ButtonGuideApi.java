@@ -45,5 +45,23 @@ public final class ButtonGuideApi {
             ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, controller -> binding.apply(controller.bindings()), renderPredicate);
     }
+
+    @Deprecated
+    public static <T extends AbstractButton> void addGuideToButton(
+            T button,
+            BindingSupplier binding,
+            ButtonRenderPosition position,
+            ButtonGuidePredicate<T> renderPredicate) {
+        ButtonGuideApi.addGuideToButton(button, binding, renderPredicate);
+    }
+
+    @Deprecated
+    public static <T extends AbstractButton> void addGuideToButtonBuiltin(
+            T button,
+            Function<ControllerBindings, ControllerBinding> binding,
+            ButtonRenderPosition position,
+            ButtonGuidePredicate<T> renderPredicate) {
+        ButtonGuideApi.addGuideToButtonBuiltin(button, binding, renderPredicate);
+    }
 }
 

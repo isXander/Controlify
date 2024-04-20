@@ -12,6 +12,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.JsonTreeParser;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -50,9 +51,9 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
 
     public ResourceLocation getIconSprite() {
         /*? if >=1.20.3 {*/
-        return Controlify.id("inputs/" + namespace + "/icon");
+        return Controlify.id("controllers/" + namespace);
         /*?} else {*//*
-        return Controlify.id("textures/gui/sprites/inputs/" + namespace + "/icon.png");
+        return Controlify.id("textures/gui/sprites/controllers/" + namespace + ".png");
         *//*?} */
 
     }
@@ -79,8 +80,8 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
 
             for (var resource : dbs) {
                 try (var resourceReader = resource.openAsReader()) {
-                    var reader = new GsonReader(JsonReader.json5(resourceReader));
-                    JsonElement json = GSON.fromJson(reader, JsonElement.class);
+                    var reader = JsonReader.json5(resourceReader);
+                    JsonElement json = JsonTreeParser.parse(reader);
                     ENTRY_CODEC.listOf().parse(JsonOps.INSTANCE, json)
                             .resultOrPartial(CUtil.LOGGER::error)
                             .ifPresent(entries -> {

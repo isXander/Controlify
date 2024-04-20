@@ -3,7 +3,6 @@ package dev.isxander.controlify.bindings;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;

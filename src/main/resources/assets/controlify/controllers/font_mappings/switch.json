@@ -20,11 +20,10 @@
   "controlify:button/dpad_up": "\u0012",
   "controlify:button/back": "\u0013",
   "controlify:button/start": "\u0014",
-  "controlify:button/misc_1": "\u0015",
-  "controlify:button/north": "\u0016",
-  "controlify:button/east": "\u0017",
-  "controlify:button/south": "\u0018",
-  "controlify:button/west": "\u0019",
-  "controlify:button/guide": "\u001A"
+  "controlify:button/north": "\u0015",
+  "controlify:button/east": "\u0016",
+  "controlify:button/south": "\u0017",
+  "controlify:button/west": "\u0018",
+  "controlify:button/guide": "\u0019",
+  "controlify:button/misc_1": "\u001B"
 }
-

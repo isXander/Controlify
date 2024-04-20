@@ -31,10 +31,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
-import dev.isxander.controlify.server.packets.EntityVibrationPacket;
-import dev.isxander.controlify.server.packets.OriginVibrationPacket;
-import dev.isxander.controlify.server.packets.ServerPolicyPacket;
-import dev.isxander.controlify.server.packets.VibrationPacket;
+import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
@@ -117,6 +114,8 @@ public class Controlify implements ControlifyApi {
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
+
+        ControlifyHandshake.setupOnClient();
 
         SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
             if (config().globalSettings().allowServerRumble) {
