@@ -1,9 +1,7 @@
 package dev.isxander.controlify.gui.controllers;
 
-import dev.isxander.controlify.bindings.AxisBind;
-import dev.isxander.controlify.bindings.ButtonBind;
-import dev.isxander.controlify.bindings.HatBind;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.*;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -72,7 +70,13 @@ public class BindController implements Controller<IBind> {
                 graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
-                bind.draw(graphics, getDimension().xLimit() - bind.drawSize(control.controller).width(), getDimension().centerY(), control.controller);
+                if (EmptyBind.equals(bind)) return;
+
+                Component text = Controlify.instance().inputFontMapper()
+                        .getComponentFromBind(control.controller.info().type().namespace(), bind);
+                int width = textRenderer.width(text);
+
+                graphics.drawString(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
             }
         }
 
@@ -123,7 +127,9 @@ public class BindController implements Controller<IBind> {
             if (awaitingControllerInput)
                 return textRenderer.width(awaitingText);
 
-            return control.option().pendingValue().drawSize(control.controller).width();
+            Component text = Controlify.instance().inputFontMapper()
+                    .getComponentFromBind(control.controller.info().type().namespace(), control.option().pendingValue());
+            return textRenderer.width(text);
         }
 
         @Override

@@ -3,7 +3,6 @@ package dev.isxander.controlify.bindings;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.BindRenderer;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -32,7 +31,6 @@ public class ControllerBindingImpl implements ControllerBinding {
     private IBind bind;
     private final IBind defaultBind;
     private final Function<ControllerStateView, Float> hardcodedBind;
-    private BindRenderer renderer;
     private final ResourceLocation id;
     private final Component name, description, category;
     private final Set<BindContext> contexts;
@@ -47,7 +45,6 @@ public class ControllerBindingImpl implements ControllerBinding {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.hardcodedBind = hardcodedBind;
-        this.renderer = new BindRendererImpl(bind, controller);
         this.id = id;
         this.override = vanillaOverride;
         this.name = name;
@@ -129,7 +126,6 @@ public class ControllerBindingImpl implements ControllerBinding {
 
     public void setCurrentBind(IBind bind) {
         this.bind = bind;
-        this.renderer = new BindRendererImpl(bind, controller);
         Controlify.instance().config().setDirty();
     }
 
@@ -185,11 +181,6 @@ public class ControllerBindingImpl implements ControllerBinding {
     @Override
     public JsonObject toJson() {
         return getBind().toJson();
-    }
-
-    @Override
-    public BindRenderer renderer() {
-        return renderer;
     }
 
     @Override
@@ -323,18 +314,6 @@ public class ControllerBindingImpl implements ControllerBinding {
             }
 
             return new ControllerBindingImpl(controller, bind, hardcodedBind, id, override, name, description, category, contexts, radialIcon);
-        }
-    }
-
-    private record BindRendererImpl(IBind bind, ControllerEntity controller) implements BindRenderer {
-        @Override
-        public void render(GuiGraphics graphics, int x, int centerY) {
-            bind.draw(graphics, x, centerY, controller);
-        }
-
-        @Override
-        public DrawSize size() {
-            return bind.drawSize(controller);
         }
     }
 }

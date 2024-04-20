@@ -19,17 +19,15 @@ public final class ButtonGuideApi {
      * This does not invoke the button press on binding trigger, only renders the guide.
      * Custom behaviour should be handled inside a {@link dev.isxander.controlify.screenop.ScreenProcessor} or {@link dev.isxander.controlify.screenop.ComponentProcessor}
      *
-     * @param button button to render the guide for
-     * @param binding the custom binding to render
-     * @param position where the guide should be rendered relative to the button
+     * @param button          button to render the guide for
+     * @param binding         the custom binding to render
      * @param renderPredicate whether the guide should be rendered
      */
     public static <T extends AbstractButton> void addGuideToButton(
             T button,
             BindingSupplier binding,
-            ButtonRenderPosition position,
             ButtonGuidePredicate<T> renderPredicate) {
-        ButtonGuideRenderer.registerBindingForButton(button, binding, position, renderPredicate);
+        ButtonGuideRenderer.registerBindingForButton(button, binding, renderPredicate);
     }
 
     /**
@@ -37,17 +35,33 @@ public final class ButtonGuideApi {
      * This does not invoke the button press on binding trigger, only renders the guide.
      * Custom behaviour should be handled inside a {@link dev.isxander.controlify.screenop.ScreenProcessor} or {@link dev.isxander.controlify.screenop.ComponentProcessor}
      *
-     * @param button button to render the guide for
-     * @param binding gets the binding to render
-     * @param position where the guide should be rendered relative to the button
+     * @param button          button to render the guide for
+     * @param binding         gets the binding to render
      * @param renderPredicate whether the guide should be rendered
      */
     public static <T extends AbstractButton> void addGuideToButtonBuiltin(
             T button,
             Function<ControllerBindings, ControllerBinding> binding,
+            ButtonGuidePredicate<T> renderPredicate) {
+        ButtonGuideRenderer.registerBindingForButton(button, controller -> binding.apply(controller.bindings()), renderPredicate);
+    }
+
+    @Deprecated
+    public static <T extends AbstractButton> void addGuideToButton(
+            T button,
+            BindingSupplier binding,
             ButtonRenderPosition position,
             ButtonGuidePredicate<T> renderPredicate) {
-        ButtonGuideRenderer.registerBindingForButton(button, controller -> binding.apply(controller.bindings()), position, renderPredicate);
+        ButtonGuideApi.addGuideToButton(button, binding, renderPredicate);
+    }
+
+    @Deprecated
+    public static <T extends AbstractButton> void addGuideToButtonBuiltin(
+            T button,
+            Function<ControllerBindings, ControllerBinding> binding,
+            ButtonRenderPosition position,
+            ButtonGuidePredicate<T> renderPredicate) {
+        ButtonGuideApi.addGuideToButtonBuiltin(button, binding, renderPredicate);
     }
 }
 

@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 public interface ControlifyPacketCodec<T> {
     static <T> ControlifyPacketCodec<T> of(BiConsumer<FriendlyByteBuf, T> encoder, Function<FriendlyByteBuf, T> decoder) {
-        return new ControlifyPacketCodec<T>() {
+        return new ControlifyPacketCodec<>() {
             @Override
             public void encode(FriendlyByteBuf buf, T packet) {
                 encoder.accept(buf, packet);

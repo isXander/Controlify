@@ -8,11 +8,12 @@ import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.List;
+
 public interface IBind {
     float state(ControllerStateView state);
 
-    void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller);
-    DrawSize drawSize(ControllerEntity controller);
+    List<ResourceLocation> getRelevantInputs();
 
     JsonObject toJson();
 

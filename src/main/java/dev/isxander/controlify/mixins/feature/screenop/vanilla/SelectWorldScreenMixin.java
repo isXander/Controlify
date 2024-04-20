@@ -2,7 +2,6 @@ package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.SelectWorldScreenProcessor;
@@ -28,7 +27,6 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) button,
                 bindings -> bindings.GUI_BACK,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;
@@ -39,7 +37,6 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) button,
                 bindings -> bindings.GUI_ABSTRACT_ACTION_1,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;

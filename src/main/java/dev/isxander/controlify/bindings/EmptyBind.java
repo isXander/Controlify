@@ -1,13 +1,17 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
-import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class EmptyBind implements IBind {
     public static final String BIND_ID = "empty";
+
+    public static boolean equals(IBind bind) {
+        return bind instanceof EmptyBind;
+    }
 
     @Override
     public float state(ControllerStateView state) {
@@ -15,13 +19,8 @@ public class EmptyBind implements IBind {
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
-
-    }
-
-    @Override
-    public DrawSize drawSize(ControllerEntity controller) {
-        return new DrawSize(0, 0);
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of();
     }
 
     @Override

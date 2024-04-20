@@ -2,7 +2,6 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -42,7 +41,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
     @Override
     public void onWidgetRebuild() {
         this.getWidget(CommonComponents.GUI_BACK).ifPresent(button -> {
-            ButtonGuideApi.addGuideToButton((AbstractButton) button, controller -> controller.bindings().GUI_BACK, ButtonRenderPosition.TEXT, ButtonGuidePredicate.ALWAYS);
+            ButtonGuideApi.addGuideToButton((AbstractButton) button, controller -> controller.bindings().GUI_BACK, ButtonGuidePredicate.ALWAYS);
         });
 
         super.onWidgetRebuild();

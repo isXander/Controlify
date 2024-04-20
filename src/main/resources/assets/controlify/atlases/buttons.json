@@ -1,9 +1,0 @@
-{
-  "sources": [
-    {
-      "type": "directory",
-      "source": "gui/buttons",
-      "prefix": "gui/buttons/"
-    }
-  ]
-}

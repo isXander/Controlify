@@ -2,7 +2,6 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.PauseScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -41,19 +40,16 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
             ButtonGuideApi.addGuideToButtonBuiltin(
                     (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
                     bindings -> bindings.GUI_BACK,
-                    ButtonRenderPosition.TEXT,
                     ButtonGuidePredicate.ALWAYS
             );
             ButtonGuideApi.addGuideToButtonBuiltin(
                     (AbstractButton) getWidget("menu.options").orElseThrow(),
                     bindings -> bindings.GUI_ABSTRACT_ACTION_1,
-                    ButtonRenderPosition.TEXT,
                     ButtonGuidePredicate.ALWAYS
             );
             ButtonGuideApi.addGuideToButtonBuiltin(
                     disconnectButtonSupplier.get(),
                     bindings -> disconnectButtonSupplier.get().isFocused() ? bindings.GUI_PRESS : bindings.GUI_ABSTRACT_ACTION_2,
-                    ButtonRenderPosition.TEXT,
                     ButtonGuidePredicate.ALWAYS
             );
         }

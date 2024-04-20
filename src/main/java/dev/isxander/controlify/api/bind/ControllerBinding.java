@@ -64,8 +64,6 @@ public interface ControllerBinding {
     void resetBind();
     boolean isUnbound();
 
-    BindRenderer renderer();
-
     Option.Builder<?> startYACLOption();
 
     JsonObject toJson();

@@ -2,7 +2,6 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.buttonguide.ButtonRenderPosition;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -37,13 +36,11 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
         ButtonGuideApi.addGuideToButtonBuiltin(
                 quitButton,
                 bindings -> quitButton.isFocused() ? bindings.GUI_PRESS : bindings.GUI_BACK,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
         ButtonGuideApi.addGuideToButtonBuiltin(
                 (AbstractButton) getWidget("menu.options").orElseThrow(),
                 bindings -> bindings.GUI_ABSTRACT_ACTION_1,
-                ButtonRenderPosition.TEXT,
                 ButtonGuidePredicate.ALWAYS
         );
     }

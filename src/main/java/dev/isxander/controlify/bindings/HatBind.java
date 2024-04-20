@@ -1,7 +1,6 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -9,6 +8,8 @@ import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.gui.DrawSize;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
 
 public class HatBind implements IBind {
     public static final String BIND_ID = "hat";
@@ -27,19 +28,8 @@ public class HatBind implements IBind {
     }
 
     @Override
-    public void draw(GuiGraphics graphics, int x, int centerY, ControllerEntity controller) {
-        ResourceLocation sprite = Inputs.getThemedSprite(hat, controller.info().type().namespace()).orElseThrow();
-
-        /*? if >=1.20.3 {*/
-        graphics.blitSprite(sprite, x, centerY - 11, 22, 22);
-        /*?} else {*//*
-        graphics.blit(sprite, x, centerY - 11, 0, 0, 22, 22, 22, 22);
-        *//*?} */
-    }
-
-    @Override
-    public DrawSize drawSize(ControllerEntity controller) {
-        return new DrawSize(22, 22);
+    public List<ResourceLocation> getRelevantInputs() {
+        return List.of(hat);
     }
 
     @Override

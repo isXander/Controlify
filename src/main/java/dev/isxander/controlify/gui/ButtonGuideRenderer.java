@@ -11,10 +11,10 @@ import net.minecraft.client.gui.components.AbstractButton;
 public interface ButtonGuideRenderer<T extends AbstractButton> {
     void setButtonGuide(RenderData<T> renderData);
 
-    static <T extends AbstractButton> void registerBindingForButton(T button, BindingSupplier binding, ButtonRenderPosition position, ButtonGuidePredicate<T> renderPredicate) {
-        ((ButtonGuideRenderer<T>) button).setButtonGuide(new RenderData<>(binding, position, renderPredicate));
+    static <T extends AbstractButton> void registerBindingForButton(T button, BindingSupplier binding, ButtonGuidePredicate<T> renderPredicate) {
+        ((ButtonGuideRenderer<T>) button).setButtonGuide(new RenderData<>(binding, renderPredicate));
     }
 
-    record RenderData<T extends AbstractButton>(BindingSupplier binding, ButtonRenderPosition position, ButtonGuidePredicate<T> renderPredicate) {
+    record RenderData<T extends AbstractButton>(BindingSupplier binding, ButtonGuidePredicate<T> renderPredicate) {
     }
 }
