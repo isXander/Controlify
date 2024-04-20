@@ -7,6 +7,7 @@
       [0x45e, 0x202], // Xbox Controller
       [0x45e, 0x2e0], // Xbox One Wireless Controller
       [0x45e, 0x2ff], // Xbox One S Controller (Bluetooth)
+      [0x45e, 0xb20], // Xbox One S Controller (Firmware 2024)
       [0x45e, 0x2ea], // Xbox One Controller
       [0x45e, 0xb12], // Xbox Controller
       [0x45e, 0x2dd], // Xbox One Controller (Firmware 2015)
