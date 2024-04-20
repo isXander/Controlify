@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "Manettes",
   "controlify.gui.carousel.no_controllers": "Aucune manette connectée.",
   "controlify.gui.carousel.entry.settings": "Paramètres",
