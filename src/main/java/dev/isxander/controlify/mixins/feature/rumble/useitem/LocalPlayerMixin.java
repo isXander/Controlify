@@ -76,7 +76,7 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
         ControlifyApi.get().getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(controller -> {
-                    controller.rumbleManager().play(RumbleSource.PLAYER, effect);
+                    controller.rumbleManager().play(RumbleSource.INTERACTION, effect);
                     useItemRumble = effect;
                 });
     }
