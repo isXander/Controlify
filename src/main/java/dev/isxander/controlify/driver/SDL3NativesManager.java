@@ -94,7 +94,6 @@ public class SDL3NativesManager {
         try {
             SdlNativeLibraryLoader.loadLibSDL3FromFilePathNow("SDL3");
         } catch (UnsatisfiedLinkError e) {
-            e.printStackTrace();
             return false;
         }
 
