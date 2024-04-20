@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "控制器",
   "controlify.gui.carousel.no_controllers": "沒有控制器連接。",
   "controlify.gui.carousel.entry.settings": "設定",
