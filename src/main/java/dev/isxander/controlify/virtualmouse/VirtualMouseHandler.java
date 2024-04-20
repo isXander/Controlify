@@ -364,6 +364,9 @@ public class VirtualMouseHandler {
         setMousePosition();
 
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
+        if (minecraft.screen != null) {
+            ScreenProcessorProvider.provide(minecraft.screen).onVirtualMouseToggled(true);
+        }
     }
 
     public void disableVirtualMouse() {
@@ -380,6 +383,9 @@ public class VirtualMouseHandler {
         targetY = currentY = minecraft.mouseHandler.ypos();
 
         ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(false);
+        if (minecraft.screen != null) {
+            ScreenProcessorProvider.provide(minecraft.screen).onVirtualMouseToggled(false);
+        }
     }
 
     private void setMousePosition() {

@@ -38,7 +38,6 @@ public class ScreenProcessor<T extends Screen> {
 
     public ScreenProcessor(T screen) {
         this.screen = screen;
-        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.register(this::onVirtualMouseToggled);
     }
 
     public void onControllerUpdate(ControllerEntity controller) {
