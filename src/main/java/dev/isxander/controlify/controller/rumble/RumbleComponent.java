@@ -27,7 +27,9 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
     }
 
     public void queueRumble(RumbleState state) {
-        this.state = state;
+        if (confObj().enabled) {
+            this.state = state;
+        }
     }
 
     public Optional<RumbleState> consumeRumble() {
