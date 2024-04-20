@@ -30,6 +30,7 @@ import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import dev.isxander.sdl3java.api.sensor.SDL_SensorType;
+import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -94,7 +95,8 @@ public class SDL3GamepadDriver implements Driver {
 
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
-        if ("dualsense".equals(type.namespace())) {
+        // macOS HD haptics are broken
+        if (Util.getPlatform() != Util.OS.OSX && "dualsense".equals(type.namespace())) {
             SDL_AudioDeviceID dualsenseAudioDev = null;
             SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
 
