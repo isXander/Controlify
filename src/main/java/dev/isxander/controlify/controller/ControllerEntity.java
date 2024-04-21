@@ -16,6 +16,7 @@ import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +134,11 @@ public class ControllerEntity extends ECSEntityImpl {
             IConfig<?> config = entry.getValue();
 
             JsonElement element = object.remove(key.toString()); // remove the used element
-            config.deserialize(element, gson, this);
+            if (element != null) {
+                config.deserialize(element, gson, this);
+            } else {
+                CUtil.LOGGER.warn("Could not find component config {} whilst deserializing. Ignoring.", key);
+            }
         }
     }
 
