@@ -16,12 +16,16 @@ public class GuideActionRenderer<T> implements RenderComponent {
     private final boolean rtl;
     private final boolean textContrast;
 
-    private Optional<Component> name = Optional.empty();
+    private Component bindingText;
+    private int bindingTextWidth;
+    private Component name = null;
 
     public GuideActionRenderer(GuideAction<T> action, boolean rtl, boolean textContrast) {
         this.guideAction = action;
         this.rtl = rtl;
         this.textContrast = textContrast;
+        this.bindingText = BindingFontHelper.binding(action.binding().id());
+        this.bindingTextWidth = Minecraft.getInstance().font.width(bindingText);
     }
 
     @Override
@@ -30,33 +34,44 @@ public class GuideActionRenderer<T> implements RenderComponent {
             return;
 
         Font font = Minecraft.getInstance().font;
-        int textWidth = name.map(font::width).orElse(0);
-        int textHeight = name.map(c -> BindingFontHelper.getComponentHeight(font, c)).orElse(0);
+        int textWidth = font.width(name);
+        int bindingHeight = BindingFontHelper.getComponentHeight(font, bindingText);
+        int centeredTextY = y + bindingHeight / 2 - font.lineHeight / 2;
 
-        if (textContrast)
-            graphics.fill(x - 1, y - 1, x + textWidth + 1, y + textHeight + 1, 0x80000000);
-        graphics.drawString(font, name.get(), x, y + textHeight / 2 - font.lineHeight / 2, 0xFFFFFF, false);
+        if (!rtl) {
+            graphics.drawString(font, bindingText, x, centeredTextY, -1, false);
+            x += bindingTextWidth + 4;
+        }
+
+        if (textContrast) {
+            graphics.fill(x - 1, centeredTextY - 1, x + textWidth + 1, centeredTextY + font.lineHeight + 1, 0x80000000);
+        }
+        graphics.drawString(font, name, x, centeredTextY, -1, false);
+        x += textWidth + 4;
+        if (rtl) {
+            graphics.drawString(font, bindingText, x, centeredTextY, -1, false);
+        }
     }
 
     @Override
     public Vector2ic size() {
+        if (!isVisible()) return new Vector2i();
+
         Font font = Minecraft.getInstance().font;
-        return new Vector2i(name.map(font::width).orElse(0), Math.max(22, font.lineHeight));
+        return new Vector2i(
+                font.width(name) + 4 + bindingTextWidth,
+                Math.max(BindingFontHelper.getComponentHeight(font, bindingText), font.lineHeight) + 2
+        );
     }
 
     @Override
     public boolean isVisible() {
-        return name.isPresent() && !guideAction.binding().isUnbound();
+        return name != null && !guideAction.binding().isUnbound() && bindingText != null;
     }
 
     public void updateName(T ctx) {
-        name = guideAction.name().supply(ctx)
-                .map(comp -> {
-                    var component = Component.empty();
-                    if (!rtl) component.append(BindingFontHelper.binding(guideAction.binding().id()));
-                    component.append(comp);
-                    if (rtl) component.append(BindingFontHelper.binding(guideAction.binding().id()));
-                    return component;
-                });
+        this.bindingText = BindingFontHelper.binding(guideAction.binding().id());
+        this.bindingTextWidth = Minecraft.getInstance().font.width(bindingText);
+        name = guideAction.name().supply(ctx).orElse(null);
     }
 }
