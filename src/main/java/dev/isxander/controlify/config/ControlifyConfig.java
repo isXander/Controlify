@@ -7,9 +7,11 @@ import dev.isxander.controlify.controller.input.mapping.MappingEntry;
 import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.ToastUtils;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
 import net.fabricmc.loader.api.VersionParsingException;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -178,6 +180,7 @@ public class ControlifyConfig {
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load controller data for {}. Resetting to default!", controller.info().uid(), e);
             controller.resetToDefaultConfig();
+            ToastUtils.sendToast(Component.translatable("controlify.toast.fail_conf_load.title"), Component.translatable("controlify.toast.fail_conf_load.desc"), true);
             save();
         }
     }

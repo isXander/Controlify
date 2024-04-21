@@ -248,7 +248,7 @@ public class Controlify implements ControlifyApi {
             try {
                 entrypoint.onControllersDiscovered(this);
             } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: " + entrypoint.getClass().getName(), e);
+                CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });
     }
@@ -265,11 +265,11 @@ public class Controlify implements ControlifyApi {
         probeMode = false;
         finishedInit = true;
 
-        askNatives().whenComplete((loaded, th) -> {
+        return askNatives().whenComplete((loaded, th) -> UnhandledCompletableFutures.run(() -> {
             CUtil.LOGGER.info("Finishing Controlify init...");
 
             if (!loaded) {
-                CUtil.LOGGER.error("CONTROLIFY DID NOT LOAD SDL3 NATIVES. MANY FEATURES DISABLED!");
+                CUtil.LOGGER.warn("CONTROLIFY DID NOT LOAD SDL3 NATIVES. MANY FEATURES DISABLED!");
             }
 
             try {
@@ -303,11 +303,9 @@ public class Controlify implements ControlifyApi {
             discoverControllers();
 
             if (DebugProperties.INIT_DUMP) {
-                CUtil.LOGGER.info("\n" + DebugDump.dumpDebug());
+                CUtil.LOGGER.info("\n{}", DebugDump.dumpDebug());
             }
-        });
-
-        return askNatives().thenApply(loaded -> null);
+        }, minecraft)).thenApply(t -> null);
     }
 
     /**
@@ -415,7 +413,7 @@ public class Controlify implements ControlifyApi {
             settings.loadVibrationNatives = true;
             config().setDirty();
 
-            return nativeOnboardingFuture = SDL3NativesManager.maybeLoad(); // maybeLoad returns the completed initFuture
+            return nativeOnboardingFuture = CompletableFuture.completedFuture(true);
         }
 
         // just say no if the platform doesn't support it
