@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = YACLScreen.CategoryTab.class, remap = false)
 public class YACLScreenCategoryTabMixin {
     @Shadow @Final
-    public Button saveFinishedButton;
+    private Button saveFinishedButton;
 
     @Inject(method = "<init>", at = @At("RETURN"), require = 0)
     private void onConstructCategory(CallbackInfo ci) {
