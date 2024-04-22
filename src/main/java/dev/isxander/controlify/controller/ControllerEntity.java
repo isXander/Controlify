@@ -5,10 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
+import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
-import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.impl.ECSEntityImpl;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -78,6 +79,10 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public Optional<HDHapticComponent> hdHaptics() {
         return this.getComponent(HDHapticComponent.ID);
+    }
+
+    public Optional<DualSenseComponent> dualSense() {
+        return this.getComponent(DualSenseComponent.ID);
     }
 
     public IConfig<GenericControllerConfig> genericConfig() {

@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller.hdhaptic;
+package dev.isxander.controlify.controller.dualsense;
 
 import dev.isxander.controlify.Controlify;
 import net.minecraft.resources.ResourceLocation;

@@ -2,9 +2,8 @@ package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.hdhaptic.HapticEffects;
+import dev.isxander.controlify.controller.dualsense.HapticEffects;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;

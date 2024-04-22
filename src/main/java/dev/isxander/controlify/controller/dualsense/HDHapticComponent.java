@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller.hdhaptic;
+package dev.isxander.controlify.controller.dualsense;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
@@ -36,7 +36,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
                 .thenAccept(playHapticEvent.invoker()::play);
     }
 
-    public void playSoundEvent(SoundEvent sound) {
+    public void playHaptic(SoundEvent sound) {
         ResourceLocation location = Minecraft.getInstance().getSoundManager()
                 .getSoundEvent(sound.getLocation())
                 .getSound(randomSource).getLocation();

@@ -82,6 +82,10 @@ public class SimpleVoiceChatCompat {
             } else if (whisperHold.justReleased()) {
                 whisperDown = false;
             }
+
+            controller.dualSense().ifPresent(ds -> {
+                ds.setMuteLight(ClientManager.getPlayerStateManager().isMuted());
+            });
         });
     }
 

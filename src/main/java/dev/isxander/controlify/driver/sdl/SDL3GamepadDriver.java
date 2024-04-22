@@ -1,13 +1,15 @@
 package dev.isxander.controlify.driver.sdl;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.FloatByReference;
 import dev.isxander.controlify.controller.battery.BatteryLevel;
 import dev.isxander.controlify.controller.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
-import dev.isxander.controlify.controller.hdhaptic.HDHapticComponent;
-import dev.isxander.controlify.controller.hdhaptic.HapticBufferLibrary;
+import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
+import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
+import dev.isxander.controlify.controller.dualsense.HapticBufferLibrary;
 import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadState;
@@ -69,9 +71,9 @@ public class SDL3GamepadDriver implements Driver {
     private final String name;
 
     @Nullable
-    private final SDL_AudioDeviceID dualsenseAudioDev;
+    private SDL_AudioDeviceID dualsenseAudioDev;
     @Nullable
-    private final SDL_AudioSpec dualsenseAudioSpec;
+    private SDL_AudioSpec dualsenseAudioSpec;
     private final List<AudioStreamHandle> dualsenseAudioHandles;
 
     public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
@@ -96,37 +98,38 @@ public class SDL3GamepadDriver implements Driver {
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
         // macOS HD haptics are broken
-        if (Util.getPlatform() != Util.OS.OSX && "dualsense".equals(type.namespace())) {
-            SDL_AudioDeviceID dualsenseAudioDev = null;
-            SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
+        if ("dualsense".equals(type.namespace())) {
+            controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
 
-            for (SDL_AudioDeviceID dev : SDL_GetAudioOutputDevices()) {
-                String name = SDL_GetAudioDeviceName(dev).toLowerCase();
-                if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
-                    SDL_GetAudioDeviceFormat(dev, devSpec, null);
-                    if (devSpec.channels == 4) {
-                        dualsenseAudioDev = dev;
-                        break;
+            if (Util.getPlatform() != Util.OS.OSX) {
+                SDL_AudioDeviceID dualsenseAudioDev = null;
+                SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
+
+                for (SDL_AudioDeviceID dev : SDL_GetAudioOutputDevices()) {
+                    String name = SDL_GetAudioDeviceName(dev).toLowerCase();
+                    if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
+                        SDL_GetAudioDeviceFormat(dev, devSpec, null);
+                        if (devSpec.channels == 4) {
+                            dualsenseAudioDev = dev;
+                            break;
+                        }
                     }
                 }
+
+                if (dualsenseAudioDev != null) {
+                    this.dualsenseAudioSpec = devSpec;
+                    this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
+
+                    HDHapticComponent HDHapticComponent = new HDHapticComponent();
+                    HDHapticComponent.getPlayHapticEvent().register(this::playHaptic);
+                    this.controller.setComponent(HDHapticComponent, HDHapticComponent.ID);
+                } else {
+                    this.dualsenseAudioDev = null;
+                    this.dualsenseAudioSpec = null;
+
+                    controller.setComponent(new BluetoothDeviceComponent(), BluetoothDeviceComponent.ID);
+                }
             }
-
-            if (dualsenseAudioDev != null) {
-                this.dualsenseAudioSpec = devSpec;
-                this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
-
-                HDHapticComponent hdHapticComponent = new HDHapticComponent();
-                hdHapticComponent.getPlayHapticEvent().register(this::playHaptic);
-                this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
-            } else {
-                this.dualsenseAudioDev = null;
-                this.dualsenseAudioSpec = null;
-
-                controller.setComponent(new BluetoothDeviceComponent(), BluetoothDeviceComponent.ID);
-            }
-        } else {
-            this.dualsenseAudioDev = null;
-            this.dualsenseAudioSpec = null;
         }
 
         this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
@@ -161,6 +164,7 @@ public class SDL3GamepadDriver implements Driver {
         this.updateTouchpad();
         this.updateBatteryLevel();
         this.updateHDHaptic();
+        this.updateDualSense();
     }
 
     @Override
@@ -305,6 +309,28 @@ public class SDL3GamepadDriver implements Driver {
         };
 
         this.controller.batteryLevel().orElseThrow().setBatteryLevel(level);
+    }
+
+    private void updateDualSense() {
+        controller.dualSense().ifPresent(ds -> {
+            DS5EffectsState.ByValue effectsState = new DS5EffectsState.ByValue();
+            boolean somethingHappened = false;
+
+            if (ds.consumeMuteLightDirty()) {
+                somethingHappened = true;
+
+                effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
+                if (ds.getMuteLight()) {
+                    effectsState.ucMicLightMode = 1;
+                }
+            }
+
+            if (somethingHappened) {
+                effectsState.write();
+
+                SDL_SendGamepadEffect(ptrGamepad, effectsState.getPointer(), Native.getNativeSize(DS5EffectsState.ByValue.class));
+            }
+        });
     }
 
     private void updateHDHaptic() {
