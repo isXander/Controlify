@@ -29,7 +29,7 @@
   },
   {
     "name": "DualShock 4 Controller",
-    "theme": "dualshock",
+    "theme": "dualshock4",
 
     "hids": [
       [0x54c, 0x5c4],
@@ -39,7 +39,7 @@
   },
   {
     "name": "DualShock 3 Controller",
-    "theme": "dualshock",
+    "theme": "dualshock3",
 
     "hids": [
       [0x54c, 0x0268]
