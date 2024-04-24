@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "Bộ điều khiển",
   "controlify.gui.carousel.no_controllers": "Không có bộ điều khiển nào được kết nối.",
   "controlify.gui.carousel.entry.settings": "Cài đặt",
@@ -204,6 +205,8 @@
   "controlify.toast.unmapped_joystick.description": "%s is a joystick, meaning it has an abstract number of inputs, and controls cannot be automatically set. You must manually configure your controls in the settings. If this is a mistake, you are most likely on Linux!",
   "controlify.toast.new_server.title": "New server detected",
   "controlify.toast.new_server.description": "Ensure this server's rules allow controller analog movement. If not, add the server to the keyboard-like movement list in Controlify's global settings.",
+  "controlify.toast.fail_conf_load.title": "Controller config failed to load",
+  "controlify.toast.fail_conf_load.desc": "Your controller's config has been reset because there was an error. Please report this and submit your latest.log.",
   "controlify.sdl3_onboarding.title": "Thư viện gốc của Controlify",
   "controlify.sdl3_onboarding.message": "Nhiều tính năng trong Controlify yêu cầu một thư viện bổ sung cần được tải xuống cho hệ thống của bạn. Nếu bạn không tải xuống thư viện này, bạn sẽ mất quyền truy cập vào nhiều tính năng như: rung bộ điều khiển, điều khiển con quay hồi chuyển, nhận dạng bộ điều khiển tốt hơn. Đây là một quá trình liền mạch và sẽ chỉ mất vài giây. Nếu chọn không, bạn có thể đổi ý sau trong cài đặt Controlify, nhưng bạn sẽ không có quyền truy cập vào các tính năng này trong thời gian chờ đợi.",
   "controlify.sdl3_onboarding.message_mac": "Vì bạn đang sử dụng macOS ARM nên thư viện này là bắt buộc đối với bất kỳ loại nhận dạng bộ điều khiển nào. Không có nó, tất cả các bộ điều khiển sẽ không được xác định. Điều này sẽ ảnh hưởng nghiêm trọng đến trải nghiệm người dùng nếu bạn chọn không tải chúng xuống.",

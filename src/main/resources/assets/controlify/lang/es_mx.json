@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "Controles",
   "controlify.gui.carousel.no_controllers": "No hay controles conectados.",
   "controlify.gui.carousel.entry.settings": "Configuración",
@@ -204,6 +205,8 @@
   "controlify.toast.unmapped_joystick.description": "%s es un joystick, lo que significa que tiene una cantidad abstracta de entradas y los controles no se pueden configurar automáticamente. Debes configurar manualmente tus controles en la configuración. Si esto es un error, ¡probablemente estés en Linux!",
   "controlify.toast.new_server.title": "Nuevo servidor detectado",
   "controlify.toast.new_server.description": "Asegúrate de que las reglas de este servidor permitan el movimiento analógico del control. Si no es así, agrega el servidor a la lista de movimiento similar al teclado en la configuración global de Controlify.",
+  "controlify.toast.fail_conf_load.title": "Controller config failed to load",
+  "controlify.toast.fail_conf_load.desc": "Your controller's config has been reset because there was an error. Please report this and submit your latest.log.",
   "controlify.sdl3_onboarding.title": "Biblioteca nativa de Controlify",
   "controlify.sdl3_onboarding.message": "Muchas funciones en Controlify requieren una biblioteca adicional que debe descargarse para tu sistema. Si no descargas esta biblioteca, perderás acceso a muchas funciones como la vibración del control, el control del giroscopio, una mejor identificación del control. Este es un proceso sin problemas y solo tomará unos segundos. Si eliges no hacerlo, puedes cambiar de opinión más tarde en la configuración de Controlify, pero no tendrás acceso a estas funciones mientras tanto.",
   "controlify.sdl3_onboarding.message_mac": "Debido a que estás en macOS ARM, esta biblioteca es necesaria para cualquier tipo de identificación del control. Sin ella, todos los controles serán no identificados. Esto afectará gravemente la experiencia del usuario si eliges no descargarlos.",

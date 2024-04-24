@@ -1,4 +1,5 @@
 {
+  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "手柄控制",
   "controlify.gui.carousel.no_controllers": "无手柄连接。",
   "controlify.gui.carousel.entry.settings": "设置",
@@ -204,6 +205,8 @@
   "controlify.toast.unmapped_joystick.description": "%s is a joystick, meaning it has an abstract number of inputs, and controls cannot be automatically set. You must manually configure your controls in the settings. If this is a mistake, you are most likely on Linux!",
   "controlify.toast.new_server.title": "New server detected",
   "controlify.toast.new_server.description": "Ensure this server's rules allow controller analog movement. If not, add the server to the keyboard-like movement list in Controlify's global settings.",
+  "controlify.toast.fail_conf_load.title": "Controller config failed to load",
+  "controlify.toast.fail_conf_load.desc": "Your controller's config has been reset because there was an error. Please report this and submit your latest.log.",
   "controlify.sdl3_onboarding.title": "Controlify本地库（前置）",
   "controlify.sdl3_onboarding.message": "Controlify中的许多功能需要额外的库，需要为你的系统下载该库。如果你不下载此库，你将无法使用许多功能，比如：手柄振动，陀螺仪控制，更好的手柄识别。这是一个无缝的过程，只需几秒钟时间。如果你选择“否”，你稍后可以在Controlify设置中改变主意，但在此期间你无法使用这些功能。",
   "controlify.sdl3_onboarding.message_mac": "因为你使用的是macOS，对任何类型的手柄识别都需要该库。没有它，所有手柄都无法被识别。如果你选择不下载它们，这将严重影响用户体验。",
