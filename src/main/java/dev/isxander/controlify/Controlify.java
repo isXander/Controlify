@@ -15,7 +15,6 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
@@ -278,8 +277,6 @@ public class Controlify implements ControlifyApi {
                 CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
                 return;
             }
-
-            GlobalDriver.createInstance();
 
             ClientTickEvents.START_CLIENT_TICK.register(this::tick);
             ConnectServerEvent.EVENT.register((minecraft, address, data) -> {

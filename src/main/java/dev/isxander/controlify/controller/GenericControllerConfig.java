@@ -3,7 +3,6 @@ package dev.isxander.controlify.controller;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.driver.global.GlobalDriver;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -23,8 +22,7 @@ public class GenericControllerConfig implements ConfigClass {
     public boolean ingameGuideBottom = false;
     public boolean showScreenGuides = true;
 
-    public boolean showOnScreenKeyboard = GlobalDriver.get().onScreenKeyboard().isOnScreenKeyboardSupported();
-    public float chatKeyboardHeight = showOnScreenKeyboard ? 0.5f : 0f;
+    public boolean showOnScreenKeyboard = true;
 
     public ResourceLocation[] radialActions = new ResourceLocation[8];
     public int radialButtonFocusTimeoutTicks = 20;

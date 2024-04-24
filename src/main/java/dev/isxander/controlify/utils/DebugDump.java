@@ -4,7 +4,6 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.driver.SDL3NativesManager;
-import dev.isxander.controlify.driver.global.GlobalDriver;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
@@ -38,7 +37,6 @@ public class DebugDump {
         dump.line("SDL3 loaded: ", SDL3NativesManager.isLoaded());
         dump.line("Platform: ", SDL3NativesManager.Target.CURRENT.formatted());
         dump.line();
-        dump.line(GlobalDriver.get().details());
 
         Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
         if (controllerManagerOpt.isPresent()) {

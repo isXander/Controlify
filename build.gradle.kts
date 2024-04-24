@@ -64,6 +64,7 @@ repositories {
     maven("https://maven.terraformersmc.com")
     maven("https://maven.isxander.dev/releases")
     maven("https://maven.isxander.dev/snapshots")
+    maven("https://maven.parchmentmc.org")
     maven("https://maven.quiltmc.org/repository/release")
     exclusiveContent {
         forRepository { maven("https://api.modrinth.com/maven") }
@@ -82,8 +83,8 @@ dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
         // quilt does not support pre-releases so it is necessary to only layer if they exist
-        optionalProp("deps.quiltMappings") {
-            mappings("org.quiltmc:quilt-mappings:$mcVersion+build.$it:intermediary-v2")
+        optionalProp("deps.parchment") {
+            parchment("org.parchmentmc.data:parchment-$it@zip")
         }
 
         officialMojangMappings()

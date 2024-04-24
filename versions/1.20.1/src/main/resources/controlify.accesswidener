@@ -6,3 +6,4 @@ accessible method net/minecraft/client/gui/components/toasts/SystemToast <init> 
 accessible class com/mojang/blaze3d/audio/OggAudioStream$OutputConcat
 extendable method com/mojang/blaze3d/audio/OggAudioStream convertStereo (Ljava/nio/FloatBuffer;Ljava/nio/FloatBuffer;Lcom/mojang/blaze3d/audio/OggAudioStream$OutputConcat;)V
 extendable method com/mojang/blaze3d/audio/OggAudioStream convertMono (Ljava/nio/FloatBuffer;Lcom/mojang/blaze3d/audio/OggAudioStream$OutputConcat;)V
+extendable method net/minecraft/client/gui/screens/Screen init (Lnet/minecraft/client/Minecraft;II)V
