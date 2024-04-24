@@ -14,7 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ConnectScreen.class)
 public class ConnectScreenMixin {
     @Inject(method = "connect", at = @At("HEAD"))
-    private void onConnect(Minecraft client, ServerAddress address, @Nullable ServerData serverInfo, CallbackInfo ci) {
+    private void onConnect(
+            Minecraft client,
+            ServerAddress address, @Nullable ServerData serverInfo,
+            /*? if >1.20.4 {*/@Nullable net.minecraft.client.multiplayer.TransferState transferState,/*?}*/
+            CallbackInfo ci
+    ) {
         ConnectServerEvent.EVENT.invoker().onConnect(client, address, serverInfo);
     }
 }
