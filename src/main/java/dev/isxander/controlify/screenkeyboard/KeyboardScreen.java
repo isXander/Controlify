@@ -27,7 +27,7 @@ public class KeyboardScreen extends Screen {
 
     @Override
     protected void init() {
-        this.addRenderableWidget(new KeyboardWidget(0, this.height / 3 * 2, this.width, this.height / 3, KeyPressConsumer.of(this::keyPressed, this::charTyped)));
+        this.addRenderableWidget(new ChatKeyboardWidget(0, this.height / 3 * 2, this.width, this.height / 3, KeyPressConsumer.of(this::keyPressed, this::charTyped)));
     }
 
     @Override

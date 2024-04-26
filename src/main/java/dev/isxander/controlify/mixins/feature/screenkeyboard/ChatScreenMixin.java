@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.screenkeyboard;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
+import dev.isxander.controlify.screenkeyboard.ChatKeyboardWidget;
 import dev.isxander.controlify.screenkeyboard.KeyPressConsumer;
 import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
 import net.minecraft.client.gui.components.EditBox;
@@ -39,7 +40,7 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
 
             this.keyboardExists = true;
             int keyboardHeight = this.height / 2;
-            this.addRenderableWidget(new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(
+            this.addRenderableWidget(new ChatKeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(
                     (keycode, scancode, modifiers) -> {
                         input.keyPressed(keycode, scancode, modifiers);
                         this.keyPressed(keycode, scancode, modifiers);
