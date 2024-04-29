@@ -21,6 +21,7 @@ import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.platform.PlatformEvents;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
@@ -35,10 +36,6 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -57,7 +54,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -140,7 +136,7 @@ public class Controlify implements ControlifyApi {
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
 
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+        PlatformEvents.registerClientDisconnected((handler, client) -> {
             DebugLog.log("Disconnected from server, resetting server policies");
             ServerPolicies.unsetAll();
         });
@@ -186,16 +182,14 @@ public class Controlify implements ControlifyApi {
                 );
             } else {
                 probeMode = true;
-                ClientTickEvents.END_CLIENT_TICK.register(client -> this.probeTick());
+                PlatformEvents.registerClientTickEnded(client -> this.probeTick());
             }
         } else {
             finishControlifyInit();
         }
 
         // register events
-        ClientLifecycleEvents.CLIENT_STOPPING.register(minecraft -> {
-            controllerHIDService().stop();
-        });
+        PlatformEvents.registerClientStopping(client -> this.controllerHIDService().stop());
 
         // sends toasts of new features
         notifyOfNewFeatures();
@@ -281,7 +275,7 @@ public class Controlify implements ControlifyApi {
 
             GlobalDriver.createInstance();
 
-            ClientTickEvents.START_CLIENT_TICK.register(this::tick);
+            PlatformEvents.registerClientTickStarted(this::tick);
             ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
                 notifyNewServer(data);
             });
