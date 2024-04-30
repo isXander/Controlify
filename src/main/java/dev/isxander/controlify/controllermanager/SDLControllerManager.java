@@ -54,6 +54,8 @@ public class SDLControllerManager extends AbstractControllerManager {
     public void tick(boolean outOfFocus) {
         super.tick(outOfFocus);
 
+        SDL_PumpEvents();
+
         // SDL identifiers controllers in two different ways:
         // device index, and device instance ID.
         while (SDL_PollEvent(event)) {
