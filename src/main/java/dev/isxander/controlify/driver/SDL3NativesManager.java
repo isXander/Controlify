@@ -183,7 +183,6 @@ public class SDL3NativesManager {
         // send the request asynchronously and track the progress on the download
         Minecraft minecraft = Minecraft.getInstance();
         DownloadingSDLScreen downloadScreen = new DownloadingSDLScreen(minecraft.screen, 0, artifactPath);
-        System.out.println(Thread.currentThread().getName());
         minecraft.setScreen(downloadScreen);
 
         CompletableFuture<?> libFuture = downloadTracked(httpClient, libRequest, downloadScreen, targetFolder, minecraft);
