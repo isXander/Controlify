@@ -53,8 +53,16 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
         public Map<ResourceLocation, Float> vibrationStrengths = RumbleSource.getDefaultMap();
 
         public RumbleState applyRumbleStrength(RumbleState state, RumbleSource source) {
-            float strength = this.vibrationStrengths.getOrDefault(source.id(), 1f);
+            float strength = this.getStrength(source);
+            if (source != RumbleSource.MASTER) { // don't apply master twice
+                strength *= this.getStrength(RumbleSource.MASTER);
+            }
+
             return state.mul(strength);
+        }
+
+        private float getStrength(RumbleSource source) {
+            return this.vibrationStrengths.getOrDefault(source.id(), 1f);
         }
     }
 }
