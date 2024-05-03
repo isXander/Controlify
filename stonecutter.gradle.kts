@@ -40,3 +40,28 @@ val downloadNativesTasks = listOf(
         outputs.dir("${layout.buildDirectory.get()}/sdl-natives/${sdl3Target}")
     }
 }
+
+// download the most up to date controller database for SDL2
+val downloadHidDb by tasks.registering(Download::class) {
+    finalizedBy("convertHidDBToSDL3")
+
+    group = "mod"
+
+    src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
+    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
+}
+
+// SDL3 renamed `Mac OS X` -> `macOS` and this change carried over to mappings
+val convertHidDBToSDL3 by tasks.registering(Copy::class) {
+    mustRunAfter(downloadHidDb)
+    dependsOn(downloadHidDb)
+
+    group = "mod"
+
+    val file = downloadHidDb.get().outputs.files.singleFile
+    from(file)
+    into(file.parent)
+
+    rename { "gamecontrollerdb-sdl3.txt" }
+    filter { it.replace("Mac OS X", "macOS") }
+}

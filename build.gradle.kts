@@ -1,4 +1,3 @@
-import de.undercouch.gradle.tasks.download.Download
 import dev.kikugie.stonecutter.processor.Expression
 import net.fabricmc.loom.task.RemapJarTask
 
@@ -11,7 +10,6 @@ plugins {
     `maven-publish`
 
     id("org.ajoberstar.grgit") version "5.0.+"
-    id("de.undercouch.download")
 }
 
 val mcVersion = property("mcVersion")!!.toString()
@@ -161,31 +159,6 @@ dependencies {
     optionalProp("deps.simpleVoiceChat") {
         modCompileOnly("maven.modrinth:simple-voice-chat:$it")
     }
-}
-
-// download the most up to date controller database for SDL2
-val downloadHidDb by tasks.registering(Download::class) {
-    finalizedBy("convertHidDBToSDL3")
-
-    group = "mod"
-
-    src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
-    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
-}
-
-// SDL3 renamed `Mac OS X` -> `macOS` and this change carried over to mappings
-val convertHidDBToSDL3 by tasks.registering(Copy::class) {
-    mustRunAfter(downloadHidDb)
-    dependsOn(downloadHidDb)
-
-    group = "mod"
-
-    val file = downloadHidDb.get().outputs.files.singleFile
-    from(file)
-    into(file.parent)
-
-    rename { "gamecontrollerdb-sdl3.txt" }
-    filter { it.replace("Mac OS X", "macOS") }
 }
 
 tasks {
