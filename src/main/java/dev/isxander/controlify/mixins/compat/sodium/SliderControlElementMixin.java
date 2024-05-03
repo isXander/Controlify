@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.sodium;
 
 import org.spongepowered.asm.mixin.*;
 
-/*? if sodium {*//*
+/*? if sodium {*/
 import dev.isxander.controlify.compatibility.sodium.SliderControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
@@ -34,8 +34,8 @@ public abstract class SliderControlElementMixin extends ControlElement<Integer> 
         this.option.setValue(Mth.clamp(this.option.getValue() + (reverse ? -this.interval : this.interval), this.min, this.max));
     }
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public class SliderControlElementMixin {
 }
-/*?}*/
+*//*?}*/

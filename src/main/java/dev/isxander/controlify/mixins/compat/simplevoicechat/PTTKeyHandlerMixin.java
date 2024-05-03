@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.simplevoicechat;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-/*? if simple-voice-chat {*//*
+/*? if simple-voice-chat {*/
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;
@@ -43,9 +43,9 @@ public class PTTKeyHandlerMixin {
         return keyDown || SimpleVoiceChatCompat.isWhisperDown();
     }
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public class PTTKeyHandlerMixin {
 
 }
-/*?}*/
+*//*?}*/

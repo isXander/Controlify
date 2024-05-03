@@ -1,11 +1,12 @@
 package dev.isxander.controlify.screenkeyboard;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.FakeSpriteRenderer;
+import dev.isxander.controlify.utils.HoldRepeatHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -46,7 +47,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.fill(getX(), getY(), getRight(), getBottom(), 0x80000000);
+        guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
         guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
         for (T key : keys) {
@@ -60,7 +61,13 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     public static class Key extends AbstractWidget implements ComponentProcessor {
-        private static final ResourceLocation TEXTURE = Controlify.id("keyboard/key");
+        private static final ResourceLocation TEXTURE = Controlify.id(
+                /*? if >1.20.1 { */
+                "keyboard/key"
+                /*? } else { *//*
+                "textures/gui/sprites/keyboard/key.png"
+                *//*? } */
+        );
 
         private final KeyboardWidget<?> keyboard;
 
@@ -68,6 +75,8 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         private final KeyFunction shiftedFunction;
 
         private boolean highlighted;
+
+        private final HoldRepeatHelper holdRepeatHelper;
 
         public Key(int x, int y, int width, int height, KeyFunction normalFunction, @Nullable KeyFunction shiftedFunction, KeyboardWidget<?> keyboard) {
             super(x, y, width, height, Component.literal("Key"));
@@ -77,6 +86,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
                 this.shiftedFunction = shiftedFunction;
             else
                 this.shiftedFunction = normalFunction;
+            this.holdRepeatHelper = new HoldRepeatHelper(10, 2);
         }
 
         public Key(int x, int y, int width, int height, Pair<KeyFunction, KeyFunction> functions, KeyboardWidget<?> keyboard) {
@@ -85,7 +95,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
         @Override
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            /*? if >1.20.1 {*/
             guiGraphics.blitSprite(TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+            /*? } else { *//*
+            FakeSpriteRenderer.blitNineSlicedSprite(guiGraphics, TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2, 2, 6, 6);
+            *//*? } */
 
             if (keyboard.shiftMode) {
                 shiftedFunction.renderer.render(guiGraphics, mouseX, mouseY, partialTick, this);
@@ -95,13 +109,16 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
             if (isHoveredOrFocused()) {
                 guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), -1);
+            } else {
+                holdRepeatHelper.reset();
             }
         }
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (controller.bindings().GUI_PRESS.justPressed()) {
+            if (holdRepeatHelper.shouldAction(controller.bindings().GUI_PRESS)) {
                 onPress();
+                holdRepeatHelper.onNavigate();
                 return true;
             }
 

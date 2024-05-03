@@ -13,13 +13,13 @@ import net.minecraft.network.chat.Component;
 import java.util.function.Supplier;
 
 public class SDLOnboardingScreen extends ConfirmScreen implements DontInteruptScreen {
-    public SDLOnboardingScreen(Supplier<Screen> lastScreen, BooleanConsumer onAnswered) {
+    public SDLOnboardingScreen(Runnable onceDecided, BooleanConsumer onAnswered) {
         super(
                 yes -> {
                     Controlify.instance().config().globalSettings().loadVibrationNatives = yes;
                     Controlify.instance().config().globalSettings().vibrationOnboarded = true;
                     Controlify.instance().config().save();
-                    Minecraft.getInstance().setScreen(lastScreen.get());
+                    onceDecided.run();
                     onAnswered.accept(yes);
                 },
                 Component.translatable("controlify.sdl3_onboarding.title").withStyle(ChatFormatting.BOLD),

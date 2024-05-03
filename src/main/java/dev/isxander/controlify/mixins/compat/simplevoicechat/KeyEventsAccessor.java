@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.simplevoicechat;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-/*? if simple-voice-chat {*//*
+/*? if simple-voice-chat {*/
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -13,9 +13,9 @@ public interface KeyEventsAccessor {
     @Invoker
     boolean invokeCheckConnected();
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public interface KeyEventsAccessor {
 
 }
-/*?}*/
+*//*?}*/

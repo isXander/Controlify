@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.utils.InitialScreenRegistryDuck;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.client.Minecraft;
@@ -19,13 +20,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
 @Mixin(Minecraft.class)
-public abstract class MinecraftMixin {
+public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
     @Shadow public abstract float getDeltaFrameTime();
 
     @Shadow @Final public MouseHandler mouseHandler;
     @Unique private boolean initNextTick = false;
+
+    @Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();
 
     // Ideally, this would be done in MouseHandler#releaseMouse, but moving
     // the mouse before the screen init is bad, because some mods (e.g. PuzzleLib)
@@ -81,5 +88,15 @@ public abstract class MinecraftMixin {
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))
     private void tickAnimator(boolean tick, CallbackInfo ci) {
         Animator.INSTANCE.tick(this.getDeltaFrameTime());
+    }
+
+    @Inject(method = "addInitialScreens", at = @At("TAIL"))
+    private void injectCustomInitialScreens(List<Function<Runnable, Screen>> output, CallbackInfo ci) {
+        output.addAll(initialScreenCallbacks);
+    }
+
+    @Override
+    public void controlify$registerInitialScreen(Function<Runnable, Screen> screenFactory) {
+        initialScreenCallbacks.add(screenFactory);
     }
 }

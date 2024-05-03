@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.sodium;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-/*? if sodium {*//*
+/*? if sodium {*/
 import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
 import me.jellysquid.mods.sodium.client.gui.options.OptionPage;
 import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
@@ -23,8 +23,8 @@ public interface SodiumOptionsGUIAccessor {
     @Accessor
     List<ControlElement<?>> getControls();
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public interface SodiumOptionsGUIAccessor {
 }
-/*?}*/
+*//*?}*/

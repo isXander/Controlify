@@ -17,30 +17,30 @@ public class ControlifyCompat {
     public static final String SIMPLE_VOICE_CHAT = "voicechat";
 
     public static void init() {
-        /*? if simple-voice-chat {*//*
+        /*? if simple-voice-chat {*/
         wrapCompatCall(
                 SIMPLE_VOICE_CHAT,
                 dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat::init
         );
-        *//*?}*/
+        /*?}*/
     }
 
     public static void ifBeginHudBatching() {
-        /*? if immediately-fast {*//*
+        /*? if immediately-fast {*/
         wrapCompatCall(
                 IMMEDIATELY_FAST,
                 dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::beginHudBatching
         );
-        *//*?}*/
+        /*?}*/
     }
 
     public static void ifEndHudBatching() {
-        /*? if immediately-fast {*//*
+        /*? if immediately-fast {*/
         wrapCompatCall(
                 IMMEDIATELY_FAST,
                 dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::endHudBatching
         );
-        *//*?}*/
+        /*?}*/
     }
 
     private static void wrapCompatCall(String modid, Runnable runnable) {

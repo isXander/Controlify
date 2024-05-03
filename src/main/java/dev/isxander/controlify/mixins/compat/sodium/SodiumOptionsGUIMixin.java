@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.sodium;
 
 import org.spongepowered.asm.mixin.*;
 
-/*? if sodium {*//*
+/*? if sodium {*/
 import dev.isxander.controlify.compatibility.sodium.SodiumGuiScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -38,8 +38,8 @@ public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProc
         return controlify$screenProcessor;
     }
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public class SodiumOptionsGUIMixin {
 }
-/*?}*/
+*//*?}*/

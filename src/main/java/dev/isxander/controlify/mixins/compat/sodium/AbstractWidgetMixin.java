@@ -2,7 +2,7 @@ package dev.isxander.controlify.mixins.compat.sodium;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-/*? if sodium {*//*
+/*? if sodium {*/
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import me.jellysquid.mods.sodium.client.gui.widgets.AbstractWidget;
@@ -19,9 +19,9 @@ public class AbstractWidgetMixin {
         return type;
     }
 }
-*//*?} else {*/
+/*?} else {*//*
 @Mixin(targets = {})
 public class AbstractWidgetMixin {
 
 }
-/*?}*/
+*//*?}*/

@@ -2,10 +2,7 @@ package dev.isxander.controlify.screenkeyboard;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
 
 /**
  * An overlay screen that renders the keyboard on top of an existing screen.
@@ -43,7 +40,7 @@ public class KeyboardScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderBackground(GuiGraphics guiGraphics/*? if >1.20.1{*/, int mouseX, int mouseY, float partialTick/*?}*/) {
         // no background
     }
 

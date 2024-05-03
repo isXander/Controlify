@@ -1,4 +1,4 @@
-/*? if sodium {*//*
+/*? if sodium {*/
 package dev.isxander.controlify.compatibility.sodium;
 
 import dev.isxander.controlify.Controlify;
@@ -49,4 +49,4 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
         }
     }
 }
-*//*?}*/
+/*?}*/

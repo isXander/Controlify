@@ -428,9 +428,8 @@ public class Controlify implements ControlifyApi {
         nativeOnboardingFuture = new CompletableFuture<>();
 
         // open the SDL onboarding screen. complete the future when the user has made their choice
-        Screen parent = minecraft.screen;
-        minecraft.setScreen(new SDLOnboardingScreen(
-                () -> parent,
+        InitialScreenRegistryDuck.registerInitialScreen(runnable -> new SDLOnboardingScreen(
+                runnable,
                 answer -> {
                     if (answer) {
                         SDL3NativesManager.maybeLoad().whenComplete((loaded, th) -> {

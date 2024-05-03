@@ -154,6 +154,8 @@ public class SDL3NativesManager {
     }
 
     private static CompletableFuture<Boolean> downloadLibrary(Path targetFolder) {
+        System.out.println("starting download");
+
         String artifactName = Target.CURRENT.getArtifactName();
         String md5Name = Target.CURRENT.getArtifactMD5Name();
 
