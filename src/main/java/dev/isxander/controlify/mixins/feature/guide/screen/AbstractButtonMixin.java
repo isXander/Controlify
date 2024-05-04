@@ -35,6 +35,7 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     @Override
     public void controlify$setButtonGuide(RenderData<AbstractButton> renderData) {
         this.renderData = renderData;
+        this.controllerMessages.clear();
     }
 
     @Unique
