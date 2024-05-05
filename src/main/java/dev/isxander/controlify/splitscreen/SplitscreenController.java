@@ -34,12 +34,12 @@ public class SplitscreenController {
         switch (windowCount) {
             case 1 -> {} // don't do anything
             case 2 -> {
-                this.pawns.get(0).configureSplitscreen(monitor, SplitscreenPosition.LEFT);
-                this.pawns.get(1).configureSplitscreen(monitor, SplitscreenPosition.RIGHT);
+                this.pawns.get(0).configureSplitscreen(monitor, SplitscreenPosition.TOP);
+                this.pawns.get(1).configureSplitscreen(monitor, SplitscreenPosition.BOTTOM);
             }
             case 3 -> {
-                this.pawns.get(0).configureSplitscreen(monitor, SplitscreenPosition.LEFT);
-                this.pawns.get(1).configureSplitscreen(monitor, SplitscreenPosition.TOP_RIGHT);
+                this.pawns.get(0).configureSplitscreen(monitor, SplitscreenPosition.TOP);
+                this.pawns.get(1).configureSplitscreen(monitor, SplitscreenPosition.BOTTOM_LEFT);
                 this.pawns.get(2).configureSplitscreen(monitor, SplitscreenPosition.BOTTOM_RIGHT);
             }
             case 4 -> {

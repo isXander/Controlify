@@ -37,8 +37,12 @@ public class ClientSplitscreenPawn implements SplitscreenPawn {
             Monitor monitor = screenManager.getMonitor(monitorIndex);
             VideoMode videoMode = monitor.getCurrentMode();
 
-            boolean isHidden = position == SplitscreenPosition.HIDDEN;
-            GLFW.glfwSetWindowAttrib(window.getWindow(), GLFW.GLFW_VISIBLE, isHidden ? GLFW.GLFW_FALSE : GLFW.GLFW_TRUE);
+            if (position == SplitscreenPosition.HIDDEN) {
+                GLFW.glfwHideWindow(window.getWindow());
+            } else {
+                // window mode windows are also automatically focused on (which brings them to top)
+                GLFW.glfwShowWindow(window.getWindow());
+            }
 
             GLFW.glfwSetWindowAttrib(window.getWindow(), GLFW.GLFW_DECORATED, GLFW.GLFW_FALSE);
 
