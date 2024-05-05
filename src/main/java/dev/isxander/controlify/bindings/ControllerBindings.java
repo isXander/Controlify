@@ -627,6 +627,7 @@ public class ControllerBindings {
         return clean;
     }
 
+    @SuppressWarnings("UnreachableCode")
     private void registerModdedKeybinds() {
         for (KeyMapping keyMapping : KeyBindingRegistryImplAccessor.getCustomKeys()) {
             if (EXCLUDED_VANILLA_BINDS.contains(keyMapping))
