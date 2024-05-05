@@ -27,6 +27,13 @@ public class GlobalSettingsScreenFactory {
     public static Screen createGlobalSettingsScreen(Screen parent) {
         var globalSettings = Controlify.instance().config().globalSettings();
         AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
+
+        Option<Integer> portOption = Option.<Integer>createBuilder()
+                .name(Component.literal("Port Select"))
+                .controller(IntegerFieldControllerBuilder::create)
+                .binding(0, () -> 0, c -> {})
+                .build();
+
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))
                 .category(ConfigCategory.createBuilder()
@@ -34,6 +41,19 @@ public class GlobalSettingsScreenFactory {
                         .option(ButtonOption.createBuilder()
                                 .name(Component.translatable("controlify.gui.open_issue_tracker"))
                                 .action((screen, button) -> Util.getPlatform().openUri("https://github.com/isxander/controlify/issues"))
+                                .build())
+                        .option(ButtonOption.createBuilder()
+                                .name(Component.literal("Become splitscreen controller"))
+                                .action((screen, opt) -> {
+                                    Controlify.instance().becomeSplitscreenController();
+                                })
+                                .build())
+                        .option(portOption)
+                        .option(ButtonOption.createBuilder()
+                                .name(Component.literal("Become splitscreen pawn"))
+                                .action((screen, opt) -> {
+                                    Controlify.instance().becomeSplitscreenPawn(portOption.pendingValue());
+                                })
                                 .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("controlify.gui.natives"))

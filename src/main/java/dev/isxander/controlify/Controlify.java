@@ -32,6 +32,8 @@ import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.server.packets.*;
+import dev.isxander.controlify.splitscreen.SplitscreenController;
+import dev.isxander.controlify.splitscreen.protocol.PawnConnectionManager;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
@@ -39,11 +41,12 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -83,6 +86,9 @@ public class Controlify implements ControlifyApi {
     private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
     private ControllerSetupWizard currentSetupWizard = null;
     private boolean hasDiscoveredControllers = false;
+
+    private SplitscreenController splitscreenController;
+    private PawnConnectionManager splitscreenPawnConnection;
 
     private int consecutiveInputSwitches = 0;
     private double lastInputSwitchTime = 0;
@@ -489,6 +495,14 @@ public class Controlify implements ControlifyApi {
                     currentController
             );
         });
+
+        this.getSplitscreenMaster().ifPresent(SplitscreenController::tick);
+        this.getSplitscreenPawnConnection().ifPresent(c -> {
+            Connection connection = c.getConnection();
+            if (connection.isConnected()) {
+                connection.tick();
+            }
+        });
     }
 
     /**
@@ -686,6 +700,30 @@ public class Controlify implements ControlifyApi {
 
     public InputFontMapper inputFontMapper() {
         return inputFontMapper;
+    }
+
+    public void becomeSplitscreenController() {
+        Validate.isTrue(splitscreenController == null, "This client is already a master");
+        Validate.isTrue(splitscreenPawnConnection == null, "This client is already a slave and cannot become master");
+
+        this.splitscreenController = new SplitscreenController();
+        this.splitscreenController.startServer();
+    }
+
+    public void becomeSplitscreenPawn(int port) {
+        Validate.isTrue(splitscreenController == null, "Cannot become slave. Already a master");
+        Validate.isTrue(splitscreenPawnConnection == null, "Already a slave of one instance");
+
+        this.splitscreenPawnConnection = new PawnConnectionManager();
+        this.splitscreenPawnConnection.connect(port);
+    }
+
+    public Optional<SplitscreenController> getSplitscreenMaster() {
+        return Optional.ofNullable(splitscreenController);
+    }
+
+    public Optional<PawnConnectionManager> getSplitscreenPawnConnection() {
+        return Optional.ofNullable(splitscreenPawnConnection);
     }
 
     private void notifyOfNewFeatures() {

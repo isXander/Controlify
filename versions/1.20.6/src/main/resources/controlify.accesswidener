@@ -1,5 +1,6 @@
 accessWidener v2 named
 
+accessible method net/minecraft/network/Connection sendPacket (Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;Z)V
 accessible class net/minecraft/client/gui/screens/LanguageSelectScreen$LanguageSelectionList
 accessible class net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance
 accessible method net/minecraft/client/gui/components/toasts/SystemToast <init> (Lnet/minecraft/client/gui/components/toasts/SystemToast$SystemToastId;Lnet/minecraft/network/chat/Component;Ljava/util/List;I)V
