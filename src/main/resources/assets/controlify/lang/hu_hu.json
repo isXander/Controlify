@@ -6,7 +6,7 @@
   "controlify.gui.carousel.entry.use": "Használ",
   "controlify.gui.carousel.entry.in_use": "Jelenleg használatban",
   "controlify.gui.carousel.controller_not_detected_btn": "Kontroller nem észlelhető?",
-  "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Open the wiki to troubleshoot why your controller is not working.",
+  "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Nyisd meg a wiki-t a kontroller hibaelhárításához.",
   "controlify.gui.carousel.donate": "Támogass!",
   "controlify.gui.carousel.art_credit": "Controller art by %s.",
   "controlify.gui.global_settings.title": "Globális Beállítások",
