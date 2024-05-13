@@ -1,19 +1,18 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class AxisBind implements IBind {
+public record AxisBind(ResourceLocation axis) implements Bind {
     public static final String BIND_ID = "axis";
 
-    private final ResourceLocation axis;
-
-    public AxisBind(ResourceLocation axis) {
-        this.axis = axis;
-    }
+    public static final MapCodec<AxisBind> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf(BIND_ID).forGetter(AxisBind::axis)
+    ).apply(instance, AxisBind::new));
 
     @Override
     public float state(ControllerStateView state) {
@@ -26,11 +25,7 @@ public class AxisBind implements IBind {
     }
 
     @Override
-    public JsonObject toJson() {
-        JsonObject object = new JsonObject();
-        object.addProperty("type", BIND_ID);
-        object.addProperty("axis", axis.toString());
-
-        return object;
+    public BindType<?> type() {
+        return BindType.AXIS;
     }
 }

@@ -1,19 +1,18 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class ButtonBind implements IBind {
+public record ButtonBind(ResourceLocation button) implements Bind {
     public static final String BIND_ID = "button";
 
-    private final ResourceLocation button;
-
-    public ButtonBind(ResourceLocation button) {
-        this.button = button;
-    }
+    public static final MapCodec<ButtonBind> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf(BIND_ID).forGetter(ButtonBind::button)
+    ).apply(instance, ButtonBind::new));
 
     @Override
     public float state(ControllerStateView state) {
@@ -26,11 +25,7 @@ public class ButtonBind implements IBind {
     }
 
     @Override
-    public JsonObject toJson() {
-        JsonObject object = new JsonObject();
-        object.addProperty("type", BIND_ID);
-        object.addProperty("button", button.toString());
-
-        return object;
+    public BindType<?> type() {
+        return BindType.BUTTON;
     }
 }

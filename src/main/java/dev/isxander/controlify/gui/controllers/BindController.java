@@ -23,18 +23,18 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
-public class BindController implements Controller<IBind> {
-    private final Option<IBind> option;
+public class BindController implements Controller<Bind> {
+    private final Option<Bind> option;
     public final ControllerEntity controller;
     private boolean conflicting;
 
-    public BindController(Option<IBind> option, ControllerEntity controller) {
+    public BindController(Option<Bind> option, ControllerEntity controller) {
         this.option = option;
         this.controller = controller;
     }
 
     @Override
-    public Option<IBind> option() {
+    public Option<Bind> option() {
         return this.option;
     }
 
@@ -137,7 +137,7 @@ public class BindController implements Controller<IBind> {
             return control.conflicting ? 0xFF5555 : super.getValueColor();
         }
 
-        public Optional<IBind> getPressedBind() {
+        public Optional<Bind> getPressedBind() {
             InputComponent input = control.controller.input().orElseThrow();
             ControllerStateView state = input.stateNow();
             ControllerStateView prevState = input.stateThen();

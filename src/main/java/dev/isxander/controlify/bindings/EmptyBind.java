@@ -1,17 +1,16 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class EmptyBind implements IBind {
-    public static final String BIND_ID = "empty";
+public record EmptyBind() implements Bind {
+    public static final EmptyBind INSTANCE = new EmptyBind();
 
-    public static boolean equals(IBind bind) {
-        return bind instanceof EmptyBind;
-    }
+    public static final String BIND_ID = "empty";
+    public static final MapCodec<EmptyBind> CODEC = MapCodec.unit(() -> INSTANCE);
 
     @Override
     public float state(ControllerStateView state) {
@@ -24,14 +23,11 @@ public class EmptyBind implements IBind {
     }
 
     @Override
-    public JsonObject toJson() {
-        JsonObject object = new JsonObject();
-        object.addProperty("type", BIND_ID);
-        return object;
+    public BindType<?> type() {
+        return BindType.EMPTY;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof EmptyBind;
+    public static boolean equals(Bind bind) {
+        return bind instanceof EmptyBind;
     }
 }

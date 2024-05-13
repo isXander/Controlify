@@ -4,6 +4,7 @@ import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.bindings.v2.defaults.DefaultBindControllerReloader;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
@@ -73,6 +74,7 @@ public class Controlify implements ControlifyApi {
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
+    private DefaultBindControllerReloader defaultBindManager;
 
     private ControllerHIDService controllerHIDService;
 
@@ -105,7 +107,9 @@ public class Controlify implements ControlifyApi {
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         this.inputFontMapper = new InputFontMapper();
+        this.defaultBindManager = new DefaultBindControllerReloader();
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(inputFontMapper);
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(defaultBindManager);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();

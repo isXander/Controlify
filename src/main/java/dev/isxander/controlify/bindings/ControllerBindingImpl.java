@@ -1,7 +1,9 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
@@ -9,13 +11,11 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
-import dev.isxander.controlify.gui.DrawSize;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionDescription;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -28,8 +28,8 @@ import java.util.function.Function;
 
 public class ControllerBindingImpl implements ControllerBinding {
     private final ControllerEntity controller;
-    private IBind bind;
-    private final IBind defaultBind;
+    private Bind bind;
+    private final Bind defaultBind;
     private final Function<ControllerStateView, Float> hardcodedBind;
     private final ResourceLocation id;
     private final Component name, description, category;
@@ -37,11 +37,11 @@ public class ControllerBindingImpl implements ControllerBinding {
     private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
-    private static final Map<ControllerEntity, Set<IBind>> pressedBinds = new Object2ObjectOpenHashMap<>();
+    private static final Map<ControllerEntity, Set<Bind>> pressedBinds = new Object2ObjectOpenHashMap<>();
 
     private byte fakePressState = 0;
 
-    private ControllerBindingImpl(ControllerEntity controller, IBind defaultBind, Function<ControllerStateView, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
+    private ControllerBindingImpl(ControllerEntity controller, Bind defaultBind, Function<ControllerStateView, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
         this.bind = this.defaultBind = defaultBind;
         this.hardcodedBind = hardcodedBind;
@@ -124,13 +124,13 @@ public class ControllerBindingImpl implements ControllerBinding {
         return Optional.ofNullable(this.radialIcon);
     }
 
-    public void setCurrentBind(IBind bind) {
+    public void setCurrentBind(Bind bind) {
         this.bind = bind;
         Controlify.instance().config().setDirty();
     }
 
     @Override
-    public IBind defaultBind() {
+    public Bind defaultBind() {
         return defaultBind;
     }
 
@@ -164,7 +164,7 @@ public class ControllerBindingImpl implements ControllerBinding {
     }
 
     @Override
-    public IBind getBind() {
+    public Bind getBind() {
         return bind;
     }
 
@@ -179,13 +179,13 @@ public class ControllerBindingImpl implements ControllerBinding {
     }
 
     @Override
-    public JsonObject toJson() {
-        return getBind().toJson();
+    public JsonElement toJson() {
+        return Bind.CODEC.encodeStart(JsonOps.INSTANCE, getBind()).getOrThrow();
     }
 
     @Override
-    public Option.Builder<IBind> startYACLOption() {
-        return Option.<IBind>createBuilder()
+    public Option.Builder<Bind> startYACLOption() {
+        return Option.<Bind>createBuilder()
                 .name(name())
                 .binding(new EmptyBind(), this::getBind, this::setCurrentBind)
                 .description(OptionDescription.of(this.description()))
@@ -213,14 +213,14 @@ public class ControllerBindingImpl implements ControllerBinding {
         pressedBinds.computeIfAbsent(binding.controller, c -> new ObjectOpenHashSet<>()).addAll(getBinds(binding.bind));
     }
 
-    private static Set<IBind> getBinds(IBind bind) {
+    private static Set<Bind> getBinds(Bind bind) {
         return Set.of(bind);
     }
 
     @ApiStatus.Internal
     public static final class ControllerBindingBuilderImpl implements ControllerBindingBuilder {
         private final ControllerEntity controller;
-        private IBind bind;
+        private Bind bind;
         private Function<ControllerStateView, Float> hardcodedBind = state -> 0f;
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
@@ -244,7 +244,7 @@ public class ControllerBindingImpl implements ControllerBinding {
         }
 
         @Override
-        public ControllerBindingBuilder defaultBind(IBind bind) {
+        public ControllerBindingBuilder defaultBind(Bind bind) {
             this.bind = bind;
             return this;
         }

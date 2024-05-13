@@ -69,7 +69,7 @@ public class SDLControllerManager extends AbstractControllerManager {
                     Optional<ControllerEntity> controllerOpt = tryCreate(
                             ucid,
                             fetchTypeFromSDL(jid)
-                                    .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()))
+                                    .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty()))
                     );
                     controllerOpt.ifPresent(controller -> {
                         ControllerUtils.wrapControllerError(() -> onControllerConnected(controller, true), "Connecting controller", controller);
@@ -99,7 +99,7 @@ public class SDLControllerManager extends AbstractControllerManager {
             Optional<ControllerEntity> controllerOpt = tryCreate(
                     new SDLUniqueControllerID(jid),
                     fetchTypeFromSDL(jid)
-                            .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty()))
+                            .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty()))
             );
             controllerOpt.ifPresent(controller -> onControllerConnected(controller, false));
         }

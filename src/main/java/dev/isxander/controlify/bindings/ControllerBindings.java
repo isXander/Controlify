@@ -1,6 +1,7 @@
 package dev.isxander.controlify.bindings;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
@@ -615,13 +616,14 @@ public class ControllerBindings {
                 continue;
             }
 
-            var bind = json.get(binding.id().toString()).getAsJsonObject();
-            if (bind == null) {
+            var bindJson = json.get(binding.id().toString()).getAsJsonObject();
+            if (bindJson == null) {
                 CUtil.LOGGER.warn("Unknown binding: {} in config file. Skipping!", binding.id());
                 clean = false;
                 continue;
             }
-            ((ControllerBindingImpl) binding).setCurrentBind(IBind.fromJson(bind));
+            Bind bind = Bind.CODEC.parse(JsonOps.INSTANCE, bindJson).getOrThrow();
+            ((ControllerBindingImpl) binding).setCurrentBind(bind);
         }
 
         return clean;

@@ -32,7 +32,7 @@ public interface ControllerBindingBuilder {
      * The default bind for the binding.
      * @param bind the default bind
      */
-    ControllerBindingBuilder defaultBind(IBind bind);
+    ControllerBindingBuilder defaultBind(Bind bind);
 
     ControllerBindingBuilder hardcodedBind(Function<ControllerStateView, Float> bind);
 

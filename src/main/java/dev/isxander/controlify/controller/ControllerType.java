@@ -18,17 +18,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import org.jetbrains.annotations.Nullable;
 import org.quiltmc.parsers.json.JsonReader;
-import org.quiltmc.parsers.json.gson.GsonReader;
 
 import java.util.*;
 
-public record ControllerType(@Nullable String friendlyName, String mappingId, String namespace, boolean forceJoystick, boolean dontLoad) {
-    public static final ControllerType UNKNOWN = new ControllerType(null, "unknown", "unknown", false, false);
+public record ControllerType(@Nullable String friendlyName, String mappingId, ResourceLocation namespace, boolean forceJoystick, boolean dontLoad) {
+    public static final ControllerType DEFAULT = new ControllerType(null, "default", new ResourceLocation("controlify", "default"), false, false);
 
     public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.STRING.optionalFieldOf("name", null).forGetter(ControllerType::friendlyName),
-            Codec.STRING.optionalFieldOf("mapping", "unmapped").forGetter(ControllerType::mappingId),
-            Codec.STRING.optionalFieldOf("theme", "unknown").forGetter(ControllerType::namespace),
+            Codec.STRING.optionalFieldOf("mapping", DEFAULT.mappingId()).forGetter(ControllerType::mappingId),
+            ResourceLocation.CODEC.optionalFieldOf("namespace", DEFAULT.namespace()).forGetter(ControllerType::namespace),
             Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
             Codec.BOOL.optionalFieldOf("dont_load", false).forGetter(ControllerType::dontLoad)
     ).apply(instance, ControllerType::new));
@@ -39,10 +38,6 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
                     .forGetter(ControllerTypeEntry::hid),
             CODEC.forGetter(ControllerTypeEntry::type)
     ).apply(instance, ControllerTypeEntry::new));
-
-    private static final Gson GSON = new GsonBuilder()
-            .setNumberToNumberStrategy(com.google.gson.stream.JsonReader::nextInt)
-            .create();
 
     private record ControllerTypeEntry(List<HIDIdentifier> hid, ControllerType type) {}
 
@@ -63,7 +58,7 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
             return getTypeMap().get(hid);
         } else {
             CUtil.LOGGER.warn("Controller found via USB hardware scan, but it was not found in the controller identification database! (HID: {})", hid);
-            return ControllerType.UNKNOWN;
+            return ControllerType.DEFAULT;
         }
     }
 

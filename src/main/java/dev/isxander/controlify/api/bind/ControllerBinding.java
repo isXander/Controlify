@@ -1,8 +1,8 @@
 package dev.isxander.controlify.api.bind;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.BindContext;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.Bind;
 import dev.isxander.yacl3.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
@@ -59,14 +59,14 @@ public interface ControllerBinding {
      */
     @Nullable KeyMappingOverride override();
 
-    IBind getBind();
-    IBind defaultBind();
+    Bind getBind();
+    Bind defaultBind();
     void resetBind();
     boolean isUnbound();
 
     Option.Builder<?> startYACLOption();
 
-    JsonObject toJson();
+    JsonElement toJson();
 
     void tick();
 

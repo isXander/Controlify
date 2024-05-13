@@ -9,10 +9,11 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.Bind;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InputFontMapper implements SimpleResourceReloadListener<InputFontMapper.Preparations> {
-    private ImmutableMap<String, FontMap> mappings;
+    private ImmutableMap<ResourceLocation, FontMap> mappings;
 
     private static final Codec<Character> CHAR_CODEC = Codec.STRING.comapFlatMap(
             (str) -> {
@@ -49,24 +50,27 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
             map -> Pair.of(map.unknown(), map.inputToChar())
     );
 
+    private static final String DIRECTORY = "controllers/font_mappings";
+    private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json(DIRECTORY);
+
     @Override
     public CompletableFuture<InputFontMapper.Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            Map<ResourceLocation, Resource> mappingResources = manager.listResources("controllers/font_mappings", (rl) -> rl.getPath().endsWith(".json"));
-            Map<String, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {
+            Map<ResourceLocation, Resource> mappingResources = manager.listResources(DIRECTORY, (rl) -> rl.getPath().endsWith(".json"));
+            Map<ResourceLocation, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {
                 ResourceLocation rl = entry.getKey();
                 Resource resource = entry.getValue();
 
-                String themeName = StringUtils.substringBeforeLast(StringUtils.substringAfterLast(rl.getPath(), "/"), ".json");
+                ResourceLocation namespace = fileToIdConverter.fileToId(rl);
                 try (BufferedReader reader = resource.openAsReader()) {
                     JsonElement element = JsonParser.parseReader(reader);
                     FontMap map = FONT_MAP_CODEC.parse(JsonOps.INSTANCE, element)
                             .resultOrPartial(CUtil.LOGGER::error).orElse(null);
                     if (map != null) {
-                        return Stream.of(Pair.of(themeName, map));
+                        return Stream.of(Pair.of(namespace, map));
                     }
                 } catch (Exception e) {
-                    CUtil.LOGGER.error("Failed to load font mappings for theme {}", themeName, e);
+                    CUtil.LOGGER.error("Failed to load font mappings for namespace {}", namespace, e);
                 }
 
                 return Stream.empty();
@@ -78,44 +82,44 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
 
     @Override
     public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
-        ImmutableMap.Builder<String, FontMap> builder = ImmutableMap.builder();
+        ImmutableMap.Builder<ResourceLocation, FontMap> builder = ImmutableMap.builder();
         data.mappings().forEach(builder::put);
         mappings = builder.build();
         return CompletableFuture.completedFuture(null);
     }
 
-    public FontMap getMappings(String theme) {
-        return mappings.get(theme);
+    public FontMap getMappings(ResourceLocation namespace) {
+        return mappings.get(namespace);
     }
 
-    public Component getComponentFromBinding(String theme, @Nullable ControllerBinding binding) {
+    public Component getComponentFromBinding(ResourceLocation namespace, @Nullable ControllerBinding binding) {
         if (binding == null) {
             // TODO: implement some sort of "unbound" character
             return Component.literal("?");
         }
 
         List<ResourceLocation> relevantInputs = binding.getBind().getRelevantInputs();
-        return getComponentFromInputs(theme, relevantInputs);
+        return getComponentFromInputs(namespace, relevantInputs);
     }
 
-    public Component getComponentFromBind(String theme, IBind bind) {
+    public Component getComponentFromBind(ResourceLocation namespace, Bind bind) {
         List<ResourceLocation> relevantInputs = bind.getRelevantInputs();
-        return getComponentFromInputs(theme, relevantInputs);
+        return getComponentFromInputs(namespace, relevantInputs);
     }
 
-    public Component getComponentFromInputs(String theme, List<ResourceLocation> inputs) {
+    public Component getComponentFromInputs(ResourceLocation namespace, List<ResourceLocation> inputs) {
         if (inputs.isEmpty()) {
             return Component.literal("<unbound>");
         }
 
         String literal = inputs.stream()
-                .map(input -> String.valueOf(getChar(theme, input)))
+                .map(input -> String.valueOf(getChar(namespace, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style -> style.withFont(Controlify.id("controller/" + theme)));
+        return Component.literal(literal).withStyle(style -> style.withFont(Controlify.id("controller/" + namespace)));
     }
 
-    public char getChar(String theme, ResourceLocation input) {
-        FontMap map = getMappings(theme);
+    public char getChar(ResourceLocation namespace, ResourceLocation input) {
+        FontMap map = getMappings(namespace);
         if (map != null) {
             return map.inputToChar().getOrDefault(input, map.unknown());
         }
@@ -127,7 +131,7 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
         return new ResourceLocation("controlify", "font_mappings");
     }
 
-    public record Preparations(Map<String, FontMap> mappings) {
+    public record Preparations(Map<ResourceLocation, FontMap> mappings) {
 
     }
     public record FontMap(char unknown, Map<ResourceLocation, Character> inputToChar) {

@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.AxisBind;
 import dev.isxander.controlify.bindings.ButtonBind;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.Bind;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -72,7 +72,7 @@ public final class GamepadInputs {
             ))
     ));
 
-    public static IBind getBind(ResourceLocation id) {
+    public static Bind getBind(ResourceLocation id) {
         return switch (id.getPath().split("/")[0]) {
             case "button" -> new ButtonBind(id);
             case "axis" -> new AxisBind(id);

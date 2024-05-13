@@ -2,7 +2,7 @@
   "providers": [
     {
       "type": "bitmap",
-      "file": "controlify:font/controller/unknown.png",
+      "file": "controlify:font/controller/default.png",
       "ascent": 11,
       "height": 16,
       "chars": [

@@ -67,7 +67,7 @@ public class ControllerHIDService {
             info = fetchType0(jid);
         } catch (Throwable e) {
             CUtil.LOGGER.error("Failed to fetch controller type!", e);
-            info = new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            info = new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
         if (DebugProperties.PRINT_VID_PID) {
@@ -95,7 +95,7 @@ public class ControllerHIDService {
         }
 
         if (disabled) {
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
         doScanOnThisThread();
@@ -104,7 +104,7 @@ public class ControllerHIDService {
         if (hid == null) {
             CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
 
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
         ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
@@ -184,7 +184,14 @@ public class ControllerHIDService {
                 md.update(Ints.toByteArray(hid.vendorID()));
                 md.update(Ints.toByteArray(hid.productID()));
             });
-            md.update(type.namespace().getBytes());
+
+            String namespace = type().namespace().toString();
+            if ("controlify".equals(type().namespace().getNamespace())) {
+                // maintains backwards compatibility
+                namespace = type().namespace().getPath();
+            }
+
+            md.update(namespace.getBytes());
 
             return Optional.of(UUID.nameUUIDFromBytes(md.digest()).toString());
         }

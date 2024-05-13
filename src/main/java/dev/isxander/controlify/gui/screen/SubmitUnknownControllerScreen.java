@@ -8,7 +8,6 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
@@ -205,7 +204,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     public static boolean canSubmit(ControllerEntity controller) {
-        return controller.info().type() == ControllerType.UNKNOWN
+        return controller.info().type() == ControllerType.DEFAULT
                 && !controller.genericConfig().config().dontShowControllerSubmission
                 /*&& controller.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())

@@ -1,26 +1,20 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.gson.JsonObject;
-import dev.isxander.controlify.controller.*;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
-import dev.isxander.controlify.controller.input.Inputs;
-import dev.isxander.controlify.gui.DrawSize;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public class HatBind implements IBind {
+public record HatBind(ResourceLocation hat, HatState targetState) implements Bind {
     public static final String BIND_ID = "hat";
 
-    private final ResourceLocation hat;
-    private final HatState targetState;
-
-    public HatBind(ResourceLocation hat, HatState targetState) {
-        this.hat = hat;
-        this.targetState = targetState;
-    }
+    public static final MapCodec<HatBind> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf(BIND_ID).forGetter(HatBind::hat),
+            HatState.CODEC.fieldOf("target_state").forGetter(HatBind::targetState)
+    ).apply(instance, HatBind::new));
 
     @Override
     public float state(ControllerStateView state) {
@@ -33,11 +27,7 @@ public class HatBind implements IBind {
     }
 
     @Override
-    public JsonObject toJson() {
-        JsonObject object = new JsonObject();
-        object.addProperty("type", BIND_ID);
-        object.addProperty("hat", hat.toString());
-
-        return object;
+    public BindType<?> type() {
+        return BindType.HAT;
     }
 }
