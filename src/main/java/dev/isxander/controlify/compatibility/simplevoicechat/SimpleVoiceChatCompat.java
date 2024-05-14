@@ -6,7 +6,7 @@ import de.maxhenkel.voicechat.voice.client.KeyEvents;
 import dev.isxander.controlify.api.bind.BindingSupplier;
 import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.bindings.EmptyBind;
+import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
 import dev.isxander.controlify.mixins.compat.simplevoicechat.KeyEventsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;

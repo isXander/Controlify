@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.*;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.client.KeyMapping;

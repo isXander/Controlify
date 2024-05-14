@@ -1,8 +1,7 @@
-package dev.isxander.controlify.bindings;
+package dev.isxander.controlify.bindings.v2.inputmask;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.MapEncoder;
 import dev.isxander.controlify.utils.FuzzyMapCodec;
 import dev.isxander.controlify.utils.StrictEitherMapCodec;
 import net.minecraft.util.ExtraCodecs;

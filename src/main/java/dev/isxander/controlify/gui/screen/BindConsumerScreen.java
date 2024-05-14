@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;

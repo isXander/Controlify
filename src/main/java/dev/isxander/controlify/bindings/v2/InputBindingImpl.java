@@ -2,18 +2,15 @@ package dev.isxander.controlify.bindings.v2;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.bindings.Bind;
-import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.ResizableRingBuffer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -23,7 +20,7 @@ public class InputBindingImpl implements InputBinding {
     private final Component name, description;
     private Bind boundBind;
     private final Supplier<Bind> defaultBindSupplier;
-    private final BindContext[] contexts;
+    private final Set<BindContext> contexts;
     private final @Nullable RadialIcon radialIcon;
 
     private final ResizableRingBuffer<Float> stateHistory;
@@ -45,7 +42,7 @@ public class InputBindingImpl implements InputBinding {
             Component description,
             Bind boundBind,
             Supplier<Bind> defaultBindSupplier,
-            BindContext[] contexts,
+            Set<BindContext> contexts,
             @Nullable RadialIcon radialIcon
     ) {
         this.controller = controller;
@@ -146,7 +143,7 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public BindContext[] contexts() {
+    public Set<BindContext> contexts() {
         return this.contexts;
     }
 

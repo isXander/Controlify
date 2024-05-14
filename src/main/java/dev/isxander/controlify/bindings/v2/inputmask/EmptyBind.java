@@ -1,4 +1,4 @@
-package dev.isxander.controlify.bindings;
+package dev.isxander.controlify.bindings.v2.inputmask;
 
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.controller.input.ControllerStateView;

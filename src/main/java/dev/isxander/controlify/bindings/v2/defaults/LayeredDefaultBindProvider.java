@@ -3,7 +3,7 @@ package dev.isxander.controlify.bindings.v2.defaults;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.bindings.Bind;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 

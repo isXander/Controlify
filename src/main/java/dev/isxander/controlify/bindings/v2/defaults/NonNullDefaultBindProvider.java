@@ -1,7 +1,7 @@
 package dev.isxander.controlify.bindings.v2.defaults;
 
-import dev.isxander.controlify.bindings.Bind;
-import dev.isxander.controlify.bindings.EmptyBind;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
 import net.minecraft.resources.ResourceLocation;
 
 public record NonNullDefaultBindProvider(DefaultBindProvider provider) implements DefaultBindProvider {

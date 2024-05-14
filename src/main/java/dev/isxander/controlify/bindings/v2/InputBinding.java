@@ -1,12 +1,12 @@
 package dev.isxander.controlify.bindings.v2;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.bindings.Bind;
-import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.v2.inputmask.Bind;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public interface InputBinding {
@@ -28,7 +28,7 @@ public interface InputBinding {
 
     Bind defaultBind();
 
-    BindContext[] contexts();
+    Set<BindContext> contexts();
 
     Optional<RadialIcon> radialIcon();
 

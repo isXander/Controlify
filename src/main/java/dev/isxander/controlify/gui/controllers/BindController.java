@@ -1,7 +1,7 @@
 package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.*;
+import dev.isxander.controlify.bindings.v2.inputmask.*;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
