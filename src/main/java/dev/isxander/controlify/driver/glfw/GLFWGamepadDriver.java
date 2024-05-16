@@ -32,7 +32,7 @@ public class GLFWGamepadDriver implements Driver {
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, glfwGetGamepadName(jid), type, hid);
         this.controller = new ControllerEntity(info);
 
-        this.controller.setComponent(new InputComponent(15, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, 15, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
 
         this.controller.finalise();
     }

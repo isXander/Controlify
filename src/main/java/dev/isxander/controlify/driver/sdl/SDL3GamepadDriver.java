@@ -33,6 +33,7 @@ import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import dev.isxander.sdl3java.api.sensor.SDL_SensorType;
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -98,7 +99,7 @@ public class SDL3GamepadDriver implements Driver {
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
         // macOS HD haptics are broken
-        if ("dualsense".equals(type.namespace())) {
+        if (new ResourceLocation("controlify", "dualsense").equals(type.namespace())) {
             controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
 
             if (Util.getPlatform() != Util.OS.OSX) {
@@ -132,7 +133,7 @@ public class SDL3GamepadDriver implements Driver {
             }
         }
 
-        this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, 21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);

@@ -1,4 +1,7 @@
-package dev.isxander.controlify.bindings.v2;
+package dev.isxander.controlify.bindings.v2.output;
+
+import dev.isxander.controlify.bindings.v2.InputBinding;
+import dev.isxander.controlify.bindings.v2.StateAccess;
 
 public class GuiPressOutput implements DigitalOutput {
     private final StateAccess stateAccess;
@@ -23,6 +26,9 @@ public class GuiPressOutput implements DigitalOutput {
             couldPressButton = false;
         }
         this.held = held;
+
+        if (stateAccess.isSuppressed())
+            couldPressButton = false;
     }
 
     public void onNavigate() {

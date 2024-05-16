@@ -1,4 +1,4 @@
-package dev.isxander.controlify.bindings.v2;
+package dev.isxander.controlify.bindings.v2.output;
 
 public interface AnalogueOutput {
     float get();

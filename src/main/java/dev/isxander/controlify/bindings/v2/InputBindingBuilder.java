@@ -16,9 +16,11 @@ public interface InputBindingBuilder {
 
     InputBindingBuilder description(@NotNull Component text);
 
+    InputBindingBuilder category(@NotNull Component text);
+
     InputBindingBuilder defaultBind(@Nullable Bind bind);
 
     InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable... contexts);
 
-    InputBindingBuilder radialCandidate(@Nullable RadialIcon icon);
+    InputBindingBuilder radialCandidate(@Nullable ResourceLocation icon);
 }

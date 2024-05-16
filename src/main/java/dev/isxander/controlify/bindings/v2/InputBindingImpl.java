@@ -1,11 +1,11 @@
 package dev.isxander.controlify.bindings.v2;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.output.*;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.utils.ResizableRingBuffer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -17,14 +17,16 @@ import java.util.function.Supplier;
 public class InputBindingImpl implements InputBinding {
     private final ControllerEntity controller;
     private final ResourceLocation id;
-    private final Component name, description;
+    private final Component name, description, category;
     private Bind boundBind;
     private final Supplier<Bind> defaultBindSupplier;
     private final Set<BindContext> contexts;
-    private final @Nullable RadialIcon radialIcon;
+    private final @Nullable ResourceLocation radialIcon;
 
     private final ResizableRingBuffer<Float> stateHistory;
     private final Set<StateAccessImpl> borrowedAccesses;
+
+    private boolean suppressed;
 
     private final AnalogueOutput analogueNow;
     private final AnalogueOutput analoguePrev;
@@ -40,17 +42,18 @@ public class InputBindingImpl implements InputBinding {
             ResourceLocation id,
             Component name,
             Component description,
-            Bind boundBind,
+            Component category,
             Supplier<Bind> defaultBindSupplier,
             Set<BindContext> contexts,
-            @Nullable RadialIcon radialIcon
+            @Nullable ResourceLocation radialIcon
     ) {
         this.controller = controller;
         this.id = id;
         this.name = name;
         this.description = description;
+        this.category = category;
         this.stateHistory = new ResizableRingBuffer<>(2, () -> 0f);
-        this.boundBind = boundBind;
+        this.boundBind = defaultBindSupplier.get();
         this.defaultBindSupplier = defaultBindSupplier;
         this.contexts = contexts;
         this.radialIcon = radialIcon;
@@ -79,6 +82,11 @@ public class InputBindingImpl implements InputBinding {
     @Override
     public Component description() {
         return this.description;
+    }
+
+    @Override
+    public Component category() {
+        return this.category;
     }
 
     @Override
@@ -122,14 +130,24 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public void pushState(float state) {
-        this.stateHistory.push(state);
+    public void pushState(ControllerStateView state) {
+        if (!this.contexts.isEmpty()) {
+            Set<BindContext> thisTickContexts = Controlify.instance().thisTickBindContexts();
+            this.suppressed = this.contexts.stream().noneMatch(thisTickContexts::contains);
+        } else {
+            this.suppressed = false;
+        }
+
+        float analogue = this.boundBind.state(state);
+
+        this.stateHistory.push(analogue);
         borrowedAccesses.forEach(StateAccessImpl::onPush);
     }
 
     @Override
     public void setBoundBind(Bind bind) {
         this.boundBind = bind;
+        Controlify.instance().config().setDirty();
     }
 
     @Override
@@ -148,7 +166,7 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public Optional<RadialIcon> radialIcon() {
+    public Optional<ResourceLocation> radialIcon() {
         return Optional.ofNullable(this.radialIcon);
     }
 
@@ -214,6 +232,11 @@ public class InputBindingImpl implements InputBinding {
         @Override
         public boolean digital(int history) {
             return analogue(history) > controller.input().orElseThrow().confObj().buttonActivationThreshold;
+        }
+
+        @Override
+        public boolean isSuppressed() {
+            return suppressed;
         }
 
         @Override

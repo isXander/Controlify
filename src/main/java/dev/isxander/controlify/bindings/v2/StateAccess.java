@@ -5,6 +5,8 @@ public interface StateAccess {
 
     boolean digital(int history);
 
+    boolean isSuppressed();
+
     boolean isValid();
 
     int maxHistory();

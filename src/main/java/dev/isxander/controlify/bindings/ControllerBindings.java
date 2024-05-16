@@ -661,7 +661,7 @@ public class ControllerBindings {
 
                 register(binding);
             } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to automatically register modded keybind: " + keyMapping.getName(), e);
+                CUtil.LOGGER.error("Failed to automatically register modded keybind: {}", keyMapping.getName(), e);
             }
         }
     }

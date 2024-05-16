@@ -1,4 +1,7 @@
-package dev.isxander.controlify.bindings.v2;
+package dev.isxander.controlify.bindings.v2.output;
+
+import dev.isxander.controlify.bindings.v2.InputBinding;
+import dev.isxander.controlify.bindings.v2.StateAccess;
 
 public class SimpleDigitalOutput implements DigitalOutput {
     private final StateAccess stateAccess;
@@ -11,6 +14,9 @@ public class SimpleDigitalOutput implements DigitalOutput {
 
     @Override
     public boolean get() {
+        if (stateAccess.isSuppressed())
+            return false;
+
         return stateAccess.digital(history);
     }
 }

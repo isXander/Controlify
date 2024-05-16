@@ -1,7 +1,10 @@
 package dev.isxander.controlify.bindings.v2;
 
-import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.output.AnalogueOutput;
+import dev.isxander.controlify.bindings.v2.output.DigitalOutput;
+import dev.isxander.controlify.bindings.v2.output.GuiPressOutput;
+import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,6 +17,7 @@ public interface InputBinding {
 
     Component name();
     Component description();
+    Component category();
 
     Component bindIcon();
 
@@ -21,7 +25,7 @@ public interface InputBinding {
     StateAccess createStateAccess(int historyRequired, Consumer<StateAccess> pushEvent);
     void returnStateAccess(StateAccess stateAccess);
 
-    void pushState(float state);
+    void pushState(ControllerStateView state);
 
     void setBoundBind(Bind bind);
     Bind boundBind();
@@ -30,7 +34,7 @@ public interface InputBinding {
 
     Set<BindContext> contexts();
 
-    Optional<RadialIcon> radialIcon();
+    Optional<ResourceLocation> radialIcon();
 
     AnalogueOutput analogueNow();
     AnalogueOutput analoguePrev();

@@ -1,4 +1,7 @@
-package dev.isxander.controlify.bindings.v2;
+package dev.isxander.controlify.bindings.v2.output;
+
+import dev.isxander.controlify.bindings.v2.InputBinding;
+import dev.isxander.controlify.bindings.v2.StateAccess;
 
 public class JustTappedOutput implements DigitalOutput {
     public static final int DEFAULT_MAX_HOLD_TIME_TICKS = 2;
@@ -17,6 +20,9 @@ public class JustTappedOutput implements DigitalOutput {
 
     @Override
     public boolean get() {
+        if (stateAccess.isSuppressed())
+            return false;
+
         boolean justReleased = stateAccess.digital(0);
         if (!justReleased) return false; // still holding or just started to hold, not just tapped
 

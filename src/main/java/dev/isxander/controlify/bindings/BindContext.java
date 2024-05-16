@@ -52,7 +52,7 @@ public final class BindContext {
     @Override
     public String toString() {
         return "BindContext[" +
-                "context=" + context + ", " +
+                "id=" + context + ", " +
                 "parents=" + parents + ']';
     }
 

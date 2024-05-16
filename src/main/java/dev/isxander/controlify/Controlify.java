@@ -4,6 +4,9 @@ import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.bindings.v2.BindContext;
+import dev.isxander.controlify.bindings.v2.ControlifyBindApiImpl;
+import dev.isxander.controlify.bindings.v2.ControlifyBindings;
 import dev.isxander.controlify.bindings.v2.defaults.DefaultBindControllerReloader;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
@@ -49,11 +52,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -75,6 +76,7 @@ public class Controlify implements ControlifyApi {
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
     private DefaultBindControllerReloader defaultBindManager;
+    private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
 
@@ -167,6 +169,8 @@ public class Controlify implements ControlifyApi {
 
         ControlifyEvents.CONTROLLER_CONNECTED.register(this::onControllerAdded);
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(this::onControllerRemoved);
+
+        ControlifyBindings.registerModdedBindings();
 
         if (config().globalSettings().quietMode) {
             // Use GLFW to probe for controllers without asking for natives
@@ -286,6 +290,7 @@ public class Controlify implements ControlifyApi {
             ControlifyCompat.init();
 
             // make sure people don't someone add binds after controllers could have been created
+            ControlifyBindApiImpl.INSTANCE.lock();
             ControllerBindings.lockRegistry();
 
             // assume that if someone explicitly went into controlify settings,
@@ -466,6 +471,10 @@ public class Controlify implements ControlifyApi {
         }
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
+
+        this.thisTickContexts = BindContext.REGISTRY.stream()
+                .filter(ctx -> ctx.isApplicable().apply(minecraft))
+                .collect(Collectors.toUnmodifiableSet());
 
         // handles updating state of all controllers
         controllerManager.tick(outOfFocus);
@@ -690,6 +699,14 @@ public class Controlify implements ControlifyApi {
 
     public InputFontMapper inputFontMapper() {
         return inputFontMapper;
+    }
+
+    public DefaultBindControllerReloader defaultBindManager() {
+        return defaultBindManager;
+    }
+
+    public Set<BindContext> thisTickBindContexts() {
+        return this.thisTickContexts;
     }
 
     private void notifyOfNewFeatures() {
