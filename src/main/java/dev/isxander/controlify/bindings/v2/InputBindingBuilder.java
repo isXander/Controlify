@@ -1,7 +1,6 @@
 package dev.isxander.controlify.bindings.v2;
 
-import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +17,7 @@ public interface InputBindingBuilder {
 
     InputBindingBuilder category(@NotNull Component text);
 
-    InputBindingBuilder defaultBind(@Nullable Bind bind);
+    InputBindingBuilder defaultBind(@Nullable Input input);
 
     InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable... contexts);
 

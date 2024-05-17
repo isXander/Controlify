@@ -1,7 +1,7 @@
 package dev.isxander.controlify.bindings.v2;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.bindings.v2.output.*;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -18,8 +18,8 @@ public class InputBindingImpl implements InputBinding {
     private final ControllerEntity controller;
     private final ResourceLocation id;
     private final Component name, description, category;
-    private Bind boundBind;
-    private final Supplier<Bind> defaultBindSupplier;
+    private Input boundInput;
+    private final Supplier<Input> defaultBindSupplier;
     private final Set<BindContext> contexts;
     private final @Nullable ResourceLocation radialIcon;
 
@@ -43,7 +43,7 @@ public class InputBindingImpl implements InputBinding {
             Component name,
             Component description,
             Component category,
-            Supplier<Bind> defaultBindSupplier,
+            Supplier<Input> defaultBindSupplier,
             Set<BindContext> contexts,
             @Nullable ResourceLocation radialIcon
     ) {
@@ -53,7 +53,7 @@ public class InputBindingImpl implements InputBinding {
         this.description = description;
         this.category = category;
         this.stateHistory = new ResizableRingBuffer<>(2, () -> 0f);
-        this.boundBind = defaultBindSupplier.get();
+        this.boundInput = defaultBindSupplier.get();
         this.defaultBindSupplier = defaultBindSupplier;
         this.contexts = contexts;
         this.radialIcon = radialIcon;
@@ -90,10 +90,10 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public Component bindIcon() {
+    public Component inputIcon() {
         return Controlify.instance().inputFontMapper().getComponentFromInputs(
                 controller.info().type().namespace(),
-                boundBind.getRelevantInputs()
+                boundInput.getRelevantInputs()
         );
     }
 
@@ -138,25 +138,25 @@ public class InputBindingImpl implements InputBinding {
             this.suppressed = false;
         }
 
-        float analogue = this.boundBind.state(state);
+        float analogue = this.boundInput.state(state);
 
         this.stateHistory.push(analogue);
         borrowedAccesses.forEach(StateAccessImpl::onPush);
     }
 
     @Override
-    public void setBoundBind(Bind bind) {
-        this.boundBind = bind;
+    public void setBoundInput(Input input) {
+        this.boundInput = input;
         Controlify.instance().config().setDirty();
     }
 
     @Override
-    public Bind boundBind() {
-        return this.boundBind;
+    public Input boundInput() {
+        return this.boundInput;
     }
 
     @Override
-    public Bind defaultBind() {
+    public Input defaultInput() {
         return this.defaultBindSupplier.get();
     }
 

@@ -7,7 +7,7 @@ import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.bindings.v2.BindContext;
 import dev.isxander.controlify.bindings.v2.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.v2.ControlifyBindings;
-import dev.isxander.controlify.bindings.v2.defaults.DefaultBindControllerReloader;
+import dev.isxander.controlify.bindings.v2.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
@@ -43,7 +43,6 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -75,7 +74,7 @@ public class Controlify implements ControlifyApi {
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
-    private DefaultBindControllerReloader defaultBindManager;
+    private DefaultBindManager defaultBindManager;
     private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
@@ -109,7 +108,7 @@ public class Controlify implements ControlifyApi {
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         this.inputFontMapper = new InputFontMapper();
-        this.defaultBindManager = new DefaultBindControllerReloader();
+        this.defaultBindManager = new DefaultBindManager();
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(inputFontMapper);
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(defaultBindManager);
 
@@ -701,7 +700,7 @@ public class Controlify implements ControlifyApi {
         return inputFontMapper;
     }
 
-    public DefaultBindControllerReloader defaultBindManager() {
+    public DefaultBindManager defaultBindManager() {
         return defaultBindManager;
     }
 

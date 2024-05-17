@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.v2.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.v2.InputBinding;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
@@ -141,7 +141,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             try {
                 innerJson.add(
                         binding.id().toString(),
-                        Bind.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundBind()).getOrThrow()
+                        Input.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundInput()).getOrThrow()
                 );
             } catch (Exception e) {
                 CUtil.LOGGER.error("Failed to serialize input binding {}", binding.id(), e);
@@ -168,8 +168,8 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             }
 
             try {
-                Bind bind = Bind.CODEC.parse(JsonOps.INSTANCE, element).getOrThrow();
-                binding.setBoundBind(bind);
+                Input input = Input.CODEC.parse(JsonOps.INSTANCE, element).getOrThrow();
+                binding.setBoundInput(input);
             } catch (Exception e) {
                 CUtil.LOGGER.error("Failed to deserialize input binding {}. Using default.", binding.id(), e);
             }

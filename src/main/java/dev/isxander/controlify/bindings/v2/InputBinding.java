@@ -1,6 +1,6 @@
 package dev.isxander.controlify.bindings.v2;
 
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.bindings.v2.output.AnalogueOutput;
 import dev.isxander.controlify.bindings.v2.output.DigitalOutput;
 import dev.isxander.controlify.bindings.v2.output.GuiPressOutput;
@@ -19,7 +19,7 @@ public interface InputBinding {
     Component description();
     Component category();
 
-    Component bindIcon();
+    Component inputIcon();
 
     StateAccess createStateAccess(int historyRequired);
     StateAccess createStateAccess(int historyRequired, Consumer<StateAccess> pushEvent);
@@ -27,10 +27,10 @@ public interface InputBinding {
 
     void pushState(ControllerStateView state);
 
-    void setBoundBind(Bind bind);
-    Bind boundBind();
+    void setBoundInput(Input input);
+    Input boundInput();
 
-    Bind defaultBind();
+    Input defaultInput();
 
     Set<BindContext> contexts();
 

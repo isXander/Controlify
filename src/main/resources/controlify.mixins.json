@@ -34,6 +34,7 @@
     "feature.bind.KeyMappingAccessor",
     "feature.bind.KeyMappingMixin",
     "feature.bind.ToggleKeyMappingAccessor",
+    "feature.bind.ToggleKeyMappingMixin",
     "feature.font.FontAccessor",
     "feature.font.KeybindContentsMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",

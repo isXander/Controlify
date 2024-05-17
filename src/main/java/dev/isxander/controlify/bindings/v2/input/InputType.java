@@ -1,4 +1,4 @@
-package dev.isxander.controlify.bindings.v2.inputmask;
+package dev.isxander.controlify.bindings.v2.input;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -11,14 +11,14 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public record BindType<T extends Bind>(String id, MapCodec<T> codec) implements StringRepresentable {
-    public static final BindType<ButtonBind> BUTTON = new BindType<>(ButtonBind.BIND_ID, ButtonBind.CODEC);
-    public static final BindType<AxisBind> AXIS = new BindType<>(AxisBind.BIND_ID, AxisBind.CODEC);
-    public static final BindType<HatBind> HAT = new BindType<>(HatBind.BIND_ID, HatBind.CODEC);
-    public static final BindType<EmptyBind> EMPTY = new BindType<>(EmptyBind.BIND_ID, EmptyBind.CODEC);
+public record InputType<T extends Input>(String id, MapCodec<T> codec) implements StringRepresentable {
+    public static final InputType<ButtonInput> BUTTON = new InputType<>(ButtonInput.INPUT_ID, ButtonInput.CODEC);
+    public static final InputType<AxisInput> AXIS = new InputType<>(AxisInput.INPUT_ID, AxisInput.CODEC);
+    public static final InputType<HatInput> HAT = new InputType<>(HatInput.INPUT_ID, HatInput.CODEC);
+    public static final InputType<EmptyInput> EMPTY = new InputType<>(EmptyInput.INPUT_ID, EmptyInput.CODEC);
 
-    public static final BindType<?>[] TYPES = {
-        BindType.BUTTON, BindType.AXIS, BindType.HAT, BindType.EMPTY,
+    public static final InputType<?>[] TYPES = {
+        InputType.BUTTON, InputType.AXIS, InputType.HAT, InputType.EMPTY,
     };
 
     public static <T extends StringRepresentable, E> MapCodec<E> createCodec(

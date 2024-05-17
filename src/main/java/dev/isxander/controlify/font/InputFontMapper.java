@@ -9,7 +9,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.network.chat.Component;
@@ -101,8 +101,8 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
         return getComponentFromInputs(namespace, relevantInputs);
     }
 
-    public Component getComponentFromBind(ResourceLocation namespace, Bind bind) {
-        List<ResourceLocation> relevantInputs = bind.getRelevantInputs();
+    public Component getComponentFromBind(ResourceLocation namespace, Input input) {
+        List<ResourceLocation> relevantInputs = input.getRelevantInputs();
         return getComponentFromInputs(namespace, relevantInputs);
     }
 

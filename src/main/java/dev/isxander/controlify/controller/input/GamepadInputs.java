@@ -2,9 +2,9 @@ package dev.isxander.controlify.controller.input;
 
 import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.v2.inputmask.AxisBind;
-import dev.isxander.controlify.bindings.v2.inputmask.ButtonBind;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.AxisInput;
+import dev.isxander.controlify.bindings.v2.input.ButtonInput;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -72,10 +72,10 @@ public final class GamepadInputs {
             ))
     ));
 
-    public static Bind getBind(ResourceLocation id) {
+    public static Input getBind(ResourceLocation id) {
         return switch (id.getPath().split("/")[0]) {
-            case "button" -> new ButtonBind(id);
-            case "axis" -> new AxisBind(id);
+            case "button" -> new ButtonInput(id);
+            case "axis" -> new AxisInput(id);
             case "hat" -> throw new IllegalArgumentException("Gamepad does not have hat inputs.");
             default -> throw new IllegalArgumentException("Unknown bind type: " + id);
         };

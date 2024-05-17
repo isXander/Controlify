@@ -1,4 +1,4 @@
-package dev.isxander.controlify.bindings.v2.inputmask;
+package dev.isxander.controlify.bindings.v2.input;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -7,13 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public interface Bind {
-    MapCodec<Bind> MAP_CODEC = BindType.createCodec(BindType.TYPES, BindType::codec, Bind::type, "type");
-    Codec<Bind> CODEC = MAP_CODEC.codec();
+public interface Input {
+    MapCodec<Input> MAP_CODEC = InputType.createCodec(InputType.TYPES, InputType::codec, Input::type, "type");
+    Codec<Input> CODEC = MAP_CODEC.codec();
 
     float state(ControllerStateView state);
 
     List<ResourceLocation> getRelevantInputs();
 
-    BindType<?> type();
+    InputType<?> type();
 }

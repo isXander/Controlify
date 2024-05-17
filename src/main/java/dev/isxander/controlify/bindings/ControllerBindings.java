@@ -9,8 +9,8 @@ import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
-import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
+import dev.isxander.controlify.bindings.v2.input.EmptyInput;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
@@ -145,7 +145,7 @@ public class ControllerBindings {
         if (controller.gyro().isPresent()) {
             register(GAMEPAD_GYRO_BUTTON = ControllerBindingBuilder.create(controller)
                     .identifier("controlify", "gyro_button")
-                    .defaultBind(new EmptyBind())
+                    .defaultBind(new EmptyInput())
                     .category(MOVEMENT_CATEGORY)
                     .context(BindContexts.INGAME)
                     .build());
@@ -195,7 +195,7 @@ public class ControllerBindings {
                 .build());
         register(DROP_STACK = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "drop_stack")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.TNT))
@@ -311,19 +311,19 @@ public class ControllerBindings {
                 .build());
         register(HOTBAR_LOAD_RADIAL = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "hotbar_load_radial")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
         register(HOTBAR_SAVE_RADIAL = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "hotbar_save_radial")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
         register(HOTBAR_ITEM_SELECT_RADIAL = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "hotbar_item_select_radial")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(INVENTORY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
@@ -336,35 +336,35 @@ public class ControllerBindings {
                 .build());
         register(PICK_BLOCK_NBT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "pick_block_nbt")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(GAMEPLAY_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK))
                 .build());
         register(TOGGLE_HUD_VISIBILITY = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "toggle_hud_visibility")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getEffect(MobEffects.INVISIBILITY))
                 .build());
         register(SHOW_PLAYER_LIST = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "show_player_list")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.PLAYER_HEAD))
                 .build());
         register(TAKE_SCREENSHOT = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "take_screenshot")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.SPYGLASS))
                 .build());
         register(TOGGLE_DEBUG_MENU = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "toggle_debug_menu")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(MISC_CATEGORY)
                 .context(BindContexts.INGAME)
                 .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK))
@@ -401,7 +401,7 @@ public class ControllerBindings {
                 .build());
         register(GAME_MODE_SWITCHER = ControllerBindingBuilder.create(controller)
                 .identifier("controlify", "game_mode_switcher")
-                .defaultBind(new EmptyBind())
+                .defaultBind(new EmptyInput())
                 .category(RADIAL_CATEGORY)
                 .context(BindContexts.INGAME)
                 .build());
@@ -624,8 +624,8 @@ public class ControllerBindings {
                 clean = false;
                 continue;
             }
-            Bind bind = Bind.CODEC.parse(JsonOps.INSTANCE, bindJson).getOrThrow();
-            ((ControllerBindingImpl) binding).setCurrentBind(bind);
+            Input input = Input.CODEC.parse(JsonOps.INSTANCE, bindJson).getOrThrow();
+            ((ControllerBindingImpl) binding).setCurrentBind(input);
         }
 
         return clean;
@@ -651,7 +651,7 @@ public class ControllerBindings {
 
                 ControllerBinding binding = ControllerBindingBuilder.create(controller)
                         .identifier(identifier)
-                        .defaultBind(new EmptyBind())
+                        .defaultBind(new EmptyInput())
                         .name(Component.translatable(keyMapping.getName()))
                         .description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
                         .category(Component.translatable(keyMapping.getCategory()))

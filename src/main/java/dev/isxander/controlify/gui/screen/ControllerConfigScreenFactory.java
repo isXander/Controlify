@@ -3,7 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
-import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
+import dev.isxander.controlify.bindings.v2.input.EmptyInput;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
@@ -639,7 +639,7 @@ public class ControllerConfigScreenFactory {
                                 .stream()
                                 .anyMatch(ctxs::contains);
                         boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
-                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyBind);
+                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyInput);
                         return contextsMatch && bindMatches && bindIsNotEmpty;
                     }).toList();
 

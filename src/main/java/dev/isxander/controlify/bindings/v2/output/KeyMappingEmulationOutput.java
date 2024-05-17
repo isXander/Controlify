@@ -1,14 +1,13 @@
 package dev.isxander.controlify.bindings.v2.output;
 
 import dev.isxander.controlify.bindings.v2.InputBinding;
+import dev.isxander.controlify.bindings.v2.KeyMappingHandle;
 import dev.isxander.controlify.bindings.v2.StateAccess;
 import net.minecraft.client.KeyMapping;
 
 public class KeyMappingEmulationOutput implements DigitalOutput {
     private final StateAccess stateAccess;
     private final KeyMapping keyMapping;
-
-    private boolean state;
 
     public KeyMappingEmulationOutput(InputBinding binding, KeyMapping keyMapping) {
         this.stateAccess = binding.createStateAccess(2, state -> push());
@@ -17,17 +16,18 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
 
     @Override
     public boolean get() {
-        return false;
+        throw new IllegalStateException("Should never retrieve output of key mapping emulation!");
     }
 
     private void push() {
         boolean now = stateAccess.digital(0);
         boolean prev = stateAccess.digital(1);
 
+        KeyMappingHandle handle = (KeyMappingHandle) keyMapping;
         if (now && !prev) {
-            keyMapping.setDown(true);
+            handle.controlify$setPressed(true);
         } else if (prev && !now) {
-            keyMapping.setDown(false);
+            handle.controlify$setPressed(false);
         }
     }
 }

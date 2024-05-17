@@ -1,7 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.*;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import net.minecraft.client.KeyMapping;
@@ -31,9 +31,9 @@ public interface ControllerBindingBuilder {
 
     /**
      * The default bind for the binding.
-     * @param bind the default bind
+     * @param input the default bind
      */
-    ControllerBindingBuilder defaultBind(Bind bind);
+    ControllerBindingBuilder defaultBind(Input input);
 
     ControllerBindingBuilder hardcodedBind(Function<ControllerStateView, Float> bind);
 

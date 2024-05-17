@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class BindConsumerScreen extends Screen implements ScreenProcessorProvider {
     private final BindConsumer bindConsumer;
-    private final Option<Bind> option;
+    private final Option<Input> option;
     private final Screen backgroundScreen;
     private final BindController.BindControllerElement widgetToFocus;
     private final ScreenProcessorImpl screenProcessor = new ScreenProcessorImpl(this);
@@ -23,7 +23,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     private int ticksTillClose;
     private int ticksTillInput;
 
-    public BindConsumerScreen(BindConsumer bindConsumer, Option<Bind> option, BindController.BindControllerElement widgetToFocus, Screen backgroundScreen) {
+    public BindConsumerScreen(BindConsumer bindConsumer, Option<Input> option, BindController.BindControllerElement widgetToFocus, Screen backgroundScreen) {
         super(Component.empty());
         this.bindConsumer = bindConsumer;
         this.option = option;
@@ -83,7 +83,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
 
         // tick runs after all controller input ticks
 
-        Optional<Bind> pressedBind = bindConsumer.getPressedBind();
+        Optional<Input> pressedBind = bindConsumer.getPressedBind();
         if (pressedBind.isPresent()) {
             option.requestSet(pressedBind.get());
             returnToBackground();
@@ -145,7 +145,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     public interface BindConsumer {
-        Optional<Bind> getPressedBind();
+        Optional<Input> getPressedBind();
     }
 
     private static class ScreenProcessorImpl extends ScreenProcessor<BindConsumerScreen> {

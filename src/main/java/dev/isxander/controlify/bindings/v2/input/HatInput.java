@@ -1,4 +1,4 @@
-package dev.isxander.controlify.bindings.v2.inputmask;
+package dev.isxander.controlify.bindings.v2.input;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,13 +8,13 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
-public record HatBind(ResourceLocation hat, HatState targetState) implements Bind {
-    public static final String BIND_ID = "hat";
+public record HatInput(ResourceLocation hat, HatState targetState) implements Input {
+    public static final String INPUT_ID = "hat";
 
-    public static final MapCodec<HatBind> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf(BIND_ID).forGetter(HatBind::hat),
-            HatState.CODEC.fieldOf("target_state").forGetter(HatBind::targetState)
-    ).apply(instance, HatBind::new));
+    public static final MapCodec<HatInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ResourceLocation.CODEC.fieldOf(INPUT_ID).forGetter(HatInput::hat),
+            HatState.CODEC.fieldOf("target_state").forGetter(HatInput::targetState)
+    ).apply(instance, HatInput::new));
 
     @Override
     public float state(ControllerStateView state) {
@@ -27,7 +27,7 @@ public record HatBind(ResourceLocation hat, HatState targetState) implements Bin
     }
 
     @Override
-    public BindType<?> type() {
-        return BindType.HAT;
+    public InputType<?> type() {
+        return InputType.HAT;
     }
 }

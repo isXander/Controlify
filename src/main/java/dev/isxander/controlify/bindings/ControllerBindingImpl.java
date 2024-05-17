@@ -6,8 +6,8 @@ import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.ControllerBindingBuilder;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
-import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
+import dev.isxander.controlify.bindings.v2.input.EmptyInput;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -29,8 +29,8 @@ import java.util.function.Function;
 
 public class ControllerBindingImpl implements ControllerBinding {
     private final ControllerEntity controller;
-    private Bind bind;
-    private final Bind defaultBind;
+    private Input input;
+    private final Input defaultInput;
     private final Function<ControllerStateView, Float> hardcodedBind;
     private final ResourceLocation id;
     private final Component name, description, category;
@@ -38,13 +38,13 @@ public class ControllerBindingImpl implements ControllerBinding {
     private final ResourceLocation radialIcon;
     private final KeyMappingOverride override;
 
-    private static final Map<ControllerEntity, Set<Bind>> pressedBinds = new Object2ObjectOpenHashMap<>();
+    private static final Map<ControllerEntity, Set<Input>> pressedBinds = new Object2ObjectOpenHashMap<>();
 
     private byte fakePressState = 0;
 
-    private ControllerBindingImpl(ControllerEntity controller, Bind defaultBind, Function<ControllerStateView, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
+    private ControllerBindingImpl(ControllerEntity controller, Input defaultInput, Function<ControllerStateView, Float> hardcodedBind, ResourceLocation id, KeyMappingOverride vanillaOverride, Component name, Component description, Component category, Set<BindContext> contexts, ResourceLocation icon) {
         this.controller = controller;
-        this.bind = this.defaultBind = defaultBind;
+        this.input = this.defaultInput = defaultInput;
         this.hardcodedBind = hardcodedBind;
         this.id = id;
         this.override = vanillaOverride;
@@ -59,24 +59,24 @@ public class ControllerBindingImpl implements ControllerBinding {
     public float state() {
         if (fakePressState == 1)
             return 1f;
-        return Math.max(bind.state(input().stateNow()), hardcodedBind.apply(input().stateNow()));
+        return Math.max(input.state(input().stateNow()), hardcodedBind.apply(input().stateNow()));
     }
 
     @Override
     public float prevState() {
         if (fakePressState == 2)
             return 1f;
-        return Math.max(bind.state(input().stateThen()), hardcodedBind.apply(input().stateThen()));
+        return Math.max(input.state(input().stateThen()), hardcodedBind.apply(input().stateThen()));
     }
 
     @Override
     public boolean held() {
-        return fakePressState == 2 || analogue2Digital(bind.state(input().stateNow()));
+        return fakePressState == 2 || analogue2Digital(input.state(input().stateNow()));
     }
 
     @Override
     public boolean prevHeld() {
-        return fakePressState == 3 || analogue2Digital(bind.state(input().stateThen()));
+        return fakePressState == 3 || analogue2Digital(input.state(input().stateThen()));
     }
 
     private boolean analogue2Digital(float analogue) {
@@ -125,14 +125,14 @@ public class ControllerBindingImpl implements ControllerBinding {
         return Optional.ofNullable(this.radialIcon);
     }
 
-    public void setCurrentBind(Bind bind) {
-        this.bind = bind;
+    public void setCurrentBind(Input input) {
+        this.input = input;
         Controlify.instance().config().setDirty();
     }
 
     @Override
-    public Bind defaultBind() {
-        return defaultBind;
+    public Input defaultBind() {
+        return defaultInput;
     }
 
     @Override
@@ -165,13 +165,13 @@ public class ControllerBindingImpl implements ControllerBinding {
     }
 
     @Override
-    public Bind getBind() {
-        return bind;
+    public Input getBind() {
+        return input;
     }
 
     @Override
     public boolean isUnbound() {
-        return bind instanceof EmptyBind;
+        return input instanceof EmptyInput;
     }
 
     @Override
@@ -181,14 +181,14 @@ public class ControllerBindingImpl implements ControllerBinding {
 
     @Override
     public JsonElement toJson() {
-        return Bind.CODEC.encodeStart(JsonOps.INSTANCE, getBind()).getOrThrow();
+        return Input.CODEC.encodeStart(JsonOps.INSTANCE, getBind()).getOrThrow();
     }
 
     @Override
-    public Option.Builder<Bind> startYACLOption() {
-        return Option.<Bind>createBuilder()
+    public Option.Builder<Input> startYACLOption() {
+        return Option.<Input>createBuilder()
                 .name(name())
-                .binding(new EmptyBind(), this::getBind, this::setCurrentBind)
+                .binding(new EmptyInput(), this::getBind, this::setCurrentBind)
                 .description(OptionDescription.of(this.description()))
                 .customController(opt -> new BindController(opt, controller));
     }
@@ -207,21 +207,21 @@ public class ControllerBindingImpl implements ControllerBinding {
 
     private static boolean hasBindPressed(ControllerBindingImpl binding) {
         var pressed = pressedBinds.getOrDefault(binding.controller, Set.of());
-        return pressed.containsAll(getBinds(binding.bind));
+        return pressed.containsAll(getBinds(binding.input));
     }
 
     private static void addPressedBind(ControllerBindingImpl binding) {
-        pressedBinds.computeIfAbsent(binding.controller, c -> new ObjectOpenHashSet<>()).addAll(getBinds(binding.bind));
+        pressedBinds.computeIfAbsent(binding.controller, c -> new ObjectOpenHashSet<>()).addAll(getBinds(binding.input));
     }
 
-    private static Set<Bind> getBinds(Bind bind) {
-        return Set.of(bind);
+    private static Set<Input> getBinds(Input input) {
+        return Set.of(input);
     }
 
     @ApiStatus.Internal
     public static final class ControllerBindingBuilderImpl implements ControllerBindingBuilder {
         private final ControllerEntity controller;
-        private Bind bind;
+        private Input input;
         private Function<ControllerStateView, Float> hardcodedBind = state -> 0f;
         private ResourceLocation id;
         private Component name = null, description = null, category = null;
@@ -245,8 +245,8 @@ public class ControllerBindingImpl implements ControllerBinding {
         }
 
         @Override
-        public ControllerBindingBuilder defaultBind(Bind bind) {
-            this.bind = bind;
+        public ControllerBindingBuilder defaultBind(Input input) {
+            this.input = input;
             return this;
         }
 
@@ -300,7 +300,7 @@ public class ControllerBindingImpl implements ControllerBinding {
         @Override
         public ControllerBinding build() {
             Validate.notNull(id, "Identifier must be set");
-            Validate.notNull(bind, "Default bind must be set");
+            Validate.notNull(input, "Default bind must be set");
             Validate.notNull(category, "Category must be set");
 
             if (name == null)
@@ -314,7 +314,7 @@ public class ControllerBindingImpl implements ControllerBinding {
                 }
             }
 
-            return new ControllerBindingImpl(controller, bind, hardcodedBind, id, override, name, description, category, contexts, radialIcon);
+            return new ControllerBindingImpl(controller, input, hardcodedBind, id, override, name, description, category, contexts, radialIcon);
         }
     }
 }

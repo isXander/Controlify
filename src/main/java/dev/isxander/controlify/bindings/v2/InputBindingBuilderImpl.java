@@ -2,8 +2,8 @@ package dev.isxander.controlify.bindings.v2;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.v2.defaults.DefaultBindProvider;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
-import dev.isxander.controlify.bindings.v2.inputmask.EmptyBind;
+import dev.isxander.controlify.bindings.v2.input.EmptyInput;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     private @Nullable ResourceLocation id;
     private @Nullable Component category;
     private @Nullable Component customName, customDescription;
-    private @Nullable Bind defaultBind;
+    private @Nullable Input defaultInput;
     private final Set<BindContext> allowedContexts = new HashSet<>();
     private @Nullable ResourceLocation radialCandidate;
 
@@ -63,10 +63,10 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder defaultBind(@Nullable Bind bind) {
+    public InputBindingBuilder defaultBind(@Nullable Input input) {
         checkLocked();
 
-        this.defaultBind = bind;
+        this.defaultInput = input;
         return this;
     }
 
@@ -97,17 +97,17 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         if (customDescription != null) description = customDescription;
         if (description == null) description = Component.empty();
 
-        Supplier<Bind> defaultSupplier = () -> {
+        Supplier<Input> defaultSupplier = () -> {
             // retrieve every tick so the bind provider isn't cached after a resource reload
             DefaultBindProvider provider = Controlify.instance().defaultBindManager().getDefaultBindProvider(
                     controller.info().type().namespace()
             );
 
-            Bind bind = provider.getDefaultBind(id);
-            if (bind == null) bind = defaultBind;
-            if (bind == null) bind = EmptyBind.INSTANCE;
+            Input input = provider.getDefaultBind(id);
+            if (input == null) input = defaultInput;
+            if (input == null) input = EmptyInput.INSTANCE;
 
-            return bind;
+            return input;
         };
 
         return new InputBindingImpl(controller, id, name, description, category, defaultSupplier, allowedContexts, radialCandidate);

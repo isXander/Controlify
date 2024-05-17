@@ -2,7 +2,7 @@ package dev.isxander.controlify.api.bind;
 
 import com.google.gson.JsonElement;
 import dev.isxander.controlify.bindings.BindContext;
-import dev.isxander.controlify.bindings.v2.inputmask.Bind;
+import dev.isxander.controlify.bindings.v2.input.Input;
 import dev.isxander.yacl3.api.Option;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
@@ -59,8 +59,8 @@ public interface ControllerBinding {
      */
     @Nullable KeyMappingOverride override();
 
-    Bind getBind();
-    Bind defaultBind();
+    Input getBind();
+    Input defaultBind();
     void resetBind();
     boolean isUnbound();
 
