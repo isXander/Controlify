@@ -5,6 +5,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -122,8 +123,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         );
         controllerNotDetectedButton.visible = carouselEntries.isEmpty();
 
-        ButtonGuideApi.addGuideToButtonBuiltin(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
-        ButtonGuideApi.addGuideToButtonBuiltin(doneButton, bindings -> bindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
 
         this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
     }
@@ -242,7 +243,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     @Override
     public void onControllerInput(ControllerEntity controller) {
-        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             globalSettingsButton.onPress();
         }
     }

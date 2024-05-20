@@ -1,8 +1,8 @@
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.RadialIcons;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
@@ -25,7 +25,7 @@ public final class RadialItems {
         RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[8];
 
         for (int i = 0; i < 8; i++) {
-            ResourceLocation bindingId = controller.genericConfig().config().radialActions[i];
+            ResourceLocation bindingId = controller.input().orElseThrow().confObj().radialActions[i];
 
             items[i] = getItemForBinding(bindingId, controller);
         }
@@ -141,7 +141,7 @@ public final class RadialItems {
     }
 
     private static RadialMenuScreen.RadialItem getItemForBinding(ResourceLocation id, ControllerEntity controller) {
-        ControllerBinding binding = controller.bindings().get(id);
+        InputBinding binding = controller.input().orElseThrow().getBinding(id);
 
         if (binding == null || binding.radialIcon().isEmpty()) {
             CUtil.LOGGER.warn("Binding {} does not exist or is not a radial candidate", binding);
@@ -234,16 +234,16 @@ public final class RadialItems {
 
         @Override
         public void setRadialItem(int index, RadialMenuScreen.RadialItem item) {
-            controller.genericConfig().config().radialActions[index] = ((RadialItemRecord) item).id();
+            controller.input().orElseThrow().confObj().radialActions[index] = ((RadialItemRecord) item).id();
         }
 
         @Override
         public List<RadialMenuScreen.RadialItem> getEditCandidates() {
             List<RadialMenuScreen.RadialItem> items = new ArrayList<>();
 
-            controller.bindings().registry().forEach((id, binding) -> {
+            controller.input().orElseThrow().getAllBindings().forEach(binding -> {
                 binding.radialIcon().ifPresent(icon -> {
-                    items.add(new RadialItemRecord(binding.name(), RadialIcons.getIcons().get(icon), () -> false, id));
+                    items.add(new RadialItemRecord(binding.name(), RadialIcons.getIcons().get(icon), () -> false, binding.id()));
                 });
             });
 

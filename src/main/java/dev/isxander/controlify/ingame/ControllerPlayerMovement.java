@@ -1,6 +1,8 @@
 package dev.isxander.controlify.ingame;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.Input;
@@ -32,10 +34,10 @@ public class ControllerPlayerMovement extends Input {
             return;
         }
 
-        var bindings = controller.bindings();
-
-        this.forwardImpulse = bindings.WALK_FORWARD.state() - bindings.WALK_BACKWARD.state();
-        this.leftImpulse = bindings.WALK_LEFT.state() - bindings.WALK_RIGHT.state();
+        this.forwardImpulse = ControlifyBindings.WALK_FORWARD.on(controller).analogueNow()
+                - ControlifyBindings.WALK_BACKWARD.on(controller).analogueNow();
+        this.leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).analogueNow()
+                - ControlifyBindings.WALK_RIGHT.on(controller).analogueNow();
 
         if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
             float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
@@ -55,18 +57,20 @@ public class ControllerPlayerMovement extends Input {
         }
 
         // this over-complication is so exiting a GUI with the button still held doesn't trigger a jump.
-        if (bindings.JUMP.justPressed())
+        InputBinding jump = ControlifyBindings.JUMP.on(controller);
+        if (jump.justPressed())
             this.jumping = true;
-        if (!bindings.JUMP.held())
+        if (!jump.digitalNow())
             this.jumping = false;
 
+        InputBinding sneak = ControlifyBindings.SNEAK.on(controller);
         if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.genericConfig().config().toggleSneak) {
-            if (bindings.SNEAK.justPressed())
+            if (sneak.justPressed())
                 this.shiftKeyDown = true;
-            if (!bindings.SNEAK.held())
+            if (!sneak.digitalNow())
                 this.shiftKeyDown = false;
         } else {
-            if (bindings.SNEAK.justPressed()) {
+            if (sneak.justPressed()) {
                 this.shiftKeyDown = !this.shiftKeyDown;
             }
         }

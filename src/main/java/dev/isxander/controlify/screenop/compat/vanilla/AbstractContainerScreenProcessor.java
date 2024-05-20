@@ -2,7 +2,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.dualsense.HapticEffects;
 import dev.isxander.controlify.gui.guide.ContainerGuideCtx;
@@ -47,28 +47,28 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
         Slot hoveredSlot = this.hoveredSlot.get();
         if (!screen.getMenu().getCarried().isEmpty()) {
-            if (controller.bindings().DROP_INVENTORY.justPressed()) {
+            if (ControlifyBindings.DROP_INVENTORY.on(controller).justPressed()) {
                 clickSlotFunction.clickSlot(null, -999, 0, ClickType.PICKUP);
                 hapticNavigate();
             }
         }
         if (hoveredSlot != null) {
-            if (controller.bindings().INV_SELECT.justPressed()) {
+            if (ControlifyBindings.INV_SELECT.on(controller).justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
                 hapticNavigate();
             }
 
-            if (controller.bindings().INV_QUICK_MOVE.justPressed()) {
+            if (ControlifyBindings.INV_QUICK_MOVE.on(controller).justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.QUICK_MOVE);
                 hapticNavigate();
             }
 
-            if (controller.bindings().INV_TAKE_HALF.justPressed()) {
+            if (ControlifyBindings.INV_TAKE_HALF.on(controller).justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, ClickType.PICKUP);
                 hapticNavigate();
             }
 
-//            if (controller.bindings().SWAP_HANDS.justPressed()) {
+//            if (ControlifyBindings.SWAP_HANDS.on(controller).justPressed()) {
 //                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ClickType.SWAP);
 //                hapticNavigate();
 //            }
@@ -95,11 +95,9 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
     @Override
     public void onWidgetRebuild() {
-        ControllerBindings bindings = ControlifyApi.get().getCurrentController()
-                .map(ControllerEntity::bindings)
-                .orElse(null);
-
-        if (bindings == null) {
+        ControllerEntity controller = ControlifyApi.get().getCurrentController()
+                .filter(c -> c.input().isPresent()).orElse(null);
+        if (controller == null) {
             return;
         }
 
@@ -113,7 +111,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.INV_SELECT, ctx -> {
+                                        new GuideAction<>(ControlifyBindings.INV_SELECT.on(controller), ctx -> {
                                             if (!ctx.holdingItem().isEmpty())
                                                 if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem())
                                                     if (ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
@@ -132,7 +130,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                         false, false
                                 ))
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.GUI_BACK, ctx -> {
+                                        new GuideAction<>(ControlifyBindings.GUI_BACK.on(controller), ctx -> {
                                             return Optional.of(Component.translatable("controlify.guide.container.exit"));
                                         }),
                                         false, false
@@ -154,7 +152,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.DROP_INVENTORY, ctx -> {
+                                        new GuideAction<>(ControlifyBindings.DROP_INVENTORY.on(controller), ctx -> {
                                             if (!ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.drop"));
                                             return Optional.empty();
@@ -167,7 +165,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.INV_TAKE_HALF, ctx -> {
+                                        new GuideAction<>(ControlifyBindings.INV_TAKE_HALF.on(controller), ctx -> {
                                             if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.take_half"));
                                             if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
@@ -177,7 +175,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                         true, false
                                 ))
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(bindings.INV_QUICK_MOVE, ctx -> {
+                                        new GuideAction<>(ControlifyBindings.INV_QUICK_MOVE.on(controller), ctx -> {
                                             if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem() && ctx.holdingItem().isEmpty())
                                                 return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
                                             return Optional.empty();

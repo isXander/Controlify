@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.SelectWorldScreenProcessor;
@@ -24,9 +25,9 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
 
     @ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/SelectWorldScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 5))
     private <T extends GuiEventListener & Renderable> T modifyCancelButton(T button) {
-        ButtonGuideApi.addGuideToButtonBuiltin(
+        ButtonGuideApi.addGuideToButton(
                 (AbstractButton) button,
-                bindings -> bindings.GUI_BACK,
+                ControlifyBindings.GUI_BACK,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;
@@ -34,9 +35,9 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
 
     @ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/SelectWorldScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 1))
     private <T extends GuiEventListener & Renderable> T modifyCreateButton(T button) {
-        ButtonGuideApi.addGuideToButtonBuiltin(
+        ButtonGuideApi.addGuideToButton(
                 (AbstractButton) button,
-                bindings -> bindings.GUI_ABSTRACT_ACTION_1,
+                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;

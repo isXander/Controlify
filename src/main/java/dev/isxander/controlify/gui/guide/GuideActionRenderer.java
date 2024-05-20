@@ -24,7 +24,7 @@ public class GuideActionRenderer<T> implements RenderComponent {
         this.guideAction = action;
         this.rtl = rtl;
         this.textContrast = textContrast;
-        this.bindingText = BindingFontHelper.binding(action.binding().id());
+        this.bindingText = action.binding().inputIcon();
         this.bindingTextWidth = Minecraft.getInstance().font.width(bindingText);
     }
 
@@ -70,7 +70,7 @@ public class GuideActionRenderer<T> implements RenderComponent {
     }
 
     public void updateName(T ctx) {
-        this.bindingText = BindingFontHelper.binding(guideAction.binding().id());
+        this.bindingText = guideAction.binding().inputIcon();
         this.bindingTextWidth = Minecraft.getInstance().font.width(bindingText);
         name = guideAction.name().supply(ctx).orElse(null);
     }

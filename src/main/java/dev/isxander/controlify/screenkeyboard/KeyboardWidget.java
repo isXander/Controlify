@@ -2,6 +2,7 @@ package dev.isxander.controlify.screenkeyboard;
 
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -116,7 +117,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (holdRepeatHelper.shouldAction(controller.bindings().GUI_PRESS)) {
+            if (holdRepeatHelper.shouldAction(ControlifyBindings.GUI_PRESS.on(controller))) {
                 onPress();
                 holdRepeatHelper.onNavigate();
                 return true;

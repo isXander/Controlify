@@ -1,6 +1,6 @@
 package dev.isxander.controlify.utils;
 
-import dev.isxander.controlify.api.bind.ControllerBinding;
+import dev.isxander.controlify.api.bind.InputBinding;
 
 public class HoldRepeatHelper {
     private final int initialDelay, repeatDelay;
@@ -35,9 +35,9 @@ public class HoldRepeatHelper {
         }
     }
 
-    public boolean shouldAction(ControllerBinding binding) {
-        boolean shouldAction = binding.held() && (canNavigate() || !binding.prevHeld());
-        if (shouldAction && !binding.prevHeld()) {
+    public boolean shouldAction(InputBinding binding) {
+        boolean shouldAction = binding.digitalNow() && (canNavigate() || !binding.digitalPrev());
+        if (shouldAction && !binding.digitalPrev()) {
             reset();
         }
         return shouldAction;

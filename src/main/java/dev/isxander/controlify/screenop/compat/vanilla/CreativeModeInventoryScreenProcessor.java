@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.CreativeModeInventoryScreenAccessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
@@ -21,13 +22,14 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
         super(screen, hoveredSlot, clickSlotFunction);
     }
 
+    @SuppressWarnings("UnreachableCode")
     @Override
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
         var ext = (CreativeGuiExtensions) screen;
 
         var tabs = getTabsOnCurrentPage(ext);
-        if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
+        if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
             int newIndex = tabs.indexOf(CreativeModeInventoryScreenAccessor.getSelectedTab()) + 1;
             if (newIndex >= tabs.size()) {
                 newIndex = 0;
@@ -42,7 +44,7 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
             }
             accessor.invokeSelectTab(getTabsOnCurrentPage(ext).get(newIndex));
         }
-        if (controller.bindings().GUI_PREV_TAB.justPressed()) {
+        if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
             int newIndex = tabs.indexOf(CreativeModeInventoryScreenAccessor.getSelectedTab()) - 1;
             if (newIndex < 0) {
                 if (ext.fabric_currentPage() == 0) {

@@ -1,64 +1,73 @@
 package dev.isxander.controlify.bindings;
 
-import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Lifecycle;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
-public final class BindContext {
-    private final ResourceLocation context;
-    private final Set<BindContext> parents;
-    private final Set<ResourceLocation> flattened;
+public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isApplicable) {
+    public static final Registry<BindContext> REGISTRY = new MappedRegistry<>(
+            ResourceKey.createRegistryKey(new ResourceLocation("controlify", "bind_context")),
+            Lifecycle.stable()
+    );
 
-    public BindContext(ResourceLocation context, Set<BindContext> parents) {
-        this.context = context;
-        this.parents = parents;
+    public static final BindContext UNKNOWN = new BindContext(
+            new ResourceLocation("controlify", "unknown"),
+            mc -> true
+    );
 
-        Set<ResourceLocation> flattened = new HashSet<>();
-        flattened.add(context());
-        parents().forEach(p -> flattened.addAll(p.flattened()));
-        this.flattened = ImmutableSet.copyOf(flattened);
-    }
+    public static final BindContext IN_GAME = new BindContext(
+            new ResourceLocation("controlify", "in_game"),
+            mc -> mc.screen == null && mc.level != null
+    );
 
-    public ResourceLocation context() {
+    public static final BindContext ANY_SCREEN = new BindContext(
+            new ResourceLocation("controlify", "screen"),
+            mc -> mc.screen != null
+    );
+
+    public static final BindContext REGULAR_SCREEN = new BindContext(
+            new ResourceLocation("controlify", "screen"),
+            mc -> mc.screen != null
+                    && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
+    );
+
+    public static final BindContext CONTAINER = new BindContext(
+            new ResourceLocation("controlify", "container"),
+            mc -> mc.screen instanceof ContainerScreen
+    );
+
+    public static final BindContext V_MOUSE_CURSOR = new BindContext(
+            new ResourceLocation("controlify", "vmouse_cursor"),
+            mc -> mc.screen != null
+                    && ScreenProcessorProvider.provide(mc.screen).virtualMouseBehaviour().hasCursor()
+                    && Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
+    );
+
+    public static final BindContext V_MOUSE_COMPAT = new BindContext(
+            new ResourceLocation("controlify", "vmouse_compat"),
+            mc -> mc.screen != null
+                    && ScreenProcessorProvider.provide(mc.screen).virtualMouseBehaviour() == VirtualMouseBehaviour.ENABLED
+                    && Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
+    );
+
+    public static final BindContext RADIAL_MENU = new BindContext(
+            new ResourceLocation("controlify", "radial_menu"),
+            mc -> mc.screen instanceof RadialMenuScreen
+    );
+
+    private static BindContext register(String path, Function<Minecraft, Boolean> predicate) {
+        var context = new BindContext(new ResourceLocation("controlify", path), predicate);
+        Registry.register(REGISTRY, context.id(), context);
         return context;
-    }
-
-    public Set<BindContext> parents() {
-        return parents;
-    }
-
-    public Set<ResourceLocation> flattened() {
-        return flattened;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (BindContext) obj;
-        return Objects.equals(this.context, that.context) &&
-                Objects.equals(this.parents, that.parents);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(context, parents);
-    }
-
-    @Override
-    public String toString() {
-        return "BindContext[" +
-                "id=" + context + ", " +
-                "parents=" + parents + ']';
-    }
-
-    public static Set<ResourceLocation> flatten(Set<BindContext> contexts) {
-        return contexts.stream()
-                .flatMap(ctx -> ctx.flattened.stream())
-                .collect(Collectors.toSet());
     }
 }

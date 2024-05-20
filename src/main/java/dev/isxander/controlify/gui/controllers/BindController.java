@@ -1,7 +1,8 @@
 package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.v2.input.*;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.input.*;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -109,7 +110,7 @@ public class BindController implements Controller<Input> {
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (controller != control.controller) return true;
 
-            if (controller.bindings().GUI_PRESS.justPressed()) {
+            if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                 openConsumerScreen();
                 return true;
             }

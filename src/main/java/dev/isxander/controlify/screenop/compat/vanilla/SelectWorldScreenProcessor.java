@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.SelectWorldScreenAccessor;
@@ -15,14 +16,14 @@ public class SelectWorldScreenProcessor extends ScreenProcessor<SelectWorldScree
 
     @Override
     protected void handleButtons(ControllerEntity controller) {
-        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             this.playClackSound();
             CreateWorldScreen.openFresh(Minecraft.getInstance(), screen);
             return;
         }
 
         if (screen.getFocused() != null && screen.getFocused() instanceof Button) {
-            if (controller.bindings().GUI_BACK.justPressed()) {
+            if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
                 screen.setFocused(((SelectWorldScreenAccessor) screen).getList());
                 return;
             }

@@ -2,7 +2,6 @@ package dev.isxander.controlify.api.event;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
-import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.fabricmc.fabric.api.event.Event;
@@ -116,7 +115,7 @@ public final class ControlifyEvents {
 
     @FunctionalInterface
     public interface IngameGuideRegistryEvent {
-        void onRegisterIngameGuide(ControllerBindings bindings, IngameGuideRegistry registry);
+        void onRegisterIngameGuide(ControllerEntity controller, IngameGuideRegistry registry);
     }
 
     @FunctionalInterface

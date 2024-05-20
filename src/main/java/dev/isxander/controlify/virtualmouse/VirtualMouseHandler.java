@@ -6,6 +6,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -66,7 +68,7 @@ public class VirtualMouseHandler {
     }
 
     public void handleControllerInput(ControllerEntity controller) {
-        if (controller.bindings().VMOUSE_TOGGLE.justPressed()) {
+        if (ControlifyBindings.VMOUSE_TOGGLE.on(controller).justPressed()) {
             toggleVirtualMouse();
         }
 
@@ -94,16 +96,21 @@ public class VirtualMouseHandler {
             yImpulseFinger *= 20;
         }
 
+        InputBinding moveRight = ControlifyBindings.VMOUSE_MOVE_RIGHT.on(controller);
+        InputBinding moveLeft = ControlifyBindings.VMOUSE_MOVE_LEFT.on(controller);
+        InputBinding moveDown = ControlifyBindings.VMOUSE_MOVE_DOWN.on(controller);
+        InputBinding moveUp = ControlifyBindings.VMOUSE_MOVE_UP.on(controller);
+
         // apply an easing function directly to the vector's length
         // if you do easing(x), easing(y), then the diagonals where it's something like (~0.8, ~0.8) will incorrectly ease
         Vector2f impulse = ControllerUtils.applyEasingToLength(
-                controller.bindings().VMOUSE_MOVE_RIGHT.state() - controller.bindings().VMOUSE_MOVE_LEFT.state(),
-                controller.bindings().VMOUSE_MOVE_DOWN.state() - controller.bindings().VMOUSE_MOVE_UP.state(),
+                moveRight.analogueNow() - moveLeft.analogueNow(),
+                moveDown.analogueNow() - moveUp.analogueNow(),
                 x -> (float) Math.pow(x, 3)
         );
         Vector2f prevImpulse = ControllerUtils.applyEasingToLength(
-                controller.bindings().VMOUSE_MOVE_RIGHT.prevState() - controller.bindings().VMOUSE_MOVE_LEFT.prevState(),
-                controller.bindings().VMOUSE_MOVE_DOWN.prevState() - controller.bindings().VMOUSE_MOVE_UP.prevState(),
+                moveRight.analoguePrev() - moveLeft.analoguePrev(),
+                moveDown.analoguePrev() - moveUp.analoguePrev(),
                 x -> (float) Math.pow(x, 3)
         );
 
@@ -139,18 +146,19 @@ public class VirtualMouseHandler {
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
-        scrollY += controller.bindings().VMOUSE_SCROLL_UP.state() - controller.bindings().VMOUSE_SCROLL_DOWN.state();
+        scrollY += ControlifyBindings.VMOUSE_SCROLL_UP.on(controller).analogueNow()
+                - ControlifyBindings.VMOUSE_SCROLL_DOWN.on(controller).analogueNow();
 
-        if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_UP)) {
+        if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_UP.on(controller))) {
             snapInDirection(ScreenDirection.UP);
             holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_DOWN)) {
+        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_DOWN.on(controller))) {
             snapInDirection(ScreenDirection.DOWN);
             holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_LEFT)) {
+        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_LEFT.on(controller))) {
             snapInDirection(ScreenDirection.LEFT);
             holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(controller.bindings().VMOUSE_SNAP_RIGHT)) {
+        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_RIGHT.on(controller))) {
             snapInDirection(ScreenDirection.RIGHT);
             holdRepeatHelper.onNavigate();
         }
@@ -159,7 +167,7 @@ public class VirtualMouseHandler {
             handleCompatibilityBinds(controller);
         }
 
-        if (controller.bindings().GUI_BACK.justPressed() && minecraft.screen != null) {
+        if (ControlifyBindings.GUI_BACK.on(controller).justPressed() && minecraft.screen != null) {
             ScreenProcessor.playClackSound();
             minecraft.screen.onClose();
         }
@@ -177,21 +185,21 @@ public class VirtualMouseHandler {
         boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
 
-        if (controller.bindings().VMOUSE_LCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 1)) {
+        if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 1)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_LCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
+        } else if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_RCLICK.justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 2)) {
+        if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed && touchpadState.size() == 2)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_RCLICK.justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
+        } else if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_RELEASE, 0);
         }
 
-        if (controller.bindings().VMOUSE_SHIFT_CLICK.justPressed()) {
+        if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
-        } else if (controller.bindings().VMOUSE_SHIFT_CLICK.justReleased()) {
+        } else if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justReleased()) {
             mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
         }
     }

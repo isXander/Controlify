@@ -2,6 +2,7 @@
 package dev.isxander.controlify.compatibility.sodium;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.sodium.SodiumOptionsGUIAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -24,12 +25,12 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
     protected void handleButtons(ControllerEntity controller) {
         var accessor = (SodiumOptionsGUIAccessor) screen;
 
-        if (controller.bindings().GUI_NEXT_TAB.justPressed()) {
+        if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
             var currentIndex = accessor.getPages().indexOf(accessor.getCurrentPage());
             var nextIndex = (currentIndex + 1) % accessor.getPages().size();
             screen.setPage(accessor.getPages().get(nextIndex));
         }
-        if (controller.bindings().GUI_PREV_TAB.justPressed()) {
+        if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
             var currentIndex = accessor.getPages().indexOf(accessor.getCurrentPage());
             var nextIndex = (currentIndex - 1 + accessor.getPages().size()) % accessor.getPages().size();
             screen.setPage(accessor.getPages().get(nextIndex));

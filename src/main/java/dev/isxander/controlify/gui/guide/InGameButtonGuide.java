@@ -3,10 +3,11 @@ package dev.isxander.controlify.gui.guide;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
 import dev.isxander.controlify.api.ingameguide.*;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -43,7 +44,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         this.player = localPlayer;
 
         registerDefaultActions();
-        ControlifyEvents.INGAME_GUIDE_REGISTRY.invoker().onRegisterIngameGuide(controller.bindings(), this);
+        ControlifyEvents.INGAME_GUIDE_REGISTRY.invoker().onRegisterIngameGuide(controller, this);
 
         Collections.sort(leftGuides);
         Collections.sort(rightGuides);
@@ -130,12 +131,12 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     @Override
-    public void registerGuideAction(ControllerBinding binding, ActionLocation location, GuideActionNameSupplier<IngameGuideContext> supplier) {
+    public void registerGuideAction(InputBinding binding, ActionLocation location, GuideActionNameSupplier<IngameGuideContext> supplier) {
         this.registerGuideAction(binding, location, ActionPriority.NORMAL, supplier);
     }
 
     @Override
-    public void registerGuideAction(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier<IngameGuideContext> supplier) {
+    public void registerGuideAction(InputBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier<IngameGuideContext> supplier) {
         if (location == ActionLocation.LEFT)
             leftGuides.add(new GuideAction<>(binding, supplier, priority));
         else
@@ -144,7 +145,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
     private void registerDefaultActions() {
         var options = Minecraft.getInstance().options;
-        registerGuideAction(controller.bindings().JUMP, ActionLocation.LEFT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.JUMP.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
             if (player.getAbilities().flying)
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_up"));
@@ -163,7 +164,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().SNEAK, ActionLocation.LEFT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.SNEAK.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
             if (player.getVehicle() != null)
                 return Optional.of(Component.translatable("controlify.guide.ingame.dismount"));
@@ -179,7 +180,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             }
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().SPRINT, ActionLocation.LEFT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.SPRINT.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
             if (!options.keySprint.isDown()) {
                 if (!player.input.getMoveVector().equals(Vec2.ZERO)) {
@@ -194,17 +195,17 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             }
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().INVENTORY, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.INVENTORY.on(controller), ActionLocation.RIGHT, (ctx) -> {
             if (ctx.client().screen == null)
                 return Optional.of(Component.translatable("controlify.guide.ingame.inventory"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().RADIAL_MENU, ActionLocation.RIGHT, ctx -> {
+        registerGuideAction(ControlifyBindings.RADIAL_MENU.on(controller), ActionLocation.RIGHT, ctx -> {
             if (ctx.client().screen == null)
                 return Optional.of(Component.translatable("controlify.gui.radial_menu"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().ATTACK, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.ATTACK.on(controller), ActionLocation.RIGHT, (ctx) -> {
             var hitResult = ctx.hitResult();
             if (hitResult.getType() == HitResult.Type.ENTITY)
                 if (player.isSpectator())
@@ -215,7 +216,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.break"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().USE, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.USE.on(controller), ActionLocation.RIGHT, (ctx) -> {
             var hitResult = ctx.hitResult();
             var player = ctx.player();
             if (hitResult.getType() == HitResult.Type.ENTITY)
@@ -227,30 +228,30 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.use"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().DROP_INGAME, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.DROP_INGAME.on(controller), ActionLocation.RIGHT, (ctx) -> {
             var holdingItem = ctx.player().getInventory().getSelected();
             if (!holdingItem.isEmpty())
                 return Optional.of(Component.translatable("controlify.guide.ingame.drop"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().DROP_STACK, ActionLocation.RIGHT, ctx -> {
+        registerGuideAction(ControlifyBindings.DROP_STACK.on(controller), ActionLocation.RIGHT, ctx -> {
             var holdingItem = ctx.player().getInventory().getSelected();
             if (!holdingItem.isEmpty() && holdingItem.getCount() > 1)
                 return Optional.of(Component.translatable("controlify.binding.controlify.drop_stack"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().SWAP_HANDS, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.SWAP_HANDS.on(controller), ActionLocation.RIGHT, (ctx) -> {
             var player = ctx.player();
             if (player.hasItemInSlot(EquipmentSlot.MAINHAND) || player.hasItemInSlot(EquipmentSlot.OFFHAND))
                 return Optional.of(Component.translatable("controlify.guide.ingame.swap_hands"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().PICK_BLOCK, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.PICK_BLOCK.on(controller), ActionLocation.RIGHT, (ctx) -> {
             if (ctx.hitResult().getType() == HitResult.Type.BLOCK && ctx.player().isCreative())
                 return Optional.of(Component.translatable("controlify.guide.ingame.pick_block"));
             return Optional.empty();
         });
-        registerGuideAction(controller.bindings().PICK_BLOCK_NBT, ActionLocation.RIGHT, (ctx) -> {
+        registerGuideAction(ControlifyBindings.PICK_BLOCK_NBT.on(controller), ActionLocation.RIGHT, (ctx) -> {
             if (ctx.hitResult().getType() == HitResult.Type.BLOCK && ctx.player().isCreative())
                 return Optional.of(Component.translatable("controlify.binding.controlify.pick_block_nbt"));
             return Optional.empty();

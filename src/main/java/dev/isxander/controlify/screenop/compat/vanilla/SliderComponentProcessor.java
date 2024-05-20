@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -30,14 +31,14 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
         var canSliderChange = ++lastSliderChange > SLIDER_CHANGE_DELAY;
 
-        if (controller.bindings().GUI_NAVI_RIGHT.held()) {
+        if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).digitalNow()) {
             if (canSliderChange) {
                 component.keyPressed(GLFW.GLFW_KEY_RIGHT, 0, 0);
                 lastSliderChange = 0;
             }
 
             return true;
-        } else if (controller.bindings().GUI_NAVI_LEFT.held()) {
+        } else if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).digitalNow()) {
             if (canSliderChange) {
                 component.keyPressed(GLFW.GLFW_KEY_LEFT, 0, 0);
                 lastSliderChange = 0;
@@ -53,7 +54,7 @@ public class SliderComponentProcessor implements ComponentProcessor {
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
         if (!this.canChangeValueGetter.get()) return false;
 
-        if (controller.bindings().GUI_BACK.justPressed()) {
+        if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
             this.canChangeValueSetter.accept(false);
             return true;
         }

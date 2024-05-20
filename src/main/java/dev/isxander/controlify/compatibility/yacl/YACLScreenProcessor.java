@@ -1,5 +1,6 @@
 package dev.isxander.controlify.compatibility.yacl;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.yacl.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -14,7 +15,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
 
     @Override
     protected void handleButtons(ControllerEntity controller) {
-        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
                 ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress();
             }

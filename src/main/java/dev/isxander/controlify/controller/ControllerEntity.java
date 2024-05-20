@@ -3,7 +3,6 @@ package dev.isxander.controlify.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
 import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
@@ -28,7 +27,6 @@ import java.util.Optional;
 
 public class ControllerEntity extends ECSEntityImpl {
     private final ControllerInfo info;
-    private ControllerBindings bindings;
 
     public ControllerEntity(ControllerInfo info) {
         this.info = info;
@@ -101,12 +99,7 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.getComponent(BluetoothDeviceComponent.ID);
     }
 
-    public ControllerBindings bindings() {
-        return this.bindings;
-    }
-
     public void finalise() {
-        this.bindings = new ControllerBindings(this);
     }
 
     public Map<ResourceLocation, IConfig<?>> getAllConfigs() {

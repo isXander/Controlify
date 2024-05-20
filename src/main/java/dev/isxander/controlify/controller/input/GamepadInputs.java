@@ -2,9 +2,9 @@ package dev.isxander.controlify.controller.input;
 
 import com.google.common.collect.Sets;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.v2.input.AxisInput;
-import dev.isxander.controlify.bindings.v2.input.ButtonInput;
-import dev.isxander.controlify.bindings.v2.input.Input;
+import dev.isxander.controlify.bindings.input.AxisInput;
+import dev.isxander.controlify.bindings.input.ButtonInput;
+import dev.isxander.controlify.bindings.input.Input;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;

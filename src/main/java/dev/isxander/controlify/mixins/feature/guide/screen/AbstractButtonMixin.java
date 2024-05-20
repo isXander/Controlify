@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.ControllerBinding;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements ButtonGuideRenderer<AbstractButton>, NarratableEntry /* isActive() in AbstractWidgetMixin shadow breaks dev env remapping. must re-implement interface */ {
     @Unique private RenderData<AbstractButton> renderData = null;
 
-    @Unique private final Map<ControllerBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
+    @Unique private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
     @Override
     protected Component modifyRenderedMessage(Component actualMessage) {
@@ -46,13 +46,13 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
         return getBind().map(bind -> controllerMessages.computeIfAbsent(bind, b -> {
             var component = Component.empty();
             if (!Minecraft.getInstance().font.isBidirectional()) {
-                component.append(BindingFontHelper.binding(bind.id()));
+                component.append(bind.inputIcon());
                 component.append(" ");
             }
             component.append(getMessage());
             if (Minecraft.getInstance().font.isBidirectional()) {
                 component.append(" ");
-                component.append(BindingFontHelper.binding(bind.id()));
+                component.append(bind.inputIcon());
             }
             return component;
         })).orElse(getMessage());
@@ -65,13 +65,13 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
                 && getBind().isPresent()
                 && Controlify.instance().currentInputMode().isController()
                 && Controlify.instance().getCurrentController().map(c -> c.genericConfig().config().showScreenGuides).orElse(false)
-                && !renderData.binding().onController(Controlify.instance().getCurrentController().orElseThrow()).isUnbound()
+                && !renderData.binding().get().on(Controlify.instance().getCurrentController().orElseThrow()).isUnbound()
                 && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
     }
 
     @Unique
-    private Optional<ControllerBinding> getBind() {
+    private Optional<InputBinding> getBind() {
         if (renderData == null) return Optional.empty();
-        return Controlify.instance().getCurrentController().map(c -> renderData.binding().onController(c));
+        return Controlify.instance().getCurrentController().map(c -> renderData.binding().get().on(c));
     }
 }

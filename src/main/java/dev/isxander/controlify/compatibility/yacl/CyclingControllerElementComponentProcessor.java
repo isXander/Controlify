@@ -1,5 +1,6 @@
 package dev.isxander.controlify.compatibility.yacl;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -16,8 +17,8 @@ public class CyclingControllerElementComponentProcessor implements ComponentProc
 
     @Override
     public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
-        var left = controller.bindings().CYCLE_OPT_BACKWARD.held();
-        var right = controller.bindings().CYCLE_OPT_FORWARD.held();
+        boolean left = ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).digitalNow();
+        boolean right = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalNow();
 
         if (left && !prevLeft) {
             prevLeft = true;

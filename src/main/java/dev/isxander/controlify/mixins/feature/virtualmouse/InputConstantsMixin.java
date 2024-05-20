@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.virtualmouse;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
@@ -19,8 +20,8 @@ public class InputConstantsMixin {
             if (controller == null) return keyDown;
 
             return keyDown
-                    || controller.bindings().VMOUSE_SHIFT_CLICK.held()
-                    || controller.bindings().VMOUSE_SHIFT.held();
+                    || ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).digitalNow()
+                    || ControlifyBindings.VMOUSE_SHIFT.on(controller).digitalNow();
         }
 
         return keyDown;

@@ -3,10 +3,9 @@ package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
-import dev.isxander.controlify.api.bind.BindingSupplier;
-import dev.isxander.controlify.api.bind.ControlifyBindingsApi;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.bindings.v2.input.EmptyInput;
+import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.mixins.compat.simplevoicechat.KeyEventsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
@@ -14,8 +13,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class SimpleVoiceChatCompat {
-    private static BindingSupplier pttHoldSupplier, pttToggleSupplier;
-    private static BindingSupplier whisperHoldSupplier, whisperToggleSupplier;
+    private static InputBindingSupplier pttHoldSupplier, pttToggleSupplier;
+    private static InputBindingSupplier whisperHoldSupplier, whisperToggleSupplier;
 
     private static boolean pttDown, whisperDown;
 
@@ -24,41 +23,49 @@ public class SimpleVoiceChatCompat {
         ResourceLocation pttIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone.png"));
         ResourceLocation whisperIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone_whisper.png"));
 
-        ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_PTT);
-        ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_WHISPER);
-        ControlifyBindingsApi.get().excludeVanillaBind(KeyEvents.KEY_MUTE);
-
         Component category = Component.translatable("key.categories.voicechat");
-        pttHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_hold"), builder -> builder
-                .name(Component.translatable("key.push_to_talk").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
-                .category(category)
-                .defaultBind(new EmptyInput()));
-        pttToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "ptt_toggle"), builder -> builder
-                .name(Component.translatable("key.push_to_talk").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
-                .category(category)
-                .defaultBind(new EmptyInput())
-                .radialCandidate(pttIcon));
-        whisperHoldSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_hold"), builder -> builder
-                .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
-                .category(category)
-                .defaultBind(new EmptyInput()));
-        whisperToggleSupplier = ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "whisper_toggle"), builder -> builder
-                .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
-                .category(category)
-                .defaultBind(new EmptyInput())
-                .radialCandidate(whisperIcon));
-        ControlifyBindingsApi.get().registerBind(new ResourceLocation("voicechat", "mute_microphone"), builder -> builder
-                .name(Component.translatable("key.mute_microphone"))
-                .category(category)
-                .defaultBind(new EmptyInput())
-                .vanillaOverride(KeyEvents.KEY_MUTE)
-                .radialCandidate(muteIcon));
+        pttHoldSupplier = ControlifyBindApi.get().registerBinding((builder, ctx) -> {
+            ctx.createKeyMappingCorrelation(KeyEvents.KEY_PTT);
+            return builder
+                    .id("voicechat", "ptt_hold")
+                    .category(category);
+        });
+        pttToggleSupplier = ControlifyBindApi.get().registerBinding((builder, ctx) -> {
+            ctx.createKeyMappingCorrelation(KeyEvents.KEY_PTT);
+            return builder
+                    .id("voicechat", "ptt_toggle")
+                    .category(category)
+                    .radialCandidate(pttIcon);
+        });
+        whisperHoldSupplier = ControlifyBindApi.get().registerBinding((builder, ctx) -> {
+            ctx.createKeyMappingCorrelation(KeyEvents.KEY_WHISPER);
+            return builder
+                    .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
+                    .id("voicechat", "whisper_hold")
+                    .category(category);
+        });
+        whisperToggleSupplier = ControlifyBindApi.get().registerBinding((builder, ctx) -> {
+            ctx.createKeyMappingCorrelation(KeyEvents.KEY_WHISPER);
+            return builder
+                    .name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
+                    .id("voicechat", "whisper_toggle")
+                    .category(category)
+                    .radialCandidate(whisperIcon);
+        });
+
+        ControlifyBindApi.get().registerBinding((builder, ctx) -> {
+            ctx.emulateKeyMapping(KeyEvents.KEY_MUTE);
+            return builder
+                    .id("voicechat", "mute_microphone")
+                    .category(category)
+                    .radialCandidate(muteIcon);
+        });
 
         ControlifyEvents.ACTIVE_CONTROLLER_TICKED.register(controller -> {
-            var pttHold = pttHoldSupplier.onController(controller);
-            var pttToggle = pttToggleSupplier.onController(controller);
-            var whisperHold = whisperHoldSupplier.onController(controller);
-            var whisperToggle = whisperToggleSupplier.onController(controller);
+            var pttHold = pttHoldSupplier.on(controller);
+            var pttToggle = pttToggleSupplier.on(controller);
+            var whisperHold = whisperHoldSupplier.on(controller);
+            var whisperToggle = whisperToggleSupplier.on(controller);
 
             if (pttToggle.justPressed()) {
                 pttDown = !pttDown;
@@ -72,12 +79,12 @@ public class SimpleVoiceChatCompat {
             if (pttHold.justPressed() || whisperHold.justPressed()) {
                 checkConnected();
             }
-            if (pttHold.held()) {
+            if (pttHold.digitalNow()) {
                 pttDown = true;
             } else if (pttHold.justReleased()) {
                 pttDown = false;
             }
-            if (whisperHold.held()) {
+            if (whisperHold.digitalNow()) {
                 whisperDown = true;
             } else if (whisperHold.justReleased()) {
                 whisperDown = false;
@@ -104,7 +111,7 @@ public class SimpleVoiceChatCompat {
     }
 
     private static ResourceLocation registerIcon16x(ResourceLocation location) {
-        ControlifyBindingsApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
+        ControlifyBindApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
                 graphics.blit(location, x, y, 0, 0f, 0f, 16, 16, 16, 16)));
         return location;
     }

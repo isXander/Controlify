@@ -1,8 +1,9 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.dualsense.HapticEffects;
 import dev.isxander.controlify.font.BindingFontHelper;
@@ -54,7 +55,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     private final RadialButton[] buttons;
     private float radialRadius;
 
-    private final ControllerBinding openBind;
+    private final InputBinding openBind;
 
     private int selectedButton = -1;
     private int idleTicks;
@@ -65,7 +66,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     private final Processor processor = new Processor(this);
 
-    public RadialMenuScreen(ControllerEntity controller, ControllerBinding openBind, RadialItem[] items, Component text, @Nullable EditMode editMode, Screen parent) {
+    public RadialMenuScreen(ControllerEntity controller, InputBinding openBind, RadialItem[] items, Component text, @Nullable EditMode editMode, Screen parent) {
         super(text);
         this.text = text;
         this.controller = controller;
@@ -73,7 +74,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         this.buttons = new RadialButton[items.length];
         this.editMode = editMode;
         this.parent = parent;
-        this.idleTicksTimeout = controller.genericConfig().config().radialButtonFocusTimeoutTicks;
+        this.idleTicksTimeout = controller.input().orElseThrow().confObj().radialButtonFocusTimeoutTicks;
         this.openBind = openBind;
     }
 
@@ -112,7 +113,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             var exitGuide = addRenderableWidget(new PositionedComponent<>(
                     new GuideActionRenderer<>(
                             new GuideAction<>(
-                                    controller.bindings().GUI_BACK,
+                                    ControlifyBindings.GUI_BACK.on(controller),
                                     obj -> Optional.of(CommonComponents.GUI_DONE)
                             ),
                             false,
@@ -132,7 +133,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
 
-        if (editMode == null && !openBind.held()) {
+        if (editMode == null && !openBind.digitalNow()) {
             if (selectedButton != -1 && buttons[selectedButton].invoke()) {
                 playClickSound();
             }
@@ -140,14 +141,16 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             onClose();
         }
 
-        if (editMode != null && controller.bindings().GUI_BACK.justPressed()) {
+        if (editMode != null && ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
             playClickSound();
             onClose();
         }
 
         if (!isEditing) {
-            float x = controller.bindings().RADIAL_AXIS_RIGHT.state() - controller.bindings().RADIAL_AXIS_LEFT.state();
-            float y = controller.bindings().RADIAL_AXIS_DOWN.state() - controller.bindings().RADIAL_AXIS_UP.state();
+            float x = ControlifyBindings.RADIAL_AXIS_RIGHT.on(controller).analogueNow()
+                    - ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
+            float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
+                    - ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
             float threshold = controller.input().orElseThrow().config().config().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
@@ -280,7 +283,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 this.item.icon().draw(graphics, 0, 0, delta);
                 graphics.pose().popPose();
             } else {
-                Component bind = BindingFontHelper.binding(controller.bindings().GUI_PRESS);
+                Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputIcon();
                 graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 
@@ -329,7 +332,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (editMode != null && controller == RadialMenuScreen.this.controller && controller.bindings().GUI_PRESS.justPressed()) {
+            if (editMode != null && controller == RadialMenuScreen.this.controller && ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
                 actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
@@ -406,7 +409,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (controller == RadialMenuScreen.this.controller) {
-                if (controller.bindings().GUI_BACK.justPressed()) {
+                if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
                     finishEditing();
                     return true;
                 }
@@ -517,7 +520,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             @Override
             public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
                 if (controller == RadialMenuScreen.this.controller) {
-                    if (controller.bindings().GUI_PRESS.justPressed()) {
+                    if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                         editMode.setRadialItem(radialIndex, item);
                         Controlify.instance().config().setDirty();
 

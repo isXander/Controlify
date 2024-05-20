@@ -3,11 +3,10 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
-import dev.isxander.controlify.bindings.ControllerBindings;
-import dev.isxander.controlify.bindings.v2.BindContext;
-import dev.isxander.controlify.bindings.v2.ControlifyBindApiImpl;
-import dev.isxander.controlify.bindings.v2.ControlifyBindings;
-import dev.isxander.controlify.bindings.v2.defaults.DefaultBindManager;
+import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
@@ -290,7 +289,6 @@ public class Controlify implements ControlifyApi {
 
             // make sure people don't someone add binds after controllers could have been created
             ControlifyBindApiImpl.INSTANCE.lock();
-            ControllerBindings.lockRegistry();
 
             // assume that if someone explicitly went into controlify settings,
             // they have a controller and want the full experience.
