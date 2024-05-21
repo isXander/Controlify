@@ -62,11 +62,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     public static class Key extends AbstractWidget implements ComponentProcessor {
         private static final ResourceLocation TEXTURE = Controlify.id(
-                /*? if >1.20.1 { */
+                /*? if >1.20.1 {*/
                 "keyboard/key"
-                /*? } else { *//*
+                /*?} else {*//*
                 "textures/gui/sprites/keyboard/key.png"
-                *//*? } */
+                *//*?}*/
         );
 
         private final KeyboardWidget<?> keyboard;
@@ -97,9 +97,9 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             /*? if >1.20.1 {*/
             guiGraphics.blitSprite(TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
-            /*? } else { *//*
+            /*?} else {*//*
             FakeSpriteRenderer.blitNineSlicedSprite(guiGraphics, TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2, 2, 6, 6);
-            *//*? } */
+            *//*?}*/
 
             if (keyboard.shiftMode) {
                 shiftedFunction.renderer.render(guiGraphics, mouseX, mouseY, partialTick, this);

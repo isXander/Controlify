@@ -43,7 +43,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         this.player = localPlayer;
 
         registerDefaultActions();
-        ControlifyEvents.INGAME_GUIDE_REGISTRY.invoker().onRegisterIngameGuide(controller.bindings(), this);
+        ControlifyEvents.INGAME_GUIDE_REGISTRY.invoke(new ControlifyEvents.IngameGuideRegistryEvent(controller.bindings(), this));
 
         Collections.sort(leftGuides);
         Collections.sort(rightGuides);
@@ -84,7 +84,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         minecraft.getDebugOverlay().showDebugScreen();
         /*?} else {*//*
         minecraft.options.renderDebug;
-        *//*?} */
+        *//*?}*/
 
         if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || debugOpen)
             return;
@@ -260,7 +260,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private HitResult calculateHitResult() {
         /*? if >1.20.4 {*/
         double pickRange = minecraft.player.blockInteractionRange();
-        /*? } else {*//*
+        /*?} else {*//*
         double pickRange = minecraft.gameMode.getPickRange();
         *//*?}*/
 
@@ -271,7 +271,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         /*? if >1.20.4 {*/
         pickRange = minecraft.player.entityInteractionRange();
-        /*? } else {*//*
+        /*?} else {*//*
         if (minecraft.gameMode.hasFarPickRange()) {
             pickRange = 6.0;
         }

@@ -100,7 +100,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         renderBackground(graphics, mouseX, mouseY, delta);
         /*?} else {*//*
         renderBackground(graphics);
-        *//*?} */
+        *//*?}*/
 
         super.render(graphics, mouseX, mouseY, delta);
 

@@ -54,7 +54,7 @@ public final class RadialIcons {
     public static ResourceLocation getEffect(
             /*? if >1.20.4 {*/
             Holder<MobEffect> effectHolder
-            /*? } else {*//*
+            /*?} else {*//*
             MobEffect effect
             *//*?}*/
     ) {
@@ -83,7 +83,7 @@ public final class RadialIcons {
 
             /*? if >1.20.4 {*/
             Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(entry.getValue());
-            /*? } else {*//*
+            /*?} else {*//*
             MobEffect effect = entry.getValue();
             *//*?}*/
 

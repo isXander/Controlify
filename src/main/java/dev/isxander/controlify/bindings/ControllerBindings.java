@@ -13,7 +13,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.fapi.KeyBindingRegistryImplAccessor;
 import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
 import dev.isxander.controlify.mixins.feature.bind.ToggleKeyMappingAccessor;
-import dev.isxander.controlify.platform.PlatformEvents;
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import net.minecraft.ChatFormatting;
@@ -564,7 +564,7 @@ public class ControllerBindings {
                 this.imitateVanillaClick();
             }
         });
-        PlatformEvents.registerClientTickEnded(client -> {
+        PlatformClientUtil.registerClientTickEnded(client -> {
             registry().values().forEach(ControllerBinding::tick);
         });
 

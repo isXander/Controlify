@@ -12,9 +12,9 @@ import java.io.InputStream;
  * audio stream of the output device. It is operated just like a speaker.
  */
 public class DualsenseOggAudioStream extends
-        /*? if >1.20.4 { */
+        /*? if >1.20.4 {*/
         net.minecraft.client.sounds.JOrbisAudioStream
-        /*? } else {*//*
+        /*?} else {*//*
         com.mojang.blaze3d.audio.OggAudioStream
         *//*?}*/
 {

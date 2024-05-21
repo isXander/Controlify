@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gui.screen.RadialItems;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.platform.Event;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
@@ -134,7 +135,7 @@ public class InGameInputHandler {
             minecraft.getDebugOverlay().toggleOverlay();
             /*?} else {*//*
             minecraft.options.renderDebug = !minecraft.options.renderDebug;
-            *//*?} */
+            *//*?}*/
         }
 
         if (controller.bindings().TAKE_SCREENSHOT.justPressed()) {
@@ -228,9 +229,9 @@ public class InGameInputHandler {
             controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
         }
 
-        LookInputModifier lookInputModifier = ControlifyEvents.LOOK_INPUT_MODIFIER.invoker();
-        lookImpulse.x = lookInputModifier.modifyX(lookImpulse.x, controller);
-        lookImpulse.y = lookInputModifier.modifyY(lookImpulse.y, controller);
+        var modifier = new LookInputModifier(new Vector2f(lookImpulse), controller);
+        ControlifyEvents.LOOK_INPUT_MODIFIER.invoke(modifier);
+        lookImpulse.set(modifier.lookInput());
 
         lookInputX = lookImpulse.x;
         lookInputY = lookImpulse.y;
@@ -363,15 +364,11 @@ public class InGameInputHandler {
         };
     }
 
-    public record FunctionalLookInputModifier(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) implements LookInputModifier {
+    public record FunctionalLookInputModifier(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) implements Event.Callback<LookInputModifier> {
         @Override
-        public float modifyX(float x, ControllerEntity controller) {
-            return this.x.apply(x, controller);
-        }
-
-        @Override
-        public float modifyY(float y, ControllerEntity controller) {
-            return this.y.apply(y, controller);
+        public void onEvent(LookInputModifier event) {
+            event.lookInput().x = this.x.apply(event.lookInput().x, event.controller());
+            event.lookInput().y = this.y.apply(event.lookInput().y, event.controller());
         }
     }
 }

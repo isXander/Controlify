@@ -54,7 +54,7 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, St
         return Controlify.id("controllers/" + namespace);
         /*?} else {*//*
         return Controlify.id("textures/gui/sprites/controllers/" + namespace + ".png");
-        *//*?} */
+        *//*?}*/
 
     }
 

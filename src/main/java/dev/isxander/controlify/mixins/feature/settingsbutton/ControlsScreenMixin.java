@@ -27,7 +27,7 @@ public class ControlsScreenMixin extends OptionsSubScreen {
         super(parent, gameOptions, title);
     }
 
-    /*?if >1.20.4 {*/
+    /*? if >1.20.4 {*/
     @Shadow
     private OptionsList list;
 
@@ -38,7 +38,7 @@ public class ControlsScreenMixin extends OptionsSubScreen {
                 null
         );
     }
-    /*? } else { *//*
+    /*?} else {*//*
     @Inject(method = "init", at = @At("RETURN"))
     private void addControllerSettings(CallbackInfo ci, @Local(ordinal = 0) int leftX, @Local(ordinal = 1) int rightX, @Local(ordinal = 2) int currentY) {
         addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> this.openControllerSettings())

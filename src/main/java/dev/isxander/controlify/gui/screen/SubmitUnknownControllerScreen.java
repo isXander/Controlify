@@ -123,7 +123,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         renderBackground(graphics, mouseX, mouseY, delta);
         /*?} else {*//*
         renderBackground(graphics);
-        *//*?} */
+        *//*?}*/
 
         super.render(graphics, mouseX, mouseY, delta);
 

@@ -20,7 +20,7 @@ import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
-import dev.isxander.controlify.platform.PlatformEvents;
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
@@ -35,15 +35,12 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -105,7 +102,7 @@ public class Controlify implements ControlifyApi {
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         this.inputFontMapper = new InputFontMapper();
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(inputFontMapper);
+        PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
@@ -135,10 +132,13 @@ public class Controlify implements ControlifyApi {
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
 
-        PlatformEvents.registerClientDisconnected((handler, client) -> {
+        PlatformClientUtil.registerClientDisconnected((handler, client) -> {
             DebugLog.log("Disconnected from server, resetting server policies");
             ServerPolicies.unsetAll();
         });
+
+        PlatformClientUtil.addHudLayer((graphics, tickDelta) ->
+                inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, tickDelta)));
 
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
@@ -161,8 +161,9 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
-        ControlifyEvents.CONTROLLER_CONNECTED.register(this::onControllerAdded);
-        ControlifyEvents.CONTROLLER_DISCONNECTED.register(this::onControllerRemoved);
+        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
+                event.controller(), event.hotplugged(), event.newController()));
+        ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
 
         if (config().globalSettings().quietMode) {
             // Use GLFW to probe for controllers without asking for natives
@@ -181,14 +182,14 @@ public class Controlify implements ControlifyApi {
                 );
             } else {
                 probeMode = true;
-                PlatformEvents.registerClientTickEnded(client -> this.probeTick());
+                PlatformClientUtil.registerClientTickEnded(client -> this.probeTick());
             }
         } else {
             finishControlifyInit();
         }
 
         // register events
-        PlatformEvents.registerClientStopping(client -> this.controllerHIDService().stop());
+        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
 
         // sends toasts of new features
         notifyOfNewFeatures();
@@ -272,7 +273,7 @@ public class Controlify implements ControlifyApi {
                 return;
             }
 
-            PlatformEvents.registerClientTickStarted(this::tick);
+            PlatformClientUtil.registerClientTickStarted(this::tick);
             ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
                 notifyNewServer(data);
             });
@@ -538,7 +539,7 @@ public class Controlify implements ControlifyApi {
                 ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
             }
 
-            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
+            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
         }
     }
 
@@ -651,7 +652,7 @@ public class Controlify implements ControlifyApi {
 
         ControllerPlayerMovement.updatePlayerInput(minecraft.player);
 
-        ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
+        ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(currentInputMode));
 
         return true;
     }

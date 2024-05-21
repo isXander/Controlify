@@ -27,7 +27,7 @@ public class ToastUtils {
                     longer ? SystemToastId.UNSECURE_SERVER_WARNING : SystemToastId.PERIODIC_NOTIFICATION,
                     /*?} else {*//*
                     longer ? SystemToastIds.UNSECURE_SERVER_WARNING : SystemToastIds.PERIODIC_NOTIFICATION,
-                    *//*?} */
+                    *//*?}*/
                     title,
                     description,
                     maxWidth

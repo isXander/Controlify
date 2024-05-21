@@ -5,39 +5,22 @@ import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.bindings.ControllerBindings;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
 import dev.isxander.controlify.controller.ControllerEntity;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
+import dev.isxander.controlify.platform.Event;
 
 public final class ControlifyEvents {
-    public static final Event<ControllerConnected> CONTROLLER_CONNECTED = EventFactory.createArrayBacked(ControllerConnected.class, callbacks -> (controller, hotplugged, newController) -> {
-        for (ControllerConnected callback : callbacks) {
-            callback.onControllerConnected(controller, hotplugged, newController);
-        }
-    });
+    public static final Event<ControllerConnected> CONTROLLER_CONNECTED = Event.createPlatformBackedEvent();
 
-    public static final Event<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventFactory.createArrayBacked(ControllerDisconnected.class, callbacks -> controller -> {
-        for (ControllerDisconnected callback : callbacks) {
-            callback.onControllerDisconnected(controller);
-        }
-    });
+    public static final Event<ControllerDisconnected> CONTROLLER_DISCONNECTED = Event.createPlatformBackedEvent();
 
     /**
      * Triggers when the input mode is changed from keyboard to controller or vice versa.
      */
-    public static final Event<InputModeChanged> INPUT_MODE_CHANGED = EventFactory.createArrayBacked(InputModeChanged.class, callbacks -> mode -> {
-        for (InputModeChanged callback : callbacks) {
-            callback.onInputModeChanged(mode);
-        }
-    });
+    public static final Event<InputModeChanged> INPUT_MODE_CHANGED = Event.createPlatformBackedEvent();
 
     /**
      * Triggers every tick when the current controller state has been updated.
      */
-    public static final Event<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = EventFactory.createArrayBacked(ControllerStateUpdate.class, callbacks -> controller -> {
-        for (ControllerStateUpdate callback : callbacks) {
-            callback.onControllerStateUpdate(controller);
-        }
-    });
+    public static final Event<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = Event.createPlatformBackedEvent();
 
     /**
      * @deprecated Use {@link #ACTIVE_CONTROLLER_TICKED} instead.
@@ -48,80 +31,40 @@ public final class ControlifyEvents {
     /**
      * Triggers every tick when any connected controller's state has been updated before the active controller is ticked.
      */
-    public static final Event<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = EventFactory.createArrayBacked(ControllerStateUpdate.class, callbacks -> controller -> {
-        for (ControllerStateUpdate callback : callbacks) {
-            callback.onControllerStateUpdate(controller);
-        }
-    });
+    public static final Event<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = Event.createPlatformBackedEvent();
 
     /**
      * Triggers when the button guide entries are being populated, so you can add more of your own.
      */
-    public static final Event<IngameGuideRegistryEvent> INGAME_GUIDE_REGISTRY = EventFactory.createArrayBacked(IngameGuideRegistryEvent.class, callbacks -> (bindings, registry) -> {
-        for (IngameGuideRegistryEvent callback : callbacks) {
-            callback.onRegisterIngameGuide(bindings, registry);
-        }
-    });
+    public static final Event<IngameGuideRegistryEvent> INGAME_GUIDE_REGISTRY = Event.createPlatformBackedEvent();
 
     /**
      * Triggers in a GUI when the virtual mouse is toggled on or off.
      */
-    public static final Event<VirtualMouseToggled> VIRTUAL_MOUSE_TOGGLED = EventFactory.createArrayBacked(VirtualMouseToggled.class, callbacks -> enabled -> {
-        for (VirtualMouseToggled callback : callbacks) {
-            callback.onVirtualMouseToggled(enabled);
-        }
-    });
+    public static final Event<VirtualMouseToggled> VIRTUAL_MOUSE_TOGGLED = Event.createPlatformBackedEvent();
 
     /**
      * Allows you to modify the look input before it is applied to the player.
      * These modifiers are called before the look input is multiplied by the sensitivity.
      */
-    public static final Event<LookInputModifier> LOOK_INPUT_MODIFIER = EventFactory.createArrayBacked(LookInputModifier.class, callbacks -> new LookInputModifier() {
-        @Override
-        public float modifyX(float x, ControllerEntity controller) {
-            for (LookInputModifier callback : callbacks) {
-                x = callback.modifyX(x, controller);
-            }
-            return x;
-        }
+    public static final Event<LookInputModifier> LOOK_INPUT_MODIFIER = Event.createPlatformBackedEvent();
 
-        @Override
-        public float modifyY(float y, ControllerEntity controller) {
-            for (LookInputModifier callback : callbacks) {
-                y = callback.modifyY(y, controller);
-            }
-            return y;
-        }
-    });
-
-    @FunctionalInterface
-    public interface ControllerConnected {
-        void onControllerConnected(ControllerEntity controller, boolean hotplugged, boolean newController);
+    public record ControllerConnected(ControllerEntity controller, boolean hotplugged, boolean newController) {
     }
 
-    @FunctionalInterface
-    public interface ControllerDisconnected {
-        void onControllerDisconnected(ControllerEntity controller);
+    public record ControllerDisconnected(ControllerEntity controller) {
     }
 
-    @FunctionalInterface
-    public interface InputModeChanged {
-        void onInputModeChanged(InputMode mode);
+    public record InputModeChanged(InputMode mode) {
     }
 
-    @FunctionalInterface
-    public interface ControllerStateUpdate {
-        void onControllerStateUpdate(ControllerEntity controller);
+    public record ControllerStateUpdate(ControllerEntity controller) {
     }
 
-    @FunctionalInterface
-    public interface IngameGuideRegistryEvent {
-        void onRegisterIngameGuide(ControllerBindings bindings, IngameGuideRegistry registry);
+    public record IngameGuideRegistryEvent(ControllerBindings bindings, IngameGuideRegistry registry) {
     }
 
-    @FunctionalInterface
-    public interface VirtualMouseToggled {
-        void onVirtualMouseToggled(boolean enabled);
+    public record VirtualMouseToggled(boolean enabled) {
     }
 
 }

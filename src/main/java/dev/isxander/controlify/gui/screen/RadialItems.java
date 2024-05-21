@@ -112,7 +112,7 @@ public final class RadialItems {
 
         /*? if >1.20.4 {*/
         List<ItemStack> hotbarItems = hotbar.load(mc.player.registryAccess());
-        /*? } else {*//*
+        /*?} else {*//*
         List<ItemStack> hotbarItems = hotbar;
         *//*?}*/
 

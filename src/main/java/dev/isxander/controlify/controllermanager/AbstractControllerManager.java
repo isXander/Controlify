@@ -74,7 +74,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     public void tick(boolean outOfFocus) {
         for (Driver driver : driversByUid.values()) {
             driver.update(outOfFocus);
-            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoker().onControllerStateUpdate(driver.getController());
+            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(driver.getController()));
         }
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
-        ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
+        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplug, newController));
     }
 
     protected void onControllerRemoved(ControllerEntity controller) {
@@ -91,7 +91,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         removeController(controller.info().uid());
 
-        ControlifyEvents.CONTROLLER_DISCONNECTED.invoker().onControllerDisconnected(controller);
+        ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
     }
 
     protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {
