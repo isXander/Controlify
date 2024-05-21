@@ -1,6 +1,6 @@
 package dev.isxander.controlify.mixins.feature.guide.ingame;
 
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
@@ -12,22 +12,18 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class GuiMixin {
     @Shadow @Final private Minecraft minecraft;
 
-    /*?if >1.20.4 {*/
-    @Shadow @Final
-    private net.minecraft.client.gui.LayeredDraw layers;
-
+    /*? if >1.20.4 {*/
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void addButtonGuideLayer(Minecraft minecraft, CallbackInfo ci) {
-        layers.add(this::renderButtonGuideIfPresent);
+    private void addButtonGuideLayer(Minecraft minecraft, CallbackInfo ci, @Local(ordinal = 1) net.minecraft.client.gui.LayeredDraw postSleepOverlayDraw) {
+        postSleepOverlayDraw.add(this::renderButtonGuideIfPresent);
     }
-    /*? } else { *//*
+    /*?} else {*//*
     @Inject(method = "render", at = @At(value = "CONSTANT", args = "stringValue=chat"))
     private void renderButtonGuide(GuiGraphics graphics, float tickDelta, CallbackInfo ci) {
         renderButtonGuideIfPresent(graphics, tickDelta);

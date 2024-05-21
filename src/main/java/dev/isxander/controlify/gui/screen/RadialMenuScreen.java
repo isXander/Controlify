@@ -191,7 +191,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         if (editMode != null) {
             /*? if >1.20.4 {*/
             renderBackground(graphics, mouseX, mouseY, delta);
-            /*? } else {*//*
+            /*?} else {*//*
             renderDirtBackground(graphics);
             *//*?}*/
         }

@@ -1,4 +1,3 @@
-import dev.kikugie.stonecutter.processor.Expression
 import net.fabricmc.loom.task.RemapJarTask
 
 plugins {
@@ -28,19 +27,6 @@ if (isBeta) println("Controlify beta version detected.")
 base {
     archivesName.set(property("modName").toString())
 }
-
-// add custom expressions to stonecutter to allow optional dependencies at build-time
-val scExpression: Expression = {
-    when (it) {
-        "immediately-fast" -> isPropDefined("deps.immediatelyFast")
-        "iris" -> isPropDefined("deps.iris")
-        "mod-menu" -> isPropDefined("deps.modMenu")
-        "sodium" -> isPropDefined("deps.sodium")
-        "simple-voice-chat" -> isPropDefined("deps.simpleVoiceChat")
-        else -> null
-    }
-}
-stonecutter.expression(scExpression)
 
 loom {
     accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
@@ -99,6 +85,7 @@ dependencies {
         "fabric-command-api-v2",
         "fabric-networking-api-v1",
         "fabric-item-group-api-v1",
+        "fabric-rendering-v1",
     ).forEach {
         modImplementation(fabricApi.module(it, fapiVersion))
     }
@@ -199,23 +186,6 @@ tasks {
         dependsOn("publish")
     }
 }
-
-/*
-val offlineChiseledBuild by tasks.registering(StonecutterTask::class) {
-    group = "offline"
-
-    toVersion.set(stonecutter.current)
-    expressions.set(listOf(scExpression, {
-        when (it) {
-            "offline" -> true
-            else -> null
-        }
-    }))
-
-    input.set(rootProject.file("./src").toPath())
-    output.set(layout.buildDirectory.get().asFile.toPath().resolve("src"))
-}
- */
 
 val offlineRemapJar by tasks.registering(RemapJarTask::class) {
     group = "offline"

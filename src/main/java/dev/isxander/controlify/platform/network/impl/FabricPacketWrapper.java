@@ -8,10 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-/*? } else {*//*
+/*?} else {*//*
 import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
-*//*? }*/
+*//*?}*/
 
 public class FabricPacketWrapper<T> {
     private final ResourceLocation channel;
@@ -20,7 +20,7 @@ public class FabricPacketWrapper<T> {
     /*? if >1.20.4 {*/
     public final CustomPacketPayload.Type<FabricPacketPayloadWrapper> type;
     private final StreamCodec<FriendlyByteBuf, FabricPacketPayloadWrapper> streamCodec;
-    /*? } else {*//*
+    /*?} else {*//*
     public final PacketType<FabricPacketPayloadWrapper> type;
     *//*?}*/
 
@@ -46,7 +46,7 @@ public class FabricPacketWrapper<T> {
         *//*?}*/
     }
 
-    public class FabricPacketPayloadWrapper implements /*? if >1.20.4 {*/ CustomPacketPayload /*? } else {*//* FabricPacket *//*?}*/ {
+    public class FabricPacketPayloadWrapper implements /*? if >1.20.4 {*/ CustomPacketPayload /*?} else {*//* FabricPacket *//*?}*/ {
         public final T payload;
 
         public FabricPacketPayloadWrapper(T payload) {

@@ -10,7 +10,6 @@ import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.packets.EntityVibrationPacket;
 import dev.isxander.controlify.server.packets.OriginVibrationPacket;
 import dev.isxander.controlify.server.packets.VibrationPacket;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;

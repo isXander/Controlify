@@ -49,7 +49,7 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, Re
         return CUtil.addPrefix(namespace, "controllers/");
         /*?} else {*//*
         return Controlify.id("textures/gui/sprites/controllers/" + namespace + ".png");
-        *//*?} */
+        *//*?}*/
 
     }
 

@@ -10,8 +10,8 @@ import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class InputFontMapper implements SimpleResourceReloadListener<InputFontMapper.Preparations> {
+public class InputFontMapper implements SimpleControlifyReloadListener<InputFontMapper.Preparations> {
     private ImmutableMap<ResourceLocation, FontMap> mappings;
 
     private static final Codec<Character> CHAR_CODEC = Codec.STRING.comapFlatMap(
@@ -126,7 +126,7 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public ResourceLocation getReloadId() {
         return new ResourceLocation("controlify", "font_mappings");
     }
 

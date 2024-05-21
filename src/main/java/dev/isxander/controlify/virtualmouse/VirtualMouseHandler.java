@@ -64,7 +64,7 @@ public class VirtualMouseHandler {
         else
             snapPoints = Set.of();
 
-        ControlifyEvents.INPUT_MODE_CHANGED.register(this::onInputModeChanged);
+        ControlifyEvents.INPUT_MODE_CHANGED.register(event -> this.onInputModeChanged(event.mode()));
     }
 
     public void handleControllerInput(ControllerEntity controller) {
@@ -371,7 +371,7 @@ public class VirtualMouseHandler {
         }
         setMousePosition();
 
-        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(true);
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(true));
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onVirtualMouseToggled(true);
         }
@@ -390,7 +390,7 @@ public class VirtualMouseHandler {
         targetX = currentX = minecraft.mouseHandler.xpos();
         targetY = currentY = minecraft.mouseHandler.ypos();
 
-        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoker().onVirtualMouseToggled(false);
+        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(false));
         if (minecraft.screen != null) {
             ScreenProcessorProvider.provide(minecraft.screen).onVirtualMouseToggled(false);
         }

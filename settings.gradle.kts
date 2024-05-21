@@ -7,11 +7,12 @@ pluginManagement {
         maven("https://maven.fabricmc.net")
         maven("https://maven.quiltmc.org/repository/release")
         maven("https://maven.kikugie.dev/releases")
+        maven("https://maven.kikugie.dev/snapshots")
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.3.5"
+    id("dev.kikugie.stonecutter") version "0.4.0-alpha.4"
 }
 
 extensions.configure<StonecutterSettings> {

@@ -50,7 +50,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             new ResourceLocation("icon/checkmark");
     /*?} else {*//*
             new ResourceLocation("textures/gui/checkmark.png");
-    *//*?} */
+    *//*?}*/
 
     private final Screen parent;
     private int footerY;
@@ -175,9 +175,9 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         RenderSystem.enableBlend();
         graphics.blit(
-                /*? if >1.20.4 { */
+                /*? if >1.20.4 {*/
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
-                /*? } else { *//*
+                /*?} else {*//*
                 CreateWorldScreen.FOOTER_SEPERATOR,
                 *//*?}*/
                 0, footerY,
@@ -199,7 +199,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             , int i, int j, float f
             /*?}*/
     ) {
-        /*? if >1.20.4 { */
+        /*? if >1.20.4 {*/
         super.renderBackground(graphics, i, j, f);
 
         RenderSystem.enableBlend();
@@ -211,7 +211,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 32, 32
         );
         RenderSystem.disableBlend();
-        /*? } else { *//*
+        /*?} else {*//*
         graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
         graphics.setColor(1f, 1f, 1f, 1f);
