@@ -13,7 +13,7 @@ public abstract class ToggleKeyMappingMixin extends KeyMappingMixin implements K
     @Override
     public void controlify$setPressed(boolean isDown) {
         if (isDown)
-            this.clickCount++;
+            this.incClickCount();
         this.setDown(true);
     }
 }

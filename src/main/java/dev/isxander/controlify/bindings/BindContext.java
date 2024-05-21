@@ -6,7 +6,7 @@ import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -43,7 +43,7 @@ public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isAp
 
     public static final BindContext CONTAINER = register(
             "container",
-            mc -> mc.screen instanceof ContainerScreen
+            mc -> mc.screen instanceof AbstractContainerScreen<?>
     );
 
     public static final BindContext V_MOUSE_CURSOR = register(

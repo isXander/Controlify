@@ -9,6 +9,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public record InputType<T extends Input>(String id, MapCodec<T> codec) implements StringRepresentable {
@@ -18,7 +19,7 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
     public static final InputType<EmptyInput> EMPTY = new InputType<>(EmptyInput.INPUT_ID, EmptyInput.CODEC);
 
     public static final InputType<?>[] TYPES = {
-        InputType.BUTTON, InputType.AXIS, InputType.HAT, InputType.EMPTY,
+        InputType.BUTTON, InputType.AXIS, InputType.HAT, InputType.EMPTY
     };
 
     public static <T extends StringRepresentable, E> MapCodec<E> createCodec(
@@ -31,8 +32,8 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
 
         Codec<T> typeCodec = StringRepresentable.fromValues(() -> types);
 
-        MapCodec<E> typedCodec = typeCodec.dispatchMap("type", typeGetter, codecGetter);
-        MapCodec<E> eitherCodec = new StrictEitherMapCodec<>("type", typedCodec, fuzzyCodec, false);
+        MapCodec<E> typedCodec = typeCodec.dispatchMap(typeFieldName, typeGetter, codecGetter);
+        MapCodec<E> eitherCodec = new StrictEitherMapCodec<>(typeFieldName, typedCodec, fuzzyCodec, false);
 
         return ExtraCodecs.orCompressed(eitherCodec, typedCodec);
     }

@@ -6,10 +6,10 @@
     "controlify:walk_backward": {
       "axis": "controlify:axis/left_stick_down"
     },
-    "controlify:walk_left": {
+    "controlify:strafe_left": {
       "axis": "controlify:axis/left_stick_left"
     },
-    "controlify:walk_right": {
+    "controlify:strafe_right": {
       "axis": "controlify:axis/left_stick_right"
     },
     "controlify:look_up": {
@@ -34,7 +34,14 @@
       "button": "controlify:button/left_stick"
     },
     "controlify:sneak": {
-      "button": "controlify:button/right_stick"
+      "max_multi": [
+        {
+          "button": "controlify:button/right_stick"
+        },
+        {
+          "button": "controlify:button/east"
+        }
+      ]
     },
     "controlify:attack": {
       "axis": "controlify:axis/right_trigger"

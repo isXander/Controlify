@@ -9,14 +9,20 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.function.Supplier;
 
 public class CUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger("Controlify");
 
-    public static final Version VERSION = FabricLoader.getInstance().getModContainer("controlify").orElseThrow().getMetadata().getVersion();
+    public static final Version VERSION = FabricLoader.getInstance().getModContainer("controlify")
+            .orElseThrow().getMetadata().getVersion();
 
     public static ResourceLocation addSuffix(ResourceLocation rl, String suffix) {
         return new ResourceLocation(rl.getNamespace(), rl.getPath() + suffix);
+    }
+
+    public static ResourceLocation addPrefix(ResourceLocation rl, String prefix) {
+        return new ResourceLocation(rl.getNamespace(), prefix + rl.getPath());
     }
 
     /**
@@ -36,6 +42,19 @@ public class CUtil {
         } catch (IOException | SecurityException e) {
             LOGGER.error("Failed to open URI: {}", uri, e);
         }
+    }
+
+    public static <T> Supplier<T> lazyInit(Supplier<T> supplier) {
+        return new Supplier<>() {
+            private T created = null;
+
+            @Override
+            public T get() {
+                if (created == null)
+                    created = supplier.get();
+                return created;
+            }
+        };
     }
 
     private enum URIOpener {

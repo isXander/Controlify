@@ -41,7 +41,7 @@ public final class ControlifyBindings {
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)));
     public static final InputBindingSupplier WALK_RIGHT = ControlifyBindApi.get().registerBinding(((builder, ctx) -> builder
-            .id("controlify", "strafe_backward")
+            .id("controlify", "strafe_right")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)));
 

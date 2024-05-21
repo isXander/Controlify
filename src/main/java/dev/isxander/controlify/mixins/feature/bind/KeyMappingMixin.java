@@ -4,12 +4,13 @@ import dev.isxander.controlify.bindings.KeyMappingHandle;
 import net.minecraft.client.KeyMapping;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(KeyMapping.class)
 public class KeyMappingMixin implements KeyMappingHandle {
 
     @Shadow
-    protected int clickCount;
+    private int clickCount;
 
     @Shadow
     private boolean isDown;
@@ -22,5 +23,10 @@ public class KeyMappingMixin implements KeyMappingHandle {
         } else {
             this.isDown = false;
         }
+    }
+
+    @Unique
+    protected void incClickCount() {
+        this.clickCount++;
     }
 }

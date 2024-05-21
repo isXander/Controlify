@@ -46,7 +46,7 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, Re
 
     public ResourceLocation getIconSprite() {
         /*? if >=1.20.3 {*/
-        return Controlify.id("controllers/" + namespace);
+        return CUtil.addPrefix(namespace, "controllers/");
         /*?} else {*//*
         return Controlify.id("textures/gui/sprites/controllers/" + namespace + ".png");
         *//*?} */

@@ -100,6 +100,7 @@ public class ControllerEntity extends ECSEntityImpl {
     }
 
     public void finalise() {
+        this.getAllComponents().values().forEach(ECSComponent::finalise);
     }
 
     public Map<ResourceLocation, IConfig<?>> getAllConfigs() {

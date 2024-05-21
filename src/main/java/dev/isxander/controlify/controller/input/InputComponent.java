@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config>, CustomSaveLoadConfig {
     public static final ResourceLocation ID = Controlify.id("input");
 
+    private final ControllerEntity controller;
+
     private ControllerState
             stateNow = ControllerState.EMPTY,
             stateThen = ControllerState.EMPTY;
@@ -43,6 +45,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     private final IConfig<Config> config;
 
     public InputComponent(ControllerEntity controller, int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes, String mappingId) {
+        this.controller = controller;
         this.buttonCount = buttonCount;
         this.axisCount = axisCount;
         this.hatCount = hatCount;
@@ -51,9 +54,6 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         this.deadzoneAxes = deadzoneAxes.stream()
                 .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
         this.inputBindings = new LinkedHashMap<>();
-        for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
-            this.inputBindings.put(binding.id(), binding);
-        }
 
         this.updateDeadzoneView();
     }
@@ -94,6 +94,13 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
     public Collection<InputBinding> getAllBindings() {
         return this.inputBindings.values();
+    }
+
+    @Override
+    public void finalise() {
+        for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
+            this.inputBindings.put(binding.id(), binding);
+        }
     }
 
     public int buttonCount() {
