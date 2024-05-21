@@ -85,7 +85,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
                 font,
                 totalString,
                 (int) (width / 2f + 182 * 2f / 2 - font.width(totalString)),
-                (int) (30 + 9 * 2f + 40 + 5 * 2f + 4),
+                (int) (30 + 9 * 2f + 40 + 5 * 2f + 6),
                 11184810 // light gray
         );
 
@@ -94,7 +94,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
                 font,
                 receivedString,
                 (int) (width / 2f - 182 * 2f / 2),
-                (int) (30 + 9 * 2f + 40 + 5 * 2f + 4),
+                (int) (30 + 9 * 2f + 40 + 5 * 2f + 6),
                 11184810 // light gray
         );
 
