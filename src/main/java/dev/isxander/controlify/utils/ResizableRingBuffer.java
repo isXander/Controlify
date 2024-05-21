@@ -58,8 +58,6 @@ public class ResizableRingBuffer<T> {
         if (this.size == newSize)
             return;
 
-        this.size = newSize;
-
         Object[] newElements = new Object[newSize];
         for (int i = 0; i < Math.min(size, newSize); i++) {
             newElements[size - 1 - i] = elements[wrapIndex(tail - i + size)];
@@ -67,6 +65,7 @@ public class ResizableRingBuffer<T> {
         tail = 0;
         head = size - 1;
         this.elements = newElements;
+        this.size = newSize;
     }
 
     public int size() {

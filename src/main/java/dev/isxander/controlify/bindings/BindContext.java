@@ -20,48 +20,48 @@ public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isAp
             Lifecycle.stable()
     );
 
-    public static final BindContext UNKNOWN = new BindContext(
-            new ResourceLocation("controlify", "unknown"),
+    public static final BindContext UNKNOWN = register(
+            "unknown",
             mc -> true
     );
 
-    public static final BindContext IN_GAME = new BindContext(
-            new ResourceLocation("controlify", "in_game"),
+    public static final BindContext IN_GAME = register(
+            "in_game",
             mc -> mc.screen == null && mc.level != null
     );
 
-    public static final BindContext ANY_SCREEN = new BindContext(
-            new ResourceLocation("controlify", "screen"),
+    public static final BindContext ANY_SCREEN = register(
+            "screen",
             mc -> mc.screen != null
     );
 
-    public static final BindContext REGULAR_SCREEN = new BindContext(
-            new ResourceLocation("controlify", "screen"),
+    public static final BindContext REGULAR_SCREEN = register(
+            "regular_screen",
             mc -> mc.screen != null
                     && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
     );
 
-    public static final BindContext CONTAINER = new BindContext(
-            new ResourceLocation("controlify", "container"),
+    public static final BindContext CONTAINER = register(
+            "container",
             mc -> mc.screen instanceof ContainerScreen
     );
 
-    public static final BindContext V_MOUSE_CURSOR = new BindContext(
-            new ResourceLocation("controlify", "vmouse_cursor"),
+    public static final BindContext V_MOUSE_CURSOR = register(
+            "vmouse_cursor",
             mc -> mc.screen != null
                     && ScreenProcessorProvider.provide(mc.screen).virtualMouseBehaviour().hasCursor()
                     && Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
     );
 
-    public static final BindContext V_MOUSE_COMPAT = new BindContext(
-            new ResourceLocation("controlify", "vmouse_compat"),
+    public static final BindContext V_MOUSE_COMPAT = register(
+            "vmouse_compat",
             mc -> mc.screen != null
                     && ScreenProcessorProvider.provide(mc.screen).virtualMouseBehaviour() == VirtualMouseBehaviour.ENABLED
                     && Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()
     );
 
-    public static final BindContext RADIAL_MENU = new BindContext(
-            new ResourceLocation("controlify", "radial_menu"),
+    public static final BindContext RADIAL_MENU = register(
+            "radial_menu",
             mc -> mc.screen instanceof RadialMenuScreen
     );
 

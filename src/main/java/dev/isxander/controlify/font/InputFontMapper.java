@@ -114,7 +114,7 @@ public class InputFontMapper implements SimpleResourceReloadListener<InputFontMa
         String literal = inputs.stream()
                 .map(input -> String.valueOf(getChar(namespace, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style -> style.withFont(Controlify.id("controller/" + namespace)));
+        return Component.literal(literal).withStyle(style -> style.withFont(new ResourceLocation(namespace.getNamespace(), "controller/" + namespace.getPath())));
     }
 
     public char getChar(ResourceLocation namespace, ResourceLocation input) {
