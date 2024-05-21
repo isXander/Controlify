@@ -1,8 +1,6 @@
 package dev.isxander.controlify.gui.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.ClientUtils;
-import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -10,9 +8,6 @@ import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.BossEvent;
 
 import java.nio.file.Path;
 import java.text.DecimalFormat;
@@ -46,12 +41,13 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
                 font
         ));
 
+        int paragraphWidth = width - 20;
         addRenderableWidget(new MultiLineTextWidget(
-                width / 2 - (width - 50) / 2,
+                width / 2 - paragraphWidth / 2,
                 (int) (30 + 9 * 2.5f + 40 + 5 * 2f + 10 + 9*3),
                 Component.translatable("controlify.downloading_sdl.info"),
                 font
-        ).setMaxWidth(width - 20).setCentered(true));
+        ).setMaxWidth(paragraphWidth).setCentered(true));
     }
 
     @Override
@@ -75,7 +71,12 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
         graphics.pose().pushPose();
         graphics.pose().scale(2f, 2f, 1f);
 
-        ClientUtils.drawBar(graphics, width / 2 / 2, (int) ((30 + 9 * 2.5f + 40) / 2), EasingFunction.EASE_OUT_EXPO.ease((float) ((double) receivedBytes / totalBytes)));
+        ClientUtils.drawBar(
+                graphics,
+                width / 2 / 2,
+                (int) ((30 + 9 * 2.5f + 40) / 2),
+                (float) receivedBytes / totalBytes
+        );
 
         graphics.pose().popPose();
 
