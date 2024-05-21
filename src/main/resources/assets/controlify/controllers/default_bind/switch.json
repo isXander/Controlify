@@ -1,0 +1,7 @@
+{
+  "defaults": {
+    "controlify:take_screenshot": {
+      "button": "controlify:button/misc_1"
+    }
+  }
+}

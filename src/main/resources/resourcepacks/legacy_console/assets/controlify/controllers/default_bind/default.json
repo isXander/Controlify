@@ -1,0 +1,64 @@
+{
+  "defaults": {
+    "controlify:pause": {
+      "button": "controlify:button/start"
+    },
+    "controlify:show_player_list": {
+      "button": "controlify:button/back"
+    },
+    "controlify:walk_forward": {
+      "axis": "controlify:axis/left_stick_up"
+    },
+    "controlify:walk_backward": {
+      "axis": "controlify:axis/left_stick_down"
+    },
+    "controlify:strafe_left": {
+      "axis": "controlify:axis/left_stick_left"
+    },
+    "controlify:strafe_right": {
+      "axis": "controlify:axis/left_stick_right"
+    },
+    "controlify:look_up": {
+      "axis": "controlify:axis/right_stick_up"
+    },
+    "controlify:look_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:look_left": {
+      "axis": "controlify:axis/right_stick_left"
+    },
+    "controlify:look_right": {
+      "axis": "controlify:axis/right_stick_right"
+    },
+    "controlify:change_perspective": {
+      "button": "controlify:button/left_stick"
+    },
+    "controlify:sneak": {
+      "button": "controlify:button/right_stick"
+    },
+    "controlify:sprint": {
+      "type": "empty"
+    },
+    "controlify:jump": {
+      "button": "controlify:button/south"
+    },
+    "controlify:drop": {
+      "button": "controlify:button/east"
+    },
+    "controlify:inventory": {
+      "button": "controlify:button/north"
+    },
+    "controlify:next_slot": {
+      "button": "controlify:button/right_shoulder"
+    },
+    "controlify:prev_slot": {
+      "button": "controlify:button/left_shoulder"
+    },
+    "controlify:use": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "controlify:attack": {
+      "axis": "controlify:axis/right_trigger"
+    }
+  }
+}

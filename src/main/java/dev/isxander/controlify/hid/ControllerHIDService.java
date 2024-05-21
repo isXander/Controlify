@@ -3,7 +3,7 @@ package dev.isxander.controlify.hid;
 import com.google.common.primitives.Ints;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.CUtil;

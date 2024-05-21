@@ -151,6 +151,9 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         JsonObject innerJson = new JsonObject();
 
         for (InputBinding binding : this.inputBindings.values()) {
+            if (!confObj().keepDefaultBindings && binding.boundInput().equals(binding.defaultInput()))
+                continue;
+
             try {
                 innerJson.add(
                         binding.id().toString(),
@@ -210,6 +213,8 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         public boolean delayedCalibration = false;
 
         public boolean mixedInput = false;
+
+        public boolean keepDefaultBindings = false;
 
         public ResourceLocation[] radialActions = new ResourceLocation[8];
         public int radialButtonFocusTimeoutTicks = 20;

@@ -34,14 +34,7 @@
       "button": "controlify:button/left_stick"
     },
     "controlify:sneak": {
-      "max_multi": [
-        {
-          "button": "controlify:button/right_stick"
-        },
-        {
-          "button": "controlify:button/east"
-        }
-      ]
+      "button": "controlify:button/right_stick"
     },
     "controlify:attack": {
       "axis": "controlify:axis/right_trigger"
@@ -51,9 +44,6 @@
     },
     "controlify:drop": {
       "button": "controlify:button/dpad_down"
-    },
-    "controlify:drop_stack": {
-      "type": "empty"
     },
     "controlify:drop_inventory": {
       "button": "controlify:button/north"
@@ -106,32 +96,8 @@
     "controlify:inv_take_half": {
       "button": "controlify:button/west"
     },
-    "controlify:hotbar_load_radial": {
-      "type": "empty"
-    },
-    "controlify:hotbar_save_radial": {
-      "type": "empty"
-    },
-    "controlify:hotbar_item_select_radial": {
-      "type": "empty"
-    },
     "controlify:pick_block": {
       "button": "controlify:button/dpad_left"
-    },
-    "controlify:pick_block_nbt": {
-      "type": "empty"
-    },
-    "controlify:toggle_hud_visibility": {
-      "type": "empty"
-    },
-    "controlify:show_player_list": {
-      "type": "empty"
-    },
-    "controlify:take_screenshot": {
-      "type": "empty"
-    },
-    "controlify:toggle_debug_menu": {
-      "type": "empty"
     },
     "controlify:radial_menu": {
       "button": "controlify:button/dpad_right"
@@ -147,9 +113,6 @@
     },
     "controlify:radial_axis_right": {
       "axis": "controlify:axis/right_stick_right"
-    },
-    "controlify:game_mode_switcher": {
-      "type": "empty"
     },
     "controlify:vmouse_move_up": {
       "axis": "controlify:axis/left_stick_up"

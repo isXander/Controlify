@@ -38,6 +38,8 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -112,6 +114,8 @@ public class Controlify implements ControlifyApi {
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
 
+        registerBuiltinPack("legacy_console");
+
         ControlifyHandshake.setupOnClient();
 
         SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
@@ -152,6 +156,15 @@ public class Controlify implements ControlifyApi {
                 CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });
+    }
+
+    private void registerBuiltinPack(String id) {
+        ResourceManagerHelper.registerBuiltinResourcePack(
+                Controlify.id(id),
+                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
+                Component.translatable("controlify.extra_pack." + id + ".name"),
+                ResourcePackActivationType.NORMAL
+        );
     }
 
     /**

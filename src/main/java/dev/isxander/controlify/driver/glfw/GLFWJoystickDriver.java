@@ -1,6 +1,6 @@
 package dev.isxander.controlify.driver.glfw;
 
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.JoystickInputs;
 import dev.isxander.controlify.controller.ControllerEntity;

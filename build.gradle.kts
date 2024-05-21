@@ -162,7 +162,7 @@ tasks {
             "description" to modDescription,
             "version" to project.version,
             "github" to githubProject,
-            "mc" to mcDep
+            "mc" to mcDep,
         )
 
         props.forEach(inputs::property)

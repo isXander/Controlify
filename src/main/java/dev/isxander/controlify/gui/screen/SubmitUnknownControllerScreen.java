@@ -3,7 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.ClientUtils;

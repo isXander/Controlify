@@ -1,7 +1,7 @@
 package dev.isxander.controlify.driver.sdl;
 
 import dev.isxander.controlify.controller.battery.BatteryLevel;
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -10,7 +10,6 @@ import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDIdentifier;
