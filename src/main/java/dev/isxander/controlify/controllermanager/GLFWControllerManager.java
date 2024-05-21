@@ -66,11 +66,11 @@ public class GLFWControllerManager extends AbstractControllerManager {
         ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
-            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
+            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         } else {
-            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), uid, ucid, hid);
+            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
             this.addController(ucid, driver.getController(), driver);
             return Optional.of(driver.getController());
         }

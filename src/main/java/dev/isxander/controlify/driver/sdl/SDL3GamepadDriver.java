@@ -23,7 +23,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -77,7 +77,7 @@ public class SDL3GamepadDriver implements Driver {
     private SDL_AudioSpec dualsenseAudioSpec;
     private final List<AudioStreamHandle> dualsenseAudioHandles;
 
-    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.ptrGamepad = SDL_OpenGamepad(jid);
         if (this.ptrGamepad == null) {
             throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
@@ -121,9 +121,9 @@ public class SDL3GamepadDriver implements Driver {
                     this.dualsenseAudioSpec = devSpec;
                     this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
 
-                    HDHapticComponent HDHapticComponent = new HDHapticComponent();
-                    HDHapticComponent.getPlayHapticEvent().register(this::playHaptic);
-                    this.controller.setComponent(HDHapticComponent, HDHapticComponent.ID);
+                    HDHapticComponent hdHapticComponent = new HDHapticComponent();
+                    hdHapticComponent.acceptPlayHaptic(this::playHaptic);
+                    this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
                 } else {
                     this.dualsenseAudioDev = null;
                     this.dualsenseAudioSpec = null;

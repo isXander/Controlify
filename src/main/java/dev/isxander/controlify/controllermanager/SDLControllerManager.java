@@ -115,12 +115,12 @@ public class SDLControllerManager extends AbstractControllerManager {
         ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         if (isGamepad) {
-            SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hid);
+            SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
             this.addController(ucid, driver.getController(), driver);
 
             return Optional.of(driver.getController());
         } else {
-            SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hid);
+            SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
             this.addController(ucid, driver.getController(), driver);
 
             return Optional.of(driver.getController());
@@ -189,7 +189,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         if (vid != 0 && pid != 0) {
             CUtil.LOGGER.info("Using SDL to identify controller type.");
             return Optional.of(new ControllerHIDService.ControllerHIDInfo(
-                    ControllerType.getTypeForHID(new HIDIdentifier(vid, pid)),
+                    Controlify.instance().controllerTypeManager().getControllerType(new HIDIdentifier(vid, pid)),
                     Optional.of(new HIDDevice.SDLHidApi(vid, pid, guidStr))
             ));
         }

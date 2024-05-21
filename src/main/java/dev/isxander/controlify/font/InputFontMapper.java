@@ -49,13 +49,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
             map -> Pair.of(map.unknown(), map.inputToChar())
     );
 
-    private static final String DIRECTORY = "controllers/font_mappings";
-    private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json(DIRECTORY);
+    private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controllers/font_mappings");
 
     @Override
     public CompletableFuture<InputFontMapper.Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            Map<ResourceLocation, Resource> mappingResources = manager.listResources(DIRECTORY, (rl) -> rl.getPath().endsWith(".json"));
+            Map<ResourceLocation, Resource> mappingResources = fileToIdConverter.listMatchingResources(manager);
             Map<ResourceLocation, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {
                 ResourceLocation rl = entry.getKey();
                 Resource resource = entry.getValue();
@@ -81,10 +80,11 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
     @Override
     public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
-        ImmutableMap.Builder<ResourceLocation, FontMap> builder = ImmutableMap.builder();
-        data.mappings().forEach(builder::put);
-        mappings = builder.build();
-        return CompletableFuture.completedFuture(null);
+        return CompletableFuture.runAsync(() -> {
+            ImmutableMap.Builder<ResourceLocation, FontMap> builder = ImmutableMap.builder();
+            data.mappings().forEach(builder::put);
+            mappings = builder.build();
+        }, executor);
     }
 
     public FontMap getMappings(ResourceLocation namespace) {

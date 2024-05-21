@@ -6,34 +6,29 @@ import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
-import net.fabricmc.fabric.api.event.Event;
-import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 
+import java.util.function.Consumer;
+
 public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
     public static final ResourceLocation ID = Controlify.id("hd_haptics");
 
     private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
-    private final Event<PlayHapticEvent> playHapticEvent;
+    private Consumer<HapticBufferLibrary.HapticBuffer> playHapticConsumer;
     private final RandomSource randomSource;
 
     public HDHapticComponent() {
-        this.playHapticEvent = EventFactory.createArrayBacked(PlayHapticEvent.class, listeners -> buffer -> {
-            for (PlayHapticEvent hapticBuffer : listeners) {
-                hapticBuffer.play(buffer);
-            }
-        });
         this.randomSource = RandomSource.create();
     }
 
     public void playHaptic(ResourceLocation haptic) {
-        if (!confObj().enabled) return;
+        if (!confObj().enabled || playHapticConsumer == null) return;
 
         HapticBufferLibrary.INSTANCE.getHaptic(haptic)
-                .thenAccept(playHapticEvent.invoker()::play);
+                .thenAccept(playHapticConsumer);
     }
 
     public void playHaptic(SoundEvent sound) {
@@ -43,8 +38,8 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         this.playHaptic(new ResourceLocation(location.getNamespace(), "sounds/" + location.getPath() + ".ogg"));
     }
 
-    public Event<PlayHapticEvent> getPlayHapticEvent() {
-        return playHapticEvent;
+    public void acceptPlayHaptic(Consumer<HapticBufferLibrary.HapticBuffer> consumer) {
+        this.playHapticConsumer = consumer;
     }
 
     @Override
@@ -54,9 +49,5 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
 
     public static class Config implements ConfigClass {
         public boolean enabled = true;
-    }
-
-    public interface PlayHapticEvent {
-        void play(HapticBufferLibrary.HapticBuffer buffer);
     }
 }

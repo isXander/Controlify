@@ -6,6 +6,7 @@ import de.maxhenkel.voicechat.voice.client.KeyEvents;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.compat.simplevoicechat.KeyEventsAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
@@ -61,7 +62,9 @@ public class SimpleVoiceChatCompat {
                     .radialCandidate(muteIcon);
         });
 
-        ControlifyEvents.ACTIVE_CONTROLLER_TICKED.register(controller -> {
+        ControlifyEvents.ACTIVE_CONTROLLER_TICKED.register(event -> {
+            ControllerEntity controller = event.controller();
+
             var pttHold = pttHoldSupplier.on(controller);
             var pttToggle = pttToggleSupplier.on(controller);
             var whisperHold = whisperHoldSupplier.on(controller);

@@ -10,6 +10,7 @@ import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -38,8 +39,6 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -74,6 +73,7 @@ public class Controlify implements ControlifyApi {
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
     private DefaultBindManager defaultBindManager;
+    private ControllerTypeManager controllerTypeManager;
     private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
@@ -108,8 +108,10 @@ public class Controlify implements ControlifyApi {
 
         this.inputFontMapper = new InputFontMapper();
         this.defaultBindManager = new DefaultBindManager();
+        this.controllerTypeManager = new ControllerTypeManager();
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
         PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
+        PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
@@ -159,11 +161,9 @@ public class Controlify implements ControlifyApi {
     }
 
     private void registerBuiltinPack(String id) {
-        ResourceManagerHelper.registerBuiltinResourcePack(
+        PlatformClientUtil.registerBuiltinResourcePack(
                 Controlify.id(id),
-                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
-                Component.translatable("controlify.extra_pack." + id + ".name"),
-                ResourcePackActivationType.NORMAL
+                Component.translatable("controlify.extra_pack." + id + ".name")
         );
     }
 
@@ -715,6 +715,10 @@ public class Controlify implements ControlifyApi {
 
     public DefaultBindManager defaultBindManager() {
         return defaultBindManager;
+    }
+
+    public ControllerTypeManager controllerTypeManager() {
+        return controllerTypeManager;
     }
 
     public Set<BindContext> thisTickBindContexts() {

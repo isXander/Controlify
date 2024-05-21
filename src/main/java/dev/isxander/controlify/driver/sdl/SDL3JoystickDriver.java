@@ -12,6 +12,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
@@ -42,7 +43,7 @@ public class SDL3JoystickDriver implements Driver {
 
     private final int numAxes, numButtons, numHats;
 
-    public SDL3JoystickDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public SDL3JoystickDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.ptrJoystick = SDL_OpenJoystick(jid);
         if (ptrJoystick == null)
             throw new IllegalStateException("Could not open joystick: " + SDL_GetError());

@@ -8,7 +8,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.id.ControllerType;
-import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
+import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class DefaultBindManager implements SimpleResourceReloadListener<DefaultBindManager.Preparations> {
+public class DefaultBindManager implements SimpleControlifyReloadListener<DefaultBindManager.Preparations> {
 
     public static final String DIRECTORY = "controllers/default_bind";
     private static final FileToIdConverter converter = FileToIdConverter.json(DIRECTORY);
@@ -35,7 +35,7 @@ public class DefaultBindManager implements SimpleResourceReloadListener<DefaultB
     @Override
     public CompletableFuture<@Nullable Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            Map<ResourceLocation, List<Resource>> defaultFiles = manager.listResourceStacks(DIRECTORY, id -> true);
+            Map<ResourceLocation, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
 
             Map<ResourceLocation, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
 
@@ -113,7 +113,7 @@ public class DefaultBindManager implements SimpleResourceReloadListener<DefaultB
     }
 
     @Override
-    public ResourceLocation getFabricId() {
+    public ResourceLocation getReloadId() {
         return new ResourceLocation("controlify", "default_binds");
     }
 

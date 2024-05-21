@@ -11,6 +11,7 @@ public interface Event<T> {
         return new FabricBackedEvent<>();
     }
 
+    @FunctionalInterface
     interface Callback<T> {
         void onEvent(T event);
     }

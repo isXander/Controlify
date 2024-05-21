@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
@@ -167,7 +168,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private String generateRequestBody() {
-        HIDIdentifier hid = controller.info().hid().orElseThrow();
+        HIDDevice hid = controller.info().hid().orElseThrow();
 
         JsonObject object = new JsonObject();
         object.addProperty("vendorID", hid.vendorId());

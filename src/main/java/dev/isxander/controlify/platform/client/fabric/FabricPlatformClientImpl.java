@@ -11,6 +11,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
 public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
@@ -37,6 +41,16 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     @Override
     public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(reloadListener);
+    }
+
+    @Override
+    public void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
+        ResourceManagerHelper.registerBuiltinResourcePack(
+                id,
+                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
+                displayName,
+                ResourcePackActivationType.NORMAL
+        );
     }
 
     @Override

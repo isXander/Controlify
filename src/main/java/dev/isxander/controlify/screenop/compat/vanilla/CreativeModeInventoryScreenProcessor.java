@@ -24,7 +24,6 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
 
     @SuppressWarnings("UnreachableCode")
     @Override
-    @SuppressWarnings("UnreachableCode")
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         var accessor = (CreativeModeInventoryScreenAccessor) screen;
         var ext = (CreativeGuiExtensions) screen;

@@ -73,7 +73,7 @@ public class ControllerHIDService {
         if (DebugProperties.PRINT_VID_PID) {
             info.hidDevice.ifPresent(hid -> {
                 var hex = HexFormat.of().withPrefix("0x");
-                CUtil.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
+                CUtil.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorId()), hex.toHexDigits(hid.productId()));
             });
         }
 
@@ -107,7 +107,7 @@ public class ControllerHIDService {
             return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
-        ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
+        ControllerType type = Controlify.instance().controllerTypeManager().getControllerType(hid.getSecond());
 
         unconsumedControllerHIDs.removeIf(h -> hid.getFirst().getPath().equals(h.getFirst().getPath()));
 
@@ -163,7 +163,8 @@ public class ControllerHIDService {
     }
 
     private boolean isController(HidDevice device) {
-        boolean isControllerType = ControllerType.getTypeMap().containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
+        boolean isControllerType = Controlify.instance().controllerTypeManager().getTypeMap()
+                .containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
         boolean isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
         boolean isSelfIdentifiedController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
 
@@ -181,8 +182,8 @@ public class ControllerHIDService {
 
             md.update(Ints.toByteArray(controllerIndex));
             hidDevice.ifPresent(hid -> {
-                md.update(Ints.toByteArray(hid.vendorID()));
-                md.update(Ints.toByteArray(hid.productID()));
+                md.update(Ints.toByteArray(hid.vendorId()));
+                md.update(Ints.toByteArray(hid.productId()));
             });
 
             String namespace = type().namespace().toString();

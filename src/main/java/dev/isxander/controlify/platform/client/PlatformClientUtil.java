@@ -6,6 +6,8 @@ import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.fabric.FabricPlatformClientImpl;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.platform.client.util.RenderLayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public final class PlatformClientUtil {
     private static final PlatformClientUtilImpl IMPL = new FabricPlatformClientImpl();
@@ -28,6 +30,10 @@ public final class PlatformClientUtil {
 
     public static void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
         IMPL.registerAssetReloadListener(reloadListener);
+    }
+
+    public static void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
+        IMPL.registerBuiltinResourcePack(id, displayName);
     }
 
     public static void addHudLayer(RenderLayer layer) {

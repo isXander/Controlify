@@ -94,6 +94,13 @@ public abstract class AbstractControllerManager implements ControllerManager {
         ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
     }
 
+    @Override
+    public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDService.ControllerHIDInfo hidInfo) {
+        onControllerRemoved(controller);
+
+        return tryCreate(controller.info().ucid(), hidInfo);
+    }
+
     protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {
         controllersByUid.put(controller.info().uid(), controller);
         controllersByJid.put(ucid, controller);

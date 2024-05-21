@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import net.minecraft.util.Mth;
 import org.lwjgl.glfw.GLFW;
@@ -23,7 +24,7 @@ public class GLFWGamepadDriver implements Driver {
 
     private final ControllerEntity controller;
 
-    public GLFWGamepadDriver(int jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public GLFWGamepadDriver(int jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.jid = jid;
         this.guid = glfwGetJoystickGUID(jid);
 
