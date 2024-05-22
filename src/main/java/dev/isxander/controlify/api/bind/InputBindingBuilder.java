@@ -2,6 +2,7 @@ package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.input.Input;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -23,4 +24,8 @@ public interface InputBindingBuilder {
     InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable... contexts);
 
     InputBindingBuilder radialCandidate(@Nullable ResourceLocation icon);
+
+    InputBindingBuilder addKeyMappingCorrelation(KeyMapping keyMapping);
+
+    InputBindingBuilder setKeyMappingEmulation(KeyMapping keyMapping);
 }

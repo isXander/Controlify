@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.compat.fapi;
+package dev.isxander.controlify.platform.fabric.mixins;
 
 import net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl;
 import net.minecraft.client.KeyMapping;

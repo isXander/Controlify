@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.defaults.DefaultBindProvider;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,6 +24,9 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     private @Nullable Input defaultInput;
     private final Set<BindContext> allowedContexts = new HashSet<>();
     private @Nullable ResourceLocation radialCandidate;
+
+    private final Set<KeyMapping> keyCorrelations = new HashSet<>();
+    private KeyMapping keyEmulation = null;
 
     private boolean locked;
 
@@ -88,6 +92,23 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         return this;
     }
 
+    @Override
+    public InputBindingBuilder addKeyMappingCorrelation(KeyMapping keyMapping) {
+        checkLocked();
+
+        this.keyCorrelations.add(keyMapping);
+        return this;
+    }
+
+    @Override
+    public InputBindingBuilder setKeyMappingEmulation(KeyMapping keyMapping) {
+        checkLocked();
+
+        this.keyEmulation = keyMapping;
+        this.addKeyMappingCorrelation(keyMapping);
+        return this;
+    }
+
     public InputBindingImpl build(ControllerEntity controller) {
         Validate.isTrue(locked, "Tried to build builder before it was locked.");
 
@@ -123,6 +144,14 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         Validate.notNull(this.category, "Must call `.category(Component)` on builder %s!".formatted(this.id));
 
         return this.id;
+    }
+
+    public Set<KeyMapping> getKeyCorrelations() {
+        return this.keyCorrelations;
+    }
+
+    public @Nullable KeyMapping getKeyEmulation() {
+        return this.keyEmulation;
     }
 
     private void checkLocked() {

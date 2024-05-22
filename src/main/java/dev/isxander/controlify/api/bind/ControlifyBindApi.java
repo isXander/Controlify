@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public interface ControlifyBindApi {
     static ControlifyBindApi get() {
@@ -25,13 +26,6 @@ public interface ControlifyBindApi {
     void registerBindContext(BindContext context);
 
     @FunctionalInterface
-    interface RegistryCallback {
-        InputBindingBuilder buildBinding(InputBindingBuilder builder, BindRegistrationContext ctx);
-    }
-
-    interface BindRegistrationContext {
-        void createKeyMappingCorrelation(KeyMapping keyMapping);
-
-        void emulateKeyMapping(KeyMapping keyMapping);
+    interface RegistryCallback extends UnaryOperator<InputBindingBuilder> {
     }
 }

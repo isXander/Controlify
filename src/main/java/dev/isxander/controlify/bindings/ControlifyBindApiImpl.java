@@ -34,17 +34,16 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
         checkLocked();
 
         var builder = new InputBindingBuilderImpl();
-        var context = new BindRegistrationContextImpl();
 
-        callback.buildBinding(builder, context);
+        callback.apply(builder);
 
         Function<ControllerEntity, InputBindingImpl> finaliser = builder::build;
 
-        this.bindEntries.add(new RegistryEntry(filter, finaliser, context.emulations));
+        this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation()));
 
         ResourceLocation bindId = builder.getIdAndLock();
 
-        for (KeyMapping key : context.correlations) {
+        for (KeyMapping key : builder.getKeyCorrelations()) {
             keyMappingCorrelations.computeIfAbsent(key, k -> new ArrayList<>()).add(createSupplier(bindId));
         }
 
@@ -118,19 +117,4 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             Function<ControllerEntity, InputBindingImpl> builder,
             KeyMapping emulation
     ) {}
-
-    private static class BindRegistrationContextImpl implements BindRegistrationContext {
-        public Set<KeyMapping> correlations = new ObjectArraySet<>();
-        public @Nullable KeyMapping emulations = null;
-
-        @Override
-        public void createKeyMappingCorrelation(KeyMapping keyMapping) {
-            this.correlations.add(keyMapping);
-        }
-
-        @Override
-        public void emulateKeyMapping(KeyMapping keyMapping) {
-            this.emulations = keyMapping;
-        }
-    }
 }

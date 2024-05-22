@@ -6,8 +6,11 @@ import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.fabric.FabricPlatformClientImpl;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.platform.client.util.RenderLayer;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.Collection;
 
 public final class PlatformClientUtil {
     private static final PlatformClientUtilImpl IMPL = new FabricPlatformClientImpl();
@@ -38,6 +41,10 @@ public final class PlatformClientUtil {
 
     public static void addHudLayer(RenderLayer layer) {
         IMPL.addHudLayer(layer);
+    }
+
+    public static Collection<KeyMapping> getModdedKeyMappings() {
+        return IMPL.getModdedKeyMappings();
     }
 
     private PlatformClientUtil() {

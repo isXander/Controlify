@@ -6,6 +6,7 @@ import dev.isxander.controlify.platform.client.events.LifecycleEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.platform.client.util.RenderLayer;
+import dev.isxander.controlify.platform.fabric.mixins.KeyBindingRegistryImplAccessor;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -13,9 +14,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+
+import java.util.Collection;
 
 public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     @Override
@@ -56,5 +60,10 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     @Override
     public void addHudLayer(RenderLayer renderLayer) {
         HudRenderCallback.EVENT.register(renderLayer::render);
+    }
+
+    @Override
+    public Collection<KeyMapping> getModdedKeyMappings() {
+        return KeyBindingRegistryImplAccessor.getCustomKeys();
     }
 }
