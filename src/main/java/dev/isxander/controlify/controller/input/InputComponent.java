@@ -179,7 +179,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         for (InputBinding binding : this.inputBindings.values()) {
             JsonElement element = innerJson.get(binding.id().toString());
             if (element == null) {
-                CUtil.LOGGER.warn("Could not find entry for {}. Assuming defaults.", binding.id());
+                // Could not find entry. Assuming defaults.
                 continue;
             }
 

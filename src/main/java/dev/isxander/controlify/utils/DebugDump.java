@@ -50,7 +50,7 @@ public class DebugDump {
                 dump.line("GUID: ", controller.info().guid());
                 dump.line("UID: ", controller.info().uid());
                 dump.line("UCID: ", controller.info().ucid());
-                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid));
+                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid.asIdentifier()));
 
                 controller.input().ifPresentOrElse(input -> {
                     dump.line("Input Component:").pushIndent();

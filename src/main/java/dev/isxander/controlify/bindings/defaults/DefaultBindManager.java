@@ -7,7 +7,11 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -96,9 +100,26 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     @Override
     public CompletableFuture<Void> apply(@Nullable Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
         return CompletableFuture.runAsync(() -> {
+            List<InputBinding> defaultedBindings = new ArrayList<>();
+            for (ControllerEntity controller : Controlify.instance().getControllerManager().map(ControllerManager::getConnectedControllers).orElse(List.of())) {
+                controller.input().ifPresent(input -> {
+                    if (!input.confObj().keepDefaultBindings) {
+                        for (InputBinding binding : input.getAllBindings()) {
+                            if (binding.boundInput().equals(binding.defaultInput())) {
+                                defaultedBindings.add(binding);
+                            }
+                        }
+                    }
+                });
+            }
+
             this.defaultsByNamespace.clear();
             if (data != null) {
                 this.defaultsByNamespace.putAll(data.map());
+            }
+
+            for (InputBinding binding : defaultedBindings) {
+                binding.setBoundInput(binding.defaultInput());
             }
         }, executor);
     }

@@ -98,7 +98,11 @@ public abstract class AbstractControllerManager implements ControllerManager {
     public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDService.ControllerHIDInfo hidInfo) {
         onControllerRemoved(controller);
 
-        return tryCreate(controller.info().ucid(), hidInfo);
+        Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
+        newController.ifPresent(c -> {
+            ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting controller", c);
+        });
+        return newController;
     }
 
     protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {

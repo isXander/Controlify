@@ -61,7 +61,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
                     return Util.sequence(futures)
                             .thenApply(listOfEntries -> listOfEntries.stream()
                                     .flatMap(List::stream)
-                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a)));
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)));
 
                 })
                 .thenApply(Preparations::new);
