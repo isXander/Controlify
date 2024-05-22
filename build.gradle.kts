@@ -154,6 +154,7 @@ tasks {
         val modName: String by project
         val modDescription: String by project
         val githubProject: String by project
+        val packFormat: String by project
 
         val props = mapOf(
             "id" to modId,
@@ -163,11 +164,12 @@ tasks {
             "version" to project.version,
             "github" to githubProject,
             "mc" to mcDep,
+            "pack_format" to packFormat,
         )
 
         props.forEach(inputs::property)
 
-        filesMatching("fabric.mod.json") {
+        filesMatching(listOf("fabric.mod.json", "**/pack.mcmeta")) {
             expand(props)
         }
 

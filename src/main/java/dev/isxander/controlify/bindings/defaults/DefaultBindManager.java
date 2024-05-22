@@ -84,10 +84,10 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
         for (Resource resource : files) {
             try (BufferedReader reader = resource.openAsReader()) {
                 JsonElement json = JsonParser.parseReader(reader);
-                ControllerDefault def = ControllerDefault.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
+                ControllerDefault def = ControllerDefault.CODEC.parse(JsonOps.INSTANCE, json).result().orElseThrow();
 
                 // add to top takes priority
-                defaults.addFirst(new LayeredDefaultBindProvider.Layer(def.provider(), def.clearBelow()));
+                defaults.add(0, new LayeredDefaultBindProvider.Layer(def.provider(), def.clearBelow()));
             } catch (IOException | IllegalStateException e) {
                 LOGGER.error("Failed to parse {}", id, e);
             }
@@ -142,7 +142,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     private record ControllerDefault(boolean clearBelow, MapBackedDefaultBindProvider provider) {
         public static final Codec<ControllerDefault> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.optionalFieldOf("clear_below", false).forGetter(ControllerDefault::clearBelow),
-                MapBackedDefaultBindProvider.CODEC.fieldOf("defaults").forGetter(ControllerDefault::provider)
+                MapBackedDefaultBindProvider.MAP_CODEC.fieldOf("defaults").forGetter(ControllerDefault::provider)
         ).apply(instance, ControllerDefault::new));
     }
 

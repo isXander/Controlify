@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 public interface ControlifyBindApi {
     static ControlifyBindApi get() {
@@ -24,6 +25,8 @@ public interface ControlifyBindApi {
     void registerRadialIcon(ResourceLocation id, RadialIcon icon);
 
     void registerBindContext(BindContext context);
+
+    Stream<ResourceLocation> getAllBindIds();
 
     @FunctionalInterface
     interface RegistryCallback extends UnaryOperator<InputBindingBuilder> {

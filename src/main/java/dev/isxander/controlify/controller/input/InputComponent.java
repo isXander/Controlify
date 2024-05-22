@@ -157,7 +157,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             try {
                 innerJson.add(
                         binding.id().toString(),
-                        Input.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundInput()).getOrThrow()
+                        Input.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundInput()).result().orElseThrow()
                 );
             } catch (Exception e) {
                 CUtil.LOGGER.error("Failed to serialize input binding {}", binding.id(), e);
@@ -184,7 +184,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             }
 
             try {
-                Input input = Input.CODEC.parse(JsonOps.INSTANCE, element).getOrThrow();
+                Input input = Input.CODEC.parse(JsonOps.INSTANCE, element).result().orElseThrow();
                 binding.setBoundInput(input);
             } catch (Exception e) {
                 CUtil.LOGGER.error("Failed to deserialize input binding {}. Using default.", binding.id(), e);

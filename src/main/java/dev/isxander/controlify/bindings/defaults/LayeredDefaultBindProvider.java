@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultBindProvider {
-    public static final Codec<LayeredDefaultBindProvider> CODEC = Codec.list(Layer.CODEC, 1, Integer.MAX_VALUE)
+    public static final Codec<LayeredDefaultBindProvider> CODEC = Codec.list(Layer.CODEC)
             .xmap(LayeredDefaultBindProvider::new, LayeredDefaultBindProvider::layers);
 
     public static DefaultBindProvider of(Layer... layers) {
@@ -31,8 +31,8 @@ public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultB
 
     public record Layer(DefaultBindProvider provider, boolean clearBelow) {
         public static final Codec<Layer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                        MapCodec.assumeMapUnsafe(MapBackedDefaultBindProvider.CODEC).forGetter(layer -> (MapBackedDefaultBindProvider) layer.provider()),
-                        Codec.BOOL.fieldOf("clear_below").forGetter(Layer::clearBelow)
-                ).apply(instance, Layer::new));
+                MapBackedDefaultBindProvider.MAP_CODEC.forGetter(layer -> (MapBackedDefaultBindProvider) layer.provider()),
+                Codec.BOOL.fieldOf("clear_below").forGetter(Layer::clearBelow)
+        ).apply(instance, Layer::new));
     }
 }

@@ -1,5 +1,6 @@
 package dev.isxander.controlify.gui.guide;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.layout.RenderComponent;
 import net.minecraft.client.Minecraft;

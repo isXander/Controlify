@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class ControlifyBindApiImpl implements ControlifyBindApi {
     public static final ControlifyBindApiImpl INSTANCE = new ControlifyBindApiImpl();
@@ -39,9 +40,9 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
         Function<ControllerEntity, InputBindingImpl> finaliser = builder::build;
 
-        this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation()));
-
         ResourceLocation bindId = builder.getIdAndLock();
+
+        this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation(), bindId));
 
         for (KeyMapping key : builder.getKeyCorrelations()) {
             keyMappingCorrelations.computeIfAbsent(key, k -> new ArrayList<>()).add(createSupplier(bindId));
@@ -112,9 +113,15 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
         this.locked = true;
     }
 
+    @Override
+    public Stream<ResourceLocation> getAllBindIds() {
+        return this.bindEntries.stream().map(RegistryEntry::id);
+    }
+
     private record RegistryEntry(
             Predicate<ControllerEntity> filter,
             Function<ControllerEntity, InputBindingImpl> builder,
-            KeyMapping emulation
+            KeyMapping emulation,
+            ResourceLocation id
     ) {}
 }
