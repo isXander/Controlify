@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.FakeSpriteRenderer;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import net.minecraft.client.Minecraft;
@@ -62,7 +63,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     public static class Key extends AbstractWidget implements ComponentProcessor {
-        private static final ResourceLocation TEXTURE = Controlify.id(
+        private static final ResourceLocation TEXTURE = CUtil.rl(
                 /*? if >1.20.1 {*/
                 "keyboard/key"
                 /*?} else {*//*

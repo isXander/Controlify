@@ -1,6 +1,7 @@
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,7 @@ import java.util.Map;
 public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
-    public static final ResourceLocation EMPTY = new ResourceLocation("controlify", "empty");
+    public static final ResourceLocation EMPTY = CUtil.rl("empty");
     public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabric-resource-loader-v0", "icon.png");
 
     private static final Map<ResourceLocation, RadialIcon> icons = Util.make(() -> {

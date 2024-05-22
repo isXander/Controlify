@@ -153,7 +153,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         CUtil.LOGGER.debug("Loading gamepad mappings...");
 
         Optional<Resource> resourceOpt = resourceProvider
-                .getResource(Controlify.id("controllers/gamecontrollerdb-sdl3.txt"));
+                .getResource(CUtil.rl("controllers/gamecontrollerdb-sdl3.txt"));
         if (resourceOpt.isEmpty()) {
             CUtil.LOGGER.error("Failed to find game controller database.");
             return;

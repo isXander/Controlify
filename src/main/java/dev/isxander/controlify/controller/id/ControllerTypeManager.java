@@ -31,7 +31,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 
     private Map<HIDIdentifier, ControllerType> typeMap = new HashMap<>();
 
-    public static final ResourceLocation ID = Controlify.id("controller_type");
+    public static final ResourceLocation ID = CUtil.rl("controller_type");
 
     private static final Codec<ControllerTypeEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.list(HIDIdentifier.LIST_CODEC)
@@ -51,7 +51,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 
     @Override
     public CompletableFuture<Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> manager.getResourceStack(Controlify.id("controllers/controller_identification.json5")), executor)
+        return CompletableFuture.supplyAsync(() -> manager.getResourceStack(CUtil.rl("controllers/controller_identification.json5")), executor)
                 .thenCompose(resources -> {
                     List<CompletableFuture<List<Map.Entry<HIDIdentifier, ControllerType>>>> futures = new ArrayList<>();
                     for (Resource resource : resources) {

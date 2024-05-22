@@ -3,6 +3,7 @@ package dev.isxander.controlify.font;
 import com.mojang.blaze3d.font.GlyphInfo;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.mixins.feature.font.FontAccessor;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
 import net.minecraft.network.chat.Component;
@@ -14,7 +15,7 @@ import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 public final class BindingFontHelper {
-    public static final ResourceLocation WRAPPER_FONT = new ResourceLocation("controlify", "inputs");
+    public static final ResourceLocation WRAPPER_FONT = CUtil.rl("inputs");
 
     public static Component bindingWithFallback(ResourceLocation binding, Component fallback) {
         return Component.translatableWithFallback("controlify.placeholder", "%2$s", binding(binding), fallback);

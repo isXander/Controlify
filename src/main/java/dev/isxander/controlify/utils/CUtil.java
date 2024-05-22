@@ -16,13 +16,9 @@ public class CUtil {
 
     public static final Version VERSION = FabricLoader.getInstance().getModContainer("controlify")
             .orElseThrow().getMetadata().getVersion();
-
-    public static ResourceLocation addSuffix(ResourceLocation rl, String suffix) {
-        return new ResourceLocation(rl.getNamespace(), rl.getPath() + suffix);
-    }
-
-    public static ResourceLocation addPrefix(ResourceLocation rl, String prefix) {
-        return new ResourceLocation(rl.getNamespace(), prefix + rl.getPath());
+    
+    public static ResourceLocation rl(String path) {
+        return new ResourceLocation("controlify", path);
     }
 
     /**

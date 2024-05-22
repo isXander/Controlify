@@ -10,6 +10,7 @@ import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.packets.EntityVibrationPacket;
 import dev.isxander.controlify.server.packets.OriginVibrationPacket;
 import dev.isxander.controlify.server.packets.VibrationPacket;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -28,7 +29,7 @@ import java.util.Locale;
 
 public class VibrateCommand {
     private static final SuggestionProvider<CommandSourceStack> SOURCES_SUGGESTION = SuggestionProviders.register(
-            new ResourceLocation("controlify", "vibration_sources"),
+            CUtil.rl("vibration_sources"),
             (context, builder) -> SharedSuggestionProvider.suggestResource(
                     RumbleSource.values().stream()
                             .map(RumbleSource::id)

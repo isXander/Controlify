@@ -5,11 +5,12 @@ import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 
 public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
-    public static final ResourceLocation CHANNEL = new ResourceLocation("controlify", "vibration");
+    public static final ResourceLocation CHANNEL = CUtil.rl("vibration");
 
     public static final ControlifyPacketCodec<VibrationPacket> CODEC = ControlifyPacketCodec.of(
         (buf, packet) -> {

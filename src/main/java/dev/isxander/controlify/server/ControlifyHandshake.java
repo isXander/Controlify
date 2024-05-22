@@ -1,6 +1,7 @@
 package dev.isxander.controlify.server;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
@@ -17,7 +18,7 @@ public class ControlifyHandshake {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int PROTOCOL_VERSION = 1;
-    public static final ResourceLocation HANDSHAKE_CHANNEL = new ResourceLocation("controlify", "handshake");
+    public static final ResourceLocation HANDSHAKE_CHANNEL = CUtil.rl("handshake");
 
     public static void setupOnServer() {
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {

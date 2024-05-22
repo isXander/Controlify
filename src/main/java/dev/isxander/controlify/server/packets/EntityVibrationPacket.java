@@ -5,13 +5,14 @@ import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
 public record EntityVibrationPacket(int entityId, float range, int duration, RumbleState state, RumbleSource source) {
-    public static final ResourceLocation CHANNEL = new ResourceLocation("controlify", "vibrate_from_entity");
+    public static final ResourceLocation CHANNEL = CUtil.rl("vibrate_from_entity");
 
     public static final ControlifyPacketCodec<EntityVibrationPacket> CODEC = ControlifyPacketCodec.of(
         (buf, packet) -> {

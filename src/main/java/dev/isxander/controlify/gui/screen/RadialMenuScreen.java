@@ -16,6 +16,7 @@ import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifySounds;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
-    public static final ResourceLocation EMPTY_ACTION = new ResourceLocation("controlify", "empty_action");
+    public static final ResourceLocation EMPTY_ACTION = CUtil.rl("empty_action");
 
     private final ControllerEntity controller;
     private final @Nullable EditMode editMode;
@@ -251,7 +252,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
-        public static final ResourceLocation TEXTURE = Controlify.id("textures/gui/radial-buttons.png");
+        public static final ResourceLocation TEXTURE = CUtil.rl("textures/gui/radial-buttons.png");
 
         private int x, y;
         private float translateX, translateY;

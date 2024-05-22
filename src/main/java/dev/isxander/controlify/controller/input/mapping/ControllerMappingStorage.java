@@ -1,9 +1,9 @@
 package dev.isxander.controlify.controller.input.mapping;
 
 import dev.isxander.controlify.config.ControlifyConfig;
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +22,7 @@ public class ControllerMappingStorage {
     private static @Nullable ControllerMapping resolve(String id) {
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         Resource resource = resourceManager
-                .getResource(new ResourceLocation("controlify", "mappings/" + id + ".json"))
+                .getResource(CUtil.rl("mappings/" + id + ".json"))
                 .orElse(null);
         if (resource == null)
             return null;

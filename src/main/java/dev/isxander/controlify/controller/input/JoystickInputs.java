@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller.input;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public final class JoystickInputs {
@@ -15,7 +15,7 @@ public final class JoystickInputs {
         ResourceLocation cache = BUTTONS[index];
 
         if (cache == null) {
-            BUTTONS[index] = cache = Controlify.id("button/" + index);
+            BUTTONS[index] = cache = CUtil.rl("button/" + index);
         }
 
         return cache;
@@ -30,7 +30,7 @@ public final class JoystickInputs {
         ResourceLocation cache = AXES[cacheIndex];
 
         if (cache == null) {
-            AXES[cacheIndex] = cache = Controlify.id("axis/" + index + "/" + (positive ? "positive" : "negative"));
+            AXES[cacheIndex] = cache = CUtil.rl("axis/" + index + "/" + (positive ? "positive" : "negative"));
         }
 
         return cache;
@@ -40,7 +40,7 @@ public final class JoystickInputs {
         ResourceLocation cache = HATS[index];
 
         if (cache == null) {
-            HATS[index] = cache = Controlify.id("hat/" + index);
+            HATS[index] = cache = CUtil.rl("hat/" + index);
         }
 
         return cache;

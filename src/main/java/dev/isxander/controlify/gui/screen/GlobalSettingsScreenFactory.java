@@ -9,6 +9,7 @@ import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugDump;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
@@ -191,6 +192,6 @@ public class GlobalSettingsScreenFactory {
     }
 
     private static ResourceLocation screenshot(String filename) {
-        return Controlify.id("textures/screenshots/" + filename);
+        return CUtil.rl("textures/screenshots/" + filename);
     }
 }

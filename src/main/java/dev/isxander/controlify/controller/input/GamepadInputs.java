@@ -1,10 +1,10 @@
 package dev.isxander.controlify.controller.input;
 
 import com.google.common.collect.Sets;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.input.AxisInput;
 import dev.isxander.controlify.bindings.input.ButtonInput;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -58,13 +58,13 @@ public final class GamepadInputs {
     public static final ResourceLocation TOUCHPAD_BUTTON = button("touchpad");
 
     public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
-            new DeadzoneGroup(Controlify.id("left_stick"), List.of(
+            new DeadzoneGroup(CUtil.rl("left_stick"), List.of(
                     LEFT_STICK_AXIS_UP,
                     LEFT_STICK_AXIS_DOWN,
                     LEFT_STICK_AXIS_LEFT,
                     LEFT_STICK_AXIS_RIGHT
             )),
-            new DeadzoneGroup(Controlify.id("right_stick"), List.of(
+            new DeadzoneGroup(CUtil.rl("right_stick"), List.of(
                     RIGHT_STICK_AXIS_UP,
                     RIGHT_STICK_AXIS_DOWN,
                     RIGHT_STICK_AXIS_LEFT,
@@ -82,12 +82,12 @@ public final class GamepadInputs {
     }
 
     private static ResourceLocation button(String id) {
-        return Controlify.id("button/" + id);
+        return CUtil.rl("button/" + id);
     }
     private static ResourceLocation axis(String id) {
-        return Controlify.id("axis/" + id);
+        return CUtil.rl("axis/" + id);
     }
     private static ResourceLocation hat(String id) {
-        return Controlify.id("hat/" + id);
+        return CUtil.rl("hat/" + id);
     }
 }

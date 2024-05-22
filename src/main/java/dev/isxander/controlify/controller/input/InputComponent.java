@@ -27,7 +27,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config>, CustomSaveLoadConfig {
-    public static final ResourceLocation ID = Controlify.id("input");
+    public static final ResourceLocation ID = CUtil.rl("input");
 
     private final ControllerEntity controller;
 

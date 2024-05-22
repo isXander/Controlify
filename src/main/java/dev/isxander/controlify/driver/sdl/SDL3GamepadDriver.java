@@ -99,7 +99,7 @@ public class SDL3GamepadDriver implements Driver {
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
         // macOS HD haptics are broken
-        if (new ResourceLocation("controlify", "dualsense").equals(type.namespace())) {
+        if (CUtil.rl("dualsense").equals(type.namespace())) {
             controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
 
             if (Util.getPlatform() != Util.OS.OSX) {

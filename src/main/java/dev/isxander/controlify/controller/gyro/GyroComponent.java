@@ -1,15 +1,15 @@
 package dev.isxander.controlify.controller.gyro;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.Config> {
-    public static final ResourceLocation ID = Controlify.id("gyro");
+    public static final ResourceLocation ID = CUtil.rl("gyro");
 
     private GyroStateC gyroState = GyroStateC.ZERO;
     private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);

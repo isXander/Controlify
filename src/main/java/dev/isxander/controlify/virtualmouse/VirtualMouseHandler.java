@@ -19,6 +19,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.ToastUtils;
@@ -39,7 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class VirtualMouseHandler {
-    private static final ResourceLocation CURSOR_TEXTURE = new ResourceLocation("controlify", "textures/gui/virtual_mouse.png");
+    private static final ResourceLocation CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
 
     private double targetX, targetY;
     private double currentX, currentY;

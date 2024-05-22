@@ -114,7 +114,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
         String literal = inputs.stream()
                 .map(input -> String.valueOf(getChar(namespace, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style -> style.withFont(CUtil.addPrefix(namespace, "controller/")));
+        return Component.literal(literal).withStyle(style -> style.withFont(namespace.withPrefix("controller/")));
     }
 
     public char getChar(ResourceLocation namespace, ResourceLocation input) {
@@ -127,7 +127,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
     @Override
     public ResourceLocation getReloadId() {
-        return new ResourceLocation("controlify", "font_mappings");
+        return CUtil.rl("font_mappings");
     }
 
     public record Preparations(Map<ResourceLocation, FontMap> mappings) {

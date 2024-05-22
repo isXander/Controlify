@@ -162,7 +162,7 @@ public class Controlify implements ControlifyApi {
 
     private void registerBuiltinPack(String id) {
         PlatformClientUtil.registerBuiltinResourcePack(
-                Controlify.id(id),
+                CUtil.rl(id),
                 Component.translatable("controlify.extra_pack." + id + ".name")
         );
     }
@@ -768,9 +768,5 @@ public class Controlify implements ControlifyApi {
     public static Controlify instance() {
         if (instance == null) instance = new Controlify();
         return instance;
-    }
-
-    public static ResourceLocation id(String path) {
-        return new ResourceLocation("controlify", path);
     }
 }

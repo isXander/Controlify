@@ -57,7 +57,7 @@ public final class RadialItems {
                         CreativeModeInventoryScreen.handleHotbarLoadOrSave(mc, j, false, true);
                         return true;
                     },
-                    new ResourceLocation("controlify", "hotbar_save/" + j)
+                    CUtil.rl("hotbar_save/" + j)
             );
         }
 
@@ -77,7 +77,7 @@ public final class RadialItems {
                         CreativeModeInventoryScreen.handleHotbarLoadOrSave(mc, j, true, false);
                         return true;
                     },
-                    new ResourceLocation("controlify", "hotbar_load/" + j)
+                    CUtil.rl("hotbar_load/" + j)
             );
         }
 
@@ -99,7 +99,7 @@ public final class RadialItems {
                         mc.player.getInventory().selected = j;
                         return true;
                     },
-                    new ResourceLocation("controlify", "hotbar_item_select/" + j)
+                    CUtil.rl("hotbar_item_select/" + j)
             );
         }
 

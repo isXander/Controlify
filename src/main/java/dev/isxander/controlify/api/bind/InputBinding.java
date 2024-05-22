@@ -8,6 +8,7 @@ import dev.isxander.controlify.bindings.output.AnalogueOutput;
 import dev.isxander.controlify.bindings.output.DigitalOutput;
 import dev.isxander.controlify.bindings.output.GuiPressOutput;
 import dev.isxander.controlify.controller.input.ControllerStateView;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -56,15 +57,15 @@ public interface InputBinding {
 
     GuiPressOutput guiPressed();
 
-    ResourceLocation ANALOGUE_NOW = new ResourceLocation("controlify", "analogue_now");
-    ResourceLocation ANALOGUE_PREV = new ResourceLocation("controlify", "analogue_prev");
-    ResourceLocation DIGITAL_NOW = new ResourceLocation("controlify", "digital_now");
-    ResourceLocation DIGITAL_PREV = new ResourceLocation("controlify", "digital_prev");
-    ResourceLocation JUST_PRESSED = new ResourceLocation("controlify", "just_pressed");
-    ResourceLocation JUST_RELEASED = new ResourceLocation("controlify", "just_released");
-    ResourceLocation JUST_TAPPED = new ResourceLocation("controlify", "just_tapped");
-    ResourceLocation GUI_PRESSED = new ResourceLocation("controlify", "gui_pressed");
-    ResourceLocation KEY_EMULATION = new ResourceLocation("controlify", "key_emulation");
+    ResourceLocation ANALOGUE_NOW = CUtil.rl("analogue_now");
+    ResourceLocation ANALOGUE_PREV = CUtil.rl("analogue_prev");
+    ResourceLocation DIGITAL_NOW = CUtil.rl("digital_now");
+    ResourceLocation DIGITAL_PREV = CUtil.rl("digital_prev");
+    ResourceLocation JUST_PRESSED = CUtil.rl("just_pressed");
+    ResourceLocation JUST_RELEASED = CUtil.rl("just_released");
+    ResourceLocation JUST_TAPPED = CUtil.rl("just_tapped");
+    ResourceLocation GUI_PRESSED = CUtil.rl("gui_pressed");
+    ResourceLocation KEY_EMULATION = CUtil.rl("key_emulation");
 
     <T extends DigitalOutput> T getDigitalOutput(ResourceLocation id);
     <T extends DigitalOutput> T addDigitalOutput(ResourceLocation id, T output);

@@ -87,7 +87,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
 
         // GLFW uses SDL2 format
         Optional<Resource> resourceOpt = resourceProvider
-                .getResource(Controlify.id("controllers/gamecontrollerdb-sdl2.txt"));
+                .getResource(CUtil.rl("controllers/gamecontrollerdb-sdl2.txt"));
         if (resourceOpt.isEmpty()) {
             CUtil.LOGGER.error("Failed to find game controller database.");
             return;

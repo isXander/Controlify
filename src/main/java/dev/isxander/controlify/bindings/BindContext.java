@@ -4,6 +4,7 @@ import com.mojang.serialization.Lifecycle;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -16,7 +17,7 @@ import java.util.function.Function;
 
 public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isApplicable) {
     public static final Registry<BindContext> REGISTRY = new MappedRegistry<>(
-            ResourceKey.createRegistryKey(new ResourceLocation("controlify", "bind_context")),
+            ResourceKey.createRegistryKey(CUtil.rl("bind_context")),
             Lifecycle.stable()
     );
 
@@ -66,7 +67,7 @@ public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isAp
     );
 
     private static BindContext register(String path, Function<Minecraft, Boolean> predicate) {
-        var context = new BindContext(new ResourceLocation("controlify", path), predicate);
+        var context = new BindContext(CUtil.rl(path), predicate);
         Registry.register(REGISTRY, context.id(), context);
         return context;
     }

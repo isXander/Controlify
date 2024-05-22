@@ -13,6 +13,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -135,7 +136,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 
     @Override
     public ResourceLocation getReloadId() {
-        return new ResourceLocation("controlify", "default_binds");
+        return CUtil.rl("default_binds");
     }
 
     private record ControllerDefault(boolean clearBelow, MapBackedDefaultBindProvider provider) {

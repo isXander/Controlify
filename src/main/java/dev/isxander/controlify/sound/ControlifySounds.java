@@ -1,5 +1,6 @@
 package dev.isxander.controlify.sound;
 
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -9,7 +10,7 @@ public final class ControlifySounds {
     public static final SoundEvent SCREEN_FOCUS_CHANGE = register("controlify.ui.focus");
 
     private static SoundEvent register(String id) {
-        ResourceLocation location = new ResourceLocation("controlify", id);
+        ResourceLocation location = CUtil.rl(id);
         return Registry.register(BuiltInRegistries.SOUND_EVENT, location, SoundEvent.createVariableRangeEvent(location));
     }
 

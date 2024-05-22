@@ -21,6 +21,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
@@ -675,7 +676,7 @@ public class ControllerConfigScreenFactory {
     }
 
     private static ResourceLocation screenshot(String filename) {
-        return Controlify.id("textures/screenshots/" + filename);
+        return CUtil.rl("textures/screenshots/" + filename);
     }
 
     private record OptionBindPair(Option<?> option, InputBinding binding) {
