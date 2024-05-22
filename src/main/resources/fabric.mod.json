@@ -32,7 +32,8 @@
     ]
   },
   "mixins": [
-    "controlify.mixins.json"
+    "controlify.mixins.json",
+    "controlify-platform.fabric.mixins.json"
   ],
   "icon": "icon.png",
   "accessWidener": "controlify.accesswidener",

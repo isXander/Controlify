@@ -93,7 +93,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder addKeyMappingCorrelation(KeyMapping keyMapping) {
+    public InputBindingBuilder addKeyCorrelation(KeyMapping keyMapping) {
         checkLocked();
 
         this.keyCorrelations.add(keyMapping);
@@ -101,11 +101,11 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder setKeyMappingEmulation(KeyMapping keyMapping) {
+    public InputBindingBuilder keyEmulation(KeyMapping keyMapping) {
         checkLocked();
 
         this.keyEmulation = keyMapping;
-        this.addKeyMappingCorrelation(keyMapping);
+        this.addKeyCorrelation(keyMapping);
         return this;
     }
 

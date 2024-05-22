@@ -67,7 +67,8 @@ public final class ControlifyBindings {
                     .id("controlify", "gyro_button")
                     .category(MOVEMENT_CATEGORY)
                     .allowedContexts(BindContext.IN_GAME),
-            c -> c.gyro().isPresent());
+            c -> c.gyro().isPresent()
+    );
 
     public static final InputBindingSupplier JUMP = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "jump")
@@ -78,23 +79,23 @@ public final class ControlifyBindings {
             .id("controlify", "sprint")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .setKeyMappingEmulation(options.keySprint));
+            .keyEmulation(options.keySprint));
     public static final InputBindingSupplier SNEAK =  ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "sneak")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .addKeyMappingCorrelation(options.keyShift));
+            .addKeyCorrelation(options.keyShift));
 
     public static final InputBindingSupplier ATTACK = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "attack")
             .category(GAMEPLAY_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .setKeyMappingEmulation(options.keyAttack));
+            .keyEmulation(options.keyAttack));
     public static final InputBindingSupplier USE = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "use")
             .category(GAMEPLAY_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .setKeyMappingEmulation(options.keyUse));
+            .keyEmulation(options.keyUse));
     public static final InputBindingSupplier DROP_INGAME = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "drop")
             .category(GAMEPLAY_CATEGORY)
@@ -183,7 +184,7 @@ public final class ControlifyBindings {
             .category(MISC_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
             .radialCandidate(RadialIcons.getItem(Items.WRITABLE_BOOK))
-            .setKeyMappingEmulation(options.keyChat));
+            .keyEmulation(options.keyChat));
     public static final InputBindingSupplier TOGGLE_HUD_VISIBILITY = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "toggle_hud_visibility")
             .category(MISC_CATEGORY)
@@ -354,7 +355,6 @@ public final class ControlifyBindings {
 
     private static final Map<KeyMapping, InputBindingSupplier> MODDED_BINDS = new LinkedHashMap<>();
 
-    @SuppressWarnings("UnreachableCode")
     public static void registerModdedBindings() {
         for (KeyMapping keyMapping : PlatformClientUtil.getModdedKeyMappings()) {
             if (!ControlifyBindApi.get().getKeyCorrelation(keyMapping).isEmpty())
@@ -375,7 +375,7 @@ public final class ControlifyBindings {
                         .category(Component.translatable(keyMapping.getCategory()))
                         .radialCandidate(RadialIcons.FABRIC_ICON)
                         .allowedContexts(BindContext.UNKNOWN)
-                        .setKeyMappingEmulation(keyMapping));
+                        .keyEmulation(keyMapping));
 
                 MODDED_BINDS.put(keyMapping, binding);
             } catch (Exception e) {

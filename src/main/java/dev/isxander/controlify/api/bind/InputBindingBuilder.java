@@ -25,7 +25,7 @@ public interface InputBindingBuilder {
 
     InputBindingBuilder radialCandidate(@Nullable ResourceLocation icon);
 
-    InputBindingBuilder addKeyMappingCorrelation(KeyMapping keyMapping);
+    InputBindingBuilder addKeyCorrelation(KeyMapping keyMapping);
 
-    InputBindingBuilder setKeyMappingEmulation(KeyMapping keyMapping);
+    InputBindingBuilder keyEmulation(KeyMapping keyMapping);
 }
