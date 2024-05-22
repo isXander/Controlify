@@ -153,6 +153,10 @@ public class ScreenProcessor<T extends Screen> {
 
                 holdRepeatHelper.onNavigate();
 
+                for (InputBinding binding : input.getAllBindings()) {
+                    binding.guiPressed().onNavigate();
+                }
+
                 if (Controlify.instance().config().globalSettings().uiSounds)
                     minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
@@ -171,10 +175,10 @@ public class ScreenProcessor<T extends Screen> {
         boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
 
-        if (ControlifyBindings.GUI_PRESS.on(controller).justPressed() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
+        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
         }
-        if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
+        if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
             playClackSound();
             screen.onClose();
         }

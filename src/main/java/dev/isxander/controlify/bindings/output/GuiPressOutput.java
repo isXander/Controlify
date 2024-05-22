@@ -5,7 +5,8 @@ import dev.isxander.controlify.bindings.StateAccess;
 
 public class GuiPressOutput implements DigitalOutput {
     private final StateAccess stateAccess;
-    private boolean couldPressButton, held;
+
+    private PressState pressState = PressState.OFF;
 
     public GuiPressOutput(InputBinding binding) {
         this.stateAccess = binding.createStateAccess(2, state -> push());
@@ -13,25 +14,45 @@ public class GuiPressOutput implements DigitalOutput {
 
     @Override
     public boolean get() {
-        return couldPressButton;
+        return pressState == PressState.JUST_RELEASED;
+    }
+
+    public PressState getPressState() {
+        return this.pressState;
     }
 
     private void push() {
         boolean held = stateAccess.digital(0);
+        boolean prevHeld = stateAccess.digital(1);
+
+        // if just pressed, set state to could press in future
+        // if just released:
+        //    if it could press in future, set to just released - this is the state where get() == true
+        //    if the state is anything else, set the state to off
+
         if (held) {
-            if (!this.held) {
-                couldPressButton = true;
+            if (!prevHeld) { // just started pressing
+                pressState = PressState.COULD_PRESS_IN_FUTURE;
             }
         } else {
-            couldPressButton = false;
+            if (prevHeld && pressState == PressState.COULD_PRESS_IN_FUTURE) { // just released
+                pressState = PressState.JUST_RELEASED;
+            } else {
+                pressState = PressState.OFF;
+            }
         }
-        this.held = held;
 
         if (stateAccess.isSuppressed())
-            couldPressButton = false;
+            pressState = PressState.OFF;
     }
 
     public void onNavigate() {
-        this.couldPressButton = false;
+        this.pressState = PressState.OFF;
+    }
+
+    public enum PressState {
+        OFF,
+        JUST_RELEASED,
+        COULD_PRESS_IN_FUTURE,
     }
 }

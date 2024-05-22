@@ -17,7 +17,7 @@ public class AbstractButtonComponentProcessor implements ComponentProcessor {
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
             controller.hdHaptics().ifPresent(hh -> hh.playHaptic(HapticEffects.NAVIGATE));
             button.playDownSound(Minecraft.getInstance().getSoundManager());
             button.onPress();
