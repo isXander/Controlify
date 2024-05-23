@@ -86,8 +86,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         /*?} else {*//*
         minecraft.options.renderDebug;
         *//*?}*/
+        boolean hideGui = minecraft.options.hideGui;
 
-        if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || debugOpen)
+        if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || debugOpen || hideGui)
             return;
 
         float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
