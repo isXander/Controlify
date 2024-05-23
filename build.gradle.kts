@@ -208,7 +208,6 @@ tasks.build { dependsOn(offlineRemapJar) }
 val javaMajorVersion = property("java.version").toString().toInt()
 java {
     withSourcesJar()
-    withJavadocJar()
 
     javaMajorVersion
         .let { JavaVersion.values()[it - 1] }
