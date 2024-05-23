@@ -46,6 +46,8 @@
   },
   "breaks": {
     "midnightcontrols": "*",
-    "controllable": "*"
+    "controllable": "*",
+    "zoomify": "<=2.13.4",
+    "do_a_barrel_roll": "<=3.5.8"
   }
 }
