@@ -43,6 +43,17 @@ loom {
     }
 }
 
+stonecutter.expression {
+    when (it) {
+        "immediately-fast" -> isPropDefined("deps.immediatelyFast")
+        "iris" -> isPropDefined("deps.iris")
+        "mod-menu" -> isPropDefined("deps.modMenu")
+        "sodium" -> isPropDefined("deps.sodium")
+        "simple-voice-chat" -> isPropDefined("deps.simpleVoiceChat")
+        else -> null
+    }
+}
+
 repositories {
     mavenCentral()
     maven("https://maven.terraformersmc.com")
@@ -130,7 +141,7 @@ dependencies {
     }
     // iris compat
     optionalProp("deps.iris") {
-        modCompileOnly("maven.modrinth:iris:$it")
+        modImplementation("maven.modrinth:iris:$it")
 
         // only necessary if above ^^ is in runtime
         // modRuntimeOnly("org.anarres:jcpp:1.4.14")
@@ -144,7 +155,7 @@ dependencies {
 
     // simple-voice-chat compat
     optionalProp("deps.simpleVoiceChat") {
-        modCompileOnly("maven.modrinth:simple-voice-chat:$it")
+        modImplementation("maven.modrinth:simple-voice-chat:$it")
     }
 }
 
@@ -156,6 +167,17 @@ tasks {
         val githubProject: String by project
         val packFormat: String by project
 
+        val conditionalMixins = mapOf(
+            "compat.iris" to isPropDefined("deps.iris"),
+            "compat.sodium" to isPropDefined("deps.sodium"),
+            "compat.yacl" to true,
+            "compat.simple-voice-chat" to isPropDefined("deps.simpleVoiceChat"),
+            "platform.fabric" to true,
+        )
+            .map { (k, v) -> if (v) k else null }
+            .filterNotNull()
+            .joinToString("\",", prefix = "\",") { "\"controlify-$it.mixins.json" }
+
         val props = mapOf(
             "id" to modId,
             "group" to project.group,
@@ -165,6 +187,7 @@ tasks {
             "github" to githubProject,
             "mc" to mcDep,
             "pack_format" to packFormat,
+            "mixins" to conditionalMixins
         )
 
         props.forEach(inputs::property)
