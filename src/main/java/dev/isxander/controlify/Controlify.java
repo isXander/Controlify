@@ -44,7 +44,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -150,14 +149,6 @@ public class Controlify implements ControlifyApi {
 
         PlatformClientUtil.addHudLayer((graphics, tickDelta) ->
                 inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, tickDelta)));
-
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
-            try {
-                entrypoint.onControlifyPreInit(this);
-            } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
     }
 
     private void registerBuiltinPack(String id) {
@@ -184,6 +175,14 @@ public class Controlify implements ControlifyApi {
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
 
         ControlifyBindings.registerModdedBindings();
+
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+            try {
+                entrypoint.onControlifyInit(this);
+            } catch (Exception e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
 
         if (config().globalSettings().quietMode) {
             // Use GLFW to probe for controllers without asking for natives

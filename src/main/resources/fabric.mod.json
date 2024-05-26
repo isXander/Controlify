@@ -25,7 +25,7 @@
       "dev.isxander.controlify.server.ControlifyServer"
     ],
     "client": [
-      "dev.isxander.controlify.ControlifyEntrypoint"
+      "dev.isxander.controlify.ControlifyBootstrap"
     ],
     "server": [
       "dev.isxander.controlify.server.ControlifyServer"
