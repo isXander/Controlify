@@ -10,6 +10,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -98,7 +99,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     private InputBindingSupplier createSupplier(ResourceLocation bindingId) {
         return new InputBindingSupplier() {
             @Override
-            public InputBinding on(ControllerEntity controller) {
+            public @Nullable InputBinding onOrNull(@NotNull ControllerEntity controller) {
                 return controller.input().map(input -> input.getBinding(bindingId)).orElse(null);
             }
 

@@ -369,12 +369,4 @@ public class InGameInputHandler {
             default -> false;
         };
     }
-
-    public record FunctionalLookInputModifier(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) implements Event.Callback<LookInputModifier> {
-        @Override
-        public void onEvent(LookInputModifier event) {
-            event.lookInput().x = this.x.apply(event.lookInput().x, event.controller());
-            event.lookInput().y = this.y.apply(event.lookInput().y, event.controller());
-        }
-    }
 }

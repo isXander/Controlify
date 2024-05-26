@@ -7,32 +7,38 @@ import org.joml.Vector2f;
 
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 /**
- * Allows dependants to modify controller look input.
- *
- * Implementing classes must provide methods for modifying the x
- * and y axis values of the controller's look input.
+ * Callbacks should modify the {@link #lookInput()} vector to modify the look input.
+ * Be aware that multiple callbacks could be called, so make sure to be considerate of other mods.
  */
 public record LookInputModifier(Vector2f lookInput, ControllerEntity controller) {
     /**
-     * Creates a new LookInputModifier using the given x and y axis modifying functions.
+     * Creates a callback to modify the x and y individually.
      *
-     * @param x the function for modifying the x axis
-     * @param y the function for modifying the y axis
-     * @return the new LookInputModifier object
+     * @param x the function for modifying the x-axis
+     * @param y the function for modifying the y-axis
+     * @return the new callback
      */
-    static Event.Callback<LookInputModifier> functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
-        return new InGameInputHandler.FunctionalLookInputModifier(x, y);
+    public static Event.Callback<LookInputModifier> functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
+        return event -> {
+            event.lookInput.x = x.apply(event.lookInput.x, event.controller);
+            event.lookInput.y = y.apply(event.lookInput.y, event.controller);
+        };
     }
 
     /**
-     * Creates a new LookInputModifier that sets the x and y axis to zero if the given condition is true.
+     * Creates a new callback that zeroes out the look input if the predicate is true.
      *
-     * @param condition the condition that determines whether to set the axis values to zero
+     * @param condition the condition that, if true, sets both axes to zero
      * @return the new LookInputModifier object
      */
-    static Event.Callback<LookInputModifier> zeroIf(BooleanSupplier condition) {
-        return functional((x, controller) -> condition.getAsBoolean() ? 0 : x, (y, controller) -> condition.getAsBoolean() ? 0 : y);
+    static Event.Callback<LookInputModifier> zeroIf(Predicate<ControllerEntity> condition) {
+        return event -> {
+            if (condition.test(event.controller)) {
+                event.lookInput.set(0, 0);
+            }
+        };
     }
 }

@@ -28,7 +28,7 @@ public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isAp
 
     public static final BindContext IN_GAME = register(
             "in_game",
-            mc -> mc.screen == null && mc.level != null
+            mc -> mc.screen == null && mc.level != null && mc.player != null
     );
 
     public static final BindContext ANY_SCREEN = register(

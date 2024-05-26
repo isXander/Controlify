@@ -19,7 +19,6 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-        System.out.println(getModId() + compatEnabled);
         return compatEnabled;
     }
 
@@ -28,7 +27,7 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins() {
-        return List.of();
+        return null;
     }
 
     @Override
@@ -42,6 +41,6 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public String getRefMapperConfig() {
-        return "";
+        return null;
     }
 }
