@@ -16,11 +16,7 @@ public class GuiMixin {
     @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
-    private void shouldRenderCrosshair(
-            GuiGraphics guiGraphics,
-            /*? if >1.20.4 {*/float delta,/*?}*/
-            CallbackInfo ci
-    ) {
+    private void shouldRenderCrosshair(CallbackInfo ci) {
         if (minecraft.screen instanceof RadialMenuScreen) {
             ci.cancel();
         }

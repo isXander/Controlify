@@ -176,6 +176,12 @@ public class Controlify implements ControlifyApi {
 
         ControlifyBindings.registerModdedBindings();
 
+        PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
+                ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+                    virtualMouseHandler().renderVirtualMouse(graphics);
+                    ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
+                }));
+
         FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
             try {
                 entrypoint.onControlifyInit(this);

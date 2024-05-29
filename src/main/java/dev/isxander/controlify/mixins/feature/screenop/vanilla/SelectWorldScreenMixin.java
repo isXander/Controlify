@@ -11,16 +11,18 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(SelectWorldScreen.class)
 public class SelectWorldScreenMixin implements ScreenProcessorProvider {
-    private final SelectWorldScreenProcessor controlify$processor = new SelectWorldScreenProcessor((SelectWorldScreen) (Object) this);
+    @Unique
+    private final SelectWorldScreenProcessor processor = new SelectWorldScreenProcessor((SelectWorldScreen) (Object) this);
 
     @Override
     public ScreenProcessor<?> screenProcessor() {
-        return controlify$processor;
+        return processor;
     }
 
     @ModifyArg(method = "init()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/worldselection/SelectWorldScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", ordinal = 5))

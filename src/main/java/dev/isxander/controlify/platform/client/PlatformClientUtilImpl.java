@@ -24,5 +24,7 @@ public interface PlatformClientUtilImpl {
 
     void addHudLayer(RenderLayer renderLayer);
 
+    void registerPostScreenRender(ScreenRenderEvent event);
+
     Collection<KeyMapping> getModdedKeyMappings();
 }

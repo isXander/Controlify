@@ -3,6 +3,7 @@ package dev.isxander.controlify.platform.client.fabric;
 import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
 import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
 import dev.isxander.controlify.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.platform.client.util.RenderLayer;
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -55,6 +57,15 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
                 displayName,
                 ResourcePackActivationType.NORMAL
         );
+    }
+
+    @Override
+    public void registerPostScreenRender(ScreenRenderEvent event) {
+        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+            ScreenEvents.afterRender(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
+                event.onRender(screen, graphics, mouseX, mouseY, tickDelta);
+            });
+        });
     }
 
     @Override

@@ -21,7 +21,7 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = CUtil.rl("empty");
-    public static final ResourceLocation FABRIC_ICON = new ResourceLocation("fabric-resource-loader-v0", "icon.png");
+    public static final ResourceLocation FABRIC_ICON = CUtil.rl("fabric-resource-loader-v0", "icon.png");
 
     private static final Map<ResourceLocation, RadialIcon> icons = Util.make(() -> {
         Map<ResourceLocation, RadialIcon> map = new Object2ObjectOpenHashMap<>();
@@ -102,6 +102,6 @@ public final class RadialIcons {
     }
 
     private static ResourceLocation prefixLocation(String prefix, ResourceLocation location) {
-        return new ResourceLocation(location.getNamespace(), prefix + "/" + location.getPath());
+        return CUtil.rl(location.getNamespace(), prefix + "/" + location.getPath());
     }
 }

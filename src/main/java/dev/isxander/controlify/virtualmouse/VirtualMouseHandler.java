@@ -207,9 +207,13 @@ public class VirtualMouseHandler {
 
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
+        /*? if >1.20.6 {*/
+        /*float delta = minecraft.getTimer().getRealtimeDeltaTicks();
+        *//*?} else {*/
+        float delta = minecraft.getDeltaFrameTime();
+        /*?}*/
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
-            float delta = minecraft.getDeltaFrameTime();
             currentX = Mth.lerp(delta, currentX, targetX);
             currentY = Mth.lerp(delta, currentY, targetY);
 
@@ -220,9 +224,9 @@ public class VirtualMouseHandler {
         }
 
         if (Math.abs(scrollX) >= 0.01 || Math.abs(scrollY) >= 0.01) {
-            var currentScrollY = scrollY * Minecraft.getInstance().getDeltaFrameTime();
+            var currentScrollY = scrollY * delta;
             scrollY -= currentScrollY;
-            var currentScrollX = scrollX * Minecraft.getInstance().getDeltaFrameTime();
+            var currentScrollX = scrollX * delta;
             scrollX -= currentScrollX;
 
             ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnScroll(minecraft.getWindow().getWindow(), currentScrollX, currentScrollY);

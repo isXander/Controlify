@@ -1,6 +1,8 @@
 package dev.isxander.controlify.utils;
 
-import com.mojang.datafixers.util.Pair;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.Version;
@@ -27,7 +29,29 @@ public class CUtil {
             .orElseThrow().getMetadata().getVersion();
     
     public static ResourceLocation rl(String path) {
-        return new ResourceLocation("controlify", path);
+        return rl("controlify", path);
+    }
+
+    public static ResourceLocation mcRl(String path) {
+        return rl("minecraft", path);
+    }
+
+    public static ResourceLocation rl(String namespace, String path) {
+        /*? if >1.20.6 {*/
+        /*return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        *//*?} else {*/
+        return new ResourceLocation(namespace, path);
+        /*?}*/
+    }
+
+    public static BufferBuilder beginBuffer(VertexFormat.Mode mode, VertexFormat format) {
+        /*? if >1.20.6 {*/
+        /*return Tesselator.getInstance().begin(mode, format);
+        *//*?} else {*/
+        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        builder.begin(mode, format);
+        return builder;
+        /*?}*/
     }
 
     /**

@@ -27,11 +27,11 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
 
     @Override
     public void onInitializeServer() {
-        ControlifyServerConfig.INSTANCE.load();
-        ControlifyServerConfig.INSTANCE.save();
+        ControlifyServerConfig.HANDLER.load();
+        ControlifyServerConfig.HANDLER.save();
 
-        CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy);
-        CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy);
+        CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
+        CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
 
         PlatformServerUtil.registerInitPlayConnectionEvent((handler, server) -> {
             SidedNetworkApi.S2C().sendPacket(
@@ -39,7 +39,7 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.REACH_AROUND.getId(),
-                            ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy
+                            ControlifyServerConfig.HANDLER.instance().reachAroundPolicy
                     )
             );
             SidedNetworkApi.S2C().sendPacket(
@@ -47,7 +47,7 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.DISABLE_FLY_DRIFTING.getId(),
-                            ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy
+                            ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy
                     )
             );
         });

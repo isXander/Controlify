@@ -35,7 +35,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         ResourceLocation location = Minecraft.getInstance().getSoundManager()
                 .getSoundEvent(sound.getLocation())
                 .getSound(randomSource).getLocation();
-        this.playHaptic(new ResourceLocation(location.getNamespace(), "sounds/" + location.getPath() + ".ogg"));
+        this.playHaptic(CUtil.rl(location.getNamespace(), "sounds/" + location.getPath() + ".ogg"));
     }
 
     public void acceptPlayHaptic(Consumer<HapticBufferLibrary.HapticBuffer> consumer) {

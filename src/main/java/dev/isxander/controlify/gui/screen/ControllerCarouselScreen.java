@@ -11,6 +11,7 @@ import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
 import dev.isxander.controlify.utils.animation.api.Animation;
@@ -46,11 +47,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation CHECKMARK = /*? if >=1.20.3 {*/
-            new ResourceLocation("icon/checkmark");
-    /*?} else {*//*
-            new ResourceLocation("textures/gui/checkmark.png");
-    *//*?}*/
+    public static final ResourceLocation CHECKMARK =
+            /*? if >=1.20.3 {*/
+            CUtil.mcRl("icon/checkmark");
+            /*?} else {*//*
+            CUtil.mcRl("textures/gui/checkmark.png");
+            *//*?}*/
 
     private final Screen parent;
     private int footerY;

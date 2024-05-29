@@ -1,4 +1,4 @@
-/*? if sodium { */
+/*? if sodium {*/
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;

@@ -2,6 +2,7 @@ package dev.isxander.controlify.platform.client;
 
 import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
 import dev.isxander.controlify.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.fabric.FabricPlatformClientImpl;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
@@ -37,6 +38,10 @@ public final class PlatformClientUtil {
 
     public static void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
         IMPL.registerBuiltinResourcePack(id, displayName);
+    }
+
+    public static void registerPostScreenRender(ScreenRenderEvent event) {
+        IMPL.registerPostScreenRender(event);
     }
 
     public static void addHudLayer(RenderLayer layer) {

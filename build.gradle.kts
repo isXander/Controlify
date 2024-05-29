@@ -43,17 +43,6 @@ loom {
     }
 }
 
-stonecutter.expression {
-    when (it) {
-        "immediately-fast" -> isPropDefined("deps.immediatelyFast")
-        "iris" -> isPropDefined("deps.iris")
-        "mod-menu" -> isPropDefined("deps.modMenu")
-        "sodium" -> isPropDefined("deps.sodium")
-        "simple-voice-chat" -> isPropDefined("deps.simpleVoiceChat")
-        else -> null
-    }
-}
-
 repositories {
     mavenCentral()
     maven("https://maven.terraformersmc.com")
@@ -77,7 +66,6 @@ repositories {
 dependencies {
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
-        // quilt does not support pre-releases so it is necessary to only layer if they exist
         optionalProp("deps.parchment") {
             parchment("org.parchmentmc.data:parchment-$it@zip")
         }
@@ -121,42 +109,50 @@ dependencies {
         api(include("org.quiltmc.parsers:$it:${property("deps.quiltParsers")}")!!)
     }
 
-    // mod menu compat
-    optionalProp("deps.modMenu") {
-        modImplementation("com.terraformersmc:modmenu:$it")
-    }
+    fun modDependency(id: String, artifactGetter: (String) -> String, extra: (Boolean) -> Unit = {}) {
+        optionalProp("deps.$id") {
+            val noRuntime = findProperty("deps.$id.noRuntime")?.toString()?.toBoolean() == true
+            println("Adding $id dependency: $it (noRuntime: $noRuntime)")
+            val configuration = if (noRuntime) "modCompileOnly" else "modImplementation"
 
-    // sodium compat
-    optionalProp("deps.sodium") {
-        modImplementation("maven.modrinth:sodium:$it")
+            configuration(artifactGetter(it))
 
-        // sodium needs more runtime fapi modules
-        // modrinth maven is obvi not transitive
-        listOf(
-            "fabric-rendering-fluids-v1",
-            "fabric-rendering-data-attachment-v1",
-        ).forEach { module ->
-            modRuntimeOnly(fabricApi.module(module, fapiVersion))
+            extra(!noRuntime)
         }
     }
-    // iris compat
-    optionalProp("deps.iris") {
-        modImplementation("maven.modrinth:iris:$it")
 
-        // only necessary if above ^^ is in runtime
-        // modRuntimeOnly("org.anarres:jcpp:1.4.14")
-        // modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+    // mod menu compat
+    modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
+
+    // sodium compat
+    modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
+        if (runtime) {
+            listOf(
+                "fabric-rendering-fluids-v1",
+                "fabric-rendering-data-attachment-v1",
+            ).forEach { module ->
+                modRuntimeOnly(fabricApi.module(module, fapiVersion))
+            }
+        }
     }
+
+    // iris compat
+    modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
+        if (runtime) {
+            modRuntimeOnly("org.anarres:jcpp:1.4.14")
+            modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+        }
+    }
+
     // immediately-fast compat
-    optionalProp("deps.immediatelyFast") {
-        modImplementation("maven.modrinth:immediatelyfast:$it")
-        modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modDependency("immediatelyFast", { "maven.modrinth:immediatelyfast:$it" }) { runtime ->
+        if (runtime) {
+            modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+        }
     }
 
     // simple-voice-chat compat
-    optionalProp("deps.simpleVoiceChat") {
-        modImplementation("maven.modrinth:simple-voice-chat:$it")
-    }
+    modDependency("simpleVoiceChat", { "maven.modrinth:simple-voice-chat:$it" })
 }
 
 tasks {

@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.defaults.DefaultBindProvider;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 
     @Override
     public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
-        return this.id(new ResourceLocation(namespace, path));
+        return this.id(CUtil.rl(namespace, path));
     }
 
     @Override

@@ -16,6 +16,16 @@ stonecutter registerChiseled tasks.register("releaseAllVersions", stonecutter.ch
     ofTask("releaseMod")
 }
 
+stonecutter.configureEach {
+    consts(listOf(
+        "immediately-fast" to "deps.immediatelyFast",
+        "iris" to "deps.iris",
+        "mod-menu" to "deps.modMenu",
+        "sodium" to "deps.sodium",
+        "simple-voice-chat" to "deps.simpleVoiceChat",
+    ).map { (name, prop) -> name to (project.findProperty(prop)?.toString()?.isNotBlank() ?: false)})
+}
+
 val sdl3Target = property("deps.sdl3Target")!!.toString()
 data class NativesDownload(val mavenSuffix: String, val extension: String, val jnaCanonicalPrefix: String, val taskName: String)
 val downloadNativesTasks = listOf(

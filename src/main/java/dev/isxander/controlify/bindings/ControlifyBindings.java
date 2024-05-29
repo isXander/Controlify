@@ -366,7 +366,7 @@ public final class ControlifyBindings {
                         .replaceAll("[^a-z0-9/._-]", "_")
                         .trim();
 
-                var identifier = new ResourceLocation("fabric-key-binding-api-v1", idPath);
+                var identifier = CUtil.rl("fabric-key-binding-api-v1", idPath);
 
                 InputBindingSupplier binding = ControlifyBindApi.get().registerBinding(builder -> builder
                         .id(identifier)
