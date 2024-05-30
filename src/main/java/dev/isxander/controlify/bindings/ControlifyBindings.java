@@ -217,11 +217,11 @@ public final class ControlifyBindings {
     public static final InputBindingSupplier GUI_NEXT_TAB = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_next_tab")
             .category(GUI_CATEGORY)
-            .allowedContexts(BindContext.REGULAR_SCREEN));
+            .allowedContexts(BindContext.ANY_SCREEN));
     public static final InputBindingSupplier GUI_PREV_TAB = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_prev_tab")
             .category(GUI_CATEGORY)
-            .allowedContexts(BindContext.REGULAR_SCREEN));
+            .allowedContexts(BindContext.ANY_SCREEN));
     public static final InputBindingSupplier GUI_ABSTRACT_ACTION_1 = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_abstract_action_1")
             .category(GUI_CATEGORY)

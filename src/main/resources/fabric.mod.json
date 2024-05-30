@@ -22,13 +22,13 @@
       "dev.isxander.controlify.config.ModMenuIntegration"
     ],
     "main": [
-      "dev.isxander.controlify.server.ControlifyServer"
+      "dev.isxander.controlify.ControlifyBootstrap"
     ],
     "client": [
       "dev.isxander.controlify.ControlifyBootstrap"
     ],
     "server": [
-      "dev.isxander.controlify.server.ControlifyServer"
+      "dev.isxander.controlify.ControlifyBootstrap"
     ]
   },
   "mixins": [

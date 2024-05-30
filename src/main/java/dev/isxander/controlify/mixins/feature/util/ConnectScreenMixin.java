@@ -1,6 +1,6 @@
 package dev.isxander.controlify.mixins.feature.util;
 
-import dev.isxander.controlify.utils.ConnectServerEvent;
+import dev.isxander.controlify.Controlify;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -20,6 +20,6 @@ public class ConnectScreenMixin {
             /*? if >1.20.4 {*/@Nullable net.minecraft.client.multiplayer.TransferState transferState,/*?}*/
             CallbackInfo ci
     ) {
-        ConnectServerEvent.EVENT.invoker().onConnect(client, address, serverInfo);
+        Controlify.instance().notifyNewServer(serverInfo);
     }
 }

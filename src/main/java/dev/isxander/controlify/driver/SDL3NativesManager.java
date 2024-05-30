@@ -3,12 +3,12 @@ package dev.isxander.controlify.driver;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.gui.screen.DownloadingSDLScreen;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.TrackingBodySubscriber;
 import dev.isxander.controlify.utils.TrackingConsumer;
 import dev.isxander.sdl3java.api.version.SdlVersionConst;
 import dev.isxander.sdl3java.jna.SdlNativeLibraryLoader;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -283,7 +283,7 @@ public class SDL3NativesManager {
     }
 
     private static Path getNativesFolderPath() {
-        Path nativesFolderPath = FabricLoader.getInstance().getGameDir();
+        Path nativesFolderPath = PlatformMainUtil.getGameDir();
         ControlifyConfig config = Controlify.instance().config();
         String customPath = config.globalSettings().customVibrationNativesPath;
         if (!customPath.isEmpty()) {
@@ -339,7 +339,7 @@ public class SDL3NativesManager {
         }
 
         public Path getSearchPath() {
-            return FabricLoader.getInstance().getGameDir()
+            return PlatformMainUtil.getGameDir()
                     .resolve("controlify-natives")
                     .resolve(SDL3_VERSION);
         }

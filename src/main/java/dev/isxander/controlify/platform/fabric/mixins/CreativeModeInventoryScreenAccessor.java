@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.screenop.vanilla;
+package dev.isxander.controlify.platform.fabric.mixins;
 
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;

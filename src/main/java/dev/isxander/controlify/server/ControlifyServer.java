@@ -1,15 +1,19 @@
 package dev.isxander.controlify.server;
 
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.platform.server.PlatformServerUtil;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.ModInitializer;
 
-public class ControlifyServer implements ModInitializer, DedicatedServerModInitializer {
-    @Override
+public class ControlifyServer {
+    private static ControlifyServer INSTANCE;
+
+    public static ControlifyServer getInstance() {
+        if (INSTANCE == null) INSTANCE = new ControlifyServer();
+        return INSTANCE;
+    }
+
     public void onInitialize() {
         ControlifySounds.init();
 
@@ -20,12 +24,11 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
         SidedNetworkApi.S2C().registerPacket(EntityVibrationPacket.CHANNEL, EntityVibrationPacket.CODEC);
         SidedNetworkApi.S2C().registerPacket(ServerPolicyPacket.CHANNEL, ServerPolicyPacket.CODEC);
 
-        PlatformServerUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
+        PlatformMainUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
             VibrateCommand.register(dispatcher);
         });
     }
 
-    @Override
     public void onInitializeServer() {
         ControlifyServerConfig.HANDLER.load();
         ControlifyServerConfig.HANDLER.save();
@@ -33,7 +36,7 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
         CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
         CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
 
-        PlatformServerUtil.registerInitPlayConnectionEvent((handler, server) -> {
+        PlatformMainUtil.registerInitPlayConnectionEvent((handler, server) -> {
             SidedNetworkApi.S2C().sendPacket(
                     handler.getPlayer(),
                     ServerPolicyPacket.CHANNEL,

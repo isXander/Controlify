@@ -1,7 +1,7 @@
 package dev.isxander.controlify.compatibility;
 
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.Util;
 
 import java.util.HashSet;
@@ -10,7 +10,7 @@ import java.util.function.Function;
 
 public class ControlifyCompat {
     private static final Function<String, Boolean> modsLoaded = Util.memoize(modid ->
-            FabricLoader.getInstance().isModLoaded(modid));
+            PlatformMainUtil.isModLoaded(modid));
     private static final Set<String> disabledMods = new HashSet<>();
 
     public static final String IMMEDIATELY_FAST = "immediatelyfast";

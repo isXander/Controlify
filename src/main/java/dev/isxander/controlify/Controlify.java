@@ -25,6 +25,7 @@ import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
@@ -39,7 +40,6 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -182,7 +182,7 @@ public class Controlify implements ControlifyApi {
                     ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
                 }));
 
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
                 entrypoint.onControlifyInit(this);
             } catch (Exception e) {
@@ -215,9 +215,6 @@ public class Controlify implements ControlifyApi {
 
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
-
-        // sends toasts of new features
-        notifyOfNewFeatures();
     }
 
     /**
@@ -263,7 +260,7 @@ public class Controlify implements ControlifyApi {
 
         config().saveIfDirty();
 
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
                 entrypoint.onControllersDiscovered(this);
             } catch (Throwable e) {
@@ -299,9 +296,6 @@ public class Controlify implements ControlifyApi {
             }
 
             PlatformClientUtil.registerClientTickStarted(this::tick);
-            ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
-                notifyNewServer(data);
-            });
 
             // initialise and compatability modules that controlify implements itself
             // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
@@ -730,33 +724,7 @@ public class Controlify implements ControlifyApi {
         return this.thisTickContexts;
     }
 
-    private void notifyOfNewFeatures() {
-        if (config().isFirstLaunch())
-            return;
-
-        var newFeatureVersions = List.of(
-                "1.5.0"
-        ).iterator();
-
-        String foundVersion = null;
-        while (foundVersion == null && newFeatureVersions.hasNext()) {
-            var version = newFeatureVersions.next();
-            if (config().isLastSeenVersionLessThan(version)) {
-                foundVersion = version;
-            }
-        }
-
-        if (foundVersion != null) {
-            CUtil.LOGGER.info("Sending new features toast for {}", foundVersion);
-            ToastUtils.sendToast(
-                    Component.translatable("controlify.new_features.title", foundVersion),
-                    Component.translatable("controlify.new_features." + foundVersion),
-                    true
-            );
-        }
-    }
-
-    private void notifyNewServer(ServerData data) {
+    public void notifyNewServer(ServerData data) {
         if (!currentInputMode().isController())
             return;
 

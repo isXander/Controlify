@@ -7,6 +7,7 @@ import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.ChatFormatting;
@@ -175,7 +176,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         object.addProperty("productID", hid.productId());
         object.addProperty("GUID", controller.info().guid());
         object.addProperty("reportedName", nameField.getValue());
-        object.addProperty("controlifyVersion", CUtil.VERSION.getFriendlyString());
+        object.addProperty("controlifyVersion", PlatformMainUtil.getControlifyVersion());
         object.addProperty("operational", operationalCheckbox.selected());
 
         Gson gson = new Gson();

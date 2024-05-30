@@ -86,9 +86,10 @@ dependencies {
         "fabric-item-group-api-v1",
         "fabric-rendering-v1",
     ).forEach {
-        modImplementation(fabricApi.module(it, fapiVersion))
+        //modImplementation(fabricApi.module(it, fapiVersion))
     }
-    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion") // so you can do `depends: fabric-api` in FMJ
+    // so you can do `depends: fabric-api` in FMJ
+    modImplementation("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
     modApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
         // was including old fapi version that broke things at runtime
@@ -112,7 +113,6 @@ dependencies {
     fun modDependency(id: String, artifactGetter: (String) -> String, extra: (Boolean) -> Unit = {}) {
         optionalProp("deps.$id") {
             val noRuntime = findProperty("deps.$id.noRuntime")?.toString()?.toBoolean() == true
-            println("Adding $id dependency: $it (noRuntime: $noRuntime)")
             val configuration = if (noRuntime) "modCompileOnly" else "modImplementation"
 
             configuration(artifactGetter(it))
@@ -224,20 +224,15 @@ val offlineRemapJar by tasks.registering(RemapJarTask::class) {
 
 tasks.build { dependsOn(offlineRemapJar) }
 
-val javaMajorVersion = property("java.version").toString().toInt()
 java {
     withSourcesJar()
 
-    javaMajorVersion
-        .let { JavaVersion.values()[it - 1] }
-        .let {
-            sourceCompatibility = it
-            targetCompatibility = it
-        }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<JavaCompile> {
-    options.release = javaMajorVersion
+    options.release = project.property("java.version").toString().toInt()
 }
 
 publishMods {

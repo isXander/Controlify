@@ -1,4 +1,4 @@
-package dev.isxander.controlify.platform.server.events;
+package dev.isxander.controlify.platform.main.events;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandBuildContext;

@@ -104,7 +104,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Unique
     private float getTickDelta() {
         /*? if >1.20.6 {*/
-        /*return getTimer().getGameTimeDeltaPartialTick(false);
+        /*return getTimer().getGameTimeDeltaTicks();
         *//*?} else {*/
         return getDeltaFrameTime();
         /*?}*/

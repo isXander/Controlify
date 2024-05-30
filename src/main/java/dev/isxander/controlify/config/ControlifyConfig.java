@@ -5,12 +5,10 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.mapping.MappingEntry;
 import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ToastUtils;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.Version;
-import net.fabricmc.loader.api.VersionParsingException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -21,14 +19,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public class ControlifyConfig {
-    public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("controlify.json");
+    public static final Path CONFIG_PATH = PlatformMainUtil.getConfigDir().resolve("controlify.json");
 
     public static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
-            .registerTypeHierarchyAdapter(Version.class, new TypeAdapters.VersionTypeAdapter())
             .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
             .create();
@@ -39,18 +36,11 @@ public class ControlifyConfig {
     private JsonObject controllerData = new JsonObject();
     private GlobalSettings globalSettings = new GlobalSettings();
     private boolean firstLaunch;
-    private Version lastSeenVersion = null;
-    private final Version zeroVersion;
 
     private boolean dirty;
 
     public ControlifyConfig(Controlify controlify) {
         this.controlify = controlify;
-        try {
-            zeroVersion = Version.parse("0.0.0");
-        } catch (VersionParsingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void save() {
@@ -69,11 +59,7 @@ public class ControlifyConfig {
         CUtil.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
-            if (lastSeenVersion == null) {
-                firstLaunch = true;
-                lastSeenVersion = zeroVersion;
-                setDirty();
-            }
+            firstLaunch = true;
             save();
             return;
         }
@@ -82,7 +68,6 @@ public class ControlifyConfig {
             applyConfig(GSON.fromJson(Files.readString(CONFIG_PATH), JsonObject.class));
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load Controlify config!", e);
-            lastSeenVersion = zeroVersion;
         }
 
         if (dirty) {
@@ -93,8 +78,6 @@ public class ControlifyConfig {
 
     private JsonObject generateConfig() {
         JsonObject config = new JsonObject();
-
-        config.addProperty("last_seen_version", CUtil.VERSION.getFriendlyString());
 
         JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
 
@@ -123,15 +106,7 @@ public class ControlifyConfig {
         return object;
     }
 
-    private void applyConfig(JsonObject object) throws VersionParsingException {
-        if (lastSeenVersion == null) {
-            boolean hasLastSeenVersion = object.has("last_seen_version");
-            lastSeenVersion = hasLastSeenVersion ? Version.parse(object.get("last_seen_version").getAsString()) : Version.parse("0.0.0");
-            if (!hasLastSeenVersion || lastSeenVersion.compareTo(CUtil.VERSION) < 0) {
-                setDirty();
-            }
-        }
-
+    private void applyConfig(JsonObject object) {
         globalSettings = GSON.fromJson(object.getAsJsonObject("global"), GlobalSettings.class);
         if (globalSettings == null) {
             globalSettings = new GlobalSettings();
@@ -200,18 +175,6 @@ public class ControlifyConfig {
 
     public boolean isFirstLaunch() {
         return firstLaunch;
-    }
-
-    public boolean isLastSeenVersionLessThan(Version version) {
-        return lastSeenVersion.compareTo(version) < 0;
-    }
-
-    public boolean isLastSeenVersionLessThan(String version) {
-        try {
-            return isLastSeenVersionLessThan(Version.parse(version));
-        } catch (VersionParsingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Nullable

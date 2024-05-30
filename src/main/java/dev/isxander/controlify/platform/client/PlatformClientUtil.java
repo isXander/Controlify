@@ -7,11 +7,14 @@ import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.fabric.FabricPlatformClientImpl;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.platform.client.util.RenderLayer;
+import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
+import java.util.function.Function;
 
 public final class PlatformClientUtil {
     private static final PlatformClientUtilImpl IMPL = new FabricPlatformClientImpl();
@@ -50,6 +53,19 @@ public final class PlatformClientUtil {
 
     public static Collection<KeyMapping> getModdedKeyMappings() {
         return IMPL.getModdedKeyMappings();
+    }
+
+    public static <I, O> void setupClientsideHandshake(
+            ResourceLocation handshakeId,
+            ControlifyPacketCodec<I> clientBoundCodec,
+            ControlifyPacketCodec<O> serverBoundCodec,
+            Function<I, O> handshakeHandler
+    ) {
+        IMPL.setupClientsideHandshake(handshakeId, clientBoundCodec, serverBoundCodec, handshakeHandler);
+    }
+
+    public static CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+        return IMPL.createCreativeTabHelper(creativeScreen);
     }
 
     private PlatformClientUtil() {

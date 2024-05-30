@@ -25,15 +25,22 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
     //? if <=1.20.6
     @Shadow private OptionsList list;
 
-    @Unique
-    private static final String optionsMethod = /*? if >1.20.6 {*//*"addOptions"*//*?} else {*/"init"/*?}*/;
-
     public ControlsScreenMixin(Screen parent, Options gameOptions, Component title) {
         super(parent, gameOptions, title);
     }
 
     /*? if >1.20.4 {*/
-    @Inject(method = optionsMethod, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/OptionsList;addSmall([Lnet/minecraft/client/OptionInstance;)V", shift = At.Shift.AFTER))
+    @Inject(
+            //? if >1.20.6 {
+            /*method = "addOptions",
+            *///?} else
+            method = "init",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/components/OptionsList;addSmall([Lnet/minecraft/client/OptionInstance;)V",
+                    shift = At.Shift.AFTER
+            )
+    )
     private void addControllerSettings(CallbackInfo ci) {
         this.list.addSmall(
                 Button.builder(Component.translatable("controlify.gui.button"), btn -> this.openControllerSettings()).build(),

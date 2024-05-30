@@ -1,4 +1,4 @@
-package dev.isxander.controlify.platform.server.events;
+package dev.isxander.controlify.platform.main.events;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;

@@ -235,7 +235,7 @@ public class VirtualMouseHandler {
         }
     }
 
-    private void snapToClosestPoint() {
+    public void snapToClosestPoint() {
         var window = minecraft.getWindow();
         var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
         var target = new Vector2d(targetX, targetY).mul(scaleFactor);
@@ -258,7 +258,7 @@ public class VirtualMouseHandler {
         }
     }
 
-    private void snapInDirection(ScreenDirection direction) {
+    public void snapInDirection(ScreenDirection direction) {
         var window = minecraft.getWindow();
         var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
         var target = new Vector2d(targetX, targetY).mul(scaleFactor);

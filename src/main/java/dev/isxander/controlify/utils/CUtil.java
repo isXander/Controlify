@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.*;
-import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.Version;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -24,9 +22,6 @@ import java.util.stream.Stream;
 
 public class CUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger("Controlify");
-
-    public static final Version VERSION = FabricLoader.getInstance().getModContainer("controlify")
-            .orElseThrow().getMetadata().getVersion();
     
     public static ResourceLocation rl(String path) {
         return rl("controlify", path);
