@@ -5,5 +5,5 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 
 @FunctionalInterface
 public interface DisconnectedEvent {
-    void onDisconnected(ClientPacketListener packetListener, Minecraft minecraft);
+    void onDisconnected(Minecraft minecraft);
 }

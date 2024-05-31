@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.client.fabric;
+//? if fabric {
+/*package dev.isxander.controlify.platform.client.fabric;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.platform.fabric.mixins.CreativeModeInventoryScreenAccessor;
@@ -90,3 +91,4 @@ public class FAPIImplCreativeTabHelper implements CreativeTabHelper {
                 .anyMatch(tab -> getPageForTab(tab) == page);
     }
 }
+*///?}

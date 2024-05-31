@@ -36,9 +36,9 @@ public class ControlifyServer {
         CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
         CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
 
-        PlatformMainUtil.registerInitPlayConnectionEvent((handler, server) -> {
+        PlatformMainUtil.registerPlayerJoinedEvent(player -> {
             SidedNetworkApi.S2C().sendPacket(
-                    handler.getPlayer(),
+                    player,
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.REACH_AROUND.getId(),
@@ -46,7 +46,7 @@ public class ControlifyServer {
                     )
             );
             SidedNetworkApi.S2C().sendPacket(
-                    handler.getPlayer(),
+                    player,
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.DISABLE_FLY_DRIFTING.getId(),

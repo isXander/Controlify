@@ -1,5 +1,5 @@
 /*? if sodium {*/
-package dev.isxander.controlify.compatibility.sodium.screenop;
+/*package dev.isxander.controlify.compatibility.sodium.screenop;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -50,4 +50,4 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
         }
     }
 }
-/*?}*/
+*//*?}*/

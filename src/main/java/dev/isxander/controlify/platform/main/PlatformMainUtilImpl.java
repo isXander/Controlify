@@ -4,8 +4,9 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
-import dev.isxander.controlify.platform.main.events.InitPlayConnectionEvent;
+import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
@@ -15,7 +16,7 @@ import java.util.function.Supplier;
 public interface PlatformMainUtilImpl {
     void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback);
 
-    void registerInitPlayConnectionEvent(InitPlayConnectionEvent event);
+    void registerInitPlayConnectionEvent(PlayerJoinedEvent event);
 
     boolean isModLoaded(String... modIds);
 
@@ -38,4 +39,6 @@ public interface PlatformMainUtilImpl {
             Supplier<O> packetCreator,
             HandshakeCompletionEvent<I> completionEvent
     );
+
+    <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant);
 }

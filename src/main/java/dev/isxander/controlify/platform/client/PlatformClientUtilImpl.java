@@ -25,7 +25,7 @@ public interface PlatformClientUtilImpl {
 
     void registerBuiltinResourcePack(ResourceLocation id, Component displayName);
 
-    void addHudLayer(RenderLayer renderLayer);
+    void addHudLayer(ResourceLocation id, RenderLayer renderLayer);
 
     void registerPostScreenRender(ScreenRenderEvent event);
 

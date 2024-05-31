@@ -158,7 +158,7 @@ public class ScreenProcessor<T extends Screen> {
                 }
 
                 if (Controlify.instance().config().globalSettings().uiSounds)
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 
                 var newFocusTree = getFocusTree();

@@ -1,11 +1,12 @@
-package dev.isxander.controlify.platform.main.fabric;
+//? if fabric {
+/*package dev.isxander.controlify.platform.main.fabric;
 
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.PlatformMainUtilImpl;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
-import dev.isxander.controlify.platform.main.events.InitPlayConnectionEvent;
+import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -13,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,8 +30,8 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public void registerInitPlayConnectionEvent(InitPlayConnectionEvent event) {
-        ServerPlayConnectionEvents.INIT.register(event::onInit);
+    public void registerInitPlayConnectionEvent(PlayerJoinedEvent event) {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> event.onInit(handler.getPlayer()));
     }
 
     @Override
@@ -62,6 +64,12 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
+    public <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant) {
+        T registered = Registry.register(registry, id, registrant.get());
+        return () -> registered;
+    }
+
+    @Override
     public Path getGameDir() {
         return FabricLoader.getInstance().getGameDir();
     }
@@ -90,3 +98,4 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
                 .getMetadata().getVersion().getFriendlyString();
     }
 }
+*///?}

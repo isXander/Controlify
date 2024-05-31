@@ -1,12 +1,10 @@
 package dev.isxander.controlify.api.ingameinput;
 
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.ingame.InGameInputHandler;
-import dev.isxander.controlify.platform.Event;
+import dev.isxander.controlify.platform.EventHandler;
 import org.joml.Vector2f;
 
 import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 /**
@@ -21,7 +19,7 @@ public record LookInputModifier(Vector2f lookInput, ControllerEntity controller)
      * @param y the function for modifying the y-axis
      * @return the new callback
      */
-    public static Event.Callback<LookInputModifier> functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
+    public static EventHandler.Callback<LookInputModifier> functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
         return event -> {
             event.lookInput.x = x.apply(event.lookInput.x, event.controller);
             event.lookInput.y = y.apply(event.lookInput.y, event.controller);
@@ -34,7 +32,7 @@ public record LookInputModifier(Vector2f lookInput, ControllerEntity controller)
      * @param condition the condition that, if true, sets both axes to zero
      * @return the new LookInputModifier object
      */
-    static Event.Callback<LookInputModifier> zeroIf(Predicate<ControllerEntity> condition) {
+    static EventHandler.Callback<LookInputModifier> zeroIf(Predicate<ControllerEntity> condition) {
         return event -> {
             if (condition.test(event.controller)) {
                 event.lookInput.set(0, 0);

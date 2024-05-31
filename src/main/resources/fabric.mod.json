@@ -32,7 +32,7 @@
     ]
   },
   "mixins": [
-    "controlify.mixins.json${mixins}"
+    "${mixins}"
   ],
   "icon": "icon.png",
   "accessWidener": "controlify.accesswidener",

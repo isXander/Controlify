@@ -4,9 +4,9 @@ import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
-import dev.isxander.controlify.platform.main.events.InitPlayConnectionEvent;
-import dev.isxander.controlify.platform.main.fabric.FabricPlatformMainImpl;
+import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
@@ -15,13 +15,17 @@ import java.util.function.Supplier;
 
 public final class PlatformMainUtil {
 
-    private static final PlatformMainUtilImpl IMPL = new FabricPlatformMainImpl();
+    private static final PlatformMainUtilImpl IMPL =
+            //? if fabric
+            /*new dev.isxander.controlify.platform.main.fabric.FabricPlatformMainImpl();*/
+            //? if neoforge
+            new dev.isxander.controlify.platform.main.neoforge.NeoforgePlatformMainImpl();
 
     public static void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback) {
         IMPL.registerCommandRegistrationCallback(callback);
     }
 
-    public static void registerInitPlayConnectionEvent(InitPlayConnectionEvent event) {
+    public static void registerPlayerJoinedEvent(PlayerJoinedEvent event) {
         IMPL.registerInitPlayConnectionEvent(event);
     }
 
@@ -41,6 +45,10 @@ public final class PlatformMainUtil {
             HandshakeCompletionEvent<I> completionEvent
     ) {
         IMPL.setupServersideHandshake(handshakeId, serverBoundCodec, clientBoundCodec, packetCreator, completionEvent);
+    }
+
+    public static <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant) {
+        return IMPL.deferredRegister(registry, id, registrant);
     }
 
     public static Path getGameDir() {

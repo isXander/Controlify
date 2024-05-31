@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.network.impl;
+//? if fabric {
+/*package dev.isxander.controlify.platform.network.fabric;
 
 import dev.isxander.controlify.platform.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -9,17 +10,17 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class S2CNetworkApiImpl implements S2CNetworkApi {
-    public static final S2CNetworkApiImpl INSTANCE = new S2CNetworkApiImpl();
+public final class S2CNetworkApiFabric implements S2CNetworkApi {
+    public static final S2CNetworkApiFabric INSTANCE = new S2CNetworkApiFabric();
 
     private final Map<ResourceLocation, FabricPacketWrapper<?>> packets = new HashMap<>();
 
-    private S2CNetworkApiImpl() {
+    private S2CNetworkApiFabric() {
     }
 
     @Override
     public <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec/*? if >1.20.4 {*/, net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C()/*?}*/));
+        packets.put(channel, new FabricPacketWrapper<>(channel, codec/^? if >1.20.4 {^/, net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C()/^?}^/));
     }
 
     @Override
@@ -32,11 +33,11 @@ public final class S2CNetworkApiImpl implements S2CNetworkApi {
     public <T> void listenForPacket(ResourceLocation channel, PacketListener<T> listener) {
         FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
 
-        /*? if >1.20.4 {*/
+        //? if >1.20.4 {
         ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
-        /*?} else {*//*
-        ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
-            *//*?}*/
+        //?} else {
+        /^ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
+        ^///?}
             listener.listen(packet.payload);
         });
     }
@@ -45,3 +46,4 @@ public final class S2CNetworkApiImpl implements S2CNetworkApi {
         return (FabricPacketWrapper<T>) packets.get(channel);
     }
 }
+*///?}

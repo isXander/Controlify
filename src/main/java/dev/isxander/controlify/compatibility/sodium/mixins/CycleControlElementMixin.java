@@ -1,5 +1,5 @@
 /*? if sodium {*/
-package dev.isxander.controlify.compatibility.sodium.mixins;
+/*package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.CycleControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -20,4 +20,4 @@ public abstract class CycleControlElementMixin implements ComponentProcessorProv
         return controlify$componentProcessor;
     }
 }
-/*?}*/
+*//*?}*/

@@ -1,7 +1,9 @@
 package dev.isxander.controlify;
 
 import dev.isxander.controlify.server.ControlifyServer;
-import net.fabricmc.api.ClientModInitializer;
+
+//? if fabric {
+/*import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;
 
@@ -21,3 +23,23 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
         ControlifyServer.getInstance().onInitialize();
     }
 }
+*///?} elif neoforge {
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLEnvironment;
+
+@Mod("controlify")
+public class ControlifyBootstrap {
+    public ControlifyBootstrap(IEventBus modBus) {
+        ControlifyServer.getInstance().onInitialize();
+
+        if (FMLEnvironment.dist.isClient()) {
+            Controlify.instance().preInitialiseControlify();
+        }
+
+        if (FMLEnvironment.dist.isDedicatedServer()) {
+            ControlifyServer.getInstance().onInitializeServer();
+        }
+    }
+}
+//?}

@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.client.fabric;
+//? if fabric {
+/*package dev.isxander.controlify.platform.client.fabric;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
@@ -49,7 +50,9 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 
     @Override
     public void registerClientDisconnected(DisconnectedEvent event) {
-        ClientPlayConnectionEvents.DISCONNECT.register(event::onDisconnected);
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            event.onDisconnected(client);
+        });
     }
 
     @Override
@@ -104,3 +107,4 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
         return new FAPIImplCreativeTabHelper(creativeScreen);
     }
 }
+*///?}

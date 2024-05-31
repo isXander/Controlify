@@ -161,7 +161,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 int newSelected = Mth.floor((angle + each / 2f) / each) % buttons.length;
                 if (newSelected != selectedButton) {
                     selectedButton = newSelected;
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1f));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE.get(), 1f));
                     controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
                 }
 

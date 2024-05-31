@@ -1,5 +1,5 @@
 /*? if sodium {*/
-package dev.isxander.controlify.compatibility.sodium.mixins;
+/*package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
 import me.jellysquid.mods.sodium.client.gui.options.OptionPage;
@@ -20,4 +20,4 @@ public interface SodiumOptionsGUIAccessor {
     @Accessor
     List<ControlElement<?>> getControls();
 }
-/*?}*/
+*//*?}*/

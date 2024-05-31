@@ -142,12 +142,12 @@ public class Controlify implements ControlifyApi {
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
 
-        PlatformClientUtil.registerClientDisconnected((handler, client) -> {
+        PlatformClientUtil.registerClientDisconnected((client) -> {
             DebugLog.log("Disconnected from server, resetting server policies");
             ServerPolicies.unsetAll();
         });
 
-        PlatformClientUtil.addHudLayer((graphics, tickDelta) ->
+        PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, tickDelta) ->
                 inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, tickDelta)));
     }
 

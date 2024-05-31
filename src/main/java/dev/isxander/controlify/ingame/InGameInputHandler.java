@@ -10,7 +10,6 @@ import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gui.screen.RadialItems;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
-import dev.isxander.controlify.platform.Event;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
@@ -31,8 +30,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
-
-import java.util.function.BiFunction;
 
 public class InGameInputHandler {
     private final ControllerEntity controller;

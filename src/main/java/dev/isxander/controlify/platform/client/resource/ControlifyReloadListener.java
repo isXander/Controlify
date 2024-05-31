@@ -1,19 +1,24 @@
 package dev.isxander.controlify.platform.client.resource;
 
-import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public interface ControlifyReloadListener extends IdentifiableResourceReloadListener {
+public interface ControlifyReloadListener
+        extends PreparableReloadListener
+        //? if fabric
+        /*,net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener*/
+{
     ResourceLocation getReloadId();
 
     default Collection<ResourceLocation> getDependencies() {
         return Collections.emptyList();
     }
 
-    @Override
+    //? if fabric {
+    /*@Override
     default ResourceLocation getFabricId() {
         return this.getReloadId();
     }
@@ -22,4 +27,5 @@ public interface ControlifyReloadListener extends IdentifiableResourceReloadList
     default Collection<ResourceLocation> getFabricDependencies() {
         return this.getDependencies();
     }
+    *///?}
 }

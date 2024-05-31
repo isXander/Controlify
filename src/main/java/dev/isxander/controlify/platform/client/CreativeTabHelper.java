@@ -13,8 +13,6 @@ public interface CreativeTabHelper {
 
     List<CreativeModeTab> getTabsForPage(int page);
 
-    int getPageForTab(CreativeModeTab tab);
-
     CreativeModeTab getSelectedTab();
 
     void setSelectedTab(CreativeModeTab tab);
