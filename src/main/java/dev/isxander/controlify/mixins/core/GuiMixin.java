@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 public class GuiMixin {
     /*? if >1.20.4 {*/
     @ModifyExpressionValue(method = "renderTabList", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z"))
-    /*?} else {*//*
-    @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z"))
+    /*?} else {*/
+    /*@ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z"))
     *//*?}*/
     private boolean shouldShowPlayerList(boolean keyDown) {
         return keyDown || Controlify.instance().inGameInputHandler().map(InGameInputHandler::shouldShowPlayerList).orElse(false);

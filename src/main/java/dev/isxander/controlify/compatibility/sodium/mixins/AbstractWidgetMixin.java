@@ -1,5 +1,5 @@
 /*? if sodium {*/
-/*package dev.isxander.controlify.compatibility.sodium.mixins;
+package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
@@ -18,4 +18,4 @@ public class AbstractWidgetMixin {
         return type;
     }
 }
-*//*?}*/
+/*?}*/

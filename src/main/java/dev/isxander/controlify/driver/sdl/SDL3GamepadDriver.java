@@ -4,7 +4,8 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.FloatByReference;
-import dev.isxander.controlify.controller.battery.BatteryLevel;
+import com.sun.jna.ptr.IntByReference;
+import dev.isxander.controlify.controller.battery.PowerState;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
@@ -33,7 +34,6 @@ import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import dev.isxander.sdl3java.api.sensor.SDL_SensorType;
 import net.minecraft.Util;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudioConsts.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
@@ -52,7 +53,7 @@ import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadAxis.*;
 import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadButton.*;
 import static dev.isxander.sdl3java.api.gamepad.SdlGamepad.*;
 import static dev.isxander.sdl3java.api.gamepad.SdlGamepadPropsConst.*;
-import static dev.isxander.sdl3java.api.joystick.SDL_JoystickPowerLevel.*;
+import static dev.isxander.sdl3java.api.power.SDL_PowerState.*;
 import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
 import static dev.isxander.sdl3java.api.sensor.SDL_SensorType.*;
 
@@ -87,9 +88,9 @@ public class SDL3GamepadDriver implements Driver {
 
         this.name = SDL_GetGamepadName(ptrGamepad);
         this.guid = SDL_GetGamepadInstanceGUID(jid).toString();
-        this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO);
-        this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
-        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+        this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO) == SDL_TRUE;
+        this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
+        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.numTouchpads = SDL_GetNumGamepadTouchpads(ptrGamepad);
         this.maxTouchpadFingers = IntStream.range(0, numTouchpads).map(i -> SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)).sum();
 
@@ -298,14 +299,15 @@ public class SDL3GamepadDriver implements Driver {
     }
 
     private void updateBatteryLevel() {
-        BatteryLevel level = switch (SDL_GetGamepadPowerLevel(ptrGamepad)) {
-            case SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
-            case SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
-            case SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
-            case SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
-            case SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
-            case SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
-            case SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
+        IntByReference percent = new IntByReference();
+        int powerState = SDL_GetGamepadPowerInfo(ptrGamepad, percent);
+
+        PowerState level = switch (powerState) {
+            case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
+            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.getValue());
+            case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
+            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.getValue());
+            case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
             default -> throw new IllegalStateException("Unexpected value");
         };
 

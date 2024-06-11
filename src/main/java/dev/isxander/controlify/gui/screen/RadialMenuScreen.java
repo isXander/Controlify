@@ -6,7 +6,6 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.dualsense.HapticEffects;
-import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
@@ -15,7 +14,7 @@ import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.sound.ControlifySounds;
+import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
@@ -161,7 +160,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 int newSelected = Mth.floor((angle + each / 2f) / each) % buttons.length;
                 if (newSelected != selectedButton) {
                     selectedButton = newSelected;
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
                     controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
                 }
 
@@ -192,8 +191,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         if (editMode != null) {
             /*? if >1.20.4 {*/
             renderBackground(graphics, mouseX, mouseY, delta);
-            /*?} else {*//*
-            renderDirtBackground(graphics);
+            /*?} else {*/
+            /*renderDirtBackground(graphics);
             *//*?}*/
         }
 

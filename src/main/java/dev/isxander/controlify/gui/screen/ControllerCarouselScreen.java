@@ -168,8 +168,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        /*? if =1.20.4 {*//*
-        renderBackground(graphics, mouseX, mouseY, delta);
+        /*? if =1.20.4 {*/
+        /*renderBackground(graphics, mouseX, mouseY, delta);
         *//*?} else <1.20.4 {*//*
         renderBackground(graphics);
         *//*?}*/
@@ -179,8 +179,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         graphics.blit(
                 /*? if >1.20.4 {*/
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
-                /*?} else {*//*
-                CreateWorldScreen.FOOTER_SEPERATOR,
+                /*?} else {*/
+                /*CreateWorldScreen.FOOTER_SEPERATOR,
                 *//*?}*/
                 0, footerY,
                 0.0F, 0.0F,
@@ -213,8 +213,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 32, 32
         );
         RenderSystem.disableBlend();
-        /*?} else {*//*
-        graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
+        /*?} else {*/
+        /*graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
         graphics.setColor(1f, 1f, 1f, 1f);
 

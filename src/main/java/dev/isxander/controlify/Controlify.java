@@ -37,6 +37,7 @@ import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.server.packets.*;
+import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
@@ -116,6 +117,8 @@ public class Controlify implements ControlifyApi {
         controllerHIDService.start();
 
         registerBuiltinPack("legacy_console");
+
+        ControlifyClientSounds.init();
 
         ControlifyHandshake.setupOnClient();
 

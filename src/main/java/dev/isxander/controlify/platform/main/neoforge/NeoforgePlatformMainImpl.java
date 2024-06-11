@@ -1,5 +1,5 @@
 //? if neoforge {
-package dev.isxander.controlify.platform.main.neoforge;
+/*package dev.isxander.controlify.platform.main.neoforge;
 
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.platform.Environment;
@@ -94,4 +94,4 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
         return ModLoadingContext.get().getActiveContainer().getEventBus();
     }
 }
-//?}
+*///?}

@@ -4,6 +4,7 @@ plugins {
     `java-library`
 
     id("dev.architectury.loom") version "1.6.+"
+    id("dev.kikugie.j52j") version "1.0"
 
     id("me.modmuss50.mod-publish-plugin") version "0.5.+"
     `maven-publish`
@@ -65,6 +66,12 @@ loom {
             mixins.forEach { mixinConfig(it) }
         }
     }
+}
+
+stonecutter {
+    dependencies(
+        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0")
+    )
 }
 
 repositories {
@@ -214,6 +221,7 @@ tasks {
             if (isFabric) {
                 put("mc", findProperty("fmj.mcDep"))
                 put("mixins", mixins.joinToString("\",\"", prefix = "\"", postfix = "\""))
+                put("fapi", findProperty("fmj.fapiDep") ?: "*")
             }
 
             if (isForgeLike) {

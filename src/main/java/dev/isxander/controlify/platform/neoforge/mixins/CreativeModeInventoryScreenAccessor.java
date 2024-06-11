@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.neoforge.mixins;
+//? if neoforge {
+/*package dev.isxander.controlify.platform.neoforge.mixins;
 
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;
@@ -22,3 +23,4 @@ public interface CreativeModeInventoryScreenAccessor {
     @Accessor
     List<CreativeTabsScreenPage> getPages();
 }
+*///?}

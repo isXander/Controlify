@@ -5,22 +5,23 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.mapping.MappingEntry;
 import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
-import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.ToastUtils;
-import net.minecraft.network.chat.Component;
+import dev.isxander.controlify.utils.DebugLog;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ControlifyConfig {
     public static final Path CONFIG_PATH = PlatformMainUtil.getConfigDir().resolve("controlify.json");
-
     public static final Gson GSON = new GsonBuilder()
             .serializeNulls()
             .setPrettyPrinting()
@@ -31,13 +32,15 @@ public class ControlifyConfig {
             .create();
 
     private final Controlify controlify;
-
-    private String currentControllerUid;
-    private JsonObject controllerData = new JsonObject();
-    private GlobalSettings globalSettings = new GlobalSettings();
+    // responsible citizens will set dirty so the config can only re-save when needed
+    private boolean dirty;
     private boolean firstLaunch;
 
-    private boolean dirty;
+    private String currentControllerUid = null;
+    // used so saving the config doesn't lose controller config that isn't currently connected
+    // key: controller uid
+    private final Map<String, JsonObject> storedControllerConfig = new HashMap<>();
+    private @NotNull GlobalSettings globalSettings = new GlobalSettings();
 
     public ControlifyConfig(Controlify controlify) {
         this.controlify = controlify;
@@ -46,12 +49,30 @@ public class ControlifyConfig {
     public void save() {
         CUtil.LOGGER.info("Saving Controlify config...");
 
+        JsonObject serialObject;
+        try {
+            serialObject = createSerialObject();
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to serialize Controlify config. Controlify will not be saved!", e);
+            return;
+        }
+
         try {
             Files.deleteIfExists(CONFIG_PATH);
-            Files.writeString(CONFIG_PATH, GSON.toJson(generateConfig()), StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING);
+            Files.writeString(
+                    CONFIG_PATH,
+                    GSON.toJson(serialObject),
+                    StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING
+            );
             dirty = false;
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to save config!", e);
+            throw new IllegalStateException("Failed to save Controlify config to file!", e);
+        }
+    }
+
+    public void saveIfDirty() {
+        if (dirty) {
+            save();
         }
     }
 
@@ -59,6 +80,7 @@ public class ControlifyConfig {
         CUtil.LOGGER.info("Loading Controlify config...");
 
         if (!Files.exists(CONFIG_PATH)) {
+            CUtil.LOGGER.info("First launch detected. Creating initial config file!");
             firstLaunch = true;
             save();
             return;
@@ -76,109 +98,127 @@ public class ControlifyConfig {
         }
     }
 
-    private JsonObject generateConfig() {
-        JsonObject config = new JsonObject();
+    private JsonObject createSerialObject() {
+        JsonObject obj = new JsonObject();
 
-        JsonObject newControllerData = controllerData.deepCopy(); // we use the old config, so we don't lose disconnected controller data
+        { // Current controller
+            obj.addProperty(
+                    "current_controller",
+                    controlify.getCurrentController().map(c -> c.info().uid()).orElse(null)
+            );
+        }
 
-        controlify.getControllerManager().ifPresent(controllerManager -> {
-            for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-                // `add` replaces if already existing
-                newControllerData.add(controller.info().uid(), generateControllerConfig(controller));
+        { // Controller config
+            controlify.getControllerManager().ifPresent(this::updateStoredControllerConfig);
+            JsonObject controllersObj = new JsonObject();
+            storedControllerConfig.forEach(controllersObj::add);
+            obj.add("controllers", controllersObj);
+        }
+
+        { // Global settings
+            JsonElement globalJson = GSON.toJsonTree(globalSettings);
+            obj.add("global", globalJson);
+        }
+
+        return obj;
+    }
+
+    private void updateStoredControllerConfig(ControllerManager controllerManager) {
+        for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+            // get the existing config to modify
+            JsonObject controllerObject = storedControllerConfig
+                    .computeIfAbsent(controller.info().uid(), k -> new JsonObject());
+
+            // get config object within that object, or create and add it
+            JsonObject configObject = controllerObject.getAsJsonObject("config");
+            if (configObject == null) {
+                configObject = new JsonObject();
+                controllerObject.add("config", configObject);
             }
-        });
 
-        controllerData = newControllerData;
-        config.addProperty("current_controller", currentControllerUid = controlify.getCurrentController().map(c -> c.info().uid()).orElse(null));
-        config.add("controllers", controllerData);
-        config.add("global", GSON.toJsonTree(globalSettings));
+            // now the serialization will not remove objects that it doesn't need
+            // this is useful because hd haptics only applies if controller is wired,
+            // so if the user interchanges between BT+W it won't lose the HD haptic config
+            controller.serializeToObject(configObject, GSON);
 
-        return config;
-    }
-
-    private JsonObject generateControllerConfig(ControllerEntity controller) {
-        JsonObject object = new JsonObject();
-        JsonObject config = new JsonObject();
-        controller.serializeToObject(config, GSON);
-
-        object.add("config", config);
-
-        return object;
-    }
-
-    private void applyConfig(JsonObject object) {
-        globalSettings = GSON.fromJson(object.getAsJsonObject("global"), GlobalSettings.class);
-        if (globalSettings == null) {
-            globalSettings = new GlobalSettings();
-            setDirty();
-        }
-
-        JsonObject controllers = object.getAsJsonObject("controllers");
-        if (controllers != null) {
-            this.controllerData = controllers;
-            if (controlify.getControllerManager().isPresent()) {
-                for (var controller : controlify.getControllerManager().get().getConnectedControllers()) {
-                    loadOrCreateControllerData(controller);
-                }
-            }
-        } else {
-            setDirty();
-        }
-
-        if (object.has("current_controller")) {
-            JsonElement element = object.get("current_controller");
-            currentControllerUid = element.isJsonNull() ? null : element.getAsString();
-        } else {
-            currentControllerUid = controlify.getCurrentController().map(c -> c.info().uid()).orElse(null);
-            setDirty();
+            storedControllerConfig.put(controller.info().uid(), controllerObject);
         }
     }
 
-    public boolean loadOrCreateControllerData(ControllerEntity controller) {
-        var uid = controller.info().uid();
-        if (controllerData.has(uid)) {
-            DebugLog.log("Loading controller data for " + uid);
-            applyControllerConfig(controller, controllerData.getAsJsonObject(uid));
-            return true;
-        } else {
-            DebugLog.log("New controller found, setting config dirty ({})", uid);
-            setDirty();
-            return false;
-        }
-    }
-
-    private void applyControllerConfig(ControllerEntity controller, JsonObject object) {
+    private void applyConfig(JsonObject json) {
         try {
-            controller.deserializeFromObject(object.getAsJsonObject("config"), GSON);
+            JsonElement primitive = json.get("current_controller");
+            if (primitive != null) {
+                currentControllerUid = primitive.isJsonNull() ? null : primitive.getAsString();
+            } else {
+                CUtil.LOGGER.warn("Current controller is not defined in config!");
+                setDirty();
+            }
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to load controller data for {}. Resetting to default!", controller.info().uid(), e);
-            controller.resetToDefaultConfig();
-            ToastUtils.sendToast(Component.translatable("controlify.toast.fail_conf_load.title"), Component.translatable("controlify.toast.fail_conf_load.desc"), true);
-            save();
+            CUtil.LOGGER.error("Failed to apply current controller from config file!", e);
+            setDirty();
         }
+
+        try {
+            JsonObject controllersMap = json.getAsJsonObject("controllers");
+            controllersMap.asMap().forEach((uid, element) -> {
+                storedControllerConfig.put(uid, element.getAsJsonObject());
+            });
+            controlify.getControllerManager().ifPresent(this::applyControllerConfig);
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to apply controller config from config file!", e);
+            setDirty();
+        }
+
+        try {
+            GlobalSettings newGlobalSettings = GSON.fromJson(json.get("global"), GlobalSettings.class);
+            if (newGlobalSettings != null) globalSettings = newGlobalSettings;
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to apply global settings from config file!", e);
+            setDirty();
+        }
+    }
+
+    private void applyControllerConfig(ControllerManager controllerManager) {
+        for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+            loadControllerConfig(controller);
+        }
+    }
+
+    public boolean loadControllerConfig(ControllerEntity controller) {
+        JsonObject json = storedControllerConfig.get(controller.info().uid());
+
+        if (json == null) {
+            CUtil.LOGGER.warn("Controller {} has no config to load. Using defaults.", controller.info().ucid());
+            setDirty();
+            return true;
+        }
+
+        JsonObject innerJson = json.getAsJsonObject("config");
+
+        try {
+            controller.deserializeFromObject(innerJson, GSON);
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to load controller {} config!", controller.info().ucid(), e);
+            setDirty();
+        }
+
+        return false;
+    }
+
+    public @Nullable String currentControllerUid() {
+        return this.currentControllerUid;
+    }
+
+    public @NotNull GlobalSettings globalSettings() {
+        return this.globalSettings;
+    }
+
+    public boolean isFirstLaunch() {
+        return this.firstLaunch;
     }
 
     public void setDirty() {
         dirty = true;
-    }
-
-    public void saveIfDirty() {
-        if (dirty) {
-            DebugLog.log("Config is dirty. Saving...");
-            save();
-        }
-    }
-
-    public GlobalSettings globalSettings() {
-        return globalSettings;
-    }
-
-    public boolean isFirstLaunch() {
-        return firstLaunch;
-    }
-
-    @Nullable
-    public String currentControllerUid() {
-        return currentControllerUid;
     }
 }

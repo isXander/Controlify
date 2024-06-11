@@ -66,8 +66,8 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
 
     /*? if >1.20.4 {*/
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-    /*?} else {*//*
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
+    /*?} else {*/
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     *//*?}*/
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
         Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));

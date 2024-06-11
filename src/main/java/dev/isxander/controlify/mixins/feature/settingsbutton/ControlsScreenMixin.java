@@ -47,8 +47,8 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
                 null
         );
     }
-    /*?} else {*//*
-    @Inject(method = optionsMethod, at = @At("RETURN"))
+    /*?} else {*/
+    /*@Inject(method = "init", at = @At("RETURN"))
     private void addControllerSettings(CallbackInfo ci, @Local(ordinal = 0) int leftX, @Local(ordinal = 1) int rightX, @Local(ordinal = 2) int currentY) {
         addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> this.openControllerSettings())
                 .pos(leftX, currentY)
@@ -56,7 +56,7 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
                 .build());
     }
 
-    @ModifyArg(method = optionsMethod, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button$Builder;bounds(IIII)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 2), index = 1)
+    @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/Button$Builder;bounds(IIII)Lnet/minecraft/client/gui/components/Button$Builder;", ordinal = 2), index = 1)
     private int modifyDoneButtonY(int y) {
         return y + 24;
     }

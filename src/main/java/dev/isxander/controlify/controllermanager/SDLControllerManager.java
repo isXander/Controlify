@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.Optional;
 
+import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
 import static dev.isxander.sdl3java.api.events.SDL_EventType.*;
 import static dev.isxander.sdl3java.api.events.SdlEvents.*;
@@ -58,7 +59,7 @@ public class SDLControllerManager extends AbstractControllerManager {
 
         // SDL identifiers controllers in two different ways:
         // device index, and device instance ID.
-        while (SDL_PollEvent(event)) {
+        while (SDL_PollEvent(event) == SDL_TRUE) {
             switch (event.type) {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
@@ -135,7 +136,7 @@ public class SDLControllerManager extends AbstractControllerManager {
     @Override
     public boolean isControllerGamepad(UniqueControllerID ucid) {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
-        return SDL_IsGamepad(jid);
+        return SDL_IsGamepad(jid) == SDL_TRUE;
     }
 
     @Override

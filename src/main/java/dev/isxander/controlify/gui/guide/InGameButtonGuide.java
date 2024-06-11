@@ -262,8 +262,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     private HitResult calculateHitResult() {
         /*? if >1.20.4 {*/
         double pickRange = minecraft.player.blockInteractionRange();
-        /*?} else {*//*
-        double pickRange = minecraft.gameMode.getPickRange();
+        /*?} else {*/
+        /*double pickRange = minecraft.gameMode.getPickRange();
         *//*?}*/
 
         // block
@@ -273,8 +273,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         /*? if >1.20.4 {*/
         pickRange = minecraft.player.entityInteractionRange();
-        /*?} else {*//*
-        if (minecraft.gameMode.hasFarPickRange()) {
+        /*?} else {*/
+        /*if (minecraft.gameMode.hasFarPickRange()) {
             pickRange = 6.0;
         }
         *//*?}*/

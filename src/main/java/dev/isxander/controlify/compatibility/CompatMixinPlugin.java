@@ -12,10 +12,10 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 
     protected CompatMixinPlugin() {
         //? if fabric {
-        /*this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getModId());
-        *///?} elif neoforge {
-        this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getModId()) != null;
-        //?}
+        this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getModId());
+        //?} elif neoforge {
+        /*this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getModId()) != null;
+        *///?}
     }
 
     public abstract String getModId();

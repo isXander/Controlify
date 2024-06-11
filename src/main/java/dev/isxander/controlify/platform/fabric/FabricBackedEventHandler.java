@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.isxander.controlify.platform.fabric;
+package dev.isxander.controlify.platform.fabric;
 
 import dev.isxander.controlify.platform.EventHandler;
 import net.fabricmc.fabric.api.event.EventFactory;
@@ -25,4 +25,4 @@ public class FabricBackedEventHandler<T> implements EventHandler<T> {
         this.backedEvent.invoker().onEvent(event);
     }
 }
-*///?}
+//?}

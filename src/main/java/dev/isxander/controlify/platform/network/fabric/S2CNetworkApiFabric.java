@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.isxander.controlify.platform.network.fabric;
+package dev.isxander.controlify.platform.network.fabric;
 
 import dev.isxander.controlify.platform.network.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -20,7 +20,7 @@ public final class S2CNetworkApiFabric implements S2CNetworkApi {
 
     @Override
     public <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec/^? if >1.20.4 {^/, net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C()/^?}^/));
+        packets.put(channel, new FabricPacketWrapper<>(channel, codec/*? if >1.20.4 {*/, net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C()/*?}*/));
     }
 
     @Override
@@ -36,8 +36,8 @@ public final class S2CNetworkApiFabric implements S2CNetworkApi {
         //? if >1.20.4 {
         ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
         //?} else {
-        /^ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
-        ^///?}
+        /*ClientPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
+        *///?}
             listener.listen(packet.payload);
         });
     }
@@ -46,4 +46,4 @@ public final class S2CNetworkApiFabric implements S2CNetworkApi {
         return (FabricPacketWrapper<T>) packets.get(channel);
     }
 }
-*///?}
+//?}

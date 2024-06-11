@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,10 +26,10 @@ public class MultiPlayerGameModeMixin {
 
     @Inject(
             //? if fabric {
-            /*method = "method_41930",
-            *///?} else {
-            method = "lambda$startDestroyBlock$1",
-            //?}
+            method = "method_41930",
+            //?} else {
+            /*method = "lambda$startDestroyBlock$1",
+            *///?}
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
     )
     private void onStartBreakingBlock(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
@@ -39,10 +38,10 @@ public class MultiPlayerGameModeMixin {
 
     @Inject(
             //? if fabric {
-            /*method = "method_41930",
-            *///?} else {
-            method = "lambda$startDestroyBlock$1",
-            //?}
+            method = "method_41930",
+            //?} else {
+            /*method = "lambda$startDestroyBlock$1",
+            *///?}
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z")
     )
     private void onInstabreakBlockSurvival(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {

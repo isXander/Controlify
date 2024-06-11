@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.isxander.controlify.platform.fabric.mixins;
+package dev.isxander.controlify.platform.fabric.mixins;
 
 import net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl;
 import net.minecraft.client.KeyMapping;
@@ -15,4 +15,4 @@ public interface KeyBindingRegistryImplAccessor {
         throw new AssertionError();
     }
 }
-*///?}
+//?}

@@ -1,5 +1,5 @@
 //? if fabric {
-/*package dev.isxander.controlify.platform.main.fabric;
+package dev.isxander.controlify.platform.main.fabric;
 
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.platform.Environment;
@@ -98,4 +98,4 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
                 .getMetadata().getVersion().getFriendlyString();
     }
 }
-*///?}
+//?}

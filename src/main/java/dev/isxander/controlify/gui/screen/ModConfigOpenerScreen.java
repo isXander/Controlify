@@ -25,6 +25,6 @@ public class ModConfigOpenerScreen extends Screen {
 
     @Override
     public void triggerImmediateNarration(boolean useTranslationsCache) {
-
+        // no-op narration
     }
 }

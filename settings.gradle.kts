@@ -1,4 +1,4 @@
-import dev.kikugie.stonecutter.gradle.StonecutterSettings
+import dev.kikugie.stonecutter.StonecutterSettings
 
 pluginManagement {
     repositories {
@@ -15,7 +15,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.4.0-alpha.8"
+    id("dev.kikugie.stonecutter") version "0.4-beta.4"
 }
 
 extensions.configure<StonecutterSettings> {
@@ -29,7 +29,7 @@ extensions.configure<StonecutterSettings> {
         }
 
         mc("1.20.6", loaders = listOf("fabric", "neoforge"))
-        mc("1.20.4", loaders = listOf("fabric"))
+        mc("1.20.4", loaders = listOf("fabric", "neoforge"))
         mc("1.21", loaders = listOf("fabric"))
         mc("1.20.1", loaders = listOf("fabric"))
 

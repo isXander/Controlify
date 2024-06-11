@@ -21,8 +21,8 @@ public class MinecraftMixin {
 
     /*? if >1.20.4 {*/
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-    /*?} else {*//*
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
+    /*?} else {*/
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     *//*?}*/
     private void onUpdateMouse(boolean tick, CallbackInfo ci) {
         Optional.ofNullable(Controlify.instance().virtualMouseHandler())

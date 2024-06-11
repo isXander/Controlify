@@ -4,7 +4,7 @@ plugins {
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
-stonecutter active "1.20.6-neoforge" /* [SC] DO NOT EDIT */
+stonecutter active "1.20.6-fabric" /* [SC] DO NOT EDIT */
 
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {
     group = "mod"

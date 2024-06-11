@@ -3,7 +3,6 @@ package dev.isxander.controlify.server;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.packets.*;
-import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.CUtil;
 
 public class ControlifyServer {
@@ -15,8 +14,6 @@ public class ControlifyServer {
     }
 
     public void onInitialize() {
-        ControlifySounds.init();
-
         ControlifyHandshake.setupOnServer();
 
         SidedNetworkApi.S2C().registerPacket(VibrationPacket.CHANNEL, VibrationPacket.CODEC);

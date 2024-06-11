@@ -1,5 +1,5 @@
 /*? if sodium {*/
-/*package dev.isxander.controlify.compatibility.sodium.mixins;
+package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.SliderControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -32,4 +32,4 @@ public abstract class SliderControlElementMixin extends ControlElement<Integer> 
         this.option.setValue(Mth.clamp(this.option.getValue() + (reverse ? -this.interval : this.interval), this.min, this.max));
     }
 }
-*//*?}*/
+/*?}*/

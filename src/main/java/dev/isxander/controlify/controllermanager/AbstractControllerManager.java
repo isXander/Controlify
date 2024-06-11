@@ -79,7 +79,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        boolean newController = controlify.config().loadOrCreateControllerData(controller);
+        boolean newController = controlify.config().loadControllerConfig(controller);
 
         CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 

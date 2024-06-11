@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.client.neoforge;
+//? if neoforge {
+/*package dev.isxander.controlify.platform.client.neoforge;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.platform.neoforge.mixins.CreativeModeInventoryScreenAccessor;
@@ -49,3 +50,4 @@ public class NeoforgeCreativeTabHelper implements CreativeTabHelper {
         return ((CreativeModeInventoryScreenAccessor) screen).getPages();
     }
 }
+*///?}

@@ -11,7 +11,7 @@ import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
-import dev.isxander.controlify.sound.ControlifySounds;
+import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
@@ -158,7 +158,7 @@ public class ScreenProcessor<T extends Screen> {
                 }
 
                 if (Controlify.instance().config().globalSettings().uiSounds)
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 
                 var newFocusTree = getFocusTree();

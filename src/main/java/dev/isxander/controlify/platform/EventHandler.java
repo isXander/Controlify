@@ -7,10 +7,10 @@ public interface EventHandler<T> {
 
     static <T> EventHandler<T> createPlatformBackedEvent() {
         //? if fabric {
-        /*return new dev.isxander.controlify.platform.fabric.FabricBackedEventHandler<>();
-        *///?} else {
-        return new ArrayBackedEventHandler<>();
-        //?}
+        return new dev.isxander.controlify.platform.fabric.FabricBackedEventHandler<>();
+        //?} else {
+        /*return new ArrayBackedEventHandler<>();
+        *///?}
     }
 
     @FunctionalInterface

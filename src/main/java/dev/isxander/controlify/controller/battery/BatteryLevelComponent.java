@@ -7,13 +7,13 @@ import net.minecraft.resources.ResourceLocation;
 public class BatteryLevelComponent implements ECSComponent {
     public static final ResourceLocation ID = CUtil.rl("battery_level");
 
-    private BatteryLevel batteryLevel = BatteryLevel.UNKNOWN;
+    private PowerState batteryLevel = new PowerState.Unknown();
 
-    public BatteryLevel getBatteryLevel() {
+    public PowerState getBatteryLevel() {
         return this.batteryLevel;
     }
 
-    public void setBatteryLevel(BatteryLevel batteryLevel) {
+    public void setBatteryLevel(PowerState batteryLevel) {
         this.batteryLevel = batteryLevel;
     }
 }

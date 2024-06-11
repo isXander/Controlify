@@ -9,7 +9,7 @@ import java.util.Collections;
 public interface ControlifyReloadListener
         extends PreparableReloadListener
         //? if fabric
-        /*,net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener*/
+        ,net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 {
     ResourceLocation getReloadId();
 
@@ -18,7 +18,7 @@ public interface ControlifyReloadListener
     }
 
     //? if fabric {
-    /*@Override
+    @Override
     default ResourceLocation getFabricId() {
         return this.getReloadId();
     }
@@ -27,5 +27,5 @@ public interface ControlifyReloadListener
     default Collection<ResourceLocation> getFabricDependencies() {
         return this.getDependencies();
     }
-    *///?}
+    //?}
 }
