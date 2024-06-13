@@ -37,8 +37,8 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
         ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
             listener.listen(packet.payload, context.player());
         });
-        /*?} else {*//*
-        ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
+        /*?} else {*/
+        /*ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
             listener.listen(packet.payload, player);
         });
         *//*?}*/

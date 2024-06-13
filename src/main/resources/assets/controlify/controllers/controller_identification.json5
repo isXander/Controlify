@@ -56,6 +56,14 @@
     ]
   },
   {
+    "name": "PlayStation Portable",
+    "namespace": "controlify:psp",
+
+    "hids": [
+      [0x0ff, 0x1cb],
+    ]
+  },
+  {
     "name": "Switch Controller",
     "namespace": "controlify:switch",
 

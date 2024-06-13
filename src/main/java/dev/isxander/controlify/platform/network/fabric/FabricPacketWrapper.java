@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-/*?} else {*//*
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+/*?} else {*/
+/*import net.fabricmc.fabric.api.networking.v1.FabricPacket;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 *//*?}*/
 
@@ -21,8 +21,8 @@ public class FabricPacketWrapper<T> {
     /*? if >1.20.4 {*/
     public final CustomPacketPayload.Type<FabricPacketPayloadWrapper> type;
     private final StreamCodec<FriendlyByteBuf, FabricPacketPayloadWrapper> streamCodec;
-    /*?} else {*//*
-    public final PacketType<FabricPacketPayloadWrapper> type;
+    /*?} else {*/
+    /*public final PacketType<FabricPacketPayloadWrapper> type;
     *//*?}*/
 
     public FabricPacketWrapper(
@@ -42,20 +42,20 @@ public class FabricPacketWrapper<T> {
         );
 
         registry.register(type, streamCodec);
-        /*?} else {*//*
-        this.type = PacketType.create(channel, buf -> new FabricPacketPayloadWrapper(codec.decode(buf)));
+        /*?} else {*/
+        /*this.type = PacketType.create(channel, buf -> new FabricPacketPayloadWrapper(codec.decode(buf)));
         *//*?}*/
     }
 
-    public class FabricPacketPayloadWrapper implements /*? if >1.20.4 {*/ CustomPacketPayload /*?} else {*//* FabricPacket *//*?}*/ {
+    public class FabricPacketPayloadWrapper implements /*? if >1.20.4 {*/ CustomPacketPayload /*?} else {*/ /*FabricPacket *//*?}*/ {
         public final T payload;
 
         public FabricPacketPayloadWrapper(T payload) {
             this.payload = payload;
         }
 
-        /*? if <=1.20.4 {*//*
-        @Override
+        /*? if <=1.20.4 {*/
+        /*@Override
         public void write(FriendlyByteBuf buf) {
             codec.encode(buf, payload);
         }

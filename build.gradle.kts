@@ -1,4 +1,5 @@
 import net.fabricmc.loom.task.RemapJarTask
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     `java-library`
@@ -171,7 +172,7 @@ dependencies {
         // was including old fapi version that broke things at runtime
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
         exclude(group = "thedarkcolour")
-    }
+    }.forgeRuntime()
 
     // bindings for SDL3
     api("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
@@ -306,7 +307,7 @@ tasks.withType<JavaCompile> {
 }
 
 publishMods {
-    displayName.set("Controlify $versionWithoutMC for MC $mcVersion")
+    displayName.set("Controlify $versionWithoutMC for ${loader.capitalized()} $mcVersion")
 
     file.set(tasks.remapJar.get().archiveFile)
     additionalFiles.setFrom(offlineRemapJar.get().archiveFile)
@@ -340,9 +341,12 @@ publishMods {
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.modrinthMC"))
 
-            requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }
-            optional { slug.set("modmenu") }
+
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
+            }
         }
     }
 
@@ -354,9 +358,12 @@ publishMods {
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.curseMC"))
 
-            requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }
-            optional { slug.set("modmenu") }
+
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
+            }
         }
     }
 

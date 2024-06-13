@@ -1,5 +1,5 @@
-/*? if iris {*//*
-package dev.isxander.controlify.compatibility.iris.screenop;
+/*? if iris {*/
+/*package dev.isxander.controlify.compatibility.iris.screenop;
 
 import dev.isxander.controlify.screenop.compat.AbstractSliderComponentProcessor;
 

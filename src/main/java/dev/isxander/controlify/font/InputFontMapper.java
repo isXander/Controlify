@@ -7,9 +7,9 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.chat.Component;
@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 
 public class InputFontMapper implements SimpleControlifyReloadListener<InputFontMapper.Preparations> {
     private ImmutableMap<ResourceLocation, FontMap> mappings;
+    private FontMap defaultFontMap;
 
     private static final Codec<Character> CHAR_CODEC = Codec.STRING.comapFlatMap(
             (str) -> {
@@ -41,12 +42,9 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
             String::valueOf
     );
 
-    private static final Codec<FontMap> FONT_MAP_CODEC = Codec.pair(
+    private static final Codec<Pair<Character, Map<ResourceLocation, Character>>> FONT_MAP_CODEC = Codec.pair(
             CHAR_CODEC.fieldOf("unknown").codec(),
             Codec.unboundedMap(ResourceLocation.CODEC, CHAR_CODEC)
-    ).xmap(
-            pair -> new FontMap(pair.getFirst(), pair.getSecond()),
-            map -> Pair.of(map.unknown(), map.inputToChar())
     );
 
     private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controllers/font_mappings");
@@ -63,7 +61,9 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
                 try (BufferedReader reader = resource.openAsReader()) {
                     JsonElement element = JsonParser.parseReader(reader);
                     FontMap map = FONT_MAP_CODEC.parse(JsonOps.INSTANCE, element)
-                            .resultOrPartial(CUtil.LOGGER::error).orElse(null);
+                            .resultOrPartial(CUtil.LOGGER::error)
+                            .map(pair -> new FontMap(namespace, pair.getFirst(), pair.getSecond()))
+                            .orElse(null);
                     if (map != null) {
                         return Stream.of(Pair.of(namespace, map));
                     }
@@ -84,11 +84,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
             ImmutableMap.Builder<ResourceLocation, FontMap> builder = ImmutableMap.builder();
             data.mappings().forEach(builder::put);
             mappings = builder.build();
+            defaultFontMap = mappings.get(ControllerType.DEFAULT.namespace());
         }, executor);
     }
 
     public FontMap getMappings(ResourceLocation namespace) {
-        return mappings.get(namespace);
+        return mappings.getOrDefault(namespace, defaultFontMap);
     }
 
     public Component getComponentFromBinding(ResourceLocation namespace, @Nullable InputBinding binding) {
@@ -111,18 +112,17 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
             return Component.literal("<unbound>");
         }
 
+        FontMap fontMap = getMappings(namespace);
+
         String literal = inputs.stream()
-                .map(input -> String.valueOf(getChar(namespace, input)))
+                .map(input -> String.valueOf(getChar(fontMap, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style -> style.withFont(namespace.withPrefix("controller/")));
+        return Component.literal(literal).withStyle(style ->
+                style.withFont(fontMap.namespace().withPrefix("controller/")));
     }
 
-    public char getChar(ResourceLocation namespace, ResourceLocation input) {
-        FontMap map = getMappings(namespace);
-        if (map != null) {
-            return map.inputToChar().getOrDefault(input, map.unknown());
-        }
-        return '\0';
+    private char getChar(FontMap fontMap, ResourceLocation input) {
+        return fontMap.inputToChar().getOrDefault(input, fontMap.unknown());
     }
 
     @Override
@@ -133,6 +133,6 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
     public record Preparations(Map<ResourceLocation, FontMap> mappings) {
 
     }
-    public record FontMap(char unknown, Map<ResourceLocation, Character> inputToChar) {
+    public record FontMap(ResourceLocation namespace, char unknown, Map<ResourceLocation, Character> inputToChar) {
     }
 }

@@ -66,8 +66,7 @@ public class FAPIImplCreativeTabHelper implements CreativeTabHelper {
                 .toList();
     }
 
-    @Override
-    public int getPageForTab(CreativeModeTab tab) {
+    private int getPageForTab(CreativeModeTab tab) {
         if (FabricCreativeGuiComponents.COMMON_GROUPS.contains(tab)) {
             return getCurrentPage();
         }

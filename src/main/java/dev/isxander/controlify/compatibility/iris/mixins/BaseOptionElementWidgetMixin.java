@@ -1,5 +1,5 @@
-/*? if iris {*//*
-package dev.isxander.controlify.compatibility.iris.mixins;
+/*? if iris {*/
+/*package dev.isxander.controlify.compatibility.iris.mixins;
 
 import dev.isxander.controlify.compatibility.iris.screenop.BaseOptionElementComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
