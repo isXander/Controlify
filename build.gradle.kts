@@ -25,7 +25,7 @@ val isForgeLike = isNeoforge || isForge
 
 // project stuff
 group = "dev.isxander"
-val versionWithoutMC = "2.0.0-beta.10"
+val versionWithoutMC = "2.0.0-beta.11"
 version = "$versionWithoutMC+${stonecutter.current.project}"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
@@ -307,10 +307,12 @@ tasks.withType<JavaCompile> {
 
 publishMods {
     displayName.set("Controlify $versionWithoutMC for MC $mcVersion")
+
     file.set(tasks.remapJar.get().archiveFile)
     additionalFiles.setFrom(offlineRemapJar.get().archiveFile)
+
     changelog.set(
-        rootProject.file("changelogs/${versionWithoutMC}.md")
+        rootProject.file("changelog.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."

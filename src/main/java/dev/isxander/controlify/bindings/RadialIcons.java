@@ -89,14 +89,17 @@ public final class RadialIcons {
             *//*?}*/
 
             TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
+            
             map.put(prefixLocation("effect", key.location()), (graphics, x, y, tickDelta) -> {
-                graphics.pose().pushPose();
-                graphics.pose().translate(x, y, 0);
-                graphics.pose().scale(0.88f, 0.88f, 1f);
+                if (sprite.atlasLocation() != null) { // weird ass needed for some mods
+                    graphics.pose().pushPose();
+                    graphics.pose().translate(x, y, 0);
+                    graphics.pose().scale(0.88f, 0.88f, 1f);
 
-                graphics.blit(0, 0, 0, 18, 18, sprite);
+                    graphics.blit(0, 0, 0, 18, 18, sprite);
 
-                graphics.pose().popPose();
+                    graphics.pose().popPose();
+                }
             });
         });
     }
