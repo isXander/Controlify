@@ -122,7 +122,14 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
     }
 
     private char getChar(FontMap fontMap, ResourceLocation input) {
-        return fontMap.inputToChar().getOrDefault(input, fontMap.unknown());
+        Character ch = fontMap.inputToChar().get(input);
+
+        // fallback to default icon set if there is no mapping
+        if (ch == null) {
+            ch = defaultFontMap.inputToChar().getOrDefault(input, fontMap.unknown());
+        }
+
+        return ch;
     }
 
     @Override
