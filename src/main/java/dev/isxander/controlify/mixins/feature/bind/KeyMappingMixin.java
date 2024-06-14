@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.function.BooleanSupplier;
+
 @Mixin(KeyMapping.class)
 public class KeyMappingMixin implements KeyMappingHandle {
 
@@ -23,6 +25,11 @@ public class KeyMappingMixin implements KeyMappingHandle {
         } else {
             this.isDown = false;
         }
+    }
+
+    @Override
+    public void controlify$addToggleCondition(BooleanSupplier condition) {
+
     }
 
     @Unique

@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class InputBindingBuilderImpl implements InputBindingBuilder {
@@ -28,6 +29,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 
     private final Set<KeyMapping> keyCorrelations = new HashSet<>();
     private KeyMapping keyEmulation = null;
+    private Function<ControllerEntity, Boolean> keyEmulationToggle = null;
 
     private boolean locked;
 
@@ -102,12 +104,18 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
+    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition) {
         checkLocked();
 
         this.keyEmulation = keyMapping;
+        this.keyEmulationToggle = toggleCondition;
         this.addKeyCorrelation(keyMapping);
         return this;
+    }
+
+    @Override
+    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
+        return keyEmulation(keyMapping, null);
     }
 
     public InputBindingImpl build(ControllerEntity controller) {
@@ -153,6 +161,10 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 
     public @Nullable KeyMapping getKeyEmulation() {
         return this.keyEmulation;
+    }
+
+    public @Nullable Function<ControllerEntity, Boolean> getKeyEmulationToggle() {
+        return this.keyEmulationToggle;
     }
 
     private void checkLocked() {

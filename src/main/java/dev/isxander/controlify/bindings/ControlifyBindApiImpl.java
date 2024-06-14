@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -43,7 +44,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
         ResourceLocation bindId = builder.getIdAndLock();
 
-        this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation(), bindId));
+        this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation(), builder.getKeyEmulationToggle(), bindId));
 
         for (KeyMapping key : builder.getKeyCorrelations()) {
             keyMappingCorrelations.computeIfAbsent(key, k -> new ArrayList<>()).add(createSupplier(bindId));
@@ -84,9 +85,14 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             InputBindingImpl binding = entry.builder().apply(controller);
 
             if (entry.emulation() != null) {
+                BooleanSupplier emulationToggle = null;
+                if (entry.emulationToggle() != null) {
+                    emulationToggle = () -> entry.emulationToggle().apply(controller);
+                }
+
                 binding.addDigitalOutput(
                         InputBinding.KEY_EMULATION,
-                        new KeyMappingEmulationOutput(binding, entry.emulation())
+                        new KeyMappingEmulationOutput(controller, binding, entry.emulation(), emulationToggle)
                 );
             }
 
@@ -123,6 +129,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             Predicate<ControllerEntity> filter,
             Function<ControllerEntity, InputBindingImpl> builder,
             KeyMapping emulation,
+            Function<ControllerEntity, Boolean> emulationToggle,
             ResourceLocation id
     ) {}
 }

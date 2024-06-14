@@ -2,11 +2,14 @@ package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.function.Function;
 
 /**
  * A builder for creating an {@link InputBinding}.
@@ -139,4 +142,6 @@ public interface InputBindingBuilder {
      * @return this builder
      */
     InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping);
+
+    InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition);
 }

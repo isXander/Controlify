@@ -79,7 +79,7 @@ public final class ControlifyBindings {
             .id("controlify", "sprint")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .keyEmulation(options.keySprint));
+            .keyEmulation(options.keySprint, c -> c.genericConfig().config().toggleSprint));
     public static final InputBindingSupplier SNEAK =  ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "sneak")
             .category(MOVEMENT_CATEGORY)
