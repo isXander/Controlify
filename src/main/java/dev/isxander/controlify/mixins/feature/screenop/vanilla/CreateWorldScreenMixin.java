@@ -32,7 +32,8 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+                    ordinal = 0
             )
     )
     private Button modifyCreateButton(Button button) {
@@ -54,7 +55,8 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+                    ordinal = 0
             )
     )
     private Button modifyCancelButton(Button button) {
