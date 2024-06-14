@@ -51,8 +51,11 @@ public class GuiPressOutput implements DigitalOutput {
     }
 
     public enum PressState {
+        /** Not pressed or navigated since held */
         OFF,
+        /** This is the state where the action takes place */
         JUST_RELEASED,
+        /** Currently held down with no navigations since it was pressed */
         COULD_PRESS_IN_FUTURE,
     }
 }

@@ -17,6 +17,7 @@
     "feature.autoswitch.ToastComponentAccessor",
     "feature.bind.GuiMixin",
     "feature.bind.KeyMappingMixin",
+    "feature.bind.MinecraftMixin",
     "feature.bind.ToggleKeyMappingMixin",
     "feature.font.FontAccessor",
     "feature.font.KeybindContentsMixin",

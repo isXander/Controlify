@@ -14,7 +14,7 @@ public class TickBoxControlProcessor implements ComponentProcessor {
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
             toggleMethod.run();
             return true;
         }

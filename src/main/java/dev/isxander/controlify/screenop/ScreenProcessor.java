@@ -153,9 +153,7 @@ public class ScreenProcessor<T extends Screen> {
 
                 holdRepeatHelper.onNavigate();
 
-                for (InputBinding binding : input.getAllBindings()) {
-                    binding.guiPressed().onNavigate();
-                }
+                controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
 
                 if (Controlify.instance().config().globalSettings().uiSounds)
                     minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));

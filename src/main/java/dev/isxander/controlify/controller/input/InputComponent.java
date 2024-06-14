@@ -96,6 +96,12 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         return this.inputBindings.values();
     }
 
+    public void notifyGuiPressOutputsOfNavigate() {
+        for (InputBinding binding : this.inputBindings.values()) {
+            binding.guiPressed().onNavigate();
+        }
+    }
+
     @Override
     public void finalise() {
         for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
