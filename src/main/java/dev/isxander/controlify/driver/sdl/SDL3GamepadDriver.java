@@ -160,6 +160,10 @@ public class SDL3GamepadDriver implements Driver {
 
     @Override
     public void update(boolean outOfFocus) {
+        if (ptrGamepad == null) {
+            throw new IllegalStateException("Tried to update controller even though it's closed.");
+        }
+
         this.updateInput();
         this.updateRumble();
         this.updateGyro();
@@ -171,6 +175,10 @@ public class SDL3GamepadDriver implements Driver {
 
     @Override
     public void close() {
+        if (ptrGamepad == null) {
+            throw new IllegalStateException("Gamepad already closed.");
+        }
+
         SDL_CloseGamepad(ptrGamepad);
         ptrGamepad = null;
 

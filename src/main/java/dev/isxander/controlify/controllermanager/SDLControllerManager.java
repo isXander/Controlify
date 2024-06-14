@@ -24,6 +24,7 @@ import dev.isxander.sdl3java.jna.size_t;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.util.Objects;
@@ -39,7 +40,7 @@ import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 
 public class SDLControllerManager extends AbstractControllerManager {
 
-    private final SDL_Event event = new SDL_Event();
+    private SDL_Event event = new SDL_Event();
 
     // must keep a reference to prevent GC from collecting it and the callback failing
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
@@ -57,13 +58,17 @@ public class SDLControllerManager extends AbstractControllerManager {
 
         SDL_PumpEvents();
 
-        // SDL identifiers controllers in two different ways:
-        // device index, and device instance ID.
+        if (event == null) {
+            CUtil.LOGGER.error("EVENT WAS NULL SOMEHOW!! RECONSTRUCTING");
+            event = new SDL_Event();
+        }
+
         while (SDL_PollEvent(event) == SDL_TRUE) {
             switch (event.type) {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
                     SDL_JoystickID jid = event.jdevice.which;
+                    Validate.notNull(jid, "JID was null");
 
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
 
@@ -80,6 +85,8 @@ public class SDLControllerManager extends AbstractControllerManager {
                 // On removed, `which` refers to the device instance ID
                 case SDL_EVENT_JOYSTICK_REMOVED -> {
                     SDL_JoystickID jid = event.jdevice.which;
+                    Validate.notNull(jid, "JID was null");
+
                     getController(new SDLUniqueControllerID(jid))
                             .ifPresentOrElse(
                                     this::onControllerRemoved,
@@ -167,6 +174,8 @@ public class SDLControllerManager extends AbstractControllerManager {
                 memory.write(0, bytes, 0, bytes.length);
 
                 SDL_IOStream stream = SDL_IOFromConstMem(memory, new size_t(bytes.length));
+                if (stream == null) throw new IllegalStateException("Failed to open stream");
+
                 int count = SDL_AddGamepadMappingsFromIO(stream, true);
                 if (count < 0) {
                     CUtil.LOGGER.error("Failed to load gamepad mappings: {}", SDL_GetError());
@@ -198,7 +207,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         return Optional.empty();
     }
 
-    public record SDLUniqueControllerID(SDL_JoystickID jid) implements UniqueControllerID {
+    public record SDLUniqueControllerID(@NotNull SDL_JoystickID jid) implements UniqueControllerID {
         @Override
         public boolean equals(Object obj) {
             return obj instanceof SDLUniqueControllerID && ((SDLUniqueControllerID) obj).jid.equals(jid);
