@@ -94,33 +94,40 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
         return CompletableFuture.runAsync(() -> {
             this.typeMap = data.typeMap();
-
-            Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
-            if (controllerManagerOpt.isPresent()) {
-                ControllerManager controllerManager = controllerManagerOpt.get();
-
-                for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-                    Optional<HIDDevice> hidOpt = controller.info().hid();
-                    if (hidOpt.isEmpty()) continue;
-
-                    HIDDevice hid = hidOpt.get();
-
-                    ControllerType newType = this.getControllerType(hid.asIdentifier());
-                    ControllerType oldType = controller.info().type();
-
-                    // re-initialise the controller if its type has changed
-                    if (!newType.equals(oldType)) {
-                        controllerManager.reinitController(
-                                controller,
-                                new ControllerHIDService.ControllerHIDInfo(
-                                        newType,
-                                        controller.info().hid()
-                                )
-                        );
-                    }
-                }
-            }
+            triggerFullTypeReload();
         }, executor);
+    }
+
+    public void triggerFullTypeReload() {
+        Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
+        if (controllerManagerOpt.isPresent()) {
+            ControllerManager controllerManager = controllerManagerOpt.get();
+
+            for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+                reloadTypeForController(controllerManager, controller);
+            }
+        }
+    }
+
+    public void reloadTypeForController(ControllerManager controllerManager, ControllerEntity controller) {
+        Optional<HIDDevice> hidOpt = controller.info().hid();
+        if (hidOpt.isEmpty()) return;
+
+        HIDDevice hid = hidOpt.get();
+
+        ControllerType newType = this.getControllerType(hid.asIdentifier());
+        ControllerType oldType = controller.info().type();
+
+        // re-initialise the controller if its type has changed
+        if (!newType.equals(oldType)) {
+            controllerManager.reinitController(
+                    controller,
+                    new ControllerHIDService.ControllerHIDInfo(
+                            newType,
+                            controller.info().hid()
+                    )
+            );
+        }
     }
 
     @Override
