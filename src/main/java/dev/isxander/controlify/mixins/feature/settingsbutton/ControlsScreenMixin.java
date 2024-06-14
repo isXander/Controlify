@@ -22,14 +22,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ControlsScreen.class)
 public abstract class ControlsScreenMixin extends OptionsSubScreen {
-    //? if <=1.20.6
-    @Shadow private OptionsList list;
 
     public ControlsScreenMixin(Screen parent, Options gameOptions, Component title) {
         super(parent, gameOptions, title);
     }
 
-    /*? if >1.20.4 {*/
+    //? if >1.20.4 {
+    //? if =1.20.6
+    @Shadow private OptionsList list;
+
     @Inject(
             //? if >1.20.6 {
             /*method = "addOptions",
@@ -47,7 +48,7 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
                 null
         );
     }
-    /*?} else {*/
+    //?} else {
     /*@Inject(method = "init", at = @At("RETURN"))
     private void addControllerSettings(CallbackInfo ci, @Local(ordinal = 0) int leftX, @Local(ordinal = 1) int rightX, @Local(ordinal = 2) int currentY) {
         addRenderableWidget(Button.builder(Component.translatable("controlify.gui.button"), btn -> this.openControllerSettings())
@@ -60,7 +61,7 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
     private int modifyDoneButtonY(int y) {
         return y + 24;
     }
-    *//*?}*/
+    *///?}
 
     @Unique
     private void openControllerSettings() {
