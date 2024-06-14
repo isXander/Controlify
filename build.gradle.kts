@@ -26,7 +26,7 @@ val isForgeLike = isNeoforge || isForge
 
 // project stuff
 group = "dev.isxander"
-val versionWithoutMC = "2.0.0-beta.11"
+val versionWithoutMC = "2.0.0-beta.12"
 version = "$versionWithoutMC+${stonecutter.current.project}"
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
