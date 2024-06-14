@@ -49,6 +49,12 @@ public final class GamepadInputs {
 
     // ADDITIONAL INPUTS - NOT PRESENT ON ALL GAMEPADS
     public static final ResourceLocation MISC_1_BUTTON = button("misc_1");
+    public static final ResourceLocation MISC_2_BUTTON = button("misc_2");
+    public static final ResourceLocation MISC_3_BUTTON = button("misc_3");
+    public static final ResourceLocation MISC_4_BUTTON = button("misc_4");
+    public static final ResourceLocation MISC_5_BUTTON = button("misc_5");
+    public static final ResourceLocation MISC_6_BUTTON = button("misc_6");
+
 
     public static final ResourceLocation RIGHT_PADDLE_1_BUTTON = button("right_paddle_1");
     public static final ResourceLocation RIGHT_PADDLE_2_BUTTON = button("right_paddle_2");
