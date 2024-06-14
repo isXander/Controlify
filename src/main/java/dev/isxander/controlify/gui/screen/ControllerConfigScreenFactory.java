@@ -12,6 +12,7 @@ import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
@@ -670,7 +671,29 @@ public class ControllerConfigScreenFactory {
     private static Option.Builder<Input> createBindingOpt(InputBinding binding, ControllerEntity controller) {
         return Option.<Input>createBuilder()
                 .name(binding.name())
-                .description(OptionDescription.of(binding.description()))
+                .description(v -> OptionDescription.createBuilder()
+                        .text(binding.description())
+                        .text(Component.translatable("controlify.gui.bind.currently_bound_to",
+                                Component.empty()
+                                        .append(Controlify.instance().inputFontMapper().getComponentFromInputs(
+                                                controller.info().type().namespace(),
+                                                v.getRelevantInputs()
+                                        ))
+                                        .append(CommonComponents.SPACE)
+                                        .append(Inputs.getInputComponentAnd(v.getRelevantInputs()))
+                        ))
+                        .text(v.equals(binding.defaultInput()) ? Component.empty() : Component.translatable("controlify.gui.bind.default_bound_to",
+                                Component.empty()
+                                        .append(Controlify.instance().inputFontMapper().getComponentFromInputs(
+                                                controller.info().type().namespace(),
+                                                binding.defaultInput().getRelevantInputs()
+                                        ))
+                                        .append(CommonComponents.SPACE)
+                                        .append(Inputs.getInputComponentAnd(
+                                                binding.defaultInput().getRelevantInputs()
+                                        ))
+                        ))
+                        .build())
                 .binding(EmptyInput.INSTANCE, binding::boundInput, binding::setBoundInput)
                 .customController(opt -> new BindController(opt, controller));
     }
