@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -20,9 +21,9 @@ public class SimpleVoiceChatCompat {
     private static boolean pttDown, whisperDown;
 
     public static void init() {
-        ResourceLocation muteIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone_off.png"));
-        ResourceLocation pttIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone.png"));
-        ResourceLocation whisperIcon = registerIcon16x(new ResourceLocation("voicechat", "textures/icons/microphone_whisper.png"));
+        ResourceLocation muteIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone_off.png"));
+        ResourceLocation pttIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone.png"));
+        ResourceLocation whisperIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone_whisper.png"));
 
         Component category = Component.translatable("key.categories.voicechat");
         pttHoldSupplier = ControlifyBindApi.get().registerBinding(builder -> builder

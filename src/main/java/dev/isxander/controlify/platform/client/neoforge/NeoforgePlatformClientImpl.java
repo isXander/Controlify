@@ -46,12 +46,12 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     @Override
     public void registerClientTickStarted(TickEvent event) {
         //? if >=1.20.6 {
-        /^NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-        ^///?} else {
-        NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
+        NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+        //?} else {
+        /^NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
             if (e.phase != net.neoforged.neoforge.event.TickEvent.Phase.START)
                 return;
-        //?}
+        ^///?}
             event.onTick(Minecraft.getInstance());
         });
     }
@@ -59,12 +59,12 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     @Override
     public void registerClientTickEnded(TickEvent event) {
         //? if >=1.20.6 {
-        /^NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-        ^///?} else {
-        NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
+        NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+        //?} else {
+        /^NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
             if (e.phase != net.neoforged.neoforge.event.TickEvent.Phase.END)
                 return;
-        //?}
+        ^///?}
             event.onTick(Minecraft.getInstance());
         });
     }
@@ -96,7 +96,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 
         getModEventBus().<AddPackFindersEvent>addListener(e -> {
             //? if >=1.20.6 {
-            /^e.addPackFinders(
+            e.addPackFinders(
                     packLocation,
                     PackType.CLIENT_RESOURCES,
                     displayName,
@@ -104,8 +104,8 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
                     false,
                     Pack.Position.TOP
             );
-            ^///?} else {
-            IModInfo modInfo = ModList.get().getModContainerById(packLocation.getNamespace()).orElseThrow().getModInfo();
+            //?} else {
+            /^IModInfo modInfo = ModList.get().getModContainerById(packLocation.getNamespace()).orElseThrow().getModInfo();
             Path resourcePath = modInfo.getOwningFile().getFile().findResource(packLocation.getPath());
 
             Pack pack = Pack.readMetaAndCreate(
@@ -118,7 +118,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
                     PackSource.BUILT_IN
             );
             e.addRepositorySource(consumer -> consumer.accept(pack));
-            //?}
+            ^///?}
         });
     }
 
@@ -126,10 +126,10 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     public void addHudLayer(ResourceLocation id, RenderLayer renderLayer) {
         getModEventBus().addListener(
                 //? if >1.20.4 {
-                /^RegisterGuiLayersEvent.class,
-                ^///?} else {
-                RegisterGuiOverlaysEvent.class,
-                //?}
+                RegisterGuiLayersEvent.class,
+                //?} else {
+                /^RegisterGuiOverlaysEvent.class,
+                ^///?}
                 e -> e.registerAboveAll(id, renderLayer)
         );
     }
