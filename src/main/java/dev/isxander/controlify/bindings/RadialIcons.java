@@ -15,7 +15,9 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayDeque;
 import java.util.Map;
+import java.util.Queue;
 
 public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
@@ -23,28 +25,23 @@ public final class RadialIcons {
     public static final ResourceLocation EMPTY = CUtil.rl("empty");
     public static final ResourceLocation FABRIC_ICON = CUtil.rl("fabric-resource-loader-v0", "icon.png");
 
-    private static final Map<ResourceLocation, RadialIcon> icons = Util.make(() -> {
-        Map<ResourceLocation, RadialIcon> map = new Object2ObjectOpenHashMap<>();
-
-        map.put(EMPTY, (graphics, x, y, tickDelta) -> {});
-        map.put(FABRIC_ICON, (graphics, x, y, tickDelta) -> {
-            graphics.pose().pushPose();
-            graphics.pose().translate(x, y, 0);
-            graphics.pose().scale(0.5f, 0.5f, 1f);
-            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
-            graphics.pose().popPose();
-        });
-        addItems(map);
-        addPotionEffects(map);
-
-        return map;
-    });
+    private static Map<ResourceLocation, RadialIcon> icons = null;
+    private static Queue<Runnable> deferredRegistrations = new ArrayDeque<>();
 
     public static Map<ResourceLocation, RadialIcon> getIcons() {
+        if (icons == null) {
+            icons = registerIcons();
+            deferredRegistrations.forEach(Runnable::run);
+            deferredRegistrations = null;
+        }
         return icons;
     }
 
     public static void registerIcon(ResourceLocation location, RadialIcon icon) {
+        if (icons == null) {
+            deferredRegistrations.add(() -> registerIcon(location, icon));
+            return;
+        }
         icons.put(location, icon);
     }
 
@@ -89,22 +86,41 @@ public final class RadialIcons {
             *//*?}*/
 
             TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
-            
-            map.put(prefixLocation("effect", key.location()), (graphics, x, y, tickDelta) -> {
-                if (sprite.atlasLocation() != null) { // weird ass needed for some mods
-                    graphics.pose().pushPose();
-                    graphics.pose().translate(x, y, 0);
-                    graphics.pose().scale(0.88f, 0.88f, 1f);
 
-                    graphics.blit(0, 0, 0, 18, 18, sprite);
+            if (sprite != null) {
+                map.put(prefixLocation("effect", key.location()), (graphics, x, y, tickDelta) -> {
+                    if (sprite.atlasLocation() != null) { // weird ass needed for some mods
+                        graphics.pose().pushPose();
+                        graphics.pose().translate(x, y, 0);
+                        graphics.pose().scale(0.88f, 0.88f, 1f);
 
-                    graphics.pose().popPose();
-                }
-            });
+                        graphics.blit(0, 0, 0, 18, 18, sprite);
+
+                        graphics.pose().popPose();
+                    }
+                });
+            }
         });
     }
 
     private static ResourceLocation prefixLocation(String prefix, ResourceLocation location) {
         return CUtil.rl(location.getNamespace(), prefix + "/" + location.getPath());
+    }
+
+    private static Map<ResourceLocation, RadialIcon> registerIcons() {
+        Map<ResourceLocation, RadialIcon> map = new Object2ObjectOpenHashMap<>();
+
+        map.put(EMPTY, (graphics, x, y, tickDelta) -> {});
+        map.put(FABRIC_ICON, (graphics, x, y, tickDelta) -> {
+            graphics.pose().pushPose();
+            graphics.pose().translate(x, y, 0);
+            graphics.pose().scale(0.5f, 0.5f, 1f);
+            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
+            graphics.pose().popPose();
+        });
+        addItems(map);
+        addPotionEffects(map);
+
+        return map;
     }
 }
