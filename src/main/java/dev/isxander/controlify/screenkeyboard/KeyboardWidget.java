@@ -1,8 +1,8 @@
 package dev.isxander.controlify.screenkeyboard;
 
 import com.mojang.datafixers.util.Pair;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -52,9 +52,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
         guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
+        ControlifyCompat.ifBeginHudBatching();
         for (T key : keys) {
             key.render(guiGraphics, mouseX, mouseY, partialTick);
         }
+        ControlifyCompat.ifEndHudBatching();
     }
 
     @Override
