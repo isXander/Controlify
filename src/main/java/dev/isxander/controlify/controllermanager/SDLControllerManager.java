@@ -230,9 +230,9 @@ public class SDLControllerManager extends AbstractControllerManager {
             switch (event.type) {
                 case SDL_EVENT_JOYSTICK_ADDED:
                 case SDL_EVENT_JOYSTICK_REMOVED:
-                    return 1;
+                    return SDL_TRUE;
                 default:
-                    return 0;
+                    return SDL_FALSE;
             }
         }
     }
