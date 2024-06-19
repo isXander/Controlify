@@ -9,13 +9,14 @@ import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 import java.util.Optional;
 
 public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleComponent.Config> {
-    public static final ResourceLocation ID = Controlify.id("rumble");
+    public static final ResourceLocation ID = CUtil.rl("rumble");
 
     private RumbleState state = null;
     private final IConfig<Config> config;

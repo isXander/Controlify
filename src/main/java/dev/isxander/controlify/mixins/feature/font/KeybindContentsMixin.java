@@ -26,13 +26,14 @@ public class KeybindContentsMixin {
     @WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
     private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true)Style style) {
         if (BindingFontHelper.WRAPPER_FONT.equals(style.getFont())) {
-            Optional<Component> inputText = ControlifyApi.get().getCurrentController().map(c ->
-                    Controlify.instance().inputFontMapper()
+            Optional<Component> inputText = ControlifyApi.get().getCurrentController()
+                    .filter(c -> c.input().isPresent())
+                    .map(c -> Controlify.instance().inputFontMapper()
                             .getComponentFromBinding(
                                     c.info().type().namespace(),
-                                    c.bindings().get(ResourceLocation.tryParse(this.name))
+                                    c.input().get().getBinding(ResourceLocation.tryParse(this.name))
                             )
-            );
+                    );
             if (inputText.isPresent()) {
                 return inputText.get();
             }

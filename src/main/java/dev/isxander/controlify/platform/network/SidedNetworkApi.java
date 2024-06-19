@@ -1,16 +1,20 @@
 package dev.isxander.controlify.platform.network;
 
-import dev.isxander.controlify.platform.network.impl.C2SNetworkApiImpl;
-import dev.isxander.controlify.platform.network.impl.S2CNetworkApiImpl;
 import net.minecraft.resources.ResourceLocation;
 
 public interface SidedNetworkApi {
     static C2SNetworkApi C2S() {
-        return C2SNetworkApiImpl.INSTANCE;
+        //? if fabric
+        return dev.isxander.controlify.platform.network.fabric.C2SNetworkApiFabric.INSTANCE;
+        //? if neoforge
+        /*return dev.isxander.controlify.platform.network.neoforge.C2SNetworkApiNeoforge.INSTANCE;*/
     }
 
     static S2CNetworkApi S2C() {
-        return S2CNetworkApiImpl.INSTANCE;
+        //? if fabric
+        return dev.isxander.controlify.platform.network.fabric.S2CNetworkApiFabric.INSTANCE;
+        //? if neoforge
+        /*return dev.isxander.controlify.platform.network.neoforge.S2CNetworkApiNeoforge.INSTANCE;*/
     }
 
     <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> handler);

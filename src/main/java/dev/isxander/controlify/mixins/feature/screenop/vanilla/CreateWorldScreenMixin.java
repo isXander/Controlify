@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.CreateWorldScreenProcessor;
@@ -31,13 +32,14 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+                    ordinal = 0
             )
     )
     private Button modifyCreateButton(Button button) {
-        ButtonGuideApi.addGuideToButtonBuiltin(
+        ButtonGuideApi.addGuideToButton(
                 button,
-                bindings -> bindings.GUI_ABSTRACT_ACTION_1,
+                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;
@@ -53,13 +55,14 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;"
+                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+                    ordinal = 0
             )
     )
     private Button modifyCancelButton(Button button) {
-        ButtonGuideApi.addGuideToButtonBuiltin(
+        ButtonGuideApi.addGuideToButton(
                 button,
-                bindings -> bindings.GUI_BACK,
+                ControlifyBindings.GUI_BACK,
                 ButtonGuidePredicate.ALWAYS
         );
         return button;

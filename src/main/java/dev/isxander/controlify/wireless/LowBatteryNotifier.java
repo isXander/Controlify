@@ -1,7 +1,7 @@
 package dev.isxander.controlify.wireless;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.battery.BatteryLevel;
+import dev.isxander.controlify.controller.battery.PowerState;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -9,10 +9,12 @@ import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class LowBatteryNotifier {
-    private static final Map<String, BatteryLevel> previousBatteryLevels = new HashMap<>();
+    private static final Set<String> notifiedControllers = new HashSet<>();
     private static int interval;
 
     public static void tick() {
@@ -30,29 +32,30 @@ public class LowBatteryNotifier {
             return;
 
         for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-            BatteryLevel batteryLevel = controller.batteryLevel()
+            PowerState batteryLevel = controller.batteryLevel()
                     .map(BatteryLevelComponent::getBatteryLevel)
-                    .orElse(BatteryLevel.UNKNOWN);
+                    .orElse(new PowerState.Unknown());
 
-            if (batteryLevel == BatteryLevel.UNKNOWN) {
+            if (batteryLevel instanceof PowerState.Unknown || batteryLevel instanceof PowerState.WiredOnly) {
                 continue;
             }
 
             String uid = controller.info().uid();
-            if (previousBatteryLevels.containsKey(uid)) {
-                BatteryLevel previousBatteryLevel = previousBatteryLevels.get(uid);
-                if (batteryLevel.ordinal() < previousBatteryLevel.ordinal()) {
-                    if (batteryLevel == BatteryLevel.LOW) {
-                        ToastUtils.sendToast(
-                                Component.translatable("controlify.toast.low_battery.title"),
-                                Component.translatable("controlify.toast.low_battery.message", controller.name()),
-                                true
-                        );
-                    }
-                }
-            }
+            int percent = batteryLevel.percent();
 
-            previousBatteryLevels.put(uid, batteryLevel);
+            if (percent <= 10) {
+                if (!notifiedControllers.contains(uid)) {
+                    ToastUtils.sendToast(
+                            Component.translatable("controlify.toast.low_battery.title"),
+                            Component.translatable("controlify.toast.low_battery.message", controller.name()),
+                            true
+                    );
+
+                    notifiedControllers.add(uid);
+                }
+            } else {
+                notifiedControllers.remove(uid);
+            }
         }
     }
 }

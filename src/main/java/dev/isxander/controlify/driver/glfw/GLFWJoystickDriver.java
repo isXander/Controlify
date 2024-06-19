@@ -1,6 +1,6 @@
 package dev.isxander.controlify.driver.glfw;
 
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.JoystickInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.glfw.GLFW;
@@ -28,7 +29,7 @@ public class GLFWJoystickDriver implements Driver {
 
     private final ControllerEntity controller;
 
-    public GLFWJoystickDriver(int jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public GLFWJoystickDriver(int jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.jid = jid;
         this.guid = glfwGetJoystickGUID(jid);
         this.name = glfwGetJoystickName(jid);
@@ -41,7 +42,7 @@ public class GLFWJoystickDriver implements Driver {
         this.numAxes = testState.axes().limit();
         this.numHats = testState.hats().limit();
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
 
         this.controller.finalise();
     }

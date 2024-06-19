@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,6 +27,7 @@ public class ClientPacketListenerMixin {
         initButtonGuide();
     }
 
+    @Unique
     private void initButtonGuide() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (Controlify.instance().currentInputMode().isController() && player != null)

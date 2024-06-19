@@ -1,0 +1,15 @@
+{
+  "package": "dev.isxander.controlify.compatibility.iris.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "dev.isxander.controlify.compatibility.iris.IrisMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+    "BaseOptionElementWidgetMixin"
+  ]
+}

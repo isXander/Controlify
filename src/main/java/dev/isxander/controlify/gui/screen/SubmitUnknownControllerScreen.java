@@ -3,12 +3,13 @@ package dev.isxander.controlify.gui.screen;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
@@ -123,7 +124,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
         renderBackground(graphics, mouseX, mouseY, delta);
         /*?} else {*//*
         renderBackground(graphics);
-        *//*?} */
+        *//*?}*/
 
         super.render(graphics, mouseX, mouseY, delta);
 
@@ -168,14 +169,14 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private String generateRequestBody() {
-        HIDIdentifier hid = controller.info().hid().orElseThrow();
+        HIDDevice hid = controller.info().hid().orElseThrow();
 
         JsonObject object = new JsonObject();
         object.addProperty("vendorID", hid.vendorId());
         object.addProperty("productID", hid.productId());
         object.addProperty("GUID", controller.info().guid());
         object.addProperty("reportedName", nameField.getValue());
-        object.addProperty("controlifyVersion", CUtil.VERSION.getFriendlyString());
+        object.addProperty("controlifyVersion", PlatformMainUtil.getControlifyVersion());
         object.addProperty("operational", operationalCheckbox.selected());
 
         Gson gson = new Gson();
@@ -205,7 +206,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     public static boolean canSubmit(ControllerEntity controller) {
-        return controller.info().type() == ControllerType.UNKNOWN
+        return controller.info().type() == ControllerType.DEFAULT
                 && !controller.genericConfig().config().dontShowControllerSubmission
                 /*&& controller.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())

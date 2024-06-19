@@ -2,6 +2,8 @@ package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.HapticEffects;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -9,7 +11,7 @@ import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
-import dev.isxander.controlify.sound.ControlifySounds;
+import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
@@ -92,31 +94,35 @@ public class ScreenProcessor<T extends Screen> {
 
         boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
 
-        var bindings = controller.bindings();
         InputComponent input = controller.input().orElseThrow();
         ControllerStateView state = input.stateNow();
         ControllerStateView prevState = input.stateThen();
 
+        InputBinding guiNaviRight = ControlifyBindings.GUI_NAVI_RIGHT.on(controller);
+        InputBinding guiNaviLeft = ControlifyBindings.GUI_NAVI_LEFT.on(controller);
+        InputBinding guiNaviUp = ControlifyBindings.GUI_NAVI_UP.on(controller);
+        InputBinding guiNaviDown = ControlifyBindings.GUI_NAVI_DOWN.on(controller);
+
         FocusNavigationEvent.ArrowNavigation event = null;
-        if (bindings.GUI_NAVI_RIGHT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_RIGHT.prevHeld())) {
+        if (guiNaviRight.digitalNow() && (repeatEventAvailable || !guiNaviRight.digitalPrev())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
 
-            if (!bindings.GUI_NAVI_RIGHT.prevHeld())
+            if (!guiNaviRight.digitalPrev())
                 holdRepeatHelper.reset();
-        } else if (bindings.GUI_NAVI_LEFT.held() && (repeatEventAvailable || !bindings.GUI_NAVI_LEFT.prevHeld())) {
+        } else if (guiNaviLeft.digitalNow() && (repeatEventAvailable || !guiNaviLeft.digitalPrev())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
 
-            if (!bindings.GUI_NAVI_LEFT.prevHeld())
+            if (!guiNaviLeft.digitalPrev())
                 holdRepeatHelper.reset();
-        } else if (bindings.GUI_NAVI_UP.held() && (repeatEventAvailable || !bindings.GUI_NAVI_UP.prevHeld())) {
+        } else if (guiNaviUp.digitalNow() && (repeatEventAvailable || !guiNaviUp.digitalPrev())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
 
-            if (!bindings.GUI_NAVI_UP.prevHeld())
+            if (!guiNaviUp.digitalPrev())
                 holdRepeatHelper.reset();
-        } else if (bindings.GUI_NAVI_DOWN.held() && (repeatEventAvailable || !bindings.GUI_NAVI_DOWN.prevHeld())) {
+        } else if (guiNaviDown.digitalNow() && (repeatEventAvailable || !guiNaviDown.digitalPrev())) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
 
-            if (!bindings.GUI_NAVI_DOWN.prevHeld())
+            if (!guiNaviDown.digitalPrev())
                 holdRepeatHelper.reset();
         } else if (state.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON))) {
             event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
@@ -147,8 +153,10 @@ public class ScreenProcessor<T extends Screen> {
 
                 holdRepeatHelper.onNavigate();
 
+                controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
+
                 if (Controlify.instance().config().globalSettings().uiSounds)
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifySounds.SCREEN_FOCUS_CHANGE, 1.0F));
+                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 
                 var newFocusTree = getFocusTree();
@@ -165,10 +173,10 @@ public class ScreenProcessor<T extends Screen> {
         boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
 
-        if (controller.bindings().GUI_PRESS.justPressed() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
+        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
         }
-        if (screen.shouldCloseOnEsc() && controller.bindings().GUI_BACK.justPressed()) {
+        if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
             playClackSound();
             screen.onClose();
         }
@@ -200,8 +208,8 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     protected void handleTabNavigation(ControllerEntity controller) {
-        var nextTab = controller.bindings().GUI_NEXT_TAB.justPressed();
-        var prevTab = controller.bindings().GUI_PREV_TAB.justPressed();
+        var nextTab = ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed();
+        var prevTab = ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed();
 
         if (nextTab || prevTab) {
             screen.children().stream()

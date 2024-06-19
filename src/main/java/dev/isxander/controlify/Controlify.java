@@ -2,11 +2,14 @@ package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
-import dev.isxander.controlify.bindings.ControllerBindings;
+import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -20,7 +23,8 @@ import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
-import dev.isxander.controlify.platform.PlatformEvents;
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.server.*;
@@ -34,11 +38,10 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.splitscreen.SplitscreenController;
 import dev.isxander.controlify.splitscreen.protocol.PawnConnectionManager;
+import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -51,11 +54,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -76,6 +77,9 @@ public class Controlify implements ControlifyApi {
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
+    private DefaultBindManager defaultBindManager;
+    private ControllerTypeManager controllerTypeManager;
+    private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
 
@@ -111,10 +115,18 @@ public class Controlify implements ControlifyApi {
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         this.inputFontMapper = new InputFontMapper();
-        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(inputFontMapper);
+        this.defaultBindManager = new DefaultBindManager();
+        this.controllerTypeManager = new ControllerTypeManager();
+        PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
+        PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
+        PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
+
+        registerBuiltinPack("legacy_console");
+
+        ControlifyClientSounds.init();
 
         ControlifyHandshake.setupOnClient();
 
@@ -141,18 +153,20 @@ public class Controlify implements ControlifyApi {
             ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
         });
 
-        PlatformEvents.registerClientDisconnected((handler, client) -> {
+        PlatformClientUtil.registerClientDisconnected((client) -> {
             DebugLog.log("Disconnected from server, resetting server policies");
             ServerPolicies.unsetAll();
         });
 
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
-            try {
-                entrypoint.onControlifyPreInit(this);
-            } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
+        PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, tickDelta) ->
+                inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, tickDelta)));
+    }
+
+    private void registerBuiltinPack(String id) {
+        PlatformClientUtil.registerBuiltinResourcePack(
+                CUtil.rl(id),
+                Component.translatable("controlify.extra_pack." + id + ".name")
+        );
     }
 
     /**
@@ -167,8 +181,25 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
-        ControlifyEvents.CONTROLLER_CONNECTED.register(this::onControllerAdded);
-        ControlifyEvents.CONTROLLER_DISCONNECTED.register(this::onControllerRemoved);
+        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
+                event.controller(), event.hotplugged(), event.newController()));
+        ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
+
+        ControlifyBindings.registerModdedBindings();
+
+        PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
+                ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+                    virtualMouseHandler().renderVirtualMouse(graphics);
+                    ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
+                }));
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyInit(this);
+            } catch (Exception e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
 
         if (config().globalSettings().quietMode) {
             // Use GLFW to probe for controllers without asking for natives
@@ -187,17 +218,14 @@ public class Controlify implements ControlifyApi {
                 );
             } else {
                 probeMode = true;
-                PlatformEvents.registerClientTickEnded(client -> this.probeTick());
+                PlatformClientUtil.registerClientTickEnded(client -> this.probeTick());
             }
         } else {
             finishControlifyInit();
         }
 
         // register events
-        PlatformEvents.registerClientStopping(client -> this.controllerHIDService().stop());
-
-        // sends toasts of new features
-        notifyOfNewFeatures();
+        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
     }
 
     /**
@@ -243,7 +271,7 @@ public class Controlify implements ControlifyApi {
 
         config().saveIfDirty();
 
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypoint -> {
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
                 entrypoint.onControllersDiscovered(this);
             } catch (Throwable e) {
@@ -278,17 +306,14 @@ public class Controlify implements ControlifyApi {
                 return;
             }
 
-            PlatformEvents.registerClientTickStarted(this::tick);
-            ConnectServerEvent.EVENT.register((minecraft, address, data) -> {
-                notifyNewServer(data);
-            });
+            PlatformClientUtil.registerClientTickStarted(this::tick);
 
             // initialise and compatability modules that controlify implements itself
             // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
             ControlifyCompat.init();
 
             // make sure people don't someone add binds after controllers could have been created
-            ControllerBindings.lockRegistry();
+            ControlifyBindApiImpl.INSTANCE.lock();
 
             // assume that if someone explicitly went into controlify settings,
             // they have a controller and want the full experience.
@@ -469,6 +494,10 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
+        this.thisTickContexts = BindContext.REGISTRY.stream()
+                .filter(ctx -> ctx.isApplicable().apply(minecraft))
+                .collect(Collectors.toUnmodifiableSet());
+
         // handles updating state of all controllers
         controllerManager.tick(outOfFocus);
 
@@ -552,7 +581,7 @@ public class Controlify implements ControlifyApi {
                 ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
             }
 
-            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoker().onControllerStateUpdate(controller);
+            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
         }
     }
 
@@ -665,7 +694,7 @@ public class Controlify implements ControlifyApi {
 
         ControllerPlayerMovement.updatePlayerInput(minecraft.player);
 
-        ControlifyEvents.INPUT_MODE_CHANGED.invoker().onInputModeChanged(currentInputMode);
+        ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(currentInputMode));
 
         return true;
     }
@@ -702,6 +731,9 @@ public class Controlify implements ControlifyApi {
         return inputFontMapper;
     }
 
+    public DefaultBindManager defaultBindManager() {
+        return defaultBindManager;
+    }
     public void becomeSplitscreenController() {
         Validate.isTrue(splitscreenController == null, "This client is already a master");
         Validate.isTrue(splitscreenPawnConnection == null, "This client is already a slave and cannot become master");
@@ -742,17 +774,15 @@ public class Controlify implements ControlifyApi {
             }
         }
 
-        if (foundVersion != null) {
-            CUtil.LOGGER.info("Sending new features toast for {}", foundVersion);
-            ToastUtils.sendToast(
-                    Component.translatable("controlify.new_features.title", foundVersion),
-                    Component.translatable("controlify.new_features." + foundVersion),
-                    true
-            );
-        }
+    public ControllerTypeManager controllerTypeManager() {
+        return controllerTypeManager;
     }
 
-    private void notifyNewServer(ServerData data) {
+    public Set<BindContext> thisTickBindContexts() {
+        return this.thisTickContexts;
+    }
+
+    public void notifyNewServer(ServerData data) {
         if (!currentInputMode().isController())
             return;
 
@@ -769,9 +799,5 @@ public class Controlify implements ControlifyApi {
     public static Controlify instance() {
         if (instance == null) instance = new Controlify();
         return instance;
-    }
-
-    public static ResourceLocation id(String path) {
-        return new ResourceLocation("controlify", path);
     }
 }

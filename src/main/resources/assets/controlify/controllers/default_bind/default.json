@@ -1,0 +1,193 @@
+{
+  "defaults": {
+    "controlify:walk_forward": {
+      "axis": "controlify:axis/left_stick_up"
+    },
+    "controlify:walk_backward": {
+      "axis": "controlify:axis/left_stick_down"
+    },
+    "controlify:strafe_left": {
+      "axis": "controlify:axis/left_stick_left"
+    },
+    "controlify:strafe_right": {
+      "axis": "controlify:axis/left_stick_right"
+    },
+    "controlify:look_up": {
+      "axis": "controlify:axis/right_stick_up"
+    },
+    "controlify:look_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:look_left": {
+      "axis": "controlify:axis/right_stick_left"
+    },
+    "controlify:look_right": {
+      "axis": "controlify:axis/right_stick_right"
+    },
+    "controlify:gyro": {
+      "type": "empty"
+    },
+    "controlify:jump": {
+      "button": "controlify:button/south"
+    },
+    "controlify:sprint": {
+      "button": "controlify:button/left_stick"
+    },
+    "controlify:sneak": {
+      "button": "controlify:button/right_stick"
+    },
+    "controlify:attack": {
+      "axis": "controlify:axis/right_trigger"
+    },
+    "controlify:use": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "controlify:drop": {
+      "button": "controlify:button/dpad_down"
+    },
+    "controlify:drop_inventory": {
+      "button": "controlify:button/north"
+    },
+    "controlify:next_slot": {
+      "button": "controlify:button/right_shoulder"
+    },
+    "controlify:prev_slot": {
+      "button": "controlify:button/left_shoulder"
+    },
+    "controlify:pause": {
+      "button": "controlify:button/start"
+    },
+    "controlify:inventory": {
+      "button": "controlify:button/north"
+    },
+    "controlify:change_perspective": {
+      "button": "controlify:button/back"
+    },
+    "controlify:swap_hands": {
+      "button": "controlify:button/west"
+    },
+    "controlify:open_chat": {
+      "button": "controlify:button/dpad_up"
+    },
+    "controlify:gui_press": {
+      "button": "controlify:button/south"
+    },
+    "controlify:gui_back": {
+      "button": "controlify:button/east"
+    },
+    "controlify:gui_next_tab": {
+      "button": "controlify:button/right_shoulder"
+    },
+    "controlify:gui_prev_tab": {
+      "button": "controlify:button/left_shoulder"
+    },
+    "controlify:gui_abstract_action_1": {
+      "button": "controlify:button/west"
+    },
+    "controlify:gui_abstract_action_2": {
+      "button": "controlify:button/north"
+    },
+    "controlify:inv_select": {
+      "button": "controlify:button/south"
+    },
+    "controlify:inv_quick_move": {
+      "button": "controlify:button/north"
+    },
+    "controlify:inv_take_half": {
+      "button": "controlify:button/west"
+    },
+    "controlify:pick_block": {
+      "button": "controlify:button/dpad_left"
+    },
+    "controlify:radial_menu": {
+      "button": "controlify:button/dpad_right"
+    },
+    "controlify:radial_axis_up": {
+      "axis": "controlify:axis/right_stick_up"
+    },
+    "controlify:radial_axis_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:radial_axis_left": {
+      "axis": "controlify:axis/right_stick_left"
+    },
+    "controlify:radial_axis_right": {
+      "axis": "controlify:axis/right_stick_right"
+    },
+    "controlify:vmouse_move_up": {
+      "axis": "controlify:axis/left_stick_up"
+    },
+    "controlify:vmouse_move_down": {
+      "axis": "controlify:axis/left_stick_down"
+    },
+    "controlify:vmouse_move_left": {
+      "axis": "controlify:axis/left_stick_left"
+    },
+    "controlify:vmouse_move_right": {
+      "axis": "controlify:axis/left_stick_right"
+    },
+    "controlify:vmouse_lclick": {
+      "button": "controlify:button/south"
+    },
+    "controlify:vmouse_rclick": {
+      "button": "controlify:button/west"
+    },
+    "controlify:vmouse_shift_click": {
+      "button": "controlify:button/north"
+    },
+    "controlify:vmouse_snap_up": {
+      "button": "controlify:button/dpad_up"
+    },
+    "controlify:vmouse_snap_down": {
+      "button": "controlify:button/dpad_down"
+    },
+    "controlify:vmouse_snap_left": {
+      "button": "controlify:button/dpad_left"
+    },
+    "controlify:vmouse_snap_right": {
+      "button": "controlify:button/dpad_right"
+    },
+    "controlify:vmouse_scroll_up": {
+      "axis": "controlify:axis/right_stick_up"
+    },
+    "controlify:vmouse_scroll_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:vmouse_shift": {
+      "button": "controlify:button/left_stick"
+    },
+    "controlify:vmouse_toggle": {
+      "button": "controlify:button/back"
+    },
+    "controlify:vmouse_page_next": {
+      "button": "controlify:button/right_shoulder"
+    },
+    "controlify:vmouse_page_prev": {
+      "button": "controlify:button/left_shoulder"
+    },
+    "controlify:vmouse_page_down": {
+      "axis": "controlify:axis/right_trigger"
+    },
+    "controlify:vmouse_page_up": {
+      "axis": "controlify:axis/left_trigger"
+    },
+    "controlify:gui_navi_up": {
+      "axis": "controlify:axis/left_stick_up"
+    },
+    "controlify:gui_navi_down": {
+      "axis": "controlify:axis/left_stick_down"
+    },
+    "controlify:gui_navi_left": {
+      "axis": "controlify:axis/left_stick_left"
+    },
+    "controlify:gui_navi_right": {
+      "axis": "controlify:axis/left_stick_right"
+    },
+    "controlify:cycle_opt_forward": {
+      "axis": "controlify:axis/right_stick_right"
+    },
+    "controlify:cycle_opt_backward": {
+      "axis": "controlify:axis/right_stick_left"
+    }
+  }
+}

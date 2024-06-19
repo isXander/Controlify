@@ -1,10 +1,12 @@
 package dev.isxander.controlify.screenkeyboard;
 
 import com.mojang.datafixers.util.Pair;
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.FakeSpriteRenderer;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import net.minecraft.client.Minecraft;
@@ -50,9 +52,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
         guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
+        ControlifyCompat.ifBeginHudBatching();
         for (T key : keys) {
             key.render(guiGraphics, mouseX, mouseY, partialTick);
         }
+        ControlifyCompat.ifEndHudBatching();
     }
 
     @Override
@@ -61,12 +65,12 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     public static class Key extends AbstractWidget implements ComponentProcessor {
-        private static final ResourceLocation TEXTURE = Controlify.id(
-                /*? if >1.20.1 { */
+        private static final ResourceLocation TEXTURE = CUtil.rl(
+                /*? if >1.20.1 {*/
                 "keyboard/key"
-                /*? } else { *//*
+                /*?} else {*//*
                 "textures/gui/sprites/keyboard/key.png"
-                *//*? } */
+                *//*?}*/
         );
 
         private final KeyboardWidget<?> keyboard;
@@ -97,9 +101,9 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             /*? if >1.20.1 {*/
             guiGraphics.blitSprite(TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
-            /*? } else { *//*
+            /*?} else {*//*
             FakeSpriteRenderer.blitNineSlicedSprite(guiGraphics, TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2, 2, 6, 6);
-            *//*? } */
+            *//*?}*/
 
             if (keyboard.shiftMode) {
                 shiftedFunction.renderer.render(guiGraphics, mouseX, mouseY, partialTick, this);
@@ -116,7 +120,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
         @Override
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (holdRepeatHelper.shouldAction(controller.bindings().GUI_PRESS)) {
+            if (holdRepeatHelper.shouldAction(ControlifyBindings.GUI_PRESS.on(controller))) {
                 onPress();
                 holdRepeatHelper.onNavigate();
                 return true;

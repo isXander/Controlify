@@ -1,7 +1,8 @@
 package dev.isxander.controlify.driver.sdl;
 
-import dev.isxander.controlify.controller.battery.BatteryLevel;
-import dev.isxander.controlify.controller.ControllerType;
+import com.sun.jna.ptr.IntByReference;
+import dev.isxander.controlify.controller.battery.PowerState;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -10,10 +11,9 @@ import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -25,13 +25,13 @@ import net.minecraft.util.Mth;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.isxander.sdl3java.api.error.SdlError.SDL_GetError;
-import static dev.isxander.sdl3java.api.joystick.SDL_JoystickPowerLevel.*;
+import static dev.isxander.sdl3java.api.SDL_bool.*;
+import static dev.isxander.sdl3java.api.error.SdlError.*;
 import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 import static dev.isxander.sdl3java.api.joystick.SdlJoystickHatConst.*;
-import static dev.isxander.sdl3java.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN;
-import static dev.isxander.sdl3java.api.joystick.SdlJoystickPropsConst.SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN;
-import static dev.isxander.sdl3java.api.properties.SdlProperties.SDL_GetBooleanProperty;
+import static dev.isxander.sdl3java.api.joystick.SdlJoystickPropsConst.*;
+import static dev.isxander.sdl3java.api.power.SDL_PowerState.*;
+import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
 
 public class SDL3JoystickDriver implements Driver {
     private final SDL_Joystick ptrJoystick;
@@ -43,7 +43,7 @@ public class SDL3JoystickDriver implements Driver {
 
     private final int numAxes, numButtons, numHats;
 
-    public SDL3JoystickDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public SDL3JoystickDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.ptrJoystick = SDL_OpenJoystick(jid);
         if (ptrJoystick == null)
             throw new IllegalStateException("Could not open joystick: " + SDL_GetError());
@@ -52,8 +52,8 @@ public class SDL3JoystickDriver implements Driver {
 
         this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
         this.name = SDL_GetJoystickName(ptrJoystick);
-        this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false);
-        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+        this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
+        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
 
         ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
         this.controller = new ControllerEntity(info);
@@ -62,7 +62,7 @@ public class SDL3JoystickDriver implements Driver {
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
         this.numHats = SDL_GetNumJoystickHats(ptrJoystick);
 
-        this.controller.setComponent(new InputComponent(numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isRumbleSupported) {
             this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
@@ -96,10 +96,6 @@ public class SDL3JoystickDriver implements Driver {
 
         for (int i = 0; i < numAxes; i++) {
             float axis = mapShortToFloat(SDL_GetJoystickAxis(ptrJoystick, i));
-
-            if (i == 0) {
-               // System.out.println(axis + " " + Math.max(axis, 0) + " " + -Math.min(axis, 0));
-            }
 
             state.setAxis(JoystickInputs.axis(i, true), Math.max(axis, 0));
             state.setAxis(JoystickInputs.axis(i, false), -Math.min(axis, 0));
@@ -137,8 +133,8 @@ public class SDL3JoystickDriver implements Driver {
                     .consumeRumble();
 
             stateOpt.ifPresent(state -> {
-                if (SDL_RumbleJoystick(ptrJoystick, (short)(state.strong() * 0xFFFF), (short)(state.weak() * 0xFFFF), 0) != 0) {
-                    CUtil.LOGGER.error("Could not rumble joystick: " + SDL_GetError());
+                if (SDL_RumbleJoystick(ptrJoystick, (short) (state.strong() * 0xFFFF), (short) (state.weak() * 0xFFFF), 0) != 0) {
+                    CUtil.LOGGER.error("Could not rumble joystick: {}", SDL_GetError());
                 }
             });
         }
@@ -150,22 +146,23 @@ public class SDL3JoystickDriver implements Driver {
                     .consumeTriggerRumble();
 
             stateOpt.ifPresent(state -> {
-                if (SDL_RumbleJoystickTriggers(ptrJoystick, (short)(state.left() * 0xFFFF), (short)(state.right() * 0xFFFF), 0) != 0) {
-                    CUtil.LOGGER.error("Could not rumble triggers joystick: " + SDL_GetError());
+                if (SDL_RumbleJoystickTriggers(ptrJoystick, (short) (state.left() * 0xFFFF), (short) (state.right() * 0xFFFF), 0) != 0) {
+                    CUtil.LOGGER.error("Could not rumble triggers joystick: {}", SDL_GetError());
                 }
             });
         }
     }
 
     private void updateBatteryLevel() {
-        BatteryLevel level = switch (SDL_GetJoystickPowerLevel(ptrJoystick)) {
-            case SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
-            case SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
-            case SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
-            case SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
-            case SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
-            case SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
-            case SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
+        IntByReference percent = new IntByReference();
+        int powerState = SDL_GetJoystickPowerInfo(ptrJoystick, percent);
+
+        PowerState level = switch (powerState) {
+            case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
+            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.getValue());
+            case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
+            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.getValue());
+            case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
             default -> throw new IllegalStateException("Unexpected value");
         };
 

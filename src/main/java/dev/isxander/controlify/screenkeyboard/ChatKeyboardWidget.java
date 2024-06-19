@@ -73,15 +73,15 @@ public class ChatKeyboardWidget extends KeyboardWidget<KeyboardWidget.Key> {
         builder.key(Key.builder(KeyFunction.ofChar(InputConstants.KEY_COMMA, ',', 0, InputConstants.KEY_PERIOD, '.', 0)), 1);
         builder.key(Key.builder(KeyFunction.ofChar(InputConstants.KEY_1, '!', GLFW.GLFW_MOD_SHIFT, InputConstants.KEY_SLASH, '?', GLFW.GLFW_MOD_SHIFT)), 1);
         builder.key(Key.builder(KeyFunction.ofChar(InputConstants.KEY_SLASH, '/', 0, InputConstants.KEY_BACKSLASH, '\\', 0)), 1);
-        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_UP, "↑")), 1f);
+        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_UP, "?")), 1f);
 
         builder.nextRow();
 
         builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_LCONTROL, "Ctrl")), 2f);
         builder.key(Key.builder(KeyFunction.ofChar(InputConstants.KEY_SPACE, ' ')), 9f);
-        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_LEFT, "←")), 1f);
-        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_DOWN, "↓")), 1f);
-        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_RIGHT, "→")), 1f);
+        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_LEFT, "?")), 1f);
+        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_DOWN, "?")), 1f);
+        builder.key(Key.builder(KeyFunction.ofRegularKey(InputConstants.KEY_RIGHT, "?")), 1f);
 
         builder.build(keys::add);
     }

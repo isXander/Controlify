@@ -40,7 +40,7 @@ public class KeyboardScreen extends Screen {
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics/*? if >1.20.1{*/, int mouseX, int mouseY, float partialTick/*?}*/) {
+    public void renderBackground(GuiGraphics guiGraphics/*? if >1.20.1 {*/, int mouseX, int mouseY, float partialTick/*?}*/) {
         // no background
     }
 

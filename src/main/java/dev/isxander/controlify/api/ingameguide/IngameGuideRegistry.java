@@ -1,8 +1,8 @@
 package dev.isxander.controlify.api.ingameguide;
 
-import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
+import dev.isxander.controlify.api.bind.InputBinding;
 
 /**
  * Allows you to register your own actions to the button guide.
@@ -18,7 +18,7 @@ public interface IngameGuideRegistry {
      * @param priority the priority of the action, used to sort the list.
      * @param supplier the supplier for the name of the action. can be empty to hide the action.
      */
-    void registerGuideAction(ControllerBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier<IngameGuideContext> supplier);
+    void registerGuideAction(InputBinding binding, ActionLocation location, ActionPriority priority, GuideActionNameSupplier<IngameGuideContext> supplier);
 
     /**
      * Registers a new action to the button guide.
@@ -27,5 +27,5 @@ public interface IngameGuideRegistry {
      * @param location the location of the action, left or right.
      * @param supplier the supplier for the name of the action. can be empty to hide the action.
      */
-    void registerGuideAction(ControllerBinding binding, ActionLocation location, GuideActionNameSupplier<IngameGuideContext> supplier);
+    void registerGuideAction(InputBinding binding, ActionLocation location, GuideActionNameSupplier<IngameGuideContext> supplier);
 }

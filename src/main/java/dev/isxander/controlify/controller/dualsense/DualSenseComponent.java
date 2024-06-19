@@ -1,11 +1,11 @@
 package dev.isxander.controlify.controller.dualsense;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ECSComponent;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 public class DualSenseComponent implements ECSComponent {
-    public static final ResourceLocation ID = Controlify.id("dualsense");
+    public static final ResourceLocation ID = CUtil.rl("dualsense");
 
     private boolean muteLight;
     private boolean muteLightDirty;

@@ -74,16 +74,16 @@ public abstract class AbstractControllerManager implements ControllerManager {
     public void tick(boolean outOfFocus) {
         for (Driver driver : driversByUid.values()) {
             driver.update(outOfFocus);
-            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoker().onControllerStateUpdate(driver.getController());
+            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(driver.getController()));
         }
     }
 
     protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        boolean newController = controlify.config().loadOrCreateControllerData(controller);
+        boolean newController = controlify.config().loadControllerConfig(controller);
 
         CUtil.LOGGER.info("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
-        ControlifyEvents.CONTROLLER_CONNECTED.invoker().onControllerConnected(controller, hotplug, newController);
+        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplug, newController));
     }
 
     protected void onControllerRemoved(ControllerEntity controller) {
@@ -91,7 +91,18 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         removeController(controller.info().uid());
 
-        ControlifyEvents.CONTROLLER_DISCONNECTED.invoker().onControllerDisconnected(controller);
+        ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
+    }
+
+    @Override
+    public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDService.ControllerHIDInfo hidInfo) {
+        onControllerRemoved(controller);
+
+        Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
+        newController.ifPresent(c -> {
+            ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting controller", c);
+        });
+        return newController;
     }
 
     protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {

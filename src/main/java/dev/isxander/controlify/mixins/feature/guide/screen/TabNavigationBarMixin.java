@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.client.Minecraft;
@@ -42,11 +43,11 @@ public class TabNavigationBarMixin {
 
         Font font = Minecraft.getInstance().font;
 
-        Component prevTabText = BindingFontHelper.binding(controller.bindings().GUI_PREV_TAB);
+        Component prevTabText = ControlifyBindings.GUI_PREV_TAB.on(controller).inputIcon();
         int prevTabTextWidth = font.width(prevTabText);
         graphics.drawString(font, prevTabText, firstTab.getX() - 2 - prevTabTextWidth, firstTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFF);
 
-        Component nextTabText = BindingFontHelper.binding(controller.bindings().GUI_NEXT_TAB);
+        Component nextTabText = ControlifyBindings.GUI_NEXT_TAB.on(controller).inputIcon();
         graphics.drawString(font, nextTabText, lastTab.getX() + lastTab.getWidth() + 2, lastTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFF);
     }
 }

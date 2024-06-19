@@ -1,6 +1,5 @@
 package dev.isxander.controlify.mixins.core;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -10,7 +9,6 @@ import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.server.packs.resources.ReloadInstance;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,12 +25,18 @@ import java.util.function.Function;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
+
+    //? if >1.20.6 {
+    /*@Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
+    *///?} else {
     @Shadow public abstract float getDeltaFrameTime();
+    //?}
 
     @Shadow @Final public MouseHandler mouseHandler;
-    @Unique private boolean initNextTick = false;
+    @Shadow @Nullable public Screen screen;
 
     @Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();
+    @Unique private boolean initialScreensHappened = false;
 
     // Ideally, this would be done in MouseHandler#releaseMouse, but moving
     // the mouse before the screen init is bad, because some mods (e.g. PuzzleLib)
@@ -55,29 +59,18 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
         }
     }
 
-    @ModifyExpressionValue(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/packs/resources/ReloadableResourceManager;createReload(Ljava/util/concurrent/Executor;Ljava/util/concurrent/Executor;Ljava/util/concurrent/CompletableFuture;Ljava/util/List;)Lnet/minecraft/server/packs/resources/ReloadInstance;"))
-    private ReloadInstance onInputInitialized(ReloadInstance resourceReload) {
-        // Controllers need to be initialized extremely late due to the data-driven nature of controllers.
-        // We need to bypass thenRun because any runnable is ran inside of a `minecraft.execute()`, which suppresses exceptions
-        resourceReload.done().thenRun(() -> initNextTick = true);
-        return resourceReload;
-    }
-
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;runAllTasks()V"))
-    private void initControlifyNow(boolean tick, CallbackInfo ci) {
-        if (initNextTick) {
-            Controlify.instance().initializeControlify();
-            initNextTick = false;
-        }
+    @Inject(method = "onGameLoadFinished", at = @At("RETURN"))
+    private void initControlifyNow(CallbackInfo ci) {
+        Controlify.instance().initializeControlify();
     }
 
     /*? if >1.20.4 {*/
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-    /*? } else {*//*
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
+    /*?} else {*/
+    /*@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;turnPlayer()V"))
     *//*?}*/
     private void doPlayerLook(boolean tick, CallbackInfo ci) {
-        Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getDeltaFrameTime()));
+        Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
     }
 
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"))
@@ -85,18 +78,50 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
         Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
     }
 
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"))
+    @Inject(
+            method = "runTick",
+            at = @At(
+                    value = "INVOKE",
+                    /*? if >1.20.6 {*/
+                    /*target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
+                    *//*?} else {*/
+                    target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"
+                    /*?}*/
+            )
+    )
     private void tickAnimator(boolean tick, CallbackInfo ci) {
-        Animator.INSTANCE.tick(this.getDeltaFrameTime());
+        Animator.INSTANCE.tick(getTickDelta());
     }
 
+    /*? if >1.20.1 {*/
     @Inject(method = "addInitialScreens", at = @At("TAIL"))
     private void injectCustomInitialScreens(List<Function<Runnable, Screen>> output, CallbackInfo ci) {
         output.addAll(initialScreenCallbacks);
+        initialScreensHappened = true;
+    }
+    /*?}*/
+
+    @Unique
+    private float getTickDelta() {
+        /*? if >1.20.6 {*/
+        /*return getTimer().getGameTimeDeltaTicks();
+        *//*?} else {*/
+        return getDeltaFrameTime();
+        /*?}*/
     }
 
     @Override
     public void controlify$registerInitialScreen(Function<Runnable, Screen> screenFactory) {
-        initialScreenCallbacks.add(screenFactory);
+        boolean doNow = initialScreensHappened;
+        /*? if <=1.20.1 {*//*
+        doNow = true;
+        *//*?}*/
+
+        if (doNow) {
+            Screen lastScreen = this.screen;
+            setScreen(screenFactory.apply(() -> setScreen(lastScreen)));
+        } else {
+            initialScreenCallbacks.add(screenFactory);
+        }
     }
 }

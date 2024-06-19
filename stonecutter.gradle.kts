@@ -4,7 +4,7 @@ plugins {
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
-stonecutter active "1.20.6" /* [SC] DO NOT EDIT */
+stonecutter active "1.20.6-fabric" /* [SC] DO NOT EDIT */
 
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {
     group = "mod"
@@ -14,6 +14,23 @@ stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chis
 stonecutter registerChiseled tasks.register("releaseAllVersions", stonecutter.chiseled) {
     group = "mod"
     ofTask("releaseMod")
+}
+
+stonecutter.configureEach {
+    val platform = project.property("loom.platform")
+
+    fun String.propDefined() = project.findProperty(this)?.toString()?.isNotBlank() ?: false
+    consts(listOf(
+        "fabric" to (platform == "fabric"),
+        "forge" to (platform == "forge"),
+        "neoforge" to (platform == "neoforge"),
+        "forgelike" to (platform == "forge" || platform == "neoforge"),
+        "immediately-fast" to "deps.immediatelyFast".propDefined(),
+        "iris" to "deps.iris".propDefined(),
+        "mod-menu" to "deps.modMenu".propDefined(),
+        "sodium" to "deps.sodium".propDefined(),
+        "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
+    ))
 }
 
 val sdl3Target = property("deps.sdl3Target")!!.toString()

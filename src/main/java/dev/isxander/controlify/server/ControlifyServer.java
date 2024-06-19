@@ -1,19 +1,19 @@
 package dev.isxander.controlify.server;
 
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.packets.*;
-import dev.isxander.controlify.sound.ControlifySounds;
 import dev.isxander.controlify.utils.CUtil;
-import net.fabricmc.api.DedicatedServerModInitializer;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
-public class ControlifyServer implements ModInitializer, DedicatedServerModInitializer {
-    @Override
+public class ControlifyServer {
+    private static ControlifyServer INSTANCE;
+
+    public static ControlifyServer getInstance() {
+        if (INSTANCE == null) INSTANCE = new ControlifyServer();
+        return INSTANCE;
+    }
+
     public void onInitialize() {
-        ControlifySounds.init();
-
         ControlifyHandshake.setupOnServer();
 
         SidedNetworkApi.S2C().registerPacket(VibrationPacket.CHANNEL, VibrationPacket.CODEC);
@@ -21,34 +21,33 @@ public class ControlifyServer implements ModInitializer, DedicatedServerModIniti
         SidedNetworkApi.S2C().registerPacket(EntityVibrationPacket.CHANNEL, EntityVibrationPacket.CODEC);
         SidedNetworkApi.S2C().registerPacket(ServerPolicyPacket.CHANNEL, ServerPolicyPacket.CODEC);
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, registry, env) -> {
+        PlatformMainUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
             VibrateCommand.register(dispatcher);
         });
     }
 
-    @Override
     public void onInitializeServer() {
-        ControlifyServerConfig.INSTANCE.load();
-        ControlifyServerConfig.INSTANCE.save();
+        ControlifyServerConfig.HANDLER.load();
+        ControlifyServerConfig.HANDLER.save();
 
-        CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy);
-        CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy);
+        CUtil.LOGGER.info("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
+        CUtil.LOGGER.info("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
 
-        ServerPlayConnectionEvents.INIT.register((handler, server) -> {
+        PlatformMainUtil.registerPlayerJoinedEvent(player -> {
             SidedNetworkApi.S2C().sendPacket(
-                    handler.getPlayer(),
+                    player,
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.REACH_AROUND.getId(),
-                            ControlifyServerConfig.INSTANCE.getConfig().reachAroundPolicy
+                            ControlifyServerConfig.HANDLER.instance().reachAroundPolicy
                     )
             );
             SidedNetworkApi.S2C().sendPacket(
-                    handler.getPlayer(),
+                    player,
                     ServerPolicyPacket.CHANNEL,
                     new ServerPolicyPacket(
                             ServerPolicies.DISABLE_FLY_DRIFTING.getId(),
-                            ControlifyServerConfig.INSTANCE.getConfig().noFlyDriftPolicy
+                            ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy
                     )
             );
         });

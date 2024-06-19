@@ -2,12 +2,13 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.screenop.vanilla.PauseScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens./*? if >1.20.6 >>*//*options.*/ OptionsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 
 import java.util.function.Supplier;
@@ -24,10 +25,10 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
     protected void handleButtons(ControllerEntity controller) {
         super.handleButtons(controller);
 
-        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             minecraft.setScreen(new OptionsScreen(screen, minecraft.options));
         }
-        if (controller.bindings().GUI_ABSTRACT_ACTION_2.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
             screen.setFocused(disconnectButtonSupplier.get());
         }
     }
@@ -37,19 +38,21 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
         super.onWidgetRebuild();
 
         if (((PauseScreenAccessor) screen).getShowPauseMenu()) {
-            ButtonGuideApi.addGuideToButtonBuiltin(
+            ButtonGuideApi.addGuideToButton(
                     (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
-                    bindings -> bindings.GUI_BACK,
+                    ControlifyBindings.GUI_BACK,
                     ButtonGuidePredicate.ALWAYS
             );
-            ButtonGuideApi.addGuideToButtonBuiltin(
+            ButtonGuideApi.addGuideToButton(
                     (AbstractButton) getWidget("menu.options").orElseThrow(),
-                    bindings -> bindings.GUI_ABSTRACT_ACTION_1,
+                    ControlifyBindings.GUI_ABSTRACT_ACTION_1,
                     ButtonGuidePredicate.ALWAYS
             );
-            ButtonGuideApi.addGuideToButtonBuiltin(
+            ButtonGuideApi.addGuideToButton(
                     disconnectButtonSupplier.get(),
-                    bindings -> disconnectButtonSupplier.get().isFocused() ? bindings.GUI_PRESS : bindings.GUI_ABSTRACT_ACTION_2,
+                    () -> disconnectButtonSupplier.get().isFocused()
+                            ? ControlifyBindings.GUI_PRESS
+                            : ControlifyBindings.GUI_ABSTRACT_ACTION_2,
                     ButtonGuidePredicate.ALWAYS
             );
         }

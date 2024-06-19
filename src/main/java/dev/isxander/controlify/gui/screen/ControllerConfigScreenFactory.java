@@ -1,14 +1,18 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.ControllerBinding;
 import dev.isxander.controlify.bindings.BindContext;
-import dev.isxander.controlify.bindings.EmptyBind;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.bindings.input.EmptyInput;
+import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
@@ -18,6 +22,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
@@ -48,16 +53,18 @@ public class ControllerConfigScreenFactory {
 
     private Screen generateConfigScreen0(Screen parent, ControllerEntity controller) {
         var advancedCategory = createAdvancedCategory(controller);
-        var bindsCategory = createBindsCategory(controller);
+        var bindsCategory = makeBindsCategory(controller);
         var basicCategory = createBasicCategory(controller); // must be last for new options
 
-        return YetAnotherConfigLib.createBuilder()
+        var yacl = YetAnotherConfigLib.createBuilder()
                 .title(Component.literal("Controlify"))
                 .category(basicCategory)
                 .category(advancedCategory)
-                .category(bindsCategory)
-                .save(() -> Controlify.instance().config().save())
-                .build().generateScreen(parent);
+                .save(() -> Controlify.instance().config().save());
+
+        bindsCategory.ifPresent(yacl::category);
+
+        return yacl.build().generateScreen(parent);
     }
 
     private ConfigCategory createBasicCategory(ControllerEntity controller) {
@@ -547,12 +554,17 @@ public class ControllerConfigScreenFactory {
         return Optional.of(gyroGroup.build());
     }
 
-    private ConfigCategory createBindsCategory(ControllerEntity controller) {
+    private Optional<ConfigCategory> makeBindsCategory(ControllerEntity controller) {
+        Optional<InputComponent> inputOpt = controller.input();
+        if (inputOpt.isEmpty())
+            return Optional.empty();
+        InputComponent input = inputOpt.get();
+
         var category = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
 
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        InputComponent.Config config = input.confObj();
+        InputComponent.Config def = input.defObj();
 
         List<OptionBindPair> optionBinds = new ArrayList<>();
 
@@ -572,10 +584,10 @@ public class ControllerConfigScreenFactory {
                 )))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
-        Option<?> radialBind = controller.bindings().RADIAL_MENU.startYACLOption()
+        Option<?> radialBind = createBindingOpt(ControlifyBindings.RADIAL_MENU, controller)
                 .listener((opt, val) -> updateConflictingBinds(optionBinds))
                 .build();
-        optionBinds.add(new OptionBindPair(radialBind, controller.bindings().RADIAL_MENU));
+        optionBinds.add(new OptionBindPair(radialBind, ControlifyBindings.RADIAL_MENU.on(controller)));
         category.option(editRadialButton);
         category.option(radialBind);
         category.option(Option.<Integer>createBuilder()
@@ -590,13 +602,13 @@ public class ControllerConfigScreenFactory {
                                 .range(2, 40).step(1).formatValue(ticksToMillisFormatter))
                         .build());
 
-        groupBindings(controller.bindings().registry().values()).forEach((categoryName, bindGroup) -> {
+        groupBindings(input.getAllBindings()).forEach((categoryName, bindGroup) -> {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
 
             controlsGroup.options(bindGroup.stream().flatMap(binding -> {
-                if (binding != controller.bindings().RADIAL_MENU) {
-                    Option.Builder<?> option = binding.startYACLOption()
+                if (binding != ControlifyBindings.RADIAL_MENU.on(controller)) {
+                    Option.Builder<?> option = createBindingOpt(binding, controller)
                             .listener((opt, val) -> updateConflictingBinds(optionBinds));
 
                     Option<?> built = option.build();
@@ -618,28 +630,28 @@ public class ControllerConfigScreenFactory {
                 .action((screen, opt) -> {
                     for (OptionBindPair pair : optionBinds) {
                         // who needs a type system?
-                        ((Option<Object>) pair.option()).requestSet(pair.binding.defaultBind());
+                        ((Option<Object>) pair.option()).requestSet(pair.binding.defaultInput());
                     }
                 })
                 .build());
 
-        return category.build();
+        return Optional.of(category.build());
     }
 
     private void updateConflictingBinds(List<OptionBindPair> all) {
         all.forEach(pair -> ((BindController) pair.option().controller()).setConflicting(false));
 
         for (OptionBindPair opt : all) {
-            var ctxs = BindContext.flatten(opt.binding().contexts());
+            Set<BindContext> ctxs = opt.binding().contexts();
 
             List<OptionBindPair> conflicting = all.stream()
                     .filter(pair -> pair.binding() != opt.binding())
                     .filter(pair -> {
-                        boolean contextsMatch = BindContext.flatten(pair.binding().contexts())
+                        boolean contextsMatch = pair.binding().contexts()
                                 .stream()
                                 .anyMatch(ctxs::contains);
                         boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
-                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyBind);
+                        boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyInput);
                         return contextsMatch && bindMatches && bindIsNotEmpty;
                     }).toList();
 
@@ -647,15 +659,49 @@ public class ControllerConfigScreenFactory {
         }
     }
 
-    private static Map<Component, List<ControllerBinding>> groupBindings(Collection<ControllerBinding> bindings) {
+    private static Map<Component, List<InputBinding>> groupBindings(Collection<InputBinding> bindings) {
         return bindings.stream()
-                .collect(Collectors.groupingBy(ControllerBinding::category, LinkedHashMap::new, Collectors.toList()));
+                .collect(Collectors.groupingBy(InputBinding::category, LinkedHashMap::new, Collectors.toList()));
+    }
+
+    private static Option.Builder<Input> createBindingOpt(InputBindingSupplier bindingSupplier, ControllerEntity controller) {
+        return createBindingOpt(bindingSupplier.on(controller), controller);
+    }
+
+    private static Option.Builder<Input> createBindingOpt(InputBinding binding, ControllerEntity controller) {
+        return Option.<Input>createBuilder()
+                .name(binding.name())
+                .description(v -> OptionDescription.createBuilder()
+                        .text(binding.description())
+                        .text(Component.translatable("controlify.gui.bind.currently_bound_to",
+                                Component.empty()
+                                        .append(Controlify.instance().inputFontMapper().getComponentFromInputs(
+                                                controller.info().type().namespace(),
+                                                v.getRelevantInputs()
+                                        ))
+                                        .append(CommonComponents.SPACE)
+                                        .append(Inputs.getInputComponentAnd(v.getRelevantInputs()))
+                        ))
+                        .text(v.equals(binding.defaultInput()) ? Component.empty() : Component.translatable("controlify.gui.bind.default_bound_to",
+                                Component.empty()
+                                        .append(Controlify.instance().inputFontMapper().getComponentFromInputs(
+                                                controller.info().type().namespace(),
+                                                binding.defaultInput().getRelevantInputs()
+                                        ))
+                                        .append(CommonComponents.SPACE)
+                                        .append(Inputs.getInputComponentAnd(
+                                                binding.defaultInput().getRelevantInputs()
+                                        ))
+                        ))
+                        .build())
+                .binding(EmptyInput.INSTANCE, binding::boundInput, binding::setBoundInput)
+                .customController(opt -> new BindController(opt, controller));
     }
 
     private static ResourceLocation screenshot(String filename) {
-        return Controlify.id("textures/screenshots/" + filename);
+        return CUtil.rl("textures/screenshots/" + filename);
     }
 
-    private record OptionBindPair(Option<?> option, ControllerBinding binding) {
+    private record OptionBindPair(Option<?> option, InputBinding binding) {
     }
 }

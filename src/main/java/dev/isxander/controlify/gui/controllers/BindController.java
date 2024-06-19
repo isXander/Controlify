@@ -1,7 +1,8 @@
 package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.*;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.input.*;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
@@ -23,18 +24,18 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
-public class BindController implements Controller<IBind> {
-    private final Option<IBind> option;
+public class BindController implements Controller<Input> {
+    private final Option<Input> option;
     public final ControllerEntity controller;
     private boolean conflicting;
 
-    public BindController(Option<IBind> option, ControllerEntity controller) {
+    public BindController(Option<Input> option, ControllerEntity controller) {
         this.option = option;
         this.controller = controller;
     }
 
     @Override
-    public Option<IBind> option() {
+    public Option<Input> option() {
         return this.option;
     }
 
@@ -70,7 +71,7 @@ public class BindController implements Controller<IBind> {
                 graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
-                if (EmptyBind.equals(bind)) return;
+                if (EmptyInput.equals(bind)) return;
 
                 Component text = Controlify.instance().inputFontMapper()
                         .getComponentFromBind(control.controller.info().type().namespace(), bind);
@@ -109,7 +110,7 @@ public class BindController implements Controller<IBind> {
         public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
             if (controller != control.controller) return true;
 
-            if (controller.bindings().GUI_PRESS.justPressed()) {
+            if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                 openConsumerScreen();
                 return true;
             }
@@ -137,27 +138,27 @@ public class BindController implements Controller<IBind> {
             return control.conflicting ? 0xFF5555 : super.getValueColor();
         }
 
-        public Optional<IBind> getPressedBind() {
+        public Optional<Input> getPressedBind() {
             InputComponent input = control.controller.input().orElseThrow();
             ControllerStateView state = input.stateNow();
             ControllerStateView prevState = input.stateThen();
 
             for (ResourceLocation button : state.getButtons()) {
                 if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
-                    return Optional.of(new ButtonBind(button));
+                    return Optional.of(new ButtonInput(button));
                 }
             }
 
             for (ResourceLocation axis : state.getAxes()) {
                 if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
-                    return Optional.of(new AxisBind(axis));
+                    return Optional.of(new AxisInput(axis));
                 }
             }
 
             for (ResourceLocation hat : state.getHats()) {
                 HatState hatState = state.getHatState(hat);
                 if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
-                    return Optional.of(new HatBind(hat, hatState));
+                    return Optional.of(new HatInput(hat, hatState));
                 }
             }
 

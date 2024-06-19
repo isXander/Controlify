@@ -4,8 +4,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.driver.SDL3NativesManager;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.loader.api.FabricLoader;
+import dev.isxander.controlify.platform.Environment;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import net.minecraft.SharedConstants;
 import net.minecraft.resources.ResourceLocation;
 
@@ -21,10 +21,10 @@ public class DebugDump {
         String formattedDate = dateTime.format(DateTimeFormatter.ISO_DATE_TIME);
         dump.line("CONTROLIFY DEBUG DUMP - ", formattedDate, '\n');
 
-        dump.line("Controlify version: ", CUtil.VERSION.getFriendlyString());
+        dump.line("Controlify version: ", PlatformMainUtil.getControlifyVersion());
         dump.line("Minecraft version: ", SharedConstants.getCurrentVersion().getName());
 
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+        if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
             dump.line("Client").pushIndent();
             dumpClientDebug(dump);
             dump.popIndent();
@@ -50,7 +50,7 @@ public class DebugDump {
                 dump.line("GUID: ", controller.info().guid());
                 dump.line("UID: ", controller.info().uid());
                 dump.line("UCID: ", controller.info().ucid());
-                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid));
+                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid.asIdentifier()));
 
                 controller.input().ifPresentOrElse(input -> {
                     dump.line("Input Component:").pushIndent();
@@ -89,7 +89,7 @@ public class DebugDump {
     }
 
     private static class IndentedStringBuilder {
-        private StringBuilder sb = new StringBuilder();
+        private final StringBuilder sb = new StringBuilder();
         private int indent;
 
         public IndentedStringBuilder line(Object... parts) {

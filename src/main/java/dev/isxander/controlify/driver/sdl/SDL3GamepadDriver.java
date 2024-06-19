@@ -4,8 +4,9 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.FloatByReference;
-import dev.isxander.controlify.controller.battery.BatteryLevel;
-import dev.isxander.controlify.controller.ControllerType;
+import com.sun.jna.ptr.IntByReference;
+import dev.isxander.controlify.controller.battery.PowerState;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
 import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
@@ -23,7 +24,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudioConsts.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
@@ -51,7 +53,7 @@ import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadAxis.*;
 import static dev.isxander.sdl3java.api.gamepad.SDL_GamepadButton.*;
 import static dev.isxander.sdl3java.api.gamepad.SdlGamepad.*;
 import static dev.isxander.sdl3java.api.gamepad.SdlGamepadPropsConst.*;
-import static dev.isxander.sdl3java.api.joystick.SDL_JoystickPowerLevel.*;
+import static dev.isxander.sdl3java.api.power.SDL_PowerState.*;
 import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
 import static dev.isxander.sdl3java.api.sensor.SDL_SensorType.*;
 
@@ -76,7 +78,7 @@ public class SDL3GamepadDriver implements Driver {
     private SDL_AudioSpec dualsenseAudioSpec;
     private final List<AudioStreamHandle> dualsenseAudioHandles;
 
-    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDIdentifier> hid) {
+    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
         this.ptrGamepad = SDL_OpenGamepad(jid);
         if (this.ptrGamepad == null) {
             throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
@@ -86,9 +88,9 @@ public class SDL3GamepadDriver implements Driver {
 
         this.name = SDL_GetGamepadName(ptrGamepad);
         this.guid = SDL_GetGamepadInstanceGUID(jid).toString();
-        this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO);
-        this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
-        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+        this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO) == SDL_TRUE;
+        this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
+        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.numTouchpads = SDL_GetNumGamepadTouchpads(ptrGamepad);
         this.maxTouchpadFingers = IntStream.range(0, numTouchpads).map(i -> SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)).sum();
 
@@ -98,7 +100,7 @@ public class SDL3GamepadDriver implements Driver {
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
         // macOS HD haptics are broken
-        if ("dualsense".equals(type.namespace())) {
+        if (CUtil.rl("dualsense").equals(type.namespace())) {
             controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
 
             if (Util.getPlatform() != Util.OS.OSX) {
@@ -120,9 +122,9 @@ public class SDL3GamepadDriver implements Driver {
                     this.dualsenseAudioSpec = devSpec;
                     this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
 
-                    HDHapticComponent HDHapticComponent = new HDHapticComponent();
-                    HDHapticComponent.getPlayHapticEvent().register(this::playHaptic);
-                    this.controller.setComponent(HDHapticComponent, HDHapticComponent.ID);
+                    HDHapticComponent hdHapticComponent = new HDHapticComponent();
+                    hdHapticComponent.acceptPlayHaptic(this::playHaptic);
+                    this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
                 } else {
                     this.dualsenseAudioDev = null;
                     this.dualsenseAudioSpec = null;
@@ -132,7 +134,7 @@ public class SDL3GamepadDriver implements Driver {
             }
         }
 
-        this.controller.setComponent(new InputComponent(21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, 21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);
@@ -158,6 +160,10 @@ public class SDL3GamepadDriver implements Driver {
 
     @Override
     public void update(boolean outOfFocus) {
+        if (ptrGamepad == null) {
+            throw new IllegalStateException("Tried to update controller even though it's closed.");
+        }
+
         this.updateInput();
         this.updateRumble();
         this.updateGyro();
@@ -169,6 +175,10 @@ public class SDL3GamepadDriver implements Driver {
 
     @Override
     public void close() {
+        if (ptrGamepad == null) {
+            throw new IllegalStateException("Gamepad already closed.");
+        }
+
         SDL_CloseGamepad(ptrGamepad);
         ptrGamepad = null;
 
@@ -220,6 +230,12 @@ public class SDL3GamepadDriver implements Driver {
 
         // Additional inputs
         state.setButton(GamepadInputs.MISC_1_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC1) == SDL_PRESSED);
+        state.setButton(GamepadInputs.MISC_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC2) == SDL_PRESSED);
+        state.setButton(GamepadInputs.MISC_3_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC3) == SDL_PRESSED);
+        state.setButton(GamepadInputs.MISC_4_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC4) == SDL_PRESSED);
+        state.setButton(GamepadInputs.MISC_5_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC5) == SDL_PRESSED);
+        state.setButton(GamepadInputs.MISC_6_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_MISC6) == SDL_PRESSED);
+
         state.setButton(GamepadInputs.LEFT_PADDLE_1_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_LEFT_PADDLE1) == SDL_PRESSED);
         state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1) == SDL_PRESSED);
@@ -297,14 +313,15 @@ public class SDL3GamepadDriver implements Driver {
     }
 
     private void updateBatteryLevel() {
-        BatteryLevel level = switch (SDL_GetGamepadPowerLevel(ptrGamepad)) {
-            case SDL_JOYSTICK_POWER_UNKNOWN -> BatteryLevel.UNKNOWN;
-            case SDL_JOYSTICK_POWER_EMPTY -> BatteryLevel.EMPTY;
-            case SDL_JOYSTICK_POWER_LOW -> BatteryLevel.LOW;
-            case SDL_JOYSTICK_POWER_MEDIUM -> BatteryLevel.MEDIUM;
-            case SDL_JOYSTICK_POWER_FULL -> BatteryLevel.FULL;
-            case SDL_JOYSTICK_POWER_WIRED -> BatteryLevel.WIRED;
-            case SDL_JOYSTICK_POWER_MAX -> BatteryLevel.MAX;
+        IntByReference percent = new IntByReference();
+        int powerState = SDL_GetGamepadPowerInfo(ptrGamepad, percent);
+
+        PowerState level = switch (powerState) {
+            case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
+            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.getValue());
+            case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
+            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.getValue());
+            case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
             default -> throw new IllegalStateException("Unexpected value");
         };
 

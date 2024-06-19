@@ -1,10 +1,11 @@
-import dev.kikugie.stonecutter.processor.Expression
 import net.fabricmc.loom.task.RemapJarTask
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     `java-library`
 
-    id("fabric-loom") version "1.6.+"
+    id("dev.architectury.loom") version "1.6.+"
+    id("dev.kikugie.j52j") version "1.0"
 
     id("me.modmuss50.mod-publish-plugin") version "0.5.+"
     `maven-publish`
@@ -12,38 +13,42 @@ plugins {
     id("org.ajoberstar.grgit") version "5.0.+"
 }
 
+// version stuff
 val mcVersion = property("mcVersion")!!.toString()
 val mcSemverVersion = stonecutter.current.version
-val mcDep = property("fmj.mcDep").toString()
 
+// loader stuff
+val loader = loom.platform.get().name.lowercase()
+val isFabric = loader == "fabric"
+val isNeoforge = loader == "neoforge"
+val isForge = loader == "forge"
+val isForgeLike = isNeoforge || isForge
+
+// project stuff
 group = "dev.isxander"
-val versionWithoutMC = "2.0.0-beta.7"
+val versionWithoutMC = property("modVersion")!!.toString()
 version = "$versionWithoutMC+${stonecutter.current.project}"
-
 val isAlpha = "alpha" in version.toString()
 val isBeta = "beta" in version.toString()
-if (isAlpha) println("Controlify alpha version detected.")
-if (isBeta) println("Controlify beta version detected.")
+base.archivesName.set(property("modName").toString())
 
-base {
-    archivesName.set(property("modName").toString())
-}
+// mixin stuff
+val mixins = mapOf(
+    "controlify" to true,
+    "controlify-compat.iris" to isPropDefined("deps.iris"),
+    "controlify-compat.sodium" to isPropDefined("deps.sodium"),
+    "controlify-compat.yacl" to true,
+    "controlify-compat.simple-voice-chat" to isPropDefined("deps.simpleVoiceChat"),
+    "controlify-platform.fabric" to isFabric,
+    "controlify-platform.neoforge" to isNeoforge,
+)
+    .map { (k, v) -> if (v) k else null }
+    .filterNotNull()
+    .map { "$it.mixins.json" }
 
-// add custom expressions to stonecutter to allow optional dependencies at build-time
-val scExpression: Expression = {
-    when (it) {
-        "immediately-fast" -> isPropDefined("deps.immediatelyFast")
-        "iris" -> isPropDefined("deps.iris")
-        "mod-menu" -> isPropDefined("deps.modMenu")
-        "sodium" -> isPropDefined("deps.sodium")
-        "simple-voice-chat" -> isPropDefined("deps.simpleVoiceChat")
-        else -> null
-    }
-}
-stonecutter.expression(scExpression)
-
+val accessWidenerName = "controlify.accesswidener"
 loom {
-    accessWidenerPath.set(project.file("src/main/resources/controlify.accesswidener"))
+    accessWidenerPath.set(project.file("src/main/resources/$accessWidenerName"))
 
     if (stonecutter.current.isActive) {
         runConfigs.all {
@@ -55,6 +60,19 @@ loom {
     mixin {
         useLegacyMixinAp.set(false)
     }
+
+    if (isForge) {
+        forge {
+            convertAccessWideners.set(true)
+            mixins.forEach { mixinConfig(it) }
+        }
+    }
+}
+
+stonecutter {
+    dependencies(
+        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0")
+    )
 }
 
 repositories {
@@ -75,90 +93,113 @@ repositories {
     maven("https://jitpack.io")
     maven("https://maven.flashyreese.me/snapshots")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://maven.neoforged.net/releases/")
 }
 
 dependencies {
+    fun Dependency?.jij() = this?.also(::include)
+    fun Dependency?.forgeRuntime() = this?.also { if (isForgeLike) "forgeRuntimeLibrary"(it) }
+
     minecraft("com.mojang:minecraft:$mcVersion")
     mappings(loom.layered {
-        // quilt does not support pre-releases so it is necessary to only layer if they exist
         optionalProp("deps.parchment") {
             parchment("org.parchmentmc.data:parchment-$it@zip")
         }
 
         officialMojangMappings()
     })
-    modImplementation("net.fabricmc:fabric-loader:${property("deps.fabricLoader")}")
 
-    val fapiVersion = property("deps.fabricApi").toString()
-    listOf(
-        "fabric-resource-loader-v0",
-        "fabric-lifecycle-events-v1",
-        "fabric-key-binding-api-v1",
-        "fabric-registry-sync-v0",
-        "fabric-screen-api-v1",
-        "fabric-command-api-v2",
-        "fabric-networking-api-v1",
-        "fabric-item-group-api-v1",
-    ).forEach {
-        modImplementation(fabricApi.module(it, fapiVersion))
+    fun modDependency(id: String, artifactGetter: (String) -> String, extra: (Boolean) -> Unit = {}) {
+        optionalProp("deps.$id") {
+            val noRuntime = findProperty("deps.$id.noRuntime")?.toString()?.toBoolean() == true
+            val configuration = if (noRuntime) "modCompileOnly" else "modImplementation"
+
+            configuration(artifactGetter(it))
+
+            extra(!noRuntime)
+        }
     }
-    modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion") // so you can do `depends: fabric-api` in FMJ
+
+    if (isFabric) {
+        modImplementation("net.fabricmc:fabric-loader:${property("deps.fabricLoader")}")
+
+        val fapiVersion = property("deps.fabricApi").toString()
+        listOf(
+            "fabric-resource-loader-v0",
+            "fabric-lifecycle-events-v1",
+            "fabric-key-binding-api-v1",
+            "fabric-registry-sync-v0",
+            "fabric-screen-api-v1",
+            "fabric-command-api-v2",
+            "fabric-networking-api-v1",
+            "fabric-item-group-api-v1",
+            "fabric-rendering-v1",
+        ).forEach {
+            modImplementation(fabricApi.module(it, fapiVersion))
+        }
+        // so you can do `depends: fabric-api` in FMJ
+        modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
+
+        // sodium compat
+        modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
+            if (runtime) {
+                listOf(
+                    "fabric-rendering-fluids-v1",
+                    "fabric-rendering-data-attachment-v1",
+                ).forEach { module ->
+                    modRuntimeOnly(fabricApi.module(module, fapiVersion))
+                }
+            }
+        }
+
+        // iris compat
+        modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
+            if (runtime) {
+                modRuntimeOnly("org.anarres:jcpp:1.4.14")
+                modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+            }
+        }
+
+        // mod menu compat
+        modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
+    } else if (isNeoforge) {
+        "neoForge"("net.neoforged:neoforge:${findProperty("deps.neoforge")}")
+    } else if (isForge) {
+        "forge"("net.minecraftforge:forge:${findProperty("deps.forge")}")
+    }
 
     modApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
         // was including old fapi version that broke things at runtime
         exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
-    }
+        exclude(group = "thedarkcolour")
+    }.forgeRuntime()
 
     // bindings for SDL3
-    api(include("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")!!)
+    api("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
+        .forgeRuntime().jij()
 
     // used to identify controller PID/VID when SDL is not available
-    api(include("org.hid4java:hid4java:${property("deps.hid4java")}")!!)
+    api("org.hid4java:hid4java:${property("deps.hid4java")}")
+        .jij().forgeRuntime()
 
     // A json5 reader that hooks into gson
     listOf(
         "json",
         "gson",
     ).forEach {
-        api(include("org.quiltmc.parsers:$it:${property("deps.quiltParsers")}")!!)
+        api("org.quiltmc.parsers:$it:${property("deps.quiltParsers")}")
+            .jij().forgeRuntime()
     }
 
-    // mod menu compat
-    optionalProp("deps.modMenu") {
-        modImplementation("com.terraformersmc:modmenu:$it")
-    }
-
-    // sodium compat
-    optionalProp("deps.sodium") {
-        modImplementation("maven.modrinth:sodium:$it")
-
-        // sodium needs more runtime fapi modules
-        // modrinth maven is obvi not transitive
-        listOf(
-            "fabric-rendering-fluids-v1",
-            "fabric-rendering-data-attachment-v1",
-        ).forEach { module ->
-            modRuntimeOnly(fabricApi.module(module, fapiVersion))
-        }
-    }
-    // iris compat
-    optionalProp("deps.iris") {
-        modCompileOnly("maven.modrinth:iris:$it")
-
-        // only necessary if above ^^ is in runtime
-        // modRuntimeOnly("org.anarres:jcpp:1.4.14")
-        // modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
-    }
     // immediately-fast compat
-    optionalProp("deps.immediatelyFast") {
-        modImplementation("maven.modrinth:immediatelyfast:$it")
-        modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+    modDependency("immediatelyFast", { "maven.modrinth:immediatelyfast:$it" }) { runtime ->
+        if (runtime) {
+            modRuntimeOnly("net.lenni0451:Reflect:1.1.0")
+        }
     }
 
     // simple-voice-chat compat
-    optionalProp("deps.simpleVoiceChat") {
-        modCompileOnly("maven.modrinth:simple-voice-chat:$it")
-    }
+    modDependency("simpleVoiceChat", { "maven.modrinth:simple-voice-chat:$it" })
 }
 
 tasks {
@@ -167,22 +208,54 @@ tasks {
         val modName: String by project
         val modDescription: String by project
         val githubProject: String by project
+        val packFormat: String by project
 
-        val props = mapOf(
-            "id" to modId,
-            "group" to project.group,
-            "name" to modName,
-            "description" to modDescription,
-            "version" to project.version,
-            "github" to githubProject,
-            "mc" to mcDep
-        )
+        val props = buildMap {
+            put("id", modId)
+            put("group", project.group)
+            put("name", modName)
+            put("description", modDescription)
+            put("version", project.version)
+            put("github", githubProject)
+            put("pack_format", packFormat)
 
+            if (isFabric) {
+                put("mc", findProperty("fmj.mcDep"))
+                put("mixins", mixins.joinToString("\",\"", prefix = "\"", postfix = "\""))
+                put("fapi", findProperty("fmj.fapiDep") ?: "*")
+            }
+
+            if (isForgeLike) {
+                put("mc", findProperty("modstoml.mcDep"))
+                put("loaderVersion", findProperty("modstoml.loaderVersion"))
+                put("forgeId", findProperty("modstoml.forgeId"))
+                put("forgeConstraint", findProperty("modstoml.forgeConstraint"))
+                put("mixins", mixins.joinToString("\n\n") { """
+                    [[mixins]]
+                    config = "$it"
+                """.trimIndent() })
+            }
+        }
         props.forEach(inputs::property)
 
-        filesMatching("fabric.mod.json") {
+        val fabricModJson = "fabric.mod.json"
+        val modsToml = "META-INF/mods.toml"
+        val neoforgeModsToml = "META-INF/neoforge.mods.toml"
+        val metadataFiles = listOf(
+            fabricModJson, modsToml, neoforgeModsToml,
+        )
+        val modMetadataFile = when {
+            isFabric -> fabricModJson
+            isNeoforge && Version(stonecutter.current.version) >= Version("1.20.5") -> neoforgeModsToml
+            isForgeLike -> modsToml
+            else -> error("Unknown loader")
+        }
+
+        filesMatching(listOf(modMetadataFile, "**/pack.mcmeta")) {
             expand(props)
         }
+
+        exclude(metadataFiles - modMetadataFile)
 
         eachFile {
             // don't include photoshop files for the textures for development
@@ -200,23 +273,6 @@ tasks {
     }
 }
 
-/*
-val offlineChiseledBuild by tasks.registering(StonecutterTask::class) {
-    group = "offline"
-
-    toVersion.set(stonecutter.current)
-    expressions.set(listOf(scExpression, {
-        when (it) {
-            "offline" -> true
-            else -> null
-        }
-    }))
-
-    input.set(rootProject.file("./src").toPath())
-    output.set(layout.buildDirectory.get().asFile.toPath().resolve("src"))
-}
- */
-
 val offlineRemapJar by tasks.registering(RemapJarTask::class) {
     group = "offline"
 
@@ -233,29 +289,31 @@ val offlineRemapJar by tasks.registering(RemapJarTask::class) {
 
 tasks.build { dependsOn(offlineRemapJar) }
 
-val javaMajorVersion = property("java.version").toString().toInt()
+tasks.remapJar {
+    if (isNeoforge) {
+        atAccessWideners.add(accessWidenerName)
+    }
+}
+
 java {
     withSourcesJar()
-    withJavadocJar()
 
-    javaMajorVersion
-        .let { JavaVersion.values()[it - 1] }
-        .let {
-            sourceCompatibility = it
-            targetCompatibility = it
-        }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<JavaCompile> {
-    options.release = javaMajorVersion
+    options.release = project.property("java.version").toString().toInt()
 }
 
 publishMods {
-    displayName.set("Controlify $versionWithoutMC for MC $mcVersion")
+    displayName.set("Controlify $versionWithoutMC for ${loader.capitalized()} $mcVersion")
+
     file.set(tasks.remapJar.get().archiveFile)
     additionalFiles.setFrom(offlineRemapJar.get().archiveFile)
+
     changelog.set(
-        rootProject.file("changelogs/${versionWithoutMC}.md")
+        rootProject.file("changelog.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."
@@ -265,7 +323,7 @@ publishMods {
         isBeta -> BETA
         else -> STABLE
     })
-    modLoaders.add("fabric")
+    modLoaders.add(loader)
 
     fun versionList(prop: String) = findProperty(prop)?.toString()
         ?.split(',')
@@ -283,9 +341,12 @@ publishMods {
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.modrinthMC"))
 
-            requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }
-            optional { slug.set("modmenu") }
+
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
+            }
         }
     }
 
@@ -297,9 +358,12 @@ publishMods {
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.curseMC"))
 
-            requires { slug.set("fabric-api") }
             requires { slug.set("yacl") }
-            optional { slug.set("modmenu") }
+
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
+            }
         }
     }
 
@@ -346,4 +410,8 @@ fun <T> optionalProp(property: String, block: (String) -> T?) {
 
 fun isPropDefined(property: String): Boolean {
     return findProperty(property)?.toString()?.isNotBlank() ?: false
+}
+
+data class Version(val string: String) {
+    operator fun compareTo(other: Version): Int = stonecutter.compare(string, other.string)
 }

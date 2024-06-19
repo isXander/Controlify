@@ -12,10 +12,10 @@ import java.io.InputStream;
  * audio stream of the output device. It is operated just like a speaker.
  */
 public class DualsenseOggAudioStream extends
-        /*? if >1.20.4 { */
+        /*? if >1.20.4 {*/
         net.minecraft.client.sounds.JOrbisAudioStream
-        /*? } else {*//*
-        com.mojang.blaze3d.audio.OggAudioStream
+        /*?} else {*/
+        /*com.mojang.blaze3d.audio.OggAudioStream
         *//*?}*/
 {
 
@@ -41,8 +41,8 @@ public class DualsenseOggAudioStream extends
         }
     }
 
-    /*? if <=1.20.4 {*//*
-    @Override
+    /*? if <=1.20.4 {*/
+    /*@Override
     protected void convertMono(java.nio.FloatBuffer buf, OutputConcat channels) {
         float[] bufArr = new float[buf.limit()];
         buf.rewind();

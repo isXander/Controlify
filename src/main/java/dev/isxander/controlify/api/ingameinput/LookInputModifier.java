@@ -1,55 +1,42 @@
 package dev.isxander.controlify.api.ingameinput;
 
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.ingame.InGameInputHandler;
+import dev.isxander.controlify.platform.EventHandler;
+import org.joml.Vector2f;
 
 import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
+import java.util.function.Predicate;
 
 /**
- * Allows dependants to modify controller look input.
- *
- * Implementing classes must provide methods for modifying the x
- * and y axis values of the controller's look input.
+ * Callbacks should modify the {@link #lookInput()} vector to modify the look input.
+ * Be aware that multiple callbacks could be called, so make sure to be considerate of other mods.
  */
-public interface LookInputModifier {
-
+public record LookInputModifier(Vector2f lookInput, ControllerEntity controller) {
     /**
-     * Modifies the x axis value of the controller's look input.
+     * Creates a callback to modify the x and y individually.
      *
-     * @param x the current value of the x axis, typically in the range 0-1 but can be higher from gyro input
-     * @param controller the current active controller
-     * @return the modified value of the x axis
+     * @param x the function for modifying the x-axis
+     * @param y the function for modifying the y-axis
+     * @return the new callback
      */
-    float modifyX(float x, ControllerEntity controller);
-
-    /**
-     * Modifies the y axis value of the controller's look input.
-     *
-     * @param y the current value of the y axis, typically in the range 0-1 but can be higher from gyro input
-     * @param controller the current active controller
-     * @return the modified value of the y axis
-     */
-    float modifyY(float y, ControllerEntity controller);
-
-    /**
-     * Creates a new LookInputModifier using the given x and y axis modifying functions.
-     *
-     * @param x the function for modifying the x axis
-     * @param y the function for modifying the y axis
-     * @return the new LookInputModifier object
-     */
-    static LookInputModifier functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
-        return new InGameInputHandler.FunctionalLookInputModifier(x, y);
+    public static EventHandler.Callback<LookInputModifier> functional(BiFunction<Float, ControllerEntity, Float> x, BiFunction<Float, ControllerEntity, Float> y) {
+        return event -> {
+            event.lookInput.x = x.apply(event.lookInput.x, event.controller);
+            event.lookInput.y = y.apply(event.lookInput.y, event.controller);
+        };
     }
 
     /**
-     * Creates a new LookInputModifier that sets the x and y axis to zero if the given condition is true.
+     * Creates a new callback that zeroes out the look input if the predicate is true.
      *
-     * @param condition the condition that determines whether to set the axis values to zero
+     * @param condition the condition that, if true, sets both axes to zero
      * @return the new LookInputModifier object
      */
-    static LookInputModifier zeroIf(BooleanSupplier condition) {
-        return functional((x, controller) -> condition.getAsBoolean() ? 0 : x, (y, controller) -> condition.getAsBoolean() ? 0 : y);
+    static EventHandler.Callback<LookInputModifier> zeroIf(Predicate<ControllerEntity> condition) {
+        return event -> {
+            if (condition.test(event.controller)) {
+                event.lookInput.set(0, 0);
+            }
+        };
     }
 }

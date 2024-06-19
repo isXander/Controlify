@@ -5,11 +5,13 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
 import dev.isxander.controlify.utils.animation.api.Animation;
@@ -45,11 +47,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation CHECKMARK = /*? if >=1.20.3 {*/
-            new ResourceLocation("icon/checkmark");
-    /*?} else {*//*
-            new ResourceLocation("textures/gui/checkmark.png");
-    *//*?} */
+    public static final ResourceLocation CHECKMARK =
+            /*? if >=1.20.3 {*/
+            CUtil.mcRl("icon/checkmark");
+            /*?} else {*//*
+            CUtil.mcRl("textures/gui/checkmark.png");
+            *//*?}*/
 
     private final Screen parent;
     private int footerY;
@@ -122,8 +125,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         );
         controllerNotDetectedButton.visible = carouselEntries.isEmpty();
 
-        ButtonGuideApi.addGuideToButtonBuiltin(globalSettingsButton, bindings -> bindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
-        ButtonGuideApi.addGuideToButtonBuiltin(doneButton, bindings -> bindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
 
         this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
     }
@@ -165,8 +168,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        /*? if =1.20.4 {*//*
-        renderBackground(graphics, mouseX, mouseY, delta);
+        /*? if =1.20.4 {*/
+        /*renderBackground(graphics, mouseX, mouseY, delta);
         *//*?} else <1.20.4 {*//*
         renderBackground(graphics);
         *//*?}*/
@@ -174,10 +177,10 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         RenderSystem.enableBlend();
         graphics.blit(
-                /*? if >1.20.4 { */
+                /*? if >1.20.4 {*/
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
-                /*? } else { *//*
-                CreateWorldScreen.FOOTER_SEPERATOR,
+                /*?} else {*/
+                /*CreateWorldScreen.FOOTER_SEPERATOR,
                 *//*?}*/
                 0, footerY,
                 0.0F, 0.0F,
@@ -198,7 +201,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             , int i, int j, float f
             /*?}*/
     ) {
-        /*? if >1.20.4 { */
+        /*? if >1.20.4 {*/
         super.renderBackground(graphics, i, j, f);
 
         RenderSystem.enableBlend();
@@ -210,8 +213,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 32, 32
         );
         RenderSystem.disableBlend();
-        /*? } else { *//*
-        graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
+        /*?} else {*/
+        /*graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);
         graphics.setColor(1f, 1f, 1f, 1f);
 
@@ -242,7 +245,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
     @Override
     public void onControllerInput(ControllerEntity controller) {
-        if (controller.bindings().GUI_ABSTRACT_ACTION_1.justPressed()) {
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             globalSettingsButton.onPress();
         }
     }

@@ -5,9 +5,9 @@ import dev.isxander.sdl3java.api.hidapi.SDL_hid_device;
 import dev.isxander.sdl3java.api.hidapi.SdlHidApi;
 import dev.isxander.sdl3java.jna.size_t;
 
-public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, HIDDevice.SDLHidApi {
-    int vendorID();
-    int productID();
+public sealed interface HIDDevice {
+    int vendorId();
+    int productId();
 
     String path();
 
@@ -20,7 +20,7 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
     int write(byte[] buffer, int packetLength, byte reportId);
 
     default HIDIdentifier asIdentifier() {
-        return new HIDIdentifier(this.vendorID(), this.productID());
+        return new HIDIdentifier(this.vendorId(), this.productId());
     }
 
     final class Hid4Java implements HIDDevice {
@@ -31,12 +31,12 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
         }
 
         @Override
-        public int vendorID() {
+        public int vendorId() {
             return hidDevice.getVendorId();
         }
 
         @Override
-        public int productID() {
+        public int productId() {
             return hidDevice.getProductId();
         }
 
@@ -70,9 +70,17 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
         public int write(byte[] buffer, int packetLength, byte reportId) {
             return hidDevice.write(buffer, packetLength, reportId);
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof HIDDevice hid) {
+                return this.asIdentifier().equals(hid.asIdentifier());
+            }
+            return false;
+        }
     }
 
-    record IDOnly(int vendorID, int productID, String path) implements HIDDevice {
+    record IDOnly(int vendorId, int productId, String path) implements HIDDevice {
         @Override
         public boolean supportsCommunication() {
             return false;
@@ -97,6 +105,14 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
         public int write(byte[] buffer, int packetLength, byte reportId) {
             throw new UnsupportedOperationException();
         }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof HIDDevice hid) {
+                return this.asIdentifier().equals(hid.asIdentifier());
+            }
+            return false;
+        }
     }
 
     final class SDLHidApi implements HIDDevice {
@@ -114,12 +130,12 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
         }
 
         @Override
-        public int vendorID() {
+        public int vendorId() {
             return vendorId;
         }
 
         @Override
-        public int productID() {
+        public int productId() {
             return productId;
         }
 
@@ -161,6 +177,14 @@ public sealed interface HIDDevice permits HIDDevice.Hid4Java, HIDDevice.IDOnly, 
                 memory.write(1, buffer, 0, buffer.length);
                 return SdlHidApi.SDL_hid_write(device, memory, new size_t(buffer.length));
             }
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof HIDDevice hid) {
+                return this.asIdentifier().equals(hid.asIdentifier());
+            }
+            return false;
         }
     }
 }

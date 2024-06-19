@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
@@ -36,22 +37,22 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
         RecipeBookTabButton selectedTab = componentAccessor.getSelectedTab();
 
         StateSwitchingButton button;
-        if (controller.bindings().VMOUSE_PAGE_NEXT.justPressed()) {
+        if (ControlifyBindings.VMOUSE_PAGE_NEXT.on(controller).justPressed()) {
             button = pageAccessor.getForwardButton();
             recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
         }
-        if (controller.bindings().VMOUSE_PAGE_PREV.justPressed()) {
+        if (ControlifyBindings.VMOUSE_PAGE_PREV.on(controller).justPressed()) {
             button = pageAccessor.getBackButton();
             recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
         }
-        if (controller.bindings().VMOUSE_PAGE_DOWN.justPressed()) {
+        if (ControlifyBindings.VMOUSE_PAGE_DOWN.on(controller).justPressed()) {
             int index = tabs.indexOf(selectedTab);
             if (index != tabs.size() - 1) {
                 button = tabs.get(index + 1);
                 recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
             }
         }
-        if (controller.bindings().VMOUSE_PAGE_UP.justPressed()) {
+        if (ControlifyBindings.VMOUSE_PAGE_UP.on(controller).justPressed()) {
             int index = tabs.indexOf(selectedTab);
             if (index != 0) {
                 button = tabs.get(index - 1);

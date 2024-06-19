@@ -1,0 +1,16 @@
+{
+  "package": "dev.isxander.controlify.compatibility.simplevoicechat.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "dev.isxander.controlify.compatibility.simplevoicechat.SVCMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+  ],
+  "mixins": [
+    "KeyEventsAccessor",
+    "PTTKeyHandlerMixin"
+  ]
+}

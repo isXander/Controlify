@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
@@ -27,9 +28,9 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
         super.onWidgetRebuild();
 
         getWidget(CommonComponents.GUI_DONE).ifPresent(doneButton ->
-                ButtonGuideApi.addGuideToButtonBuiltin(
+                ButtonGuideApi.addGuideToButton(
                         (AbstractButton) doneButton,
-                        bindings -> bindings.GUI_BACK,
+                        ControlifyBindings.GUI_BACK,
                         ButtonGuidePredicate.ALWAYS
                 ));
     }

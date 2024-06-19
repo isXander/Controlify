@@ -1,0 +1,17 @@
+{
+  "package": "dev.isxander.controlify.compatibility.yacl.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "dev.isxander.controlify.compatibility.yacl.YACLMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "YACLScreenCategoryTabAccessor",
+    "YACLScreenCategoryTabMixin",
+    "YACLScreenMixin",
+    "CyclingControllerElementMixin",
+    "SliderControllerElementMixin"
+  ]
+}

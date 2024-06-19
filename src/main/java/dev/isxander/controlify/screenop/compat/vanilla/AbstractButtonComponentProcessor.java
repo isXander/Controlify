@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.dualsense.HapticEffects;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -16,7 +17,7 @@ public class AbstractButtonComponentProcessor implements ComponentProcessor {
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (controller.bindings().GUI_PRESS.justPressed()) {
+        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
             controller.hdHaptics().ifPresent(hh -> hh.playHaptic(HapticEffects.NAVIGATE));
             button.playDownSound(Minecraft.getInstance().getSoundManager());
             button.onPress();

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
@@ -72,21 +73,20 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
     }
 
     private static void drawCircle(PoseStack poseStack, float originX, float originY, float z, float radius, int colour, int segments) {
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
 
         Matrix4f position = poseStack.last().pose();
 
         for (int i = 0; i < 360; i += (int) Math.min(360.0 / segments, 360 - i)) {
             float radians = i * Mth.DEG_TO_RAD;
-            buffer.vertex(
-                    position,
-                    originX + Mth.sin(radians) * radius,
-                    originY + Mth.cos(radians) * radius,
-                    z
-            );
-            buffer.color(colour);
-            buffer.endVertex();
+            float x = originX + Mth.sin(radians) * radius;
+            float y = originY + Mth.cos(radians) * radius;
+
+            /*? if >1.20.6 {*/
+            /*buffer.addVertex(position, x, y, z).setColor(colour);
+            *//*?} else {*/
+            buffer.vertex(position, x, y, z).color(colour).endVertex();
+            /*?}*/
         }
 
         RenderSystem.enableBlend();
@@ -95,14 +95,19 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        BufferUploader.drawWithShader(buffer.end());
+        BufferUploader.drawWithShader(
+                /*? if >1.20.6 {*/
+                /*buffer.buildOrThrow()
+                *//*?} else {*/
+                buffer.end()
+                /*?}*/
+        );
 
         RenderSystem.disableBlend();
     }
 
     private static void drawCircleOutline(PoseStack poseStack, float originX, float originY, float z, float radius, float thickness, int colour, int segments) {
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
         Matrix4f position = poseStack.last().pose();
 
@@ -112,10 +117,23 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float sin = Mth.sin(radians);
             float cos = Mth.cos(radians);
 
-            buffer.vertex(position, originX + sin * diff, originY + cos * diff, z)
-                    .color(colour).endVertex();
-            buffer.vertex(position, originX + sin * radius, originY + cos * radius, z)
-                    .color(colour).endVertex();
+            float x1 = originX + sin * diff;
+            float y1 = originY + cos * diff;
+
+            /*? if >1.20.6 {*/
+            /*buffer.addVertex(position, x1, y1, z).setColor(colour);
+            *//*?} else {*/
+            buffer.vertex(position, x1, y1, z).color(colour).endVertex();
+             /*?}*/
+
+            float x2 = originX + sin * radius;
+            float y2 = originY + cos * radius;
+
+            /*? if >1.20.6 {*/
+            /*buffer.addVertex(position, x2, y2, z).setColor(colour);
+            *//*?} else {*/
+            buffer.vertex(position, x2, y2, z).color(colour).endVertex();
+             /*?}*/
         }
 
         RenderSystem.enableBlend();
@@ -124,7 +142,13 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        BufferUploader.drawWithShader(buffer.end());
+        BufferUploader.drawWithShader(
+                /*? if >1.20.6 {*/
+                /*buffer.buildOrThrow()
+                *//*?} else {*/
+                buffer.end()
+                 /*?}*/
+        );
 
         RenderSystem.disableBlend();
     }

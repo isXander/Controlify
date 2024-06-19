@@ -17,8 +17,8 @@ public class GameRendererMixin {
     @ModifyExpressionValue(
             /*? if >1.20.4 {*/
             method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;",
-            /*? } else { *//*
-            method = "pick",
+            /*?} else {*/
+            /*method = "pick",
             *//*?}*/
             at = @At(
                     value = "INVOKE",

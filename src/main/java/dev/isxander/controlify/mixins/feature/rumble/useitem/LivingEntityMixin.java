@@ -12,9 +12,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
-    @Shadow public abstract int getUseItemRemainingTicks();
-
-    @Inject(method = "startUsingItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getUseDuration()I"))
+    @Inject(
+            method = "startUsingItem",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >1.20.6 {
+                    /*target = "Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
+                    *///?} else {
+                    target = "Lnet/minecraft/world/item/ItemStack;getUseDuration()I"
+                    //?}
+            )
+    )
     protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, @Local ItemStack stack) {
 
     }

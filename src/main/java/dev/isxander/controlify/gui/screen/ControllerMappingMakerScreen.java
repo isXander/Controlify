@@ -9,6 +9,7 @@ import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -248,7 +249,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         }
 
         if (currentStage == null || !currentStage.isSatisfied()) {
-            ResourceLocation texture = currentStage != null ? currentStage.foreground() : new ResourceLocation("controlify", "textures/gui/controllerdiagram/faceview.png");
+            ResourceLocation texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
             guiGraphics.blit(texture, 0, 0, 0, 0, 32, 32, 32, 32);
         }
 
@@ -288,8 +289,8 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             this.originInput = originInput;
             this.outputType = outputType;
             this.name = name;
-            this.foreground = new ResourceLocation("controlify", "textures/gui/controllerdiagram/" + foreground + ".png");;
-            this.background = new ResourceLocation("controlify", "textures/gui/controllerdiagram/" + foreground + ".png");;
+            this.foreground = CUtil.rl("textures/gui/controllerdiagram/" + foreground + ".png");;
+            this.background = CUtil.rl("textures/gui/controllerdiagram/" + foreground + ".png");;
         }
 
         public ResourceLocation originInput() {

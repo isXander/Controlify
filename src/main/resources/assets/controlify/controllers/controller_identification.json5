@@ -1,7 +1,8 @@
+// no j52j
 [
   {
     "name": "Xbox Controller",
-    "theme": "xbox_one",
+    "namespace": "controlify:xbox_one",
 
     "hids": [
       [0x45e, 0x202], // Xbox Controller
@@ -29,7 +30,7 @@
   },
   {
     "name": "DualShock 4 Controller",
-    "theme": "dualshock4",
+    "namespace": "controlify:dualshock4",
 
     "hids": [
       [0x54c, 0x5c4],
@@ -39,7 +40,7 @@
   },
   {
     "name": "DualShock 3 Controller",
-    "theme": "dualshock3",
+    "namespace": "controlify:dualshock3",
 
     "hids": [
       [0x54c, 0x0268]
@@ -47,7 +48,7 @@
   },
   {
     "name": "DualSense Controller",
-    "theme": "dualsense",
+    "namespace": "controlify:dualsense",
 
     "hids": [
       [0x54c, 0x0ce6],
@@ -55,8 +56,16 @@
     ]
   },
   {
+    "name": "PlayStation Portable",
+    "namespace": "controlify:psp",
+
+    "hids": [
+      [0x0ff, 0x1cb],
+    ]
+  },
+  {
     "name": "Switch Controller",
-    "theme": "switch",
+    "namespace": "controlify:switch",
 
     "hids": [
       [0x57e, 0x2009], // Many other switch controllers spoof this ID
@@ -64,7 +73,7 @@
   },
   {
     "name": "Steam Deck",
-    "theme": "steam_deck",
+    "namespace": "controlify:steam_deck",
 
     "hids": [
       [0x28de, 0x1205],
@@ -73,7 +82,7 @@
   },
   {
     "name": "Stadia Controller",
-    "theme": "stadia",
+    "namespace": "controlify:stadia",
 
     "hids": [
       [0x18d1, 0x9400],
@@ -81,7 +90,7 @@
   },
   {
     "name": "8BitDo Controller",
-    "theme": "unknown",
+    "namespace": "controlify:switch",
 
     "hids": [
       [0x2DC8, 0x6001], // SN30 Pro - DInput Mode
@@ -89,8 +98,6 @@
   },
   {
     "name": "Thrustmaster T16000M",
-    "theme": "thrustmaster",
-    "mapping": "tm_t16000m",
 
     "hids": [
       [0x044f, 0xb10a]

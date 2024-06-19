@@ -1,6 +1,7 @@
 package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
@@ -23,13 +24,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class MultiPlayerGameModeMixin {
     @Unique private ContinuousRumbleEffect blockBreakRumble = null;
 
-    @Inject(method = "method_41930", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V"))
-    private void onStartBreakingBlock(BlockState state, BlockPos pos, Direction direction, int i, CallbackInfoReturnable<Packet<?>> cir) {
+    @Inject(
+            //? if fabric {
+            method = "method_41930",
+            //?} else {
+            /*method = "lambda$startDestroyBlock$1",
+            *///?}
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
+    )
+    private void onStartBreakingBlock(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
         startRumble(state);
     }
 
-    @Inject(method = "method_41930", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z"))
-    private void onInstabreakBlockSurvival(BlockState state, BlockPos pos, Direction direction, int i, CallbackInfoReturnable<Packet> cir) {
+    @Inject(
+            //? if fabric {
+            method = "method_41930",
+            //?} else {
+            /*method = "lambda$startDestroyBlock$1",
+            *///?}
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z")
+    )
+    private void onInstabreakBlockSurvival(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
         startRumble(state);
         // won't stop until 1 tick
         stopRumble();

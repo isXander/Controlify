@@ -1,10 +1,10 @@
 package dev.isxander.controlify.controller.input;
 
 import com.google.common.collect.Sets;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.AxisBind;
-import dev.isxander.controlify.bindings.ButtonBind;
-import dev.isxander.controlify.bindings.IBind;
+import dev.isxander.controlify.bindings.input.AxisInput;
+import dev.isxander.controlify.bindings.input.ButtonInput;
+import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
@@ -49,6 +49,12 @@ public final class GamepadInputs {
 
     // ADDITIONAL INPUTS - NOT PRESENT ON ALL GAMEPADS
     public static final ResourceLocation MISC_1_BUTTON = button("misc_1");
+    public static final ResourceLocation MISC_2_BUTTON = button("misc_2");
+    public static final ResourceLocation MISC_3_BUTTON = button("misc_3");
+    public static final ResourceLocation MISC_4_BUTTON = button("misc_4");
+    public static final ResourceLocation MISC_5_BUTTON = button("misc_5");
+    public static final ResourceLocation MISC_6_BUTTON = button("misc_6");
+
 
     public static final ResourceLocation RIGHT_PADDLE_1_BUTTON = button("right_paddle_1");
     public static final ResourceLocation RIGHT_PADDLE_2_BUTTON = button("right_paddle_2");
@@ -58,13 +64,13 @@ public final class GamepadInputs {
     public static final ResourceLocation TOUCHPAD_BUTTON = button("touchpad");
 
     public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
-            new DeadzoneGroup(Controlify.id("left_stick"), List.of(
+            new DeadzoneGroup(CUtil.rl("left_stick"), List.of(
                     LEFT_STICK_AXIS_UP,
                     LEFT_STICK_AXIS_DOWN,
                     LEFT_STICK_AXIS_LEFT,
                     LEFT_STICK_AXIS_RIGHT
             )),
-            new DeadzoneGroup(Controlify.id("right_stick"), List.of(
+            new DeadzoneGroup(CUtil.rl("right_stick"), List.of(
                     RIGHT_STICK_AXIS_UP,
                     RIGHT_STICK_AXIS_DOWN,
                     RIGHT_STICK_AXIS_LEFT,
@@ -72,22 +78,22 @@ public final class GamepadInputs {
             ))
     ));
 
-    public static IBind getBind(ResourceLocation id) {
+    public static Input getBind(ResourceLocation id) {
         return switch (id.getPath().split("/")[0]) {
-            case "button" -> new ButtonBind(id);
-            case "axis" -> new AxisBind(id);
+            case "button" -> new ButtonInput(id);
+            case "axis" -> new AxisInput(id);
             case "hat" -> throw new IllegalArgumentException("Gamepad does not have hat inputs.");
             default -> throw new IllegalArgumentException("Unknown bind type: " + id);
         };
     }
 
     private static ResourceLocation button(String id) {
-        return Controlify.id("button/" + id);
+        return CUtil.rl("button/" + id);
     }
     private static ResourceLocation axis(String id) {
-        return Controlify.id("axis/" + id);
+        return CUtil.rl("axis/" + id);
     }
     private static ResourceLocation hat(String id) {
-        return Controlify.id("hat/" + id);
+        return CUtil.rl("hat/" + id);
     }
 }

@@ -3,7 +3,7 @@ package dev.isxander.controlify.hid;
 import com.google.common.primitives.Ints;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerType;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.CUtil;
@@ -67,13 +67,13 @@ public class ControllerHIDService {
             info = fetchType0(jid);
         } catch (Throwable e) {
             CUtil.LOGGER.error("Failed to fetch controller type!", e);
-            info = new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            info = new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
         if (DebugProperties.PRINT_VID_PID) {
             info.hidDevice.ifPresent(hid -> {
                 var hex = HexFormat.of().withPrefix("0x");
-                CUtil.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorID()), hex.toHexDigits(hid.productID()));
+                CUtil.LOGGER.info("VID: {}, PID: {}", hex.toHexDigits(hid.vendorId()), hex.toHexDigits(hid.productId()));
             });
         }
 
@@ -95,7 +95,7 @@ public class ControllerHIDService {
         }
 
         if (disabled) {
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
         doScanOnThisThread();
@@ -104,10 +104,10 @@ public class ControllerHIDService {
         if (hid == null) {
             CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
 
-            return new ControllerHIDInfo(ControllerType.UNKNOWN, Optional.empty());
+            return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
-        ControllerType type = ControllerType.getTypeForHID(hid.getSecond());
+        ControllerType type = Controlify.instance().controllerTypeManager().getControllerType(hid.getSecond());
 
         unconsumedControllerHIDs.removeIf(h -> hid.getFirst().getPath().equals(h.getFirst().getPath()));
 
@@ -163,7 +163,8 @@ public class ControllerHIDService {
     }
 
     private boolean isController(HidDevice device) {
-        boolean isControllerType = ControllerType.getTypeMap().containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
+        boolean isControllerType = Controlify.instance().controllerTypeManager().getTypeMap()
+                .containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
         boolean isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
         boolean isSelfIdentifiedController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
 
@@ -181,10 +182,17 @@ public class ControllerHIDService {
 
             md.update(Ints.toByteArray(controllerIndex));
             hidDevice.ifPresent(hid -> {
-                md.update(Ints.toByteArray(hid.vendorID()));
-                md.update(Ints.toByteArray(hid.productID()));
+                md.update(Ints.toByteArray(hid.vendorId()));
+                md.update(Ints.toByteArray(hid.productId()));
             });
-            md.update(type.namespace().getBytes());
+
+            String namespace = type().namespace().toString();
+            if ("controlify".equals(type().namespace().getNamespace())) {
+                // maintains backwards compatibility
+                namespace = type().namespace().getPath();
+            }
+
+            md.update(namespace.getBytes());
 
             return Optional.of(UUID.nameUUIDFromBytes(md.digest()).toString());
         }
