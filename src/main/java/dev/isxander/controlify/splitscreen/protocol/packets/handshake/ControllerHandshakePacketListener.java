@@ -8,6 +8,7 @@ import dev.isxander.controlify.splitscreen.protocol.packets.play.ControllerPlayP
 import dev.isxander.controlify.splitscreen.protocol.packets.play.PlayProtocols;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerPacketListener;
 
@@ -38,7 +39,7 @@ public class ControllerHandshakePacketListener implements ControllerboundCommonP
     }
 
     @Override
-    public void onDisconnect(Component reason) {
+    public void onDisconnect(DisconnectionDetails disconnectionDetails) {
     }
 
     @Override

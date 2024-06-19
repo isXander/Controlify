@@ -83,10 +83,10 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float y = originY + Mth.cos(radians) * radius;
 
             /*? if >1.20.6 {*/
-            /*buffer.addVertex(position, x, y, z).setColor(colour);
-            *//*?} else {*/
-            buffer.vertex(position, x, y, z).color(colour).endVertex();
-            /*?}*/
+            buffer.addVertex(position, x, y, z).setColor(colour);
+            /*?} else {*/
+            /*buffer.vertex(position, x, y, z).color(colour).endVertex();
+            *//*?}*/
         }
 
         RenderSystem.enableBlend();
@@ -97,10 +97,10 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 
         BufferUploader.drawWithShader(
                 /*? if >1.20.6 {*/
-                /*buffer.buildOrThrow()
-                *//*?} else {*/
-                buffer.end()
-                /*?}*/
+                buffer.buildOrThrow()
+                /*?} else {*/
+                /*buffer.end()
+                *//*?}*/
         );
 
         RenderSystem.disableBlend();
@@ -121,19 +121,19 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float y1 = originY + cos * diff;
 
             /*? if >1.20.6 {*/
-            /*buffer.addVertex(position, x1, y1, z).setColor(colour);
-            *//*?} else {*/
-            buffer.vertex(position, x1, y1, z).color(colour).endVertex();
-             /*?}*/
+            buffer.addVertex(position, x1, y1, z).setColor(colour);
+            /*?} else {*/
+            /*buffer.vertex(position, x1, y1, z).color(colour).endVertex();
+             *//*?}*/
 
             float x2 = originX + sin * radius;
             float y2 = originY + cos * radius;
 
             /*? if >1.20.6 {*/
-            /*buffer.addVertex(position, x2, y2, z).setColor(colour);
-            *//*?} else {*/
-            buffer.vertex(position, x2, y2, z).color(colour).endVertex();
-             /*?}*/
+            buffer.addVertex(position, x2, y2, z).setColor(colour);
+            /*?} else {*/
+            /*buffer.vertex(position, x2, y2, z).color(colour).endVertex();
+             *//*?}*/
         }
 
         RenderSystem.enableBlend();
@@ -144,10 +144,10 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 
         BufferUploader.drawWithShader(
                 /*? if >1.20.6 {*/
-                /*buffer.buildOrThrow()
-                *//*?} else {*/
-                buffer.end()
-                 /*?}*/
+                buffer.buildOrThrow()
+                /*?} else {*/
+                /*buffer.end()
+                 *//*?}*/
         );
 
         RenderSystem.disableBlend();

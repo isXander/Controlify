@@ -14,10 +14,10 @@ public interface RenderLayer
     void render(GuiGraphics graphics, float tickDelta);
 
     //? if >1.20.6 {
-    /*default void render(GuiGraphics graphics, net.minecraft.client.DeltaTracker timer) {
+    default void render(GuiGraphics graphics, net.minecraft.client.DeltaTracker timer) {
         this.render(graphics, timer.getGameTimeDeltaPartialTick(false));
     }
-    *///?}
+    //?}
 
     //? if <=1.20.4 && neoforge {
     /*default void render(@NotNull net.neoforged.neoforge.client.gui.overlay.ExtendedGui gui, @NotNull GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {

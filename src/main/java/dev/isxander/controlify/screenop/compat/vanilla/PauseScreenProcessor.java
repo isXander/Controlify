@@ -8,7 +8,7 @@ import dev.isxander.controlify.mixins.feature.screenop.vanilla.PauseScreenAccess
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens./*? if >1.20.6 >>*//*options.*/ OptionsScreen;
+import net.minecraft.client.gui.screens./*? if >1.20.6 >>*/options. OptionsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 
 import java.util.function.Supplier;

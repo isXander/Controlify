@@ -17,10 +17,10 @@ public abstract class LivingEntityMixin {
             at = @At(
                     value = "INVOKE",
                     //? if >1.20.6 {
-                    /*target = "Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
-                    *///?} else {
-                    target = "Lnet/minecraft/world/item/ItemStack;getUseDuration()I"
-                    //?}
+                    target = "Lnet/minecraft/world/item/ItemStack;getUseDuration(Lnet/minecraft/world/entity/LivingEntity;)I"
+                    //?} else {
+                    /*target = "Lnet/minecraft/world/item/ItemStack;getUseDuration()I"
+                    *///?}
             )
     )
     protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, @Local ItemStack stack) {

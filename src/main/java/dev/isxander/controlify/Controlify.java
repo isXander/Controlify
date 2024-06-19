@@ -758,22 +758,6 @@ public class Controlify implements ControlifyApi {
         return Optional.ofNullable(splitscreenPawnConnection);
     }
 
-    private void notifyOfNewFeatures() {
-        if (config().isFirstLaunch())
-            return;
-
-        var newFeatureVersions = List.of(
-                "1.5.0"
-        ).iterator();
-
-        String foundVersion = null;
-        while (foundVersion == null && newFeatureVersions.hasNext()) {
-            var version = newFeatureVersions.next();
-            if (config().isLastSeenVersionLessThan(version)) {
-                foundVersion = version;
-            }
-        }
-
     public ControllerTypeManager controllerTypeManager() {
         return controllerTypeManager;
     }

@@ -68,7 +68,7 @@ public class PawnConnectionManager {
 
         this.controllerConnection.runOnceConnected(c -> {
             c.setupInboundProtocol(PlayProtocols.PAWNBOUND, new PawnPlayPacketListener(c));
-            c.sendPacket(new ControllerboundHandshakePacket(SplitscreenProtocol.VERSION), null, true);
+            c.send(new ControllerboundHandshakePacket(SplitscreenProtocol.VERSION), null, true);
             c.setupOutboundProtocol(PlayProtocols.CONTROLLERBOUND);
         });
 

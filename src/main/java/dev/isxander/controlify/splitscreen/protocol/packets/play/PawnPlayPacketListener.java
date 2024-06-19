@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
@@ -71,8 +72,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Bi
     }
 
     @Override
-    public void onDisconnect(Component reason) {
-
+    public void onDisconnect(DisconnectionDetails disconnectionDetails) {
     }
 
     @Override

@@ -6,6 +6,7 @@ import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.protocol.packets.common.ControllerboundCommonPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerPacketListener;
 
@@ -32,7 +33,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     @Override
-    public void onDisconnect(Component reason) {
+    public void onDisconnect(DisconnectionDetails disconnectionDetails) {
         controller.removePawn(pawnInstance);
     }
 
