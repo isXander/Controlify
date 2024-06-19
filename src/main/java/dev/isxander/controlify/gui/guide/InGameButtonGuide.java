@@ -53,7 +53,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     public void refreshLayout() {
-        boolean bottom = controller.genericConfig().config().ingameGuideBottom;
+        boolean bottom = controller.generic().confObj().ingameGuideBottom;
 
         leftLayout = new PositionedComponent<>(
                 ColumnLayoutComponent.<GuideActionRenderer<IngameGuideContext>>builder()
@@ -88,7 +88,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         *//*?}*/
         boolean hideGui = minecraft.options.hideGui;
 
-        if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || debugOpen || hideGui)
+        if (!controller.generic().confObj().showIngameGuide || minecraft.screen != null || debugOpen || hideGui)
             return;
 
         float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
@@ -173,7 +173,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_down"));
             if (player.isInWater() && !player.onGround())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_down"));
-            if (ctx.controller().genericConfig().config().toggleSneak) {
+            if (ctx.controller().generic().confObj().toggleSneak) {
                 return Optional.of(Component.translatable(player.input.shiftKeyDown ? "controlify.guide.ingame.stop_sneaking" : "controlify.guide.ingame.start_sneaking"));
             } else {
                 if (!player.input.shiftKeyDown)
@@ -189,7 +189,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                         return Optional.of(Component.translatable("controlify.guide.ingame.start_swimming"));
                     return Optional.of(Component.translatable("controlify.guide.ingame.start_sprinting"));
                 }
-            } else if (ctx.controller().genericConfig().config().toggleSprint) {
+            } else if (ctx.controller().generic().confObj().toggleSprint) {
                 if (player.isUnderWater())
                     return Optional.of(Component.translatable("controlify.guide.ingame.stop_swimming"));
                 return Optional.of(Component.translatable("controlify.guide.ingame.stop_sprinting"));

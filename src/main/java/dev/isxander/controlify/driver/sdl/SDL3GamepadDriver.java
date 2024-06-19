@@ -122,26 +122,26 @@ public class SDL3GamepadDriver implements Driver {
                     this.dualsenseAudioSpec = devSpec;
                     this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
 
-                    HDHapticComponent hdHapticComponent = new HDHapticComponent();
+                    HDHapticComponent hdHapticComponent = new HDHapticComponent(controller);
                     hdHapticComponent.acceptPlayHaptic(this::playHaptic);
                     this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
                 } else {
                     this.dualsenseAudioDev = null;
                     this.dualsenseAudioSpec = null;
 
-                    controller.setComponent(new BluetoothDeviceComponent(), BluetoothDeviceComponent.ID);
+                    controller.setComponent(new BluetoothDeviceComponent(controller), BluetoothDeviceComponent.ID);
                 }
             }
         }
 
-        this.controller.setComponent(new InputComponent(this.controller, 21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, 21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);
-            this.controller.setComponent(new GyroComponent(), GyroComponent.ID);
+            this.controller.setComponent(new GyroComponent(controller), GyroComponent.ID);
         }
         if (this.isRumbleSupported) {
-            this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
+            this.controller.setComponent(new RumbleComponent(controller), RumbleComponent.ID);
         }
         if (this.isTriggerRumbleSupported) {
             this.controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);

@@ -136,7 +136,7 @@ public class VirtualMouseHandler {
                 snapToClosestPoint();
         }
 
-        var sensitivity = input.config().config().virtualMouseSensitivity;
+        var sensitivity = input.confObj().virtualMouseSensitivity;
         var windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
         // cubic function to make small movements smaller

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,7 +26,7 @@ public class TabNavigationBarMixin {
     private void renderControllerButtonOverlay(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode().isController()) {
             Controlify.instance().getCurrentController().ifPresent(c -> {
-                if (c.genericConfig().config().showScreenGuides) {
+                if (c.generic().confObj().showScreenGuides) {
                     this.renderControllerButtonOverlay(graphics, c);
                 }
             });

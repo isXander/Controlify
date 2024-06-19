@@ -9,11 +9,16 @@ import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.config.ModuleRegistry;
+import dev.isxander.controlify.controller.config.RPDefaultSource;
+import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
+import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
@@ -151,6 +156,20 @@ public class Controlify implements ControlifyApi {
 
         PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, tickDelta) ->
                 inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, tickDelta)));
+
+        // need to register before resource reload
+        ModuleRegistry.INSTANCE.registerModule(InputComponent.CONFIG_MODULE);
+        ModuleRegistry.INSTANCE.registerModule(RumbleComponent.CONFIG_MODULE);
+        ModuleRegistry.INSTANCE.registerModule(GyroComponent.CONFIG_MODULE);
+        ModuleRegistry.INSTANCE.registerModule(HDHapticComponent.CONFIG_MODULE);
+        ModuleRegistry.INSTANCE.registerModule(BluetoothDeviceComponent.CONFIG_MODULE);
+        ModuleRegistry.INSTANCE.registerModule(GenericControllerComponent.CONFIG_MODULE);
+
+        RPDefaultSource rpDefaultSource = new RPDefaultSource(ModuleRegistry.INSTANCE);
+        PlatformClientUtil.registerAssetReloadListener(rpDefaultSource);
+        ModuleRegistry.INSTANCE.registerDefaultSource(rpDefaultSource);
+        ModuleRegistry.INSTANCE.registerDefaultSource(config().createDefaultSource());
+
     }
 
     private void registerBuiltinPack(String id) {
@@ -251,8 +270,8 @@ public class Controlify implements ControlifyApi {
             } else {
                 ControllerEntity anyController = controllerManager.getConnectedControllers()
                         .stream()
-                        .filter(c -> c.input().map(input -> input.config().config().deadzonesCalibrated).orElse(true)
-                                || c.gyro().map(gyro -> gyro.config().config().calibrated).orElse(true))
+                        .filter(c -> c.input().map(input -> input.confObj().deadzonesCalibrated).orElse(true)
+                                || c.gyro().map(gyro -> gyro.confObj().calibrated).orElse(true))
                         .findFirst()
                         .orElse(null);
 
@@ -334,8 +353,8 @@ public class Controlify implements ControlifyApi {
 
         wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
-        boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
-                || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
+        boolean calibrated = controller.input().map(input -> input.confObj().deadzonesCalibrated).orElse(false)
+                || controller.gyro().map(gyro -> gyro.confObj().calibrated).orElse(false);
         if (hotplugged && calibrated) {
             setCurrentController(controller, true);
         }
@@ -609,7 +628,7 @@ public class Controlify implements ControlifyApi {
         this.inGameInputHandler = new InGameInputHandler(controller);
         ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
 
-        if (controller.input().map(input -> input.config().config().mixedInput).orElse(false))
+        if (controller.input().map(input -> input.confObj().mixedInput).orElse(false))
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);

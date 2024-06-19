@@ -42,7 +42,7 @@ public class GLFWJoystickDriver implements Driver {
         this.numAxes = testState.axes().limit();
         this.numHats = testState.hats().limit();
 
-        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of()), InputComponent.ID);
 
         this.controller.finalise();
     }

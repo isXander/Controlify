@@ -9,7 +9,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 
@@ -79,7 +78,7 @@ public final class ControlifyBindings {
             .id("controlify", "sprint")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .keyEmulation(options.keySprint, c -> c.genericConfig().config().toggleSprint));
+            .keyEmulation(options.keySprint, c -> c.generic().confObj().toggleSprint));
     public static final InputBindingSupplier SNEAK =  ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "sneak")
             .category(MOVEMENT_CATEGORY)

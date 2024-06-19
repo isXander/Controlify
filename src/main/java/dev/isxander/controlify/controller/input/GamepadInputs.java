@@ -78,6 +78,10 @@ public final class GamepadInputs {
             ))
     ));
 
+    public static final int BUTTON_COUNT = 26;
+    public static final int AXIS_COUNT = 10;
+    public static final int HAT_COUNT = 0;
+
     public static Input getBind(ResourceLocation id) {
         return switch (id.getPath().split("/")[0]) {
             case "button" -> new ButtonInput(id);

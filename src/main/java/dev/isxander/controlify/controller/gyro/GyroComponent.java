@@ -1,18 +1,20 @@
 package dev.isxander.controlify.controller.gyro;
 
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.config.*;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
-public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.Config> {
+public class GyroComponent implements ComponentWithConfig<GyroComponent.Config> {
     public static final ResourceLocation ID = CUtil.rl("gyro");
+    public static final ConfigModule<Config> CONFIG_MODULE = new ConfigModule<>(ID, Config.class);
 
     private GyroStateC gyroState = GyroStateC.ZERO;
-    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
+    private final ConfigInstance<Config> config;
+
+    public GyroComponent(ControllerEntity controller) {
+        this.config = new ConfigInstanceImpl<>(ID, ModuleRegistry.INSTANCE, controller);
+    }
 
     public GyroStateC getState() {
         return this.gyroState;
@@ -23,11 +25,11 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
     }
 
     @Override
-    public IConfig<Config> config() {
-        return this.config;
+    public ConfigInstance<Config> getConfigInstance() {
+        return config;
     }
 
-    public static class Config implements ConfigClass {
+    public static class Config implements ConfigObject {
         public boolean calibrated = false;
         public boolean delayedCalibration = false;
 

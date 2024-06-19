@@ -1,6 +1,8 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.config.ComponentWithConfig;
+import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -162,11 +164,11 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             readyButton.active = true;
             readyButton.setMessage(Component.translatable("controlify.calibration.done"));
 
-            controller.input().map(input -> input.config().config()).ifPresent(config -> {
+            controller.input().map(InputComponent::confObj).ifPresent(config -> {
                 config.deadzonesCalibrated = true;
                 config.delayedCalibration = false;
             });
-            controller.gyro().map(gyro -> gyro.config().config()).ifPresent(config -> {
+            controller.gyro().map(GyroComponent::confObj).ifPresent(config -> {
                 config.calibrated = true;
             });
             Controlify.instance().config().setDirty();
@@ -204,7 +206,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             return;
         InputComponent input = controller.input().orElseThrow();
 
-        input.config().config().deadzones.clear();
+        input.confObj().deadzones.clear();
 
         for (DeadzoneGroup group : input.getDeadzoneGroups().values()) {
             float[] axisData = this.axisData.get(group.name());
@@ -217,13 +219,13 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
                 maxAbs = Math.max(maxAbs, Math.abs(axisValue));
             }
 
-            input.config().config().deadzones.put(group.name(), maxAbs + 0.08f);
+            input.confObj().deadzones.put(group.name(), maxAbs + 0.08f);
         }
     }
 
     private void generateGyroCalibration() {
         controller.gyro().ifPresent(gyro -> {
-            gyro.config().config().calibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
+            gyro.confObj().calibration = accumulatedGyroVelocity.div(CALIBRATION_TIME);
         });
 
     }
@@ -262,10 +264,10 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         if (!calibrated) {
             boolean dirty = false;
             dirty |= controller.input()
-                    .map(input -> input.config().config().delayedCalibration = true)
+                    .map(input -> input.confObj().delayedCalibration = true)
                     .orElse(false);
             dirty |= controller.gyro()
-                    .map(gyro -> gyro.config().config().delayedCalibration = true)
+                    .map(gyro -> gyro.confObj().delayedCalibration = true)
                     .orElse(false);
 
             if (dirty) {

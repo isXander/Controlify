@@ -7,7 +7,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.GenericControllerConfig;
+import dev.isxander.controlify.controller.GenericControllerComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
@@ -35,7 +35,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -280,7 +279,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             this.height = height;
 
             this.controller = controller;
-            this.hasNickname = this.controller.genericConfig().config().nickname != null;
+            this.hasNickname = this.controller.generic().confObj().nickname != null;
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
             this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller, true)).width(settingsButton.getWidth()).build();
@@ -307,7 +306,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight - (hasNickname ? font.lineHeight + 1 : 0), 0xFFFFFF);
             if (hasNickname) {
-                GenericControllerConfig config = this.controller.genericConfig().config();
+                GenericControllerComponent.Config config = this.controller.generic().confObj();
                 String nickname = config.nickname;
                 config.nickname = null;
                 graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight, 0xAAAAAA);

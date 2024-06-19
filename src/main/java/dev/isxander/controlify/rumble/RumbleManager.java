@@ -38,7 +38,7 @@ public class RumbleManager {
 
         float strong = 0f, weak = 0f;
         for (RumbleEffectInstance effect : effectQueue) {
-            RumbleState effectState = controller.config().config().applyRumbleStrength(effect.effect().currentState(), effect.source());
+            RumbleState effectState = controller.confObj().applyRumbleStrength(effect.effect().currentState(), effect.source());
             strong = Math.max(strong, effectState.strong());
             weak = Math.max(weak, effectState.weak());
         }

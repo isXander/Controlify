@@ -84,7 +84,7 @@ public abstract class AbstractWidgetMixin implements ButtonGuideRenderer<Abstrac
                 && isActive()
                 && getBind().isPresent()
                 && Controlify.instance().currentInputMode().isController()
-                && Controlify.instance().getCurrentController().map(c -> c.genericConfig().config().showScreenGuides).orElse(false)
+                && Controlify.instance().getCurrentController().map(c -> c.generic().confObj().showScreenGuides).orElse(false)
                 && !renderData.binding().get().on(Controlify.instance().getCurrentController().orElseThrow()).isUnbound()
                 && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
     }

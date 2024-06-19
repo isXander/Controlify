@@ -7,13 +7,22 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
+import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
+import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
+import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
+import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
@@ -48,10 +57,55 @@ public class ControllerConfigScreenFactory {
     private final List<Option<?>> newOptions = new ArrayList<>();
 
     public static Screen generateConfigScreen(Screen parent, ControllerEntity controller) {
-        return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
+        return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller, false);
     }
 
-    private Screen generateConfigScreen0(Screen parent, ControllerEntity controller) {
+    public static Screen generateGlobalConfigScreen(Screen parent) {
+        ControllerEntity controller = new ControllerEntity(
+                new ControllerInfo("fake", new FakeControllerUCID(), "fake", "fake", ControllerType.DEFAULT, Optional.empty())
+        );
+
+        // input
+        controller.setComponent(
+                new InputComponent(
+                        controller,
+                        GamepadInputs.BUTTON_COUNT, GamepadInputs.AXIS_COUNT, GamepadInputs.HAT_COUNT,
+                        true,
+                        GamepadInputs.DEADZONE_GROUPS
+                ),
+                InputComponent.ID
+        );
+
+        // generic
+        controller.setComponent(new GenericControllerComponent(controller), GenericControllerComponent.ID);
+
+        // rumble
+        controller.setComponent(new RumbleComponent(controller), RumbleComponent.ID);
+
+        // trigger rumble
+        controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);
+
+        // gyro
+        controller.setComponent(new GyroComponent(controller), GyroComponent.ID);
+
+        // hd haptics
+        controller.setComponent(new HDHapticComponent(controller), HDHapticComponent.ID);
+
+        // dualsense
+        controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
+
+        // battery
+        controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
+
+        // touchpad
+        controller.setComponent(new TouchpadComponent(1), TouchpadComponent.ID);
+
+        controller.finalise();
+
+        return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller, true);
+    }
+
+    private Screen generateConfigScreen0(Screen parent, ControllerEntity controller, boolean global) {
         var advancedCategory = createAdvancedCategory(controller);
         var bindsCategory = makeBindsCategory(controller);
         var basicCategory = createBasicCategory(controller); // must be last for new options
@@ -60,7 +114,15 @@ public class ControllerConfigScreenFactory {
                 .title(Component.literal("Controlify"))
                 .category(basicCategory)
                 .category(advancedCategory)
-                .save(() -> Controlify.instance().config().save());
+                .save(() -> {
+                    ControlifyConfig config = Controlify.instance().config();
+
+                    if (global) {
+                        controller.serializeToObject(config.useDefaultControllerConfig());
+                    }
+
+                    config.save();
+                });
 
         bindsCategory.ifPresent(yacl::category);
 
@@ -73,8 +135,8 @@ public class ControllerConfigScreenFactory {
         var accessibilityGroup = makeAccessibilityGroup(controller);
         var deadzoneGroup = makeDeadzoneGroup(controller);
 
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        GenericControllerComponent.Config config = controller.generic().confObj();
+        GenericControllerComponent.Config def = controller.generic().defObj();
 
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.config.category.basic"))
@@ -152,8 +214,8 @@ public class ControllerConfigScreenFactory {
     private Optional<OptionGroup> makeControlsGroup(ControllerEntity controller) {
         ValueFormatter<Boolean> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        GenericControllerComponent.Config config = controller.generic().confObj();
+        GenericControllerComponent.Config def = controller.generic().defObj();
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.controls"))
@@ -200,8 +262,8 @@ public class ControllerConfigScreenFactory {
     }
 
     private Optional<OptionGroup> makeAccessibilityGroup(ControllerEntity controller) {
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        GenericControllerComponent.Config config = controller.generic().confObj();
+        GenericControllerComponent.Config def = controller.generic().defObj();
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.accessibility"))
@@ -704,4 +766,6 @@ public class ControllerConfigScreenFactory {
 
     private record OptionBindPair(Option<?> option, InputBinding binding) {
     }
+
+    private record FakeControllerUCID() implements UniqueControllerID {}
 }

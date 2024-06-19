@@ -1,11 +1,7 @@
 package dev.isxander.controlify.controller.rumble;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.config.*;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -15,15 +11,16 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Map;
 import java.util.Optional;
 
-public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleComponent.Config> {
+public class RumbleComponent implements ComponentWithConfig<RumbleComponent.Config> {
     public static final ResourceLocation ID = CUtil.rl("rumble");
+    public static final ConfigModule<Config> CONFIG_MODULE = new ConfigModule<>(ID, Config.class);
 
     private RumbleState state = null;
-    private final IConfig<Config> config;
+    private final ConfigInstance<Config> config;
     private final RumbleManager rumbleManager;
 
-    public RumbleComponent() {
-        this.config = new ConfigImpl<>(Config::new, Config.class);
+    public RumbleComponent(ControllerEntity controller) {
+        this.config = new ConfigInstanceImpl<>(ID, ModuleRegistry.INSTANCE, controller);
         this.rumbleManager = new RumbleManager(this);
     }
 
@@ -44,11 +41,11 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
     }
 
     @Override
-    public IConfig<Config> config() {
-        return this.config;
+    public ConfigInstance<Config> getConfigInstance() {
+        return config;
     }
 
-    public static class Config implements ConfigClass {
+    public static class Config implements ConfigObject {
         public boolean enabled = true;
 
         public Map<ResourceLocation, Float> vibrationStrengths = RumbleSource.getDefaultMap();

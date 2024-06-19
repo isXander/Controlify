@@ -36,6 +36,12 @@ public class GlobalSettingsScreenFactory {
                                 .name(Component.translatable("controlify.gui.open_issue_tracker"))
                                 .action((screen, button) -> Util.getPlatform().openUri("https://github.com/isxander/controlify/issues"))
                                 .build())
+                        .option(ButtonOption.createBuilder()
+                                .name(Component.translatable("controlify.gui.default_controller_config"))
+                                .action((screen, button) -> Minecraft.getInstance().setScreen(
+                                        ControllerConfigScreenFactory.generateGlobalConfigScreen(screen)
+                                ))
+                                .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("controlify.gui.natives"))
                                 .option(Option.<Boolean>createBuilder()

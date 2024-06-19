@@ -1,10 +1,7 @@
 package dev.isxander.controlify.controller.dualsense;
 
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.config.*;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -13,14 +10,16 @@ import net.minecraft.util.RandomSource;
 
 import java.util.function.Consumer;
 
-public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
+public class HDHapticComponent implements ComponentWithConfig<HDHapticComponent.Config> {
     public static final ResourceLocation ID = CUtil.rl("hd_haptics");
+    public static final ConfigModule<Config> CONFIG_MODULE = new ConfigModule<>(ID, Config.class);
 
-    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
+    private final ConfigInstance<Config> config;
     private Consumer<HapticBufferLibrary.HapticBuffer> playHapticConsumer;
     private final RandomSource randomSource;
 
-    public HDHapticComponent() {
+    public HDHapticComponent(ControllerEntity controller) {
+        this.config = new ConfigInstanceImpl<>(ID, ModuleRegistry.INSTANCE, controller);
         this.randomSource = RandomSource.create();
     }
 
@@ -43,11 +42,11 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     }
 
     @Override
-    public IConfig<Config> config() {
+    public ConfigInstance<Config> getConfigInstance() {
         return config;
     }
 
-    public static class Config implements ConfigClass {
+    public static class Config implements ConfigObject {
         public boolean enabled = true;
     }
 }

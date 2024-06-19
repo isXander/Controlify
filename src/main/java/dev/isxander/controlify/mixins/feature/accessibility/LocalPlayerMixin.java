@@ -1,7 +1,6 @@
 package dev.isxander.controlify.mixins.feature.accessibility;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +12,7 @@ public class LocalPlayerMixin {
     private Object shouldUseAutoJump(Object keyboardAutoJump) {
         if (ControlifyApi.get().currentInputMode().isController()) {
             return ControlifyApi.get().getCurrentController()
-                    .map(controller -> controller.genericConfig().config().autoJump)
+                    .map(controller -> controller.generic().confObj().autoJump)
                     .orElse(false);
         }
         return keyboardAutoJump;

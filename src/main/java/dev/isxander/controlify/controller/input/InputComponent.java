@@ -9,12 +9,8 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.serialization.CustomSaveLoadConfig;
-import dev.isxander.controlify.controller.serialization.IConfig;
+import dev.isxander.controlify.controller.config.*;
 import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.input.mapping.ControllerMappingStorage;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.utils.CUtil;
@@ -26,8 +22,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config>, CustomSaveLoadConfig {
+public class InputComponent implements ComponentWithConfig<InputComponent.Config> {
     public static final ResourceLocation ID = CUtil.rl("input");
+    public static final ConfigModule<Config> CONFIG_MODULE = new ConfigModule<>(ID, Config.class);
 
     private final ControllerEntity controller;
 
@@ -42,14 +39,14 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
     private final Map<ResourceLocation, InputBinding> inputBindings;
 
-    private final IConfig<Config> config;
+    private final ConfigInstance<Config> config;
 
-    public InputComponent(ControllerEntity controller, int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes, String mappingId) {
+    public InputComponent(ControllerEntity controller, int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes) {
         this.controller = controller;
         this.buttonCount = buttonCount;
         this.axisCount = axisCount;
         this.hatCount = hatCount;
-        this.config = new ConfigImpl<>(() -> new Config(ControllerMappingStorage.get(mappingId)), Config.class, this);
+        this.config = new ConfigInstanceImpl<>(ID, ModuleRegistry.INSTANCE, controller);
         this.definitelyGamepad = definitelyGamepad;
         this.deadzoneAxes = deadzoneAxes.stream()
                 .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
@@ -112,7 +109,6 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     public int buttonCount() {
         return this.buttonCount;
     }
-
     public int axisCount() {
         return this.axisCount;
     }
@@ -134,8 +130,8 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     @Override
-    public IConfig<Config> config() {
-        return this.config;
+    public ConfigInstance<Config> getConfigInstance() {
+        return config;
     }
 
     private void updateDeadzoneView() {
@@ -153,15 +149,15 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     @Override
-    public void toJson(JsonObject json) {
-        JsonObject innerJson = new JsonObject();
+    public JsonObject toJson() {
+        JsonObject bindingsJson = new JsonObject();
 
         for (InputBinding binding : this.inputBindings.values()) {
             if (!confObj().keepDefaultBindings && binding.boundInput().equals(binding.defaultInput()))
                 continue;
 
             try {
-                innerJson.add(
+                bindingsJson.add(
                         binding.id().toString(),
                         Input.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundInput()).result().orElseThrow()
                 );
@@ -170,7 +166,10 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
             }
         }
 
-        json.add("bindings", innerJson);
+        JsonObject config = ComponentWithConfig.super.toJson();
+        config.add("bindings", bindingsJson);
+
+        return config;
     }
 
     @Override
@@ -198,7 +197,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         }
     }
 
-    public static class Config implements ConfigClass {
+    public static class Config implements ConfigObject {
         public Config() {
             // for gson
         }
@@ -229,8 +228,18 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         public ControllerMapping mapping = null;
 
         @Override
-        public void onConfigSaveLoad(ControllerEntity controller) {
-            this.validateRadialActions(controller);
+        public void onApply(ControllerEntity controller) {
+            validateRadialActions(controller);
+        }
+
+        @Override
+        public void onSave(ControllerEntity controller) {
+            validateRadialActions(controller);
+        }
+
+        @Override
+        public void applyControllerSpecificDefaults(ControllerEntity controller) {
+            this.mapping = ControllerMappingStorage.get(controller.info().type().mappingId());
         }
 
         private void validateRadialActions(ControllerEntity controller) {

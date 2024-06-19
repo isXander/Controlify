@@ -151,7 +151,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     - ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
             float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
                     - ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
-            float threshold = controller.input().orElseThrow().config().config().buttonActivationThreshold;
+            float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
                 float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;

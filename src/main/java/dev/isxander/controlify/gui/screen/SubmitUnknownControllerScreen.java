@@ -6,7 +6,6 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.CUtil;
@@ -188,7 +187,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     }
 
     private void dontShowAgain() {
-        controller.genericConfig().config().dontShowControllerSubmission = true;
+        controller.generic().confObj().dontShowControllerSubmission = true;
         Controlify.instance().config().setDirty();
     }
 
@@ -207,7 +206,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
 
     public static boolean canSubmit(ControllerEntity controller) {
         return controller.info().type() == ControllerType.DEFAULT
-                && !controller.genericConfig().config().dontShowControllerSubmission
+                && !controller.generic().confObj().dontShowControllerSubmission
                 /*&& controller.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())
                         .orElse(false)*/;

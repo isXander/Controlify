@@ -3,6 +3,8 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.config.DefaultSource;
+import dev.isxander.controlify.controller.config.FileDefaultSource;
 import dev.isxander.controlify.controller.input.mapping.MappingEntry;
 import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -26,8 +28,8 @@ public class ControlifyConfig {
             .serializeNulls()
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
-            .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            .registerTypeAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
+            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
             .create();
 
@@ -40,6 +42,7 @@ public class ControlifyConfig {
     // used so saving the config doesn't lose controller config that isn't currently connected
     // key: controller uid
     private final Map<String, JsonObject> storedControllerConfig = new HashMap<>();
+    private JsonObject defaultControllerConfig = new JsonObject();
     private @NotNull GlobalSettings globalSettings = new GlobalSettings();
 
     public ControlifyConfig(Controlify controlify) {
@@ -120,6 +123,10 @@ public class ControlifyConfig {
             obj.add("global", globalJson);
         }
 
+        { // Default controller config
+            obj.add("default_controller_config", defaultControllerConfig);
+        }
+
         return obj;
     }
 
@@ -139,7 +146,7 @@ public class ControlifyConfig {
             // now the serialization will not remove objects that it doesn't need
             // this is useful because hd haptics only applies if controller is wired,
             // so if the user interchanges between BT+W it won't lose the HD haptic config
-            controller.serializeToObject(configObject, GSON);
+            controller.serializeToObject(configObject);
 
             storedControllerConfig.put(controller.info().uid(), controllerObject);
         }
@@ -177,6 +184,14 @@ public class ControlifyConfig {
             CUtil.LOGGER.error("Failed to apply global settings from config file!", e);
             setDirty();
         }
+
+        try {
+            JsonObject newDefaults = json.getAsJsonObject("default_controller_config");
+            if (newDefaults != null) defaultControllerConfig = newDefaults;
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to apply default controller config from config file!", e);
+            setDirty();
+        }
     }
 
     private void applyControllerConfig(ControllerManager controllerManager) {
@@ -197,13 +212,22 @@ public class ControlifyConfig {
         JsonObject innerJson = json.getAsJsonObject("config");
 
         try {
-            controller.deserializeFromObject(innerJson, GSON);
+            controller.deserializeFromObject(innerJson);
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load controller {} config!", controller.info().ucid(), e);
             setDirty();
         }
 
         return false;
+    }
+
+    public JsonObject useDefaultControllerConfig() {
+        setDirty();
+        return defaultControllerConfig;
+    }
+
+    public DefaultSource createDefaultSource() {
+        return new FileDefaultSource(() -> defaultControllerConfig);
     }
 
     public @Nullable String currentControllerUid() {

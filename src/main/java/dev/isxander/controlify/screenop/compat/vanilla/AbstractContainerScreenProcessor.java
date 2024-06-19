@@ -200,7 +200,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     }
 
     private void setRenderGuide(boolean render) {
-        render &= ControlifyApi.get().getCurrentController().map(c -> c.genericConfig().config().showScreenGuides).orElse(false);
+        render &= ControlifyApi.get().getCurrentController().map(c -> c.generic().confObj().showScreenGuides).orElse(false);
 
         List<Renderable> renderables = ((ScreenAccessor) screen).getRenderables();
 

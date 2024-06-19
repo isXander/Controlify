@@ -36,7 +36,7 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
     private void addKeyboard(CallbackInfo ci) {
         ControlifyApi.get().getCurrentController().ifPresent(c -> {
             if (!ControlifyApi.get().currentInputMode().isController()) return;
-            if (!c.genericConfig().config().showOnScreenKeyboard) return;
+            if (!c.generic().confObj().showOnScreenKeyboard) return;
 
             int keyboardHeight = this.height / 2;
             this.addRenderableWidget(keyboard = new ChatKeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(

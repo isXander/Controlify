@@ -64,7 +64,7 @@ public class ControllerPlayerMovement extends Input {
             this.jumping = false;
 
         InputBinding sneak = ControlifyBindings.SNEAK.on(controller);
-        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.genericConfig().config().toggleSneak) {
+        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.generic().confObj().toggleSneak) {
             if (sneak.justPressed())
                 this.shiftKeyDown = true;
             if (!sneak.digitalNow())

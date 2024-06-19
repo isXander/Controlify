@@ -62,10 +62,10 @@ public class SDL3JoystickDriver implements Driver {
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
         this.numHats = SDL_GetNumJoystickHats(ptrJoystick);
 
-        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
+        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of()), InputComponent.ID);
         this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isRumbleSupported) {
-            this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
+            this.controller.setComponent(new RumbleComponent(controller), RumbleComponent.ID);
         }
         if (this.isTriggerRumbleSupported) {
             this.controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);
