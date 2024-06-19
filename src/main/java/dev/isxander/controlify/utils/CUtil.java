@@ -33,20 +33,20 @@ public class CUtil {
 
     public static ResourceLocation rl(String namespace, String path) {
         /*? if >1.20.6 {*/
-        /*return ResourceLocation.fromNamespaceAndPath(namespace, path);
-        *//*?} else {*/
-        return new ResourceLocation(namespace, path);
-        /*?}*/
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        /*?} else {*/
+        /*return new ResourceLocation(namespace, path);
+        *//*?}*/
     }
 
     public static BufferBuilder beginBuffer(VertexFormat.Mode mode, VertexFormat format) {
         /*? if >1.20.6 {*/
-        /*return Tesselator.getInstance().begin(mode, format);
-        *//*?} else {*/
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        return Tesselator.getInstance().begin(mode, format);
+        /*?} else {*/
+        /*BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(mode, format);
         return builder;
-        /*?}*/
+        *//*?}*/
     }
 
     /**

@@ -8,9 +8,9 @@ import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.OptionsList;
-import net.minecraft.client.gui.screens./*? if >1.20.6 >>*//*options.*/ OptionsSubScreen;
+import net.minecraft.client.gui.screens./*? if >1.20.6 >>*/options. OptionsSubScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens./*? if >1.20.6 >>*//*options.*/ controls.ControlsScreen;
+import net.minecraft.client.gui.screens./*? if >1.20.6 >>*/options. controls.ControlsScreen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,13 +29,13 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
 
     //? if >1.20.4 {
     //? if =1.20.6
-    @Shadow private OptionsList list;
+    /*@Shadow private OptionsList list;*/
 
     @Inject(
             //? if >1.20.6 {
-            /*method = "addOptions",
-            *///?} else
-            method = "init",
+            method = "addOptions",
+            //?} else
+            /*method = "init",*/
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/components/OptionsList;addSmall([Lnet/minecraft/client/OptionInstance;)V",
