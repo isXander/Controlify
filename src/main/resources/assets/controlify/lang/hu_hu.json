@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "Egy általános hozzárendelés amely különböző dolgokat hajt végre az aktuális képernyőtől függően.",
   "controlify.binding.controlify.gui_abstract_action_2": "GUI Absztrakt Cselekvés 2",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "Egy általános hozzárendelés amely különböző dolgokat hajt végre az aktuális képernyőtől függően.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "Egy általános hozzárendelés amely különböző dolgokat hajt végre az aktuális képernyőtől függően.",
   "controlify.binding.controlify.inv_select": "Tárgy Kiválasztása",
   "controlify.binding.controlify.inv_quick_move": "Gyors Mozgatás",
   "controlify.binding.controlify.inv_take_half": "Fél Elvétele",
