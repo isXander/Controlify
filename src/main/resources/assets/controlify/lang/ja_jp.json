@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "A generic binding that may do different things depending on the current screen.",
   "controlify.binding.controlify.gui_abstract_action_2": "GUI Abstract Action 2",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "A generic binding that may do different things depending on the current screen.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "A generic binding that may do different things depending on the current screen.",
   "controlify.binding.controlify.inv_select": "Select Item",
   "controlify.binding.controlify.inv_quick_move": "Quick Move",
   "controlify.binding.controlify.inv_take_half": "Take Half",
