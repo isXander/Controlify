@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "Una asignación genérica que puede hacer diferentes cosas dependiendo de la pantalla actual.",
   "controlify.binding.controlify.gui_abstract_action_2": "Acción Abstracta 2 en GUI",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "Una asignación genérica que puede hacer diferentes cosas dependiendo de la pantalla actual.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "Una asignación genérica que puede hacer diferentes cosas dependiendo de la pantalla actual.",
   "controlify.binding.controlify.inv_select": "Seleccionar Objeto",
   "controlify.binding.controlify.inv_quick_move": "Movimiento Rápido",
   "controlify.binding.controlify.inv_take_half": "Tomar la Mitad",
