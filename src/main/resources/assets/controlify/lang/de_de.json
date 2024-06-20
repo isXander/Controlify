@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "Eine generische Taste, die abhängig vom aktuellen Bildschirm verschiedenes macht.",
   "controlify.binding.controlify.gui_abstract_action_2": "GUI abstrakte Aktion 2",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "Eine generische Taste, die abhängig vom aktuellen Bildschirm verschiedenes macht.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "Eine generische Taste, die abhängig vom aktuellen Bildschirm verschiedenes macht.",
   "controlify.binding.controlify.inv_select": "Gegenstand auswählen",
   "controlify.binding.controlify.inv_quick_move": "Schneller Transfer",
   "controlify.binding.controlify.inv_take_half": "Hälfte nehmen",
