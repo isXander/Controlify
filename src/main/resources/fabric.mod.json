@@ -43,6 +43,9 @@
     "yet_another_config_lib_v3": ">=3.4.0",
     "fabric-api": "${fapi}"
   },
+  "suggests": {
+    "immediatelyfast": "*"
+  },
   "breaks": {
     "midnightcontrols": "*",
     "controllable": "*",
