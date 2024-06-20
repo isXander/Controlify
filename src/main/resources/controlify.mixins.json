@@ -9,6 +9,7 @@
   "client": [
     "core.ClientPacketListenerMixin",
     "core.GLXMixin",
+    "core.GuiGraphicsAccessor",
     "core.GuiMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",

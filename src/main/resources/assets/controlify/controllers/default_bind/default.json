@@ -87,6 +87,9 @@
     "controlify:gui_abstract_action_2": {
       "button": "controlify:button/north"
     },
+    "controlify:gui_abstract_action_3": {
+      "button": "controlify:button/left_stick"
+    },
     "controlify:inv_select": {
       "button": "controlify:button/south"
     },

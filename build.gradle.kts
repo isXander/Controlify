@@ -134,6 +134,7 @@ dependencies {
             "fabric-networking-api-v1",
             "fabric-item-group-api-v1",
             "fabric-rendering-v1",
+            "fabric-transitive-access-wideners-v1",
         ).forEach {
             modImplementation(fabricApi.module(it, fapiVersion))
         }

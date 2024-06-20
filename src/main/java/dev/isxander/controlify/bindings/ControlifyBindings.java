@@ -230,6 +230,10 @@ public final class ControlifyBindings {
             .id("controlify", "gui_abstract_action_2")
             .category(GUI_CATEGORY)
             .allowedContexts(BindContext.REGULAR_SCREEN));
+    public static final InputBindingSupplier GUI_ABSTRACT_ACTION_3 = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_abstract_action_3")
+            .category(GUI_CATEGORY)
+            .allowedContexts(BindContext.REGULAR_SCREEN));
     public static final InputBindingSupplier GUI_NAVI_UP = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_navi_up")
             .category(GUI_CATEGORY)
