@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.KeyMappingHandle;
 import dev.isxander.controlify.bindings.StateAccess;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 
 import java.util.function.BooleanSupplier;
 
@@ -35,6 +36,9 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
 
         if (ControlifyApi.get().getCurrentController().orElse(null) != controller)
             return; // only emulate current controller
+
+        if (Minecraft.getInstance().screen != null)
+            return; // minecraft keybinds don't work in gui screens it conflicts
 
         KeyMappingHandle handle = (KeyMappingHandle) keyMapping;
         if (now && !prev) {
