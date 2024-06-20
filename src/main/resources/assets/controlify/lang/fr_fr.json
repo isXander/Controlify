@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "Une action générique qui peut effectuer différentes actions en fonction de l'écran actuel.",
   "controlify.binding.controlify.gui_abstract_action_2": "Action abstraite de l'interface 2",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "Une action générique qui peut effectuer différentes actions en fonction de l'écran actuel.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "Une action générique qui peut effectuer différentes actions en fonction de l'écran actuel.",
   "controlify.binding.controlify.inv_select": "Sélectionner un item",
   "controlify.binding.controlify.inv_quick_move": "Déplacer rapidement un item",
   "controlify.binding.controlify.inv_take_half": "Prendre la moitié d'un item",
