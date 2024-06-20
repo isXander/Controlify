@@ -254,6 +254,8 @@
   "controlify.binding.controlify.gui_abstract_action_1.desc": "Общая привязка, которая позволяет делать различные действия в зависимости от экрана.",
   "controlify.binding.controlify.gui_abstract_action_2": "Абстрактное действие 2 в интерфейсе",
   "controlify.binding.controlify.gui_abstract_action_2.desc": "Общая привязка, которая позволяет делать различные действия в зависимости от экрана.",
+  "controlify.binding.controlify.gui_abstract_action_3": "GUI Abstract Action 3",
+  "controlify.binding.controlify.gui_abstract_action_3.desc": "Общая привязка, которая позволяет делать различные действия в зависимости от экрана.",
   "controlify.binding.controlify.inv_select": "Выбрать предмет",
   "controlify.binding.controlify.inv_quick_move": "Быстро переместить",
   "controlify.binding.controlify.inv_take_half": "Взять половину",
