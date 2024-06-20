@@ -38,17 +38,11 @@ public class DS5EffectsState extends Structure {
     public TriggerEffect rgucRightTriggerEffect;
     public TriggerEffect rgucLeftTriggerEffect;
 
-    public byte rgucUnknown10;
-    public byte rgucUnknown11;
-    public byte rgucUnknown12;
-    public byte rgucUnknown13;
-    public byte rgucUnknown14;
-    public byte rgucUnknown15;
+    public byte[] unknown1 = new byte[6];
 
     public byte ucEnableBits3;
 
-    public byte rgucUnknown20;
-    public byte rgucUnknown21;
+    public byte[] unknown2 = new byte[2];
 
     public byte ucLedAnim;
     public byte ucLedBrightness;

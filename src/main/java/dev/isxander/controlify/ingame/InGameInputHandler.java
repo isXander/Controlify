@@ -131,8 +131,8 @@ public class InGameInputHandler {
         if (ControlifyBindings.TOGGLE_DEBUG_MENU.on(controller).justPressed()) {
             /*? if >=1.20.3 {*/
             minecraft.getDebugOverlay().toggleOverlay();
-            /*?} else {*//*
-            minecraft.options.renderDebug = !minecraft.options.renderDebug;
+            /*?} else {*/
+            /*minecraft.options.renderDebug = !minecraft.options.renderDebug;
             *//*?}*/
         }
 
