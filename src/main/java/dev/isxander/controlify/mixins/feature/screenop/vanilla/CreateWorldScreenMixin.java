@@ -40,7 +40,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
         ButtonGuideApi.addGuideToButton(
                 button,
                 ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonGuidePredicate.ALWAYS
+                ButtonGuidePredicate.always()
         );
         return button;
     }
@@ -63,7 +63,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
         ButtonGuideApi.addGuideToButton(
                 button,
                 ControlifyBindings.GUI_BACK,
-                ButtonGuidePredicate.ALWAYS
+                ButtonGuidePredicate.always()
         );
         return button;
     }

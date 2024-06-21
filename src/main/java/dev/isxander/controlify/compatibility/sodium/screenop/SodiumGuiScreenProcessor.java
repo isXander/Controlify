@@ -1,19 +1,20 @@
-/*? if sodium {*/
+//? if sodium {
 package dev.isxander.controlify.compatibility.sodium.screenop;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
+import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.compatibility.sodium.mixins.SodiumOptionsGUIAccessor;
+import dev.isxander.controlify.compatibility.sodium.mixins.FlatButtonWidgetAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
-import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
-import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
+import net.minecraft.client.gui.screens.Screen;
 
-import java.util.List;
+public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
+    private final SodiumScreenOperations operations;
 
-public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> {
-    public SodiumGuiScreenProcessor(SodiumOptionsGUI screen) {
+    public SodiumGuiScreenProcessor(Screen screen, SodiumScreenOperations operations) {
         super(screen);
+        this.operations = operations;
     }
 
     @Override
@@ -23,17 +24,19 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
 
     @Override
     protected void handleButtons(ControllerEntity controller) {
-        var accessor = (SodiumOptionsGUIAccessor) screen;
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+            ((FlatButtonWidgetAccessor) operations.controlify$getApplyButton()).invokeDoAction();
+        }
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
+            ((FlatButtonWidgetAccessor) operations.controlify$getUndoButton()).invokeDoAction();
+        }
 
         if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
-            var currentIndex = accessor.getPages().indexOf(accessor.getCurrentPage());
-            var nextIndex = (currentIndex + 1) % accessor.getPages().size();
-            screen.setPage(accessor.getPages().get(nextIndex));
+            operations.controlify$nextPage();
         }
+
         if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
-            var currentIndex = accessor.getPages().indexOf(accessor.getCurrentPage());
-            var nextIndex = (currentIndex - 1 + accessor.getPages().size()) % accessor.getPages().size();
-            screen.setPage(accessor.getPages().get(nextIndex));
+            operations.controlify$prevPage();
         }
 
         super.handleButtons(controller);
@@ -41,13 +44,28 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<SodiumOptionsGUI> 
 
     @Override
     protected void setInitialFocus() {
-        if (screen.getFocused() == null && Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-            List<ControlElement<?>> controls = ((SodiumOptionsGUIAccessor) screen).getControls();
-            if (!controls.isEmpty()) {
-                var first = controls.get(0);
-                screen.setFocused(first);
-            }
-        }
+
+    }
+
+    public void onRebuildGUI() {
+        ButtonGuideApi.addGuideToButton(
+                operations.controlify$getApplyButton(),
+                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+                ButtonGuidePredicate.always()
+        );
+        ButtonGuideApi.addGuideToButton(
+                operations.controlify$getUndoButton(),
+                ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+                ButtonGuidePredicate.always()
+        );
+
+        ButtonGuideApi.addGuideToButton(
+                operations.controlify$getCloseButton(),
+                ControlifyBindings.GUI_BACK,
+                ButtonGuidePredicate.always()
+        );
+        
+        super.onWidgetRebuild();
     }
 }
-/*?}*/
+//? }

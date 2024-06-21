@@ -21,14 +21,14 @@ public final class ButtonGuideApi {
      * @param binding         the custom binding to render
      * @param renderPredicate whether the guide should be rendered
      */
-    public static <T extends AbstractButton> void addGuideToButton(
+    public static <T> void addGuideToButton(
             T button,
             InputBindingSupplier binding,
             ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, () -> binding, renderPredicate);
     }
 
-    public static <T extends AbstractButton> void addGuideToButton(
+    public static <T> void addGuideToButton(
             T button,
             Supplier<InputBindingSupplier> binding,
             ButtonGuidePredicate<T> renderPredicate) {

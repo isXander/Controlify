@@ -125,8 +125,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         );
         controllerNotDetectedButton.visible = carouselEntries.isEmpty();
 
-        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
-        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
 
         this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
     }

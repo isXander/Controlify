@@ -30,7 +30,7 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         ButtonGuideApi.addGuideToButton(
                 (AbstractButton) button,
                 ControlifyBindings.GUI_BACK,
-                ButtonGuidePredicate.ALWAYS
+                ButtonGuidePredicate.always()
         );
         return button;
     }
@@ -40,7 +40,7 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         ButtonGuideApi.addGuideToButton(
                 (AbstractButton) button,
                 ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonGuidePredicate.ALWAYS
+                ButtonGuidePredicate.always()
         );
         return button;
     }
