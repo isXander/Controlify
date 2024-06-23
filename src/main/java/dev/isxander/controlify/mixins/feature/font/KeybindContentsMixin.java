@@ -3,6 +3,7 @@ package dev.isxander.controlify.mixins.feature.font;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.font.BindingFontHelper;
@@ -24,8 +25,10 @@ public class KeybindContentsMixin {
     private String name;
 
     @WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
-    private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true)Style style) {
-        if (BindingFontHelper.WRAPPER_FONT.equals(style.getFont())) {
+    private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true) Style style) {
+        boolean wrapperFont = BindingFontHelper.WRAPPER_FONT.equals(style.getFont());
+
+        if (wrapperFont) {
             Optional<Component> inputText = ControlifyApi.get().getCurrentController()
                     .filter(c -> c.input().isPresent())
                     .map(c -> Controlify.instance().inputFontMapper()

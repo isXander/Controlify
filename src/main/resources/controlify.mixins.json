@@ -16,6 +16,7 @@
     "core.MouseHandlerMixin",
     "feature.accessibility.LocalPlayerMixin",
     "feature.autoswitch.ToastComponentAccessor",
+    "feature.bind.ClientPacketListenerMixin",
     "feature.bind.GuiMixin",
     "feature.bind.KeyMappingMixin",
     "feature.bind.MinecraftMixin",
@@ -100,5 +101,6 @@
     "feature.virtualmouse.snapping.ScreenMixin"
   ],
   "mixins": [
+    "feature.font.TranslatableContentsMixin"
   ]
 }
