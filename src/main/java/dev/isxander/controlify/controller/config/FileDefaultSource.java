@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controller.config;
 
 import com.google.gson.JsonObject;
+import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -33,7 +34,7 @@ public class FileDefaultSource implements DefaultSource {
     private void loadDefaults() {
         JsonObject json = jsonSupplier.get();
         defaults = json.entrySet().stream().collect(Collectors.toMap(
-            entry -> new ResourceLocation(entry.getKey()),
+            entry -> CUtil.parseRl(entry.getKey()),
             entry -> entry.getValue().getAsJsonObject()
         ));
     }

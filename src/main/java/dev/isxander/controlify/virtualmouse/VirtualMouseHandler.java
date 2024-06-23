@@ -208,10 +208,10 @@ public class VirtualMouseHandler {
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
         /*? if >1.20.6 {*/
-        /*float delta = minecraft.getTimer().getRealtimeDeltaTicks();
-        *//*?} else {*/
-        float delta = minecraft.getDeltaFrameTime();
-        /*?}*/
+        float delta = minecraft.getTimer().getRealtimeDeltaTicks();
+        /*?} else {*/
+        /*float delta = minecraft.getDeltaFrameTime();
+        *//*?}*/
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
             currentX = Mth.lerp(delta, currentX, targetX);

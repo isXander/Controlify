@@ -153,7 +153,7 @@ public class InputComponent implements ComponentWithConfig<InputComponent.Config
         JsonObject bindingsJson = new JsonObject();
 
         for (InputBinding binding : this.inputBindings.values()) {
-            if (!confObj().keepDefaultBindings && binding.boundInput().equals(binding.defaultInput()))
+            if (binding.boundInput().equals(binding.defaultInput()))
                 continue;
 
             try {

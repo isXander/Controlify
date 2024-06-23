@@ -27,10 +27,10 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
     //? if >1.20.6 {
-    /*@Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
-    *///?} else {
-    @Shadow public abstract float getDeltaFrameTime();
-    //?}
+    @Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
+    //?} else {
+    /*@Shadow public abstract float getDeltaFrameTime();
+    *///?}
 
     @Shadow @Final public MouseHandler mouseHandler;
     @Shadow @Nullable public Screen screen;
@@ -83,10 +83,10 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
             at = @At(
                     value = "INVOKE",
                     /*? if >1.20.6 {*/
-                    /*target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
-                    *//*?} else {*/
-                    target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"
-                    /*?}*/
+                    target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
+                    /*?} else {*/
+                    /*target = "Lnet/minecraft/client/renderer/GameRenderer;render(FJZ)V"
+                    *//*?}*/
             )
     )
     private void tickAnimator(boolean tick, CallbackInfo ci) {
@@ -104,10 +104,10 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Unique
     private float getTickDelta() {
         /*? if >1.20.6 {*/
-        /*return getTimer().getGameTimeDeltaTicks();
-        *//*?} else {*/
-        return getDeltaFrameTime();
-        /*?}*/
+        return getTimer().getGameTimeDeltaTicks();
+        /*?} else {*/
+        /*return getDeltaFrameTime();
+        *//*?}*/
     }
 
     @Override

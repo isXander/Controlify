@@ -30,7 +30,7 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
             case CROSSBOW -> {
                 int chargeDuration = CrossbowItem.getChargeDuration(
                         stack
-                        /*? if >1.20.6*//*,(LocalPlayer) (Object) this*/
+                        /*? if >1.20.6*/,(LocalPlayer) (Object) this
                 );
                 startRumble(ContinuousRumbleEffect.builder()
                         .byTick(tick -> new RumbleState(

@@ -8,7 +8,7 @@ public interface ComponentWithConfig<T extends ConfigObject> extends ECSComponen
 
     default JsonObject toJson() {
         ConfigModule<T> module = getConfigInstance().module();
-        return module.serialize(getConfigInstance().getConfig());
+        return module.serialize(getConfigInstance().getConfig(), getConfigInstance().getDefaultConfig());
     }
 
     default void fromJson(JsonObject json) {

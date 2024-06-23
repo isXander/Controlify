@@ -1,5 +1,7 @@
 package dev.isxander.controlify.utils;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -33,20 +35,42 @@ public class CUtil {
 
     public static ResourceLocation rl(String namespace, String path) {
         /*? if >1.20.6 {*/
-        /*return ResourceLocation.fromNamespaceAndPath(namespace, path);
-        *//*?} else {*/
-        return new ResourceLocation(namespace, path);
-        /*?}*/
+        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        /*?} else {*/
+        /*return new ResourceLocation(namespace, path);
+        *//*?}*/
+    }
+
+    public static ResourceLocation parseRl(String path) {
+        return ResourceLocation.tryParse(path);
     }
 
     public static BufferBuilder beginBuffer(VertexFormat.Mode mode, VertexFormat format) {
         /*? if >1.20.6 {*/
-        /*return Tesselator.getInstance().begin(mode, format);
-        *//*?} else {*/
-        BufferBuilder builder = Tesselator.getInstance().getBuilder();
+        return Tesselator.getInstance().begin(mode, format);
+        /*?} else {*/
+        /*BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(mode, format);
         return builder;
-        /*?}*/
+        *//*?}*/
+    }
+
+    public static void removeMatchingKeysDeep(JsonObject json, JsonObject defaults) {
+        json.entrySet().removeIf(entry -> {
+            JsonElement value = entry.getValue();
+            JsonElement defaultValue = defaults.get(entry.getKey());
+
+            if (!value.getClass().equals(defaultValue.getClass())) {
+                CUtil.LOGGER.warn("Mismatched types for key: {} ({} vs {})", entry.getKey(), value.getClass(), defaultValue.getClass());
+            }
+
+            if (value.isJsonObject()) {
+                removeMatchingKeysDeep(value.getAsJsonObject(), defaultValue.getAsJsonObject());
+                return value.getAsJsonObject().entrySet().isEmpty();
+            } else {
+                return value.equals(defaultValue);
+            }
+        });
     }
 
     /**

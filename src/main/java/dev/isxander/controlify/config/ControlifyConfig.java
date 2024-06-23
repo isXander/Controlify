@@ -167,6 +167,14 @@ public class ControlifyConfig {
         }
 
         try {
+            JsonObject newDefaults = json.getAsJsonObject("default_controller_config");
+            if (newDefaults != null) defaultControllerConfig = newDefaults;
+        } catch (Exception e) {
+            CUtil.LOGGER.error("Failed to apply default controller config from config file!", e);
+            setDirty();
+        }
+
+        try {
             JsonObject controllersMap = json.getAsJsonObject("controllers");
             controllersMap.asMap().forEach((uid, element) -> {
                 storedControllerConfig.put(uid, element.getAsJsonObject());
@@ -184,14 +192,6 @@ public class ControlifyConfig {
             CUtil.LOGGER.error("Failed to apply global settings from config file!", e);
             setDirty();
         }
-
-        try {
-            JsonObject newDefaults = json.getAsJsonObject("default_controller_config");
-            if (newDefaults != null) defaultControllerConfig = newDefaults;
-        } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to apply default controller config from config file!", e);
-            setDirty();
-        }
     }
 
     private void applyControllerConfig(ControllerManager controllerManager) {
@@ -206,13 +206,13 @@ public class ControlifyConfig {
         if (json == null) {
             CUtil.LOGGER.warn("Controller {} has no config to load. Using defaults.", controller.info().ucid());
             setDirty();
-            return true;
+            json = defaultControllerConfig.deepCopy();
+        } else {
+            json = json.getAsJsonObject("config");
         }
 
-        JsonObject innerJson = json.getAsJsonObject("config");
-
         try {
-            controller.deserializeFromObject(innerJson);
+            controller.deserializeFromObject(json);
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load controller {} config!", controller.info().ucid(), e);
             setDirty();
@@ -221,8 +221,7 @@ public class ControlifyConfig {
         return false;
     }
 
-    public JsonObject useDefaultControllerConfig() {
-        setDirty();
+    public JsonObject getDefaultControllerConfig() {
         return defaultControllerConfig;
     }
 

@@ -27,11 +27,13 @@ import java.util.Optional;
 public class BindController implements Controller<Input> {
     private final Option<Input> option;
     public final ControllerEntity controller;
+    public final ResourceLocation themeNamespace;
     private boolean conflicting;
 
-    public BindController(Option<Input> option, ControllerEntity controller) {
+    public BindController(Option<Input> option, ControllerEntity controller, ResourceLocation themeNamespace) {
         this.option = option;
         this.controller = controller;
+        this.themeNamespace = themeNamespace;
     }
 
     @Override
@@ -74,7 +76,7 @@ public class BindController implements Controller<Input> {
                 if (EmptyInput.equals(bind)) return;
 
                 Component text = Controlify.instance().inputFontMapper()
-                        .getComponentFromBind(control.controller.info().type().namespace(), bind);
+                        .getComponentFromBind(control.themeNamespace, bind);
                 int width = textRenderer.width(text);
 
                 graphics.drawString(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);

@@ -76,38 +76,26 @@ public class ControllerConfigScreenFactory {
                 InputComponent.ID
         );
 
-        // generic
         controller.setComponent(new GenericControllerComponent(controller), GenericControllerComponent.ID);
-
-        // rumble
         controller.setComponent(new RumbleComponent(controller), RumbleComponent.ID);
-
-        // trigger rumble
         controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);
-
-        // gyro
         controller.setComponent(new GyroComponent(controller), GyroComponent.ID);
-
-        // hd haptics
         controller.setComponent(new HDHapticComponent(controller), HDHapticComponent.ID);
-
-        // dualsense
         controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
-
-        // battery
         controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
-
-        // touchpad
         controller.setComponent(new TouchpadComponent(1), TouchpadComponent.ID);
 
         controller.finalise();
+
+        // load defaults
+        controller.deserializeFromObject(Controlify.instance().config().getDefaultControllerConfig());
 
         return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller, true);
     }
 
     private Screen generateConfigScreen0(Screen parent, ControllerEntity controller, boolean global) {
         var advancedCategory = createAdvancedCategory(controller);
-        var bindsCategory = makeBindsCategory(controller);
+        var bindsCategory = makeBindsCategory(controller, global);
         var basicCategory = createBasicCategory(controller); // must be last for new options
 
         var yacl = YetAnotherConfigLib.createBuilder()
@@ -118,7 +106,7 @@ public class ControllerConfigScreenFactory {
                     ControlifyConfig config = Controlify.instance().config();
 
                     if (global) {
-                        controller.serializeToObject(config.useDefaultControllerConfig());
+                        controller.serializeToObject(config.getDefaultControllerConfig());
                     }
 
                     config.save();
@@ -616,7 +604,7 @@ public class ControllerConfigScreenFactory {
         return Optional.of(gyroGroup.build());
     }
 
-    private Optional<ConfigCategory> makeBindsCategory(ControllerEntity controller) {
+    private Optional<ConfigCategory> makeBindsCategory(ControllerEntity controller, boolean global) {
         Optional<InputComponent> inputOpt = controller.input();
         if (inputOpt.isEmpty())
             return Optional.empty();
@@ -646,7 +634,7 @@ public class ControllerConfigScreenFactory {
                 )))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
-        Option<?> radialBind = createBindingOpt(ControlifyBindings.RADIAL_MENU, controller)
+        Option<?> radialBind = createBindingOpt(ControlifyBindings.RADIAL_MENU, controller, global)
                 .listener((opt, val) -> updateConflictingBinds(optionBinds))
                 .build();
         optionBinds.add(new OptionBindPair(radialBind, ControlifyBindings.RADIAL_MENU.on(controller)));
@@ -664,13 +652,17 @@ public class ControllerConfigScreenFactory {
                                 .range(2, 40).step(1).formatValue(ticksToMillisFormatter))
                         .build());
 
+        if (global) {
+            category.option(LabelOption.create(Component.translatable("controlify.gui.global_controller_mismatch_bind_warning")));
+        }
+
         groupBindings(input.getAllBindings()).forEach((categoryName, bindGroup) -> {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
 
             controlsGroup.options(bindGroup.stream().flatMap(binding -> {
                 if (binding != ControlifyBindings.RADIAL_MENU.on(controller)) {
-                    Option.Builder<?> option = createBindingOpt(binding, controller)
+                    Option.Builder<?> option = createBindingOpt(binding, controller, global)
                             .listener((opt, val) -> updateConflictingBinds(optionBinds));
 
                     Option<?> built = option.build();
@@ -726,11 +718,14 @@ public class ControllerConfigScreenFactory {
                 .collect(Collectors.groupingBy(InputBinding::category, LinkedHashMap::new, Collectors.toList()));
     }
 
-    private static Option.Builder<Input> createBindingOpt(InputBindingSupplier bindingSupplier, ControllerEntity controller) {
-        return createBindingOpt(bindingSupplier.on(controller), controller);
+    private static Option.Builder<Input> createBindingOpt(InputBindingSupplier bindingSupplier, ControllerEntity controller, boolean global) {
+        return createBindingOpt(bindingSupplier.on(controller), controller, global);
     }
 
-    private static Option.Builder<Input> createBindingOpt(InputBinding binding, ControllerEntity controller) {
+    private static Option.Builder<Input> createBindingOpt(InputBinding binding, ControllerEntity controller, boolean global) {
+        ControllerEntity controllerToListen = global ? Controlify.instance().getCurrentController().orElse(controller) : controller;
+        ResourceLocation themeNamespace = controller.info().type().namespace();
+
         return Option.<Input>createBuilder()
                 .name(binding.name())
                 .description(v -> OptionDescription.createBuilder()
@@ -757,7 +752,7 @@ public class ControllerConfigScreenFactory {
                         ))
                         .build())
                 .binding(EmptyInput.INSTANCE, binding::boundInput, binding::setBoundInput)
-                .customController(opt -> new BindController(opt, controller));
+                .customController(opt -> new BindController(opt, controllerToListen, themeNamespace));
     }
 
     private static ResourceLocation screenshot(String filename) {

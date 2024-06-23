@@ -104,11 +104,9 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
             List<InputBinding> defaultedBindings = new ArrayList<>();
             for (ControllerEntity controller : Controlify.instance().getControllerManager().map(ControllerManager::getConnectedControllers).orElse(List.of())) {
                 controller.input().ifPresent(input -> {
-                    if (!input.confObj().keepDefaultBindings) {
-                        for (InputBinding binding : input.getAllBindings()) {
-                            if (binding.boundInput().equals(binding.defaultInput())) {
-                                defaultedBindings.add(binding);
-                            }
+                    for (InputBinding binding : input.getAllBindings()) {
+                        if (binding.boundInput().equals(binding.defaultInput())) {
+                            defaultedBindings.add(binding);
                         }
                     }
                 });
