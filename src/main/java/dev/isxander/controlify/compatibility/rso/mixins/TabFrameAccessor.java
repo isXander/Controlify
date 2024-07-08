@@ -20,4 +20,4 @@ public interface TabFrameAccessor {
     @Accessor
     AbstractFrame getSelectedFrame();
 }
-//? }
+//?}
