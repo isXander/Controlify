@@ -16,6 +16,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 public final class BindingFontHelper {
     public static final ResourceLocation WRAPPER_FONT = CUtil.rl("inputs");
+    public static final String PLACEHOLDER_KEY = "controlify.placeholder";
+    public static final String PLACEHOLDER_CONTROLLER_ACTIVE_KEY = "controlify.placeholder.controller_active";
 
     public static Component bindingWithFallback(ResourceLocation binding, Component fallback) {
         return Component.translatableWithFallback("controlify.placeholder", "%2$s", binding(binding), fallback);

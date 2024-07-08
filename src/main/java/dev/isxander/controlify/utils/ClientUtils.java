@@ -14,8 +14,8 @@ public final class ClientUtils {
     /*? if >=1.20.3 {*/
     private static final ResourceLocation GREEN_BACK_BAR = CUtil.mcRl("boss_bar/green_background");
     private static final ResourceLocation GREEN_FRONT_BAR = CUtil.mcRl("boss_bar/green_progress");
-    /*?} else {*//*
-    private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
+    /*?} else {*/
+    /*private static final ResourceLocation GUI_BARS_LOCATION = new ResourceLocation("textures/gui/bars.png");
     *//*?}*/
 
     private ClientUtils() {
@@ -32,8 +32,8 @@ public final class ClientUtils {
     public static void drawSprite(GuiGraphics graphics, ResourceLocation location, int x, int y, int width, int height) {
         /*? if >=1.20.3 {*/
         graphics.blitSprite(location, x, y, width, height);
-        /*?} else {*//*
-        graphics.blit(location, x, y, 0, 0, width, height, width, height);
+        /*?} else {*/
+        /*graphics.blit(location, x, y, 0, 0, width, height, width, height);
         *//*?}*/
     }
 
@@ -47,8 +47,8 @@ public final class ClientUtils {
         if (width > 0) {
             graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
         }
-        /*?} else {*//*
-        graphics.blit(GUI_BARS_LOCATION, x, y, 0, 30, 182, 5);
+        /*?} else {*/
+        /*graphics.blit(GUI_BARS_LOCATION, x, y, 0, 30, 182, 5);
         if (width > 0) {
             RenderSystem.enableBlend();
             graphics.blit(GUI_BARS_LOCATION, x, y, 0, 35, width, 5);

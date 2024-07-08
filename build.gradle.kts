@@ -37,6 +37,7 @@ val mixins = mapOf(
     "controlify" to true,
     "controlify-compat.iris" to isPropDefined("deps.iris"),
     "controlify-compat.sodium" to isPropDefined("deps.sodium"),
+    "controlify-compat.reeses-sodium-options" to isPropDefined("deps.reesesSodiumOptions"),
     "controlify-compat.yacl" to true,
     "controlify-compat.simple-voice-chat" to isPropDefined("deps.simpleVoiceChat"),
     "controlify-platform.fabric" to isFabric,
@@ -90,9 +91,11 @@ repositories {
         forRepository { maven("https://cursemaven.com") }
         filter { includeGroup("curse.maven") }
     }
+    exclusiveContent {
+        forRepository { maven("https://maven.flashyreese.me/releases") }
+        filter { includeGroup("me.flashyreese.mods") }
+    }
     maven("https://jitpack.io")
-    maven("https://maven.flashyreese.me/snapshots")
-    maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://maven.neoforged.net/releases/")
 }
 
@@ -134,6 +137,7 @@ dependencies {
             "fabric-networking-api-v1",
             "fabric-item-group-api-v1",
             "fabric-rendering-v1",
+            "fabric-transitive-access-wideners-v1",
         ).forEach {
             modImplementation(fabricApi.module(it, fapiVersion))
         }
@@ -151,6 +155,9 @@ dependencies {
                 }
             }
         }
+
+        // RSO compat
+        modDependency("reesesSodiumOptions", { "me.flashyreese.mods:reeses-sodium-options:$it" })
 
         // iris compat
         modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->

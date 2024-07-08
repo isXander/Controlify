@@ -22,7 +22,7 @@ public class YACLScreenCategoryTabMixin {
         ButtonGuideApi.addGuideToButton(
                 saveFinishedButton,
                 ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonGuidePredicate.ALWAYS
+                ButtonGuidePredicate.always()
         );
     }
 }

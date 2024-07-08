@@ -39,7 +39,7 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
             if (!c.generic().confObj().showOnScreenKeyboard) return;
 
             int keyboardHeight = this.height / 2;
-            this.addRenderableWidget(keyboard = new ChatKeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(
+            this.addRenderableWidget(keyboard = new ChatKeyboardWidget((ChatScreen) (Object) this, 0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(
                     (keycode, scancode, modifiers) -> {
                         input.keyPressed(keycode, scancode, modifiers);
                         this.keyPressed(keycode, scancode, modifiers);

@@ -31,7 +31,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
                 ButtonGuideApi.addGuideToButton(
                         (AbstractButton) doneButton,
                         ControlifyBindings.GUI_BACK,
-                        ButtonGuidePredicate.ALWAYS
+                        ButtonGuidePredicate.always()
                 ));
     }
 }

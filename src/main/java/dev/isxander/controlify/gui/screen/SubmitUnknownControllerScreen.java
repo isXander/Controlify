@@ -79,8 +79,8 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
                 .pos(this.width / 2 - font.width(operationalText) / 2 - 8, y)
                 .selected(true)
                 .build();
-        /*?} else {*//*
-        new Checkbox(this.width / 2 - font.width(operationalText) / 2 - 8, y, 21 + font.width(operationalText), 17, operationalText, true);
+        /*?} else {*/
+        /*new Checkbox(this.width / 2 - font.width(operationalText) / 2 - 8, y, 21 + font.width(operationalText), 17, operationalText, true);
         *//*?}*/
         this.addRenderableWidget(operationalCheckbox);
         y += checkboxHeight + checkboxPadding;
@@ -121,8 +121,8 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         /*? if >=1.20.4 {*/
         renderBackground(graphics, mouseX, mouseY, delta);
-        /*?} else {*//*
-        renderBackground(graphics);
+        /*?} else {*/
+        /*renderBackground(graphics);
         *//*?}*/
 
         super.render(graphics, mouseX, mouseY, delta);

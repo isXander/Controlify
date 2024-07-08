@@ -42,7 +42,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
     @Override
     public void onWidgetRebuild() {
         this.getWidget(CommonComponents.GUI_BACK).ifPresent(button -> {
-            ButtonGuideApi.addGuideToButton((AbstractButton) button, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
+            ButtonGuideApi.addGuideToButton((AbstractButton) button, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
         });
 
         super.onWidgetRebuild();

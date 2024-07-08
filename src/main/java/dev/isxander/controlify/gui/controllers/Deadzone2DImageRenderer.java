@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.render.ControlifyVertexConsumer;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
@@ -109,6 +110,7 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
     private static void drawCircleOutline(PoseStack poseStack, float originX, float originY, float z, float radius, float thickness, int colour, int segments) {
         BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
 
+        ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(buffer);
         Matrix4f position = poseStack.last().pose();
 
         float diff = radius - thickness;
@@ -120,20 +122,12 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float x1 = originX + sin * diff;
             float y1 = originY + cos * diff;
 
-            /*? if >1.20.6 {*/
-            buffer.addVertex(position, x1, y1, z).setColor(colour);
-            /*?} else {*/
-            /*buffer.vertex(position, x1, y1, z).color(colour).endVertex();
-             *//*?}*/
+            vertexConsumer.vertex(position, x1, y1, z).color(colour);
 
             float x2 = originX + sin * radius;
             float y2 = originY + cos * radius;
 
-            /*? if >1.20.6 {*/
-            buffer.addVertex(position, x2, y2, z).setColor(colour);
-            /*?} else {*/
-            /*buffer.vertex(position, x2, y2, z).color(colour).endVertex();
-             *//*?}*/
+            vertexConsumer.vertex(position, x2, y2, z).color(colour);
         }
 
         RenderSystem.enableBlend();

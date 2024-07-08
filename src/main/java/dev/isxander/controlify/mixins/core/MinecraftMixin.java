@@ -113,8 +113,8 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Override
     public void controlify$registerInitialScreen(Function<Runnable, Screen> screenFactory) {
         boolean doNow = initialScreensHappened;
-        /*? if <=1.20.1 {*//*
-        doNow = true;
+        /*? if <=1.20.1 {*/
+        /*doNow = true;
         *//*?}*/
 
         if (doNow) {
