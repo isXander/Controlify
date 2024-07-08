@@ -12,6 +12,7 @@ import dev.isxander.controlify.gui.screen.RadialItems;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.ControllerUtils;
+import dev.isxander.controlify.utils.DebugOverlayHelper;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
@@ -128,12 +129,33 @@ public class InGameInputHandler {
             shouldShowPlayerList = !shouldShowPlayerList;
         }
 
+
         if (ControlifyBindings.TOGGLE_DEBUG_MENU.on(controller).justPressed()) {
-            /*? if >=1.20.3 {*/
-            minecraft.getDebugOverlay().toggleOverlay();
-            /*?} else {*/
-            /*minecraft.options.renderDebug = !minecraft.options.renderDebug;
-            *//*?}*/
+            DebugOverlayHelper.toggleOverlay();
+        }
+        if (ControlifyBindings.TOGGLE_DEBUG_MENU_FPS.on(controller).justPressed()) {
+            DebugOverlayHelper.toggleFpsOverlay();
+        }
+        //? if >=1.20.3 {
+        if (ControlifyBindings.TOGGLE_DEBUG_MENU_NET.on(controller).justPressed()) {
+            DebugOverlayHelper.toggleNetworkOverlay();
+        }
+        if (ControlifyBindings.TOGGLE_DEBUG_MENU_PROF.on(controller).justPressed()) {
+            DebugOverlayHelper.toggleProfilerOverlay();
+        }
+        //?} else {
+        /*if (ControlifyBindings.TOGGLE_DEBUG_MENU_CHARTS.on(controller).justPressed()) {
+            DebugOverlayHelper.toggleChartsOverlay();
+        }
+        *///?}
+        if (ControlifyBindings.DEBUG_RADIAL.on(controller).justPressed()) {
+            minecraft.setScreen(new RadialMenuScreen(
+                    controller,
+                    ControlifyBindings.DEBUG_RADIAL.on(controller),
+                    RadialItems.createDebug(),
+                    Component.empty(),
+                    null, null
+            ));
         }
 
         if (ControlifyBindings.TAKE_SCREENSHOT.on(controller).justPressed()) {

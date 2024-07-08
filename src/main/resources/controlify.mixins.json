@@ -29,6 +29,7 @@
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.hdhaptics.JOrbisAudioStreamMixin",
+    "feature.input.DebugScreenOverlayAccessor",
     "feature.input.MinecraftMixin",
     "feature.nomousetutorial.MovementTutorialStepInstanceMixin",
     "feature.oofinput.GameRendererMixin",
