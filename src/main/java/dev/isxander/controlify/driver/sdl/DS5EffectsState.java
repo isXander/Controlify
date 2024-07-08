@@ -11,9 +11,9 @@ import org.intellij.lang.annotations.MagicConstant;
         "ucHeadphoneVolume", "ucSpeakerVolume", "ucMicrophoneVolume",
         "ucAudioEnableBits", "ucMicLightMode", "ucAudioMuteBits",
         "rgucRightTriggerEffect", "rgucLeftTriggerEffect",
-        "rgucUnknown10", "rgucUnknown11", "rgucUnknown12", "rgucUnknown13", "rgucUnknown14", "rgucUnknown15",
+        "unknown1",
         "ucEnableBits3",
-        "rgucUnknown20", "rgucUnknown21",
+        "unknown2",
         "ucLedAnim", "ucLedBrightness", "ucPadLights",
         "ucLedRed", "ucLedGreen", "ucLedBlue",
 })
