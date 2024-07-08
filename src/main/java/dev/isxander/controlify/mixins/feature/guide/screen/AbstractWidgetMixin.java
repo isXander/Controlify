@@ -1,13 +1,9 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
