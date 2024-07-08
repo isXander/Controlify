@@ -43,7 +43,7 @@ public final class DebugOverlayHelper {
     }
     //?} else {
     /*public static void toggleChartsOverlay() {
-        mc.options.renderDebug = mc.options.renderCharts = !mc.options.renderDebug;
+        mc.options.renderDebug = mc.options.renderDebugCharts = !mc.options.renderDebug;
     }
     *///?}
 
@@ -98,6 +98,6 @@ public final class DebugOverlayHelper {
     }
 
     private static void debugFeedbackTranslated(String message, Object... args) {
-        debugFeedbackComponent(Component.translatableEscape(message, args));
+        debugFeedbackComponent(Component.translatable(message, args));
     }
 }

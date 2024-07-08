@@ -15,6 +15,7 @@ public final class ExtraRenderTypes extends RenderType {
                     DefaultVertexFormat.POSITION_TEX,
                     VertexFormat.Mode.QUADS,
                     256,
+                    false, false,
                     RenderType.CompositeState.builder()
                             .setShaderState(POSITION_TEX_SHADER)
                             .setTextureState(new TextureStateShard(atlas, false, false))
