@@ -310,7 +310,12 @@ public class Controlify implements ControlifyApi {
             }
 
             try {
-                controllerManager = loaded ? new SDLControllerManager() : new GLFWControllerManager();
+                controllerManager = PlatformMainUtil.getEntrypoints()
+                        .map(entrypoint -> entrypoint.provideControllerManager(this))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .findFirst()
+                        .orElse(loaded ? new SDLControllerManager() : new GLFWControllerManager());
             } catch (Throwable throwable) {
                 CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
                 return;

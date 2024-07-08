@@ -11,7 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public final class PlatformMainUtil {
 
@@ -34,7 +36,11 @@ public final class PlatformMainUtil {
     }
 
     public static void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        IMPL.applyToControlifyEntrypoint(entrypointConsumer);
+        IMPL.getEntrypoints().forEach(entrypointConsumer);
+    }
+
+    public static Stream<ControlifyEntrypoint> getEntrypoints() {
+        return IMPL.getEntrypoints();
     }
 
     public static <I, O> void setupServersideHandshake(

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
     @Override
@@ -76,8 +77,10 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
+    public Stream<ControlifyEntrypoint> getEntrypoints() {
+        return ServiceLoader.load(ControlifyEntrypoint.class)
+                .stream()
+                .map(ServiceLoader.Provider::get);
     }
 
     @Override

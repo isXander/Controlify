@@ -1,6 +1,9 @@
 package dev.isxander.controlify.api.entrypoint;
 
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.controllermanager.ControllerManager;
+
+import java.util.Optional;
 
 public interface ControlifyEntrypoint {
     /**
@@ -20,6 +23,9 @@ public interface ControlifyEntrypoint {
         this.onControlifyPreInit(controlify);
     }
 
+    default Optional<ControllerManager> provideControllerManager(ControlifyApi controlify) {
+        return Optional.empty();
+    }
 
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated

@@ -10,8 +10,8 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.*;
+import java.util.stream.Stream;
 
 public interface PlatformMainUtilImpl {
     void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback);
@@ -30,7 +30,7 @@ public interface PlatformMainUtilImpl {
 
     String getControlifyVersion();
 
-    void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer);
+    Stream<ControlifyEntrypoint> getEntrypoints();
 
     <I, O> void setupServersideHandshake(
             ResourceLocation handshakeId,

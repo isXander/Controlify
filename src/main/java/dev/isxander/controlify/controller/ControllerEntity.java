@@ -114,7 +114,7 @@ public class ControllerEntity extends ECSEntityImpl {
     public void deserializeFromObject(JsonObject object) {
         for (var component : this.getAllComponentsWithConfig()) {
             ResourceLocation key = component.getConfigInstance().module().id();
-            JsonElement moduleJson = object.remove(key.toString());
+            JsonElement moduleJson = object.get(key.toString());
 
             if (moduleJson == null) {
                 CUtil.LOGGER.warn("Could not find component config {} whilst deserializing. Ignoring.", key);

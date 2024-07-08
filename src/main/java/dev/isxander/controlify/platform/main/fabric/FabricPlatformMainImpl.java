@@ -20,8 +20,12 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     @Override
@@ -40,9 +44,10 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class)
-                .forEach(entrypointConsumer);
+    public Stream<ControlifyEntrypoint> getEntrypoints() {
+        return FabricLoader.getInstance()
+                .getEntrypoints("controlify", ControlifyEntrypoint.class)
+                .stream();
     }
 
     @Override
