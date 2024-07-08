@@ -1,3 +1,4 @@
+//? if sodium {
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
@@ -9,3 +10,4 @@ public interface FlatButtonWidgetAccessor {
     @Invoker
     void invokeDoAction();
 }
+//?}
