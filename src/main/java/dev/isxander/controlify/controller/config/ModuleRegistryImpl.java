@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.config;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.resources.ResourceLocation;
@@ -18,8 +19,7 @@ public class ModuleRegistryImpl implements ModuleRegistry {
 
     @Override
     public <T extends ConfigObject> T getDefaultConfig(ResourceLocation id, ControllerEntity controller) {
-        Stream<JsonObject> defaultStack = defaultSources
-                .reversed()
+        Stream<JsonObject> defaultStack = Lists.reverse(defaultSources)
                 .stream()
                 .map(source -> source.createDefaultConfig(id));
         // merge all defaults into one
