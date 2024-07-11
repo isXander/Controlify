@@ -27,8 +27,8 @@ public class ControlifyHandshake {
                 handshakePacketCodec,
                 handshakePacketCodec,
                 () -> new HandshakePacket(PROTOCOL_VERSION),
-                (packet, understood, handler) -> {
-                    if (!understood) {
+                (packet, handler) -> {
+                    if (packet == null) {
                         // client does not have controlify installed
                         return;
                     }

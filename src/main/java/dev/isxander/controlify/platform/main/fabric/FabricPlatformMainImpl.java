@@ -57,9 +57,9 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
         });
 
         ServerLoginNetworking.registerGlobalReceiver(handshakeId, (server, handler, understood, buf, synchronizer, responseSender) -> {
-            I decodedPacket = serverBoundCodec.decode(buf);
+            I decodedPacket = understood ? serverBoundCodec.decode(buf) : null;
 
-            completionEvent.onCompletion(decodedPacket, understood, handler);
+            completionEvent.onCompletion(decodedPacket, handler);
         });
     }
 
