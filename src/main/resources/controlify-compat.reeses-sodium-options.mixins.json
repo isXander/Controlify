@@ -1,6 +1,6 @@
 {
   "package": "dev.isxander.controlify.compatibility.rso.mixins",
-  "required": true,
+  "required": false,
   "minVersion": "0.8",
   "injectors": {
     "defaultRequire": 1
