@@ -6,6 +6,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.InitialScreenRegistryDuck;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import dev.isxander.controlify.utils.animation.impl.Animator;
+import net.minecraft.CrashReport;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
@@ -18,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -34,6 +36,9 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
 
     @Shadow @Final public MouseHandler mouseHandler;
     @Shadow @Nullable public Screen screen;
+
+    @Shadow
+    public abstract void emergencySaveAndCrash(CrashReport crashReport);
 
     @Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();
     @Unique private boolean initialScreensHappened = false;
@@ -61,7 +66,15 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
 
     @Inject(method = "onGameLoadFinished", at = @At("RETURN"))
     private void initControlifyNow(CallbackInfo ci) {
-        Controlify.instance().initializeControlify();
+        try {
+            Controlify.instance().initializeControlify();
+        } catch (Throwable t) {
+            CrashReport report = CrashReport.forThrowable(t, "Failed to initialize Controlify");
+
+            // Further up the stack, any throwable is caught, including ReportedException,
+            // so we need to manually crash the game here.
+            emergencySaveAndCrash(report);
+        }
     }
 
     /*? if >1.20.4 {*/
