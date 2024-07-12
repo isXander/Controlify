@@ -5,7 +5,7 @@
   "controlify.gui.carousel.entry.settings": "設定",
   "controlify.gui.carousel.entry.use": "使用",
   "controlify.gui.carousel.entry.in_use": "正在使用",
-  "controlify.gui.carousel.controller_not_detected_btn": "Controller not detected?",
+  "controlify.gui.carousel.controller_not_detected_btn": "沒有偵測到控制器嗎？",
   "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Open the wiki to troubleshoot why your controller is not working.",
   "controlify.gui.carousel.donate": "贊助！",
   "controlify.gui.carousel.art_credit": "控制器藝術由 %s 提供。",
