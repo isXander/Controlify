@@ -1,16 +1,13 @@
 import net.fabricmc.loom.task.RemapJarTask
-import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     `java-library`
 
-    id("dev.architectury.loom") version "1.6.+"
+    id("dev.architectury.loom")
     id("dev.kikugie.j52j") version "1.0"
 
-    id("me.modmuss50.mod-publish-plugin") version "0.5.+"
+    id("me.modmuss50.mod-publish-plugin")
     `maven-publish`
-
-    id("org.ajoberstar.grgit") version "5.0.+"
 }
 
 // version stuff
@@ -272,7 +269,7 @@ tasks {
         }
     }
 
-    register("releaseMod") {
+    register("releaseModVersion") {
         group = "mod"
 
         dependsOn("publishMods")
@@ -314,22 +311,12 @@ tasks.withType<JavaCompile> {
 }
 
 publishMods {
-    displayName.set("Controlify $versionWithoutMC for ${loader.capitalized()} $mcVersion")
+    from(rootProject.publishMods)
+    dryRun.set(rootProject.publishMods.dryRun)
 
     file.set(tasks.remapJar.get().archiveFile)
     additionalFiles.setFrom(offlineRemapJar.get().archiveFile)
 
-    changelog.set(
-        rootProject.file("changelog.md")
-            .takeIf { it.exists() }
-            ?.readText()
-            ?: "No changelog provided."
-    )
-    type.set(when {
-        isAlpha -> ALPHA
-        isBeta -> BETA
-        else -> STABLE
-    })
     modLoaders.add(loader)
 
     fun versionList(prop: String) = findProperty(prop)?.toString()
@@ -371,15 +358,6 @@ publishMods {
                 requires { slug.set("fabric-api") }
                 optional { slug.set("modmenu") }
             }
-        }
-    }
-
-    val githubProject: String by project
-    if (githubProject.isNotBlank() && hasProperty("github.token")) {
-        github {
-            repository.set(githubProject)
-            accessToken.set(findProperty("github.token")?.toString())
-            commitish.set(grgit.branch.current().name)
         }
     }
 }
