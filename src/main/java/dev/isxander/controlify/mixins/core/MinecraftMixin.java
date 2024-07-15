@@ -37,8 +37,26 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow @Final public MouseHandler mouseHandler;
     @Shadow @Nullable public Screen screen;
 
+    //? if >1.20.1 {
     @Shadow
     public abstract void emergencySaveAndCrash(CrashReport crashReport);
+    //?} else {
+    /*@Shadow
+    protected abstract void emergencySave();
+
+    @Shadow
+    public abstract void crash(CrashReport crashReport);
+
+    @Shadow
+    public abstract CrashReport fillReport(CrashReport theCrash);
+
+    @Unique
+    private void emergencySaveAndCrash(CrashReport crashReport) {
+        CrashReport filled = this.fillReport(crashReport);
+        emergencySave();
+        crash(filled);
+    }
+    *///?}
 
     @Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();
     @Unique private boolean initialScreensHappened = false;
