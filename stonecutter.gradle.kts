@@ -4,7 +4,7 @@ import me.modmuss50.mpp.PublishModTask
 
 plugins {
     id("dev.architectury.loom") version "1.7.+" apply false
-    id("me.modmuss50.mod-publish-plugin") version "0.5.+"
+    id("me.modmuss50.mod-publish-plugin") version "0.6.1+"
     id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
@@ -109,12 +109,14 @@ version = modVersion
 
 val versionProjects = stonecutter.versions.map { findProject(it.project)!! }
 publishMods {
-    val modChangelog =
+    dryRun.set(true)
+
+    changelog.set(
         rootProject.file("changelog.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."
-                .also { changelog.set(it) }
+    )
 
     type.set(
         when {
@@ -136,17 +138,17 @@ publishMods {
                 ?.readText()
                 ?: "No changelog provided.") + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
 
-            publishResults.from(
-                *versionProjects
-                    .map { it to it.extensions.findByType<ModPublishExtension>()!!.platforms }
-                    .flatMap { (project, platforms) ->
-                        platforms.map { platform ->
-                            project.tasks.getByName<PublishModTask>(platform.taskName)
-                                .result
-                        }
-                    }
-                    .toTypedArray()
-            )
+//            publishResults.from(
+//                *versionProjects
+//                    .map { it to it.extensions.findByType<ModPublishExtension>()!!.platforms }
+//                    .flatMap { (project, platforms) ->
+//                        platforms.map { platform ->
+//                            project.tasks.named<PublishModTask>(platform.taskName)
+//                                .map { it.result }
+//                        }
+//                    }
+//                    .toTypedArray()
+//            )
         }
     }
 
@@ -155,15 +157,14 @@ publishMods {
         github {
             displayName.set("Controlify $modVersion")
 
-            changelog.set(
-                modChangelog + "\n\n" +
-                    "GitHub Releases are not the place to download Controlify. " +
-                    "Please Use [Modrinth](https://modrinth.com/mod/controlify) to download!"
-            )
-
             repository.set(githubProject)
             accessToken.set(findProperty("github.token")?.toString())
             commitish.set(grgit.branch.current().name)
+            tagName = modVersion
+
+            allowEmptyFiles = true
+
+            announcementTitle = "Download from GitHub"
         }
     }
 }

@@ -1,4 +1,5 @@
 import net.fabricmc.loom.task.RemapJarTask
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     `java-library`
@@ -273,7 +274,10 @@ tasks {
         group = "mod"
 
         dependsOn("publishMods")
-        dependsOn("publish")
+
+        if (!project.publishMods.dryRun.get()) {
+            dependsOn("publish")
+        }
     }
 }
 
@@ -335,6 +339,8 @@ publishMods {
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.modrinthMC"))
 
+            announcementTitle = "Download $mcVersion for ${loader.capitalized()} from Modrinth"
+
             requires { slug.set("yacl") }
 
             if (isFabric) {
@@ -347,10 +353,13 @@ publishMods {
     val curseforgeId: String by project
     if (curseforgeId.isNotBlank() && hasProperty("curseforge.token")) {
         curseforge {
-            projectId.set(curseforgeId)
-            accessToken.set(findProperty("curseforge.token")?.toString())
+            projectId = curseforgeId
+            projectSlug = findProperty("curseforgeSlug")!!.toString()
+            accessToken = findProperty("curseforge.token")?.toString()
             minecraftVersions.addAll(stableMCVersions)
             minecraftVersions.addAll(versionList("pub.curseMC"))
+
+            announcementTitle = "Download $mcVersion for ${loader.capitalized()} from CurseForge"
 
             requires { slug.set("yacl") }
 
@@ -358,6 +367,16 @@ publishMods {
                 requires { slug.set("fabric-api") }
                 optional { slug.set("modmenu") }
             }
+        }
+    }
+
+    val githubProject: String by project
+    if (githubProject.isNotBlank() && hasProperty("github.token")) {
+        github {
+            accessToken = findProperty("github.token")?.toString()
+
+            // will upload files to this parent task
+            parent(rootProject.tasks.named("publishGithub"))
         }
     }
 }
