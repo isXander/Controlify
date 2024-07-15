@@ -111,6 +111,10 @@ publishMods {
         rootProject.file("changelog.md")
             .takeIf { it.exists() }
             ?.readText()
+            ?.replace("{version}", modVersion)
+            ?.replace("{targets}", stonecutter.versions
+                .map { it.project }
+                .joinToString(separator = "\n") { "- $it" })
             ?: "No changelog provided."
     changelog.set(modChangelog)
 
