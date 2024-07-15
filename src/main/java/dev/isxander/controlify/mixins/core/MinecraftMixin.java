@@ -42,10 +42,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     public abstract void emergencySaveAndCrash(CrashReport crashReport);
     //?} else {
     /*@Shadow
-    protected abstract void emergencySave();
-
-    @Shadow
-    public abstract void crash(CrashReport crashReport);
+    public abstract void emergencySave();
 
     @Shadow
     public abstract CrashReport fillReport(CrashReport theCrash);
@@ -54,7 +51,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     private void emergencySaveAndCrash(CrashReport crashReport) {
         CrashReport filled = this.fillReport(crashReport);
         emergencySave();
-        crash(filled);
+        Minecraft.crash(filled);
     }
     *///?}
 

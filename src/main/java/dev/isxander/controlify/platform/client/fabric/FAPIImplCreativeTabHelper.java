@@ -3,6 +3,7 @@
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.platform.fabric.mixins.CreativeModeInventoryScreenAccessor;
+import dev.isxander.controlify.utils.CUtil;
 import net.fabricmc.fabric.impl.client.itemgroup.CreativeGuiExtensions;
 import net.fabricmc.fabric.impl.client.itemgroup.FabricCreativeGuiComponents;
 import net.fabricmc.fabric.impl.itemgroup.FabricItemGroup;
@@ -72,7 +73,13 @@ public class FAPIImplCreativeTabHelper implements CreativeTabHelper {
         }
 
         FabricItemGroup fabricItemGroup = (FabricItemGroup) tab;
-        return fabricItemGroup.getPage();
+
+        try {
+            return fabricItemGroup.getPage();
+        } catch (IllegalStateException e) {
+            CUtil.LOGGER.error("Mod seems to have registered tab incorrectly: {}", tab.getDisplayName().getString());
+            return -1; // the mod has not registered tab properly
+        }
     }
 
     @Override
