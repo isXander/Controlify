@@ -1,6 +1,4 @@
 import de.undercouch.gradle.tasks.download.Download
-import me.modmuss50.mpp.ModPublishExtension
-import me.modmuss50.mpp.PublishModTask
 
 plugins {
     id("dev.architectury.loom") version "1.7.+" apply false
@@ -109,14 +107,12 @@ version = modVersion
 
 val versionProjects = stonecutter.versions.map { findProject(it.project)!! }
 publishMods {
-    dryRun.set(true)
-
-    changelog.set(
+    val modChangelog =
         rootProject.file("changelog.md")
             .takeIf { it.exists() }
             ?.readText()
             ?: "No changelog provided."
-    )
+    changelog.set(modChangelog)
 
     type.set(
         when {
@@ -133,10 +129,8 @@ publishMods {
 
             username = "Controlify Updates"
             avatarUrl = "https://raw.githubusercontent.com/isXander/Controlify/1.20.x/dev/src/main/resources/icon.png"
-            content = (rootProject.file("changelog.md")
-                .takeIf { it.exists() }
-                ?.readText()
-                ?: "No changelog provided.") + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+
+            content = changelog.get() + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
 
 //            publishResults.from(
 //                *versionProjects
