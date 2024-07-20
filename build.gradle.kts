@@ -183,9 +183,13 @@ dependencies {
     api("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
         .forgeRuntime().jij()
 
+    // steam deck bindings
+    api("dev.isxander:steamdeck4j:${property("deps.steamdeck4j")}")
+        .forgeRuntime().jij()
+
     // used to identify controller PID/VID when SDL is not available
     api("org.hid4java:hid4java:${property("deps.hid4java")}")
-        .jij().forgeRuntime()
+        .forgeRuntime().jij()
 
     // A json5 reader that hooks into gson
     listOf(

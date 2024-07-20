@@ -47,6 +47,11 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         return config;
     }
 
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
     public static class Config implements ConfigClass {
         public boolean enabled = true;
     }

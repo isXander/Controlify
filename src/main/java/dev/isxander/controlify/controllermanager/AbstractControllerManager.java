@@ -33,7 +33,6 @@ public abstract class AbstractControllerManager implements ControllerManager {
     protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
     protected final Map<String, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
 
-    protected final Map<String, Driver> driversByUid = new Object2ObjectOpenHashMap<>();
 
     public AbstractControllerManager() {
         this.controlify = Controlify.instance();
@@ -72,9 +71,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     @Override
     public void tick(boolean outOfFocus) {
-        for (Driver driver : driversByUid.values()) {
-            driver.update(outOfFocus);
-            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(driver.getController()));
+        for (ControllerEntity controller : controllersByUid.values()) {
+            controller.drivers().forEach(d -> d.update(controller, outOfFocus));
+            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
         }
     }
 
@@ -105,10 +104,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
         return newController;
     }
 
-    protected void addController(UniqueControllerID ucid, ControllerEntity controller, Driver driver) {
+    protected void addController(UniqueControllerID ucid, ControllerEntity controller) {
         controllersByUid.put(controller.info().uid(), controller);
         controllersByJid.put(ucid, controller);
-        driversByUid.put(controller.info().uid(), driver);
     }
 
     protected void removeController(String uid) {
@@ -117,12 +115,11 @@ public abstract class AbstractControllerManager implements ControllerManager {
         Optional.ofNullable(hidInfoByUid.remove(uid))
                 .ifPresent(controlify.controllerHIDService()::unconsumeController);
         closeController(uid);
-        driversByUid.remove(uid);
     }
 
     @Override
     public void closeController(String uid) {
-        driversByUid.get(uid).close();
+        controllersByUid.get(uid).close();
     }
 
     @Override
@@ -143,7 +140,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     @Override
     public void close() {
-        driversByUid.values().forEach(Driver::close);
+        controllersByUid.values().forEach(ControllerEntity::close);
     }
 
     protected abstract void loadGamepadMappings(ResourceProvider resourceProvider);

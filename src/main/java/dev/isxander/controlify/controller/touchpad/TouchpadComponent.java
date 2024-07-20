@@ -37,4 +37,9 @@ public class TouchpadComponent implements ECSComponent {
     public int getMaxFingers() {
         return this.maxFingers;
     }
+
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 }

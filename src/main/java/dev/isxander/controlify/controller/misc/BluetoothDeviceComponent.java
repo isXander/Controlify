@@ -18,6 +18,11 @@ public class BluetoothDeviceComponent implements ECSComponent, ConfigHolder<Blue
         return config;
     }
 
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
     public static class Config implements ConfigClass {
         public boolean dontShowWarningAgain = false;
     }

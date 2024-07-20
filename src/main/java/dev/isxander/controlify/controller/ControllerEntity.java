@@ -1,5 +1,7 @@
 package dev.isxander.controlify.controller;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -16,22 +18,35 @@ import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
+import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class ControllerEntity extends ECSEntityImpl {
     private final ControllerInfo info;
+    private final List<Driver> drivers;
 
-    public ControllerEntity(ControllerInfo info) {
+    public ControllerEntity(ControllerInfo info, List<Driver> drivers) {
         this.info = info;
+        this.drivers = drivers;
 
-        this.setComponent(new ConfigImpl<>(GenericControllerConfig::new, GenericControllerConfig.class), GenericControllerConfig.ID);
+        this.setComponent(new ConfigImpl<>(GenericControllerConfig::new, GenericControllerConfig.class));
+
+        // priority list. index 0 is highest priority and overrides all others
+        for (Driver driver : Lists.reverse(drivers)) {
+            driver.addComponents(this);
+        }
+
+        this.getAllComponents().values().forEach(ECSComponent::finalise);
     }
 
     public ControllerInfo info() {
@@ -49,6 +64,10 @@ public class ControllerEntity extends ECSEntityImpl {
             return friendlyName;
 
         return info().driverName();
+    }
+
+    public ImmutableList<Driver> drivers() {
+        return ImmutableList.copyOf(drivers);
     }
 
     public Optional<InputComponent> input() {
@@ -99,10 +118,6 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.getComponent(BluetoothDeviceComponent.ID);
     }
 
-    public void finalise() {
-        this.getAllComponents().values().forEach(ECSComponent::finalise);
-    }
-
     public Map<ResourceLocation, IConfig<?>> getAllConfigs() {
         Map<ResourceLocation, IConfig<?>> configs = new HashMap<>();
 
@@ -145,5 +160,9 @@ public class ControllerEntity extends ECSEntityImpl {
         for (var config : this.getAllConfigs().values()) {
             config.resetToDefault();
         }
+    }
+
+    public void close() {
+        this.drivers.forEach(Driver::close);
     }
 }

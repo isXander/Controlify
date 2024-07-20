@@ -26,4 +26,9 @@ public class DualSenseComponent implements ECSComponent {
         this.muteLightDirty = false;
         return dirty;
     }
+
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 }

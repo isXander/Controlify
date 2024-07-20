@@ -35,15 +35,19 @@ import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
 
 public class SDL3JoystickDriver implements Driver {
     private final SDL_Joystick ptrJoystick;
-    private final ControllerEntity controller;
 
     private final boolean isRumbleSupported, isTriggerRumbleSupported;
     private final String guid;
     private final String name;
 
+    private InputComponent inputComponent;
+    private RumbleComponent rumbleComponent;
+    private TriggerRumbleComponent triggerRumbleComponent;
+    private BatteryLevelComponent batteryLevelComponent;
+
     private final int numAxes, numButtons, numHats;
 
-    public SDL3JoystickDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
+    public SDL3JoystickDriver(SDL_JoystickID jid) {
         this.ptrJoystick = SDL_OpenJoystick(jid);
         if (ptrJoystick == null)
             throw new IllegalStateException("Could not open joystick: " + SDL_GetError());
@@ -55,35 +59,33 @@ public class SDL3JoystickDriver implements Driver {
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
-        this.controller = new ControllerEntity(info);
-
         this.numAxes = SDL_GetNumJoystickAxes(ptrJoystick);
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
         this.numHats = SDL_GetNumJoystickHats(ptrJoystick);
+    }
 
-        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
-        this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
+    @Override
+    public void addComponents(ControllerEntity controller) {
+        controller.setComponent(this.inputComponent = new InputComponent(controller, numButtons, numAxes * 2, numHats, false, Set.of(), controller.info().type().mappingId()));
+        controller.setComponent(this.batteryLevelComponent = new BatteryLevelComponent());
         if (this.isRumbleSupported) {
-            this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
+            controller.setComponent(this.rumbleComponent = new RumbleComponent());
         }
         if (this.isTriggerRumbleSupported) {
-            this.controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);
+            controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
         }
-
-        this.controller.finalise();
     }
 
     @Override
-    public ControllerEntity getController() {
-        return controller;
-    }
-
-    @Override
-    public void update(boolean outOfFocus) {
+    public void update(ControllerEntity controller, boolean outOfFocus) {
         this.updateInput();
         this.updateRumble();
         this.updateBatteryLevel();
+    }
+
+    @Override
+    public String getDriverName() {
+        return this.name;
     }
 
     @Override
@@ -122,15 +124,12 @@ public class SDL3JoystickDriver implements Driver {
             state.setHat(JoystickInputs.hat(i), hatState);
         }
 
-        this.controller.input().orElseThrow().pushState(state);
+        this.inputComponent.pushState(state);
     }
 
     private void updateRumble() {
         if (isRumbleSupported) {
-            Optional<RumbleState> stateOpt = this.controller
-                    .rumble()
-                    .orElseThrow()
-                    .consumeRumble();
+            Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
 
             stateOpt.ifPresent(state -> {
                 if (SDL_RumbleJoystick(ptrJoystick, (short) (state.strong() * 0xFFFF), (short) (state.weak() * 0xFFFF), 0) != 0) {
@@ -140,10 +139,7 @@ public class SDL3JoystickDriver implements Driver {
         }
 
         if (isTriggerRumbleSupported) {
-            Optional<TriggerRumbleState> stateOpt = this.controller
-                    .triggerRumble()
-                    .orElseThrow()
-                    .consumeTriggerRumble();
+            Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
 
             stateOpt.ifPresent(state -> {
                 if (SDL_RumbleJoystickTriggers(ptrJoystick, (short) (state.left() * 0xFFFF), (short) (state.right() * 0xFFFF), 0) != 0) {
@@ -166,7 +162,7 @@ public class SDL3JoystickDriver implements Driver {
             default -> throw new IllegalStateException("Unexpected value");
         };
 
-        this.controller.batteryLevel().orElseThrow().setBatteryLevel(level);
+        this.batteryLevelComponent.setBatteryLevel(level);
     }
 
     private static float mapShortToFloat(short value) {

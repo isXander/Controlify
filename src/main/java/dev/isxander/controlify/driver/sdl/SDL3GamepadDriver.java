@@ -25,6 +25,7 @@ import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -61,10 +62,21 @@ public class SDL3GamepadDriver implements Driver {
     private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
     private SDL_Gamepad ptrGamepad;
-    private final ControllerEntity controller;
+
+    private InputComponent inputComponent;
+    private BatteryLevelComponent batteryLevelComponent;
+    private GyroComponent gyroComponent;
+    private RumbleComponent rumbleComponent;
+    private TriggerRumbleComponent triggerRumbleComponent;
+    private TouchpadComponent touchpadComponent;
+    private HDHapticComponent hdHapticComponent;
+    private BluetoothDeviceComponent bluetoothDeviceComponent;
+    private DualSenseComponent dualSenseComponent;
+
 
     private final boolean isGryoSupported;
     private final boolean isRumbleSupported, isTriggerRumbleSupported;
+    private final boolean isDualSense;
 
     private final int numTouchpads;
     private final int maxTouchpadFingers;
@@ -78,7 +90,7 @@ public class SDL3GamepadDriver implements Driver {
     private SDL_AudioSpec dualsenseAudioSpec;
     private final List<AudioStreamHandle> dualsenseAudioHandles;
 
-    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
+    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type) {
         this.ptrGamepad = SDL_OpenGamepad(jid);
         if (this.ptrGamepad == null) {
             throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
@@ -94,15 +106,13 @@ public class SDL3GamepadDriver implements Driver {
         this.numTouchpads = SDL_GetNumGamepadTouchpads(ptrGamepad);
         this.maxTouchpadFingers = IntStream.range(0, numTouchpads).map(i -> SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)).sum();
 
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
-        this.controller = new ControllerEntity(info);
-
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
-        // macOS HD haptics are broken
-        if (CUtil.rl("dualsense").equals(type.namespace())) {
-            controller.setComponent(new DualSenseComponent(), DualSenseComponent.ID);
 
+        if (CUtil.rl("dualsense").equals(type.namespace())) {
+            this.isDualSense = true;
+
+            // macOS HD haptics are broken
             if (Util.getPlatform() != Util.OS.OSX) {
                 SDL_AudioDeviceID dualsenseAudioDev = null;
                 SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
@@ -121,45 +131,70 @@ public class SDL3GamepadDriver implements Driver {
                 if (dualsenseAudioDev != null) {
                     this.dualsenseAudioSpec = devSpec;
                     this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
-
-                    HDHapticComponent hdHapticComponent = new HDHapticComponent();
-                    hdHapticComponent.acceptPlayHaptic(this::playHaptic);
-                    this.controller.setComponent(hdHapticComponent, HDHapticComponent.ID);
-                } else {
-                    this.dualsenseAudioDev = null;
-                    this.dualsenseAudioSpec = null;
-
-                    controller.setComponent(new BluetoothDeviceComponent(), BluetoothDeviceComponent.ID);
                 }
             }
+        } else {
+            this.isDualSense = false;
         }
 
-        this.controller.setComponent(new InputComponent(this.controller, 21, 10, 0, true, GamepadInputs.DEADZONE_GROUPS, type.mappingId()), InputComponent.ID);
-        this.controller.setComponent(new BatteryLevelComponent(), BatteryLevelComponent.ID);
         if (this.isGryoSupported) {
             SDL_SetGamepadSensorEnabled(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO, true);
-            this.controller.setComponent(new GyroComponent(), GyroComponent.ID);
         }
+
+    }
+
+    @Override
+    public void addComponents(ControllerEntity controller) {
+        controller.setComponent(
+                this.inputComponent = new InputComponent(
+                        controller,
+                        21,
+                        10,
+                        0,
+                        true,
+                        GamepadInputs.DEADZONE_GROUPS,
+                        controller.info().type().mappingId()
+                )
+        );
+
+        controller.setComponent(this.batteryLevelComponent = new BatteryLevelComponent());
+
+        if (this.isGryoSupported) {
+            controller.setComponent(this.gyroComponent = new GyroComponent());
+        }
+
         if (this.isRumbleSupported) {
-            this.controller.setComponent(new RumbleComponent(), RumbleComponent.ID);
+            controller.setComponent(this.rumbleComponent = new RumbleComponent());
         }
+
         if (this.isTriggerRumbleSupported) {
-            this.controller.setComponent(new TriggerRumbleComponent(), TriggerRumbleComponent.ID);
+            controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
         }
+
         if (this.numTouchpads > 0) {
-            this.controller.setComponent(new TouchpadComponent(this.maxTouchpadFingers), TouchpadComponent.ID);
+            controller.setComponent(this.touchpadComponent = new TouchpadComponent(this.maxTouchpadFingers));
         }
 
-        this.controller.finalise();
+        if (this.isDualSense) {
+            controller.setComponent(this.dualSenseComponent = new DualSenseComponent());
+        }
+
+        if (this.dualsenseAudioDev != null) {
+            this.hdHapticComponent = new HDHapticComponent();
+            this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
+            controller.setComponent(this.hdHapticComponent);
+        } else if (this.isDualSense) {
+            controller.setComponent(this.bluetoothDeviceComponent = new BluetoothDeviceComponent());
+        }
     }
 
     @Override
-    public ControllerEntity getController() {
-        return this.controller;
+    public String getDriverName() {
+        return this.name;
     }
 
     @Override
-    public void update(boolean outOfFocus) {
+    public void update(ControllerEntity controller, boolean outOfFocus) {
         if (ptrGamepad == null) {
             throw new IllegalStateException("Tried to update controller even though it's closed.");
         }
@@ -242,15 +277,12 @@ public class SDL3GamepadDriver implements Driver {
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.TOUCHPAD_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
 
-        this.controller.input().orElseThrow().pushState(state);
+        this.inputComponent.pushState(state);
     }
 
     private void updateRumble() {
         if (isRumbleSupported) {
-            Optional<RumbleState> stateOpt = this.controller
-                    .rumble()
-                    .orElseThrow()
-                    .consumeRumble();
+            Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
 
             stateOpt.ifPresent(state -> {
                 if (SDL_RumbleGamepad(ptrGamepad, (short)(state.strong() * 0xFFFF), (short)(state.weak() * 0xFFFF), 5000) != 0) {
@@ -260,10 +292,7 @@ public class SDL3GamepadDriver implements Driver {
         }
 
         if (isTriggerRumbleSupported) {
-            Optional<TriggerRumbleState> stateOpt = this.controller
-                    .triggerRumble()
-                    .orElseThrow()
-                    .consumeTriggerRumble();
+            Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
 
             stateOpt.ifPresent(state -> {
                 if (SDL_RumbleGamepadTriggers(ptrGamepad, (short)(state.left() * 0xFFFF), (short)(state.right() * 0xFFFF), 0) != 0) {
@@ -282,7 +311,7 @@ public class SDL3GamepadDriver implements Driver {
             if (SDL_GetGamepadSensorData(ptrGamepad, SDL_SENSOR_GYRO, memory, 3) == 0) {
                 memory.read(0, gyro, 0, gyro.length);
 
-                this.controller.gyro().orElseThrow().setState(
+                this.gyroComponent.setState(
                         new GyroState(gyro[0], gyro[1], gyro[2])
                 );
             } else {
@@ -309,7 +338,7 @@ public class SDL3GamepadDriver implements Driver {
             }
         }
 
-        this.controller.touchpad().orElseThrow().pushFingers(fingers);
+        this.touchpadComponent.pushFingers(fingers);
     }
 
     private void updateBatteryLevel() {
@@ -325,29 +354,29 @@ public class SDL3GamepadDriver implements Driver {
             default -> throw new IllegalStateException("Unexpected value");
         };
 
-        this.controller.batteryLevel().orElseThrow().setBatteryLevel(level);
+        this.batteryLevelComponent.setBatteryLevel(level);
     }
 
     private void updateDualSense() {
-        controller.dualSense().ifPresent(ds -> {
-            DS5EffectsState.ByValue effectsState = new DS5EffectsState.ByValue();
-            boolean somethingHappened = false;
+        if (dualSenseComponent == null) return;
 
-            if (ds.consumeMuteLightDirty()) {
-                somethingHappened = true;
+        DS5EffectsState.ByValue effectsState = new DS5EffectsState.ByValue();
+        boolean somethingHappened = false;
 
-                effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
-                if (ds.getMuteLight()) {
-                    effectsState.ucMicLightMode = 1;
-                }
+        if (this.dualSenseComponent.consumeMuteLightDirty()) {
+            somethingHappened = true;
+
+            effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
+            if (this.dualSenseComponent.getMuteLight()) {
+                effectsState.ucMicLightMode = 1;
             }
+        }
 
-            if (somethingHappened) {
-                effectsState.write();
+        if (somethingHappened) {
+            effectsState.write();
 
-                SDL_SendGamepadEffect(ptrGamepad, effectsState.getPointer(), Native.getNativeSize(DS5EffectsState.ByValue.class));
-            }
-        });
+            SDL_SendGamepadEffect(ptrGamepad, effectsState.getPointer(), Native.getNativeSize(DS5EffectsState.ByValue.class));
+        }
     }
 
     private void updateHDHaptic() {

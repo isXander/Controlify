@@ -4,12 +4,15 @@ import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerInfo;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
 import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -27,6 +30,8 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -45,6 +50,8 @@ public class SDLControllerManager extends AbstractControllerManager {
     // must keep a reference to prevent GC from collecting it and the callback failing
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final EventFilter eventFilter;
+
+    private boolean steamDeckConsumed = false;
 
     public SDLControllerManager() {
         Validate.isTrue(SDL3NativesManager.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
@@ -122,17 +129,30 @@ public class SDLControllerManager extends AbstractControllerManager {
                 this.getControllerCountWithMatchingHID(hid.orElse(null))
         ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
-        if (isGamepad) {
-            SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
 
-            return Optional.of(driver.getController());
-        } else {
-            SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
-
-            return Optional.of(driver.getController());
+        List<Driver> drivers = new ArrayList<>();
+        if (!steamDeckConsumed && hidInfo.type().namespace().equals(CUtil.rl("steam_deck"))) {
+            Optional<SteamDeckDriver> steamDeckDriver = SteamDeckDriver.create();
+            if (steamDeckDriver.isPresent()) {
+                drivers.add(steamDeckDriver.get());
+                steamDeckConsumed = true;
+            }
         }
+
+        if (isGamepad) {
+            drivers.add(new SDL3GamepadDriver(jid, hidInfo.type()));
+        } else {
+            drivers.add(new SDL3JoystickDriver(jid));
+        }
+
+        String name = drivers.get(0).getDriverName();
+        String guid = SDL_GetJoystickInstanceGUID(jid).toString();
+
+        ControllerInfo info = new ControllerInfo(uid, ucid, guid, name, hidInfo.type(), hidInfo.hidDevice());
+        ControllerEntity controller = new ControllerEntity(info, drivers);
+
+        this.addController(ucid, controller);
+        return Optional.of(controller);
     }
 
     @Override

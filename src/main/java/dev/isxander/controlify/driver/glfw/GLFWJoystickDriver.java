@@ -1,22 +1,16 @@
 package dev.isxander.controlify.driver.glfw;
 
-import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.JoystickInputs;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.ControllerInfo;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
-import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
 import org.apache.commons.lang3.Validate;
 import org.lwjgl.glfw.GLFW;
 
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -27,28 +21,27 @@ public class GLFWJoystickDriver implements Driver {
     private final String name;
     private final int numButtons, numAxes, numHats;
 
-    private final ControllerEntity controller;
+    private InputComponent inputComponent;
 
-    public GLFWJoystickDriver(int jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
+    public GLFWJoystickDriver(int jid) {
         this.jid = jid;
         this.guid = glfwGetJoystickGUID(jid);
         this.name = glfwGetJoystickName(jid);
-
-        ControllerInfo info = new ControllerInfo(uid, ucid, this.guid, this.name, type, hid);
-        this.controller = new ControllerEntity(info);
 
         GLFWJoystickState testState = this.getJoystickState();
         this.numButtons = testState.buttons().limit();
         this.numAxes = testState.axes().limit();
         this.numHats = testState.hats().limit();
-
-        this.controller.setComponent(new InputComponent(this.controller, numButtons, numAxes * 2, numHats, false, Set.of(), type.mappingId()), InputComponent.ID);
-
-        this.controller.finalise();
     }
 
     @Override
-    public void update(boolean outOfFocus) {
+    public void addComponents(ControllerEntity controller) {
+        controller.setComponent(this.inputComponent = new InputComponent(controller, numButtons, numAxes * 2, numHats, false, Set.of(), controller.info().type().mappingId()));
+
+    }
+
+    @Override
+    public void update(ControllerEntity controller, boolean outOfFocus) {
         this.updateInput();
     }
 
@@ -58,8 +51,8 @@ public class GLFWJoystickDriver implements Driver {
     }
 
     @Override
-    public ControllerEntity getController() {
-        return controller;
+    public String getDriverName() {
+        return this.name;
     }
 
     private void updateInput() {
@@ -94,7 +87,7 @@ public class GLFWJoystickDriver implements Driver {
             state.setHat(JoystickInputs.hat(i), hatState);
         }
 
-        this.controller.input().orElseThrow().pushState(state);
+        this.inputComponent.pushState(state);
     }
 
     private GLFWJoystickState getJoystickState() {
