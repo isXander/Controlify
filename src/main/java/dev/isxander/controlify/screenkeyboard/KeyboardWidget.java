@@ -57,7 +57,9 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // batch uploads to gpu
+        // batch uploads to gpu -- this only works with ImmediatelyFast mod
+        // since drawManaged in vanilla doesn't support multiple render types
+        // noinspection deprecation -- vanilla misusing deprecation as always, used with caution.
         guiGraphics.drawManaged(() -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
@@ -138,14 +140,10 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             if (holdRepeatHelper.shouldAction(ControlifyBindings.GUI_PRESS.on(controller))) {
                 onPress();
                 holdRepeatHelper.onNavigate();
-                return true;
             }
 
-            if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
-                return true; // prevent pressing enter default behaviour
-            }
-
-            return false;
+            // do not allow any other input on keys to be processed
+            return true;
         }
 
         @Override
