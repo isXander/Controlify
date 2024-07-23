@@ -5,7 +5,7 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.dualsense.HapticEffects;
+import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -173,8 +173,8 @@ public class ScreenProcessor<T extends Screen> {
     protected void handleButtons(ControllerEntity controller) {
         boolean vmouseEnabled = Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled();
         InputComponent input = controller.input().orElseThrow();
-        boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
-        boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_BUTTON);
+        boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+        boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
 
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);

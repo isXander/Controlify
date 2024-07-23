@@ -6,14 +6,15 @@ import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 import dev.isxander.controlify.controller.battery.PowerState;
+import dev.isxander.controlify.controller.haptic.HapticEffects;
+import dev.isxander.controlify.controller.haptic.SimpleHapticComponent;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
-import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
-import dev.isxander.controlify.controller.dualsense.HapticBufferLibrary;
+import dev.isxander.controlify.controller.haptic.HDHapticComponent;
+import dev.isxander.controlify.controller.haptic.HapticBufferLibrary;
 import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
-import dev.isxander.controlify.controller.touchpad.TouchpadState;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.gyro.GyroState;
@@ -22,10 +23,8 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
-import dev.isxander.controlify.controllermanager.UniqueControllerID;
+import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -45,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import static dev.isxander.controlify.utils.CUtil.*;
 import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudioConsts.*;
@@ -79,7 +79,6 @@ public class SDL3GamepadDriver implements Driver {
     private final boolean isDualSense;
 
     private final int numTouchpads;
-    private final int maxTouchpadFingers;
 
     private final String guid;
     private final String name;
@@ -104,7 +103,6 @@ public class SDL3GamepadDriver implements Driver {
         this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.numTouchpads = SDL_GetNumGamepadTouchpads(ptrGamepad);
-        this.maxTouchpadFingers = IntStream.range(0, numTouchpads).map(i -> SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)).sum();
 
         // open audio device for dualsense hd haptics
         this.dualsenseAudioHandles = new ArrayList<>();
@@ -172,7 +170,16 @@ public class SDL3GamepadDriver implements Driver {
         }
 
         if (this.numTouchpads > 0) {
-            controller.setComponent(this.touchpadComponent = new TouchpadComponent(this.maxTouchpadFingers));
+            controller.setComponent(this.touchpadComponent = new TouchpadComponent(
+                    new Touchpads(
+                            IntStream.range(0, numTouchpads)
+                                .mapToObj(i ->
+                                        new Touchpads.Touchpad(
+                                                SDL_GetNumGamepadTouchpadFingers(ptrGamepad, i)
+                                        )
+                                ).toArray(Touchpads.Touchpad[]::new)
+                    )
+            ));
         }
 
         if (this.isDualSense) {
@@ -183,6 +190,9 @@ public class SDL3GamepadDriver implements Driver {
             this.hdHapticComponent = new HDHapticComponent();
             this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
             controller.setComponent(this.hdHapticComponent);
+
+            SimpleHapticComponent simpleHapticComponent = new SimpleHapticComponent();
+            simpleHapticComponent.applyOnHaptic(() -> this.hdHapticComponent.playHaptic(HapticEffects.NAVIGATE));
         } else if (this.isDualSense) {
             controller.setComponent(this.bluetoothDeviceComponent = new BluetoothDeviceComponent());
         }
@@ -275,7 +285,7 @@ public class SDL3GamepadDriver implements Driver {
         state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2) == SDL_PRESSED);
         state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1) == SDL_PRESSED);
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2) == SDL_PRESSED);
-        state.setButton(GamepadInputs.TOUCHPAD_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
+        state.setButton(GamepadInputs.TOUCHPAD_1_BUTTON, SDL_GetGamepadButton(ptrGamepad, SDL_GAMEPAD_BUTTON_TOUCHPAD) == SDL_PRESSED);
 
         this.inputComponent.pushState(state);
     }
@@ -321,24 +331,34 @@ public class SDL3GamepadDriver implements Driver {
     }
 
     private void updateTouchpad() {
-        if (numTouchpads == 0) return;
+        if (numTouchpads < 1) return;
 
-        List<TouchpadState.Finger> fingers = new ArrayList<>();
+        for (int touchpadIdx = 0; touchpadIdx < numTouchpads; touchpadIdx++) {
+            Touchpads.Touchpad touchpad = this.touchpadComponent.touchpads()[touchpadIdx];
 
-        for (int finger = 0; finger < maxTouchpadFingers; finger++) {
-            var fingerState = new ByteByReference();
-            var x = new FloatByReference();
-            var y = new FloatByReference();
-            var pressure = new FloatByReference();
+            List<Touchpads.Finger> fingers = new ArrayList<>();
+            for (int fingerIdx = 0; fingerIdx < touchpad.maxFingers(); fingerIdx++) {
+                var fingerState = new ByteByReference();
+                var x = new FloatByReference();
+                var y = new FloatByReference();
+                var pressure = new FloatByReference();
 
-            if (SDL_GetGamepadTouchpadFinger(ptrGamepad, 0, finger, fingerState, x, y, pressure) != 0) {
-                CUtil.LOGGER.error("Failed to fetch touchpad finger: {}", SDL_GetError());
-            } else if (fingerState.getValue() == 0x1) {
-                fingers.add(new TouchpadState.Finger(new Vector2f(x.getValue(), y.getValue()), pressure.getValue()));
+                if (SDL_GetGamepadTouchpadFinger(ptrGamepad, touchpadIdx, fingerIdx, fingerState, x, y, pressure) != 0) {
+                    CUtil.LOGGER.error("Failed to fetch touchpad finger: {}", SDL_GetError());
+                } else if (fingerState.getValue() == SDL_PRESSED) {
+                    fingers.add(
+                            new Touchpads.Finger(
+                                    fingerIdx,
+                                    // SDL already returns the correct range for touchpad position and pressure
+                                    new Vector2f(x.getValue(), y.getValue()),
+                                    pressure.getValue()
+                            )
+                    );
+                }
             }
-        }
 
-        this.touchpadComponent.pushFingers(fingers);
+            touchpad.pushFingers(fingers);
+        }
     }
 
     private void updateBatteryLevel() {
@@ -457,20 +477,6 @@ public class SDL3GamepadDriver implements Driver {
                 spec.format = new SDL_AudioFormat(float32);
             }
         }
-    }
-
-    private static float positiveAxis(float value) {
-        return value < 0 ? 0 : value;
-    }
-
-    private static float negativeAxis(float value) {
-        return value > 0 ? 0 : -value;
-    }
-
-    private static float mapShortToFloat(short value) {
-        // we need to do this since signed short range / 2 != 0
-        return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
-                + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
     }
 
     private static class AudioStreamHandle {

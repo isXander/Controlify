@@ -18,6 +18,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
@@ -217,6 +218,11 @@ public class Controlify implements ControlifyApi {
 
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
+
+        System.out.println(SteamDeckMode.CURRENT_MODE);
+        if (SteamDeckMode.CURRENT_MODE == SteamDeckMode.DESKTOP_MODE) {
+            InitialScreenRegistryDuck.registerInitialScreen(SteamOSDesktopModeWarningScreen::new);
+        }
     }
 
     /**

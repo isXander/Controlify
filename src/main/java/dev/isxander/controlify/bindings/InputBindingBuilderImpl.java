@@ -121,10 +121,10 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     public InputBindingImpl build(ControllerEntity controller) {
         Validate.isTrue(locked, "Tried to build builder before it was locked.");
 
-        Component name = createDefaultString(null, false);
+        Component name = createDefaultString(controller, null, false);
         if (customName != null) name = customName;
 
-        Component description = createDefaultString("desc", true);
+        Component description = createDefaultString(controller, "desc", true);
         if (customDescription != null) description = customDescription;
         if (description == null) description = Component.empty();
 
@@ -171,15 +171,23 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         Validate.isTrue(!locked, "Tried to modify binding builder after is has been locked!");
     }
 
-    private Component createDefaultString(@Nullable String suffix, boolean notExistToNull) {
+    private Component createDefaultString(ControllerEntity controller, @Nullable String suffix, boolean notExistToNull) {
         Objects.requireNonNull(id);
 
-        String key = "controlify.binding." + id.getNamespace() + "." + id.getPath();
-        if (suffix != null) key += "." + suffix;
+        ResourceLocation type = controller.info().type().namespace();
 
-        if (notExistToNull && !Language.getInstance().has(key))
+        String typeSpecificKey = type.toLanguageKey("controlify.binding", id.toLanguageKey());
+        if (suffix != null) typeSpecificKey += "." + suffix;
+        if (Language.getInstance().has(typeSpecificKey)) {
+            return Component.translatable(typeSpecificKey);
+        }
+
+        String genericKey = id.toLanguageKey("controlify.binding");
+        if (suffix != null) genericKey += "." + suffix;
+
+        if (notExistToNull && !Language.getInstance().has(genericKey))
             return null;
 
-        return Component.translatable(key);
+        return Component.translatable(genericKey);
     }
 }

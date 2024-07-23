@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
-import dev.isxander.controlify.controller.touchpad.TouchpadState;
+import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.deckapi.api.ControllerButton;
 import dev.isxander.deckapi.api.ControllerState;
@@ -20,18 +20,16 @@ import org.joml.Vector2f;
 import java.util.List;
 import java.util.Optional;
 
+import static dev.isxander.controlify.utils.CUtil.*;
+
 public class SteamDeckDriver implements Driver {
-    private final SteamDeck deck;
+    private static SteamDeck deck;
     private static boolean triedToLoad = false;
 
     private InputComponent inputComponent;
     private GyroComponent gyroComponent;
     private BatteryLevelComponent batteryLevelComponent;
     private TouchpadComponent touchpadComponent;
-
-    public SteamDeckDriver(SteamDeck deck) {
-        this.deck = deck;
-    }
 
     @Override
     public void addComponents(ControllerEntity controller) {
@@ -56,7 +54,14 @@ public class SteamDeckDriver implements Driver {
         );
 
         controller.setComponent(
-                this.touchpadComponent = new TouchpadComponent(2) // there are two touchpads, one for each thumb
+                this.touchpadComponent = new TouchpadComponent(
+                        new Touchpads(
+                                new Touchpads.Touchpad[]{
+                                        new Touchpads.Touchpad(1), // left
+                                        new Touchpads.Touchpad(1), // right
+                                }
+                        )
+                ) // there are two touchpads, one for each thumb
         );
     }
 
@@ -86,14 +91,14 @@ public class SteamDeckDriver implements Driver {
         state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.L5));
         state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, deckState.getButtonState(ControllerButton.R4));
         state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.R5));
-        state.setButton(GamepadInputs.TOUCHPAD_BUTTON,
-                deckState.getButtonState(ControllerButton.LEFT_TOUCHPAD_CLICK) || deckState.getButtonState(ControllerButton.RIGHT_TOUCHPAD_TOUCH));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_UP, negativeAxis(mapShortToFloat(deckState.sLeftStickY())));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_DOWN, positiveAxis(mapShortToFloat(deckState.sLeftStickY())));
+        state.setButton(GamepadInputs.TOUCHPAD_1_BUTTON, deckState.getButtonState(ControllerButton.LEFT_TOUCHPAD_CLICK));
+        state.setButton(GamepadInputs.TOUCHPAD_2_BUTTON, deckState.getButtonState(ControllerButton.RIGHT_TOUCHPAD_CLICK));
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_UP, positiveAxis(mapShortToFloat(deckState.sLeftStickY())));
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_DOWN, negativeAxis(mapShortToFloat(deckState.sLeftStickY())));
         state.setAxis(GamepadInputs.LEFT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(deckState.sLeftStickX())));
         state.setAxis(GamepadInputs.LEFT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(deckState.sLeftStickX())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_UP, negativeAxis(mapShortToFloat(deckState.sRightStickY())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_DOWN, positiveAxis(mapShortToFloat(deckState.sRightStickY())));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_UP, positiveAxis(mapShortToFloat(deckState.sRightStickY())));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_DOWN, negativeAxis(mapShortToFloat(deckState.sRightStickY())));
         state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(deckState.sRightStickX())));
         state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(deckState.sRightStickX())));
         state.setAxis(GamepadInputs.LEFT_TRIGGER_AXIS, mapShortToFloat(deckState.sTriggerL()));
@@ -101,37 +106,51 @@ public class SteamDeckDriver implements Driver {
 
         this.inputComponent.pushState(state);
 
-        // pitch yaw roll
         this.gyroComponent.setState(
                 new GyroState(
-                        deckState.flGyroDegreesPerSecondX(),
-                        deckState.flGyroDegreesPerSecondY(),
-                        deckState.flGyroDegreesPerSecondZ()
-                )
+                        deckState.flSoftwareGyroDegreesPerSecondPitch(),
+                        -deckState.flSoftwareGyroDegreesPerSecondYaw(),
+                        -deckState.flSoftwareGyroDegreesPerSecondRoll()
+                ).mul(Mth.DEG_TO_RAD) // we need radians per second, not degrees
         );
 
         this.batteryLevelComponent.setBatteryLevel(
                 new PowerState.Depleting((int) (mapShortToFloat(deckState.sBatteryLevel()) * 100))
         );
 
-        this.touchpadComponent.pushFingers(
-                List.of(
-                        new TouchpadState.Finger(
-                                new Vector2f(
-                                        mapShortToFloat(deckState.sLeftPadX()),
-                                        mapShortToFloat(deckState.sLeftPadY())
-                                ),
-                                mapShortToFloat(deckState.sPressurePadLeft())
-                        ),
-                        new TouchpadState.Finger(
-                                new Vector2f(
-                                        mapShortToFloat(deckState.sRightPadX()),
-                                        mapShortToFloat(deckState.sRightPadY())
-                                ),
-                                mapShortToFloat(deckState.sPressurePadRight())
-                        )
-                )
+        updateTouchpad(
+                this.touchpadComponent.touchpads()[0],
+                deckState.sLeftPadX(),
+                deckState.sLeftPadY(),
+                deckState.sPressurePadLeft(),
+                deckState.getButtonState(ControllerButton.LEFT_TOUCHPAD_TOUCH)
         );
+        updateTouchpad(
+                this.touchpadComponent.touchpads()[1],
+                deckState.sRightPadX(),
+                deckState.sRightPadY(),
+                deckState.sPressurePadRight(),
+                deckState.getButtonState(ControllerButton.RIGHT_TOUCHPAD_TOUCH)
+        );
+    }
+
+    private void updateTouchpad(Touchpads.Touchpad touchpad, short x, short y, short pressure, boolean touching) {
+        if (touching) {
+            // steam deck touchpad is -32768 to 32767, we need to map it to 0 to 1
+            // origin [0,0] is middle and [1,1] is bottom right, we need to map it to top left
+            float mappedX = (mapShortToFloat(x) + 1) / 2f;
+            float mappedY = 1 - (mapShortToFloat(y) + 1) / 2f;
+            // pressure is still 0 up until actuation point (click)
+            float mappedPressure = mapShortToFloat(pressure); // [0, 1]
+
+            touchpad.pushFingers(
+                    List.of(
+                            new Touchpads.Finger(0, new Vector2f(mappedX, mappedY), mappedPressure)
+                    )
+            );
+        } else {
+            touchpad.pushFingers(List.of());
+        }
     }
 
     @Override
@@ -155,25 +174,15 @@ public class SteamDeckDriver implements Driver {
         triedToLoad = true;
 
         try {
-            SteamDeck deck = SteamDeck.create();
-            return Optional.of(new SteamDeckDriver(deck));
+            deck = SteamDeck.create();
+            return Optional.of(new SteamDeckDriver());
         } catch (Exception e) {
             e.printStackTrace();
             return Optional.empty();
         }
     }
 
-    private static float positiveAxis(float value) {
-        return value < 0 ? 0 : value;
-    }
-
-    private static float negativeAxis(float value) {
-        return value > 0 ? 0 : -value;
-    }
-
-    private static float mapShortToFloat(short value) {
-        // we need to do this since signed short range / 2 != 0
-        return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
-                + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
+    public static Optional<SteamDeck> getDeck() {
+        return Optional.ofNullable(deck);
     }
 }

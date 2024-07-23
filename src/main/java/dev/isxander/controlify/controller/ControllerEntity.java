@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
-import dev.isxander.controlify.controller.dualsense.HDHapticComponent;
+import dev.isxander.controlify.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
@@ -24,8 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

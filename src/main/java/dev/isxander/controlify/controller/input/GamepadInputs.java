@@ -61,7 +61,8 @@ public final class GamepadInputs {
     public static final ResourceLocation LEFT_PADDLE_1_BUTTON = button("left_paddle_1");
     public static final ResourceLocation LEFT_PADDLE_2_BUTTON = button("left_paddle_2");
 
-    public static final ResourceLocation TOUCHPAD_BUTTON = button("touchpad");
+    public static final ResourceLocation TOUCHPAD_1_BUTTON = button("touchpad_1");
+    public static final ResourceLocation TOUCHPAD_2_BUTTON = button("touchpad_2");
 
     public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
             new DeadzoneGroup(CUtil.rl("left_stick"), List.of(

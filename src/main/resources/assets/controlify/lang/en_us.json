@@ -363,7 +363,8 @@
   "controlify.input.controlify.button/right_paddle_2": "Right Paddle 2",
   "controlify.input.controlify.button/left_paddle_1": "Left Paddle 1",
   "controlify.input.controlify.button/left_paddle_2": "Left Paddle 2",
-  "controlify.input.controlify.button/touchpad": "Touchpad Press",
+  "controlify.input.controlify.button/touchpad_1": "Touchpad 1 Press",
+  "controlify.input.controlify.button/touchpad_2": "Touchpad 2 Press",
 
   "controlify.input.controlify.button/0": "Button #1",
   "controlify.input.controlify.button/1": "Button #2",
@@ -405,6 +406,11 @@
   "controlify.input.controlify.axis/17": "Axis #18",
   "controlify.input.controlify.axis/18": "Axis #19",
   "controlify.input.controlify.axis/19": "Axis #20",
+
+  "controlify.input.controlify.steam_deck.controlify.button/touchpad_1": "Left Touchpad Click",
+  "controlify.input.controlify.steam_deck.controlify.button/touchpad_2": "Right Touchpad Click",
+  "controlify.input.controlify.dualsense.controlify.button/touchpad_1": "Touchpad Click",
+  "controlify.input.controlify.dualshock4.controlify.button/touchpad_1": "Touchpad Click",
 
   "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Virtual Mouse",
@@ -530,6 +536,9 @@
   "controlify.ask_to_map_controller.message": "It looks like your controller may not be a gamepad, so the default controls might not work, and you might get missing textures in input guides. Mapping your controller will walk you through converting your controller inputs into a regular gamepad standard.",
   "controlify.ask_to_map_controller.yes": "Map Now",
   "controlify.ask_to_map_controller.no": "Maybe Later",
+
+  "controlify.steamos_desktop_mode_warning.title": "Desktop Mode Detected",
+  "controlify.steamos_desktop_mode_warning.message": "It is essential to switch to Gaming Mode on your Steam Deck. Controlify has native support for your Deck, but Desktop mode attempts to convert your Deck input into a keyboard and mouse.",
 
   "controlify.compat.svc.hold": "(Hold)",
   "controlify.compat.svc.toggle": "(Toggle)",

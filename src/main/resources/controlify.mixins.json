@@ -86,6 +86,7 @@
     "feature.screenop.vanilla.TitleScreenMixin",
     "feature.screenop.vanilla.WorldSelectionListEntryMixin",
     "feature.settingsbutton.ControlsScreenMixin",
+    "feature.steamdeck.ScreenshotAccessor",
     "feature.util.ConnectScreenMixin",
     "feature.virtualmouse.InputConstantsMixin",
     "feature.virtualmouse.KeyboardHandlerAccessor",
