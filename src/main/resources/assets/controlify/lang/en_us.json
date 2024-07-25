@@ -148,6 +148,10 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
+  "controlify.gui.show_keyboard.off": "Off",
+  "controlify.gui.show_keyboard.controlify": "Controlify",
+  "controlify.gui.show_keyboard.system": "System",
+
   "controlify.deadzone_group.controlify.left_stick": "Left Stick",
   "controlify.deadzone_group.controlify.right_stick": "Right Stick",
 

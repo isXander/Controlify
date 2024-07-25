@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
 import dev.isxander.controlify.controller.haptic.HDHapticComponent;
+import dev.isxander.controlify.controller.haptic.SimpleHapticComponent;
+import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
@@ -96,6 +98,10 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.getComponent(HDHapticComponent.ID);
     }
 
+    public Optional<SimpleHapticComponent> simpleHaptics() {
+        return this.getComponent(SimpleHapticComponent.ID);
+    }
+
     public Optional<DualSenseComponent> dualSense() {
         return this.getComponent(DualSenseComponent.ID);
     }
@@ -114,6 +120,10 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public Optional<BluetoothDeviceComponent> bluetooth() {
         return this.getComponent(BluetoothDeviceComponent.ID);
+    }
+
+    public Optional<NativeKeyboardComponent> nativeKeyboard() {
+        return this.getComponent(NativeKeyboardComponent.ID);
     }
 
     public Map<ResourceLocation, IConfig<?>> getAllConfigs() {

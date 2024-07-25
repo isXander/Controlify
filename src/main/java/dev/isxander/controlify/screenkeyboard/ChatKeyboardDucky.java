@@ -3,9 +3,9 @@ package dev.isxander.controlify.screenkeyboard;
 import net.minecraft.client.gui.screens.ChatScreen;
 
 public interface ChatKeyboardDucky {
-    boolean controlify$hasKeyboard();
+    float controlify$keyboardShiftAmount();
 
-    static boolean hasKeyboard(ChatScreen screen) {
-        return ((ChatKeyboardDucky) screen).controlify$hasKeyboard();
+    static float getKeyboardShiftAmount(ChatScreen screen) {
+        return ((ChatKeyboardDucky) screen).controlify$keyboardShiftAmount();
     }
 }

@@ -1,17 +1,16 @@
 package dev.isxander.controlify.mixins.feature.screenkeyboard;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin {
@@ -22,17 +21,21 @@ public abstract class ChatComponentMixin {
     @Final
     private Minecraft minecraft;
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(F)I", ordinal = 0))
-    private float modifyBottomY(float bottomY, @Local(argsOnly = true) GuiGraphics graphics) {
-        if (minecraft.screen instanceof ChatScreen chat && ChatKeyboardDucky.hasKeyboard(chat))
-            return (float)((graphics.guiHeight() / 2f - 12 - 8) / getScale());
-        return bottomY;
+    @Definition(id = "floor", method = "Lnet/minecraft/util/Mth;floor(F)I")
+    @Expression("floor((float) (@(?) - @(40)) / ?)")
+    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private int modifyChatOffset(int y) {
+        if (minecraft.screen instanceof ChatScreen chat)
+            return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
+        return y;
     }
 
     @ModifyExpressionValue(method = "screenToChatY", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;getGuiScaledHeight()I"))
     private int modifyScreenY(int original) {
-        if (minecraft.screen instanceof ChatScreen chat && ChatKeyboardDucky.hasKeyboard(chat))
-            return (int) (original / 2f + 40 - 12 - 8); // re-add 40 since it is subtracked in the method
+        if (minecraft.screen instanceof ChatScreen chat) {
+            float shiftAmount = 1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat);
+            return (int) (original * shiftAmount + 40 * shiftAmount); // re-add 40 since it is subtracked in the method
+        }
         return original;
     }
 }

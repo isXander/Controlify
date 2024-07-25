@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.driver.Driver;
@@ -30,6 +31,7 @@ public class SteamDeckDriver implements Driver {
     private GyroComponent gyroComponent;
     private BatteryLevelComponent batteryLevelComponent;
     private TouchpadComponent touchpadComponent;
+    private NativeKeyboardComponent keyboardComponent;
 
     @Override
     public void addComponents(ControllerEntity controller) {
@@ -62,6 +64,10 @@ public class SteamDeckDriver implements Driver {
                                 }
                         )
                 ) // there are two touchpads, one for each thumb
+        );
+
+        controller.setComponent(
+                this.keyboardComponent = new NativeKeyboardComponent(this::openKeyboard, 0.5f)
         );
     }
 
@@ -153,6 +159,10 @@ public class SteamDeckDriver implements Driver {
         }
     }
 
+    private void openKeyboard() {
+        deck.openModalKeyboard(true);
+    }
+
     @Override
     public String getDriverName() {
         return "Steam Deck";
@@ -161,7 +171,7 @@ public class SteamDeckDriver implements Driver {
     @Override
     public void close() {
         try {
-            this.deck.close();
+            deck.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

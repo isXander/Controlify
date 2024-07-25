@@ -110,6 +110,15 @@ dependencies {
         officialMojangMappings()
     })
 
+    optionalProp("deps.mixinExtras") {
+        if (isForgeLike) {
+            compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:$it")!!)
+            implementation(include("io.github.llamalad7:mixinextras-forge:$it")!!)
+        } else {
+            include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$it")!!)!!)
+        }
+    }
+
     fun modDependency(id: String, artifactGetter: (String) -> String, extra: (Boolean) -> Unit = {}) {
         optionalProp("deps.$id") {
             val noRuntime = findProperty("deps.$id.noRuntime")?.toString()?.toBoolean() == true
