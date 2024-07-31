@@ -41,19 +41,19 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
             ButtonGuideApi.addGuideToButton(
                     (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
                     ControlifyBindings.GUI_BACK,
-                    ButtonGuidePredicate.ALWAYS
+                    ButtonGuidePredicate.always()
             );
             ButtonGuideApi.addGuideToButton(
                     (AbstractButton) getWidget("menu.options").orElseThrow(),
                     ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                    ButtonGuidePredicate.ALWAYS
+                    ButtonGuidePredicate.always()
             );
             ButtonGuideApi.addGuideToButton(
                     disconnectButtonSupplier.get(),
                     () -> disconnectButtonSupplier.get().isFocused()
                             ? ControlifyBindings.GUI_PRESS
                             : ControlifyBindings.GUI_ABSTRACT_ACTION_2,
-                    ButtonGuidePredicate.ALWAYS
+                    ButtonGuidePredicate.always()
             );
         }
     }

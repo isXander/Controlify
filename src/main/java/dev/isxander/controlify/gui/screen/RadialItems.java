@@ -5,11 +5,13 @@ import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.DebugOverlayHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -104,6 +106,142 @@ public final class RadialItems {
         }
 
         return items;
+    }
+
+    public static RadialMenuScreen.RadialItem[] createDebug() {
+        var items = new RadialMenuScreen.RadialItem[]{
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.reload_chunks"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.COMPASS)),
+                        () -> {
+                            DebugOverlayHelper.reloadChunks();
+                            return true;
+                        },
+                        CUtil.rl("debug/reload_chunks")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.chunk_borders"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.FILLED_MAP)),
+                        () -> {
+                            DebugOverlayHelper.toggleChunkBorders();
+                            return true;
+                        },
+                        CUtil.rl("debug/chunk_borders")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.advanced_tooltips"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.WRITABLE_BOOK)),
+                        () -> {
+                            DebugOverlayHelper.toggleAdvancedTooltips();
+                            return true;
+                        },
+                        CUtil.rl("debug/advanced_tooltips")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.entity_hitboxes"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.ZOMBIE_HEAD)),
+                        () -> {
+                            DebugOverlayHelper.toggleEntityHitboxes();
+                            return true;
+                        },
+                        CUtil.rl("debug/entity_hitboxes")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.reload_packs"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.PINK_DYE)),
+                        () -> {
+                            DebugOverlayHelper.reloadResourcePacks();
+                            return true;
+                        },
+                        CUtil.rl("debug/reload_packs")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.clear_chat"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.FLINT_AND_STEEL)),
+                        () -> {
+                            DebugOverlayHelper.clearChat();
+                            return true;
+                        },
+                        CUtil.rl("debug/clear_chat")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.profile"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.STRUCTURE_BLOCK)),
+                        () -> {
+                            DebugOverlayHelper.startStopProfiling();
+                            return true;
+                        },
+                        CUtil.rl("debug/profile")
+                )
+        };
+
+        boolean overlayEnabled = DebugOverlayHelper.isOverlayEnabled();
+        var overlayItems = !overlayEnabled ? new RadialMenuScreen.RadialItem[]{
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.overlay"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.DEBUG_STICK)),
+                        () -> {
+                            DebugOverlayHelper.toggleOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/overlay")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.overlay_fps"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.CLOCK)),
+                        () -> {
+                            DebugOverlayHelper.toggleFpsOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/fps")
+                ),
+                //? if >=1.20.3 {
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.overlay_net"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.SCULK_SENSOR)),
+                        () -> {
+                            DebugOverlayHelper.toggleNetworkOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/fps")
+                ),
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.overlay_prof"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.TARGET)),
+                        () -> {
+                            DebugOverlayHelper.toggleProfilerOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/fps")
+                ),
+                //?} else {
+                /*new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.overlay_charts"),
+                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.REDSTONE)),
+                        () -> {
+                            DebugOverlayHelper.toggleChartsOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/fps")
+                ),
+                *///?}
+        } : new RadialMenuScreen.RadialItem[]{
+                new RadialItemRecord(
+                        Component.translatable("controlify.radial.debug.hide_overlay"),
+                        RadialIcons.getIcons().get(RadialIcons.getEffect(MobEffects.INVISIBILITY)),
+                        () -> {
+                            DebugOverlayHelper.toggleOverlay();
+                            return true;
+                        },
+                        CUtil.rl("debug/reload_chunks")
+                )
+        };
+
+        RadialMenuScreen.RadialItem[] allItems = new RadialMenuScreen.RadialItem[items.length + overlayItems.length];
+        System.arraycopy(overlayItems, 0, allItems, 0, overlayItems.length);
+        System.arraycopy(items, 0, allItems, overlayItems.length, items.length);
+
+        return allItems;
     }
 
     private static RadialIcon getIconForHotbar(int hotbarIndex, boolean showNumbers) {

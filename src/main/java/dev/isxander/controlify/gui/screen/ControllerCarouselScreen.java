@@ -50,8 +50,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public static final ResourceLocation CHECKMARK =
             /*? if >=1.20.3 {*/
             CUtil.mcRl("icon/checkmark");
-            /*?} else {*//*
-            CUtil.mcRl("textures/gui/checkmark.png");
+            /*?} else {*/
+            /*CUtil.mcRl("textures/gui/checkmark.png");
             *//*?}*/
 
     private final Screen parent;
@@ -125,8 +125,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         );
         controllerNotDetectedButton.visible = carouselEntries.isEmpty();
 
-        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.ALWAYS);
-        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.ALWAYS);
+        ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+        ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
 
         this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
     }
@@ -170,8 +170,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         /*? if =1.20.4 {*/
         /*renderBackground(graphics, mouseX, mouseY, delta);
-        *//*?} else <1.20.4 {*//*
-        renderBackground(graphics);
+        *//*?} else <1.20.4 {*/
+        /*renderBackground(graphics);
         *//*?}*/
         super.render(graphics, mouseX, mouseY, delta);
 

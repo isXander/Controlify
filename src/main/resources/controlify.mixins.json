@@ -9,12 +9,14 @@
   "client": [
     "core.ClientPacketListenerMixin",
     "core.GLXMixin",
+    "core.GuiGraphicsAccessor",
     "core.GuiMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
     "feature.accessibility.LocalPlayerMixin",
     "feature.autoswitch.ToastComponentAccessor",
+    "feature.bind.ClientPacketListenerMixin",
     "feature.bind.GuiMixin",
     "feature.bind.KeyMappingMixin",
     "feature.bind.MinecraftMixin",
@@ -27,6 +29,7 @@
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
     "feature.hdhaptics.JOrbisAudioStreamMixin",
+    "feature.input.DebugScreenOverlayAccessor",
     "feature.input.MinecraftMixin",
     "feature.nomousetutorial.MovementTutorialStepInstanceMixin",
     "feature.oofinput.GameRendererMixin",
@@ -102,5 +105,6 @@
     "feature.virtualmouse.snapping.ScreenMixin"
   ],
   "mixins": [
+    "feature.font.TranslatableContentsMixin"
   ]
 }

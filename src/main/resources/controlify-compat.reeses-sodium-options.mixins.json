@@ -1,0 +1,17 @@
+{
+  "package": "dev.isxander.controlify.compatibility.rso.mixins",
+  "required": false,
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "plugin": "dev.isxander.controlify.compatibility.rso.RSOMixinPlugin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "SodiumVideoOptionsScreenMixin"
+  ],
+  "mixins": [
+    "AbstractFrameAccessor",
+    "TabFrameAccessor"
+  ]
+}

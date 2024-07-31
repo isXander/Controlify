@@ -1,12 +1,9 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
@@ -49,7 +46,7 @@ public abstract class AbstractWidgetMixin implements ButtonGuideRenderer<Abstrac
 
     @ModifyExpressionValue(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;getMessage()Lnet/minecraft/network/chat/Component;"))
     protected Component modifyRenderedMessage(Component actualMessage) {
-        return getControllerMessage();
+        return getControllerMessage(actualMessage);
     }
 
     @Override
@@ -59,39 +56,25 @@ public abstract class AbstractWidgetMixin implements ButtonGuideRenderer<Abstrac
     }
 
     @Unique
-    private Component getControllerMessage() {
+    private Component getControllerMessage(Component actualLabel) {
         if (!shouldRender())
-            return getMessage();
+            return actualLabel;
 
-        return getBind().map(bind -> controllerMessages.computeIfAbsent(bind, b -> {
-            var component = Component.empty();
-            if (!Minecraft.getInstance().font.isBidirectional()) {
-                component.append(bind.inputIcon());
-                component.append(" ");
-            }
-            component.append(getMessage());
-            if (Minecraft.getInstance().font.isBidirectional()) {
-                component.append(" ");
-                component.append(bind.inputIcon());
-            }
-            return component;
-        })).orElse(getMessage());
+        return getBind().map(bind -> controllerMessages
+                        .computeIfAbsent(bind, b -> renderData.getControllerMessage(b, actualLabel)))
+                .orElse(actualLabel);
     }
 
     @Unique
     protected boolean shouldRender() {
         return renderData != null
                 && isActive()
-                && getBind().isPresent()
-                && Controlify.instance().currentInputMode().isController()
-                && Controlify.instance().getCurrentController().map(c -> c.genericConfig().config().showScreenGuides).orElse(false)
-                && !renderData.binding().get().on(Controlify.instance().getCurrentController().orElseThrow()).isUnbound()
-                && renderData.renderPredicate().shouldDisplay((AbstractButton) (Object) this);
+                && renderData.shouldRender((AbstractWidget) (Object) this);
     }
 
     @Unique
     private Optional<InputBinding> getBind() {
         if (renderData == null) return Optional.empty();
-        return Controlify.instance().getCurrentController().map(c -> renderData.binding().get().on(c));
+        return renderData.getBind();
     }
 }

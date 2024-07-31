@@ -1,6 +1,6 @@
 {
   "package": "dev.isxander.controlify.compatibility.sodium.mixins",
-  "required": true,
+  "required": false,
   "minVersion": "0.8",
   "injectors": {
     "defaultRequire": 1
@@ -8,12 +8,13 @@
   "plugin": "dev.isxander.controlify.compatibility.sodium.SodiumMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "SodiumOptionsGUIAccessor",
     "SodiumOptionsGUIMixin"
   ],
   "mixins": [
     "AbstractWidgetMixin",
     "CycleControlElementMixin",
+    "FlatButtonWidgetAccessor",
+    "FlatButtonWidgetMixin",
     "SliderControlElementMixin",
     "TickBoxControlElementMixin"
   ]

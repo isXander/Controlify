@@ -37,8 +37,13 @@ public class ScreenProcessor<T extends Screen> {
     protected final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
     protected static final Minecraft minecraft = Minecraft.getInstance();
 
+    private final List<ScreenControllerEventListener> eventListeners = new ArrayList<>();
+
     public ScreenProcessor(T screen) {
         this.screen = screen;
+        if (screen instanceof ScreenControllerEventListener eventListener) {
+            eventListeners.add(eventListener);
+        }
     }
 
     public void onControllerUpdate(ControllerEntity controller) {
@@ -56,9 +61,7 @@ public class ScreenProcessor<T extends Screen> {
 
         handleTabNavigation(controller);
 
-        if (screen instanceof ScreenControllerEventListener eventListener) {
-            eventListener.onControllerInput(controller);
-        }
+        eventListeners.forEach(listener -> listener.onControllerInput(controller));
     }
 
     public void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta) {
@@ -264,6 +267,10 @@ public class ScreenProcessor<T extends Screen> {
 
     public VirtualMouseBehaviour virtualMouseBehaviour() {
         return VirtualMouseBehaviour.DEFAULT;
+    }
+
+    public void addEventListener(ScreenControllerEventListener listener) {
+        eventListeners.add(listener);
     }
 
     protected Queue<GuiEventListener> getFocusTree() {

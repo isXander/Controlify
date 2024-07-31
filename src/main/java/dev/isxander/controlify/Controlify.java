@@ -196,7 +196,7 @@ public class Controlify implements ControlifyApi {
         PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
                 entrypoint.onControlifyInit(this);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });

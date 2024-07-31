@@ -83,8 +83,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     public void renderHud(GuiGraphics graphics, float tickDelta) {
         boolean debugOpen = /*? if >=1.20.3 {*/
         minecraft.getDebugOverlay().showDebugScreen();
-        /*?} else {*//*
-        minecraft.options.renderDebug;
+        /*?} else {*/
+        /*minecraft.options.renderDebug;
         *//*?}*/
         boolean hideGui = minecraft.options.hideGui;
 

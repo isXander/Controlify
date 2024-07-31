@@ -24,6 +24,7 @@ public final class ControlifyBindings {
     private static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
     private static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
     private static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
+    private static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
     private static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
     private static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
     private static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
@@ -200,11 +201,39 @@ public final class ControlifyBindings {
             .category(MISC_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
             .radialCandidate(RadialIcons.getItem(Items.SPYGLASS)));
+
+    public static final InputBindingSupplier DEBUG_RADIAL = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "debug_radial")
+            .category(DEBUG_CATEGORY)
+            .allowedContexts(BindContext.IN_GAME, BindContext.RADIAL_MENU));
     public static final InputBindingSupplier TOGGLE_DEBUG_MENU = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "toggle_debug_menu")
-            .category(MISC_CATEGORY)
+            .category(DEBUG_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
             .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+    public static final InputBindingSupplier TOGGLE_DEBUG_MENU_FPS = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "toggle_debug_menu_fps")
+            .category(DEBUG_CATEGORY)
+            .allowedContexts(BindContext.IN_GAME)
+            .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+    //? if >=1.20.3 {
+    public static final InputBindingSupplier TOGGLE_DEBUG_MENU_NET = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "toggle_debug_menu_net")
+            .category(DEBUG_CATEGORY)
+            .allowedContexts(BindContext.IN_GAME)
+            .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+    public static final InputBindingSupplier TOGGLE_DEBUG_MENU_PROF = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "toggle_debug_menu_prof")
+            .category(DEBUG_CATEGORY)
+            .allowedContexts(BindContext.IN_GAME)
+            .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+    //?} else {
+    /*public static final InputBindingSupplier TOGGLE_DEBUG_MENU_CHARTS = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "toggle_debug_menu_charts")
+            .category(DEBUG_CATEGORY)
+            .allowedContexts(BindContext.IN_GAME)
+            .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+    *///?}
 
     public static final InputBindingSupplier GUI_PRESS = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_press")
@@ -228,6 +257,10 @@ public final class ControlifyBindings {
             .allowedContexts(BindContext.REGULAR_SCREEN));
     public static final InputBindingSupplier GUI_ABSTRACT_ACTION_2 = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_abstract_action_2")
+            .category(GUI_CATEGORY)
+            .allowedContexts(BindContext.REGULAR_SCREEN));
+    public static final InputBindingSupplier GUI_ABSTRACT_ACTION_3 = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_abstract_action_3")
             .category(GUI_CATEGORY)
             .allowedContexts(BindContext.REGULAR_SCREEN));
     public static final InputBindingSupplier GUI_NAVI_UP = ControlifyBindApi.get().registerBinding(builder -> builder

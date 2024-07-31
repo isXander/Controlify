@@ -5,6 +5,7 @@ import dev.isxander.controlify.platform.network.C2SNetworkApi;
 import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -25,8 +26,13 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
 
     @Override
     public <T> void sendPacket(ResourceLocation channel, T packet) {
+        ClientPlayNetworking.send(createPayload(channel, packet));
+    }
+
+    @Override
+    public <T> CustomPacketPayload createPayload(ResourceLocation channel, T packet) {
         FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
-        ClientPlayNetworking.send(packetWrapper.new FabricPacketPayloadWrapper(packet));
+        return packetWrapper.new FabricPacketPayloadWrapper(packet);
     }
 
     @Override
@@ -35,11 +41,11 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
 
         /*? if >1.20.4 {*/
         ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
-            listener.listen(packet.payload, context.player());
+            listener.listen(packet.payload, context.player(), context.responseSender());
         });
         /*?} else {*/
         /*ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
-            listener.listen(packet.payload, player);
+            listener.listen(packet.payload, player, responseSender);
         });
         *//*?}*/
     }

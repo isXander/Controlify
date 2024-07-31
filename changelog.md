@@ -1,16 +1,12 @@
-# Controlify 2.0.0-beta.13
+# Controlify {version}
 
 This version has the following targets:
-- Fabric 1.20.1
-- Fabric 1.20.4
-- NeoForge 1.20.4
-- Fabric 1.20.6
-- NeoForge 1.20.6
-- Fabric 1.21
-- NeoForge 1.21
+{targets}
 
-## Changes
+[![](https://short.isxander.dev/bisect-img)](https://short.isxander.dev/bisect)
 
-- **FINALLY FIX CRASHING!**
-  - The JVM crashes appear to be fully solved, other crashes are unrelated
-  - Crashes relating to the radial menu *could* be solved, not 100% sure!
+## Bug Fixes
+
+- Fix startup crash on 1.20.1 build.
+- Fix crash when opening the creative inventory. (IF YOU PREVIOUSLY EXPERIENCED THIS, SENDING LATEST.LOG IN MY DISCORD SERVER WITH THIS BUILD WOULD HELP A LOT!)
+- Fix config not loading when a mapping contained a 'I don't have this input' key.

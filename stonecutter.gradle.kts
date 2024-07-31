@@ -1,6 +1,9 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
+    id("dev.architectury.loom") version "1.7.+" apply false
+    id("me.modmuss50.mod-publish-plugin") version "0.6.1+"
+    id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
@@ -13,28 +16,44 @@ stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chis
 
 stonecutter registerChiseled tasks.register("releaseAllVersions", stonecutter.chiseled) {
     group = "mod"
-    ofTask("releaseMod")
+    ofTask("releaseModVersion")
+}
+
+val releaseMod by tasks.registering {
+    group = "mod"
+    dependsOn("releaseAllVersions")
+    dependsOn("publishMods")
 }
 
 stonecutter.configureEach {
     val platform = project.property("loom.platform")
 
     fun String.propDefined() = project.findProperty(this)?.toString()?.isNotBlank() ?: false
-    consts(listOf(
-        "fabric" to (platform == "fabric"),
-        "forge" to (platform == "forge"),
-        "neoforge" to (platform == "neoforge"),
-        "forgelike" to (platform == "forge" || platform == "neoforge"),
-        "immediately-fast" to "deps.immediatelyFast".propDefined(),
-        "iris" to "deps.iris".propDefined(),
-        "mod-menu" to "deps.modMenu".propDefined(),
-        "sodium" to "deps.sodium".propDefined(),
-        "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
-    ))
+    consts(
+        listOf(
+            "fabric" to (platform == "fabric"),
+            "forge" to (platform == "forge"),
+            "neoforge" to (platform == "neoforge"),
+            "forgelike" to (platform == "forge" || platform == "neoforge"),
+            "immediately-fast" to "deps.immediatelyFast".propDefined(),
+            "iris" to "deps.iris".propDefined(),
+            "mod-menu" to "deps.modMenu".propDefined(),
+            "sodium" to "deps.sodium".propDefined(),
+            "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
+            "reeses-sodium-options" to "deps.reesesSodiumOptions".propDefined(),
+        )
+    )
 }
 
 val sdl3Target = property("deps.sdl3Target")!!.toString()
-data class NativesDownload(val mavenSuffix: String, val extension: String, val jnaCanonicalPrefix: String, val taskName: String)
+
+data class NativesDownload(
+    val mavenSuffix: String,
+    val extension: String,
+    val jnaCanonicalPrefix: String,
+    val taskName: String
+)
+
 val downloadNativesTasks = listOf(
     NativesDownload("windows64", "dll", "win32-x86-64", "Win64"),
     NativesDownload("linux64", "so", "linux-x86-64", "Linux64"),
@@ -81,4 +100,72 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
 
     rename { "gamecontrollerdb-sdl3.txt" }
     filter { it.replace("Mac OS X", "macOS") }
+}
+
+val modVersion: String by project
+version = modVersion
+
+val versionProjects = stonecutter.versions.map { findProject(it.project)!! }
+publishMods {
+    val modChangelog =
+        rootProject.file("changelog.md")
+            .takeIf { it.exists() }
+            ?.readText()
+            ?.replace("{version}", modVersion)
+            ?.replace("{targets}", stonecutter.versions
+                .map { it.project }
+                .joinToString(separator = "\n") { "- $it" })
+            ?: "No changelog provided."
+    changelog.set(modChangelog)
+
+    type.set(
+        when {
+            "alpha" in modVersion -> ALPHA
+            "beta" in modVersion -> BETA
+            else -> STABLE
+        }
+    )
+
+    if (hasProperty("discord.publish-webhook")) {
+        discord {
+            webhookUrl = findProperty("discord.publish-webhook")!!.toString()
+            dryRunWebhookUrl.set(webhookUrl)
+
+            username = "Controlify Updates"
+            avatarUrl = "https://raw.githubusercontent.com/isXander/Controlify/1.20.x/dev/src/main/resources/icon.png"
+
+            content = changelog.get() + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+
+//            publishResults.from(
+//                *versionProjects
+//                    .map { it to it.extensions.findByType<ModPublishExtension>()!!.platforms }
+//                    .flatMap { (project, platforms) ->
+//                        platforms.map { platform ->
+//                            project.tasks.named<PublishModTask>(platform.taskName)
+//                                .map { it.result }
+//                        }
+//                    }
+//                    .toTypedArray()
+//            )
+        }
+    }
+
+    val githubProject: String by project
+    if (githubProject.isNotBlank() && hasProperty("github.token")) {
+        github {
+            displayName.set("Controlify $modVersion")
+
+            repository.set(githubProject)
+            accessToken.set(findProperty("github.token")?.toString())
+            commitish.set(grgit.branch.current().name)
+            tagName = modVersion
+
+            allowEmptyFiles = true
+
+            announcementTitle = "Download from GitHub"
+        }
+    }
+}
+tasks.named("publishMods") {
+    dependsOn("releaseAllVersions")
 }

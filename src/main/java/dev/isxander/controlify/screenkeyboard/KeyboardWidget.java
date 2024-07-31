@@ -1,14 +1,20 @@
 package dev.isxander.controlify.screenkeyboard;
 
 import com.mojang.datafixers.util.Pair;
+import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
+import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.FakeSpriteRenderer;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
+import dev.isxander.controlify.utils.render.ControlifySprite;
+import dev.isxander.controlify.utils.render.SpriteScaling;
+import dev.isxander.controlify.utils.render.SpriteUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -17,15 +23,14 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -38,8 +43,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     private @Nullable GuiEventListener focused;
     private boolean isDragging;
 
-    public KeyboardWidget(int x, int y, int width, int height, KeyPressConsumer keyPressConsumer) {
+    private final Screen containingScreen;
+
+    public KeyboardWidget(Screen screen, int x, int y, int width, int height, KeyPressConsumer keyPressConsumer) {
         super(x, y, width, height, Component.literal("On-screen keyboard"));
+        this.containingScreen = screen;
         this.keyPressConsumer = keyPressConsumer;
         this.keys = new ArrayList<>();
         arrangeKeys();
@@ -49,14 +57,17 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-        guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
+        // batch uploads to gpu -- this only works with ImmediatelyFast mod
+        // since drawManaged in vanilla doesn't support multiple render types
+        // noinspection deprecation -- vanilla misusing deprecation as always, used with caution.
+        guiGraphics.drawManaged(() -> {
+            guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
+            guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
-        ControlifyCompat.ifBeginHudBatching();
-        for (T key : keys) {
-            key.render(guiGraphics, mouseX, mouseY, partialTick);
-        }
-        ControlifyCompat.ifEndHudBatching();
+            for (T key : keys) {
+                key.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
+        });
     }
 
     @Override
@@ -64,14 +75,19 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     }
 
-    public static class Key extends AbstractWidget implements ComponentProcessor {
-        private static final ResourceLocation TEXTURE = CUtil.rl(
-                /*? if >1.20.1 {*/
-                "keyboard/key"
-                /*?} else {*//*
-                "textures/gui/sprites/keyboard/key.png"
-                *//*?}*/
-        );
+    public static class Key extends AbstractWidget implements ComponentProcessor, ScreenControllerEventListener {
+        public static final ControlifySprite SPRITE =
+                //? if >=1.20.3 {
+                ControlifySprite.fromSpriteId(CUtil.rl("keyboard/key"));
+                //?} else {
+                /*new ControlifySprite(
+                        CUtil.rl("textures/gui/sprites/keyboard/key.png"),
+                        new SpriteScaling.NineSlice(
+                                30, 24,
+                                new SpriteScaling.NineSlice.Border(1, 1, 3, 3)
+                        )
+                );
+                *///?}
 
         private final KeyboardWidget<?> keyboard;
 
@@ -82,7 +98,10 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
         private final HoldRepeatHelper holdRepeatHelper;
 
-        public Key(int x, int y, int width, int height, KeyFunction normalFunction, @Nullable KeyFunction shiftedFunction, KeyboardWidget<?> keyboard) {
+        private final InputBindingSupplier shortcutPressBind;
+        private boolean shortcutPressed;
+
+        public Key(Screen screen, int x, int y, int width, int height, KeyFunction normalFunction, @Nullable KeyFunction shiftedFunction, KeyboardWidget<?> keyboard, @Nullable InputBindingSupplier shortcutPressBind) {
             super(x, y, width, height, Component.literal("Key"));
             this.keyboard = keyboard;
             this.normalFunction = normalFunction;
@@ -91,28 +110,26 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             else
                 this.shiftedFunction = normalFunction;
             this.holdRepeatHelper = new HoldRepeatHelper(10, 2);
+            this.shortcutPressBind = shortcutPressBind;
+            ScreenProcessorProvider.provide(screen).addEventListener(this);
         }
 
-        public Key(int x, int y, int width, int height, Pair<KeyFunction, KeyFunction> functions, KeyboardWidget<?> keyboard) {
-            this(x, y, width, height, functions.getFirst(), functions.getSecond(), keyboard);
+        public Key(Screen screen, int x, int y, int width, int height, Pair<KeyFunction, KeyFunction> functions, KeyboardWidget<?> keyboard, @Nullable InputBindingSupplier shortcutPressBind) {
+            this(screen, x, y, width, height, functions.getFirst(), functions.getSecond(), keyboard, shortcutPressBind);
         }
 
         @Override
-        protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            /*? if >1.20.1 {*/
-            guiGraphics.blitSprite(TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
-            /*?} else {*//*
-            FakeSpriteRenderer.blitNineSlicedSprite(guiGraphics, TEXTURE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2, 2, 6, 6);
-            *//*?}*/
+        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            SpriteUtils.blitSprite(graphics, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
 
             if (keyboard.shiftMode) {
-                shiftedFunction.renderer.render(guiGraphics, mouseX, mouseY, partialTick, this);
+                shiftedFunction.renderer.render(graphics, mouseX, mouseY, partialTick, this);
             } else {
-                normalFunction.renderer.render(guiGraphics, mouseX, mouseY, partialTick, this);
+                normalFunction.renderer.render(graphics, mouseX, mouseY, partialTick, this);
             }
 
-            if (isHoveredOrFocused()) {
-                guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), -1);
+            if (isHoveredOrFocused() || shortcutPressed) {
+                graphics.renderOutline(getX(), getY(), getWidth(), getHeight(), -1);
             } else {
                 holdRepeatHelper.reset();
             }
@@ -123,10 +140,24 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             if (holdRepeatHelper.shouldAction(ControlifyBindings.GUI_PRESS.on(controller))) {
                 onPress();
                 holdRepeatHelper.onNavigate();
-                return true;
             }
 
-            return false;
+            // do not allow any other input on keys to be processed
+            return true;
+        }
+
+        @Override
+        public void onControllerInput(ControllerEntity controller) {
+            if (shortcutPressBind == null) return;
+
+            InputBinding shortcutBind = shortcutPressBind.on(controller);
+
+            shortcutPressed = shortcutBind.digitalNow();
+
+            if (holdRepeatHelper.shouldAction(shortcutBind)) {
+                onPress();
+                holdRepeatHelper.onNavigate();
+            }
         }
 
         @Override
@@ -146,6 +177,20 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             }
         }
 
+        public Component modifyKeyName(Component name) {
+            Optional<ControllerEntity> controller = ControlifyApi.get().getCurrentController()
+                    .filter(c -> ControlifyApi.get().currentInputMode().isController());
+            if (shortcutPressBind != null && controller.isPresent()) {
+                InputBinding binding = shortcutPressBind.on(controller.get());
+
+                return Component.empty()
+                        .append(binding.inputIcon())
+                        .append(name);
+            }
+
+            return name;
+        }
+
         @Override
         protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 
@@ -159,12 +204,12 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             return highlighted;
         }
 
-        public static KeyBuilder<Key> builder(Pair<KeyFunction, KeyFunction> functions) {
-            return (x, y, w, h, kb) -> new Key(x, y, w, h, functions.getFirst(), functions.getSecond(), kb);
+        public static KeyBuilder<Key> builder(Pair<KeyFunction, KeyFunction> functions, @Nullable InputBindingSupplier shortcutPressBind) {
+            return (screen, x, y, w, h, kb) -> new Key(screen, x, y, w, h, functions.getFirst(), functions.getSecond(), kb, shortcutPressBind);
         }
 
-        public static KeyBuilder<Key> builder(KeyFunction normalFunction, KeyFunction shiftedFunction) {
-            return (x, y, w, h, kb) -> new Key(x, y, w, h, normalFunction, shiftedFunction, kb);
+        public static KeyBuilder<Key> builder(KeyFunction normalFunction, KeyFunction shiftedFunction, @Nullable InputBindingSupplier shortcutPressBind) {
+            return (screen, x, y, w, h, kb) -> new Key(screen, x, y, w, h, normalFunction, shiftedFunction, kb, shortcutPressBind);
         }
 
         public interface ForegroundRenderer {
@@ -172,7 +217,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
             static ForegroundRenderer text(Component text) {
                 return (guiGraphics, mouseX, mouseY, partialTick, key) -> {
-                    guiGraphics.drawCenteredString(Minecraft.getInstance().font, text, key.getX() + key.getWidth() / 2, key.getY() + key.getHeight() / 2 - 4, 0xFFFFFFFF);
+                    guiGraphics.drawCenteredString(Minecraft.getInstance().font, key.modifyKeyName(text), key.getX() + key.getWidth() / 2, key.getY() + key.getHeight() / 2 - 4, 0xFFFFFFFF);
                 };
             }
         }
@@ -265,7 +310,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
                 float x = keyboard.getX();
                 for (KeyLayout<T> keyLayout : row) {
                     float keyWidth = unitWidth * keyLayout.unitWidth;
-                    T key = keyLayout.keyBuilder.build((int) x, (int) y, (int) keyWidth, (int) keyHeight, keyboard);
+                    T key = keyLayout.keyBuilder.build(keyboard.containingScreen, (int) x, (int) y, (int) keyWidth, (int) keyHeight, keyboard);
                     keyConsumer.accept(key);
 
                     x += keyWidth;
@@ -280,7 +325,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @FunctionalInterface
     public interface KeyBuilder<T extends Key> {
-        T build(int x, int y, int width, int height, KeyboardWidget<T> keyboard);
+        T build(Screen screen, int x, int y, int width, int height, KeyboardWidget<T> keyboard);
     }
 
     @Override

@@ -33,7 +33,6 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
             optionList.setScrollAmount(0);
 
             screen.setFocused(optionListHolder);
-            optionListHolder.setFocused(optionList);
 
             for (OptionListWidget.Entry entry : optionList.children()) {
                 entry.setFocused(false);

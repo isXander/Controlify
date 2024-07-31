@@ -11,9 +11,9 @@ import org.intellij.lang.annotations.MagicConstant;
         "ucHeadphoneVolume", "ucSpeakerVolume", "ucMicrophoneVolume",
         "ucAudioEnableBits", "ucMicLightMode", "ucAudioMuteBits",
         "rgucRightTriggerEffect", "rgucLeftTriggerEffect",
-        "rgucUnknown10", "rgucUnknown11", "rgucUnknown12", "rgucUnknown13", "rgucUnknown14", "rgucUnknown15",
+        "unknown1",
         "ucEnableBits3",
-        "rgucUnknown20", "rgucUnknown21",
+        "unknown2",
         "ucLedAnim", "ucLedBrightness", "ucPadLights",
         "ucLedRed", "ucLedGreen", "ucLedBlue",
 })
@@ -38,17 +38,11 @@ public class DS5EffectsState extends Structure {
     public TriggerEffect rgucRightTriggerEffect;
     public TriggerEffect rgucLeftTriggerEffect;
 
-    public byte rgucUnknown10;
-    public byte rgucUnknown11;
-    public byte rgucUnknown12;
-    public byte rgucUnknown13;
-    public byte rgucUnknown14;
-    public byte rgucUnknown15;
+    public byte[] unknown1 = new byte[6];
 
     public byte ucEnableBits3;
 
-    public byte rgucUnknown20;
-    public byte rgucUnknown21;
+    public byte[] unknown2 = new byte[2];
 
     public byte ucLedAnim;
     public byte ucLedBrightness;
