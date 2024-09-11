@@ -6,6 +6,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gui.screen.RadialItems;
@@ -39,6 +40,7 @@ public class InGameInputHandler {
 
     private double lookInputX, lookInputY; // in degrees per tick
     private final GyroState gyroInput = new GyroState();
+    private boolean gyroToggledOn;
     private boolean wasAiming;
     private Animation flickAnimation;
 
@@ -52,6 +54,7 @@ public class InGameInputHandler {
         this.minecraft = Minecraft.getInstance();
         this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
+        this.gyroToggledOn = false;
     }
 
     public void inputTick() {
@@ -223,6 +226,10 @@ public class InGameInputHandler {
                 ));
             }
         }
+
+        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
+            gyroToggledOn = !gyroToggledOn;
+        }
     }
 
     protected void handlePlayerLookInput() {
@@ -297,7 +304,11 @@ public class InGameInputHandler {
     protected void handleGyroLook(GyroComponent gyro, Vector2f impulse, boolean aiming) {
         GyroComponent.Config config = gyro.confObj();
 
-        if (config.requiresButton && (!ControlifyBindings.GYRO_BUTTON.on(controller).digitalNow() && !aiming)) {
+        if (config.requiresButton.equals(GyroButtonMode.ON) && (!ControlifyBindings.GYRO_BUTTON.on(controller).digitalNow() && !aiming)) {
+            gyroInput.set(0);
+        } else if(config.requiresButton.equals(GyroButtonMode.INVERT) && (ControlifyBindings.GYRO_BUTTON.on(controller).digitalNow() && !aiming)) {
+            gyroInput.set(0);
+        } else if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
             gyroInput.set(0);
         } else {
             if (config.relativeGyroMode)

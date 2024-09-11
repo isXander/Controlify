@@ -517,13 +517,17 @@ public class ControllerConfigScreenFactory {
             return opt;
         }));
         gyroGroup.option(Util.make(() -> {
-            var opt = Option.<Boolean>createBuilder()
+            var opt = Option.<GyroButtonMode>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_requires_button"))
-                    .description(OptionDescription.createBuilder()
+                    .description(val -> OptionDescription.createBuilder()
                             .text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
+                            .text(val == GyroButtonMode.ON ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.on") : Component.empty())
+                            .text(val == GyroButtonMode.INVERT ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.invert") : Component.empty())
+                            .text(val == GyroButtonMode.TOGGLE ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.toggle") : Component.empty())
+                            .text(val == GyroButtonMode.OFF ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.off") : Component.empty())
                             .build())
                     .binding(def.requiresButton, () -> config.requiresButton, v -> config.requiresButton = v)
-                    .controller(TickBoxControllerBuilder::create)
+                    .controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroButtonMode.class))
                     .available(gyroSensitivity.pendingValue() > 0)
                     .listener((o, val) -> {
                         if (val) {
