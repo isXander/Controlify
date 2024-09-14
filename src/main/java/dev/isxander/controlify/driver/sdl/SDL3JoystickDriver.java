@@ -12,8 +12,10 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -24,6 +26,7 @@ import net.minecraft.util.Mth;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.HexFormat;
 
 import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
@@ -39,6 +42,7 @@ public class SDL3JoystickDriver implements Driver {
 
     private final boolean isRumbleSupported, isTriggerRumbleSupported;
     private final String guid;
+    private final String serial;
     private final String name;
 
     private final int numAxes, numButtons, numHats;
@@ -50,8 +54,26 @@ public class SDL3JoystickDriver implements Driver {
 
         SDL_PropertiesID props = SDL_GetJoystickProperties(ptrJoystick);
 
-        this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
         this.name = SDL_GetJoystickName(ptrJoystick);
+        this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
+        this.serial = SDL_GetJoystickSerial(ptrJoystick);
+
+        if(DebugProperties.SDL_USE_SERIAL_NUMBER) {
+            if(this.serial != null && this.serial.length() > 0) {
+                uid = new String();
+                if(hid.isPresent()) {
+                    var hex = HexFormat.of();
+                    HIDIdentifier hidIdentifier = hid.get().asIdentifier();
+                    uid = "V"
+                        + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
+                        + "-P"
+                        + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
+                        + "-";
+                }
+                uid += "SN" + this.serial.toUpperCase();
+            }
+        }
+
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
 

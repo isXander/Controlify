@@ -20,6 +20,8 @@ public class DebugProperties {
     public static final boolean PRINT_DRIVER = boolProp("controlify.debug.print_driver", true, true);
     /** Debug dumps after finishing init */
     public static final boolean INIT_DUMP = boolProp("controlify.debug.init_dump", false, true);
+    /** Use SDL Serial number instead of HID+Index **/
+    public static final boolean SDL_USE_SERIAL_NUMBER = boolProp("controlify.debug.sdl_use_serial_number", false, false);
 
     public static void printProperties() {
         if (properties.stream().noneMatch(prop -> prop.enabled() != prop.def()))

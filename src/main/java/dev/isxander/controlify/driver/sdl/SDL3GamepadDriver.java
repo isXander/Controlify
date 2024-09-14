@@ -23,8 +23,10 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controllermanager.UniqueControllerID;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDDevice;
+import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -43,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import java.util.HexFormat;
 
 import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
@@ -70,6 +73,7 @@ public class SDL3GamepadDriver implements Driver {
     private final int maxTouchpadFingers;
 
     private final String guid;
+    private final String serial;
     private final String name;
 
     @Nullable
@@ -88,6 +92,23 @@ public class SDL3GamepadDriver implements Driver {
 
         this.name = SDL_GetGamepadName(ptrGamepad);
         this.guid = SDL_GetGamepadInstanceGUID(jid).toString();
+        this.serial = SDL_GetGamepadSerial(ptrGamepad);
+
+        if(DebugProperties.SDL_USE_SERIAL_NUMBER) {
+            if(this.serial != null && this.serial.length() > 0) {
+                uid = new String();
+                if(hid.isPresent()) {
+                    var hex = HexFormat.of();
+                    HIDIdentifier hidIdentifier = hid.get().asIdentifier();
+                    uid = "V"
+                        + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
+                        + "-P"
+                        + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
+                        + "-";
+                }
+                uid += "SN" + this.serial.toUpperCase();
+            }
+        }
         this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO) == SDL_TRUE;
         this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
