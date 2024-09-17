@@ -45,7 +45,7 @@
   "controlify.gui.keyboard_movement_whitelist.tooltip": "Список серверів, на яких буде ввімкнено переміщення, подібне до клавіатури. Це список IP-адрес серверів. Сервери, перелічені тут, матимуть переміщення, подібне до клавіатури, навіть якщо вищевказану опцію вимкнено.",
   "controlify.gui.ingame_button_guide_scale": "Розмір внутрішньоігрових підказок",
   "controlify.gui.ingame_button_guide_scale.tooltip": "Наскільки великими є внутрішньоігрові підказки. Це відсоток від поточної вибраної шкали графічного інтерфейсу. 100% відповідатиме звичайному розміру.",
-  "controlify.gui.ingame_button_guide_scale.tooltip.warning": "This may cause scaling issues that will make it to look bad at anything but 100%.",
+  "controlify.gui.ingame_button_guide_scale.tooltip.warning": "Це може спричинити проблеми з масштабуванням, через які він виглядатиме погано на будь-яких рівнях, крім 100%.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
   "controlify.gui.copy_debug_dump": "Copy Debug Dump To Clipboard",
   "controlify.gui.copy_debug_dump.tooltip": "Copies a Controlify debug dump to your clipboard. You may be asked to use this if you are seeking support.",
