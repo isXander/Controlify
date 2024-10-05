@@ -58,7 +58,7 @@ public class SDL3JoystickDriver implements Driver {
         this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
         this.serial = SDL_GetJoystickSerial(ptrJoystick);
 
-        if (DebugProperties.SDL_USE_SERIAL_NUMBER) {
+        if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
             if (this.serial != null && this.serial.length() > 0) {
                 uid = new String();
                 if (hid.isPresent()) {
