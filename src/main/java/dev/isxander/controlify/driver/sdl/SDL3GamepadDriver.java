@@ -94,10 +94,10 @@ public class SDL3GamepadDriver implements Driver {
         this.guid = SDL_GetGamepadInstanceGUID(jid).toString();
         this.serial = SDL_GetGamepadSerial(ptrGamepad);
 
-        if(DebugProperties.SDL_USE_SERIAL_NUMBER) {
-            if(this.serial != null && this.serial.length() > 0) {
+        if (DebugProperties.SDL_USE_SERIAL_NUMBER) {
+            if (this.serial != null && this.serial.length() > 0) {
                 uid = new String();
-                if(hid.isPresent()) {
+                i f(hid.isPresent()) {
                     var hex = HexFormat.of();
                     HIDIdentifier hidIdentifier = hid.get().asIdentifier();
                     uid = "V"
