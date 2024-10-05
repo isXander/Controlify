@@ -137,7 +137,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     protected int getControllerCountWithMatchingHID(HIDIdentifier hid) {
         return (int) controllersByJid.values().stream()
-                .filter(c -> c.info().hid().equals(Optional.ofNullable(hid)))
+                .filter(c -> c.info().hid().isPresent() && c.info().hid().get().asIdentifier().equals(hid))
                 .count();
     }
 
