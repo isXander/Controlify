@@ -38,16 +38,20 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
         super.onWidgetRebuild();
 
         if (((PauseScreenAccessor) screen).getShowPauseMenu()) {
-            ButtonGuideApi.addGuideToButton(
-                    (AbstractButton) getWidget("menu.returnToGame").orElseThrow(),
-                    ControlifyBindings.GUI_BACK,
-                    ButtonGuidePredicate.always()
-            );
-            ButtonGuideApi.addGuideToButton(
-                    (AbstractButton) getWidget("menu.options").orElseThrow(),
-                    ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                    ButtonGuidePredicate.always()
-            );
+            getWidget("menu.returnToGame").ifPresent(widget -> {
+                ButtonGuideApi.addGuideToButton(
+                        (AbstractButton) widget,
+                        ControlifyBindings.GUI_BACK,
+                        ButtonGuidePredicate.always()
+                );
+            });
+            getWidget("menu.options").ifPresent( widget -> {
+                ButtonGuideApi.addGuideToButton(
+                        (AbstractButton) widget,
+                        ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+                        ButtonGuidePredicate.always()
+                );
+            });
             ButtonGuideApi.addGuideToButton(
                     disconnectButtonSupplier.get(),
                     () -> disconnectButtonSupplier.get().isFocused()
