@@ -50,6 +50,7 @@
     "midnightcontrols": "*",
     "controllable": "*",
     "zoomify": "<=2.13.4",
-    "do_a_barrel_roll": "<=3.5.8"
+    "do_a_barrel_roll": "<=3.5.8",
+    "sodium": ">=0.6"
   }
 }
