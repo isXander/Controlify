@@ -38,7 +38,7 @@ public class ControlifyCompat {
         } catch (NoClassDefFoundError e) {
             disabledMods.add(FANCY_MENU);
         }
-        //? }
+        //?}
     }
 
     public static void ifBeginHudBatching() {
