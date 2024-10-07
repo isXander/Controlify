@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -18,8 +19,13 @@ public final class SteamDeckUtil {
 
     public static final boolean IS_STEAM_DECK = isHardwareSteamDeck();
     public static final SteamDeckMode DECK_MODE = getSteamDeckMode();
+    // flatpak sets env variable 'container' when containerised
+    // https://stackoverflow.com/a/75284996
+    public static final boolean IS_SANDBOXED = "1".equals(System.getenv("container"));
 
     public static final ResourceLocation STEAM_DECK_NAMESPACE = CUtil.rl("steam_deck");
+
+    public static final Path CEF_DEBUGGER_FILE = Paths.get(System.getProperty("user.home"), ".steam/steam/.cef-enable-remote-debugging");
 
     public static Optional<SteamDeck> getDeckInstance() {
         if (triedToLoad) {
@@ -43,6 +49,31 @@ public final class SteamDeckUtil {
         }
 
         return Optional.ofNullable(deckInstance);
+    }
+
+    public static CEFDebuggerFileResult ensureCefDebuggerFilePresent() {
+        if (getDeckInstance().isPresent()) {
+            return CEFDebuggerFileResult.WORKING;
+        }
+
+        return switch (DECK_MODE) {
+            case DESKTOP_MODE -> {
+                if (Files.exists(CEF_DEBUGGER_FILE)) {
+                    yield CEFDebuggerFileResult.PRESENT_BUT_DESKTOP;
+                } else {
+                    try {
+                        Files.createFile(CEF_DEBUGGER_FILE);
+                        yield CEFDebuggerFileResult.REQUIRES_RESTART;
+                    } catch (IOException e) {
+                        CUtil.LOGGER.error("Failed to create CEF debugger file", e);
+                        yield CEFDebuggerFileResult.FAILED_TO_CREATE;
+                    }
+                }
+            }
+            // already checked if CEF connection has been made, it has not
+            case GAMING_MODE -> CEFDebuggerFileResult.SANDBOXED_ERROR;
+            case NOT_STEAM_DECK -> CEFDebuggerFileResult.NOT_STEAM_DECK;
+        };
     }
 
     private static boolean isHardwareSteamDeck() {
