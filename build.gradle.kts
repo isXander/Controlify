@@ -205,6 +205,9 @@ dependencies {
 
     // simple-voice-chat compat
     modDependency("simpleVoiceChat", { "maven.modrinth:simple-voice-chat:$it" })
+
+    // fancy menu compat
+    modDependency("fancyMenu", { "maven.modrinth:fancymenu:$it" })
 }
 
 tasks {
