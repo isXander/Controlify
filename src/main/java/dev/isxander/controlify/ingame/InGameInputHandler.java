@@ -228,10 +228,10 @@ public class InGameInputHandler {
     protected void handlePlayerLookInput() {
         LocalPlayer player = this.minecraft.player;
 
-        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed();
+        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().globalSettings().outOfFocusInput;
         boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
         boolean screenVisible = minecraft.screen != null;
-        boolean playerExists = minecraft.player != null;
+        boolean playerExists = player != null;
         if (mouseNotGrabbed || outOfFocus || screenVisible || !playerExists) {
             lookInputX = 0;
             lookInputY = 0;
