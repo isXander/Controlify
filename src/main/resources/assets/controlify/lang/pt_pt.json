@@ -69,7 +69,7 @@
   "controlify.gui.toggle_sneak": "Agachar-se",
   "controlify.gui.toggle_sneak.tooltip": "Como o estado do botão de se agachar se comporta.",
   "controlify.gui.toggle_sprint": "Correr",
-  "controlify.gui.toggle_sprint.tooltip": "Como o estado do botão de agachamento se comporta.",
+  "controlify.gui.toggle_sprint.tooltip": "Como o estado do botão de correr se comporta.",
   "controlify.gui.auto_jump": "Salto automático",
   "controlify.gui.auto_jump.tooltip": "Se o jogador deve saltar automaticamente quando alcança um bloco.",
   "controlify.gui.no_fly_drifting": "Sem deslize ao voar",
