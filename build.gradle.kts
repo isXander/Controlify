@@ -53,6 +53,7 @@ loom {
         runConfigs.all {
             ideConfigGenerated(true)
             runDir("../../run")
+            vmArgs("-Dsodium.checks.issue2561=false")
         }
     }
 
