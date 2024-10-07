@@ -148,6 +148,10 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
 
+  "controlify.gui.show_keyboard.off": "Off",
+  "controlify.gui.show_keyboard.controlify": "Controlify",
+  "controlify.gui.show_keyboard.system": "System",
+
   "controlify.deadzone_group.controlify.left_stick": "Left Stick",
   "controlify.deadzone_group.controlify.right_stick": "Right Stick",
 
@@ -363,7 +367,8 @@
   "controlify.input.controlify.button/right_paddle_2": "Right Paddle 2",
   "controlify.input.controlify.button/left_paddle_1": "Left Paddle 1",
   "controlify.input.controlify.button/left_paddle_2": "Left Paddle 2",
-  "controlify.input.controlify.button/touchpad": "Touchpad Press",
+  "controlify.input.controlify.button/touchpad_1": "Touchpad 1 Press",
+  "controlify.input.controlify.button/touchpad_2": "Touchpad 2 Press",
 
   "controlify.input.controlify.button/0": "Button #1",
   "controlify.input.controlify.button/1": "Button #2",
@@ -405,6 +410,11 @@
   "controlify.input.controlify.axis/17": "Axis #18",
   "controlify.input.controlify.axis/18": "Axis #19",
   "controlify.input.controlify.axis/19": "Axis #20",
+
+  "controlify.input.controlify.steam_deck.controlify.button/touchpad_1": "Left Touchpad Click",
+  "controlify.input.controlify.steam_deck.controlify.button/touchpad_2": "Right Touchpad Click",
+  "controlify.input.controlify.dualsense.controlify.button/touchpad_1": "Touchpad Click",
+  "controlify.input.controlify.dualshock4.controlify.button/touchpad_1": "Touchpad Click",
 
   "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Virtual Mouse",
@@ -530,6 +540,18 @@
   "controlify.ask_to_map_controller.message": "It looks like your controller may not be a gamepad, so the default controls might not work, and you might get missing textures in input guides. Mapping your controller will walk you through converting your controller inputs into a regular gamepad standard.",
   "controlify.ask_to_map_controller.yes": "Map Now",
   "controlify.ask_to_map_controller.no": "Maybe Later",
+
+  "controlify.steam_deck.desktop_mode_warning.title": "Desktop Mode Detected",
+  "controlify.steam_deck.desktop_mode_warning.message": "It is essential to switch to Gaming Mode on your Steam Deck. Controlify has native support for your Deck, but Desktop mode attempts to convert your Deck input into a keyboard and mouse.",
+  "controlify.steam_deck.compat_install.title": "Further setup needed for Steam Deck",
+  "controlify.steam_deck.compat_install.message": "To get the most out of your Steam Deck, you need to run a script to allow Controlify to get advanced input from your Deck. Features that require this setup include gyroscope, haptics, touchpad, back buttons, native screenshot handling, native keyboard handling, and more.\n\nOpen %s on your device to view a guide on how to set this up.",
+  "controlify.steam_deck.run_in_desktop_once.title": "Steam Deck Compatibility - Please run in Desktop Mode",
+  "controlify.steam_deck.run_in_desktop_once.message": "Please start the game in Desktop Mode to complete the initial setup.\nThis setup cannot be done in Gaming Mode, as it's a sandboxed environment.\nYou only need to do this once.",
+  "controlify.steam_deck.initial_setup_completed.title": "Initial Steam Deck setup completed",
+  "controlify.steam_deck.initial_setup_completed.message": "You have completed the initial setup for Controlify on your Steam Deck. You can now start the game in Gaming Mode.",
+  "controlify.steam_deck.failed_to_create_cef_file.title": "Failed to complete automatic Steam Deck setup",
+  "controlify.steam_deck.failed_to_create_cef_file.message": "Controlify failed to automatically create the necessary files for Steam Deck compatibility.\nPlease follow the guide at %s to run the compatibility installer yourself.",
+  "controlify.steam_deck.no_driver": "Enhanced steam deck driver not running",
 
   "controlify.compat.svc.hold": "(Hold)",
   "controlify.compat.svc.toggle": "(Toggle)",

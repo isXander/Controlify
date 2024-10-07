@@ -18,6 +18,8 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
@@ -40,6 +42,7 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import dev.isxander.deckapi.api.SteamDeck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -192,7 +195,7 @@ public class Controlify implements ControlifyApi {
             }
         });
 
-        if (config().globalSettings().quietMode) {
+        if (config().globalSettings().isQuietMode()) {
             // Use GLFW to probe for controllers without asking for natives
             boolean controllersConnected = GLFWControllerManager.areControllersConnected();
 
@@ -217,6 +220,28 @@ public class Controlify implements ControlifyApi {
 
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
+
+        CUtil.LOGGER.info("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
+        CUtil.LOGGER.info("Sandboxed environment: {}", SteamDeckUtil.IS_SANDBOXED);
+        switch (SteamDeckUtil.ensureCefDebuggerFilePresent()) {
+            case SANDBOXED_ERROR -> {
+                CUtil.LOGGER.warn("Controlify can't check whether the CEF debugger file exists because it's running in a sandboxed environment. A connection to CEF cannot be made, so a presumption is made that the CEF file is not present.");
+                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createRunInDesktopOnceMessage);
+            }
+            case PRESENT_BUT_DESKTOP -> {
+                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
+            }
+            case REQUIRES_RESTART -> {
+                InitialScreenRegistryDuck.registerInitialScreen((c) -> SteamDeckAlerts.createInitialSetupCompleted());
+            }
+            case WORKING -> {
+                CUtil.LOGGER.info("Steam Deck Compatibility enabled! Controlify has an established connection to the CEF debugger.");
+            }
+            case FAILED_TO_CREATE -> {
+                CUtil.LOGGER.error("Failed to create CEF debugger file. Steam Deck compatibility will not work. Suggesting to run setup script.");
+                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createFailedToCreateCEFFile);
+            }
+        }
     }
 
     /**
@@ -308,7 +333,7 @@ public class Controlify implements ControlifyApi {
 
             // assume that if someone explicitly went into controlify settings,
             // they have a controller and want the full experience.
-            if (config().globalSettings().quietMode) {
+            if (config().globalSettings().isQuietMode()) {
                 config().globalSettings().quietMode = false;
                 config().setDirty();
             }

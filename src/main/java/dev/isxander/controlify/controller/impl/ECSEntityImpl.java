@@ -21,8 +21,8 @@ public class ECSEntityImpl implements ECSEntity {
     }
 
     @Override
-    public <T extends ECSComponent> boolean setComponent(T component, ResourceLocation id) {
-        return this.components.put(id, component) != null;
+    public <T extends ECSComponent> boolean setComponent(T component) {
+        return this.components.put(component.id(), component) != null;
     }
 
     @Override

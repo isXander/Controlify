@@ -1,16 +1,19 @@
 package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerInfo;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.glfw.GLFWGamepadDriver;
 import dev.isxander.controlify.driver.glfw.GLFWJoystickDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.lwjgl.glfw.GLFW;
@@ -18,10 +21,13 @@ import org.lwjgl.system.MemoryUtil;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class GLFWControllerManager extends AbstractControllerManager {
+    private boolean steamDeckConsumed = false;
 
     public GLFWControllerManager() {
         this.setupCallbacks();
@@ -65,15 +71,32 @@ public class GLFWControllerManager extends AbstractControllerManager {
                 this.getControllerCountWithMatchingHID(hid.orElse(null))
         ).orElse("unknown-uid-" + ucid);
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
-        if (isGamepad) {
-            GLFWGamepadDriver driver = new GLFWGamepadDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
-            return Optional.of(driver.getController());
-        } else {
-            GLFWJoystickDriver driver = new GLFWJoystickDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
-            return Optional.of(driver.getController());
+
+        List<Driver> drivers = new ArrayList<>();
+        if (SteamDeckUtil.DECK_MODE.isGamingMode()
+            && !steamDeckConsumed
+            && hidInfo.type().namespace().equals(SteamDeckUtil.STEAM_DECK_NAMESPACE)
+        ) {
+            Optional<SteamDeckDriver> steamDeckDriver = SteamDeckDriver.create();
+            if (steamDeckDriver.isPresent()) {
+                drivers.add(steamDeckDriver.get());
+                steamDeckConsumed = true;
+            }
         }
+
+        if (isGamepad) {
+            drivers.add(new GLFWGamepadDriver(jid));
+        } else {
+            drivers.add(new GLFWJoystickDriver(jid));
+        }
+
+        String name = drivers.get(0).getDriverName();
+        String guid = GLFW.glfwGetJoystickGUID(jid);
+        ControllerInfo info = new ControllerInfo(uid, ucid, guid, name, hidInfo.type(), hidInfo.hidDevice());
+        ControllerEntity controller = new ControllerEntity(info, drivers);
+
+        addController(ucid, controller);
+        return Optional.of(controller);
     }
 
     @Override

@@ -1,6 +1,5 @@
-package dev.isxander.controlify.controller.dualsense;
+package dev.isxander.controlify.controller.haptic;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 

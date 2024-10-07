@@ -2,6 +2,7 @@
   "package": "dev.isxander.controlify.mixins",
   "required": true,
   "minVersion": "0.8",
+  "minMixinExtrasVersion": "0.5.0-beta.1",
   "injectors": {
     "defaultRequire": 1
   },
@@ -86,6 +87,7 @@
     "feature.screenop.vanilla.TitleScreenMixin",
     "feature.screenop.vanilla.WorldSelectionListEntryMixin",
     "feature.settingsbutton.ControlsScreenMixin",
+    "feature.steamdeck.ScreenshotAccessor",
     "feature.util.ConnectScreenMixin",
     "feature.virtualmouse.InputConstantsMixin",
     "feature.virtualmouse.KeyboardHandlerAccessor",

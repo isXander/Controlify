@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller.dualsense;
+package dev.isxander.controlify.controller.haptic;
 
 import dev.isxander.controlify.driver.sdl.DualsenseOggAudioStream;
 import net.minecraft.Util;

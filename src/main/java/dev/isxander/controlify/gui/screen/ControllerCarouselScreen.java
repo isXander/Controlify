@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.GenericControllerConfig;
+import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
@@ -52,6 +53,12 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             CUtil.mcRl("icon/checkmark");
             /*?} else {*/
             /*CUtil.mcRl("textures/gui/checkmark.png");
+            *//*?}*/
+    public static final ResourceLocation DANGER =
+            /*? if >=1.20.3 {*/
+            CUtil.mcRl("icon/unseen_notification");
+            /*?} else {*/
+            /*CUtil.mcRl("textures/gui/unseen_notification.png");
             *//*?}*/
 
     private final Screen parent;
@@ -275,6 +282,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         private boolean hovered = false;
 
+        private final boolean badSteamDeck;
+
         private CarouselEntry(ControllerEntity controller, int width, int height) {
             this.width = width;
             this.height = height;
@@ -287,7 +296,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             this.children = ImmutableList.of(settingsButton, useControllerButton);
 
             this.prevUse = isCurrentlyUsed();
-            this.currentlyUsedPos = prevUse ? 0 : -1;
+            this.currentlyUsedPos = prevUse ? 1 : 0;
+
+            // Check if the Steam Deck is loaded but not with dedicated driver (the component is only provided by the dedicated driver)
+            this.badSteamDeck = controller.info().type().isSteamDeck()
+                                && controller.getComponent(SteamDeckComponent.ID).isEmpty();
         }
 
         @Override
@@ -316,12 +329,17 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             Component currentlyInUseText = Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN);
             graphics.pose().pushPose();
-            graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * currentlyUsedPos, 0, 0);
+            graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * (currentlyUsedPos - 1), 0, 0);
 
-            if (currentlyUsedPos > -1) {
+            if (currentlyUsedPos > 0) {
                 ClientUtils.drawSprite(graphics, CHECKMARK, x + 4, y + 4, 9, 8);
                 graphics.drawString(font, currentlyInUseText, x + 17, y + 4, -1);
             }
+            if (badSteamDeck) {
+                ClientUtils.drawSprite(graphics, DANGER, x + 4, y + 4 + 10, 9, 8);
+                graphics.drawString(font, Component.translatable("controlify.steam_deck_no_driver"), x + 17, y + 4 + 10, -1);
+            }
+
             graphics.pose().popPose();
 
             int iconWidth = width - 6;
@@ -347,7 +365,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                     currentlyUsedAnimation.skipToEnd();
                 currentlyUsedAnimation = Animation.of(20)
                         .easing(EasingFunction.EASE_OUT_QUINT)
-                        .consumerF(t -> currentlyUsedPos = t, currentlyUsedPos, isCurrentlyUsed() ? 0 : -1)
+                        .consumerF(t -> currentlyUsedPos = t, currentlyUsedPos, isCurrentlyUsed() ? 1 : 0)
                         .play();
             }
             prevUse = isCurrentlyUsed();

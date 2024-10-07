@@ -1,0 +1,8 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Name=Install Controlify Compatibility
+Exec=sh -c 'rm -f /tmp/controlify-compat-installer.sh; if curl -S -s -L -O --output-dir /tmp/ --connect-timeout 60 https://short.isxander.dev/deck-script; then bash /tmp/controlify-compat-installer.sh; else echo "Something went wrong, please report this if it is a bug"; read; fi'
+Type=Application
+Terminal=true
+StartupNotify=false
+Icon=applications-games

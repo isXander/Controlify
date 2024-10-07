@@ -5,7 +5,7 @@ import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.dualsense.HapticEffects;
+import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.gui.guide.GuideAction;
 import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;

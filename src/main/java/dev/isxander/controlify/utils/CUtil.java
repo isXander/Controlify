@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.*;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -148,6 +149,20 @@ public class CUtil {
                 return first + " orCompressed " + second;
             }
         };
+    }
+
+    public static float positiveAxis(float value) {
+        return value < 0 ? 0 : value;
+    }
+
+    public static float negativeAxis(float value) {
+        return value > 0 ? 0 : -value;
+    }
+
+    public static float mapShortToFloat(short value) {
+        // we need to do this since signed short range / 2 != 0
+        return Mth.clampedMap(value, Short.MIN_VALUE, 0, -1f, 0f)
+               + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
     }
 
 }
