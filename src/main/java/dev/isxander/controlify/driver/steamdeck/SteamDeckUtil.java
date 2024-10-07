@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class SteamDeckUtil {
     private static @Nullable SteamDeck deckInstance;
@@ -93,8 +94,13 @@ public final class SteamDeckUtil {
         String boardName = readFile("/sys/class/dmi/id/board_name");
         if (boardName == null) return false;
 
+        var validBoardNames = Stream.of(
+                "Jupiter", // LCD
+                "Galileo"  // OLED
+        );
+
         // Jupiter is the codename for the steam deck
-        return boardVendor.contains("Valve") && boardName.contains("Jupiter");
+        return boardVendor.contains("Valve") && validBoardNames.anyMatch(boardName::contains);
     }
 
     private static SteamDeckMode getSteamDeckMode() {
