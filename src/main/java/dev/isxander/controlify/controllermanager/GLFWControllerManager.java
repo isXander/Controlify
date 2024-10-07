@@ -1,7 +1,6 @@
 package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerInfo;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -9,11 +8,12 @@ import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.glfw.GLFWGamepadDriver;
 import dev.isxander.controlify.driver.glfw.GLFWJoystickDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.lwjgl.glfw.GLFW;
@@ -73,7 +73,10 @@ public class GLFWControllerManager extends AbstractControllerManager {
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
 
         List<Driver> drivers = new ArrayList<>();
-        if (!steamDeckConsumed && hidInfo.type().namespace().equals(CUtil.rl("steam_deck"))) {
+        if (SteamDeckUtil.DECK_MODE.isGamingMode()
+            && !steamDeckConsumed
+            && hidInfo.type().namespace().equals(SteamDeckUtil.STEAM_DECK_NAMESPACE)
+        ) {
             Optional<SteamDeckDriver> steamDeckDriver = SteamDeckDriver.create();
             if (steamDeckDriver.isPresent()) {
                 drivers.add(steamDeckDriver.get());

@@ -25,6 +25,7 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
+import dev.isxander.controlify.controllermanager.UniqueControllerID;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.hid.HIDDevice;
@@ -94,11 +95,8 @@ public class SDL3GamepadDriver implements Driver {
     private SDL_AudioSpec dualsenseAudioSpec;
     private final List<AudioStreamHandle> dualsenseAudioHandles;
 
-    public SDL3GamepadDriver(SDL_JoystickID jid, ControllerType type, String uid, UniqueControllerID ucid, Optional<HIDDevice> hid) {
-        this.ptrGamepad = SDL_OpenGamepad(jid);
-        if (this.ptrGamepad == null) {
-            throw new IllegalStateException("Could not open gamepad: " + SDL_GetError());
-        }
+    public SDL3GamepadDriver(SDL_Gamepad ptrGamepad, SDL_JoystickID jid, ControllerType type) {
+        this.ptrGamepad = ptrGamepad;
 
         SDL_PropertiesID properties = SDL_GetGamepadProperties(ptrGamepad);
 
@@ -106,21 +104,6 @@ public class SDL3GamepadDriver implements Driver {
         this.guid = SDL_GetGamepadInstanceGUID(jid).toString();
         this.serial = SDL_GetGamepadSerial(ptrGamepad);
 
-        if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
-            if (this.serial != null && this.serial.length() > 0) {
-                uid = new String();
-                i f(hid.isPresent()) {
-                    var hex = HexFormat.of();
-                    HIDIdentifier hidIdentifier = hid.get().asIdentifier();
-                    uid = "V"
-                        + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
-                        + "-P"
-                        + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
-                        + "-";
-                }
-                uid += "SN" + this.serial.toUpperCase();
-            }
-        }
         this.isGryoSupported = SDL_GamepadHasSensor(ptrGamepad, SDL_SensorType.SDL_SENSOR_GYRO) == SDL_TRUE;
         this.isRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(properties, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;

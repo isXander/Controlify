@@ -19,6 +19,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.driver.SDL3NativesManager;
@@ -41,6 +42,7 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import dev.isxander.deckapi.api.SteamDeck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -219,9 +221,17 @@ public class Controlify implements ControlifyApi {
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
 
-        System.out.println(SteamDeckMode.CURRENT_MODE);
-        if (SteamDeckMode.CURRENT_MODE == SteamDeckMode.DESKTOP_MODE) {
-            InitialScreenRegistryDuck.registerInitialScreen(SteamOSDesktopModeWarningScreen::new);
+        CUtil.LOGGER.info("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
+        switch (SteamDeckUtil.DECK_MODE) {
+            case GAMING_MODE -> {
+                Optional<SteamDeck> steamDeck = SteamDeckUtil.getDeckInstance();
+                if (steamDeck.isEmpty()) {
+                    InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createCompatInstallRequired);
+                }
+            }
+            case DESKTOP_MODE -> {
+                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
+            }
         }
     }
 

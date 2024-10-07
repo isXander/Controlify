@@ -5,6 +5,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.Driver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -51,6 +53,13 @@ public abstract class AbstractControllerManager implements ControllerManager {
             if (hidInfo.type().dontLoad()) {
                 DebugLog.log("Preventing load of controller #" + ucid + " because its type prevents loading.");
                 return Optional.empty();
+            }
+
+            if (hidInfo.type().isSteamDeck()) {
+                if (!SteamDeckUtil.DECK_MODE.isGamingMode()) {
+                    CUtil.LOGGER.warn("Preventing load of controller #{} because Steam Deck is not in gaming mode.", ucid);
+                    return Optional.empty();
+                }
             }
 
             return createController(ucid, hidInfo);

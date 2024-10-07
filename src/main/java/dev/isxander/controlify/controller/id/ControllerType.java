@@ -3,6 +3,7 @@ package dev.isxander.controlify.controller.id;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -25,5 +26,9 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, Re
         /*return namespace.withPath("textures/gui/sprites/controllers/" + namespace.getPath() + ".png");
         *//*?}*/
 
+    }
+
+    public boolean isSteamDeck() {
+        return namespace.equals(SteamDeckUtil.STEAM_DECK_NAMESPACE);
     }
 }

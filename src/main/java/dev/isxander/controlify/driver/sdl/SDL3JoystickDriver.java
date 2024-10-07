@@ -51,32 +51,13 @@ public class SDL3JoystickDriver implements Driver {
 
     private final int numAxes, numButtons, numHats;
 
-    public SDL3JoystickDriver(SDL_JoystickID jid) {
-        this.ptrJoystick = SDL_OpenJoystick(jid);
-        if (ptrJoystick == null)
-            throw new IllegalStateException("Could not open joystick: " + SDL_GetError());
-
+    public SDL3JoystickDriver(SDL_Joystick ptrJoystick, SDL_JoystickID jid) {
+        this.ptrJoystick = ptrJoystick;
         SDL_PropertiesID props = SDL_GetJoystickProperties(ptrJoystick);
 
         this.name = SDL_GetJoystickName(ptrJoystick);
         this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
         this.serial = SDL_GetJoystickSerial(ptrJoystick);
-
-        if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
-            if (this.serial != null && this.serial.length() > 0) {
-                uid = new String();
-                if (hid.isPresent()) {
-                    var hex = HexFormat.of();
-                    HIDIdentifier hidIdentifier = hid.get().asIdentifier();
-                    uid = "V"
-                        + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
-                        + "-P"
-                        + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
-                        + "-";
-                }
-                uid += "SN" + this.serial.toUpperCase();
-            }
-        }
 
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;

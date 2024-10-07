@@ -21,14 +21,14 @@ public abstract class ChatComponentMixin {
     @Final
     private Minecraft minecraft;
 
-    @Definition(id = "floor", method = "Lnet/minecraft/util/Mth;floor(F)I")
-    @Expression("floor((float) (@(?) - @(40)) / ?)")
-    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private int modifyChatOffset(int y) {
-        if (minecraft.screen instanceof ChatScreen chat)
-            return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
-        return y;
-    }
+//    @Definition(id = "floor", method = "Lnet/minecraft/util/Mth;floor(F)I")
+//    @Expression("floor((float) (@(?) - @(40)) / ?)")
+//    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+//    private int modifyChatOffset(int y) {
+//        if (minecraft.screen instanceof ChatScreen chat)
+//            return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
+//        return y;
+//    }
 
     @ModifyExpressionValue(method = "screenToChatY", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;getGuiScaledHeight()I"))
     private int modifyScreenY(int original) {

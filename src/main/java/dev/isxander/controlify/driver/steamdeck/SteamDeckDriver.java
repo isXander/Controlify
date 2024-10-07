@@ -9,12 +9,14 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
+import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.deckapi.api.ControllerButton;
 import dev.isxander.deckapi.api.ControllerState;
 import dev.isxander.deckapi.api.SteamDeck;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.joml.Vector2f;
 
@@ -69,6 +71,8 @@ public class SteamDeckDriver implements Driver {
         controller.setComponent(
                 this.keyboardComponent = new NativeKeyboardComponent(this::openKeyboard, 0.5f)
         );
+
+        controller.setComponent(new SteamDeckComponent());
     }
 
     @Override
@@ -78,37 +82,43 @@ public class SteamDeckDriver implements Driver {
         ControllerStateImpl state = new ControllerStateImpl();
         ControllerState deckState = deck.getControllerState();
 
-        state.setButton(GamepadInputs.NORTH_BUTTON, deckState.getButtonState(ControllerButton.Y));
-        state.setButton(GamepadInputs.EAST_BUTTON, deckState.getButtonState(ControllerButton.B));
-        state.setButton(GamepadInputs.SOUTH_BUTTON, deckState.getButtonState(ControllerButton.A));
-        state.setButton(GamepadInputs.WEST_BUTTON, deckState.getButtonState(ControllerButton.X));
-        state.setButton(GamepadInputs.LEFT_SHOULDER_BUTTON, deckState.getButtonState(ControllerButton.L1));
-        state.setButton(GamepadInputs.RIGHT_SHOULDER_BUTTON, deckState.getButtonState(ControllerButton.R1));
-        state.setButton(GamepadInputs.START_BUTTON, deckState.getButtonState(ControllerButton.START));
-        state.setButton(GamepadInputs.BACK_BUTTON, deckState.getButtonState(ControllerButton.SELECT));
-        state.setButton(GamepadInputs.GUIDE_BUTTON, deckState.getButtonState(ControllerButton.STEAM_HOME));
-        state.setButton(GamepadInputs.LEFT_STICK_BUTTON, deckState.getButtonState(ControllerButton.L3));
-        state.setButton(GamepadInputs.RIGHT_STICK_BUTTON, deckState.getButtonState(ControllerButton.R3));
-        state.setButton(GamepadInputs.DPAD_UP_BUTTON, deckState.getButtonState(ControllerButton.DPAD_UP));
-        state.setButton(GamepadInputs.DPAD_DOWN_BUTTON, deckState.getButtonState(ControllerButton.DPAD_DOWN));
-        state.setButton(GamepadInputs.DPAD_LEFT_BUTTON, deckState.getButtonState(ControllerButton.DPAD_LEFT));
-        state.setButton(GamepadInputs.DPAD_RIGHT_BUTTON, deckState.getButtonState(ControllerButton.DPAD_RIGHT));
-        state.setButton(GamepadInputs.LEFT_PADDLE_1_BUTTON, deckState.getButtonState(ControllerButton.L4));
-        state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.L5));
-        state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, deckState.getButtonState(ControllerButton.R4));
-        state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.R5));
-        state.setButton(GamepadInputs.TOUCHPAD_1_BUTTON, deckState.getButtonState(ControllerButton.LEFT_TOUCHPAD_CLICK));
-        state.setButton(GamepadInputs.TOUCHPAD_2_BUTTON, deckState.getButtonState(ControllerButton.RIGHT_TOUCHPAD_CLICK));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_UP, positiveAxis(mapShortToFloat(deckState.sLeftStickY())));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_DOWN, negativeAxis(mapShortToFloat(deckState.sLeftStickY())));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(deckState.sLeftStickX())));
-        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(deckState.sLeftStickX())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_UP, positiveAxis(mapShortToFloat(deckState.sRightStickY())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_DOWN, negativeAxis(mapShortToFloat(deckState.sRightStickY())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(deckState.sRightStickX())));
-        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(deckState.sRightStickX())));
-        state.setAxis(GamepadInputs.LEFT_TRIGGER_AXIS, mapShortToFloat(deckState.sTriggerL()));
-        state.setAxis(GamepadInputs.RIGHT_TRIGGER_AXIS, mapShortToFloat(deckState.sTriggerR()));
+        boolean focused = deck.isGameInFocus();
+        Minecraft.getInstance().setWindowActive(focused);
+
+        state.setButton(GamepadInputs.NORTH_BUTTON, deckState.getButtonState(ControllerButton.Y) && focused);
+        state.setButton(GamepadInputs.EAST_BUTTON, deckState.getButtonState(ControllerButton.B) && focused);
+        state.setButton(GamepadInputs.SOUTH_BUTTON, deckState.getButtonState(ControllerButton.A) && focused);
+        state.setButton(GamepadInputs.WEST_BUTTON, deckState.getButtonState(ControllerButton.X) && focused);
+        state.setButton(GamepadInputs.LEFT_SHOULDER_BUTTON, deckState.getButtonState(ControllerButton.L1) && focused);
+        state.setButton(GamepadInputs.RIGHT_SHOULDER_BUTTON, deckState.getButtonState(ControllerButton.R1) && focused);
+        state.setButton(GamepadInputs.START_BUTTON, deckState.getButtonState(ControllerButton.START) && focused);
+        state.setButton(GamepadInputs.BACK_BUTTON, deckState.getButtonState(ControllerButton.SELECT) && focused);
+
+        // not sure if this should ever be used, since it will always open the steam menu
+//        state.setButton(GamepadInputs.GUIDE_BUTTON, deckState.getButtonState(ControllerButton.STEAM_HOME) && focused);
+
+        state.setButton(GamepadInputs.LEFT_STICK_BUTTON, deckState.getButtonState(ControllerButton.L3) && focused);
+        state.setButton(GamepadInputs.RIGHT_STICK_BUTTON, deckState.getButtonState(ControllerButton.R3) && focused);
+        state.setButton(GamepadInputs.DPAD_UP_BUTTON, deckState.getButtonState(ControllerButton.DPAD_UP) && focused);
+        state.setButton(GamepadInputs.DPAD_DOWN_BUTTON, deckState.getButtonState(ControllerButton.DPAD_DOWN) && focused);
+        state.setButton(GamepadInputs.DPAD_LEFT_BUTTON, deckState.getButtonState(ControllerButton.DPAD_LEFT) && focused);
+        state.setButton(GamepadInputs.DPAD_RIGHT_BUTTON, deckState.getButtonState(ControllerButton.DPAD_RIGHT) && focused);
+        state.setButton(GamepadInputs.LEFT_PADDLE_1_BUTTON, deckState.getButtonState(ControllerButton.L4) && focused);
+        state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.L5) && focused);
+        state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, deckState.getButtonState(ControllerButton.R4) && focused);
+        state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, deckState.getButtonState(ControllerButton.R5) && focused);
+        state.setButton(GamepadInputs.TOUCHPAD_1_BUTTON, deckState.getButtonState(ControllerButton.LEFT_TOUCHPAD_CLICK) && focused);
+        state.setButton(GamepadInputs.TOUCHPAD_2_BUTTON, deckState.getButtonState(ControllerButton.RIGHT_TOUCHPAD_CLICK) && focused);
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_UP, zeroUnless(positiveAxis(mapShortToFloat(deckState.sLeftStickY())), focused));
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_DOWN, zeroUnless(negativeAxis(mapShortToFloat(deckState.sLeftStickY())), focused));
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_LEFT, zeroUnless(negativeAxis(mapShortToFloat(deckState.sLeftStickX())), focused));
+        state.setAxis(GamepadInputs.LEFT_STICK_AXIS_RIGHT, zeroUnless(positiveAxis(mapShortToFloat(deckState.sLeftStickX())), focused));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_UP, zeroUnless(positiveAxis(mapShortToFloat(deckState.sRightStickY())), focused));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_DOWN, zeroUnless(negativeAxis(mapShortToFloat(deckState.sRightStickY())), focused));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_LEFT, zeroUnless(negativeAxis(mapShortToFloat(deckState.sRightStickX())), focused));
+        state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, zeroUnless(positiveAxis(mapShortToFloat(deckState.sRightStickX())), focused));
+        state.setAxis(GamepadInputs.LEFT_TRIGGER_AXIS, zeroUnless(mapShortToFloat(deckState.sTriggerL()), focused));
+        state.setAxis(GamepadInputs.RIGHT_TRIGGER_AXIS, zeroUnless(mapShortToFloat(deckState.sTriggerR()), focused));
 
         this.inputComponent.pushState(state);
 
@@ -184,7 +194,7 @@ public class SteamDeckDriver implements Driver {
         triedToLoad = true;
 
         try {
-            deck = SteamDeck.create();
+            deck = SteamDeckUtil.getDeckInstance().orElseThrow();
             return Optional.of(new SteamDeckDriver());
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,5 +204,9 @@ public class SteamDeckDriver implements Driver {
 
     public static Optional<SteamDeck> getDeck() {
         return Optional.ofNullable(deck);
+    }
+
+    private static float zeroUnless(float f, boolean condition) {
+        return condition ? f : 0;
     }
 }

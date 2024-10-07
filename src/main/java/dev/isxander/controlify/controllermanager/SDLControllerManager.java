@@ -12,7 +12,10 @@ import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
 import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
+import dev.isxander.controlify.driver.sdl.SDLUtil;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -20,7 +23,9 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.sdl3java.api.events.SDL_EventFilter;
 import dev.isxander.sdl3java.api.events.events.SDL_Event;
+import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
 import dev.isxander.sdl3java.api.iostream.SDL_IOStream;
+import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.jna.size_t;
@@ -28,12 +33,10 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
@@ -125,13 +128,14 @@ public class SDLControllerManager extends AbstractControllerManager {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
 
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
-        String uid = hidInfo.createControllerUID(
-                this.getControllerCountWithMatchingHID(hid.orElse(null))
-        ).orElse("unknown-uid-" + ucid);
+
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
 
         List<Driver> drivers = new ArrayList<>();
-        if (!steamDeckConsumed && hidInfo.type().namespace().equals(CUtil.rl("steam_deck"))) {
+        if (SteamDeckUtil.DECK_MODE.isGamingMode()
+            && !steamDeckConsumed
+            && hidInfo.type().namespace().equals(SteamDeckUtil.STEAM_DECK_NAMESPACE)
+        ) {
             Optional<SteamDeckDriver> steamDeckDriver = SteamDeckDriver.create();
             if (steamDeckDriver.isPresent()) {
                 drivers.add(steamDeckDriver.get());
@@ -139,10 +143,24 @@ public class SDLControllerManager extends AbstractControllerManager {
             }
         }
 
+        String uid = hidInfo.createControllerUID(
+                this.getControllerCountWithMatchingHID(hid.orElse(null))
+        ).orElse("unknown-uid-" + ucid);
+
         if (isGamepad) {
-            drivers.add(new SDL3GamepadDriver(jid, hidInfo.type()));
+            SDL_Gamepad ptrGamepad = SDLUtil.openGamepad(jid);
+            if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
+                uid = useSerialForUID(SDL_GetGamepadSerial(ptrGamepad), hid).orElse(uid);
+            }
+
+            drivers.add(new SDL3GamepadDriver(ptrGamepad, jid, hidInfo.type()));
         } else {
-            drivers.add(new SDL3JoystickDriver(jid));
+            SDL_Joystick ptrJoystick = SDLUtil.openJoystick(jid);
+            if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
+                uid = useSerialForUID(SDL_GetJoystickSerial(ptrJoystick), hid).orElse(uid);
+            }
+
+            drivers.add(new SDL3JoystickDriver(ptrJoystick, jid));
         }
 
         String name = drivers.get(0).getDriverName();
@@ -224,6 +242,24 @@ public class SDLControllerManager extends AbstractControllerManager {
             ));
         }
 
+        return Optional.empty();
+    }
+
+    private static Optional<String> useSerialForUID(@Nullable String serial, Optional<HIDIdentifier> hid) {
+        if (serial != null && !serial.isEmpty()) {
+            String uid = "";
+            if (hid.isPresent()) {
+                var hex = HexFormat.of();
+                HIDIdentifier hidIdentifier = hid.get();
+                uid = "V"
+                      + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
+                      + "-P"
+                      + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
+                      + "-";
+            }
+            uid += "SN" + serial.toUpperCase();
+            return Optional.of(uid);
+        }
         return Optional.empty();
     }
 
