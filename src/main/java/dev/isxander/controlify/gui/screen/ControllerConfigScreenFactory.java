@@ -534,7 +534,6 @@ public class ControllerConfigScreenFactory {
                             .text(val == GyroButtonMode.OFF ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.off") : Component.empty())
                             .build())
                     .binding(def.requiresButton, () -> config.requiresButton, v -> config.requiresButton = v)
-                    //.controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroButtonMode.class))
                     .controller(controllerOpt -> EnumControllerBuilder.create(controllerOpt).enumClass(GyroButtonMode.class))
                     .available(gyroSensitivity.pendingValue() > 0)
                     .build();

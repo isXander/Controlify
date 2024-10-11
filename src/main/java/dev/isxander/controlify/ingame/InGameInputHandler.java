@@ -242,10 +242,6 @@ public class InGameInputHandler {
                 ));
             }
         }
-
-        //if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
-        //    gyroToggledOn = !gyroToggledOn;
-        //}
     }
 
     protected void handlePlayerLookInput() {
@@ -331,6 +327,10 @@ public class InGameInputHandler {
                 gyroInput.add(new GyroState(gyro.getState()).mul(0.1f));
             else
                 gyroInput.set(gyro.getState());
+        }
+
+        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
+           gyroToggledOn = !gyroToggledOn;
         }
 
         // convert radians per second into degrees per tick
