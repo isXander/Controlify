@@ -1,4 +1,4 @@
-package dev.isxander.controlify.controller.dualsense;
+package dev.isxander.controlify.controller.haptic;
 
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
@@ -45,6 +45,11 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     @Override
     public IConfig<Config> config() {
         return config;
+    }
+
+    @Override
+    public ResourceLocation id() {
+        return ID;
     }
 
     public static class Config implements ConfigClass {

@@ -48,6 +48,11 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
         return this.config;
     }
 
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
+
     public static class Config implements ConfigClass {
         public boolean enabled = true;
 

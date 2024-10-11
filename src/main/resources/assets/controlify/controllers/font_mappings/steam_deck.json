@@ -25,6 +25,11 @@
   "controlify:button/south": "\u0017",
   "controlify:button/west": "\u0018",
   "controlify:button/guide": "\u0019",
-  "controlify:button/touchpad": "\u001A"
+  "controlify:button/touchpad_1": "\u001A",
+  "controlify:button/touchpad_2": "\u001B",
+  "controlify:button/left_paddle_1": "\u001C",
+  "controlify:button/left_paddle_2": "\u001D",
+  "controlify:button/right_paddle_1": "\u001E",
+  "controlify:button/right_paddle_2": "\u001F"
 }
 

@@ -4,12 +4,18 @@ import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerInfo;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.SDL3NativesManager;
 import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
 import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
+import dev.isxander.controlify.driver.sdl.SDLUtil;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
@@ -17,7 +23,9 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.sdl3java.api.events.SDL_EventFilter;
 import dev.isxander.sdl3java.api.events.events.SDL_Event;
+import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
 import dev.isxander.sdl3java.api.iostream.SDL_IOStream;
+import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.jna.size_t;
@@ -25,10 +33,10 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
@@ -45,6 +53,8 @@ public class SDLControllerManager extends AbstractControllerManager {
     // must keep a reference to prevent GC from collecting it and the callback failing
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final EventFilter eventFilter;
+
+    private boolean steamDeckConsumed = false;
 
     public SDLControllerManager() {
         Validate.isTrue(SDL3NativesManager.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
@@ -118,21 +128,49 @@ public class SDLControllerManager extends AbstractControllerManager {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
 
         Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
+
+        boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
+
+        List<Driver> drivers = new ArrayList<>();
+        if (SteamDeckUtil.DECK_MODE.isGamingMode()
+            && !steamDeckConsumed
+            && hidInfo.type().namespace().equals(SteamDeckUtil.STEAM_DECK_NAMESPACE)
+        ) {
+            Optional<SteamDeckDriver> steamDeckDriver = SteamDeckDriver.create();
+            if (steamDeckDriver.isPresent()) {
+                drivers.add(steamDeckDriver.get());
+                steamDeckConsumed = true;
+            }
+        }
+
         String uid = hidInfo.createControllerUID(
                 this.getControllerCountWithMatchingHID(hid.orElse(null))
         ).orElse("unknown-uid-" + ucid);
-        boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
+
         if (isGamepad) {
-            SDL3GamepadDriver driver = new SDL3GamepadDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
+            SDL_Gamepad ptrGamepad = SDLUtil.openGamepad(jid);
+            if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
+                uid = useSerialForUID(SDL_GetGamepadSerial(ptrGamepad), hid).orElse(uid);
+            }
 
-            return Optional.of(driver.getController());
+            drivers.add(new SDL3GamepadDriver(ptrGamepad, jid, hidInfo.type()));
         } else {
-            SDL3JoystickDriver driver = new SDL3JoystickDriver(jid, hidInfo.type(), uid, ucid, hidInfo.hidDevice());
-            this.addController(ucid, driver.getController(), driver);
+            SDL_Joystick ptrJoystick = SDLUtil.openJoystick(jid);
+            if (DebugProperties.SDL_USE_SERIAL_FOR_UID) {
+                uid = useSerialForUID(SDL_GetJoystickSerial(ptrJoystick), hid).orElse(uid);
+            }
 
-            return Optional.of(driver.getController());
+            drivers.add(new SDL3JoystickDriver(ptrJoystick, jid));
         }
+
+        String name = drivers.get(0).getDriverName();
+        String guid = SDL_GetJoystickInstanceGUID(jid).toString();
+
+        ControllerInfo info = new ControllerInfo(uid, ucid, guid, name, hidInfo.type(), hidInfo.hidDevice());
+        ControllerEntity controller = new ControllerEntity(info, drivers);
+
+        this.addController(ucid, controller);
+        return Optional.of(controller);
     }
 
     @Override
@@ -204,6 +242,24 @@ public class SDLControllerManager extends AbstractControllerManager {
             ));
         }
 
+        return Optional.empty();
+    }
+
+    private static Optional<String> useSerialForUID(@Nullable String serial, Optional<HIDIdentifier> hid) {
+        if (serial != null && !serial.isEmpty()) {
+            String uid = "";
+            if (hid.isPresent()) {
+                var hex = HexFormat.of();
+                HIDIdentifier hidIdentifier = hid.get();
+                uid = "V"
+                      + hex.toHexDigits(hidIdentifier.vendorId(), 4).toUpperCase()
+                      + "-P"
+                      + hex.toHexDigits(hidIdentifier.productId(), 4).toUpperCase()
+                      + "-";
+            }
+            uid += "SN" + serial.toUpperCase();
+            return Optional.of(uid);
+        }
         return Optional.empty();
     }
 

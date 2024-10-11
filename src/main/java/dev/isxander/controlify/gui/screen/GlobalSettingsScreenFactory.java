@@ -30,6 +30,7 @@ public class GlobalSettingsScreenFactory {
         AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))
+                .save(() -> Controlify.instance().config().save())
                 .category(ConfigCategory.createBuilder()
                         .name(Component.translatable("controlify.gui.global_settings.title"))
                         .option(ButtonOption.createBuilder()

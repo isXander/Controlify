@@ -41,6 +41,7 @@ stonecutter.configureEach {
             "sodium" to "deps.sodium".propDefined(),
             "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
             "reeses-sodium-options" to "deps.reesesSodiumOptions".propDefined(),
+            "fancy-menu" to "deps.fancyMenu".propDefined(),
         )
     )
 }

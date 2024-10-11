@@ -9,8 +9,10 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.gui.screen.RadialItems;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.mixins.feature.steamdeck.ScreenshotAccessor;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.DebugOverlayHelper;
@@ -32,6 +34,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
+
+import java.io.File;
 
 public class InGameInputHandler {
     private final ControllerEntity controller;
@@ -162,10 +166,22 @@ public class InGameInputHandler {
         }
 
         if (ControlifyBindings.TAKE_SCREENSHOT.on(controller).justPressed()) {
+            // get file before it takes and writes the screenshot (which changes the next name)
+            File screenshotFile = ScreenshotAccessor.invokeGetFile(
+                    new File(minecraft.gameDirectory, "screenshots")
+            );
+
             Screenshot.grab(
                     this.minecraft.gameDirectory,
                     this.minecraft.getMainRenderTarget(),
-                    component -> this.minecraft.execute(() -> this.minecraft.gui.getChat().addMessage(component))
+                    component -> this.minecraft.execute(() -> {
+                        this.minecraft.gui.getChat().addMessage(component);
+
+                        // TODO: this currently does not work, yet to debug why not
+                        SteamDeckDriver.getDeck().ifPresent(deck -> {
+                            deck.doSteamScreenshot(screenshotFile.getAbsoluteFile().toPath(), "");
+                        });
+                    })
             );
         }
 
@@ -235,10 +251,10 @@ public class InGameInputHandler {
     protected void handlePlayerLookInput() {
         LocalPlayer player = this.minecraft.player;
 
-        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed();
+        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().globalSettings().outOfFocusInput;
         boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
         boolean screenVisible = minecraft.screen != null;
-        boolean playerExists = minecraft.player != null;
+        boolean playerExists = player != null;
         if (mouseNotGrabbed || outOfFocus || screenVisible || !playerExists) {
             lookInputX = 0;
             lookInputY = 0;

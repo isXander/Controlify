@@ -1,8 +1,7 @@
 package dev.isxander.controlify.utils;
 
-import dev.isxander.controlify.controller.touchpad.TouchpadState;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.controller.touchpad.Touchpads;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -11,7 +10,7 @@ import org.joml.Vector2f;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ControllerUtils {
     public static String createControllerString(ControllerEntity controller) {
@@ -81,19 +80,24 @@ public class ControllerUtils {
         return false;
     }
 
-    public static List<TouchpadState.Finger> deltaFingers(List<TouchpadState.Finger> now, List<TouchpadState.Finger> then) {
-        if (now.size() != then.size()) {
-            return List.of();
-        }
+    public static List<Touchpads.Finger> deltaFingers(List<Touchpads.Finger> now, List<Touchpads.Finger> then) {
+        return now.stream()
+                .flatMap(finger -> then.stream().anyMatch(f -> f.id() == finger.id()) ? Stream.of(finger) : Stream.empty())
+                .map(nowFinger -> {
+                    Touchpads.Finger thenFinger = then.stream()
+                            .filter(f -> f.id() == nowFinger.id())
+                            .findFirst()
+                            .orElseThrow();
 
-        return IntStream.range(0, now.size())
-                .mapToObj(i -> new TouchpadState.Finger(
-                        new Vector2f(
-                                now.get(i).position().x() - then.get(i).position().x(),
-                                now.get(i).position().y() - then.get(i).position().y()
-                        ),
-                        now.get(i).pressure() - then.get(i).pressure()
-                ))
+                    return new Touchpads.Finger(
+                            nowFinger.id(),
+                            new Vector2f(
+                                    nowFinger.position().x() - thenFinger.position().x(),
+                                    nowFinger.position().y() - thenFinger.position().y()
+                            ),
+                            nowFinger.pressure() - thenFinger.pressure()
+                    );
+                })
                 .toList();
     }
 }

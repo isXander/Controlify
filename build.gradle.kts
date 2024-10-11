@@ -53,6 +53,7 @@ loom {
         runConfigs.all {
             ideConfigGenerated(true)
             runDir("../../run")
+            vmArgs("-Dsodium.checks.issue2561=false")
         }
     }
 
@@ -109,6 +110,15 @@ dependencies {
 
         officialMojangMappings()
     })
+
+    optionalProp("deps.mixinExtras") {
+        if (isForgeLike) {
+            compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:$it")!!)
+            implementation(include("io.github.llamalad7:mixinextras-forge:$it")!!)
+        } else {
+            include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$it")!!)!!)
+        }
+    }
 
     fun modDependency(id: String, artifactGetter: (String) -> String, extra: (Boolean) -> Unit = {}) {
         optionalProp("deps.$id") {
@@ -183,9 +193,13 @@ dependencies {
     api("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
         .forgeRuntime().jij()
 
+    // steam deck bindings
+    api("dev.isxander:steamdeck4j:${property("deps.steamdeck4j")}")
+        .forgeRuntime().jij()
+
     // used to identify controller PID/VID when SDL is not available
     api("org.hid4java:hid4java:${property("deps.hid4java")}")
-        .jij().forgeRuntime()
+        .forgeRuntime().jij()
 
     // A json5 reader that hooks into gson
     listOf(
@@ -205,6 +219,9 @@ dependencies {
 
     // simple-voice-chat compat
     modDependency("simpleVoiceChat", { "maven.modrinth:simple-voice-chat:$it" })
+
+    // fancy menu compat
+    modDependency("fancyMenu", { "maven.modrinth:fancymenu:$it" })
 }
 
 tasks {

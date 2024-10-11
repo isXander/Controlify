@@ -2,6 +2,7 @@ package dev.isxander.controlify.config;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
+import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -38,5 +39,10 @@ public class GlobalSettings {
         ServerData server = Minecraft.getInstance().getCurrentServer();
         return alwaysKeyboardMovement
                 || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith));
+    }
+
+    // Quiet mode does not work on Steam Deck
+    public boolean isQuietMode() {
+        return this.quietMode && !SteamDeckUtil.DECK_MODE.isSteamDeck();
     }
 }

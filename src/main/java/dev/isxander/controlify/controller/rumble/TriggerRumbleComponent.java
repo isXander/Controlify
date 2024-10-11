@@ -22,4 +22,9 @@ public class TriggerRumbleComponent implements ECSComponent {
         this.state = null;
         return Optional.ofNullable(state);
     }
+
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 }
