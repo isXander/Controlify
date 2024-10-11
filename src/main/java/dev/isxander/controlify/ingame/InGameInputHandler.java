@@ -243,9 +243,9 @@ public class InGameInputHandler {
             }
         }
 
-        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
-            gyroToggledOn = !gyroToggledOn;
-        }
+        //if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
+        //    gyroToggledOn = !gyroToggledOn;
+        //}
     }
 
     protected void handlePlayerLookInput() {
