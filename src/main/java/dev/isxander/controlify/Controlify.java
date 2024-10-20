@@ -221,26 +221,30 @@ public class Controlify implements ControlifyApi {
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
 
+        doSteamDeckChecks();
+    }
+
+    private void doSteamDeckChecks() {
         CUtil.LOGGER.info("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
-        CUtil.LOGGER.info("Sandboxed environment: {}", SteamDeckUtil.IS_SANDBOXED);
-        switch (SteamDeckUtil.ensureCefDebuggerFilePresent()) {
-            case SANDBOXED_ERROR -> {
-                CUtil.LOGGER.warn("Controlify can't check whether the CEF debugger file exists because it's running in a sandboxed environment. A connection to CEF cannot be made, so a presumption is made that the CEF file is not present.");
-                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createRunInDesktopOnceMessage);
-            }
-            case PRESENT_BUT_DESKTOP -> {
-                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
-            }
-            case REQUIRES_RESTART -> {
-                InitialScreenRegistryDuck.registerInitialScreen((c) -> SteamDeckAlerts.createInitialSetupCompleted());
-            }
-            case WORKING -> {
-                CUtil.LOGGER.info("Steam Deck Compatibility enabled! Controlify has an established connection to the CEF debugger.");
-            }
-            case FAILED_TO_CREATE -> {
-                CUtil.LOGGER.error("Failed to create CEF debugger file. Steam Deck compatibility will not work. Suggesting to run setup script.");
-                InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createFailedToCreateCEFFile);
-            }
+
+        if (!SteamDeckUtil.IS_STEAM_DECK) {
+            return;
+        }
+
+        boolean connectedToCef = SteamDeckUtil.getDeckInstance().isPresent();
+
+        if (!connectedToCef) {
+            CUtil.LOGGER.error("Controlify could not connect to CEF debugger instance. Decky is probably not installed.");
+            InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDeckyRequiredWarning);
+        }
+
+        if (SteamDeckUtil.DECK_MODE == SteamDeckMode.DESKTOP_MODE) {
+            CUtil.LOGGER.warn("Controlify is running in SteamOS desktop mode.");
+            InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
+        }
+
+        if (connectedToCef && SteamDeckUtil.DECK_MODE == SteamDeckMode.GAMING_MODE) {
+            CUtil.LOGGER.info("Steam Deck is in gaming mode and Controlify has successfully connected to CEF.");
         }
     }
 

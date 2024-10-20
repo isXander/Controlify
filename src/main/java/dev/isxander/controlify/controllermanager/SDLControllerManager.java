@@ -38,7 +38,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.InputStream;
 import java.util.*;
 
-import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
 import static dev.isxander.sdl3java.api.events.SDL_EventType.*;
 import static dev.isxander.sdl3java.api.events.SdlEvents.*;
@@ -73,7 +72,7 @@ public class SDLControllerManager extends AbstractControllerManager {
             event = new SDL_Event();
         }
 
-        while (SDL_PollEvent(event) == SDL_TRUE) {
+        while (SDL_PollEvent(event)) {
             switch (event.type) {
                 // On added, `which` refers to the device index
                 case SDL_EVENT_JOYSTICK_ADDED -> {
@@ -164,7 +163,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         }
 
         String name = drivers.get(0).getDriverName();
-        String guid = SDL_GetJoystickInstanceGUID(jid).toString();
+        String guid = SDL_GetJoystickGUIDForID(jid).toString();
 
         ControllerInfo info = new ControllerInfo(uid, ucid, guid, name, hidInfo.type(), hidInfo.hidDevice());
         ControllerEntity controller = new ControllerEntity(info, drivers);
@@ -181,13 +180,13 @@ public class SDLControllerManager extends AbstractControllerManager {
     @Override
     public boolean isControllerGamepad(UniqueControllerID ucid) {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
-        return SDL_IsGamepad(jid) == SDL_TRUE;
+        return SDL_IsGamepad(jid);
     }
 
     @Override
     protected String getControllerSystemName(UniqueControllerID ucid) {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid;
-        return isControllerGamepad(ucid) ? SDL_GetGamepadInstanceName(jid) : SDL_GetJoystickInstanceName(jid);
+        return isControllerGamepad(ucid) ? SDL_GetGamepadNameForID(jid) : SDL_GetJoystickNameForID(jid);
     }
 
     private Optional<ControllerEntity> getController(UniqueControllerID ucid) {
@@ -229,9 +228,9 @@ public class SDLControllerManager extends AbstractControllerManager {
     }
 
     private static Optional<ControllerHIDService.ControllerHIDInfo> fetchTypeFromSDL(SDL_JoystickID jid) {
-        int vid = SDL_GetJoystickInstanceVendor(jid);
-        int pid = SDL_GetJoystickInstanceProduct(jid);
-        SDL_JoystickGUID guid = SDL_GetJoystickInstanceGUID(jid);
+        int vid = SDL_GetJoystickVendorForID(jid);
+        int pid = SDL_GetJoystickProductForID(jid);
+        SDL_JoystickGUID guid = SDL_GetJoystickGUIDForID(jid);
         String guidStr = guid.toString();
 
         if (vid != 0 && pid != 0) {
@@ -282,13 +281,13 @@ public class SDLControllerManager extends AbstractControllerManager {
 
     private static class EventFilter implements SDL_EventFilter {
         @Override
-        public int filterEvent(Pointer userdata, SDL_Event event) {
+        public boolean filterEvent(Pointer userdata, SDL_Event event) {
             switch (event.type) {
                 case SDL_EVENT_JOYSTICK_ADDED:
                 case SDL_EVENT_JOYSTICK_REMOVED:
-                    return SDL_TRUE;
+                    return true;
                 default:
-                    return SDL_FALSE;
+                    return false;
             }
         }
     }

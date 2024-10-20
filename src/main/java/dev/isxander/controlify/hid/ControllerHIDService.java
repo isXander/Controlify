@@ -39,12 +39,6 @@ public class ControllerHIDService {
     }
 
     public void start() {
-        if (SDL3NativesManager.Target.CURRENT.isMacArm()) {
-            CUtil.LOGGER.warn("HID support is not available on Apple Silicon Macs. SDL will be used instead.");
-            disabled = true;
-            return;
-        }
-
         try {
             services = HidManager.getHidServices(specification);
             services.start();

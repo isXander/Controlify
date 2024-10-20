@@ -31,11 +31,12 @@ import static dev.isxander.sdl3java.api.hints.SdlHintConsts.*;
 public class SDL3NativesManager {
     private static final String SDL3_VERSION = "3." + SdlVersionConst.SDL_COMMIT;
     private static final Map<Target, NativeFileInfo> NATIVE_LIBRARIES = Map.of(
-            new Target(Util.OS.WINDOWS, true, false), new NativeFileInfo("win32-x86-64", "windows64", "dll"),
-            new Target(Util.OS.WINDOWS, false, false), new NativeFileInfo("win32-x86", "window32", "dll"),
-            new Target(Util.OS.LINUX, true, false), new NativeFileInfo("linux-x86-64", "linux64", "so"),
-            new Target(Util.OS.OSX, true, false), new NativeFileInfo("darwin-x86-64", "macos-x86_64", "dylib"),
-            new Target(Util.OS.OSX, true, true), new NativeFileInfo("darwin-aarch64", "macos-aarch64", "dylib")
+            new Target(Util.OS.WINDOWS, true, false), new NativeFileInfo("win32-x86-64", "windows-x86_64", "dll"),
+            new Target(Util.OS.WINDOWS, false, false), new NativeFileInfo("win32-x86", "window-x86", "dll"),
+            new Target(Util.OS.LINUX, true, false), new NativeFileInfo("linux-x86-64", "linux-x86_64", "so"),
+            new Target(Util.OS.LINUX, true, true), new NativeFileInfo("linux-aarch64", "linux-aarch64", "so"),
+            new Target(Util.OS.OSX, true, false), new NativeFileInfo("darwin-x86-64", "macos-universal", "dylib"),
+            new Target(Util.OS.OSX, true, true), new NativeFileInfo("darwin-aarch64", "macos-universal", "dylib")
     );
     private static final String NATIVE_LIBRARY_URL = "https://maven.isxander.dev/releases/dev/isxander/libsdl4j-natives/%s/".formatted(SDL3_VERSION);
 
@@ -320,10 +321,6 @@ public class SDL3NativesManager {
 
         public String getArtifactMD5Name() {
             return this.getArtifactName() + ".md5";
-        }
-
-        public boolean isMacArm() {
-            return os == Util.OS.OSX && isARM;
         }
 
         public String formatted() {
