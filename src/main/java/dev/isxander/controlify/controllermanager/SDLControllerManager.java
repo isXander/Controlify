@@ -14,7 +14,6 @@ import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
 import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
 import dev.isxander.controlify.driver.sdl.SDLUtil;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
-import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
@@ -174,7 +173,7 @@ public class SDLControllerManager extends AbstractControllerManager {
 
     @Override
     public boolean probeConnectedControllers() {
-        return SDL_GetJoysticks().length > 0;
+        return SDL_HasJoystick() || SDL_HasGamepad();
     }
 
     @Override
