@@ -56,10 +56,12 @@ data class NativesDownload(
 )
 
 val downloadNativesTasks = listOf(
-    NativesDownload("windows64", "dll", "win32-x86-64", "Win64"),
-    NativesDownload("linux64", "so", "linux-x86-64", "Linux64"),
-    NativesDownload("macos-x86_64", "dylib", "darwin-x86-64", "MacIntel"),
-    NativesDownload("macos-aarch64", "dylib", "darwin-aarch64", "MacApple"),
+    NativesDownload("windows-x86_64", "dll", "win32-x86-64", "WinX86_64"),
+    NativesDownload("windows-x86", "dll", "win32-x86", "WinX86"),
+    NativesDownload("linux-x86_64", "so", "linux-x86-64", "LinuxX86_64"),
+    NativesDownload("linux-aarch64", "so", "linux-aarch64", "LinuxAarch64"),
+    NativesDownload("macos-universal", "dylib", "darwin-aarch64", "MacArm"),
+    NativesDownload("macos-universal", "dylib", "darwin-x86-64", "MacIntel"),
 ).map {
     tasks.register("download${it.taskName}", Download::class) {
         group = "natives"
