@@ -243,7 +243,7 @@ tasks {
 
             if (isFabric) {
                 put("mc", findProperty("fmj.mcDep"))
-                put("mixins", mixins.joinToString("\",\"", prefix = "\"", postfix = "\""))
+                put("mixins", mixins.joinToString("\",\""))
                 put("fapi", findProperty("fmj.fapiDep") ?: "*")
             }
 
