@@ -137,7 +137,14 @@ publishMods {
             username = "Controlify Updates"
             avatarUrl = "https://raw.githubusercontent.com/isXander/Controlify/1.20.x/dev/src/main/resources/icon.png"
 
-            content = changelog.get() + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+            var discordChangelog = changelog.get()
+            val controlifyPing = "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+            if ((discordChangelog.length + controlifyPing.length) > 2000) {
+                println("Changelog is too long for Discord, trimming.")
+                discordChangelog = discordChangelog.substring(0, 2000 - controlifyPing.length - 3) + "..."
+            }
+
+            content = "$discordChangelog\n\n<@&1146064258652712960>" // <@Controlify Ping>
 
 //            publishResults.from(
 //                *versionProjects
