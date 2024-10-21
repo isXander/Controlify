@@ -43,11 +43,7 @@ that lets you focus on playing the game, instead of battling through the menus.
 
 ### Does it support Steam Deck?
 
-**Yes!** Controlify has been tested and is fully working on the Steam Deck, and works great. 
-However, due to limitations with SteamOS, only Steam games can currently interface with the gyroscope and the
-back buttons directly, though [this is set to change in the coming months](https://github.com/libsdl-org/SDL/issues/9148)!
-For now, you can use Steam Input to convert the gyro into a mouse input, and map the back buttons to other, more common
-buttons.
+**Yes!** Controlify works completely on the Steam Deck. It works 100%, with gyro, touchpads, and back buttons.
 
 ### Does it support my controller?
 
