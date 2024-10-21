@@ -9,6 +9,31 @@ plugins {
 }
 stonecutter active "1.21-fabric" /* [SC] DO NOT EDIT */
 
+subprojects {
+    repositories {
+        mavenCentral()
+        maven("https://maven.terraformersmc.com")
+        maven("https://maven.isxander.dev/releases")
+        maven("https://maven.isxander.dev/snapshots")
+        maven("https://maven.parchmentmc.org")
+        maven("https://maven.quiltmc.org/repository/release")
+        exclusiveContent {
+            forRepository { maven("https://api.modrinth.com/maven") }
+            filter { includeGroup("maven.modrinth") }
+        }
+        exclusiveContent {
+            forRepository { maven("https://cursemaven.com") }
+            filter { includeGroup("curse.maven") }
+        }
+        exclusiveContent {
+            forRepository { maven("https://maven.flashyreese.me/releases") }
+            filter { includeGroup("me.flashyreese.mods") }
+        }
+        maven("https://jitpack.io")
+        maven("https://maven.neoforged.net/releases/")
+    }
+}
+
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {
     group = "mod"
     ofTask("build")

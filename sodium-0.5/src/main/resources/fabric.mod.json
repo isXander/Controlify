@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "controlify-compat-sodium5",
+  "version": "${version}",
+  "name": "Sodium 0.5 compatibility layer",
+  "description": "Adds support for Sodium 0.5 to Controlify",
+  "authors": [
+    "isXander"
+  ],
+  "contact": {
+    "homepage": "https://isxander.dev",
+    "issues": "https://github.com/${github}/issues",
+    "sources": "https://github.com/${github}"
+  },
+  "license": "LGPL-3.0-or-later",
+  "environment": "*",
+  "entrypoints": {
+
+  },
+  "mixins": [
+
+  ],
+  "custom": {
+    "modmenu": {
+      "parent": "controlify"
+    }
+  },
+  "icon": "icon.png",
+  "depends": {
+    "sodium": "<0.6.0-"
+  }
+}
