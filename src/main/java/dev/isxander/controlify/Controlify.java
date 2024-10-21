@@ -50,6 +50,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -104,6 +105,10 @@ public class Controlify implements ControlifyApi {
         DebugProperties.printProperties();
 
         CUtil.LOGGER.info("Pre-initializing Controlify...");
+
+        if (DebugProperties.MIXIN_AUDIT) {
+            MixinEnvironment.getCurrentEnvironment().audit();
+        }
 
         this.inGameInputHandler = null; // set when the current controller changes
         this.virtualMouseHandler = new VirtualMouseHandler();

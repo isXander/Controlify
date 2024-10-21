@@ -26,6 +26,8 @@ public class DebugProperties {
     public static final boolean SDL_USE_SERIAL_FOR_UID = boolProp("controlify.debug.sdl_use_serial_for_uid", false, false);
     /** Use a custom url to access CEF, you can use remote access here to receive control remotely. **/
     public static final @Nullable String STEAM_DECK_CUSTOM_CEF_URL = strProp("controlify.debug.steam_deck_custom_cef_url", null, null);
+    /** Run a mixin audit - useful for last checks before releasing a mod version */
+    public static final boolean MIXIN_AUDIT = boolProp("controlify.debug.mixin_audit", false, false);
 
     public static void printProperties() {
         if (properties.stream().noneMatch(prop -> prop.state() != prop.def()))
