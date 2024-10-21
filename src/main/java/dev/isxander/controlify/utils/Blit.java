@@ -32,13 +32,22 @@ public final class Blit {
             int width, int height,
             int color
     ) {
+        //? if >=1.21.2 {
         graphics.blitSprite(
-                //? if >=1.21.2
                 RenderType::guiTextured,
                 sprite,
                 x, y,
                 width, height,
                 color
         );
+        //?} else {
+        /*float[] argb = ColorUtils.decomposeARGBFloat(color);
+        graphics.blit(
+                x, y, 0,
+                width, height,
+                sprite,
+                argb[1], argb[2], argb[3], argb[0]
+        );
+        *///?}
     }
 }

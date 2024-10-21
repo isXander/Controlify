@@ -29,6 +29,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2f;
@@ -74,11 +75,21 @@ public class InGameInputHandler {
             minecraft.pauseGame(false);
         }
         if (minecraft.player != null) {
+            Inventory inventory = minecraft.player.getInventory();
+
             if (ControlifyBindings.NEXT_SLOT.on(controller).justPressed()) {
-                minecraft.player.getInventory().swapPaint(-1);
+                //? if >=1.21.2 {
+                inventory.setSelectedHotbarSlot((inventory.selected - 1) % Inventory.getSelectionSize());
+                //?} else {
+                /*minecraft.player.getInventory().swapPaint(-1);
+                *///?}
             }
             if (ControlifyBindings.PREV_SLOT.on(controller).justPressed()) {
-                minecraft.player.getInventory().swapPaint(1);
+                //? if >=1.21.2 {
+                inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
+                //?} else {
+                /*minecraft.player.getInventory().swapPaint(1);
+                *///?}
             }
 
             if (!minecraft.player.isSpectator()) {
@@ -384,9 +395,17 @@ public class InGameInputHandler {
             double y = motion.y;
             double z = motion.z;
 
-            if (!player.input.jumping)
+            //? if >=1.21.2 {
+            boolean jumping = player.input.keyPresses.jump();
+            boolean shiftKeyDown = player.input.keyPresses.shift();
+            //?} else {
+            /*boolean jumping = player.input.jumping;
+            boolean shiftKeyDown = player.input.shiftKeyDown;
+            *///?}
+
+            if (!jumping)
                 y = Math.min(y, 0);
-            if (!player.input.shiftKeyDown)
+            if (!shiftKeyDown)
                 y = Math.max(y, 0);
 
             if (player.input.forwardImpulse == 0 && player.input.leftImpulse == 0) {

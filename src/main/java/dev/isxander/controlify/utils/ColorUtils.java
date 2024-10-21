@@ -49,4 +49,22 @@ public final class ColorUtils {
         /*return FastColor.ARGB32.alpha(argb);
         *///?}
     }
+
+    public static float[] decomposeARGBFloat(int argb) {
+        //? if >=1.21.2 {
+        return new float[]{
+                ARGB.alpha(argb) / 255f,
+                ARGB.red(argb) / 255f,
+                ARGB.green(argb) / 255f,
+                ARGB.blue(argb) / 255f
+        };
+        //?} else {
+        /*return new float[]{
+                FastColor.ARGB32.alpha(argb) / 255f,
+                FastColor.ARGB32.red(argb) / 255f,
+                FastColor.ARGB32.green(argb) / 255f,
+                FastColor.ARGB32.blue(argb) / 255f
+        };
+        *///?}
+    }
 }

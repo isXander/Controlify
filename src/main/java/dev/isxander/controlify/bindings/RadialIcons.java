@@ -95,7 +95,7 @@ public final class RadialIcons {
                         graphics.pose().translate(x, y, 0);
                         graphics.pose().scale(0.88f, 0.88f, 1f);
 
-                        graphics.blit(0, 0, 0, 18, 18, sprite);
+                        Blit.blitSprite(graphics, sprite, 0, 0, 18, 18, -1);
 
                         graphics.pose().popPose();
                     }

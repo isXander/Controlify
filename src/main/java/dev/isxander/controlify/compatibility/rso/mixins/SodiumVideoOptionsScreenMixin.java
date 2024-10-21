@@ -72,7 +72,8 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
     private Runnable setInitialFocusOnTabChange(Runnable onSetTab) {
         return () -> {
             onSetTab.run();
-            Minecraft.getInstance().tell(this::focusOnFirstControl);
+            Minecraft.getInstance().
+                    /*? if >=1.21.2 {*/ schedule /*?} else {*/ /*tell *//*?}*/(this::focusOnFirstControl);
         };
     }
 
