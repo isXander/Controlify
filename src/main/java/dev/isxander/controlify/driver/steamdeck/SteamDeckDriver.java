@@ -22,6 +22,7 @@ import org.joml.Vector2f;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static dev.isxander.controlify.utils.CUtil.*;
 
@@ -34,6 +35,8 @@ public class SteamDeckDriver implements Driver {
     private BatteryLevelComponent batteryLevelComponent;
     private TouchpadComponent touchpadComponent;
     private NativeKeyboardComponent keyboardComponent;
+
+    private final AtomicBoolean runningPoller = new AtomicBoolean(false);
 
     @Override
     public void addComponents(ControllerEntity controller) {
@@ -74,9 +77,21 @@ public class SteamDeckDriver implements Driver {
         controller.setComponent(new SteamDeckComponent());
     }
 
+    private void ensurePolling() {
+        if (runningPoller.get()) return;
+        runningPoller.set(true);
+        new Thread(() -> {
+            while (runningPoller.get()) {
+                deck.poll()
+                        .orTimeout(1000, java.util.concurrent.TimeUnit.MILLISECONDS)
+                        .join(); // join into thread so we don't spam the CEF before it's returned a value
+            }
+        }, "Steam Deck Poller").start();
+    }
+
     @Override
     public void update(ControllerEntity controller, boolean outOfFocus) {
-        deck.poll().join();
+        ensurePolling();
 
         ControllerStateImpl state = new ControllerStateImpl();
         ControllerState deckState = deck.getControllerState();
@@ -180,6 +195,7 @@ public class SteamDeckDriver implements Driver {
     @Override
     public void close() {
         try {
+            runningPoller.set(false);
             deck.close();
         } catch (Exception e) {
             e.printStackTrace();
