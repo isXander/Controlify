@@ -40,7 +40,7 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
 
         public boolean relativeGyroMode = false;
 
-        public boolean requiresButton = true;
+        public GyroButtonMode requiresButton = GyroButtonMode.ON;
 
         public GyroYawMode yawMode = GyroYawMode.YAW;
 

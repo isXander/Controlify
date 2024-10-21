@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
@@ -523,22 +524,18 @@ public class ControllerConfigScreenFactory {
             return opt;
         }));
         gyroGroup.option(Util.make(() -> {
-            var opt = Option.<Boolean>createBuilder()
+            var opt = Option.<GyroButtonMode>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_requires_button"))
-                    .description(OptionDescription.createBuilder()
+                    .description(val -> OptionDescription.createBuilder()
                             .text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
+                            .text(val == GyroButtonMode.ON ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.on") : Component.empty())
+                            .text(val == GyroButtonMode.INVERT ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.invert") : Component.empty())
+                            .text(val == GyroButtonMode.TOGGLE ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.toggle") : Component.empty())
+                            .text(val == GyroButtonMode.OFF ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.off") : Component.empty())
                             .build())
                     .binding(def.requiresButton, () -> config.requiresButton, v -> config.requiresButton = v)
-                    .controller(TickBoxControllerBuilder::create)
+                    .controller(controllerOpt -> EnumControllerBuilder.create(controllerOpt).enumClass(GyroButtonMode.class))
                     .available(gyroSensitivity.pendingValue() > 0)
-                    .listener((o, val) -> {
-                        if (val) {
-                            relativeModeOpt.setAvailable(gyroSensitivity.pendingValue() > 0);
-                        } else {
-                            relativeModeOpt.setAvailable(false);
-                            relativeModeOpt.requestSet(false);
-                        }
-                    })
                     .build();
             gyroOptions.add(opt);
             return opt;
