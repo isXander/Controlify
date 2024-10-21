@@ -16,7 +16,8 @@
     "core.MinecraftMixin",
     "core.MouseHandlerMixin",
     "feature.accessibility.LocalPlayerMixin",
-    "feature.autoswitch.ToastComponentAccessor",
+    "feature.autoswitch.SystemToastAccessor",
+    "feature.autoswitch.ToastManagerAccessor",
     "feature.bind.ClientPacketListenerMixin",
     "feature.bind.GuiMixin",
     "feature.bind.KeyMappingMixin",
@@ -96,6 +97,7 @@
     "feature.virtualmouse.MouseHandlerMixin",
     "feature.virtualmouse.snapping.AbstractContainerScreenMixin",
     "feature.virtualmouse.snapping.AbstractFurnaceScreenMixin",
+    "feature.virtualmouse.snapping.AbstractRecipeBookScreenMixin",
     "feature.virtualmouse.snapping.CraftingScreenMixin",
     "feature.virtualmouse.snapping.CreativeModeInventoryScreenMixin",
     "feature.virtualmouse.snapping.InventoryScreenMixin",
@@ -104,6 +106,7 @@
     "feature.virtualmouse.snapping.ScreenMixin"
   ],
   "mixins": [
-    "feature.font.TranslatableContentsMixin"
+    "feature.font.TranslatableContentsMixin",
+    "feature.guide.ingame.PlayerAccessor"
   ]
 }

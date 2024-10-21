@@ -12,7 +12,7 @@
       [0x45e, 0x2ea], // Xbox One Controller
       [0x45e, 0xb12], // Xbox Controller
       [0x45e, 0x2dd], // Xbox One Controller (Firmware 2015)
-      [0x45e, 0x2e6], // ?
+      [0x45e, 0x2e6], //?
       [0x45e, 0x2fd], // Xbox One S Controller (Bluetooth)
       [0x45e, 0x2e3], // Xbox Elite Series 1 Controller
       [0x45e, 0x2d1], // Xbox One Controller
@@ -20,7 +20,7 @@
       [0x45e, 0x202], // Xbox Controller
       [0x45e, 0x285], // Xbox Controller S
       [0x45e, 0x288], // Xbox Controller S Hub
-      [0x45e, 0xb13], // ?
+      [0x45e, 0xb13], //?
       [0x45e, 0xb22], // Xbox Elite Series 2 Controller
       [0x45e, 0xb00], // Xbox Elite Series 2 Controller (model 1797)
       [0x45e, 0x28e], // Xbox 360 Controller,

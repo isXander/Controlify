@@ -1,6 +1,7 @@
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.utils.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.Util;
@@ -115,7 +116,7 @@ public final class RadialIcons {
             graphics.pose().pushPose();
             graphics.pose().translate(x, y, 0);
             graphics.pose().scale(0.5f, 0.5f, 1f);
-            graphics.blit(FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
+            Blit.blitTex(graphics, FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
             graphics.pose().popPose();
         });
         addItems(map);

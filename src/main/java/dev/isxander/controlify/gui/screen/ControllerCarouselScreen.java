@@ -12,8 +12,10 @@ import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.utils.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.ColorUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
@@ -36,11 +38,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -177,13 +177,14 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         /*? if =1.20.4 {*/
         /*renderBackground(graphics, mouseX, mouseY, delta);
-        *//*?} else <1.20.4 {*/
+        *//*?} elif <1.20.4 {*/
         /*renderBackground(graphics);
         *//*?}*/
         super.render(graphics, mouseX, mouseY, delta);
 
         RenderSystem.enableBlend();
-        graphics.blit(
+        Blit.blitTex(
+                graphics,
                 /*? if >1.20.4 {*/
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
                 /*?} else {*/
@@ -212,7 +213,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         super.renderBackground(graphics, i, j, f);
 
         RenderSystem.enableBlend();
-        graphics.blit(
+        Blit.blitTex(
+                graphics,
                 minecraft.level == null ? AbstractSelectionList.MENU_LIST_BACKGROUND : AbstractSelectionList.INWORLD_MENU_LIST_BACKGROUND,
                 0, 0,
                 0f, 0f,
@@ -245,7 +247,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             boolean selected = carouselEntries.indexOf(entry) == index;
             animation.consumerF(entry::setX, entry.getX(), entry.getX() + -diff * (this.width / 2f));
             animation.consumerF(entry::setY, entry.getY(), selected ? 20f : 10f);
-            animation.consumerF(t -> entry.overlayColor = FastColor.ARGB32.lerp(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
+            animation.consumerF(t -> entry.overlayColor = ColorUtils.lerpARGB(t, entry.overlayColor, selected ? 0 : 0x90000000), 0f, 1f);
         }
         carouselAnimation = animation.play();
     }

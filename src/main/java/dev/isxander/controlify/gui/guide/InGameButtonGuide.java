@@ -14,6 +14,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
+import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
@@ -21,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
-import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.*;
 import org.joml.Matrix4f;
@@ -157,10 +157,20 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             if (player.isInWater())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_up"));
 
-            if (!player.onGround() && !player.isFallFlying() && !player.isInWater() && !player.hasEffect(MobEffects.LEVITATION)) {
-                var chestStack = player.getItemBySlot(EquipmentSlot.CHEST);
-                if (chestStack.is(Items.ELYTRA) && ElytraItem.isFlyEnabled(chestStack))
-                    return Optional.of(Component.translatable("controlify.guide.ingame.start_elytra"));
+            boolean canGlide = //? if >=1.21.2 {
+                    ((PlayerAccessor) player).callCanGlide() && !player.onClimbable();
+            //?} else {
+                    /*!player.isPassenger() && !player.hasEffect(MobEffects.LEVITATION);
+            var chestStack = player.getItemBySlot(EquipmentSlot.CHEST);
+            canGlide &= chestStack.is(Items.ELYTRA) && net.minecraft.world.item.ElytraItem.isFlyEnabled(chestStack);
+            *///?}
+
+            if (!player.onGround()
+                && !player.isFallFlying()
+                && !player.isInWater()
+                && canGlide
+            ) {
+                return Optional.of(Component.translatable("controlify.guide.ingame.start_elytra"));
             }
 
             return Optional.empty();

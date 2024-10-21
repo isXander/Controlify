@@ -19,10 +19,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
-import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.ControllerUtils;
-import dev.isxander.controlify.utils.HoldRepeatHelper;
-import dev.isxander.controlify.utils.ToastUtils;
+import dev.isxander.controlify.utils.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
@@ -208,11 +205,13 @@ public class VirtualMouseHandler {
 
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
-        /*? if >1.20.6 {*/
-        float delta = minecraft.getTimer().getRealtimeDeltaTicks();
-        /*?} else {*/
+        //? if >=1.21.2 {
+        float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
+        //?} elif >1.20.6 {
+        /*float delta = minecraft.getTimer().getRealtimeDeltaTicks();
+        *///?} else {
         /*float delta = minecraft.getDeltaFrameTime();
-        *//*?}*/
+        *///?}
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
             currentX = Mth.lerp(delta, currentX, targetX);
@@ -356,7 +355,7 @@ public class VirtualMouseHandler {
         graphics.pose().scale(0.5f, 0.5f, 0.5f);
 
         RenderSystem.enableBlend();
-        graphics.blit(CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
+        Blit.blitTex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
         RenderSystem.disableBlend();
 
         graphics.pose().popPose();

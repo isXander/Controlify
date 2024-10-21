@@ -1,10 +1,11 @@
 package dev.isxander.controlify.utils;
 
+import dev.isxander.controlify.mixins.feature.autoswitch.SystemToastAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,11 @@ import java.util.List;
 public class ToastUtils {
     public static ControlifyToast sendToast(Component title, Component message, boolean longer) {
         ControlifyToast toast = ControlifyToast.create(title, message, longer);
-        Minecraft.getInstance().getToasts().addToast(toast);
+        //? if >=1.21.2 {
+        Minecraft.getInstance().getToastManager().addToast(toast);
+        //?} else {
+        /*Minecraft.getInstance().getToasts().addToast(toast);
+        *///?}
         return toast;
     }
 
@@ -34,13 +39,27 @@ public class ToastUtils {
             );
         }
 
+        //? if >=1.21.2 {
         @Override
-        public @NotNull Visibility render(@NotNull GuiGraphics graphics, @NotNull ToastComponent manager, long startTime) {
+        public void update(ToastManager toastManager, long l) {
+            super.update(toastManager, l);
+            if (removed) {
+                ((SystemToastAccessor) this).setWantedVisibility(Visibility.HIDE);
+            }
+        }
+        //?} else {
+        /*@Override
+        public @NotNull Visibility render(
+                @NotNull GuiGraphics graphics,
+                @NotNull net.minecraft.client.gui.components.toasts.ToastComponent manager,
+                long startTime
+        ) {
             if (removed)
                 return Visibility.HIDE;
 
             return super.render(graphics, manager, startTime);
         }
+        *///?}
 
         public void remove() {
             this.removed = true;
