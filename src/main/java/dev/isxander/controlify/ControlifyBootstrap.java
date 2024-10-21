@@ -1,6 +1,5 @@
 package dev.isxander.controlify;
 
-import dev.isxander.controlify.gui.screen.ModConfigOpenerScreen;
 import dev.isxander.controlify.server.ControlifyServer;
 
 //? if fabric {
@@ -25,7 +24,8 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
     }
 }
 //?} elif neoforge {
-/*import net.neoforged.bus.api.IEventBus;
+/*import dev.isxander.controlify.gui.screen.ModConfigOpenerScreen;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
