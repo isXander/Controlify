@@ -53,9 +53,8 @@ public class SteamDeckDriver implements Driver {
                 this.gyroComponent = new GyroComponent()
         );
 
-        controller.setComponent(
-                this.batteryLevelComponent = new BatteryLevelComponent()
-        );
+        // don't add - deck reports incorrect values
+        this.batteryLevelComponent = new BatteryLevelComponent();
 
         controller.setComponent(
                 this.touchpadComponent = new TouchpadComponent(
