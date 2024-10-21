@@ -25,10 +25,10 @@ val releaseMod by tasks.registering {
     dependsOn("publishMods")
 }
 
-stonecutter.configureEach {
-    val platform = project.property("loom.platform")
+stonecutter.parameters {
+    val platform = node!!.property("loom.platform")
 
-    fun String.propDefined() = project.findProperty(this)?.toString()?.isNotBlank() ?: false
+    fun String.propDefined() = node!!.findProperty(this)?.toString()?.isNotBlank() ?: false
     consts(
         listOf(
             "fabric" to (platform == "fabric"),
@@ -44,6 +44,31 @@ stonecutter.configureEach {
             "fancy-menu" to "deps.fancyMenu".propDefined(),
         )
     )
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        maven("https://maven.terraformersmc.com")
+        maven("https://maven.isxander.dev/releases")
+        maven("https://maven.isxander.dev/snapshots")
+        maven("https://maven.parchmentmc.org")
+        maven("https://maven.quiltmc.org/repository/release")
+        exclusiveContent {
+            forRepository { maven("https://api.modrinth.com/maven") }
+            filter { includeGroup("maven.modrinth") }
+        }
+        exclusiveContent {
+            forRepository { maven("https://cursemaven.com") }
+            filter { includeGroup("curse.maven") }
+        }
+        exclusiveContent {
+            forRepository { maven("https://maven.flashyreese.me/releases") }
+            filter { includeGroup("me.flashyreese.mods") }
+        }
+        maven("https://jitpack.io")
+        maven("https://maven.neoforged.net/releases/")
+    }
 }
 
 val sdl3Target = property("deps.sdl3Target")!!.toString()

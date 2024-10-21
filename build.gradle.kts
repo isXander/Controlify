@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.configurationcache.extensions.capitalized
 
@@ -5,7 +7,7 @@ plugins {
     `java-library`
 
     id("dev.architectury.loom")
-    id("dev.kikugie.j52j") version "1.0"
+    id("dev.kikugie.j52j") version "1.0.2"
 
     id("me.modmuss50.mod-publish-plugin")
     `maven-publish`
@@ -73,29 +75,6 @@ stonecutter {
     dependencies(
         "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0")
     )
-}
-
-repositories {
-    mavenCentral()
-    maven("https://maven.terraformersmc.com")
-    maven("https://maven.isxander.dev/releases")
-    maven("https://maven.isxander.dev/snapshots")
-    maven("https://maven.parchmentmc.org")
-    maven("https://maven.quiltmc.org/repository/release")
-    exclusiveContent {
-        forRepository { maven("https://api.modrinth.com/maven") }
-        filter { includeGroup("maven.modrinth") }
-    }
-    exclusiveContent {
-        forRepository { maven("https://cursemaven.com") }
-        filter { includeGroup("curse.maven") }
-    }
-    exclusiveContent {
-        forRepository { maven("https://maven.flashyreese.me/releases") }
-        filter { includeGroup("me.flashyreese.mods") }
-    }
-    maven("https://jitpack.io")
-    maven("https://maven.neoforged.net/releases/")
 }
 
 dependencies {
@@ -268,7 +247,7 @@ tasks {
         )
         val modMetadataFile = when {
             isFabric -> fabricModJson
-            isNeoforge && Version(stonecutter.current.version) >= Version("1.20.5") -> neoforgeModsToml
+            isNeoforge && stonecutter.eval(stonecutter.current.version, ">=1.20.5") -> neoforgeModsToml
             isForgeLike -> modsToml
             else -> error("Unknown loader")
         }
@@ -298,6 +277,7 @@ tasks {
     }
 }
 
+// Builds a jar that bundles all required natives for use offline, or when servers go down.
 val offlineRemapJar by tasks.registering(RemapJarTask::class) {
     group = "offline"
 
@@ -431,8 +411,4 @@ fun <T> optionalProp(property: String, block: (String) -> T?) {
 
 fun isPropDefined(property: String): Boolean {
     return findProperty(property)?.toString()?.isNotBlank() ?: false
-}
-
-data class Version(val string: String) {
-    operator fun compareTo(other: Version): Int = stonecutter.compare(string, other.string)
 }
