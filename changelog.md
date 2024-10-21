@@ -7,4 +7,4 @@ This version has the following targets:
 
 ## Changes
 
-Added developer option to audit mixins
+Fix lockups when loading into worlds with Steam Decks
