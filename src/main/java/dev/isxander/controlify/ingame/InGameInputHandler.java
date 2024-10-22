@@ -60,11 +60,15 @@ public class InGameInputHandler {
     }
 
     public void inputTick() {
-        handlePlayerLookInput();
-        handleKeybinds();
-        preventFlyDrifting();
+        boolean isController = ControllerPlayerMovement.shouldBeControllerInput();
 
+        handlePlayerLookInput(isController);
         ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
+
+        if (isController) {
+            handleKeybinds();
+            preventFlyDrifting();
+        }
     }
 
     protected void handleKeybinds() {
@@ -79,14 +83,14 @@ public class InGameInputHandler {
 
             if (ControlifyBindings.NEXT_SLOT.on(controller).justPressed()) {
                 //? if >=1.21.2 {
-                inventory.setSelectedHotbarSlot((inventory.selected - 1) % Inventory.getSelectionSize());
+                inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
                 //?} else {
                 /*minecraft.player.getInventory().swapPaint(-1);
                 *///?}
             }
             if (ControlifyBindings.PREV_SLOT.on(controller).justPressed()) {
                 //? if >=1.21.2 {
-                inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
+                inventory.setSelectedHotbarSlot((inventory.selected - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
                 //?} else {
                 /*minecraft.player.getInventory().swapPaint(1);
                 *///?}
@@ -252,14 +256,10 @@ public class InGameInputHandler {
         }
     }
 
-    protected void handlePlayerLookInput() {
+    protected void handlePlayerLookInput(boolean isController) {
         LocalPlayer player = this.minecraft.player;
 
-        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().globalSettings().outOfFocusInput;
-        boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
-        boolean screenVisible = minecraft.screen != null;
-        boolean playerExists = player != null;
-        if (mouseNotGrabbed || outOfFocus || screenVisible || !playerExists) {
+        if (!isController || !canProcessLookInput()) {
             lookInputX = 0;
             lookInputY = 0;
             return;
@@ -422,5 +422,14 @@ public class InGameInputHandler {
             case BOW, CROSSBOW, SPEAR, SPYGLASS -> true;
             default -> false;
         };
+    }
+
+    private boolean canProcessLookInput() {
+        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().globalSettings().outOfFocusInput;
+        boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
+        boolean screenVisible = minecraft.screen != null;
+        boolean playerExists = minecraft.player != null;
+
+        return !mouseNotGrabbed && !outOfFocus && !screenVisible && playerExists;
     }
 }

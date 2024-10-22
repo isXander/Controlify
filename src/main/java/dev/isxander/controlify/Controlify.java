@@ -590,10 +590,11 @@ public class Controlify implements ControlifyApi {
             return;
         }
 
-        if (this.currentInputMode().isController()) { // only process input if in correct input mode
-            if (minecraft.level != null) {
-                this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
-            }
+        if (minecraft.level != null) {
+            this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
+        }
+
+        if (this.currentInputMode().isController()) {
             if (minecraft.screen != null) {
                 ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
             }
