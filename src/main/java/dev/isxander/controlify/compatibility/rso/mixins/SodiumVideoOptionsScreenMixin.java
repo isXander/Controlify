@@ -1,5 +1,5 @@
 //? if reeses-sodium-options {
-package dev.isxander.controlify.compatibility.rso.mixins;
+/*package dev.isxander.controlify.compatibility.rso.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
@@ -10,8 +10,6 @@ import me.flashyreese.mods.reeses_sodium_options.client.gui.SodiumVideoOptionsSc
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.Tab;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.TabFrame;
-import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
-import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -22,8 +20,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import java.util.List;
+
+import /^$ sodium-package >>^/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
+import /^$ sodium-package >>^/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
 
 @Mixin(value = SodiumVideoOptionsScreen.class, remap = false)
 public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
@@ -73,7 +73,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         return () -> {
             onSetTab.run();
             Minecraft.getInstance().
-                    /*? if >=1.21.2 {*/ schedule /*?} else {*/ /*tell *//*?}*/(this::focusOnFirstControl);
+                    /^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
         };
     }
 
@@ -127,4 +127,4 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         return undoButton;
     }
 }
-//?}
+*///?}

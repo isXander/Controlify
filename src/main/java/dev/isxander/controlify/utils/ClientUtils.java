@@ -1,6 +1,6 @@
 package dev.isxander.controlify.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -31,7 +31,7 @@ public final class ClientUtils {
 
     public static void drawSprite(GuiGraphics graphics, ResourceLocation location, int x, int y, int width, int height) {
         /*? if >=1.20.3 {*/
-        graphics.blitSprite(location, x, y, width, height);
+        Blit.blitSprite(graphics, location, x, y, width, height);
         /*?} else {*/
         /*graphics.blit(location, x, y, 0, 0, width, height, width, height);
         *//*?}*/
@@ -43,9 +43,9 @@ public final class ClientUtils {
         int x = centerX - 182 / 2;
 
         /*? if >=1.20.3 {*/
-        graphics.blitSprite(GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
+        Blit.blitSprite(graphics, GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
         if (width > 0) {
-            graphics.blitSprite(GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
+            Blit.blitSprite(graphics, GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
         }
         /*?} else {*/
         /*graphics.blit(GUI_BARS_LOCATION, x, y, 0, 30, 182, 5);

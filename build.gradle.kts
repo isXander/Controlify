@@ -72,9 +72,16 @@ loom {
 }
 
 stonecutter {
+    val sodiumSemver = findProperty("deps.sodiumSemver")?.toString() ?: "0.0.0"
     dependencies(
-        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0")
+        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0"),
+        "sodium" to sodiumSemver
     )
+
+    swaps["sodium-package-import"] = if (eval(sodiumSemver, ">=0.6"))
+        "import net.caffeinemc.mods.sodium" else "import me.jellysquid.mods.sodium"
+    swaps["sodium-package"] = if (eval(sodiumSemver, ">=0.6"))
+        "net.caffeinemc.mods.sodium" else "me.jellysquid.mods.sodium"
 }
 
 dependencies {
@@ -131,29 +138,6 @@ dependencies {
         // so you can do `depends: fabric-api` in FMJ
         modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
-        // sodium compat
-        modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
-            if (runtime) {
-                listOf(
-                    "fabric-rendering-fluids-v1",
-                    "fabric-rendering-data-attachment-v1",
-                ).forEach { module ->
-                    modRuntimeOnly(fabricApi.module(module, fapiVersion))
-                }
-            }
-        }
-
-        // RSO compat
-        modDependency("reesesSodiumOptions", { "me.flashyreese.mods:reeses-sodium-options:$it" })
-
-        // iris compat
-        modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
-            if (runtime) {
-                modRuntimeOnly("org.anarres:jcpp:1.4.14")
-                modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
-            }
-        }
-
         // mod menu compat
         modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
     } else if (isNeoforge) {
@@ -187,6 +171,24 @@ dependencies {
     ).forEach {
         api("org.quiltmc.parsers:$it:${property("deps.quiltParsers")}")
             .jij().forgeRuntime()
+    }
+
+    // sodium compat
+    modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
+        if (runtime) {
+
+        }
+    }
+
+    // RSO compat
+    modDependency("reesesSodiumOptions", { "maven.modrinth:reeses-sodium-options:$it" })
+
+    // iris compat
+    modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
+        if (runtime) {
+            modRuntimeOnly("org.anarres:jcpp:1.4.14")
+            modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+        }
     }
 
     // immediately-fast compat

@@ -2,6 +2,7 @@ package dev.isxander.controlify.utils;
 
 //? if >=1.21.2 {
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 //?} else {
 /*import net.minecraft.util.FastColor;
 *///?}
@@ -66,5 +67,17 @@ public final class ColorUtils {
                 FastColor.ARGB32.blue(argb) / 255f
         };
         *///?}
+    }
+
+    public static int grey(float brightness, float alpha) {
+        int component = Mth.floor(brightness * 0xff);
+        int alphaComponent = Mth.floor(alpha * 0xff);
+
+        int color = alphaComponent; // A
+        color = (color << 8) | component; // R
+        color = (color << 8) | component; // G
+        color = (color << 8) | component; // B
+
+        return color;
     }
 }

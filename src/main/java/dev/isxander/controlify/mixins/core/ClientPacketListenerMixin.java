@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,12 +19,36 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-    @Inject(method = "handleLogin", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;", opcode = Opcodes.ASTORE, shift = At.Shift.AFTER))
+    @Unique
+    private static final String inputFieldTarget =
+            //? if >=1.21.2 {
+            "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/ClientInput;";
+            //?} else {
+            /*"Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;";
+            *///?}
+
+    @Inject(
+            method = "handleLogin",
+            at = @At(
+                    value = "FIELD",
+                    target = inputFieldTarget,
+                    opcode = Opcodes.ASTORE,
+                    shift = At.Shift.AFTER
+            )
+    )
     private void overrideNewPlayerInput(ClientboundLoginPacket packet, CallbackInfo ci) {
         ControllerPlayerMovement.updatePlayerInput(Minecraft.getInstance().player);
     }
 
-    @Inject(method = "handleRespawn", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;", opcode = Opcodes.ASTORE, shift = At.Shift.AFTER))
+    @Inject(
+            method = "handleRespawn",
+            at = @At(
+                    value = "FIELD",
+                    target = inputFieldTarget,
+                    opcode = Opcodes.ASTORE,
+                    shift = At.Shift.AFTER
+            )
+    )
     private void overrideRespawnInput(ClientboundRespawnPacket packet, CallbackInfo ci, @Local(ordinal = 1) LocalPlayer newPlayer) {
         ControllerPlayerMovement.updatePlayerInput(newPlayer);
     }

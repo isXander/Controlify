@@ -3,9 +3,9 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.compatibility.sodium.SodiumCompat;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.network.chat.Component;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 import java.util.Optional;
+
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
 
 @Mixin(FlatButtonWidget.class)
 public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidget> {
@@ -34,7 +36,7 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
             method = "render",
             at = @At(
                     value = "FIELD",
-                    target = "Lme/jellysquid/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
+                    target = SodiumCompat.SODIUM_PACKAGE_MIXIN + "/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
                     opcode = Opcodes.GETFIELD
             )
     )

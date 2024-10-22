@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.TriState;
 
 import java.util.function.Function;
 
@@ -18,7 +19,15 @@ public final class ExtraRenderTypes extends RenderType {
                     false, false,
                     RenderType.CompositeState.builder()
                             .setShaderState(POSITION_TEX_SHADER)
-                            .setTextureState(new TextureStateShard(atlas, false, false))
+                            .setTextureState(new TextureStateShard(
+                                    atlas,
+                                    //? if >=1.21.2 {
+                                    TriState.FALSE,
+                                    //?} else {
+                                    /*false,
+                                    *///?}
+                                    false
+                            ))
                             .setDepthTestState(LEQUAL_DEPTH_TEST)
                             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                             .createCompositeState(false)

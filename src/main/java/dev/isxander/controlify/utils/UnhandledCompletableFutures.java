@@ -19,7 +19,11 @@ public final class UnhandledCompletableFutures {
 
     public static <T> CompletableFuture<T> supply(Supplier<T> supplier, Minecraft executor) {
         var future = new CompletableFuture<T>();
-        executor.tell(() -> {
+        //? if >=1.21.2 {
+        executor.schedule(() -> {
+        //?} else {
+        /*executor.tell(() -> {
+        *///?}
             try {
                 future.complete(supplier.get());
             } catch (Exception e) { // allows Throwable to go uncaught

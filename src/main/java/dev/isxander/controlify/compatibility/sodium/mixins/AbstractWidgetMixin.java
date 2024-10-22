@@ -3,10 +3,11 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
-import me.jellysquid.mods.sodium.client.gui.widgets.AbstractWidget;
 import net.minecraft.client.InputType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.AbstractWidget;
 
 @Mixin(AbstractWidget.class)
 public class AbstractWidgetMixin {

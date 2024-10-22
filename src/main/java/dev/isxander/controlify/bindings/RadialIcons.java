@@ -1,10 +1,9 @@
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.utils.Blit;
+import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.MobEffectTextureManager;

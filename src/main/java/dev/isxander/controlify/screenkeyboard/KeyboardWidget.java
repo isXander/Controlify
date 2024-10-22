@@ -10,10 +10,10 @@ import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.render.ControlifySprite;
-import dev.isxander.controlify.utils.render.SpriteScaling;
 import dev.isxander.controlify.utils.render.SpriteUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
@@ -57,10 +57,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        // batch uploads to gpu -- this only works with ImmediatelyFast mod
-        // since drawManaged in vanilla doesn't support multiple render types
-        // noinspection deprecation -- vanilla misusing deprecation as always, used with caution.
-        guiGraphics.drawManaged(() -> {
+        Blit.drawSpecial(guiGraphics, bufferSource -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 

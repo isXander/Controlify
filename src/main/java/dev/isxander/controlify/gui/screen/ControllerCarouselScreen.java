@@ -12,7 +12,7 @@ import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
-import dev.isxander.controlify.utils.Blit;
+import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.ColorUtils;

@@ -12,7 +12,6 @@ import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
-import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -20,6 +19,7 @@ import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.*;
+import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
@@ -32,7 +32,6 @@ import org.lwjgl.glfw.GLFW;
 
 import java.lang.Math;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

@@ -1,13 +1,14 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    id("dev.architectury.loom") version "1.7.+" apply false
+    id("dev.architectury.loom") version "1.7.414+" apply false
     id("me.modmuss50.mod-publish-plugin") version "0.6.1+"
     id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
 stonecutter active "1.21.2-fabric" /* [SC] DO NOT EDIT */
+stonecutter.debug = true // stonecutter has a caching issue right now
 
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {
     group = "mod"
@@ -61,10 +62,6 @@ subprojects {
         exclusiveContent {
             forRepository { maven("https://cursemaven.com") }
             filter { includeGroup("curse.maven") }
-        }
-        exclusiveContent {
-            forRepository { maven("https://maven.flashyreese.me/releases") }
-            filter { includeGroup("me.flashyreese.mods") }
         }
         maven("https://jitpack.io")
         maven("https://maven.neoforged.net/releases/")

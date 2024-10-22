@@ -11,6 +11,8 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.ColorUtils;
+import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -242,18 +244,31 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         guiGraphics.pose().scale(scale, scale, 1f);
 
         float colour = currentStage != null && currentStage.isSatisfied() ? 0.46f : 1f;
-        guiGraphics.setColor(colour, colour, colour, 1f);
 
         if (currentStage != null && currentStage.background() != null) {
-            guiGraphics.blit(currentStage.background(), 0, 0, 0, 0, 32, 32, 32, 32);
+            Blit.blitTex(
+                    guiGraphics,
+                    currentStage.background(),
+                    0, 0,
+                    0, 0,
+                    32, 32,
+                    32, 32,
+                    ColorUtils.grey(colour, 1f)
+            );
         }
 
         if (currentStage == null || !currentStage.isSatisfied()) {
             ResourceLocation texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
-            guiGraphics.blit(texture, 0, 0, 0, 0, 32, 32, 32, 32);
+            Blit.blitTex(
+                    guiGraphics,
+                    texture,
+                    0, 0,
+                    0, 0,
+                    32, 32,
+                    32, 32,
+                    ColorUtils.grey(colour, 1f)
+            );
         }
-
-        guiGraphics.setColor(1f, 1f, 1f, 1f);
 
         guiGraphics.pose().popPose();
 

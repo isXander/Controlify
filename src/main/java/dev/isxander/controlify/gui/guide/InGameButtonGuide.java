@@ -1,7 +1,6 @@
 package dev.isxander.controlify.gui.guide;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.VertexSorting;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.guide.ActionPriority;
 import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
@@ -102,7 +101,14 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                     .setOrtho(
                             0.0F, (float)((double)minecraft.getWindow().getWidth() / guiScale), (float)((double)minecraft.getWindow().getHeight() / guiScale), 0.0F, 1000.0F, 21000.0F
                     );
-            RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
+            RenderSystem.setProjectionMatrix(
+                    matrix4f,
+                    //? if >=1.21.2 {
+                    com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
+                    //?} else {
+                    /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                     *///?}
+            );
         }
 
         ControlifyCompat.ifBeginHudBatching();
@@ -113,7 +119,14 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         ControlifyCompat.ifEndHudBatching();
 
         if (customScale) {
-            RenderSystem.setProjectionMatrix(prevProjection, VertexSorting.ORTHOGRAPHIC_Z);
+            RenderSystem.setProjectionMatrix(
+                    prevProjection,
+                    //? if >=1.21.2 {
+                    com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
+                    //?} else {
+                    /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                    *///?}
+            );
         }
     }
 
@@ -175,6 +188,11 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
             return Optional.empty();
         });
+        //? if >=1.21.2 {
+        boolean shifting = player.input.keyPresses.shift();
+        //?} else {
+        /*boolean shifting = player.input.shiftKeyDown;
+        *///?}
         registerGuideAction(ControlifyBindings.SNEAK.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
             if (player.getVehicle() != null)
@@ -184,16 +202,22 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             if (player.isInWater() && !player.onGround())
                 return Optional.of(Component.translatable("controlify.guide.ingame.swim_down"));
             if (ctx.controller().genericConfig().config().toggleSneak) {
-                return Optional.of(Component.translatable(player.input.shiftKeyDown ? "controlify.guide.ingame.stop_sneaking" : "controlify.guide.ingame.start_sneaking"));
+                return Optional.of(Component.translatable(shifting ? "controlify.guide.ingame.stop_sneaking" : "controlify.guide.ingame.start_sneaking"));
             } else {
-                if (!player.input.shiftKeyDown)
+                if (!shifting)
                     return Optional.of(Component.translatable("controlify.guide.ingame.sneak"));
             }
             return Optional.empty();
         });
+
+        //? if >=1.21.2 {
+        boolean sprinting = player.input.keyPresses.sprint();
+        //?} else {
+        /*boolean sprinting = options.keySprint.isDown();
+        *///?}
         registerGuideAction(ControlifyBindings.SPRINT.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
-            if (!options.keySprint.isDown()) {
+            if (!sprinting) {
                 if (!player.input.getMoveVector().equals(Vec2.ZERO)) {
                     if (player.isUnderWater())
                         return Optional.of(Component.translatable("controlify.guide.ingame.start_swimming"));
