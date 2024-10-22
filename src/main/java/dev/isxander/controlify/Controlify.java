@@ -43,6 +43,7 @@ import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
 import dev.isxander.deckapi.api.SteamDeck;
+import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
@@ -562,7 +563,10 @@ public class Controlify implements ControlifyApi {
         ControllerStateView state = input.stateNow();
         Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
 
-        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || minecraft.isPaused() || minecraft.screen instanceof PauseScreen));
+        boolean isPaused = minecraft.isPaused() || minecraft.screen instanceof PauseScreen;
+        boolean isConfigScreen = minecraft.screen instanceof YACLScreen;
+
+        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen)));
         if (outOfFocus) {
             state = ControllerState.EMPTY;
         } else {
