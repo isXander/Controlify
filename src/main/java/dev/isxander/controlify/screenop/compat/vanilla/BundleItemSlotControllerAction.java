@@ -50,19 +50,14 @@ public class BundleItemSlotControllerAction {
                 int incompleteRowSize = uniqueItems % rowSize;
                 int emptySlots = (rowSize - incompleteRowSize) % rowSize;
 
-                System.out.println("rowSize: " + rowSize + ", colSize: " + colSize + ", incompleteRowSize: " + incompleteRowSize);
-
                 int gridX = (currentIndex + emptySlots) % rowSize;
                 int gridY = (currentIndex + emptySlots) / rowSize;
 
                 int newGridX = (gridX + offsetX + rowSize) % rowSize;
                 int newGridY = (gridY + offsetY + colSize) % colSize;
 
-                System.out.println("currentIndex: " + currentIndex + ", gridX: " + gridX + ", gridY: " + gridY + ", newGridX: " + newGridX + ", newGridY: " + newGridY);
-
                 if (newGridY >= 0 && newGridY < colSize) {
                     int newIndex = Math.max(newGridX + newGridY * rowSize - emptySlots, 0);
-                    System.out.println("newIndex: " + newIndex);
 
                     consumer.accept(stack, hoveredSlotIndex, newIndex);
                 }
