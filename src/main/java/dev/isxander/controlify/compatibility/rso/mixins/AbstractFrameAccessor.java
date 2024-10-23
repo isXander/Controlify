@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-import /^$ sodium-package >>^/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
+import /^$ sodium-package >>^/ me.jellysquid.mods.sodium .client.gui.options.control.ControlElement;
 
 @Mixin(value = AbstractFrame.class, remap = false)
 public interface AbstractFrameAccessor {

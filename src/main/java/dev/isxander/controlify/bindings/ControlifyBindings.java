@@ -160,6 +160,22 @@ public final class ControlifyBindings {
             .id("controlify", "drop_inventory")
             .category(INVENTORY_CATEGORY)
             .allowedContexts(BindContext.CONTAINER));
+    public static final InputBindingSupplier BUNDLE_NAVI_UP = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "bundle_navi_up")
+            .category(INVENTORY_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER));
+    public static final InputBindingSupplier BUNDLE_NAVI_DOWN = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "bundle_navi_down")
+            .category(INVENTORY_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER));
+    public static final InputBindingSupplier BUNDLE_NAVI_LEFT = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "bundle_navi_left")
+            .category(INVENTORY_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER));
+    public static final InputBindingSupplier BUNDLE_NAVI_RIGHT = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "bundle_navi_right")
+            .category(INVENTORY_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER));
 
     public static final InputBindingSupplier PICK_BLOCK = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "pick_block")

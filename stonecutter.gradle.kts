@@ -7,7 +7,7 @@ plugins {
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
-stonecutter active "1.21.2-fabric" /* [SC] DO NOT EDIT */
+stonecutter active "1.21.3-fabric" /* [SC] DO NOT EDIT */
 stonecutter.debug = true // stonecutter has a caching issue right now
 
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {

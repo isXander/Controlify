@@ -68,6 +68,7 @@
     "feature.screenop.vanilla.AbstractSelectionListMixin",
     "feature.screenop.vanilla.AbstractSignEditScreenMixin",
     "feature.screenop.vanilla.AbstractSliderButtonMixin",
+    "feature.screenop.vanilla.bundle.BundleMouseActionsMixin",
     "feature.screenop.vanilla.ContainerObjectSelectionListEntryMixin",
     "feature.screenop.vanilla.CreateWorldScreenMixin",
     "feature.screenop.vanilla.CreativeModeInventoryScreenMixin",

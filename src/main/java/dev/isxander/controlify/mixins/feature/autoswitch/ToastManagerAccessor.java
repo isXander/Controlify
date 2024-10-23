@@ -18,7 +18,7 @@ public interface ToastManagerAccessor {
 
 @Mixin(net.minecraft.client.gui.components.toasts.ToastComponent.class)
 public interface ToastManagerAccessor {
-    @Accessor("visibleToasts")
+    @Accessor("visible")
     List<ToastComponent.ToastInstance<?>> getVisibleToasts();
 }
 *///?}

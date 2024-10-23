@@ -80,15 +80,16 @@ public final class Blit {
                 x, y,
                 u, v,
                 width, height,
-                textureWidth, textureHeight,
+                textureWidth, textureHeight
                 //? if >=1.21.2
-                color
+                ,color
         );
 
         //? <1.21.2
         /*graphics.setColor(1, 1, 1, 1);*/
     }
 
+    //? if >=1.20.3 {
     public static void blitSprite(
             GuiGraphics graphics,
             ResourceLocation sprite,
@@ -122,6 +123,7 @@ public final class Blit {
                 width, height
         );
     }
+    //?}
 
     public static void blitSprite(
             GuiGraphics graphics,

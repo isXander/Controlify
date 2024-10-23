@@ -22,8 +22,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
-import /^$ sodium-package >>^/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
-import /^$ sodium-package >>^/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
+import /^$ sodium-package >>^/ me.jellysquid.mods.sodium .client.gui.widgets.FlatButtonWidget;
+import /^$ sodium-package >>^/ me.jellysquid.mods.sodium .client.gui.options.control.ControlElement;
 
 @Mixin(value = SodiumVideoOptionsScreen.class, remap = false)
 public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
@@ -73,7 +73,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         return () -> {
             onSetTab.run();
             Minecraft.getInstance().
-                    /^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
+                    /^? if >=1.21.2 {^/ /^schedule ^//^?} else {^/ tell /^?}^/(this::focusOnFirstControl);
         };
     }
 

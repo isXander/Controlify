@@ -572,10 +572,15 @@ public class Controlify implements ControlifyApi {
         boolean givingInput = state.getButtons().stream().anyMatch(state::isButtonDown)
                 || state.getAxes().stream().map(state::getAxisState).anyMatch(axis -> Math.abs(axis) > 0.1f)
                 || state.getHats().stream().map(state::getHatState).anyMatch(hat -> hat != HatState.CENTERED);
-        if (givingInput && !this.currentInputMode().isController()) {
-            this.setInputMode(input.confObj().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+        if (givingInput) {
+            //? if >=1.21.2
+            minecraft.getFramerateLimitTracker().onInputReceived();
 
-            return; // don't process input if this is changing mode.
+            if (!this.currentInputMode().isController()) {
+                this.setInputMode(input.confObj().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+
+                return; // don't process input if this is changing mode.
+            }
         }
 
         if (consecutiveInputSwitches > 100) {

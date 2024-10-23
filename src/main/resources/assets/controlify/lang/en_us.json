@@ -453,6 +453,7 @@
   "controlify.guide.container.take_half": "Take Half",
   "controlify.guide.container.take_one": "Place One",
   "controlify.guide.container.quick_move": "Quick Move",
+  "controlify.guide.container.take_from_bundle": "Take From Bundle",
 
   "controlify.calibration.title": "Controller Calibration for '%s'",
   "controlify.calibration.info": "This calibration optimizes your controller settings to remove stickdrift and create an accurate reading for the gyroscope (if your controller supports it). Before hitting start, make sure to place your controller down on a flat surface and you are not touching the thumbsticks.\n\nThis will only take a few seconds.",

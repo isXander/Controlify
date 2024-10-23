@@ -1,5 +1,6 @@
 package dev.isxander.controlify.utils;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;

@@ -5,12 +5,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.components.toasts.ToastManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+
+//? if >=1.21.2
+import net.minecraft.client.gui.components.toasts.ToastManager;
 
 public class ToastUtils {
     public static ControlifyToast sendToast(Component title, Component message, boolean longer) {

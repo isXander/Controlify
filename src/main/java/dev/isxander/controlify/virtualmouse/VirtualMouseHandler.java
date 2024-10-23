@@ -472,4 +472,9 @@ public class VirtualMouseHandler {
     public int getCurrentY(float deltaTime) {
         return (int) Mth.lerp(deltaTime, currentY, targetY);
     }
+
+    public void preventScrollingThisTick() {
+        scrollX = 0;
+        scrollY = 0;
+    }
 }

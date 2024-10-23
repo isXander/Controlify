@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.TriState;
 
 import java.util.function.Function;
 
@@ -22,7 +21,7 @@ public final class ExtraRenderTypes extends RenderType {
                             .setTextureState(new TextureStateShard(
                                     atlas,
                                     //? if >=1.21.2 {
-                                    TriState.FALSE,
+                                    net.minecraft.util.TriState.FALSE,
                                     //?} else {
                                     /*false,
                                     *///?}

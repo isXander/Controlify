@@ -14,6 +14,7 @@ import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.render.ControlifySprite;
+import dev.isxander.controlify.utils.render.SpriteScaling;
 import dev.isxander.controlify.utils.render.SpriteUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
