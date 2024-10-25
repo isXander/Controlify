@@ -97,7 +97,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     protected void onControllerRemoved(ControllerEntity controller) {
         CUtil.LOGGER.info("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
 
-        removeController(controller.info().uid());
+        closeController(controller.info().uid());
 
         ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
     }
@@ -118,17 +118,17 @@ public abstract class AbstractControllerManager implements ControllerManager {
         controllersByJid.put(ucid, controller);
     }
 
-    protected void removeController(String uid) {
+    @Override
+    public void closeController(String uid) {
         ControllerEntity controller = controllersByUid.remove(uid);
+
+        if (controller == null) return;
+
+        controller.close();
+
         controllersByJid.remove(controller.info().ucid());
         Optional.ofNullable(hidInfoByUid.remove(uid))
                 .ifPresent(controlify.controllerHIDService()::unconsumeController);
-        closeController(uid);
-    }
-
-    @Override
-    public void closeController(String uid) {
-        controllersByUid.get(uid).close();
     }
 
     @Override

@@ -1,5 +1,3 @@
-import dev.kikugie.stonecutter.StonecutterSettings
-
 pluginManagement {
     repositories {
         mavenCentral()
@@ -15,27 +13,25 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.4.4"
+    id("dev.kikugie.stonecutter") version "0.5-beta.3"
 }
 
-extensions.configure<StonecutterSettings> {
+stonecutter {
     kotlinController = true
     centralScript = "build.gradle.kts"
-    shared {
+
+    create(rootProject) {
         fun mc(mcVersion: String, name: String = mcVersion, loaders: Iterable<String>) {
             for (loader in loaders) {
                 vers("$name-$loader", mcVersion)
             }
         }
 
+        mc("1.21", loaders = listOf("fabric", "neoforge"))
         mc("1.20.6", loaders = listOf("fabric", "neoforge"))
         mc("1.20.4", loaders = listOf("fabric", "neoforge"))
-        mc("1.21", loaders = listOf("fabric", "neoforge"))
         mc("1.20.1", loaders = listOf("fabric"))
-
-        vcsVersion = "1.20.6-fabric"
     }
-    create(rootProject)
 }
 
 rootProject.name = "Controlify"

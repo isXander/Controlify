@@ -26,10 +26,6 @@ public class SDLOnboardingScreen extends ConfirmScreen implements DontInteruptSc
                 Util.make(() -> {
                     var message = Component.translatable("controlify.sdl3_onboarding.message");
 
-                    if (SDL3NativesManager.Target.CURRENT.isMacArm()) {
-                        message.append("\n").append(Component.translatable("controlify.sdl3_onboarding.message_mac").withStyle(ChatFormatting.RED));
-                    }
-
                     message.append("\n\n").append(Component.translatable("controlify.sdl3_onboarding.question"));
 
                     return message;

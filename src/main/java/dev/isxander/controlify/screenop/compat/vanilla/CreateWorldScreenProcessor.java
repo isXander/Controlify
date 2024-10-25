@@ -17,7 +17,7 @@ public class CreateWorldScreenProcessor extends ScreenProcessor<CreateWorldScree
     protected void handleButtons(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             this.onCreateButton.run();
-            this.playClackSound();
+            playClackSound();
         }
 
         super.handleButtons(controller);
