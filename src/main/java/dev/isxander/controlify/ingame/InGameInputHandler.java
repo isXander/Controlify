@@ -315,10 +315,11 @@ public class InGameInputHandler {
 
     protected void handleGyroLook(GyroComponent gyro, Vector2f impulse, boolean aiming) {
         GyroComponent.Config config = gyro.confObj();
+        var gyroButton = ControlifyBindings.GYRO_BUTTON.on(controller);
 
-        if (config.requiresButton.equals(GyroButtonMode.ON) && (!ControlifyBindings.GYRO_BUTTON.on(controller).digitalNow() && !aiming)) {
+        if (config.requiresButton.equals(GyroButtonMode.ON) && (!gyroButton.digitalNow() && !aiming)) {
             gyroInput.set(0);
-        } else if(config.requiresButton.equals(GyroButtonMode.INVERT) && (ControlifyBindings.GYRO_BUTTON.on(controller).digitalNow() && !aiming)) {
+        } else if(config.requiresButton.equals(GyroButtonMode.INVERT) && (gyroButton.digitalNow() && !aiming)) {
             gyroInput.set(0);
         } else if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
             gyroInput.set(0);
@@ -329,7 +330,7 @@ public class InGameInputHandler {
                 gyroInput.set(gyro.getState());
         }
 
-        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && ControlifyBindings.GYRO_BUTTON.on(controller).justPressed()) {
+        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && gyroButton.justPressed()) {
            gyroToggledOn = !gyroToggledOn;
         }
 
