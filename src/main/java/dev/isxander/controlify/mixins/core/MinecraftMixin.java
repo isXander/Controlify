@@ -28,9 +28,16 @@ import java.util.function.Function;
 public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
-    //? if >1.20.6 {
-    @Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
-    //?} else {
+    //? if >=1.21.2 {
+    @Shadow public abstract net.minecraft.client.DeltaTracker getDeltaTracker();
+    //?} elif >1.20.6 {
+    /*@Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
+
+    @Unique
+    public net.minecraft.client.DeltaTracker getDeltaTracker() {
+        return getTimer();
+    }
+    *///?} else {
     /*@Shadow public abstract float getDeltaFrameTime();
     *///?}
 
@@ -132,7 +139,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Unique
     private float getTickDelta() {
         /*? if >1.20.6 {*/
-        return getTimer().getGameTimeDeltaTicks();
+        return getDeltaTracker().getGameTimeDeltaTicks();
         /*?} else {*/
         /*return getDeltaFrameTime();
         *//*?}*/

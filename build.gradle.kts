@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 import net.fabricmc.loom.task.RemapJarTask
 import org.gradle.configurationcache.extensions.capitalized
 
@@ -5,7 +7,7 @@ plugins {
     `java-library`
 
     id("dev.architectury.loom")
-    id("dev.kikugie.j52j") version "1.0"
+    id("dev.kikugie.j52j") version "1.0.2"
 
     id("me.modmuss50.mod-publish-plugin")
     `maven-publish`
@@ -53,6 +55,7 @@ loom {
         runConfigs.all {
             ideConfigGenerated(true)
             runDir("../../run")
+            vmArgs("-Dsodium.checks.issue2561=false")
         }
     }
 
@@ -69,32 +72,16 @@ loom {
 }
 
 stonecutter {
+    val sodiumSemver = findProperty("deps.sodiumSemver")?.toString() ?: "0.0.0"
     dependencies(
-        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0")
+        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0"),
+        "sodium" to sodiumSemver
     )
-}
 
-repositories {
-    mavenCentral()
-    maven("https://maven.terraformersmc.com")
-    maven("https://maven.isxander.dev/releases")
-    maven("https://maven.isxander.dev/snapshots")
-    maven("https://maven.parchmentmc.org")
-    maven("https://maven.quiltmc.org/repository/release")
-    exclusiveContent {
-        forRepository { maven("https://api.modrinth.com/maven") }
-        filter { includeGroup("maven.modrinth") }
-    }
-    exclusiveContent {
-        forRepository { maven("https://cursemaven.com") }
-        filter { includeGroup("curse.maven") }
-    }
-    exclusiveContent {
-        forRepository { maven("https://maven.flashyreese.me/releases") }
-        filter { includeGroup("me.flashyreese.mods") }
-    }
-    maven("https://jitpack.io")
-    maven("https://maven.neoforged.net/releases/")
+    swaps["sodium-package-import"] = if (eval(sodiumSemver, ">=0.6"))
+        "import net.caffeinemc.mods.sodium" else "import me.jellysquid.mods.sodium"
+    swaps["sodium-package"] = if (eval(sodiumSemver, ">=0.6"))
+        "net.caffeinemc.mods.sodium" else "me.jellysquid.mods.sodium"
 }
 
 dependencies {
@@ -151,29 +138,6 @@ dependencies {
         // so you can do `depends: fabric-api` in FMJ
         modRuntimeOnly("net.fabricmc.fabric-api:fabric-api:$fapiVersion")
 
-        // sodium compat
-        modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
-            if (runtime) {
-                listOf(
-                    "fabric-rendering-fluids-v1",
-                    "fabric-rendering-data-attachment-v1",
-                ).forEach { module ->
-                    modRuntimeOnly(fabricApi.module(module, fapiVersion))
-                }
-            }
-        }
-
-        // RSO compat
-        modDependency("reesesSodiumOptions", { "me.flashyreese.mods:reeses-sodium-options:$it" })
-
-        // iris compat
-        modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
-            if (runtime) {
-                modRuntimeOnly("org.anarres:jcpp:1.4.14")
-                modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
-            }
-        }
-
         // mod menu compat
         modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
     } else if (isNeoforge) {
@@ -209,6 +173,24 @@ dependencies {
             .jij().forgeRuntime()
     }
 
+    // sodium compat
+    modDependency("sodium", { "maven.modrinth:sodium:$it" }) { runtime ->
+        if (runtime) {
+
+        }
+    }
+
+    // RSO compat
+    modDependency("reesesSodiumOptions", { "maven.modrinth:reeses-sodium-options:$it" })
+
+    // iris compat
+    modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
+        if (runtime) {
+            modRuntimeOnly("org.anarres:jcpp:1.4.14")
+            modRuntimeOnly("io.github.douira:glsl-transformer:2.0.0-pre13")
+        }
+    }
+
     // immediately-fast compat
     modDependency("immediatelyFast", { "maven.modrinth:immediatelyfast:$it" }) { runtime ->
         if (runtime) {
@@ -242,7 +224,7 @@ tasks {
 
             if (isFabric) {
                 put("mc", findProperty("fmj.mcDep"))
-                put("mixins", mixins.joinToString("\",\"", prefix = "\"", postfix = "\""))
+                put("mixins", mixins.joinToString("\",\""))
                 put("fapi", findProperty("fmj.fapiDep") ?: "*")
             }
 
@@ -267,7 +249,7 @@ tasks {
         )
         val modMetadataFile = when {
             isFabric -> fabricModJson
-            isNeoforge && Version(stonecutter.current.version) >= Version("1.20.5") -> neoforgeModsToml
+            isNeoforge && stonecutter.eval(stonecutter.current.version, ">=1.20.5") -> neoforgeModsToml
             isForgeLike -> modsToml
             else -> error("Unknown loader")
         }
@@ -297,6 +279,7 @@ tasks {
     }
 }
 
+// Builds a jar that bundles all required natives for use offline, or when servers go down.
 val offlineRemapJar by tasks.registering(RemapJarTask::class) {
     group = "offline"
 
@@ -430,8 +413,4 @@ fun <T> optionalProp(property: String, block: (String) -> T?) {
 
 fun isPropDefined(property: String): Boolean {
     return findProperty(property)?.toString()?.isNotBlank() ?: false
-}
-
-data class Version(val string: String) {
-    operator fun compareTo(other: Version): Int = stonecutter.compare(string, other.string)
 }

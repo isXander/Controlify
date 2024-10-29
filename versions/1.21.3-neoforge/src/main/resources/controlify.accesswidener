@@ -1,0 +1,8 @@
+accessWidener v2 named
+
+accessible class net/minecraft/client/gui/screens/options/LanguageSelectScreen$LanguageSelectionList
+accessible class net/minecraft/client/gui/components/toasts/ToastManager$ToastInstance
+accessible method net/minecraft/client/gui/components/toasts/SystemToast <init> (Lnet/minecraft/client/gui/components/toasts/SystemToast$SystemToastId;Lnet/minecraft/network/chat/Component;Ljava/util/List;I)V
+accessible field net/minecraft/client/gui/components/AbstractSelectionList MENU_LIST_BACKGROUND Lnet/minecraft/resources/ResourceLocation;
+accessible field net/minecraft/client/gui/components/AbstractSelectionList INWORLD_MENU_LIST_BACKGROUND Lnet/minecraft/resources/ResourceLocation;
+extendable method net/minecraft/client/gui/screens/Screen init (Lnet/minecraft/client/Minecraft;II)V

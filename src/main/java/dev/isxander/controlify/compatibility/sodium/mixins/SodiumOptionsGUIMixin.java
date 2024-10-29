@@ -5,10 +5,6 @@ import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProc
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import me.jellysquid.mods.sodium.client.gui.SodiumOptionsGUI;
-import me.jellysquid.mods.sodium.client.gui.options.OptionPage;
-import me.jellysquid.mods.sodium.client.gui.options.control.ControlElement;
-import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.*;
@@ -17,6 +13,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.SodiumOptionsGUI;
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.options.OptionPage;
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
 
 @Mixin(value = SodiumOptionsGUI.class, remap = false)
 public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {

@@ -1,13 +1,14 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    id("dev.architectury.loom") version "1.7.+" apply false
+    id("dev.architectury.loom") version "1.7.414+" apply false
     id("me.modmuss50.mod-publish-plugin") version "0.6.1+"
     id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
 }
-stonecutter active "1.21-fabric" /* [SC] DO NOT EDIT */
+stonecutter active "1.21.3-fabric" /* [SC] DO NOT EDIT */
+stonecutter.debug = true // stonecutter has a caching issue right now
 
 stonecutter registerChiseled tasks.register("buildAllVersions", stonecutter.chiseled) {
     group = "mod"
@@ -25,10 +26,10 @@ val releaseMod by tasks.registering {
     dependsOn("publishMods")
 }
 
-stonecutter.configureEach {
-    val platform = project.property("loom.platform")
+stonecutter.parameters {
+    val platform = node!!.property("loom.platform")
 
-    fun String.propDefined() = project.findProperty(this)?.toString()?.isNotBlank() ?: false
+    fun String.propDefined() = node!!.findProperty(this)?.toString()?.isNotBlank() ?: false
     consts(
         listOf(
             "fabric" to (platform == "fabric"),
@@ -46,6 +47,27 @@ stonecutter.configureEach {
     )
 }
 
+subprojects {
+    repositories {
+        mavenCentral()
+        maven("https://maven.terraformersmc.com")
+        maven("https://maven.isxander.dev/releases")
+        maven("https://maven.isxander.dev/snapshots")
+        maven("https://maven.parchmentmc.org")
+        maven("https://maven.quiltmc.org/repository/release")
+        exclusiveContent {
+            forRepository { maven("https://api.modrinth.com/maven") }
+            filter { includeGroup("maven.modrinth") }
+        }
+        exclusiveContent {
+            forRepository { maven("https://cursemaven.com") }
+            filter { includeGroup("curse.maven") }
+        }
+        maven("https://jitpack.io")
+        maven("https://maven.neoforged.net/releases/")
+    }
+}
+
 val sdl3Target = property("deps.sdl3Target")!!.toString()
 
 data class NativesDownload(
@@ -56,10 +78,12 @@ data class NativesDownload(
 )
 
 val downloadNativesTasks = listOf(
-    NativesDownload("windows64", "dll", "win32-x86-64", "Win64"),
-    NativesDownload("linux64", "so", "linux-x86-64", "Linux64"),
-    NativesDownload("macos-x86_64", "dylib", "darwin-x86-64", "MacIntel"),
-    NativesDownload("macos-aarch64", "dylib", "darwin-aarch64", "MacApple"),
+    NativesDownload("windows-x86_64", "dll", "win32-x86-64", "WinX86_64"),
+    NativesDownload("windows-x86", "dll", "win32-x86", "WinX86"),
+    NativesDownload("linux-x86_64", "so", "linux-x86-64", "LinuxX86_64"),
+    NativesDownload("linux-aarch64", "so", "linux-aarch64", "LinuxAarch64"),
+    NativesDownload("macos-universal", "dylib", "darwin-aarch64", "MacArm"),
+    NativesDownload("macos-universal", "dylib", "darwin-x86-64", "MacIntel"),
 ).map {
     tasks.register("download${it.taskName}", Download::class) {
         group = "natives"
@@ -135,7 +159,14 @@ publishMods {
             username = "Controlify Updates"
             avatarUrl = "https://raw.githubusercontent.com/isXander/Controlify/1.20.x/dev/src/main/resources/icon.png"
 
-            content = changelog.get() + "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+            var discordChangelog = changelog.get()
+            val controlifyPing = "\n\n<@&1146064258652712960>" // <@Controlify Ping>
+            if ((discordChangelog.length + controlifyPing.length) > 2000) {
+                println("Changelog is too long for Discord, trimming.")
+                discordChangelog = discordChangelog.substring(0, 2000 - controlifyPing.length - 3) + "..."
+            }
+
+            content = "$discordChangelog\n\n<@&1146064258652712960>" // <@Controlify Ping>
 
 //            publishResults.from(
 //                *versionProjects

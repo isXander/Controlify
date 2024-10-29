@@ -20,12 +20,18 @@ import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+
+//? if >=1.21.2 {
+import net.minecraft.world.item.BundleItem;
+//?}
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
     private PositionedComponent<ColumnLayoutComponent<RowLayoutComponent<GuideActionRenderer<ContainerGuideCtx>>>> leftLayout;
@@ -34,10 +40,13 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     private final Supplier<Slot> hoveredSlot;
     private final ClickSlotFunction clickSlotFunction;
 
-    public AbstractContainerScreenProcessor(T screen, Supplier<Slot> hoveredSlot, ClickSlotFunction clickSlotFunction) {
+    private final Predicate<ControllerEntity> doItemSlotActions;
+
+    public AbstractContainerScreenProcessor(T screen, Supplier<Slot> hoveredSlot, ClickSlotFunction clickSlotFunction, Predicate<ControllerEntity> doItemSlotActions) {
         super(screen);
         this.hoveredSlot = hoveredSlot;
         this.clickSlotFunction = clickSlotFunction;
+        this.doItemSlotActions = doItemSlotActions;
     }
 
     @Override
@@ -46,13 +55,13 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         ContainerGuideCtx ctx = new ContainerGuideCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0));
 
         Slot hoveredSlot = this.hoveredSlot.get();
-        if (!screen.getMenu().getCarried().isEmpty()) {
-            if (ControlifyBindings.DROP_INVENTORY.on(controller).justPressed()) {
-                clickSlotFunction.clickSlot(null, -999, 0, ClickType.PICKUP);
-                hapticNavigate();
-            }
-        }
         if (hoveredSlot != null) {
+            if (hoveredSlot.hasItem()) {
+                if (doItemSlotActions.test(controller)) {
+                    return;
+                }
+            }
+
             if (ControlifyBindings.INV_SELECT.on(controller).justPressed()) {
                 clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ClickType.PICKUP);
                 hapticNavigate();
@@ -74,6 +83,13 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 //            }
         } else {
             vmouse.handleCompatibilityBinds(controller);
+        }
+
+        if (!screen.getMenu().getCarried().isEmpty()) {
+            if (ControlifyBindings.DROP_INVENTORY.on(controller).justPressed()) {
+                clickSlotFunction.clickSlot(null, -999, 0, ClickType.PICKUP);
+                hapticNavigate();
+            }
         }
 
         if (leftLayout != null && rightLayout != null) {
@@ -165,19 +181,23 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                                 .rowPadding(0)
                                 .elementPosition(RowLayoutComponent.ElementPosition.MIDDLE)
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(ControlifyBindings.INV_TAKE_HALF.on(controller), ctx -> {
-                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
-                                                return Optional.of(Component.translatable("controlify.guide.container.take_half"));
-                                            if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
-                                                return Optional.of(Component.translatable("controlify.guide.container.take_one"));
+                                        new GuideAction<>(ControlifyBindings.INV_QUICK_MOVE.on(controller), ctx -> {
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem() && ctx.holdingItem().isEmpty())
+                                                return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
                                             return Optional.empty();
                                         }),
                                         true, false
                                 ))
                                 .element(new GuideActionRenderer<>(
-                                        new GuideAction<>(ControlifyBindings.INV_QUICK_MOVE.on(controller), ctx -> {
-                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().hasItem() && ctx.holdingItem().isEmpty())
-                                                return Optional.of(Component.translatable("controlify.guide.container.quick_move"));
+                                        new GuideAction<>(ControlifyBindings.INV_TAKE_HALF.on(controller), ctx -> {
+                                            //? if >=1.21.2 {
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().is(ItemTags.BUNDLES) && ctx.holdingItem().isEmpty() && BundleItem.getSelectedItem(ctx.hoveredSlot().getItem()) != -1)
+                                                return Optional.of(Component.translatable("controlify.guide.container.take_from_bundle"));
+                                            //?}
+                                            if (ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().getCount() > 1 && ctx.holdingItem().isEmpty())
+                                                return Optional.of(Component.translatable("controlify.guide.container.take_half"));
+                                            if (ctx.hoveredSlot() != null && !ctx.holdingItem().isEmpty() && ctx.hoveredSlot().mayPlace(ctx.holdingItem()))
+                                                return Optional.of(Component.translatable("controlify.guide.container.take_one"));
                                             return Optional.empty();
                                         }),
                                         true, false

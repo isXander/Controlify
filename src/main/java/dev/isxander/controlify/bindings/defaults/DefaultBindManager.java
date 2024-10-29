@@ -18,7 +18,6 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -38,7 +37,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     private final Map<ResourceLocation, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
 
     @Override
-    public CompletableFuture<@Nullable Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
+    public CompletableFuture<@Nullable Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
 
@@ -99,7 +98,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     }
 
     @Override
-    public CompletableFuture<Void> apply(@Nullable Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
+    public CompletableFuture<Void> apply(@Nullable Preparations data, ResourceManager manager, Executor executor) {
         return CompletableFuture.runAsync(() -> {
             List<InputBinding> defaultedBindings = new ArrayList<>();
             for (ControllerEntity controller : Controlify.instance().getControllerManager().map(ControllerManager::getConnectedControllers).orElse(List.of())) {

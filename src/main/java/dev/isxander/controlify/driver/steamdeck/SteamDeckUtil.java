@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public final class SteamDeckUtil {
     private static @Nullable SteamDeck deckInstance;
@@ -24,8 +25,6 @@ public final class SteamDeckUtil {
     public static final boolean IS_SANDBOXED = "1".equals(System.getenv("container"));
 
     public static final ResourceLocation STEAM_DECK_NAMESPACE = CUtil.rl("steam_deck");
-
-    public static final Path CEF_DEBUGGER_FILE = Paths.get(System.getProperty("user.home"), ".steam/steam/.cef-enable-remote-debugging");
 
     public static Optional<SteamDeck> getDeckInstance() {
         if (triedToLoad) {
@@ -51,31 +50,6 @@ public final class SteamDeckUtil {
         return Optional.ofNullable(deckInstance);
     }
 
-    public static CEFDebuggerFileResult ensureCefDebuggerFilePresent() {
-        if (getDeckInstance().isPresent()) {
-            return CEFDebuggerFileResult.WORKING;
-        }
-
-        return switch (DECK_MODE) {
-            case DESKTOP_MODE -> {
-                if (Files.exists(CEF_DEBUGGER_FILE)) {
-                    yield CEFDebuggerFileResult.PRESENT_BUT_DESKTOP;
-                } else {
-                    try {
-                        Files.createFile(CEF_DEBUGGER_FILE);
-                        yield CEFDebuggerFileResult.REQUIRES_RESTART;
-                    } catch (IOException e) {
-                        CUtil.LOGGER.error("Failed to create CEF debugger file", e);
-                        yield CEFDebuggerFileResult.FAILED_TO_CREATE;
-                    }
-                }
-            }
-            // already checked if CEF connection has been made, it has not
-            case GAMING_MODE -> CEFDebuggerFileResult.SANDBOXED_ERROR;
-            case NOT_STEAM_DECK -> CEFDebuggerFileResult.NOT_STEAM_DECK;
-        };
-    }
-
     private static boolean isHardwareSteamDeck() {
         // even if "Linux" isn't a defacto way to check for all linux distros, it's the value returned on a steam deck
         boolean isLinux = "Linux".equals(System.getProperty("os.name"));
@@ -93,8 +67,13 @@ public final class SteamDeckUtil {
         String boardName = readFile("/sys/class/dmi/id/board_name");
         if (boardName == null) return false;
 
+        var validBoardNames = Stream.of(
+                "Jupiter", // LCD
+                "Galileo"  // OLED
+        );
+
         // Jupiter is the codename for the steam deck
-        return boardVendor.contains("Valve") && boardName.contains("Jupiter");
+        return boardVendor.contains("Valve") && validBoardNames.anyMatch(boardName::contains);
     }
 
     private static SteamDeckMode getSteamDeckMode() {

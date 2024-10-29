@@ -1,7 +1,7 @@
 //? if sodium {
 package dev.isxander.controlify.compatibility.sodium.screenop;
 
-import me.jellysquid.mods.sodium.client.gui.widgets.FlatButtonWidget;
+import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
 
 public interface SodiumScreenOperations {
     void controlify$nextPage();

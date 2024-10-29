@@ -99,6 +99,18 @@
     "controlify:inv_take_half": {
       "button": "controlify:button/west"
     },
+    "controlify:bundle_navi_up": {
+      "axis": "controlify:axis/right_stick_up"
+    },
+    "controlify:bundle_navi_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:bundle_navi_left": {
+      "axis": "controlify:axis/right_stick_left"
+    },
+    "controlify:bundle_navi_right": {
+      "axis": "controlify:axis/right_stick_right"
+    },
     "controlify:pick_block": {
       "button": "controlify:button/dpad_left"
     },

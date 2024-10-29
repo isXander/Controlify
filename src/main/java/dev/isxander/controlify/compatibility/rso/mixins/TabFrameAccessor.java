@@ -1,5 +1,5 @@
 //? if reeses-sodium-options {
-package dev.isxander.controlify.compatibility.rso.mixins;
+/*package dev.isxander.controlify.compatibility.rso.mixins;
 
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.Tab;
@@ -20,4 +20,4 @@ public interface TabFrameAccessor {
     @Accessor
     AbstractFrame getSelectedFrame();
 }
-//?}
+*///?}

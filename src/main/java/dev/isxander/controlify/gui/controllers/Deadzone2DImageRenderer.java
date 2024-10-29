@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.ControlifyVertexConsumer;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
@@ -75,6 +76,7 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 
     private static void drawCircle(PoseStack poseStack, float originX, float originY, float z, float radius, int colour, int segments) {
         BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        ControlifyVertexConsumer consumer = ControlifyVertexConsumer.of(buffer);
 
         Matrix4f position = poseStack.last().pose();
 
@@ -83,18 +85,19 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float x = originX + Mth.sin(radians) * radius;
             float y = originY + Mth.cos(radians) * radius;
 
-            /*? if >1.20.6 {*/
-            buffer.addVertex(position, x, y, z).setColor(colour);
-            /*?} else {*/
-            /*buffer.vertex(position, x, y, z).color(colour).endVertex();
-            *//*?}*/
+            consumer.vertex(position, x, y, z)
+                    .color(colour)
+                    .endVertex();
         }
+
+
 
         RenderSystem.enableBlend();
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        Blit.setPosColorShader();
 
         BufferUploader.drawWithShader(
                 /*? if >1.20.6 {*/
@@ -134,7 +137,8 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         RenderSystem.enableDepthTest();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        Blit.setPosColorShader();
 
         BufferUploader.drawWithShader(
                 /*? if >1.20.6 {*/

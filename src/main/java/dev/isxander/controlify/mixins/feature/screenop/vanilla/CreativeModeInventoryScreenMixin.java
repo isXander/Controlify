@@ -11,16 +11,16 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(CreativeModeInventoryScreen.class)
-public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreen<CreativeModeInventoryScreen.ItemPickerMenu> implements ScreenProcessorProvider {
-    @Unique private final CreativeModeInventoryScreenProcessor creativeScreenProcessor
-            = new CreativeModeInventoryScreenProcessor((CreativeModeInventoryScreen) (Object) this, () -> hoveredSlot, this::slotClicked);
-
-    public CreativeModeInventoryScreenMixin(CreativeModeInventoryScreen.ItemPickerMenu handler, Inventory inventory, Component title) {
-        super(handler, inventory, title);
-    }
+public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreenMixin implements ScreenProcessorProvider {
+    @Unique protected CreativeModeInventoryScreenProcessor screenProcessor = new CreativeModeInventoryScreenProcessor(
+            (CreativeModeInventoryScreen) (Object) this,
+            () -> hoveredSlot,
+            this::slotClicked,
+            this::handleControllerItemSlotActions
+    );
 
     @Override
     public ScreenProcessor<?> screenProcessor() {
-        return creativeScreenProcessor;
+        return screenProcessor;
     }
 }

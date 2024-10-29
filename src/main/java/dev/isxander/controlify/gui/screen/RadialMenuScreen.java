@@ -18,6 +18,7 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
+import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -273,7 +274,16 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
             graphics.pose().pushPose();
             graphics.pose().scale(2, 2, 1);
-            graphics.blit(TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
+
+            Blit.blitTex(
+                    graphics,
+                    TEXTURE,
+                    0, 0,
+                    focused ? 16 : 0, 0,
+                    16, 16,
+                    32, 16
+            );
+
             graphics.pose().popPose();
 
             if (editMode == null || !focused) {

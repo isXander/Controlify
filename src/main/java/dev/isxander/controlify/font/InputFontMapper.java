@@ -17,7 +17,6 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -50,7 +49,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
     private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controllers/font_mappings");
 
     @Override
-    public CompletableFuture<InputFontMapper.Preparations> load(ResourceManager manager, ProfilerFiller profiler, Executor executor) {
+    public CompletableFuture<InputFontMapper.Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             Map<ResourceLocation, Resource> mappingResources = fileToIdConverter.listMatchingResources(manager);
             Map<ResourceLocation, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {
@@ -79,7 +78,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
     }
 
     @Override
-    public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, ProfilerFiller profiler, Executor executor) {
+    public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, Executor executor) {
         return CompletableFuture.runAsync(() -> {
             ImmutableMap.Builder<ResourceLocation, FontMap> builder = ImmutableMap.builder();
             data.mappings().forEach(builder::put);

@@ -3,9 +3,9 @@ package dev.isxander.controlify.platform.network.fabric;
 
 import dev.isxander.controlify.platform.network.C2SNetworkApi;
 import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
+import dev.isxander.controlify.platform.network.PacketPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -30,7 +30,7 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
     }
 
     @Override
-    public <T> CustomPacketPayload createPayload(ResourceLocation channel, T packet) {
+    public <T> PacketPayload createPayload(ResourceLocation channel, T packet) {
         FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
         return packetWrapper.new FabricPacketPayloadWrapper(packet);
     }
@@ -45,7 +45,7 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
         });
         /*?} else {*/
         /*ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
-            listener.listen(packet.payload, player, responseSender);
+            listener.listen(packet.payload, player);
         });
         *//*?}*/
     }

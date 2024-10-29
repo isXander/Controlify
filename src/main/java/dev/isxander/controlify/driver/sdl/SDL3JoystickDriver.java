@@ -26,9 +26,7 @@ import net.minecraft.util.Mth;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.HexFormat;
 
-import static dev.isxander.sdl3java.api.SDL_bool.*;
 import static dev.isxander.sdl3java.api.error.SdlError.*;
 import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 import static dev.isxander.sdl3java.api.joystick.SdlJoystickHatConst.*;
@@ -56,11 +54,11 @@ public class SDL3JoystickDriver implements Driver {
         SDL_PropertiesID props = SDL_GetJoystickProperties(ptrJoystick);
 
         this.name = SDL_GetJoystickName(ptrJoystick);
-        this.guid = SDL_GetJoystickInstanceGUID(jid).toString();
+        this.guid = SDL_GetJoystickGUIDForID(jid).toString();
         this.serial = SDL_GetJoystickSerial(ptrJoystick);
 
-        this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false) == SDL_TRUE;
-        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false) == SDL_TRUE;
+        this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_RUMBLE_BOOLEAN, false);
+        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_JOYSTICK_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
 
         this.numAxes = SDL_GetNumJoystickAxes(ptrJoystick);
         this.numButtons = SDL_GetNumJoystickButtons(ptrJoystick);
@@ -135,7 +133,7 @@ public class SDL3JoystickDriver implements Driver {
             Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
 
             stateOpt.ifPresent(state -> {
-                if (SDL_RumbleJoystick(ptrJoystick, (short) (state.strong() * 0xFFFF), (short) (state.weak() * 0xFFFF), 0) != 0) {
+                if (!SDL_RumbleJoystick(ptrJoystick, (short) (state.strong() * 0xFFFF), (short) (state.weak() * 0xFFFF), 0)) {
                     CUtil.LOGGER.error("Could not rumble joystick: {}", SDL_GetError());
                 }
             });
@@ -145,7 +143,7 @@ public class SDL3JoystickDriver implements Driver {
             Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
 
             stateOpt.ifPresent(state -> {
-                if (SDL_RumbleJoystickTriggers(ptrJoystick, (short) (state.left() * 0xFFFF), (short) (state.right() * 0xFFFF), 0) != 0) {
+                if (!SDL_RumbleJoystickTriggers(ptrJoystick, (short) (state.left() * 0xFFFF), (short) (state.right() * 0xFFFF), 0)) {
                     CUtil.LOGGER.error("Could not rumble triggers joystick: {}", SDL_GetError());
                 }
             });

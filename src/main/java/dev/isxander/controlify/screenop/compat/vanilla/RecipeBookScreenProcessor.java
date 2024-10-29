@@ -14,7 +14,12 @@ import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 
 import java.util.List;
 
-public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor<T> {
+//? if >=1.21.2
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+
+public class RecipeBookScreenProcessor
+        <T extends /*? if >=1.21.2 {*/ AbstractRecipeBookScreen<?> /*?} else {*/ /*Screen & RecipeUpdateListener *//*?}*/>
+        extends ScreenProcessor<T> {
     private final T screen;
 
     public RecipeBookScreenProcessor(T screen) {
@@ -26,7 +31,12 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         super.handleButtons(controller);
 
-        RecipeBookComponent recipeBookComponent = ((RecipeUpdateListener) screen).getRecipeBookComponent();
+        //? if >=1.21.2 {
+        RecipeBookComponent<?> recipeBookComponent = ((RecipeBookScreenAccessor) screen).getRecipeBookComponent();
+        //?} else {
+        /*RecipeBookComponent recipeBookComponent = screen.getRecipeBookComponent();
+        *///?}
+
         if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
         RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
@@ -60,4 +70,10 @@ public class RecipeBookScreenProcessor<T extends Screen> extends ScreenProcessor
             }
         }
     }
+
+    //? if >=1.21.2 {
+    public interface RecipeBookScreenAccessor {
+        RecipeBookComponent<?> getRecipeBookComponent();
+    }
+    //?}
 }

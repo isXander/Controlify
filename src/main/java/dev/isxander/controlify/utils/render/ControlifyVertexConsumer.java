@@ -1,7 +1,7 @@
 package dev.isxander.controlify.utils.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.util.FastColor;
+import dev.isxander.controlify.utils.ColorUtils;
 import org.joml.Matrix4f;
 
 public interface ControlifyVertexConsumer {
@@ -15,10 +15,10 @@ public interface ControlifyVertexConsumer {
 
     default ControlifyVertexConsumer color(int color) {
         return this.color(
-                FastColor.ARGB32.red(color),
-                FastColor.ARGB32.green(color),
-                FastColor.ARGB32.blue(color),
-                FastColor.ARGB32.alpha(color)
+                ColorUtils.argbRed(color),
+                ColorUtils.argbGreen(color),
+                ColorUtils.argbBlue(color),
+                ColorUtils.argbAlpha(color)
         );
     }
 
