@@ -320,8 +320,10 @@ public class InGameInputHandler {
             impulseY *= aimMultiplier;
         }
 
+        boolean lookIsInverted = controller.genericConfig().config().vLookInvert;
+
         impulse.x += impulseX;
-        impulse.y += config.vLookInvert ? -impulseY : impulseY;
+        impulse.y += lookIsInverted ? -impulseY : impulseY;
     }
 
     protected void handleGyroLook(GyroComponent gyro, Vector2f impulse, boolean aiming) {

@@ -130,14 +130,6 @@ public class ControllerConfigScreenFactory {
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
-                .option(Option.<Boolean>createBuilder()
-                        .name(Component.translatable("controlify.gui.invert_vertical_look"))
-                        .description(OptionDescription.createBuilder()
-                                .text(Component.translatable("controlify.gui.invert_vertical_look.tooltip"))
-                                .build())
-                        .binding(def.vLookInvert, () -> config.vLookInvert, v -> config.vLookInvert = v)
-                        .controller(TickBoxControllerBuilder::create)
-                        .build())
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.vmouse_sensitivity"))
                         .description(OptionDescription.createBuilder()
@@ -195,6 +187,14 @@ public class ControllerConfigScreenFactory {
                         .binding(def.autoJump, () -> config.autoJump, v -> config.autoJump = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .onOffFormatter())
+                        .build())
+                .option(Option.<Boolean>createBuilder()
+                        .name(Component.translatable("controlify.gui.invert_vertical_look"))
+                        .description(OptionDescription.createBuilder()
+                                .text(Component.translatable("controlify.gui.invert_vertical_look.tooltip"))
+                                .build())
+                        .binding(def.vLookInvert, () -> config.vLookInvert, v -> config.vLookInvert = v)
+                        .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.no_fly_drifting"))
@@ -326,7 +326,7 @@ public class ControllerConfigScreenFactory {
 
     private ConfigCategory createAdvancedCategory(ControllerEntity controller) {
         Optional<InputComponent> input = controller.input();
-        
+
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"));
 

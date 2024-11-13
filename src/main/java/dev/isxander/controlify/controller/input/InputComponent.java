@@ -64,7 +64,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     public ControllerStateView stateThen() {
         return this.deadzoneStateThen;
     }
-    
+
     public ControllerState rawStateNow() {
         return this.stateNow;
     }
@@ -214,7 +214,6 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
         public float hLookSensitivity = 1f;
         public float vLookSensitivity = 0.9f;
-        public boolean vLookInvert = false;
         public float virtualMouseSensitivity = 1f;
         public boolean reduceAimingSensitivity = true;
 
