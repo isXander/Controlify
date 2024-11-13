@@ -63,6 +63,8 @@
   "controlify.gui.vertical_look_sensitivity.tooltip": "Wie schnell sich die Kamera beim vertikalen umschauen bewegt.",
   "controlify.gui.vmouse_sensitivity": "Virtuelle Maussensitivität",
   "controlify.gui.vmouse_sensitivity.tooltip": "Wie schnell sich die virtuelle Maus bewegt.",
+  "controlify.gui.invert_vertical_look": "Y-Achse umkehren",
+  "controlify.gui.invert_vertical_look.tooltip": "Kehrt die Y-Achse der Kamera um. z.B. oben wird zu unten und umgekehrt.",
   "controlify.gui.reduce_aiming_sensitivity": "Reduzierte Ziel-Sensitivität",
   "controlify.gui.reduce_aiming_sensitivity.tooltip": "Reduziert die Sensitivität beim Zielen.",
   "controlify.gui.config.group.controls": "Controls",

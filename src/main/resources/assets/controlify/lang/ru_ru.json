@@ -63,6 +63,8 @@
   "controlify.gui.vertical_look_sensitivity.tooltip": "Как быстро перемещается камера по вертикали при осмотре.",
   "controlify.gui.vmouse_sensitivity": "Чувствительность виртуальной мыши",
   "controlify.gui.vmouse_sensitivity.tooltip": "Как быстро передвигается виртуальная мышь.",
+  "controlify.gui.invert_vertical_look": "Инвертировать ось Y обзора",
+  "controlify.gui.invert_vertical_look.tooltip": "Инвертирует ось Y обзора. Например, вверх становится вниз и наоборот.",
   "controlify.gui.reduce_aiming_sensitivity": "Уменьшить чувствительность прицеливания",
   "controlify.gui.reduce_aiming_sensitivity.tooltip": "Уменьшает чувствительность при прицеливании.",
   "controlify.gui.config.group.controls": "Управление",

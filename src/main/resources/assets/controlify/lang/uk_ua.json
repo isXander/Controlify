@@ -61,6 +61,8 @@
   "controlify.gui.horizontal_look_sensitivity.tooltip": "Як швидко камера рухається по горизонталі при огляді навколо.",
   "controlify.gui.vertical_look_sensitivity": "Чутливість погляду по вертикалі",
   "controlify.gui.vertical_look_sensitivity.tooltip": "Як швидко камера рухається по вертикалі при огляді навколо.",
+  "controlify.gui.invert_vertical_look": "Інвертувати вертикальний погляд",
+  "controlify.gui.invert_vertical_look.tooltip": "Інвертує вертикальну вісь погляду. Наприклад, верх стає низом і навпаки.",
   "controlify.gui.vmouse_sensitivity": "Чутливість віртуальної миші",
   "controlify.gui.vmouse_sensitivity.tooltip": "Як швидко рухається віртуальна миша.",
   "controlify.gui.reduce_aiming_sensitivity": "Зменшувати чутливість прицілювання",

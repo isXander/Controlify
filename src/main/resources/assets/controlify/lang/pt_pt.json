@@ -61,6 +61,8 @@
   "controlify.gui.horizontal_look_sensitivity.tooltip": "Quão rápido a câmara se move horizontalmente ao olhar ao redor.",
   "controlify.gui.vertical_look_sensitivity": "Sensibilidade Vertical da Câmara",
   "controlify.gui.vertical_look_sensitivity.tooltip": "Quão rápido a câmara se move verticalmente ao olhar ao redor.",
+  "controlify.gui.invert_vertical_look": "Inverter Eixo Y da Câmara",
+  "controlify.gui.invert_vertical_look.tooltip": "Inverte o eixo Y da câmara. Por exemplo, para cima torna-se para baixo e vice-versa.",
   "controlify.gui.vmouse_sensitivity": "Sensibilidade do Rato Virtual",
   "controlify.gui.vmouse_sensitivity.tooltip": "Quão rápido o rato virtual se move.",
   "controlify.gui.reduce_aiming_sensitivity": "Reduzir Sensibilidade à Mira",

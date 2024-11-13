@@ -321,7 +321,7 @@ public class InGameInputHandler {
         }
 
         impulse.x += impulseX;
-        impulse.y += impulseY;
+        impulse.y += config.vLookInvert ? -impulseY : impulseY;
     }
 
     protected void handleGyroLook(GyroComponent gyro, Vector2f impulse, boolean aiming) {
