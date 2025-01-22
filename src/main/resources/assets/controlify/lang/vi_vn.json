@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Bộ điều khiển đã bị tắt",
   "controlify.toast.faulty_input.description": "Bộ điều khiển được phát hiện xung đột với bàn phím và chuột và hiện đã bị tắt. Tăng giá trị vùng chết hoặc kiểm tra mapping cần điều khiển để khắc phục.",
   "controlify.toast.low_battery.title": "Pin yếu",
-  "controlify.toast.low_battery.message": "Bộ điều khiển '%s' của bạn sắp hết pin. Xin vui lòng sạc nó sớm.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Đã tìm thấy bộ điều khiển!",
   "controlify.toast.setup_in_config.description": "Để sử dụng với Controlify, hãy đi tới %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Tiếp cận xung quanh bị cấm",
