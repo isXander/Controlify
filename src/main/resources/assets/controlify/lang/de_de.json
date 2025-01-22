@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Kontroller deaktiviert",
   "controlify.toast.faulty_input.description": "Es wurden Konflikte mit Tastatur und Maus festgestellt, daher wurde der Kontroller deaktiviert. Erhöhe den Wert der 'toten Bereichs' Einstellung, oder überprüfe die Zuweisungen des Joysticks.",
   "controlify.toast.low_battery.title": "Niedriger Akkustand",
-  "controlify.toast.low_battery.message": "Der Akkustand deines Kontrollers '%s' ist niedrig. Bitte in Kürze aufladen.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Controllers found!",
   "controlify.toast.setup_in_config.description": "To use with Controlify, go to %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Reach-around prohibited",
