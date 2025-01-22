@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Control desactivado",
   "controlify.toast.faulty_input.description": "Se ha detectado que el control entra en conflicto con el teclado y el mouse, por lo que ahora está desactivado. Aumenta los valores de la zona muerta o verifica la asignación del joystick para solucionarlo.",
   "controlify.toast.low_battery.title": "Batería Baja",
-  "controlify.toast.low_battery.message": "Tu control '%s' tiene poca batería. Por favor, cárgalo pronto.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "¡Se encontraron controles!",
   "controlify.toast.setup_in_config.description": "Para usar con Controlify, ve a %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Prohibido el alcance alrededor",
