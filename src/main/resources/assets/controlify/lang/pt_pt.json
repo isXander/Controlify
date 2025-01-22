@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Comando desativado",
   "controlify.toast.faulty_input.description": "Verificou-se que o controlador entrava em conflito com o teclado e o rato e está agora desativado. Aumente os valores da deadzone ou verifica o mapeamento do joystick para corrigir.",
   "controlify.toast.low_battery.title": "Bateria Fraca",
-  "controlify.toast.low_battery.message": "O seu comando '%s' está com bateria fraca. Carregue-o em breve.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Comandos encontrados!",
   "controlify.toast.setup_in_config.description": "Para utilizar com o Controlify, vá para %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Chegar à volta proibido",
