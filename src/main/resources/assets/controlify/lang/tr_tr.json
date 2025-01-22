@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Kontrolcü devre dışı",
   "controlify.toast.faulty_input.description": "Kontrolcünün klavye ve fare ile çakıştığı tespit edildi ve şimdi devre dışı bırakıldı. Düzeltmek için ölü bölge değerlerini artırın veya joystick eşlemesini kontrol edin.",
   "controlify.toast.low_battery.title": "Düşük Pil",
-  "controlify.toast.low_battery.message": "Kontrolcünüzün '%s' pili düşük. Lütfen yakın zamanda şarj edin.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Kontrolcüler bulundu!",
   "controlify.toast.setup_in_config.description": "Controlify ile kullanmak için %s -> %s -> %s kısmına gidin.",
   "controlify.toast.reach_around_disallowed.title": "Reach-around prohibited",
