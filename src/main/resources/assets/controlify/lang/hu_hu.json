@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Kontroller letiltva",
   "controlify.toast.faulty_input.description": "The controller was found to conflict with the keyboard and mouse and is now disabled. Increase deadzone values or check joystick mapping to fix.",
   "controlify.toast.low_battery.title": "Alacsony Akkumulátorszint",
-  "controlify.toast.low_battery.message": "A '%s' kontrollered akkumulátorszintje alacsony. Kérlek mielőbb töltsd fel.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Kontroller megtalálva!",
   "controlify.toast.setup_in_config.description": "A Controlify-al való használathoz menj ide: %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Reach-around prohibited",
