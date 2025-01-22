@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Контролер вимкнено",
   "controlify.toast.faulty_input.description": "Виявлено конфлікт контролера з клавіатурою та мишею, і його вимкнено. Збільште значення мертвих зон або перевірте відображення джойстика, щоб виправити ситуацію.",
   "controlify.toast.low_battery.title": "Низький заряд батареї",
-  "controlify.toast.low_battery.message": "У вашому контролері «%s» низький заряд батареї. Будь ласка, зарядіть його.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Контролери знайдено!",
   "controlify.toast.setup_in_config.description": "Щоб використовувати з Controlify, перейдіть до %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Діставання блоків навколо заборонено",
