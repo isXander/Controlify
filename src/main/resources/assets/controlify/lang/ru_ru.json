@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Контроллер выключён",
   "controlify.toast.faulty_input.description": "Было обнаружено, что контроллер конфликтует с клавиатурой и мышью, и теперь он отключен. Увеличьте значения мертвой зоны или проверьте настройку джойстика, чтобы устранить проблему.",
   "controlify.toast.low_battery.title": "Низкий заряд",
-  "controlify.toast.low_battery.message": "Ваш контроллер «%s» имеет низкий заряд. Пожалуйста, зарядите его.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Контроллеры найдены!",
   "controlify.toast.setup_in_config.description": "Для использования с Controlify, перейдите к %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Доставание вокруг запрещено",
