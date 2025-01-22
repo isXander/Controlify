@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Manette désactivée",
   "controlify.toast.faulty_input.description": "La manette est en conflit avec le clavier et la souris et a été désactivée. Augmentez les valeurs de la zone morte ou vérifiez le mapping du joystick pour résoudre le problème.",
   "controlify.toast.low_battery.title": "Batterie faible",
-  "controlify.toast.low_battery.message": "Votre manette « %s » a une batterie faible. Veuillez la recharger rapidement.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Manettes détectées !",
   "controlify.toast.setup_in_config.description": "Pour utiliser avec Controlify, allez dans %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Contournement de blocs interdit",
