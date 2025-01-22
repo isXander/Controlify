@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Kontroler wyłączony",
   "controlify.toast.faulty_input.description": "Kontroler powodował konflikt z klawiaturą i myszą, więc został wyłączony. Zwiększ wartości martwej strefy lub sprawdź mapowanie kontrolera, aby to naprawić.",
   "controlify.toast.low_battery.title": "Niski poziom baterii",
-  "controlify.toast.low_battery.message": "Twój kontroler '%s' ma niski poziom baterii. Proszę go wkrótce naładować.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Znaleziono kontrolery!",
   "controlify.toast.setup_in_config.description": "Aby używać ich z Controlify, przejdź do %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Zasięg bloków zablokowany",
