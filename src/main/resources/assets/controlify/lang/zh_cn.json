@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "禁用手柄",
   "controlify.toast.faulty_input.description": "你的手柄已经被禁用，因为Controlify检测到它会导致你在使用键盘和鼠标输入时出现问题。这可能是由于你的盲区值设置太低或你的摇杆没有被正确映射，让手柄认为它一直在输入。",
   "controlify.toast.low_battery.title": "电量不足",
-  "controlify.toast.low_battery.message": "你的手柄‘%s’电量不足。请尽快为其充电。",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "发现手柄！",
   "controlify.toast.setup_in_config.description": "要与Controlify一起使用，请到%s->%s->%s。",
   "controlify.toast.reach_around_disallowed.title": "空中方块放置被禁用",
