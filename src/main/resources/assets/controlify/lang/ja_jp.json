@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "コントローラーが無効になりました",
   "controlify.toast.faulty_input.description": "コントローラーがキーボードとマウスと競合していることが発見され、無効になりました。デッドゾーンの値を増やすか、ジョイスティックの修正を確認してください",
   "controlify.toast.low_battery.title": "バッテリー残量が少なくなっています",
-  "controlify.toast.low_battery.message": "あなたのコントローラ '%s' はバッテリーが不足しています。すぐに充電してください",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "コントローラーが見つかりました！",
   "controlify.toast.setup_in_config.description": "Controlifyで使用するには、 %s -> %s -> %s に移動してください。",
   "controlify.toast.reach_around_disallowed.title": "リーチアラウンド禁止",
