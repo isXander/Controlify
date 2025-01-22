@@ -210,7 +210,7 @@
   "controlify.toast.faulty_input.title": "Pengawal dinyahdayakan",
   "controlify.toast.faulty_input.description": "Pengawal didapati bercanggah dengan papan kekunci dan tetikus dan kini dinyahdayakan. Tingkatkan nilai zon mati atau semak pemetaan kayu bedil untuk perbaiki.",
   "controlify.toast.low_battery.title": "Bateri Lemah",
-  "controlify.toast.low_battery.message": "Pengawal anda '%s' kehabisan bateri. Tolong caskannya segera.",
+  "controlify.toast.low_battery.message": "Your controller '%s' is on %s. Please charge it soon.",
   "controlify.toast.setup_in_config.title": "Pengawal ditemui!",
   "controlify.toast.setup_in_config.description": "Untuk menggunakannya dengan Controlify, pergi ke %s -> %s -> %s.",
   "controlify.toast.reach_around_disallowed.title": "Capaian sekitar dihalang",
