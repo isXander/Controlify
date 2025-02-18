@@ -197,7 +197,7 @@ public class ControlifyConfig {
         JsonObject innerJson = json.getAsJsonObject("config");
 
         try {
-            controller.deserializeFromObject(innerJson, GSON);
+            controller.deserializeFromObject(innerJson.deepCopy(), GSON);
         } catch (Exception e) {
             CUtil.LOGGER.error("Failed to load controller {} config!", controller.info().ucid(), e);
             setDirty();
