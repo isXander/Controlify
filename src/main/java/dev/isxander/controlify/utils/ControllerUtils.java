@@ -49,6 +49,8 @@ public class ControllerUtils {
 
     public static Vector2d applyEasingToLength(double x, double y, Function<Double, Double> easing) {
         double length = Math.sqrt(x * x + y * y);
+        if(length == 0.0)
+            return new Vector2d(0, 0);
         double easedLength = easing.apply(length);
         double angle = Mth.atan2(y, x);
         return new Vector2d(
@@ -59,6 +61,8 @@ public class ControllerUtils {
 
     public static Vector2d applyEasingToLength(Vector2d vec, Function<Double, Double> easing) {
         double length = vec.length();
+        if(length == 0.0)
+            return new Vector2d(0, 0);
         double easedLength = easing.apply(length);
         return vec.normalize(easedLength);
     }
