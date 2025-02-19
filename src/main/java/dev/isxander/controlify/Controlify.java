@@ -393,7 +393,7 @@ public class Controlify implements ControlifyApi {
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
         wizard.addStage(
-                () -> controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
+                () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
                 nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
         );
 
