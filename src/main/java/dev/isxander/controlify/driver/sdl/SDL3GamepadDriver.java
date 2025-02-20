@@ -17,6 +17,7 @@ import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
+import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
@@ -231,6 +232,11 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SDL_Gamepad> {
     @Override
     protected short SDL_GetControllerProduct(SDL_Gamepad ptrController) {
         return (short) SDL_GetGamepadProduct(ptrController);
+    }
+
+    @Override
+    protected int SDL_GetControllerConnectionState(SDL_Gamepad ptrController) {
+        return SDL_GetGamepadConnectionState(ptrController);
     }
 
     @Override

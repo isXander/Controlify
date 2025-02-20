@@ -10,12 +10,15 @@ import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickConnectionState;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import net.minecraft.util.Mth;
 
 import java.util.Set;
+
+import org.intellij.lang.annotations.MagicConstant;
 
 import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 import static dev.isxander.sdl3java.api.joystick.SdlJoystickHatConst.*;
@@ -114,6 +117,11 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SDL_Joystick> {
     @Override
     protected short SDL_GetControllerProduct(SDL_Joystick ptrController) {
         return SDL_GetJoystickProduct(ptrController);
+    }
+
+    @Override
+    protected int SDL_GetControllerConnectionState(SDL_Joystick ptrController) {
+        return SDL_GetJoystickConnectionState(ptrController);
     }
 
     @Override

@@ -28,6 +28,7 @@ import dev.isxander.sdl3java.api.audio.SDL_AudioDeviceID;
 import dev.isxander.sdl3java.api.audio.SDL_AudioFormat;
 import dev.isxander.sdl3java.api.audio.SDL_AudioSpec;
 import dev.isxander.sdl3java.api.audio.SDL_AudioStream;
+import dev.isxander.sdl3java.api.joystick.SDL_JoystickConnectionState;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.power.SDL_PowerState;
@@ -72,6 +73,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     protected final String name;
     protected final SDL_PropertiesID props;
     protected final short vendorId, productId;
+    protected final int connectionState;
 
     @Nullable
     protected SDL_AudioDeviceID dualsenseAudioDev;
@@ -97,6 +99,9 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         this.vendorId = SDL_GetControllerVendor(ptrController);
         this.productId = SDL_GetControllerProduct(ptrController);
         logger.debugLog("SDL VID: {} PID: {}", vendorId, productId);
+
+        this.connectionState = SDL_GetControllerConnectionState(ptrController);
+        logger.debugLog("SDL Connection State: {}", connectionState);
         
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
@@ -368,7 +373,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     }
 
     protected boolean isBluetooth() {
-        return dualsenseAudioDev == null && isDualsense;
+        return connectionState == SDL_JoystickConnectionState.SDL_JOYSTICK_CONNECTION_WIRELESS;
     }
 
     protected abstract SDL_PropertiesID SDL_GetControllerProperties(SDL_Controller ptrController);
@@ -377,6 +382,8 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     protected abstract @Nullable String SDL_GetControllerSerial(SDL_Controller ptrController);
     protected abstract short SDL_GetControllerVendor(SDL_Controller ptrController);
     protected abstract short SDL_GetControllerProduct(SDL_Controller ptrController);
+    @MagicConstant(valuesFromClass = SDL_JoystickConnectionState.class)
+    protected abstract int SDL_GetControllerConnectionState(SDL_Controller ptrController);
     protected abstract boolean SDL_CloseController(SDL_Controller ptrController);
     protected abstract boolean SDL_RumbleController(SDL_Controller ptrController, float strong, float weak, int durationMs);
     protected abstract boolean SDL_RumbleControllerTriggers(SDL_Controller ptrController, float left, float right, int durationMs);
