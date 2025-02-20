@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "贊助！",
   "controlify.gui.carousel.art_credit": "控制器藝術由 %s 提供。",
   "controlify.gui.global_settings.title": "一般設定",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "原生程式庫",
   "controlify.gui.load_vibration_natives": "載入原生程式庫",
   "controlify.gui.load_vibration_natives.tooltip": "若啟用，Controlify 將在啟動時下載並載入原生程式庫，以啟用增強功能的支援，如振動和陀螺儀。下載過程只會發生一次，且只針對你特定的作業系統進行下載。停用此功能不會刪除原生程式庫，只是不會載入它們。",

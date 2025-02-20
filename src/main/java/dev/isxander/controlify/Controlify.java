@@ -278,22 +278,24 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            Optional<ControllerEntity> lastUsedController = controllerManager.getConnectedControllers()
-                    .stream()
-                    .filter(c -> c.uid().equals(config().currentControllerUid()))
-                    .findAny();
-
-            if (lastUsedController.isPresent()) {
-                this.setCurrentController(lastUsedController.get(), false);
-            } else {
-                ControllerEntity anyController = controllerManager.getConnectedControllers()
+            if(config().currentControllerUid() == null) {
+                // The user hasn't selected a controller yet.
+                // We'll pick one automatically.
+                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
-                        .filter(c -> c.input().map(input -> input.config().config().deadzonesCalibrated).orElse(true)
-                                || c.gyro().map(gyro -> gyro.config().config().calibrated).orElse(true))
-                        .findFirst()
-                        .orElse(null);
+                        .findAny();
 
-                this.setCurrentController(anyController, false);
+                this.setCurrentController(preferredController.orElse(null), false);
+            }
+            else {
+                // The user has selected a preferred controller, or wants to use mouse+kbd (i.e. empty string in currentControllerUid()).
+                // Respect their choice.
+                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
+                        .stream()
+                        .filter(c -> c.uid().equals(config().currentControllerUid()))
+                        .findAny();
+
+                this.setCurrentController(preferredController.orElse(null), false);
             }
         }
 
@@ -373,8 +375,10 @@ public class Controlify implements ControlifyApi {
 
         boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
                 || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
-        if (hotplugged && calibrated) {
-            setCurrentController(controller, true);
+
+        // Only auto-select a newly plugged-in controller if it's the preferred one, or if the user hasn't set one yet.
+        if (hotplugged && getCurrentController().isEmpty() && (config().currentControllerUid() == null || controller.uid().equals(config().currentControllerUid()))) {
+            this.setCurrentController(controller, true);
         }
 
         wizard.addStage(
@@ -422,18 +426,12 @@ public class Controlify implements ControlifyApi {
      * @param controller controller that has been disconnected
      */
     private void onControllerRemoved(ControllerEntity controller) {
-        this.setCurrentController(
-                controllerManager.getConnectedControllers()
-                        .stream()
-                        .findFirst()
-                        .orElse(null),
-                true);
+        if(getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
+            // Don't autoselect another controller.
+            this.setCurrentController(null, true);
 
-        this.setInputMode(
-                getCurrentController().isEmpty()
-                        ? InputMode.KEYBOARD_MOUSE
-                        : InputMode.CONTROLLER
-        );
+            this.setInputMode(InputMode.KEYBOARD_MOUSE);
+        }
 
         ToastUtils.sendToast(
                 Component.translatable("controlify.toast.controller_disconnected.title"),
@@ -649,6 +647,8 @@ public class Controlify implements ControlifyApi {
         DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 
         if (!controller.uid().equals(config().currentControllerUid())) {
+            // Reflect the changes in the config file.
+            config().setCurrentControllerUid(controller.uid());
             config().setDirty();
         }
 

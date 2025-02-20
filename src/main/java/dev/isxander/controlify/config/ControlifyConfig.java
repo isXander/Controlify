@@ -38,6 +38,7 @@ public class ControlifyConfig {
 
     private String currentControllerUid = null;
     // used so saving the config doesn't lose controller config that isn't currently connected
+    // null means no preference, empty string means I don't want to use a controller.
     // key: controller uid
     private final Map<String, JsonObject> storedControllerConfig = new HashMap<>();
     private @NotNull GlobalSettings globalSettings = new GlobalSettings();
@@ -104,7 +105,7 @@ public class ControlifyConfig {
         { // Current controller
             obj.addProperty(
                     "current_controller",
-                    controlify.getCurrentController().map(ControllerEntity::uid).orElse(null)
+                    this.currentControllerUid()
             );
         }
 
@@ -189,7 +190,7 @@ public class ControlifyConfig {
         JsonObject json = storedControllerConfig.get(controller.uid());
 
         if (json == null) {
-            CUtil.LOGGER.warn("Controller {} has no config to load. Using defaults.", controller.info().ucid());
+            CUtil.LOGGER.warn("Controller {} has no config to load. Using defaults.", controller.uid());
             setDirty();
             return true;
         }
@@ -199,7 +200,7 @@ public class ControlifyConfig {
         try {
             controller.deserializeFromObject(innerJson.deepCopy(), GSON);
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to load controller {} config!", controller.info().ucid(), e);
+            CUtil.LOGGER.error("Failed to load controller {} config!", controller.uid(), e);
             setDirty();
         }
 
@@ -208,6 +209,10 @@ public class ControlifyConfig {
 
     public @Nullable String currentControllerUid() {
         return this.currentControllerUid;
+    }
+
+    public void setCurrentControllerUid(@Nullable String uid) {
+        this.currentControllerUid = uid;
     }
 
     public @NotNull GlobalSettings globalSettings() {

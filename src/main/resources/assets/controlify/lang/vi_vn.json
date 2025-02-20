@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Donate!",
   "controlify.gui.carousel.art_credit": "Tay cầm được thiết kế bởi %s.",
   "controlify.gui.global_settings.title": "Cài đặt chung",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natives",
   "controlify.gui.load_vibration_natives": "Tải gốc",
   "controlify.gui.load_vibration_natives.tooltip": "Nếu được bật, Controlify sẽ tải xuống và tải các thư viện gốc khi khởi chạy để kích hoạt hỗ trợ cho các tính năng nâng cao như rung và con quay hồi chuyển. Quá trình tải xuống chỉ diễn ra một lần và chỉ tải xuống cho hệ điều hành cụ thể của bạn. Vô hiệu hóa điều này sẽ không xóa gốc, nó sẽ không tải chúng.",

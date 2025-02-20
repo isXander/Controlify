@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Derma!",
   "controlify.gui.carousel.art_credit": "Seni lukisan pengawal oleh %s.",
   "controlify.gui.global_settings.title": "Tetapan Global",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Tempatan",
   "controlify.gui.load_vibration_natives": "Muat Fail Tempatan",
   "controlify.gui.load_vibration_natives.tooltip": "Jika didayakan, Controlify akan memuat turun dan memuatkan pustaka tempatan semasa pelancaran untuk membolehkan sokongan untuk ciri yang dipertingkatkan seperti getaran dan giro. Proses muat turun hanya berlaku sekali dan hanya dimuat turun untuk OS khusus anda. Menyahdayakan ini tidak akan menghapuskan fail tempatan itu, ia cuma tidak akan memuatkannya.",

@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Támogass!",
   "controlify.gui.carousel.art_credit": "A kontroller illusztrációkat %s készítette.",
   "controlify.gui.global_settings.title": "Globális Beállítások",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natívok",
   "controlify.gui.load_vibration_natives": "Natívok Betöltése",
   "controlify.gui.load_vibration_natives.tooltip": "Ha be van kapcsolva, a Controlify letölti és betölti a natív könyvtárakat indításnál, hogy lehetővé tegye a fejlett funkciók használatát mint például a vibráció és a giroszkóp. A letöltés csak egyszer történik meg és csak az adott OS-hez való kerül letöltésre. A kikapcsolása nem törli a natívokat, csak nem tölti be őket.",

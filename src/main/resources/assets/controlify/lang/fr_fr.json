@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Faites un don !",
   "controlify.gui.carousel.art_credit": "Art des manettes par %s.",
   "controlify.gui.global_settings.title": "Paramètres globaux",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natives",
   "controlify.gui.load_vibration_natives": "Charger les Natives",
   "controlify.gui.load_vibration_natives.tooltip": "Si activé, Controlify téléchargera et chargera les bibliothèques natives au démarrage pour activer la prise en charge de fonctionnalités améliorées telles que la vibration et le gyroscope. Le processus de téléchargement ne se produit qu'une fois et télécharge uniquement pour votre système d'exploitation spécifique. La désactivation ne supprimera pas les natives, elles ne seront simplement pas chargées.",

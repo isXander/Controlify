@@ -167,6 +167,8 @@ public class SDLControllerManager extends AbstractControllerManager {
         ControllerInfo info = new ControllerInfo(ucid, hidInfo.type(), hidInfo.hidDevice());
         ControllerEntity controller = new ControllerEntity(info, compoundDriver, controllerLogger);
 
+        controllerLogger.debugLog("Unique Controller ID: {}", info.ucid());
+
         this.addController(ucid, controller);
         return Optional.of(controller);
     }

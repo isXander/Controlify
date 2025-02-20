@@ -170,7 +170,6 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
                 config.calibrated = true;
             });
             Controlify.instance().config().setDirty();
-            Controlify.instance().setCurrentController(controller, true);
             Controlify.instance().config().saveIfDirty();
         }
     }
@@ -270,7 +269,6 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
             if (dirty) {
                 Controlify.instance().config().setDirty();
-                Controlify.instance().setCurrentController(null, true);
             }
 
             onClose();

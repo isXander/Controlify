@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Doar!",
   "controlify.gui.carousel.art_credit": "Arte do controlador por %s.",
   "controlify.gui.global_settings.title": "Configurações globais",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Nativos",
   "controlify.gui.load_vibration_natives": "Carregar Nativos",
   "controlify.gui.load_vibration_natives.tooltip": "Se habilitado, Controle baixará e carregará bibliotecas nativas ao iniciar a habilitação do suporte para recursos aprimorados, como vibração e controle por movimento. O processo de download só acontece uma vez em downloads para o seus sistema operacional específico. Desabilitar isso não apagará os nativos, só não os carregará.",

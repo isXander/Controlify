@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Wesprzyj!",
   "controlify.gui.carousel.art_credit": "Grafika kontrolera: %s",
   "controlify.gui.global_settings.title": "Ustawienia globalne",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natywy",
   "controlify.gui.load_vibration_natives": "Wczytaj natywy",
   "controlify.gui.load_vibration_natives.tooltip": "Jeśli ta opcja jest włączona, Controlify pobierze i załaduje natywne biblioteki przy uruchomieniu, aby umożliwić obsługę rozszerzonych funkcji, takich jak wibracje i żyroskop. Proces pobierania odbywa się tylko raz i dotyczy wyłącznie konkretnego systemu operacyjnego. Wyłączenie tej opcji nie usunie natywów, po prostu ich nie załaduje.",

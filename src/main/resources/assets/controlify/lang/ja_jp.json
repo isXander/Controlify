@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "寄付する!",
   "controlify.gui.carousel.art_credit": "%s によるコントローラーアート",
   "controlify.gui.global_settings.title": "全体設定",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "ネイティブ",
   "controlify.gui.load_vibration_natives": "ネイティブを読み込む",
   "controlify.gui.load_vibration_natives.tooltip": "有効にすると、Controlifyは起動時にネイティブライブラリをダウンロードしてロードし、振動やジャイロなどの拡張機能のサポートを可能にします。 ダウンロードプロセスは一度だけ発生し、特定のOSのダウンロードのみが行われます。これを無効にするとネイティブは削除されず、読み込まれません。",

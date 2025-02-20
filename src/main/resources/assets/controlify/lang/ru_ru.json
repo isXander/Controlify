@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Поддержать!",
   "controlify.gui.carousel.art_credit": "Рисунок контроллера от %s.",
   "controlify.gui.global_settings.title": "Глобальные настройки",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Нативные библиотеки",
   "controlify.gui.load_vibration_natives": "Загружать нативные библиотеки",
   "controlify.gui.load_vibration_natives.tooltip": "Если включено, Controlify будет загружать из сети и включать нативные библиотеки при запуске toдля поддержки таких способностей, как вибрация или гироскоп. Процесс загрузки происходит единожды и именно под вашу ОС. Отключение настройки не удалит библиотеки, они просто не будут грузиться.",

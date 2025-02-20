@@ -72,7 +72,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     private final Controlify controlify;
     private final ControllerManager controllerManager;
 
-    private Button globalSettingsButton, doneButton;
+    private Button globalSettingsButton, unbindControllerButton, doneButton;
     private Button controllerNotDetectedButton;
 
     private ControllerCarouselScreen(Screen parent) {
@@ -114,6 +114,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
         globalSettingsButton = rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))).build());
+        unbindControllerButton = rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.unbind_controller"), btn -> {
+            // Explicitly unset the controller Uid
+            Controlify.instance().setCurrentController(null, true);
+            Controlify.instance().config().setCurrentControllerUid("");
+        }).build());
         doneButton = rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
         grid.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);

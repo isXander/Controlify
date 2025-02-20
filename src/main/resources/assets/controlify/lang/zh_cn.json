@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Donate!",
   "controlify.gui.carousel.art_credit": "手柄由%s设计。",
   "controlify.gui.global_settings.title": "全局设置",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natives",
   "controlify.gui.load_vibration_natives": "震动支持",
   "controlify.gui.load_vibration_natives.tooltip": "如果启用，Controlify将在启动时下载并加载本地库以启用震动支持。下载过程只发生一次，并且只下载适用于你的操作系统的文件。禁用它不会删除文件，只是不会加载它们。",

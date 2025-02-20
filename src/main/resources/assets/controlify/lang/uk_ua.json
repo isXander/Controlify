@@ -10,6 +10,7 @@
   "controlify.gui.carousel.donate": "Підтримати!",
   "controlify.gui.carousel.art_credit": "Малюнок контролера від %s.",
   "controlify.gui.global_settings.title": "Глобальні налаштування",
+  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Нативні бібліотеки",
   "controlify.gui.load_vibration_natives": "Завантажувати нативні бібліотеки",
   "controlify.gui.load_vibration_natives.tooltip": "Якщо увімкнено, Controlify завантажуватиме власні бібліотеки під час запуску, щоб увімкнути підтримку розширених функцій, таких як вібрація та гіроскоп. Процес завантаження відбувається лише один раз і завантажується лише для вашої конкретної ОС. Вимкнення цього параметра не призведе до видалення нативних бібліотек, вони просто не будуть завантажуватися.",
