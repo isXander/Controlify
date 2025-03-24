@@ -10,12 +10,9 @@ import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.utils.render.Blit;
+import dev.isxander.controlify.utils.render.*;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
-import dev.isxander.controlify.utils.render.ControlifySprite;
-import dev.isxander.controlify.utils.render.SpriteScaling;
-import dev.isxander.controlify.utils.render.SpriteUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -29,6 +26,7 @@ import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -63,7 +61,21 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
             for (T key : keys) {
+                // doesn't do any actual rendering
                 key.render(guiGraphics, mouseX, mouseY, partialTick);
+            }
+
+            ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(
+                    bufferSource.getBuffer(ExtraRenderTypes.guiTextured(Key.SPRITE.atlas()))
+            );
+
+            for (T key : keys) {
+                Matrix4f pose = guiGraphics.pose().last().pose();
+                key.renderKeyBackground(vertexConsumer, pose, mouseX, mouseY, partialTick);
+            }
+
+            for (T key : keys) {
+                key.renderKeyForeground(guiGraphics, mouseX, mouseY, partialTick);
             }
         });
     }
@@ -116,10 +128,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             this(screen, x, y, width, height, functions.getFirst(), functions.getSecond(), keyboard, shortcutPressBind);
         }
 
-        @Override
-        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            SpriteUtils.blitSprite(graphics, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        protected void renderKeyBackground(ControlifyVertexConsumer vertexConsumer, Matrix4f pose, int mouseX, int mouseY, float partialTick) {
+            SpriteUtils.blitSprite(vertexConsumer, pose, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        }
 
+        protected void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
             if (keyboard.shiftMode) {
                 shiftedFunction.renderer.render(graphics, mouseX, mouseY, partialTick, this);
             } else {
@@ -131,6 +144,11 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             } else {
                 holdRepeatHelper.reset();
             }
+        }
+
+        @Override
+        protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            // custom rendered above
         }
 
         @Override
