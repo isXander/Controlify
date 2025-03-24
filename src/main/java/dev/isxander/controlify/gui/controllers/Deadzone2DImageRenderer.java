@@ -60,7 +60,7 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         drawCircleOutline(graphics.pose(), x + radius, y + radius, 0, deadzone * radius, 1f, aboveDeadzone ? 0xFF00FFFF : 0xFFFF0000, 360);
 
         // current axis point
-        drawCircle(graphics.pose(), x + radius + currentX * radius, y + radius + currentY * radius, 0, 1f, 0xFF00FF00, 360);
+        drawCircle(graphics.pose(), x + radius + currentX * radius, y + radius + currentY * radius, 0, 1f, 0xFF00FF00, 8);
 
         Font font = Minecraft.getInstance().font;
         DecimalFormat format = new DecimalFormat("0.000");
@@ -76,50 +76,38 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
     }
 
     private static void drawCircle(PoseStack poseStack, float originX, float originY, float z, float radius, int colour, int segments) {
-        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-        ControlifyVertexConsumer consumer = ControlifyVertexConsumer.of(buffer);
-
-        Matrix4f position = poseStack.last().pose();
-
-        for (int i = 0; i < 360; i += (int) Math.min(360.0 / segments, 360 - i)) {
-            float radians = i * Mth.DEG_TO_RAD;
-            float x = originX + Mth.sin(radians) * radius;
-            float y = originY + Mth.cos(radians) * radius;
-
-            consumer.vertex(position, x, y, z)
-                    .color(colour)
-                    .endVertex();
-        }
-
-        RenderType renderType = RenderType.gui();
-        //? if >=1.21 {
-        renderType.draw(buffer.buildOrThrow());
-        //?} else {
-        /*renderType.end(buffer, VertexSorting.ORTHOGRAPHIC_Z);
-        *///?}
+        drawCircleOutline(poseStack, originX, originY, z, radius, radius, colour, segments);
     }
 
     private static void drawCircleOutline(PoseStack poseStack, float originX, float originY, float z, float radius, float thickness, int colour, int segments) {
-        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        // our GUI rendertype dictates we must use Quads, we can't use TRIANGLE_STRIP
+        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(buffer);
         Matrix4f position = poseStack.last().pose();
 
-        float diff = radius - thickness;
-        for (int i = 0; i <= segments; i++) {
-            float radians = ((float) i / segments * 360f) * Mth.DEG_TO_RAD;
-            float sin = Mth.sin(radians);
-            float cos = Mth.cos(radians);
+        float innerRadius = radius - thickness;
+        for (int i = 0; i <= segments - 1; i++) {
+            float angle = (float) i / segments * 360f;
+            float nextAngle = (float) (i + 1) / segments * 360f;
 
-            float x1 = originX + sin * diff;
-            float y1 = originY + cos * diff;
+            float rad = angle * Mth.DEG_TO_RAD;
+            float nextRad = nextAngle * Mth.DEG_TO_RAD;
 
-            vertexConsumer.vertex(position, x1, y1, z).color(colour);
+            float xi1 = originX + Mth.sin(rad) * innerRadius;
+            float yi1 = originY + Mth.cos(rad) * innerRadius;
+            float xi2 = originX + Mth.sin(nextRad) * innerRadius;
+            float yi2 = originY + Mth.cos(nextRad) * innerRadius;
 
-            float x2 = originX + sin * radius;
-            float y2 = originY + cos * radius;
+            float xo1 = originX + Mth.sin(rad) * radius;
+            float yo1 = originY + Mth.cos(rad) * radius;
+            float xo2 = originX + Mth.sin(nextRad) * radius;
+            float yo2 = originY + Mth.cos(nextRad) * radius;
 
-            vertexConsumer.vertex(position, x2, y2, z).color(colour);
+            vertexConsumer.vertex(position, xi1, yi1, z).color(colour).endVertex();
+            vertexConsumer.vertex(position, xo1, yo1, z).color(colour).endVertex();
+            vertexConsumer.vertex(position, xo2, yo2, z).color(colour).endVertex();
+            vertexConsumer.vertex(position, xi2, yi2, z).color(colour).endVertex();
         }
 
         RenderType renderType = RenderType.gui();

@@ -22,10 +22,10 @@ public class SpriteUtils {
             );
             Matrix4f pose = graphics.pose().last().pose();
 
-            vertexConsumer.vertex(pose, x1, y1, 0).uv(minU, minV).endVertex();
-            vertexConsumer.vertex(pose, x1, y2, 0).uv(minU, maxV).endVertex();
-            vertexConsumer.vertex(pose, x2, y2, 0).uv(maxU, maxV).endVertex();
-            vertexConsumer.vertex(pose, x2, y1, 0).uv(maxU, minV).endVertex();
+            vertexConsumer.vertex(pose, x1, y1, 0).uv(minU, minV).color(-1).endVertex();
+            vertexConsumer.vertex(pose, x1, y2, 0).uv(minU, maxV).color(-1).endVertex();
+            vertexConsumer.vertex(pose, x2, y2, 0).uv(maxU, maxV).color(-1).endVertex();
+            vertexConsumer.vertex(pose, x2, y1, 0).uv(maxU, minV).color(-1).endVertex();
         });
     }
 
