@@ -73,7 +73,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     protected final String name;
     protected final SDL_PropertiesID props;
     protected final short vendorId, productId;
-    protected final int connectionState;
+    protected final SDLJoystickConnectionState connectionState;
 
     @Nullable
     protected SDL_AudioDeviceID dualsenseAudioDev;
@@ -100,7 +100,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         this.productId = SDL_GetControllerProduct(ptrController);
         logger.debugLog("SDL VID: {} PID: {}", vendorId, productId);
 
-        this.connectionState = SDL_GetControllerConnectionState(ptrController);
+        this.connectionState = SDLJoystickConnectionState.fromInt(SDL_GetControllerConnectionState(ptrController));
         logger.debugLog("SDL Connection State: {}", connectionState);
         
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
@@ -373,7 +373,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     }
 
     protected boolean isBluetooth() {
-        return connectionState == SDL_JoystickConnectionState.SDL_JOYSTICK_CONNECTION_WIRELESS;
+        return connectionState == SDLJoystickConnectionState.WIRELESS;
     }
 
     protected abstract SDL_PropertiesID SDL_GetControllerProperties(SDL_Controller ptrController);
