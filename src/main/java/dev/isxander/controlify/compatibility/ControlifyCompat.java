@@ -41,32 +41,6 @@ public class ControlifyCompat {
         //?}
     }
 
-    public static void ifBeginHudBatching() {
-        /*? if immediately-fast {*/
-        try {
-            wrapCompatCall(
-                    IMMEDIATELY_FAST,
-                    dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::beginHudBatching
-            );
-        } catch (NoClassDefFoundError e) {
-            disabledMods.add(IMMEDIATELY_FAST);
-        }
-        /*?}*/
-    }
-
-    public static void ifEndHudBatching() {
-        /*? if immediately-fast {*/
-        try {
-            wrapCompatCall(
-                    IMMEDIATELY_FAST,
-                    dev.isxander.controlify.compatibility.immediatelyfast.ImmediatelyFastCompat::endHudBatching
-            );
-        } catch (NoClassDefFoundError e) {
-            disabledMods.add(IMMEDIATELY_FAST);
-        }
-        /*?}*/
-    }
-
     private static void wrapCompatCall(String modid, Runnable runnable) throws NoClassDefFoundError {
         if (modsLoaded.apply(modid) && !disabledMods.contains(modid)) {
             try {
