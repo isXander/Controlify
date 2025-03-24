@@ -114,11 +114,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         GridLayout grid = new GridLayout().columnSpacing(10);
         GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
         globalSettingsButton = rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.global_settings.title"), btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))).build());
-        unbindControllerButton = rowHelper.addChild(Button.builder(Component.translatable("controlify.gui.unbind_controller"), btn -> {
-            // Explicitly unset the controller Uid
-            Controlify.instance().setCurrentController(null, true);
-            Controlify.instance().config().setCurrentControllerUid("");
-        }).build());
         doneButton = rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose()).build());
         grid.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);
@@ -296,7 +291,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             this.hasNickname = this.controller.genericConfig().config().nickname != null;
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
-            this.useControllerButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.use"), btn -> Controlify.instance().setCurrentController(controller, true)).width(settingsButton.getWidth()).build();
+            this.useControllerButton = Button.builder(Component.empty(), btn -> onUseStopUsingButton()).width(settingsButton.getWidth()).build();
+            updateUseStopUsingButton();
             this.children = ImmutableList.of(settingsButton, useControllerButton);
 
             this.prevUse = isCurrentlyUsed();
@@ -388,6 +384,24 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             }
 
             return super.mouseClicked(mouseX, mouseY, button);
+        }
+
+        private void onUseStopUsingButton() {
+            if (!isCurrentlyUsed()) {
+                Controlify.instance().setCurrentController(controller, true);
+            } else {
+                Controlify.instance().setCurrentController(null, true);
+                Controlify.instance().config().setCurrentControllerUid(null);
+            }
+            updateUseStopUsingButton();
+        }
+
+        private void updateUseStopUsingButton() {
+            useControllerButton.setMessage(Component.translatable(
+                    isCurrentlyUsed()
+                            ? "controlify.gui.carousel.entry.stop_using"
+                            : "controlify.gui.carousel.entry.use"
+            ));
         }
 
         @Override

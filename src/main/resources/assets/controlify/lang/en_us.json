@@ -5,6 +5,7 @@
   "controlify.gui.carousel.no_controllers": "No controllers connected.",
   "controlify.gui.carousel.entry.settings": "Settings",
   "controlify.gui.carousel.entry.use": "Use",
+  "controlify.gui.carousel.entry.stop_using": "Stop using",
   "controlify.gui.carousel.entry.in_use": "Currently in use",
   "controlify.gui.carousel.controller_not_detected_btn": "Controller not detected?",
   "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Open the wiki to troubleshoot why your controller is not working.",
@@ -12,7 +13,6 @@
   "controlify.gui.carousel.art_credit": "Controller art by %s.",
 
   "controlify.gui.global_settings.title": "Global Settings",
-  "controlify.gui.unbind_controller": "Unbind Controller",
   "controlify.gui.natives": "Natives",
   "controlify.gui.load_vibration_natives": "Load Natives",
   "controlify.gui.load_vibration_natives.tooltip": "If enabled, Controlify will download and load native libraries on launch to enable support for enhanced features such as vibration and gyro. The download process only happens once and only downloads for your specific OS. Disabling this will not delete the natives, it just won't load them.",
