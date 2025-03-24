@@ -188,7 +188,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         *//*?}*/
         super.render(graphics, mouseX, mouseY, delta);
 
-        RenderSystem.enableBlend();
         Blit.blitTex(
                 graphics,
                 /*? if >1.20.4 {*/
@@ -201,7 +200,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 this.width, 2,
                 32, 2
         );
-        RenderSystem.disableBlend();
 
         if (carouselEntries.isEmpty()) {
             graphics.drawCenteredString(font, Component.translatable("controlify.gui.carousel.no_controllers"), this.width / 2, (this.height - 36) / 2 - 10, 0xFFAAAAAA);
@@ -218,7 +216,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         /*? if >1.20.4 {*/
         super.renderBackground(graphics, i, j, f);
 
-        RenderSystem.enableBlend();
         Blit.blitTex(
                 graphics,
                 minecraft.level == null ? AbstractSelectionListAccessor.getMenuListBackground() : AbstractSelectionListAccessor.getInWorldMenuListBackground(),
@@ -227,7 +224,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 width, footerY,
                 32, 32
         );
-        RenderSystem.disableBlend();
         /*?} else {*/
         /*graphics.setColor(0.5f, 0.5f, 0.5f, 1f);
         graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, 0, 0, 0, 0f, 0f, this.width, footerY, 32, 32);

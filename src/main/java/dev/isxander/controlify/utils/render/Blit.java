@@ -150,44 +150,4 @@ public final class Blit {
         );
         *///?}
     }
-
-    public static void setPosShader() {
-        RenderSystem.setShader(
-                //? if >=1.21.2 {
-                CoreShaders.POSITION
-                //?} else {
-                /*GameRenderer::getPositionShader
-                *///?}
-        );
-    }
-
-    public static void setPosColorShader() {
-        RenderSystem.setShader(
-                //? if >=1.21.2 {
-                CoreShaders.POSITION_COLOR
-                //?} else {
-                /*GameRenderer::getPositionColorShader
-                 *///?}
-        );
-    }
-
-    public static void setPosTexShader() {
-        RenderSystem.setShader(
-                //? if >=1.21.2 {
-                CoreShaders.POSITION_TEX
-                //?} else {
-                /*GameRenderer::getPositionTexShader
-                 *///?}
-        );
-    }
-
-    public static void setPosTexColorShader() {
-        RenderSystem.setShader(
-                //? if >=1.21.2 {
-                CoreShaders.POSITION_TEX_COLOR
-                //?} else {
-                /*GameRenderer::getPositionTexColorShader
-                 *///?}
-        );
-    }
 }

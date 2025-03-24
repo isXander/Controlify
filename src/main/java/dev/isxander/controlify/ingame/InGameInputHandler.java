@@ -86,16 +86,20 @@ public class InGameInputHandler {
             Inventory inventory = minecraft.player.getInventory();
 
             if (ControlifyBindings.NEXT_SLOT.on(controller).justPressed()) {
-                //? if >=1.21.2 {
-                inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
-                //?} else {
+                //? if >=1.21.5 {
+                inventory.setSelectedSlot((inventory.getSelectedSlot() + 1) % Inventory.getSelectionSize());
+                //?} elif >=1.21.2 {
+                /*inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
+                *///?} else {
                 /*minecraft.player.getInventory().swapPaint(-1);
                 *///?}
             }
             if (ControlifyBindings.PREV_SLOT.on(controller).justPressed()) {
-                //? if >=1.21.2 {
-                inventory.setSelectedHotbarSlot((inventory.selected - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
-                //?} else {
+                //? if >=1.21.5 {
+                inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
+                //?} elif >=1.21.2 {
+                /*inventory.setSelectedHotbarSlot((inventory.selected - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
+                *///?} else {
                 /*minecraft.player.getInventory().swapPaint(1);
                 *///?}
             }
@@ -238,7 +242,7 @@ public class InGameInputHandler {
             ));
         }
 
-        if (/*? if >=1.21.5 {*/ /*minecraft.player.hasInfiniteMaterials() *//*?} else {*/ this.minecraft.gameMode.hasInfiniteItems() /*?}*/) {
+        if (/*? if >=1.21.5 {*/ minecraft.player.hasInfiniteMaterials() /*?} else {*/ /*this.minecraft.gameMode.hasInfiniteItems() *//*?}*/) {
             if (ControlifyBindings.HOTBAR_LOAD_RADIAL.on(controller).justPressed()) {
                 minecraft.setScreen(new RadialMenuScreen(
                         controller,
@@ -467,9 +471,9 @@ public class InGameInputHandler {
             *///?}
     ) {
         //? if >=1.21.5 {
-        /*return input.getMoveVector();
-        *///?} else {
-        return new Vec2(input.leftImpulse, input.forwardImpulse);
-        //?}
+        return input.getMoveVector();
+        //?} else {
+        /*return new Vec2(input.leftImpulse, input.forwardImpulse);
+        *///?}
     }
 }

@@ -77,10 +77,10 @@ public class DualInput extends /*? if >=1.21.2 {*/ ClientInput /*?} else {*/ /*I
 
     private void setMoveVec(float forward, float left) {
         //? if >=1.21.5 {
-        /*this.moveVector = new Vec2(left, forward);
-        *///?} else {
-        this.forwardImpulse = forward;
+        this.moveVector = new Vec2(left, forward);
+        //?} else {
+        /*this.forwardImpulse = forward;
         this.leftImpulse = left;
-        //?}
+        *///?}
     }
 }

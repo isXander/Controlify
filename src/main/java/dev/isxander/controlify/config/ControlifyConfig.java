@@ -9,6 +9,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugLog;
+import dev.isxander.controlify.utils.GsonCodecAdapter;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +28,7 @@ public class ControlifyConfig {
             .setPrettyPrinting()
             .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
-            .registerTypeHierarchyAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            .registerTypeHierarchyAdapter(ResourceLocation.class, new GsonCodecAdapter<>(ResourceLocation.CODEC))
             .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
             .create();
 

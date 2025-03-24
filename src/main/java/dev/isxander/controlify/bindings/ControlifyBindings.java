@@ -75,7 +75,7 @@ public final class ControlifyBindings {
             .id("controlify", "jump")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .radialCandidate(RadialIcons.getEffect(/*? if >=1.21.5 {*/ /*MobEffects.JUMP_BOOST *//*?} else {*/ MobEffects.JUMP /*?}*/)));
+            .radialCandidate(RadialIcons.getEffect(/*? if >=1.21.5 {*/ MobEffects.JUMP_BOOST /*?} else {*/ /*MobEffects.JUMP *//*?}*/)));
     public static final InputBindingSupplier SPRINT = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "sprint")
             .category(MOVEMENT_CATEGORY)

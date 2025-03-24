@@ -18,7 +18,7 @@ public class SpriteUtils {
     public static void rect(GuiGraphics graphics, ResourceLocation atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV) {
         Blit.drawSpecial(graphics, bufferSource -> {
             ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(
-                    bufferSource.getBuffer(ExtraRenderTypes.BLIT_TEXTURE.apply(atlasLocation))
+                    bufferSource.getBuffer(ExtraRenderTypes.guiTextured(atlasLocation))
             );
             Matrix4f pose = graphics.pose().last().pose();
 

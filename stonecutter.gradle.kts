@@ -21,7 +21,7 @@ val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
 if (ciSingleBuild != null) {
     stonecutter active ciSingleBuild
 } else {
-stonecutter active "1.21.4-fabric" /* [SC] DO NOT EDIT */
+stonecutter active file("versions/current")
 }
 
 val registeredBuilds = getRegisteredBuilds()

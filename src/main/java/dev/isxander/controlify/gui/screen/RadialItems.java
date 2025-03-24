@@ -98,7 +98,11 @@ public final class RadialItems {
                         graphics.renderItem(mc.player.getInventory().getItem(j), x, y);
                     },
                     () -> {
-                        mc.player.getInventory().selected = j;
+                        //? if >=1.21.5 {
+                        mc.player.getInventory().setSelectedSlot(j);
+                        //?} else {
+                        /*mc.player.getInventory().selected = j;
+                        *///?}
                         return true;
                     },
                     CUtil.rl("hotbar_item_select/" + j)

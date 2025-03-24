@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
@@ -90,24 +91,12 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
                     .endVertex();
         }
 
-
-
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.defaultBlendFunc();
-
-        Blit.setPosColorShader();
-
-        BufferUploader.drawWithShader(
-                /*? if >1.20.6 {*/
-                buffer.buildOrThrow()
-                /*?} else {*/
-                /*buffer.end()
-                *//*?}*/
-        );
-
-        RenderSystem.disableBlend();
+        RenderType renderType = RenderType.gui();
+        //? if >=1.21 {
+        renderType.draw(buffer.buildOrThrow());
+        //?} else {
+        /*renderType.end(buffer, VertexSorting.ORTHOGRAPHIC_Z);
+        *///?}
     }
 
     private static void drawCircleOutline(PoseStack poseStack, float originX, float originY, float z, float radius, float thickness, int colour, int segments) {
@@ -133,21 +122,11 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             vertexConsumer.vertex(position, x2, y2, z).color(colour);
         }
 
-        RenderSystem.enableBlend();
-        RenderSystem.enableDepthTest();
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        RenderSystem.defaultBlendFunc();
-
-        Blit.setPosColorShader();
-
-        BufferUploader.drawWithShader(
-                /*? if >1.20.6 {*/
-                buffer.buildOrThrow()
-                /*?} else {*/
-                /*buffer.end()
-                 *//*?}*/
-        );
-
-        RenderSystem.disableBlend();
+        RenderType renderType = RenderType.gui();
+        //? if >=1.21 {
+        renderType.draw(buffer.buildOrThrow());
+        //?} else {
+        /*renderType.end(buffer, VertexSorting.ORTHOGRAPHIC_Z);
+        *///?}
     }
 }

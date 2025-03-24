@@ -21,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.*;
 import org.joml.Matrix4f;
@@ -264,13 +265,21 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             return Optional.empty();
         });
         registerGuideAction(ControlifyBindings.DROP_INGAME.on(controller), ActionLocation.RIGHT, (ctx) -> {
-            var holdingItem = ctx.player().getInventory().getSelected();
+            //? if >=1.21.5 {
+            ItemStack holdingItem = ctx.player().getInventory().getSelectedItem();
+            //?} else {
+            /*ItemStack holdingItem = ctx.player().getInventory().getSelected();
+            *///?}
             if (!holdingItem.isEmpty())
                 return Optional.of(Component.translatable("controlify.guide.ingame.drop"));
             return Optional.empty();
         });
         registerGuideAction(ControlifyBindings.DROP_STACK.on(controller), ActionLocation.RIGHT, ctx -> {
-            var holdingItem = ctx.player().getInventory().getSelected();
+            //? if >=1.21.5 {
+            ItemStack holdingItem = ctx.player().getInventory().getSelectedItem();
+            //?} else {
+            /*ItemStack holdingItem = ctx.player().getInventory().getSelected();
+            *///?}
             if (!holdingItem.isEmpty() && holdingItem.getCount() > 1)
                 return Optional.of(Component.translatable("controlify.binding.controlify.drop_stack"));
             return Optional.empty();

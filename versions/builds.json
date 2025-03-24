@@ -1,10 +1,8 @@
 {
   "vcsVersion": "1.21.4-fabric",
   "builds": {
-    "25w04a": {
-      "platforms": ["fabric"],
-      "semver": "1.21.5",
-      "experimental": true
+    "1.21.5": {
+      "platforms": ["fabric"]
     },
     "1.21.4": {
       "platforms": ["fabric", "neoforge"]

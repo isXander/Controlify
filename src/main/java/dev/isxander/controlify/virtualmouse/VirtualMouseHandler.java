@@ -360,9 +360,7 @@ public class VirtualMouseHandler {
         graphics.pose().translate(scaledX, scaledY, 1000f);
         graphics.pose().scale(0.5f, 0.5f, 0.5f);
 
-        RenderSystem.enableBlend();
         Blit.blitTex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
-        RenderSystem.disableBlend();
 
         graphics.pose().popPose();
     }
