@@ -2,8 +2,8 @@ import dev.isxander.stonecutterconfigurator.isExperimental
 
 plugins {
     id("dev.isxander.modstitch.base")
-    id("dev.isxander.modstitch.shadow")
-    id("dev.isxander.modstitch.publishing")
+    id("me.modmuss50.mod-publish-plugin")
+    `maven-publish`
 
     id("dev.kikugie.postprocess.j52j") version "2.1-beta.3"
 }
@@ -160,15 +160,8 @@ stonecutter {
         "net.caffeinemc.mods.sodium" else "me.jellysquid.mods.sodium"
 }
 
-msShadow {
-    relocatePackage = "dev.isxander.controlify.libs"
-}
-
 dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)
-    fun Dependency?.shadow(`package`: String, relocation: String) = this?.also {
-        msShadow.dependency(this, `package` to relocation)
-    }
     fun Dependency?.productionMod() = this?.also { productionMods(it) }
 
     prop("deps.mixinExtras") {
@@ -221,19 +214,15 @@ dependencies {
 
     // bindings for SDL3
     modstitchApi("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
-        .shadow("dev.isxander.sdl3java", "libsdl4j")
+        .jij()
 
     // steam deck bindings
     modstitchApi("dev.isxander:steamdeck4j:${property("deps.steamdeck4j")}")
-        .shadow("dev.isxander.deckapi", "steamdeck4j")
+        .jij()
 
     // used to identify controller PID/VID when SDL is not available
     modstitchApi("org.hid4java:hid4java:${property("deps.hid4java")}")
-        .shadow("org.hid4java", "hid4java")
-
-    // A json5 reader
-    api("org.quiltmc.parsers:json:${property("deps.quiltParsers")}")
-        .shadow("org.quiltmc.parsers.json", "quiltjson")
+        .jij()
 
     // sodium compat
     modDependency("sodium", { "maven.modrinth:sodium:$it" })
@@ -317,7 +306,7 @@ nativeTargets.forEach { target ->
     }
 }
 
-tasks.shadowJar {
+tasks.jar {
     from(nativeHashConfiguration) {
         into("sdl3-hashes/")
     }
@@ -365,90 +354,94 @@ val buildAndCollect by tasks.registering(Copy::class) {
 
 createActiveTask(buildAndCollect)
 
-msPublishing {
-    mpp {
-        from(rootProject.publishMods)
-        dryRun.set(rootProject.publishMods.dryRun)
+publishMods {
+    from(rootProject.publishMods)
+    dryRun = rootProject.publishMods.dryRun
 
-        // this can be set from the extension, but for the sake of storage, offline jars are not published
-        // to maven repository, it defeats the point of them anyway
-        additionalFiles.setFrom(offlineJar.map { it.archiveFile })
+    file = modstitch.finalJarTask.flatMap { it.archiveFile }
+    additionalFiles.setFrom(offlineJar.map { it.archiveFile })
 
-        displayName.set("$versionWithoutMC for $loader $mcVersion")
+    displayName = "$versionWithoutMC for $loader $mcVersion"
 
-        fun versionList(prop: String) = findProperty(prop)?.toString()
-            ?.split(',')
-            ?.map { it.trim() }
-            ?: emptyList()
+    fun versionList(prop: String) = findProperty(prop)?.toString()
+        ?.split(',')
+        ?.map { it.trim() }
+        ?: emptyList()
 
-        // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-        val stableMCVersions = versionList("pub.stableMC")
+    // modrinth and curseforge use different formats for snapshots. this can be expressed globally
+    val stableMCVersions = versionList("pub.stableMC")
 
-        val modrinthId: String by project
-        if (modrinthId.isNotBlank() && hasProperty("modrinth.token") && !isExperimental) {
-            modrinth {
-                projectId.set(modrinthId)
-                accessToken.set(findProperty("modrinth.token")?.toString())
-                minecraftVersions.addAll(stableMCVersions)
-                minecraftVersions.addAll(versionList("pub.modrinthMC"))
+    val modrinthId: String by project
+    if (modrinthId.isNotBlank() && hasProperty("modrinth.token") && !isExperimental) {
+        modrinth {
+            projectId.set(modrinthId)
+            accessToken.set(findProperty("modrinth.token")?.toString())
+            minecraftVersions.addAll(stableMCVersions)
+            minecraftVersions.addAll(versionList("pub.modrinthMC"))
 
-                announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from Modrinth"
+            announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from Modrinth"
 
-                requires { slug.set("yacl") }
+            requires { slug.set("yacl") }
 
-                if (isFabric) {
-                    requires { slug.set("fabric-api") }
-                    optional { slug.set("modmenu") }
-                }
-            }
-        }
-
-        val curseforgeId: String by project
-        if (curseforgeId.isNotBlank() && hasProperty("curseforge.token") && !isExperimental) {
-            curseforge {
-                projectId = curseforgeId
-                projectSlug = findProperty("curseforgeSlug")!!.toString()
-                accessToken = findProperty("curseforge.token")?.toString()
-                minecraftVersions.addAll(stableMCVersions)
-                minecraftVersions.addAll(versionList("pub.curseMC"))
-
-                announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from CurseForge"
-
-                requires { slug.set("yacl") }
-
-                if (isFabric) {
-                    requires { slug.set("fabric-api") }
-                    optional { slug.set("modmenu") }
-                }
-            }
-        }
-
-        val githubProject: String by project
-        if (githubProject.isNotBlank() && hasProperty("github.token") && !isExperimental) {
-            github {
-                accessToken = findProperty("github.token")?.toString()
-
-                // will upload files to this parent task
-                parent(rootProject.tasks.named("publishGithub"))
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
             }
         }
     }
 
-    maven {
-        repositories {
-            val username = prop("XANDER_MAVEN_USER") { it }
-            val password = prop("XANDER_MAVEN_PASS") { it }
-            if (username != null && password != null) {
-                maven(url = "https://maven.isxander.dev/releases") {
-                    name = "XanderReleases"
-                    credentials {
-                        this.username = username
-                        this.password = password
-                    }
-                }
-            } else {
-                logger.warn("Xander Maven credentials not satisfied.")
+    val curseforgeId: String by project
+    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token") && !isExperimental) {
+        curseforge {
+            projectId = curseforgeId
+            projectSlug = findProperty("curseforgeSlug")!!.toString()
+            accessToken = findProperty("curseforge.token")?.toString()
+            minecraftVersions.addAll(stableMCVersions)
+            minecraftVersions.addAll(versionList("pub.curseMC"))
+
+            announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from CurseForge"
+
+            requires { slug.set("yacl") }
+
+            if (isFabric) {
+                requires { slug.set("fabric-api") }
+                optional { slug.set("modmenu") }
             }
+        }
+    }
+
+    val githubProject: String by project
+    if (githubProject.isNotBlank() && hasProperty("github.token") && !isExperimental) {
+        github {
+            accessToken = findProperty("github.token")?.toString()
+
+            // will upload files to this parent task
+            parent(rootProject.tasks.named("publishGithub"))
+        }
+    }
+}
+publishing {
+    publications {
+        create<MavenPublication>("mod") {
+            from(components["java"])
+
+            artifactId = "controlify"
+            groupId = "dev.isxander"
+        }
+    }
+    repositories {
+        val username = prop("XANDER_MAVEN_USER") { it }
+        val password = prop("XANDER_MAVEN_PASS") { it }
+        if (username != null && password != null) {
+            maven(url = "https://maven.isxander.dev/releases") {
+                name = "XanderReleases"
+                credentials {
+                    this.username = username
+                    this.password = password
+                }
+            }
+        } else {
+            logger.warn("Xander Maven credentials not satisfied.")
         }
     }
 }

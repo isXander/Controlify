@@ -5,7 +5,7 @@ import dev.kikugie.stonecutter.ide.RunConfigType
 
 plugins {
     base
-    id("me.modmuss50.mod-publish-plugin") version "0.6.1+"
+    id("me.modmuss50.mod-publish-plugin") version "0.8.4"
     id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
@@ -13,8 +13,6 @@ plugins {
 
     val modstitchVersion = "0.5.12"
     id("dev.isxander.modstitch.base") version modstitchVersion apply false
-    id("dev.isxander.modstitch.publishing") version modstitchVersion apply false
-    id("dev.isxander.modstitch.shadow") version modstitchVersion apply false
 }
 
 val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
