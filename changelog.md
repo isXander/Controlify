@@ -8,22 +8,19 @@ This version has the following targets:
 **By donating on my [Ko-Fi](https://ko-fi.com/isxander), you will gain access to builds of Controlify for snapshot
 builds of Minecraft.**
 
+## Changes
+
+- **Added 1.21.5 target** for both Fabric and NeoForge!
+- Drastically improved the performance of the on-screen keyboard
+  - There is zero performance impact anymore. It used to decrease FPS by 8x (lol)
+- Controlify no-longer auto-selects newly connected controllers in order to aid with splitscreen (thanks Mauro for PR)
+- Removed explicit immediately-fast support, it works just fine on it's own.
+  - ImmediatelyFast is still supported and recommended for performance reason, there's just
+    no code in Controlify to support it anymore.
+
 ## Bug fixes
 
-- Fix NeoForge builds incorrectly packaging `jarJar` mods. This presented as a mixin crash on all Neo targets.
-- Fix identical model controllers being seen as the same controller which resulted in the second one to not be connected
-- Fix toggle sprint and toggle sneak options being toggle if any connected controller config is toggle,
-  regardless of whether it is active, as well as the vanilla toggle setting.
-- Fix crash because YACL version constraint was not strict enough
-- Fix LCE mode being framerate dependant
-- Fix NeoForge versions crashing due to a mixin error
-- Fix Enhanced Steam Deck driver sometimes failing to connect to CEF
-- Reorganise `vInvertLook` and `isLCE` options into the input component, instead of generic settings
-
-*This update includes localisation updates*
-
-Some new documentation is being written for Controlify.
-It includes information on the resource pack features.
-
-[Check it out on moddedmc.wiki](https://moddedmc.wiki/project/controlify/docs)
-
+- Fix head disappearing and NaN log spam (thanks Mauro for PR)
+- Fix unplugging and re-plugging same controller multiple times causing deletion of its config (thanks Mauro for PR)
+- Only display the Bluetooth warning when it would affect the user (thanks Mauro for PR)
+- Fix resource reload on NeoForge 1.21.4

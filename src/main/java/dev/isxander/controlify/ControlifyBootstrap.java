@@ -28,7 +28,11 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod("controlify")
 public class ControlifyBootstrap {
@@ -46,13 +50,15 @@ public class ControlifyBootstrap {
                 ^///?}
         );
 
-        if (FMLEnvironment.dist.isClient()) {
-            Controlify.instance().preInitialiseControlify();
-        }
-
-        if (FMLEnvironment.dist.isDedicatedServer()) {
-            ControlifyServer.getInstance().onInitializeServer();
-        }
+        modBus.addListener(FMLCommonSetupEvent.class, event -> {
+            event.enqueueWork(ControlifyServer.getInstance()::onInitialize);
+        });
+        modBus.addListener(FMLClientSetupEvent.class, event -> {
+            event.enqueueWork(Controlify.instance()::preInitialiseControlify);
+        });
+        modBus.addListener(FMLDedicatedServerSetupEvent.class, event -> {
+            event.enqueueWork(ControlifyServer.getInstance()::onInitializeServer);
+        });
     }
 }
 *///?}
