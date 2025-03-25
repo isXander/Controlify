@@ -224,6 +224,9 @@ dependencies {
     modstitchApi("org.hid4java:hid4java:${property("deps.hid4java")}")
         .jij()
 
+    // Already included by YetAnotherConfigLib, but we need it too, so let's define explicit dep
+    api("org.quiltmc.parsers:json:${property("deps.quiltparsers")}")
+
     // sodium compat
     modDependency("sodium", { "maven.modrinth:sodium:$it" })
     // RSO compat
