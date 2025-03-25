@@ -365,6 +365,7 @@ publishMods {
     additionalFiles.setFrom(offlineJar.map { it.archiveFile })
 
     displayName = "$versionWithoutMC for $loader $mcVersion"
+    modLoaders.add(loader)
 
     fun versionList(prop: String) = findProperty(prop)?.toString()
         ?.split(',')
