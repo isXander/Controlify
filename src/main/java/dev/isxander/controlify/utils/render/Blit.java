@@ -1,6 +1,5 @@
 package dev.isxander.controlify.utils.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.*;
@@ -10,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.function.Consumer;
 
 public final class Blit {
-    public static void drawSpecial(GuiGraphics graphics, Consumer<MultiBufferSource> consumer) {
+    public static void drawManaged(GuiGraphics graphics, Consumer<MultiBufferSource> consumer) {
         //? if >=1.21.2 {
         graphics.drawSpecial(consumer);
         //?} else {

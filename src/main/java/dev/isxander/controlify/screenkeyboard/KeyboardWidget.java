@@ -56,25 +56,30 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        Blit.drawSpecial(guiGraphics, bufferSource -> {
+        for (T key : keys) {
+            // vanilla widget render does other stuff like mouse hover update etc
+            // render method of keys are empty - this doesn't actually do any rendering
+            key.render(guiGraphics, mouseX, mouseY, partialTick);
+        }
+
+        // draw in a managed context so we can batch render calls
+        // everything within here is rendered in a single draw call
+        Blit.drawManaged(guiGraphics, bufferSource -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
-
-            for (T key : keys) {
-                // doesn't do any actual rendering
-                key.render(guiGraphics, mouseX, mouseY, partialTick);
-            }
 
             ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(
                     bufferSource.getBuffer(ExtraRenderTypes.guiTextured(Key.SPRITE.atlas()))
             );
-
             for (T key : keys) {
+                // every key background is rendered into the same vertex buffer to upload at once
                 Matrix4f pose = guiGraphics.pose().last().pose();
                 key.renderKeyBackground(vertexConsumer, pose, mouseX, mouseY, partialTick);
             }
 
+            // renders all foreground after background to prevent context switching
             for (T key : keys) {
+                // text rendering is batched by default in managed mode
                 key.renderKeyForeground(guiGraphics, mouseX, mouseY, partialTick);
             }
         });

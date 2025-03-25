@@ -6,7 +6,7 @@ import org.joml.Matrix4f;
 
 public class SpriteUtils {
     public static void blitSprite(GuiGraphics graphics, ControlifySprite sprite, int x, int y, int width, int height) {
-        Blit.drawSpecial(graphics, multiBufferSource -> {
+        Blit.drawManaged(graphics, multiBufferSource -> {
             blitSprite(multiBufferSource, graphics.pose().last().pose(), sprite, x, y, width, height);
         });
     }
