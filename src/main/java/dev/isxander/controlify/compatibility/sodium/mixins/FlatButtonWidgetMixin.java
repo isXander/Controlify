@@ -38,7 +38,8 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
                     value = "FIELD",
                     target = SodiumCompat.SODIUM_PACKAGE_MIXIN + "/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
                     opcode = Opcodes.GETFIELD
-            )
+            ),
+            remap = true // overrides mc's Renderable
     )
     private Component modifyRenderedLabel(Component actualLabel) {
         return getControllerMessage(actualLabel);
