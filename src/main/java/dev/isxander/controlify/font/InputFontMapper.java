@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InputFontMapper implements SimpleControlifyReloadListener<InputFontMapper.Preparations> {
-    private ImmutableMap<ResourceLocation, FontMap> mappings;
+    private ImmutableMap<ResourceLocation, FontMap> mappings = ImmutableMap.of();
     private FontMap defaultFontMap;
 
     private static final Codec<Character> CHAR_CODEC = Codec.STRING.comapFlatMap(

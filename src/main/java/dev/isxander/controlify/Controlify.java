@@ -62,7 +62,7 @@ import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 public class Controlify implements ControlifyApi {
     private static Controlify instance = null;
 
-    private final Minecraft minecraft = Minecraft.getInstance();
+    private Minecraft minecraft = null;
 
     private ControllerManager controllerManager;
 
@@ -96,11 +96,12 @@ public class Controlify implements ControlifyApi {
     private int showMouseTicks = 0;
 
     /**
-     * Called at usual fabric client entrypoint.
+     * Called at usual fabric client entrypoint and in NeoForge mod constructor
      * Always runs, even with no controllers detected.
      * In this state, Controlify is only partially loaded, no controllers
      * have been initialised, nor has the config. This is done at {@link Controlify#initializeControlify()}.
-     * This is where regular fabric callbacks are registered.
+     * This is where regular fabric callbacks and forge events should be registered.
+     * On NeoForge, this is run so early that Minecraft.getInstance() has not yet been set. So extra care should be taken as to not use it.
      */
     public void preInitialiseControlify() {
         DebugProperties.printProperties();
@@ -110,9 +111,6 @@ public class Controlify implements ControlifyApi {
         if (DebugProperties.MIXIN_AUDIT) {
             MixinEnvironment.getCurrentEnvironment().audit();
         }
-
-        this.inGameInputHandler = null; // set when the current controller changes
-        this.virtualMouseHandler = new VirtualMouseHandler();
 
         this.inputFontMapper = new InputFontMapper();
         this.defaultBindManager = new DefaultBindManager();
@@ -178,6 +176,10 @@ public class Controlify implements ControlifyApi {
      */
     public void initializeControlify() {
         CUtil.LOGGER.log("Initializing Controlify...");
+        this.minecraft = Minecraft.getInstance();
+
+        this.inGameInputHandler = null; // set when the current controller changes
+        this.virtualMouseHandler = new VirtualMouseHandler();
 
         config().load();
 

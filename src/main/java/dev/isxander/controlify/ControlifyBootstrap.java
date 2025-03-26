@@ -25,6 +25,7 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
 }
 //?} elif neoforge {
 /*import dev.isxander.controlify.gui.screen.ModConfigOpenerScreen;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
@@ -50,15 +51,12 @@ public class ControlifyBootstrap {
                 ^///?}
         );
 
-        modBus.addListener(FMLCommonSetupEvent.class, event -> {
-            event.enqueueWork(ControlifyServer.getInstance()::onInitialize);
-        });
-        modBus.addListener(FMLClientSetupEvent.class, event -> {
-            event.enqueueWork(Controlify.instance()::preInitialiseControlify);
-        });
-        modBus.addListener(FMLDedicatedServerSetupEvent.class, event -> {
-            event.enqueueWork(ControlifyServer.getInstance()::onInitializeServer);
-        });
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            Controlify.instance().preInitialiseControlify();
+        }
+        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+            ControlifyServer.getInstance().onInitializeServer();
+        }
     }
 }
 *///?}
