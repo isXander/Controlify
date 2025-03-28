@@ -42,7 +42,12 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
     private final Predicate<ControllerEntity> doItemSlotActions;
 
-    public AbstractContainerScreenProcessor(T screen, Supplier<Slot> hoveredSlot, ClickSlotFunction clickSlotFunction, Predicate<ControllerEntity> doItemSlotActions) {
+    public AbstractContainerScreenProcessor(
+            T screen,
+            Supplier<Slot> hoveredSlot,
+            ClickSlotFunction clickSlotFunction,
+            Predicate<ControllerEntity> doItemSlotActions
+    ) {
         super(screen);
         this.hoveredSlot = hoveredSlot;
         this.clickSlotFunction = clickSlotFunction;

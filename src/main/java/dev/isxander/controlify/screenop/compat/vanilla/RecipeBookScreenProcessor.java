@@ -8,34 +8,41 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 //? if >=1.21.2
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+import net.minecraft.world.inventory.Slot;
 
 public class RecipeBookScreenProcessor
-        <T extends /*? if >=1.21.2 {*/ AbstractRecipeBookScreen<?> /*?} else {*/ /*Screen & RecipeUpdateListener *//*?}*/>
-        extends ScreenProcessor<T> {
-    private final T screen;
+        <T extends /*? if >=1.21.2 {*/ AbstractRecipeBookScreen<?> /*?} else {*/ /*AbstractContainerScreen<?> *//*?}*/>
+        extends AbstractContainerScreenProcessor<T> {
 
-    public RecipeBookScreenProcessor(T screen) {
-        super(screen);
-        this.screen = screen;
+    private final RecipeBookScreenAccessor recipeBookScreenAccessor;
+
+    public RecipeBookScreenProcessor(
+            T screen,
+            RecipeBookScreenAccessor recipeBookScreenAccessor,
+            Supplier<Slot> hoveredSlot,
+            ClickSlotFunction clickSlotFunction,
+            Predicate<ControllerEntity> doItemSlotActions
+    ) {
+        super(screen, hoveredSlot, clickSlotFunction, doItemSlotActions);
+        this.recipeBookScreenAccessor = recipeBookScreenAccessor;
     }
 
     @Override
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         super.handleButtons(controller);
 
-        //? if >=1.21.2 {
-        RecipeBookComponent<?> recipeBookComponent = ((RecipeBookScreenAccessor) screen).getRecipeBookComponent();
-        //?} else {
-        /*RecipeBookComponent recipeBookComponent = screen.getRecipeBookComponent();
-        *///?}
+        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ recipeBookComponent = recipeBookScreenAccessor.getRecipeBookComponent();
 
         if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
@@ -71,9 +78,7 @@ public class RecipeBookScreenProcessor
         }
     }
 
-    //? if >=1.21.2 {
     public interface RecipeBookScreenAccessor {
-        RecipeBookComponent<?> getRecipeBookComponent();
+        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ getRecipeBookComponent();
     }
-    //?}
 }
