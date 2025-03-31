@@ -40,7 +40,7 @@ public class RecipeBookScreenProcessor
 
     @Override
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
-        super.handleButtons(controller);
+        super.handleScreenVMouse(controller, vmouse);
 
         RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ recipeBookComponent = recipeBookScreenAccessor.getRecipeBookComponent();
 
