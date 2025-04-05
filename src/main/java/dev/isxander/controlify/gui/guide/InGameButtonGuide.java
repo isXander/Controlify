@@ -96,6 +96,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
         Matrix4f prevProjection = null;
         if (customScale) {
+            // ensure our custom projection matrix doesn't screw up the rest of the rendering
+            graphics.flush();
+
             prevProjection = RenderSystem.getProjectionMatrix();
             double guiScale = minecraft.getWindow().getGuiScale() * scale;
             Matrix4f matrix4f = new Matrix4f()
@@ -124,6 +127,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                     /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
                     *///?}
             );
+
+            // ensure our custom projection matrix doesn't screw up the rest of the rendering
+            graphics.flush();
         }
     }
 
