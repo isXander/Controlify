@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -31,6 +30,13 @@ import net.minecraft.server.packs.PackType;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+
+//? if >=1.21.5 {
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+//?} else {
+/*import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+*///?}
 
 public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     @Override
@@ -81,7 +87,13 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 
     @Override
     public void addHudLayer(ResourceLocation id, RenderLayer renderLayer) {
-        HudRenderCallback.EVENT.register(renderLayer::render);
+        //? if >=1.21.5 {
+        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
+            layeredDrawer.addLayer(IdentifiedLayer.of(id, renderLayer));
+        });
+        //?} else {
+        /*HudRenderCallback.EVENT.register(renderLayer::render);
+        *///?}
     }
 
     @Override
