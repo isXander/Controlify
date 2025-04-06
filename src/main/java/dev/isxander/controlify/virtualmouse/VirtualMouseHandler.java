@@ -32,9 +32,7 @@ import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
 import java.lang.Math;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class VirtualMouseHandler {
     private static final ResourceLocation CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
@@ -52,7 +50,7 @@ public class VirtualMouseHandler {
     private Set<SnapPoint> snapPoints;
     private SnapPoint lastSnappedPoint;
 
-    private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 6);
+    private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
@@ -269,8 +267,27 @@ public class VirtualMouseHandler {
         var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
         var target = new Vector2d(targetX, targetY).mul(scaleFactor);
 
-        var closestSnapPoint = snapPoints.stream()
-                .filter(snapPoint -> !snapPoint.equals(lastSnappedPoint)) // don't snap to the point currently over snapped point
+        Optional<SnapPoint> closestSnapPoint = findOrthogonalSnapPoint(lastSnappedPoint, direction, target, snapPoints)
+                .or(() -> {
+                    Vector2d orthogonalTarget = new Vector2d(target);
+                    switch (direction) {
+                        case UP -> orthogonalTarget.y = window.getGuiScaledHeight();
+                        case DOWN -> orthogonalTarget.y = 0;
+                        case LEFT -> orthogonalTarget.x = window.getGuiScaledWidth();
+                        case RIGHT -> orthogonalTarget.x = 0;
+                    }
+
+                    return findOrthogonalSnapPoint(lastSnappedPoint, direction, orthogonalTarget, snapPoints);
+                });
+
+        closestSnapPoint.ifPresent(snapPoint -> {
+            snapToPoint(snapPoint, scaleFactor);
+        });
+    }
+
+    private static Optional<SnapPoint> findOrthogonalSnapPoint(SnapPoint from, ScreenDirection direction, Vector2d target, Collection<SnapPoint> snapPoints) {
+        return snapPoints.stream()
+                .filter(snapPoint -> !snapPoint.equals(from)) // don't snap to the point currently over snapped point
                 .map(snapPoint -> new Pair<>(snapPoint, new Vector2d(snapPoint.position().x() - target.x(), snapPoint.position().y() - target.y()))) // map with distance to current pos
                 // filter points that are not in the correct direction
                 .filter(pair -> {
@@ -303,10 +320,6 @@ public class VirtualMouseHandler {
                     return distDev.x + distDev.y;
                 }))
                 .map(Pair::getFirst);
-
-        closestSnapPoint.ifPresent(snapPoint -> {
-            snapToPoint(snapPoint, scaleFactor);
-        });
     }
 
     public void snapToPoint(SnapPoint snapPoint, Vector2dc scaleFactor) {
