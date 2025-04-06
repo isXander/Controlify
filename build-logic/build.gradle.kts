@@ -19,6 +19,6 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.kikugie.stonecutter:dev.kikugie.stonecutter.gradle.plugin:0.6-alpha.13")
+    implementation("dev.kikugie.stonecutter:dev.kikugie.stonecutter.gradle.plugin:0.6-beta.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 }
