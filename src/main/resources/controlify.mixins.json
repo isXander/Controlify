@@ -22,8 +22,10 @@
     "feature.bind.ToggleKeyMappingMixin",
     "feature.font.FontAccessor",
     "feature.font.KeybindContentsMixin",
+    "feature.font.TranslatableContentsMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",
     "feature.guide.ingame.GuiMixin",
+    "feature.guide.ingame.PlayerAccessor",
     "feature.guide.screen.AbstractContainerScreenAccessor",
     "feature.guide.screen.AbstractWidgetMixin",
     "feature.guide.screen.TabNavigationBarMixin",
@@ -97,10 +99,11 @@
     "feature.virtualmouse.snapping.AbstractContainerScreenMixin",
     "feature.virtualmouse.snapping.AbstractRecipeBookScreenMixin",
     "feature.virtualmouse.snapping.CreativeModeInventoryScreenMixin",
+    "feature.virtualmouse.snapping.EnchantmentScreenMixin",
+    "feature.virtualmouse.snapping.LoomMixin",
     "feature.virtualmouse.snapping.RecipeBookComponentAccessor",
     "feature.virtualmouse.snapping.RecipeBookPageAccessor",
     "feature.virtualmouse.snapping.ScreenMixin",
-    "feature.font.TranslatableContentsMixin",
-    "feature.guide.ingame.PlayerAccessor"
+    "feature.virtualmouse.snapping.StonecutterScreenMixin"
   ]
 }

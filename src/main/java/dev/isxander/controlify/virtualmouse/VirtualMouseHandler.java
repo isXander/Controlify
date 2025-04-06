@@ -54,10 +54,7 @@ public class VirtualMouseHandler {
 
     public VirtualMouseHandler() {
         this.minecraft = Minecraft.getInstance();
-        if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour)
-            snapPoints = snapBehaviour.getSnapPoints();
-        else
-            snapPoints = Set.of();
+        this.snapPoints = collectSnapPoints();
 
         ControlifyEvents.INPUT_MODE_CHANGED.register(event -> this.onInputModeChanged(event.mode()));
     }
@@ -119,11 +116,7 @@ public class VirtualMouseHandler {
 //        prevXFinger = xImpulseFinger;
 //        prevYFinger = yImpulseFinger;
 
-        if (minecraft.screen != null && minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
-            snapPoints = snapBehaviour.getSnapPoints();
-        } else {
-            snapPoints = Set.of();
-        }
+        this.snapPoints = collectSnapPoints();
 
         // if just released stick, snap to nearest snap point
         if (impulse.x == 0 && impulse.y == 0) {
@@ -494,5 +487,15 @@ public class VirtualMouseHandler {
     public void preventScrollingThisTick() {
         scrollX = 0;
         scrollY = 0;
+    }
+
+    private Set<SnapPoint> collectSnapPoints() {
+        if (minecraft.screen instanceof ISnapBehaviour snapBehaviour) {
+            Set<SnapPoint> points = new HashSet<>();
+            snapBehaviour.controlify$collectSnapPoints(points::add);
+            return points;
+        } else {
+            return Set.of();
+        }
     }
 }
