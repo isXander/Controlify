@@ -1,3 +1,4 @@
+//? if fancy-menu {
 package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.Action;
@@ -42,3 +43,4 @@ public class OpenControllerCarouselAction extends Action {
         return "";
     }
 }
+//?}
