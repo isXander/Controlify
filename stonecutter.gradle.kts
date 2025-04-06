@@ -57,6 +57,7 @@ stonecutter {
                 "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
                 "reeses-sodium-options" to "deps.reesesSodiumOptions".propDefined(),
                 "fancy-menu" to "deps.fancyMenu".propDefined(),
+                "april-fools-25" to node!!.metadata.project.contains("25w14craftmine")
             )
         )
     }

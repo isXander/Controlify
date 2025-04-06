@@ -331,7 +331,7 @@ public final class RadialItems {
                 case CREATIVE -> RadialIcons.getItem(Items.GRASS_BLOCK);
                 case SURVIVAL -> RadialIcons.getItem(Items.IRON_SWORD);
                 case ADVENTURE -> RadialIcons.getItem(Items.MAP);
-                case SPECTATOR -> RadialIcons.getItem(Items.ENDER_EYE);
+                case SPECTATOR -> RadialIcons.getItem(/*? if april-fools-25 {*//*Items.EXIT_EYE*//*?} else {*/ Items.ENDER_EYE/*?}*/);
             };
             this.icon = RadialIcons.getIcons().get(iconId);
             this.command = switch (gameType) {

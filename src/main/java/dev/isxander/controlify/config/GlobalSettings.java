@@ -19,6 +19,8 @@ public class GlobalSettings {
 
     public List<Class<?>> virtualMouseScreens = Lists.newArrayList(
             AbstractContainerScreen.class
+            //? if april-fools-25
+            /*,net.minecraft.client.gui.screens.unlocks.PlayerUnlocksScreen.class*/
     );
 
     @SerializedName("keyboardMovement") public boolean alwaysKeyboardMovement = false;
