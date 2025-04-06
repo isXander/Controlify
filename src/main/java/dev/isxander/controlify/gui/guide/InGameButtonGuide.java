@@ -119,6 +119,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         rightLayout.renderComponent(graphics, tickDelta);
 
         if (customScale) {
+            // ensure our custom projection matrix doesn't screw up the rest of the rendering
+            graphics.flush();
+
             RenderSystem.setProjectionMatrix(
                     prevProjection,
                     //? if >=1.21.2 {
@@ -127,9 +130,6 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                     /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
                     *///?}
             );
-
-            // ensure our custom projection matrix doesn't screw up the rest of the rendering
-            graphics.flush();
         }
     }
 
