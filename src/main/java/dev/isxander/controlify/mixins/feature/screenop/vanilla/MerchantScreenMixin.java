@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(MerchantScreen.class)
 public class MerchantScreenMixin {
-    @Shadow
-    private int scrollOff;
+    @Shadow int scrollOff;
+
     @Unique private double accumulatedScroll = 0;
 
     /**
