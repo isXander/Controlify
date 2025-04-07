@@ -55,14 +55,16 @@ public class InGameInputHandler {
     private final HoldRepeatHelper dropRepeatHelper;
     private boolean dropRepeating;
 
-    private final HoldRepeatHelper hotbarSelectRepeatHelper;
+    private final HoldRepeatHelper hotbarNextRepeatHelper;
+    private final HoldRepeatHelper hotbarPrevRepeatHelper;
 
     public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
         this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
-        this.hotbarSelectRepeatHelper = new HoldRepeatHelper(10, 4);
+        this.hotbarNextRepeatHelper = new HoldRepeatHelper(10, 4);
+        this.hotbarPrevRepeatHelper = new HoldRepeatHelper(10, 4);
         this.gyroToggledOn = false;
     }
 
@@ -88,7 +90,9 @@ public class InGameInputHandler {
         if (minecraft.player != null) {
             Inventory inventory = minecraft.player.getInventory();
 
-            if (hotbarSelectRepeatHelper.shouldAction(ControlifyBindings.NEXT_SLOT.on(controller))) {
+            if (hotbarNextRepeatHelper.shouldAction(ControlifyBindings.NEXT_SLOT.on(controller))) {
+                hotbarNextRepeatHelper.onNavigate();
+
                 //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() + 1) % Inventory.getSelectionSize());
                 //?} elif >=1.21.2 {
@@ -97,7 +101,9 @@ public class InGameInputHandler {
                 /*minecraft.player.getInventory().swapPaint(-1);
                 *///?}
             }
-            if (hotbarSelectRepeatHelper.shouldAction(ControlifyBindings.PREV_SLOT.on(controller))) {
+            if (hotbarPrevRepeatHelper.shouldAction(ControlifyBindings.PREV_SLOT.on(controller))) {
+                hotbarPrevRepeatHelper.onNavigate();
+
                 //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
                 //?} elif >=1.21.2 {
