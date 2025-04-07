@@ -55,11 +55,14 @@ public class InGameInputHandler {
     private final HoldRepeatHelper dropRepeatHelper;
     private boolean dropRepeating;
 
+    private final HoldRepeatHelper hotbarSelectRepeatHelper;
+
     public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
         this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
+        this.hotbarSelectRepeatHelper = new HoldRepeatHelper(10, 4);
         this.gyroToggledOn = false;
     }
 
@@ -85,7 +88,7 @@ public class InGameInputHandler {
         if (minecraft.player != null) {
             Inventory inventory = minecraft.player.getInventory();
 
-            if (ControlifyBindings.NEXT_SLOT.on(controller).justPressed()) {
+            if (hotbarSelectRepeatHelper.shouldAction(ControlifyBindings.NEXT_SLOT.on(controller))) {
                 //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() + 1) % Inventory.getSelectionSize());
                 //?} elif >=1.21.2 {
@@ -94,7 +97,7 @@ public class InGameInputHandler {
                 /*minecraft.player.getInventory().swapPaint(-1);
                 *///?}
             }
-            if (ControlifyBindings.PREV_SLOT.on(controller).justPressed()) {
+            if (hotbarSelectRepeatHelper.shouldAction(ControlifyBindings.PREV_SLOT.on(controller))) {
                 //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
                 //?} elif >=1.21.2 {
