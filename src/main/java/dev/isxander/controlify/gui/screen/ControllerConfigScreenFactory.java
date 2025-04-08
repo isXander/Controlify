@@ -213,7 +213,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.disableFlyDrifting, () -> ServerPolicies.DISABLE_FLY_DRIFTING.isUnset() ? config.disableFlyDrifting : ServerPolicies.DISABLE_FLY_DRIFTING.get(), v -> config.disableFlyDrifting = v)
                         .controller(TickBoxControllerBuilder::create)
-                        .available(!ServerPolicies.DISABLE_FLY_DRIFTING.isUnset())
+                        .available(ServerPolicies.DISABLE_FLY_DRIFTING.isUnset())
                         .build())
                 .build());
     }

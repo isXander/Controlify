@@ -33,5 +33,6 @@ Add `25w14craftmine` target, [donator only](https://ko-fi.com/isxander) for the 
 - Fix last icon in the in game button guide not being rendered on old targets
 - Fix broken pre 1.21.2 in-game keyboard rendering
 - Fix being able to control YACL options when they were disabled
+- Fix not being able to control the 'No Fly Drifting' option, even in a singleplayer world
 
 
