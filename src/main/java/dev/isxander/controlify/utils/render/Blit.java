@@ -1,5 +1,6 @@
 package dev.isxander.controlify.utils.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.*;
@@ -28,6 +29,9 @@ public final class Blit {
             int width, int height,
             int textureWidth, int textureHeight
     ) {
+        //? if <1.21.2
+        /*RenderSystem.enableBlend();*/ // maintain parity with guiTextured render type that enables blending
+
         graphics.blit(
                 //? if >=1.21.2
                 RenderType::guiTextured,
@@ -37,6 +41,9 @@ public final class Blit {
                 width, height,
                 textureWidth, textureHeight
         );
+
+        //? if <1.21.2
+        /*RenderSystem.disableBlend();*/
     }
 
     public static void blitTex(
@@ -47,6 +54,9 @@ public final class Blit {
             int width, int height,
             int atlasWidth, int atlasHeight
     ) {
+        //? if <1.21.2
+        /*RenderSystem.enableBlend();*/ // maintain parity with guiTextured render type that enables blending
+
         graphics.blit(
                 //? if >=1.21.2
                 RenderType::guiTextured,
@@ -56,6 +66,9 @@ public final class Blit {
                 width, height,
                 atlasWidth, atlasHeight
         );
+
+        //? if <1.21.2
+        /*RenderSystem.disableBlend();*/
     }
 
     public static void blitTex(
@@ -70,6 +83,8 @@ public final class Blit {
         //? <1.21.2 {
         /*float[] argb = ColorUtils.decomposeARGBFloat(color);
         graphics.setColor(argb[1], argb[2], argb[3], argb[0]);
+
+        RenderSystem.enableBlend(); // maintain parity with guiTextured render type that enables blending
         *///?}
 
         graphics.blit(
@@ -84,8 +99,11 @@ public final class Blit {
                 ,color
         );
 
-        //? <1.21.2
-        /*graphics.setColor(1, 1, 1, 1);*/
+        //? <1.21.2 {
+        /*RenderSystem.disableBlend();
+
+        graphics.setColor(1, 1, 1, 1);
+        *///?}
     }
 
     //? if >=1.20.3 {
