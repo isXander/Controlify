@@ -3,6 +3,7 @@ package dev.isxander.controlify.utils.render;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,7 @@ public class ExtraRenderTypes /*? if <1.21.2 {*/ /*extends RenderType *//*?}*/ {
                     false, false,
                     RenderType.CompositeState.builder()
                             .setTextureState(new RenderStateShard.TextureStateShard(resourceLocation, false, false))
-                            .setShaderState(RenderStateShard.RENDERTYPE_GUI_SHADER)
+                            .setShaderState(new ShaderStateShard(GameRenderer::getPositionTexColorShader))
                             .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                             .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                             .createCompositeState(false)
