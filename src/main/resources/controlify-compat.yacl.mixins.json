@@ -9,10 +9,13 @@
   "plugin": "dev.isxander.controlify.compatibility.yacl.YACLMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "CyclingControllerElementMixin",
+    "SliderControllerElementMixin",
     "YACLScreenCategoryTabAccessor",
     "YACLScreenCategoryTabMixin",
-    "YACLScreenMixin",
-    "CyclingControllerElementMixin",
-    "SliderControllerElementMixin"
+    "YACLScreenMixin"
+  ],
+  "mixins": [
+    "ControllerWidgetAccessor"
   ]
 }

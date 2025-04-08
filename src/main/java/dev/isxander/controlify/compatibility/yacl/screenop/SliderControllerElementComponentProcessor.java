@@ -1,6 +1,7 @@
 package dev.isxander.controlify.compatibility.yacl.screenop;
 
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.compatibility.yacl.mixins.ControllerWidgetAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -21,6 +22,10 @@ public class SliderControllerElementComponentProcessor implements ComponentProce
         var leftPrev = ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).digitalPrev();
         var right = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalNow();
         var rightPrev = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalPrev();
+
+        if (!((ControllerWidgetAccessor) slider).getControl().option().available()) {
+            return false;
+        }
 
         boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
 
