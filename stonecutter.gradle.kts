@@ -11,7 +11,7 @@ plugins {
     id("de.undercouch.download") version "5.6.0"
     id("org.moddedmc.wiki.toolkit") version "0.2.5"
 
-    val modstitchVersion = "0.5.12"
+    val modstitchVersion = "0.5.15-unstable"
     id("dev.isxander.modstitch.base") version modstitchVersion apply false
 }
 
