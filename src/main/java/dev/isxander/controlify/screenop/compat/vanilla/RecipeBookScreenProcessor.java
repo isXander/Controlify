@@ -42,7 +42,7 @@ public class RecipeBookScreenProcessor
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         super.handleScreenVMouse(controller, vmouse);
 
-        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ recipeBookComponent = recipeBookScreenAccessor.getRecipeBookComponent();
+        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ recipeBookComponent = recipeBookScreenAccessor.controlify$getRecipeBookComponent();
 
         if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
@@ -79,6 +79,6 @@ public class RecipeBookScreenProcessor
     }
 
     public interface RecipeBookScreenAccessor {
-        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ getRecipeBookComponent();
+        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ controlify$getRecipeBookComponent();
     }
 }
