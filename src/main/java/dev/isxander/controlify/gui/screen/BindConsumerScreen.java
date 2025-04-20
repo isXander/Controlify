@@ -54,12 +54,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    /*? if >=1.20.4 {*/
-    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f)
-    /*?} else {*/
-    /*public void renderBackground(GuiGraphics guiGraphics)
-    *//*?}*/
-    {
+    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
         // do not render background
     }
 
@@ -121,13 +116,8 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    /*? if >=1.20.4 {*/
     public boolean mouseScrolled(double mouseX, double mouseY, double amount, double d) {
         boolean consumed = super.mouseScrolled(mouseX, mouseY, amount, d);
-    /*?} else {*/
-    /*public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        boolean consumed = super.mouseScrolled(mouseX, mouseY, amount);
-    *//*?}*/
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;

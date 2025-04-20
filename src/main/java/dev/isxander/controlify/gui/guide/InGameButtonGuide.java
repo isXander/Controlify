@@ -81,11 +81,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     public void renderHud(GuiGraphics graphics, float tickDelta) {
-        boolean debugOpen = /*? if >=1.20.3 {*/
-        minecraft.getDebugOverlay().showDebugScreen();
-        /*?} else {*/
-        /*minecraft.options.renderDebug;
-        *//*?}*/
+        boolean debugOpen = minecraft.getDebugOverlay().showDebugScreen();
         boolean hideGui = minecraft.options.hideGui;
 
         if (!controller.genericConfig().config().showIngameGuide || minecraft.screen != null || debugOpen || hideGui)
@@ -305,24 +301,14 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     private HitResult calculateHitResult() {
-        /*? if >1.20.4 {*/
         double pickRange = minecraft.player.blockInteractionRange();
-        /*?} else {*/
-        /*double pickRange = minecraft.gameMode.getPickRange();
-        *//*?}*/
 
         // block
         HitResult pickResult = player.pick(pickRange, 1f, false);
 
         Vec3 eyePos = player.getEyePosition(1f);
 
-        /*? if >1.20.4 {*/
         pickRange = minecraft.player.entityInteractionRange();
-        /*?} else {*/
-        /*if (minecraft.gameMode.hasFarPickRange()) {
-            pickRange = 6.0;
-        }
-        *//*?}*/
 
         double maxPickRange = pickResult.getLocation().distanceToSqr(eyePos);
 

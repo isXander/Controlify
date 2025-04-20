@@ -14,10 +14,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.SodiumOptionsGUI;
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.options.OptionPage;
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
+import net.caffeinemc.mods.sodium.client.gui.SodiumOptionsGUI;
+import net.caffeinemc.mods.sodium.client.gui.options.OptionPage;
+import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
+import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
 @Mixin(value = SodiumOptionsGUI.class, remap = false)
 public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {

@@ -59,7 +59,7 @@ public record RumbleSource(ResourceLocation id) {
     }
 
     public static RumbleSource register(String identifier, String path) {
-        return register(CUtil.rl(identifier, path));
+        return register(ResourceLocation.fromNamespaceAndPath(identifier, path));
     }
 
     private static RumbleSource register(String path) {

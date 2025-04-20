@@ -43,7 +43,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 
     @Override
     public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
-        return this.id(CUtil.rl(namespace, path));
+        return this.id(ResourceLocation.fromNamespaceAndPath(namespace, path));
     }
 
     @Override

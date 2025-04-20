@@ -7,7 +7,6 @@ import dev.isxander.controlify.platform.main.PlatformMainUtilImpl;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
@@ -16,6 +15,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
@@ -46,7 +46,7 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, ControlifyPacketCodec<I> serverBoundCodec, ControlifyPacketCodec<O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
+    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
             O decodedPacket = packetCreator.get();
 

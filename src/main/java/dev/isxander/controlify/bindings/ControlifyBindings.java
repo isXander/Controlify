@@ -232,7 +232,6 @@ public final class ControlifyBindings {
             .category(DEBUG_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
             .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
-    //? if >=1.20.3 {
     public static final InputBindingSupplier TOGGLE_DEBUG_MENU_NET = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "toggle_debug_menu_net")
             .category(DEBUG_CATEGORY)
@@ -243,14 +242,6 @@ public final class ControlifyBindings {
             .category(DEBUG_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
             .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
-    //?} else {
-    /*public static final InputBindingSupplier TOGGLE_DEBUG_MENU_CHARTS = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "toggle_debug_menu_charts")
-            .category(DEBUG_CATEGORY)
-            .allowedContexts(BindContext.IN_GAME)
-            .radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
-    *///?}
-
     public static final InputBindingSupplier GUI_PRESS = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "gui_press")
             .category(GUI_CATEGORY)
@@ -415,7 +406,7 @@ public final class ControlifyBindings {
                         .replaceAll("[^a-z0-9/._-]", "_")
                         .trim();
 
-                var identifier = CUtil.rl("fabric-key-binding-api-v1", idPath);
+                var identifier = ResourceLocation.fromNamespaceAndPath("fabric-key-binding-api-v1", idPath);
 
                 InputBindingSupplier binding = ControlifyBindApi.get().registerBinding(builder -> builder
                         .id(identifier)

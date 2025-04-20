@@ -10,30 +10,17 @@ public final class DebugOverlayHelper {
     private static final Minecraft mc = Minecraft.getInstance();
 
     public static boolean isOverlayEnabled() {
-        //? if >=1.20.3 {
         return ((DebugScreenOverlayAccessor) mc.getDebugOverlay()).isRenderDebug();
-        //?} else {
-        /*return mc.options.renderDebug;
-        *///?}
     }
 
     public static void toggleOverlay() {
-        //? if >=1.20.3 {
         mc.getDebugOverlay().toggleOverlay();
-        //?} else {
-        /*mc.options.renderDebug = !mc.options.renderDebug;
-        *///?}
     }
 
     public static void toggleFpsOverlay() {
-        //? if >=1.20.3 {
         mc.getDebugOverlay().toggleFpsCharts();
-        //?} else {
-        /*mc.options.renderDebug = mc.options.renderFpsChart = !mc.options.renderDebug;
-        *///?}
     }
 
-    //? if >=1.20.3 {
     public static void toggleNetworkOverlay() {
         mc.getDebugOverlay().toggleNetworkCharts();
     }
@@ -41,11 +28,6 @@ public final class DebugOverlayHelper {
     public static void toggleProfilerOverlay() {
         mc.getDebugOverlay().toggleProfilerChart();
     }
-    //?} else {
-    /*public static void toggleChartsOverlay() {
-        mc.options.renderDebug = mc.options.renderDebugCharts = !mc.options.renderDebug;
-    }
-    *///?}
 
     public static void reloadChunks() {
         mc.levelRenderer.allChanged();

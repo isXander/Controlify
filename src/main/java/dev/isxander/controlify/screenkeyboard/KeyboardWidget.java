@@ -23,6 +23,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -68,13 +69,9 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
-            ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(
-                    bufferSource.getBuffer(ExtraRenderTypes.guiTextured(Key.SPRITE.atlas()))
-            );
             for (T key : keys) {
                 // every key background is rendered into the same vertex buffer to upload at once
-                Matrix4f pose = guiGraphics.pose().last().pose();
-                key.renderKeyBackground(vertexConsumer, pose, mouseX, mouseY, partialTick);
+                key.renderKeyBackground(guiGraphics, mouseX, mouseY, partialTick);
             }
 
             // renders all foreground after background to prevent context switching
@@ -91,18 +88,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     public static class Key extends AbstractWidget implements ComponentProcessor, ScreenControllerEventListener {
-        public static final ControlifySprite SPRITE =
-                //? if >=1.20.3 {
-                ControlifySprite.fromSpriteId(CUtil.rl("keyboard/key"));
-                //?} else {
-                /*new ControlifySprite(
-                        CUtil.rl("textures/gui/sprites/keyboard/key.png"),
-                        new SpriteScaling.NineSlice(
-                                30, 24,
-                                new SpriteScaling.NineSlice.Border(1, 1, 3, 3)
-                        )
-                );
-                *///?}
+        public static final ResourceLocation SPRITE = CUtil.rl("keyboard/key");
 
         private final KeyboardWidget<?> keyboard;
 
@@ -133,8 +119,8 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             this(screen, x, y, width, height, functions.getFirst(), functions.getSecond(), keyboard, shortcutPressBind);
         }
 
-        protected void renderKeyBackground(ControlifyVertexConsumer vertexConsumer, Matrix4f pose, int mouseX, int mouseY, float partialTick) {
-            SpriteUtils.blitSprite(vertexConsumer, pose, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        protected void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            Blit.blitSprite(graphics, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
         }
 
         protected void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {

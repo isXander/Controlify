@@ -80,7 +80,7 @@ public final class Blit {
             int textureWidth, int textureHeight,
             int color
     ) {
-        //? <1.21.2 {
+        //? if <1.21.2 {
         /*float[] argb = ColorUtils.decomposeARGBFloat(color);
         graphics.setColor(argb[1], argb[2], argb[3], argb[0]);
 
@@ -99,14 +99,13 @@ public final class Blit {
                 ,color
         );
 
-        //? <1.21.2 {
+        //? if <1.21.2 {
         /*RenderSystem.disableBlend();
 
         graphics.setColor(1, 1, 1, 1);
         *///?}
     }
 
-    //? if >=1.20.3 {
     public static void blitSprite(
             GuiGraphics graphics,
             ResourceLocation sprite,
@@ -140,7 +139,6 @@ public final class Blit {
                 width, height
         );
     }
-    //?}
 
     public static void blitSprite(
             GuiGraphics graphics,

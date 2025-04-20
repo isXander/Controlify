@@ -18,7 +18,7 @@ public class ControlifyCompat {
     public static final String FANCY_MENU = "fancymenu";
 
     public static void init() {
-        /*? if simple-voice-chat {*/
+        //? if simple-voice-chat {
         try {
             wrapCompatCall(
                     SIMPLE_VOICE_CHAT,
@@ -27,7 +27,7 @@ public class ControlifyCompat {
         } catch (NoClassDefFoundError e) {
             disabledMods.add(SIMPLE_VOICE_CHAT);
         }
-        /*?}*/
+        //?}
 
         //? if fancy-menu {
         try {

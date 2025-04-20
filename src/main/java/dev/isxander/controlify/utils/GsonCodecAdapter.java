@@ -14,21 +14,11 @@ import java.lang.reflect.Type;
 public record GsonCodecAdapter<T>(Codec<T> codec) implements JsonSerializer<T>, JsonDeserializer<T> {
     @Override
     public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-        return codec.encodeStart(JsonOps.INSTANCE, src)
-                //? if >=1.20.6 {
-                .getOrThrow();
-                //?} else {
-                /*.get().orThrow();
-                *///?}
+        return codec.encodeStart(JsonOps.INSTANCE, src).getOrThrow();
     }
 
     @Override
     public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        return codec.parse(JsonOps.INSTANCE, json)
-                //? if >=1.20.6 {
-                .getOrThrow();
-                //?} else {
-                /*.get().orThrow();
-                *///?}
+        return codec.parse(JsonOps.INSTANCE, json).getOrThrow();
     }
 }

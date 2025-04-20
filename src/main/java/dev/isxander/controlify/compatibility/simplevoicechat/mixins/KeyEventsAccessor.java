@@ -1,4 +1,4 @@
-/*? if simple-voice-chat {*/
+//? if simple-voice-chat {
 package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
 
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
@@ -10,4 +10,4 @@ public interface KeyEventsAccessor {
     @Invoker
     boolean invokeCheckConnected();
 }
-/*?}*/
+//?}

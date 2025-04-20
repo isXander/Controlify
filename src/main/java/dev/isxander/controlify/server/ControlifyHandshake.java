@@ -3,10 +3,11 @@ package dev.isxander.controlify.server;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 
@@ -16,7 +17,7 @@ public class ControlifyHandshake {
     public static final int PROTOCOL_VERSION = 1;
     public static final ResourceLocation HANDSHAKE_CHANNEL = CUtil.rl("handshake");
 
-    private static final ControlifyPacketCodec<HandshakePacket> handshakePacketCodec = ControlifyPacketCodec.of(
+    private static final StreamCodec<FriendlyByteBuf, HandshakePacket> handshakePacketCodec = StreamCodec.of(
             (buf, packet) -> buf.writeInt(packet.protocolVersion()),
             buf -> new HandshakePacket(buf.readInt())
     );

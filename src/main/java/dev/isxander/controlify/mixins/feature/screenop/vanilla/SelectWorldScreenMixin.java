@@ -34,11 +34,7 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
             slice = @Slice(
                     from = @At(
                             value = "FIELD",
-                            //? if >1.20.1 {
                             target = "Lnet/minecraft/network/chat/CommonComponents;GUI_BACK:Lnet/minecraft/network/chat/Component;",
-                            //?} else {
-                            /*target = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;",
-                            *///?}
                             opcode = Opcodes.GETSTATIC,
                             ordinal = 0
                     )

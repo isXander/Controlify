@@ -12,14 +12,11 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
-    @Shadow @Final Minecraft minecraft;
+    @Shadow @Final
+    private Minecraft minecraft;
 
     @ModifyExpressionValue(
-            /*? if >1.20.4 {*/
             method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;",
-            /*?} else {*/
-            /*method = "pick",
-            *//*?}*/
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"

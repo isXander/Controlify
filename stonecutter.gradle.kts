@@ -57,7 +57,6 @@ stonecutter {
                 "simple-voice-chat" to "deps.simpleVoiceChat".propDefined(),
                 "reeses-sodium-options" to "deps.reesesSodiumOptions".propDefined(),
                 "fancy-menu" to "deps.fancyMenu".propDefined(),
-                "april-fools-25" to node!!.metadata.project.contains("25w14craftmine")
             )
         )
     }
@@ -95,7 +94,6 @@ tasks.clean {
 val modVersion: String by project
 version = modVersion
 
-val versionProjects = stonecutter.versions.map { findProject(it.project)!! }
 publishMods {
     val modChangelog = provider {
         rootProject.file("changelog.md")
@@ -117,58 +115,6 @@ publishMods {
             else -> STABLE
         }
     )
-
-    if (hasProperty("discord.publish-webhook")) {
-        discord {
-            webhookUrl = findProperty("discord.publish-webhook")!!.toString()
-            dryRunWebhookUrl = findProperty("discord.publish-webhook-dry-run")?.toString()
-
-            username = "Controlify Updates"
-            avatarUrl = "https://raw.githubusercontent.com/isXander/Controlify/multiversion/dev/src/main/resources/icon.png"
-
-            content = changelog.map { changelog ->
-                var newChangelog = changelog
-
-                // Remove all markdown images since Discord doesn't support them.
-                newChangelog = newChangelog.replace(Regex("^.*!\\[.+]\\(.+\\)\\n$"), "")
-
-                val controlifyPing = "\n\n<@&1146064258652712960>" // <@Controlify Ping>
-                if ((newChangelog.length + controlifyPing.length) > 2000) {
-                    println("Changelog is too long for Discord, trimming.")
-                    newChangelog = newChangelog.substring(0, 2000 - controlifyPing.length - 3) + "..."
-                }
-                newChangelog + controlifyPing
-            }
-
-//            publishResults.from(
-//                *versionProjects
-//                    .map { it to it.extensions.findByType<ModPublishExtension>()!!.platforms }
-//                    .flatMap { (project, platforms) ->
-//                        platforms.map { platform ->
-//                            project.tasks.named<PublishModTask>(platform.taskName)
-//                                .map { it.result }
-//                        }
-//                    }
-//                    .toTypedArray()
-//            )
-        }
-    }
-
-    val githubProject: String by project
-    if (githubProject.isNotBlank() && hasProperty("github.token")) {
-        github {
-            displayName.set("Controlify $modVersion")
-
-            repository.set(githubProject)
-            accessToken.set(findProperty("github.token")?.toString())
-            commitish.set(grgit.branch.current().name)
-            tagName = modVersion
-
-            allowEmptyFiles = true
-
-            announcementTitle = "Download from GitHub"
-        }
-    }
 }
 
 wiki {

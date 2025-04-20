@@ -172,18 +172,12 @@ public class InGameInputHandler {
         if (ControlifyBindings.TOGGLE_DEBUG_MENU_FPS.on(controller).justPressed()) {
             DebugOverlayHelper.toggleFpsOverlay();
         }
-        //? if >=1.20.3 {
         if (ControlifyBindings.TOGGLE_DEBUG_MENU_NET.on(controller).justPressed()) {
             DebugOverlayHelper.toggleNetworkOverlay();
         }
         if (ControlifyBindings.TOGGLE_DEBUG_MENU_PROF.on(controller).justPressed()) {
             DebugOverlayHelper.toggleProfilerOverlay();
         }
-        //?} else {
-        /*if (ControlifyBindings.TOGGLE_DEBUG_MENU_CHARTS.on(controller).justPressed()) {
-            DebugOverlayHelper.toggleChartsOverlay();
-        }
-        *///?}
         if (ControlifyBindings.DEBUG_RADIAL.on(controller).justPressed()) {
             minecraft.setScreen(new RadialMenuScreen(
                     controller,

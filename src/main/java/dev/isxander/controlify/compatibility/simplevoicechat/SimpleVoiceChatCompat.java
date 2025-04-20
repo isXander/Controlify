@@ -1,4 +1,4 @@
-/*? if simple-voice-chat {*/
+//? if simple-voice-chat {
 package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
@@ -22,9 +22,9 @@ public class SimpleVoiceChatCompat {
     private static boolean pttDown, whisperDown;
 
     public static void init() {
-        ResourceLocation muteIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone_off.png"));
-        ResourceLocation pttIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone.png"));
-        ResourceLocation whisperIcon = registerIcon16x(CUtil.rl("voicechat", "textures/icons/microphone_whisper.png"));
+        ResourceLocation muteIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone_off.png"));
+        ResourceLocation pttIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone.png"));
+        ResourceLocation whisperIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone_whisper.png"));
 
         Component category = Component.translatable("key.categories.voicechat");
         pttHoldSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
@@ -110,4 +110,4 @@ public class SimpleVoiceChatCompat {
         return location;
     }
 }
-/*?}*/
+//?}

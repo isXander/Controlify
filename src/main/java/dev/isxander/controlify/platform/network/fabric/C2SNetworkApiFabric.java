@@ -2,10 +2,12 @@
 package dev.isxander.controlify.platform.network.fabric;
 
 import dev.isxander.controlify.platform.network.C2SNetworkApi;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
-import dev.isxander.controlify.platform.network.PacketPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -20,8 +22,8 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
     }
 
     @Override
-    public <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec/*? if >1.20.4 {*/, net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playC2S()/*?}*/));
+    public <T> void registerPacket(ResourceLocation channel, StreamCodec<FriendlyByteBuf, T> codec) {
+        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry.playC2S()));
     }
 
     @Override
@@ -30,7 +32,7 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
     }
 
     @Override
-    public <T> PacketPayload createPayload(ResourceLocation channel, T packet) {
+    public <T> CustomPacketPayload createPayload(ResourceLocation channel, T packet) {
         FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
         return packetWrapper.new FabricPacketPayloadWrapper(packet);
     }
@@ -39,15 +41,9 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
     public <T> void listenForPacket(ResourceLocation channel, PacketListener<T> listener) {
         FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
 
-        /*? if >1.20.4 {*/
         ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
             listener.listen(packet.payload, context.player());
         });
-        /*?} else {*/
-        /*ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, player, responseSender) -> {
-            listener.listen(packet.payload, player);
-        });
-        *//*?}*/
     }
 
     private <T> FabricPacketWrapper<T> getWrapper(ResourceLocation channel) {

@@ -41,14 +41,8 @@ public class ControlifyBootstrap {
         ControlifyServer.getInstance().onInitialize();
 
         ModLoadingContext.get().registerExtensionPoint(
-                //? if >=1.20.6 {
                 net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
                 () -> (client, parent) -> new ModConfigOpenerScreen(parent)
-                //?} else {
-                /^net.neoforged.neoforge.client.ConfigScreenHandler.ConfigScreenFactory.class,
-                () -> new net.neoforged.neoforge.client.ConfigScreenHandler.ConfigScreenFactory(
-                        (client, parent) -> new ModConfigOpenerScreen(parent))
-                ^///?}
         );
 
         if (FMLEnvironment.dist == Dist.CLIENT) {

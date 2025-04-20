@@ -16,11 +16,7 @@ public interface TabFrameAccessor {
     List<Tab<?>> getTabs();
 
     @Accessor
-    //? if sodium: >=0.6 {
     Optional<Tab<?>>
-    //?} else {
-    /*Tab<?>
-    *///?}
     getSelectedTab();
 
     @Accessor

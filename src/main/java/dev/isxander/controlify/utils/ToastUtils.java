@@ -8,11 +8,7 @@ public class ToastUtils {
     public static void sendToast(Component title, Component message, boolean longer) {
         SystemToast toast = SystemToast.multiline(
                 Minecraft.getInstance(),
-                /*? if >=1.20.4 {*/
                 longer ? SystemToast.SystemToastId.UNSECURE_SERVER_WARNING : SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
-                /*?} else {*/
-                /*longer ? SystemToast.SystemToastIds.UNSECURE_SERVER_WARNING : SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                *//*?}*/
                 title,
                 message
         );

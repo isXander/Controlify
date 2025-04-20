@@ -149,15 +149,9 @@ stonecutter {
         "forgelike" to modstitch.isModDevGradle,
     )
 
-    val sodiumSemver = findProperty("deps.sodiumSemver")?.toString() ?: "0.0.0"
     dependencies(
         "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0"),
-        "sodium" to sodiumSemver
     )
-
-    // sodium repackaged in 0.6, this allows quick swapping imports
-    swaps["sodium-package"] = if (eval(sodiumSemver, ">=0.6"))
-        "net.caffeinemc.mods.sodium" else "me.jellysquid.mods.sodium"
 }
 
 dependencies {
@@ -411,16 +405,6 @@ publishMods {
                 requires { slug.set("fabric-api") }
                 optional { slug.set("modmenu") }
             }
-        }
-    }
-
-    val githubProject: String by project
-    if (githubProject.isNotBlank() && hasProperty("github.token") && !isExperimental) {
-        github {
-            accessToken = findProperty("github.token")?.toString()
-
-            // will upload files to this parent task
-            parent(rootProject.tasks.named("publishGithub"))
         }
     }
 }

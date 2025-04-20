@@ -1,5 +1,7 @@
 package dev.isxander.controlify.platform.network;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 public interface SidedNetworkApi {
@@ -17,5 +19,5 @@ public interface SidedNetworkApi {
         /*return dev.isxander.controlify.platform.network.neoforge.S2CNetworkApiNeoforge.INSTANCE;*/
     }
 
-    <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> handler);
+    <T> void registerPacket(ResourceLocation channel, StreamCodec<FriendlyByteBuf, T> handler);
 }

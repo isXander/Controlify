@@ -199,7 +199,6 @@ public final class RadialItems {
                         },
                         CUtil.rl("debug/fps")
                 ),
-                //? if >=1.20.3 {
                 new RadialItemRecord(
                         Component.translatable("controlify.radial.debug.overlay_net"),
                         RadialIcons.getIcons().get(RadialIcons.getItem(Items.SCULK_SENSOR)),
@@ -218,17 +217,6 @@ public final class RadialItems {
                         },
                         CUtil.rl("debug/fps")
                 ),
-                //?} else {
-                /*new RadialItemRecord(
-                        Component.translatable("controlify.radial.debug.overlay_charts"),
-                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.REDSTONE)),
-                        () -> {
-                            DebugOverlayHelper.toggleChartsOverlay();
-                            return true;
-                        },
-                        CUtil.rl("debug/fps")
-                ),
-                *///?}
         } : new RadialMenuScreen.RadialItem[]{
                 new RadialItemRecord(
                         Component.translatable("controlify.radial.debug.hide_overlay"),
@@ -252,11 +240,7 @@ public final class RadialItems {
         Minecraft mc = Minecraft.getInstance();
         Hotbar hotbar = mc.getHotbarManager().get(hotbarIndex);
 
-        /*? if >1.20.4 {*/
         List<ItemStack> hotbarItems = hotbar.load(mc.player.registryAccess());
-        /*?} else {*/
-        /*List<ItemStack> hotbarItems = hotbar;
-        *//*?}*/
 
         for (int i = 0; i < 9; i++) {
             ItemStack stack = hotbarItems.get(i);
@@ -331,7 +315,7 @@ public final class RadialItems {
                 case CREATIVE -> RadialIcons.getItem(Items.GRASS_BLOCK);
                 case SURVIVAL -> RadialIcons.getItem(Items.IRON_SWORD);
                 case ADVENTURE -> RadialIcons.getItem(Items.MAP);
-                case SPECTATOR -> RadialIcons.getItem(/*? if april-fools-25 {*//*Items.EXIT_EYE*//*?} else {*/ Items.ENDER_EYE/*?}*/);
+                case SPECTATOR -> RadialIcons.getItem(Items.ENDER_EYE);
             };
             this.icon = RadialIcons.getIcons().get(iconId);
             this.command = switch (gameType) {

@@ -20,12 +20,7 @@ public record ControllerType(@Nullable String friendlyName, String mappingId, Re
     ).apply(instance, ControllerType::new));
 
     public ResourceLocation getIconSprite() {
-        /*? if >=1.20.3 {*/
         return namespace.withPrefix("controllers/");
-        /*?} else {*/
-        /*return namespace.withPath("textures/gui/sprites/controllers/" + namespace.getPath() + ".png");
-        *//*?}*/
-
     }
 
     public boolean isSteamDeck() {

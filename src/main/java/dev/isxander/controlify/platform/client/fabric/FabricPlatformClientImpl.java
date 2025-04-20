@@ -8,9 +8,7 @@ import dev.isxander.controlify.platform.client.events.LifecycleEvent;
 import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
-import dev.isxander.controlify.platform.client.util.RenderLayer;
 import dev.isxander.controlify.platform.fabric.mixins.KeyBindingRegistryImplAccessor;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
@@ -21,9 +19,11 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
@@ -86,7 +86,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, RenderLayer renderLayer) {
+    public void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer) {
         //? if >=1.21.5 {
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
             layeredDrawer.addLayer(IdentifiedLayer.of(id, renderLayer));
@@ -102,7 +102,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, ControlifyPacketCodec<I> clientBoundCodec, ControlifyPacketCodec<O> serverBoundCodec, Function<I, O> handshakeHandler) {
+    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
         ClientLoginNetworking.registerGlobalReceiver(handshakeId, (client, handler, buf, listenerAdder) -> {
             I decodedInput = clientBoundCodec.decode(buf);
             O decodedOutput = handshakeHandler.apply(decodedInput);

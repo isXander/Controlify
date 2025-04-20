@@ -28,29 +28,11 @@ public class CUtil {
     public static final ControlifyLogger LOGGER = ControlifyLogger.createMasterLogger(LoggerFactory.getLogger("Controlify"));
     
     public static ResourceLocation rl(String path) {
-        return rl("controlify", path);
-    }
-
-    public static ResourceLocation mcRl(String path) {
-        return rl("minecraft", path);
-    }
-
-    public static ResourceLocation rl(String namespace, String path) {
-        /*? if >1.20.6 {*/
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
-        /*?} else {*/
-        /*return new ResourceLocation(namespace, path);
-        *//*?}*/
+        return ResourceLocation.fromNamespaceAndPath("controlify", path);
     }
 
     public static BufferBuilder beginBuffer(VertexFormat.Mode mode, VertexFormat format) {
-        /*? if >1.20.6 {*/
         return Tesselator.getInstance().begin(mode, format);
-        /*?} else {*/
-        /*BufferBuilder builder = Tesselator.getInstance().getBuilder();
-        builder.begin(mode, format);
-        return builder;
-        *//*?}*/
     }
 
     public static final boolean IS_POJAV_LAUNCHER = System.getenv("POJAV_NATIVEDIR") != null;

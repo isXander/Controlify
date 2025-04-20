@@ -1,13 +1,8 @@
 {
-  "vcsVersion": "1.21.4-fabric",
+  "vcsVersion": "1.21.5-fabric",
   "builds": {
     "1.21.5": {
       "platforms": ["fabric", "neoforge"]
-    },
-    "25w14craftmine": {
-      "platforms": ["fabric"],
-      "semver": "1.21.6-alpha.25.14.craftmine",
-      "experimental": true
     },
     "1.21.4": {
       "platforms": ["fabric", "neoforge"]
@@ -17,15 +12,6 @@
     },
     "1.21.1": {
       "platforms": ["fabric", "neoforge"]
-    },
-    "1.20.6": {
-      "platforms": ["fabric", "neoforge"]
-    },
-    "1.20.4": {
-      "platforms": ["fabric", "neoforge"]
-    },
-    "1.20.1": {
-      "platforms": ["fabric"]
     }
   }
 }

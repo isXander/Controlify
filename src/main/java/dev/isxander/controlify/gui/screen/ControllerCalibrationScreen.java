@@ -96,11 +96,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        /*? if >=1.20.4 {*/
         renderBackground(graphics, mouseX, mouseY, delta);
-        /*?} else {*/
-        /*renderBackground(graphics);
-        *//*?}*/
 
         super.render(graphics, mouseX, mouseY, delta);
 

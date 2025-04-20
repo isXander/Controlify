@@ -5,11 +5,12 @@ import dev.isxander.controlify.platform.client.events.LifecycleEvent;
 import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
-import dev.isxander.controlify.platform.client.util.RenderLayer;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
@@ -50,7 +51,7 @@ public final class PlatformClientUtil {
         IMPL.registerPostScreenRender(event);
     }
 
-    public static void addHudLayer(ResourceLocation id, RenderLayer layer) {
+    public static void addHudLayer(ResourceLocation id, LayeredDraw.Layer layer) {
         IMPL.addHudLayer(id, layer);
     }
 
@@ -60,8 +61,8 @@ public final class PlatformClientUtil {
 
     public static <I, O> void setupClientsideHandshake(
             ResourceLocation handshakeId,
-            ControlifyPacketCodec<I> clientBoundCodec,
-            ControlifyPacketCodec<O> serverBoundCodec,
+            StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
+            StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
             Function<I, O> handshakeHandler
     ) {
         IMPL.setupClientsideHandshake(handshakeId, clientBoundCodec, serverBoundCodec, handshakeHandler);

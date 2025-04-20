@@ -7,8 +7,9 @@ import dev.isxander.controlify.platform.main.PlatformMainUtilImpl;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -81,7 +82,7 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, ControlifyPacketCodec<I> serverBoundCodec, ControlifyPacketCodec<O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
+    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
         // TODO
     }
 

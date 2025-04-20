@@ -1,7 +1,8 @@
 package dev.isxander.controlify.platform.network.neoforge;
 
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import dev.isxander.controlify.platform.network.S2CNetworkApi;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -19,7 +20,7 @@ public class S2CNetworkApiNeoforge implements S2CNetworkApi {
     }
 
     @Override
-    public <T> void registerPacket(ResourceLocation channel, ControlifyPacketCodec<T> handler) {
+    public <T> void registerPacket(ResourceLocation channel, StreamCodec<FriendlyByteBuf, T> handler) {
         // TODO
     }
 }

@@ -111,10 +111,6 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         }
 
         RenderType renderType = RenderType.gui();
-        //? if >=1.21 {
         renderType.draw(buffer.buildOrThrow());
-        //?} else {
-        /*renderType.end(buffer, VertexSorting.ORTHOGRAPHIC_Z);
-        *///?}
     }
 }

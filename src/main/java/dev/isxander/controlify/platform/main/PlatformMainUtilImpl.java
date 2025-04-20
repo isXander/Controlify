@@ -5,8 +5,9 @@ import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.minecraft.core.Registry;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.nio.file.Path;
@@ -34,8 +35,8 @@ public interface PlatformMainUtilImpl {
 
     <I, O> void setupServersideHandshake(
             ResourceLocation handshakeId,
-            ControlifyPacketCodec<I> serverBoundCodec,
-            ControlifyPacketCodec<O> clientBoundCodec,
+            StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
+            StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
             Supplier<O> packetCreator,
             HandshakeCompletionEvent<I> completionEvent
     );

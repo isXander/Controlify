@@ -61,7 +61,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).getSoundEngine();
         SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).getSoundBuffers();
 
-        ResourceLocation soundId = CUtil.rl(location.getNamespace(), "sounds/" + location.getPath() + ".ogg");
+        ResourceLocation soundId = location.withPrefix("sounds/").withSuffix(".ogg");
 
         getSoundData(soundId, bufferLibrary.getCompleteBuffer(soundId))
                 .thenAccept(playHapticConsumer)

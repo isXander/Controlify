@@ -23,8 +23,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 import java.util.Optional;
 
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.widgets.FlatButtonWidget;
-import /*$ sodium-package >>*/ net.caffeinemc.mods.sodium .client.gui.options.control.ControlElement;
+import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
+import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 
 @Mixin(value = SodiumVideoOptionsScreen.class, remap = false)
 public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
@@ -103,11 +103,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         var currentIndex = tabs.indexOf(selectedTab.get());
         var nextIndex = (currentIndex + 1) % tabs.size();
 
-        //? sodium: >=0.6 {
         tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
-        //?} else {
-        /*tabFrame.setTab(tabs.get(nextIndex));
-        *///?}
     }
 
     @Override
@@ -120,11 +116,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         var currentIndex = tabs.indexOf(selectedTab.get());
         var nextIndex = (currentIndex - 1 + tabs.size()) % tabs.size();
 
-        //? sodium: >=0.6 {
         tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
-        //?} else {
-        /*tabFrame.setTab(tabs.get(nextIndex));
-         *///?}
     }
 
     @Override
@@ -144,11 +136,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 
     @Unique
     private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
-        //? sodium: >=0.6 {
         return accessor.getSelectedTab();
-        //?} else {
-        /*return Optional.ofNullable(accessor.getSelectedTab());
-        *///?}
     }
 }
 //?}

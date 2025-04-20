@@ -8,33 +8,27 @@ import dev.isxander.controlify.platform.client.events.LifecycleEvent;
 import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
-import dev.isxander.controlify.platform.client.util.RenderLayer;
 import dev.isxander.controlify.platform.neoforge.VanillaKeyMappingHolder;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
-import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.repository.BuiltInPackSource;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.server.packs.repository.RepositorySource;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
-import net.neoforged.neoforgespi.language.IModInfo;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -45,26 +39,14 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 
     @Override
     public void registerClientTickStarted(TickEvent event) {
-        //? if >=1.20.6 {
         NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-        //?} else {
-        /^NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
-            if (e.phase != net.neoforged.neoforge.event.TickEvent.Phase.START)
-                return;
-        ^///?}
             event.onTick(Minecraft.getInstance());
         });
     }
 
     @Override
     public void registerClientTickEnded(TickEvent event) {
-        //? if >=1.20.6 {
         NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-        //?} else {
-        /^NeoForge.EVENT_BUS.<net.neoforged.neoforge.event.TickEvent.ClientTickEvent>addListener(e -> {
-            if (e.phase != net.neoforged.neoforge.event.TickEvent.Phase.END)
-                return;
-        ^///?}
             event.onTick(Minecraft.getInstance());
         });
     }
@@ -101,7 +83,6 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
         ResourceLocation packLocation = id.withPrefix("resourcepacks/");
 
         getModEventBus().<AddPackFindersEvent>addListener(e -> {
-            //? if >=1.20.6 {
             e.addPackFinders(
                     packLocation,
                     PackType.CLIENT_RESOURCES,
@@ -110,32 +91,13 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
                     false,
                     Pack.Position.TOP
             );
-            //?} else {
-            /^IModInfo modInfo = ModList.get().getModContainerById(packLocation.getNamespace()).orElseThrow().getModInfo();
-            Path resourcePath = modInfo.getOwningFile().getFile().findResource(packLocation.getPath());
-
-            Pack pack = Pack.readMetaAndCreate(
-                    packLocation.toString(),
-                    displayName,
-                    true,
-                    BuiltInPackSource.fromName((path) -> new PathPackResources(path, resourcePath, true)),
-                    PackType.CLIENT_RESOURCES,
-                    Pack.Position.BOTTOM,
-                    PackSource.BUILT_IN
-            );
-            e.addRepositorySource(consumer -> consumer.accept(pack));
-            ^///?}
         });
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, RenderLayer renderLayer) {
+    public void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer) {
         getModEventBus().addListener(
-                //? if >1.20.4 {
                 RegisterGuiLayersEvent.class,
-                //?} else {
-                /^RegisterGuiOverlaysEvent.class,
-                ^///?}
                 e -> e.registerAboveAll(id, renderLayer)
         );
     }
@@ -165,7 +127,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, ControlifyPacketCodec<I> clientBoundCodec, ControlifyPacketCodec<O> serverBoundCodec, Function<I, O> handshakeHandler) {
+    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
         // TODO
     }
 

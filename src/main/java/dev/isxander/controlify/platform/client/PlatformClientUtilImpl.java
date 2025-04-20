@@ -2,11 +2,12 @@ package dev.isxander.controlify.platform.client;
 
 import dev.isxander.controlify.platform.client.events.*;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
-import dev.isxander.controlify.platform.client.util.RenderLayer;
-import dev.isxander.controlify.platform.network.ControlifyPacketCodec;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
@@ -25,7 +26,7 @@ public interface PlatformClientUtilImpl {
 
     void registerBuiltinResourcePack(ResourceLocation id, Component displayName);
 
-    void addHudLayer(ResourceLocation id, RenderLayer renderLayer);
+    void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer);
 
     void registerPostScreenRender(ScreenRenderEvent event);
 
@@ -33,8 +34,8 @@ public interface PlatformClientUtilImpl {
 
     <I, O> void setupClientsideHandshake(
             ResourceLocation handshakeId,
-            ControlifyPacketCodec<I> clientBoundCodec,
-            ControlifyPacketCodec<O> serverBoundCodec,
+            StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
+            StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
             Function<I, O> handshakeHandler
     );
 

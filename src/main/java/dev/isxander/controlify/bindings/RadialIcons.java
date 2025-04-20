@@ -23,7 +23,7 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = CUtil.rl("empty");
-    public static final ResourceLocation FABRIC_ICON = CUtil.rl("fabric-resource-loader-v0", "icon.png");
+    public static final ResourceLocation FABRIC_ICON = ResourceLocation.fromNamespaceAndPath("fabric-resource-loader-v0", "icon.png");
 
     private static Map<ResourceLocation, RadialIcon> icons = null;
     private static Queue<Runnable> deferredRegistrations = new ArrayDeque<>();
@@ -46,20 +46,11 @@ public final class RadialIcons {
     }
 
     public static ResourceLocation getItem(Item item) {
-        return prefixLocation("item", BuiltInRegistries.ITEM.getKey(item));
+        return BuiltInRegistries.ITEM.getKey(item).withPrefix("item/");
     }
 
-    public static ResourceLocation getEffect(
-            /*? if >1.20.4 {*/
-            Holder<MobEffect> effectHolder
-            /*?} else {*/
-            /*MobEffect effect
-            *//*?}*/
-    ) {
-        /*? if >1.20.4 {*/
-        MobEffect effect = effectHolder.value();
-        /*?}*/
-        return prefixLocation("effect", BuiltInRegistries.MOB_EFFECT.getKey(effect));
+    public static ResourceLocation getEffect(Holder<MobEffect> effect) {
+        return BuiltInRegistries.MOB_EFFECT.getKey(effect.value()).withPrefix("effect/");
     }
 
     private static void addItems(Map<ResourceLocation, RadialIcon> map) {
@@ -67,7 +58,7 @@ public final class RadialIcons {
             ResourceKey<Item> key = entry.getKey();
             ItemStack stack = entry.getValue().getDefaultInstance();
 
-            map.put(prefixLocation("item", key.location()), (graphics, x, y, tickDelta) -> {
+            map.put(key.location().withPrefix("item/"), (graphics, x, y, tickDelta) -> {
                 graphics.renderItem(stack, x, y);
             });
         });
@@ -79,16 +70,12 @@ public final class RadialIcons {
         BuiltInRegistries.MOB_EFFECT.entrySet().forEach(entry -> {
             ResourceKey<MobEffect> key = entry.getKey();
 
-            /*? if >1.20.4 {*/
             Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(entry.getValue());
-            /*?} else {*/
-            /*MobEffect effect = entry.getValue();
-            *//*?}*/
 
             TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
 
             if (sprite != null) {
-                map.put(prefixLocation("effect", key.location()), (graphics, x, y, tickDelta) -> {
+                map.put(key.location().withPrefix("effect/"), (graphics, x, y, tickDelta) -> {
                     if (sprite.atlasLocation() != null) { // weird ass needed for some mods
                         graphics.pose().pushPose();
                         graphics.pose().translate(x, y, 0);
@@ -101,10 +88,6 @@ public final class RadialIcons {
                 });
             }
         });
-    }
-
-    private static ResourceLocation prefixLocation(String prefix, ResourceLocation location) {
-        return CUtil.rl(location.getNamespace(), prefix + "/" + location.getPath());
     }
 
     private static Map<ResourceLocation, RadialIcon> registerIcons() {

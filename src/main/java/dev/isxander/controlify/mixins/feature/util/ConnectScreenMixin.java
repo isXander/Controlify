@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.TransferState;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,8 +18,7 @@ public class ConnectScreenMixin {
     private void onConnect(
             Minecraft client,
             ServerAddress address, @Nullable ServerData serverInfo,
-            //? if >1.20.4
-            @Nullable net.minecraft.client.multiplayer.TransferState transferState,
+            @Nullable TransferState transferState,
             CallbackInfo ci
     ) {
         Controlify.instance().notifyNewServer(serverInfo);
