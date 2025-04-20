@@ -1,6 +1,5 @@
 package dev.isxander.controlify.utils;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,7 +26,7 @@ public final class ClientUtils {
     }
 
     public static void drawSprite(GuiGraphics graphics, ResourceLocation location, int x, int y, int width, int height) {
-        Blit.blitSprite(graphics, location, x, y, width, height);
+        Blit.sprite(graphics, location, x, y, width, height);
     }
 
     public static void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
@@ -35,9 +34,9 @@ public final class ClientUtils {
 
         int x = centerX - 182 / 2;
 
-        Blit.blitSprite(graphics, GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
+        Blit.sprite(graphics, GREEN_BACK_BAR, 182, 5, 0, 0, x, y, 182, 5);
         if (width > 0) {
-            Blit.blitSprite(graphics, GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
+            Blit.sprite(graphics, GREEN_FRONT_BAR, 182, 5, 0, 0, x, y, width, 5);
         }
     }
 }

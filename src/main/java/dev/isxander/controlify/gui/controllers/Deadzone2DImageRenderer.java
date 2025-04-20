@@ -1,18 +1,14 @@
 package dev.isxander.controlify.gui.controllers;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.render.ControlifyVertexConsumer;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -83,7 +79,6 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         // our GUI rendertype dictates we must use Quads, we can't use TRIANGLE_STRIP
         BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        ControlifyVertexConsumer vertexConsumer = ControlifyVertexConsumer.of(buffer);
         Matrix4f position = poseStack.last().pose();
 
         float innerRadius = radius - thickness;
@@ -104,10 +99,10 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
             float xo2 = originX + Mth.sin(nextRad) * radius;
             float yo2 = originY + Mth.cos(nextRad) * radius;
 
-            vertexConsumer.vertex(position, xi1, yi1, z).color(colour).endVertex();
-            vertexConsumer.vertex(position, xo1, yo1, z).color(colour).endVertex();
-            vertexConsumer.vertex(position, xo2, yo2, z).color(colour).endVertex();
-            vertexConsumer.vertex(position, xi2, yi2, z).color(colour).endVertex();
+            buffer.addVertex(position, xi1, yi1, z).setColor(colour);
+            buffer.addVertex(position, xo1, yo1, z).setColor(colour);
+            buffer.addVertex(position, xo2, yo2, z).setColor(colour);
+            buffer.addVertex(position, xi2, yi2, z).setColor(colour);
         }
 
         RenderType renderType = RenderType.gui();

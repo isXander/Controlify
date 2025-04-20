@@ -81,7 +81,7 @@ public final class RadialIcons {
                         graphics.pose().translate(x, y, 0);
                         graphics.pose().scale(0.88f, 0.88f, 1f);
 
-                        Blit.blitSprite(graphics, sprite, 0, 0, 18, 18, -1);
+                        Blit.sprite(graphics, sprite, 0, 0, 18, 18, -1);
 
                         graphics.pose().popPose();
                     }
@@ -98,7 +98,7 @@ public final class RadialIcons {
             graphics.pose().pushPose();
             graphics.pose().translate(x, y, 0);
             graphics.pose().scale(0.5f, 0.5f, 1f);
-            Blit.blitTex(graphics, FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
+            Blit.tex(graphics, FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
             graphics.pose().popPose();
         });
         addItems(map);

@@ -246,7 +246,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         float colour = currentStage != null && currentStage.isSatisfied() ? 0.46f : 1f;
 
         if (currentStage != null && currentStage.background() != null) {
-            Blit.blitTex(
+            Blit.tex(
                     guiGraphics,
                     currentStage.background(),
                     0, 0,
@@ -259,7 +259,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
         if (currentStage == null || !currentStage.isSatisfied()) {
             ResourceLocation texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
-            Blit.blitTex(
+            Blit.tex(
                     guiGraphics,
                     texture,
                     0, 0,

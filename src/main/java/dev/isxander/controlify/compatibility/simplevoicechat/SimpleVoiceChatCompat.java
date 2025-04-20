@@ -9,7 +9,6 @@ import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -106,7 +105,7 @@ public class SimpleVoiceChatCompat {
 
     private static ResourceLocation registerIcon16x(ResourceLocation location) {
         ControlifyBindApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
-                Blit.blitTex(graphics, location, x, y, 0f, 0f, 16, 16, 16, 16)));
+                Blit.tex(graphics, location, x, y, 0f, 0f, 16, 16, 16, 16)));
         return location;
     }
 }

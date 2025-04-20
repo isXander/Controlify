@@ -27,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -120,7 +119,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         }
 
         protected void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            Blit.blitSprite(graphics, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+            Blit.sprite(graphics, SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
         }
 
         protected void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {

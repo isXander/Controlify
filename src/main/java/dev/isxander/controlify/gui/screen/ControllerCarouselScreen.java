@@ -1,7 +1,6 @@
 package dev.isxander.controlify.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
@@ -14,7 +13,6 @@ import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.ColorUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
@@ -38,7 +36,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -168,7 +165,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.render(graphics, mouseX, mouseY, delta);
 
-        Blit.blitTex(
+        Blit.tex(
                 graphics,
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
                 0, footerY,
@@ -186,7 +183,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
         super.renderBackground(graphics, i, j, f);
 
-        Blit.blitTex(
+        Blit.tex(
                 graphics,
                 minecraft.level == null ? AbstractSelectionListAccessor.getMenuListBackground() : AbstractSelectionListAccessor.getInWorldMenuListBackground(),
                 0, 0,

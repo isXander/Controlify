@@ -271,7 +271,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             graphics.pose().pushPose();
             graphics.pose().scale(2, 2, 1);
 
-            Blit.blitTex(
+            Blit.tex(
                     graphics,
                     TEXTURE,
                     0, 0,

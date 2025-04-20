@@ -1,7 +1,5 @@
 package dev.isxander.controlify.utils.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,7 +19,7 @@ public final class Blit {
         *///?}
     }
 
-    public static void blitTex(
+    public static void tex(
             GuiGraphics graphics,
             ResourceLocation texture,
             int x, int y,
@@ -46,7 +44,7 @@ public final class Blit {
         /*RenderSystem.disableBlend();*/
     }
 
-    public static void blitTex(
+    public static void tex(
             GuiGraphics graphics,
             ResourceLocation atlasLocation,
             int x, int y,
@@ -71,7 +69,7 @@ public final class Blit {
         /*RenderSystem.disableBlend();*/
     }
 
-    public static void blitTex(
+    public static void tex(
             GuiGraphics graphics,
             ResourceLocation texture,
             int x, int y,
@@ -106,7 +104,7 @@ public final class Blit {
         *///?}
     }
 
-    public static void blitSprite(
+    public static void sprite(
             GuiGraphics graphics,
             ResourceLocation sprite,
             int x, int y,
@@ -121,7 +119,7 @@ public final class Blit {
         );
     }
 
-    public static void blitSprite(
+    public static void sprite(
             GuiGraphics graphics,
             ResourceLocation sprite,
             int textureWidth, int textureHeight,
@@ -140,7 +138,7 @@ public final class Blit {
         );
     }
 
-    public static void blitSprite(
+    public static void sprite(
             GuiGraphics graphics,
             TextureAtlasSprite sprite,
             int x, int y,

@@ -1,7 +1,5 @@
 package dev.isxander.controlify.virtualmouse;
 
-import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
@@ -366,7 +364,7 @@ public class VirtualMouseHandler {
         graphics.pose().translate(scaledX, scaledY, 1000f);
         graphics.pose().scale(0.5f, 0.5f, 0.5f);
 
-        Blit.blitTex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
+        Blit.tex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
 
         graphics.pose().popPose();
     }
