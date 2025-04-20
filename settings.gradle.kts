@@ -11,13 +11,24 @@ pluginManagement {
         maven("https://maven.kikugie.dev/snapshots")
         maven("https://maven.isxander.dev/releases")
     }
-
-    includeBuild("build-logic")
 }
 
 plugins {
+    id("dev.kikugie.stonecutter") version "0.6-beta.2"
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
-    id("dev.isxander.stonecutter-configurator")
+}
+
+stonecutter {
+    val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
+
+    if (ciSingleBuild != null) {
+        val split = ciSingleBuild.split(":")
+        create(rootProject) {
+            vers(split[0], split[1])
+        }
+    } else {
+        create(rootProject, file("versions/versions.json"))
+    }
 }
 
 rootProject.name = "Controlify"
