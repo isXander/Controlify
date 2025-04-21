@@ -51,6 +51,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
+      - name: Set active version
+        run: printf "${{ matrix.target }}" > ./versions/current
       - name: Build ${{ matrix.target }}
         run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
         env:
