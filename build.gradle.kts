@@ -1,7 +1,6 @@
 import dev.isxander.controlify.*
 
 plugins {
-    id("dev.kikugie.stonecutter")
     id("dev.isxander.controlify.project")
 
     id("me.modmuss50.mod-publish-plugin")
