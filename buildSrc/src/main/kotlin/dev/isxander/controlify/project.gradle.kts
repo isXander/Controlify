@@ -21,7 +21,7 @@ modstitch.apply {
             propMap(property, ifNull = {""}) { block(it) }
         }
 
-        modVersion = "$modVersion+${stonecutter.current.project}"
+        modVersion = "${project.modVersion}+${stonecutter.current.project}"
         modGroup = "dev.isxander"
         modLicense = "LGPL-3.0-or-later"
         modAuthor = "isXander"
