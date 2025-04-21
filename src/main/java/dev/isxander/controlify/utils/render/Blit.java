@@ -1,5 +1,7 @@
 package dev.isxander.controlify.utils.render;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
