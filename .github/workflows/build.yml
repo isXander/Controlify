@@ -53,16 +53,20 @@ jobs:
           cache-read-only: false
       - name: Overwrite current version
         run: printf "${{ matrix.target }}" | cut -d':' -f1 > ./versions/current
-      - name: Refresh stonecutter comments
-        run: ./gradlew "Refresh active project" --stacktrace
       - name: Build ${{ matrix.target }}
-        run: ./gradlew buildAndCollectActive --stacktrace
+        run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
+
+      - name: Sanitize artifact name
+        run: |
+          raw="${{ matrix.target }}"
+          clean="${raw%%:*}"
+          echo "ARTIFACT_NAME=$clean" >> $GITHUB_ENV
       - uses: actions/upload-artifact@v4
         with:
           path: build/finalJars/*.jar
-          name: ${{ replace(split(matrix.target, ':')[0], '/', '-') }}
+          name: ${{ env.ARTIFACT_NAME }}
 
 #  run:
 #    needs: build
