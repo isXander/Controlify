@@ -1,19 +1,16 @@
 package dev.isxander.controlify
 
-import dev.isxander.controlify.stonecutter
 import dev.isxander.modstitch.base.extensions.ModstitchExtension
-import dev.kikugie.stonecutter.build.StonecutterBuild
+import dev.kikugie.stonecutter.build.StonecutterBuildExtension
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
-import kotlin.text.toBoolean
 
 internal val Project.modstitch: ModstitchExtension
     get() = extensions.getByType<ModstitchExtension>()
 
-internal val Project.stonecutter: StonecutterBuild
-    get() = extensions.getByType<StonecutterBuild>()
+internal val Project.stonecutter: StonecutterBuildExtension
+    get() = extensions.getByType<StonecutterBuildExtension>()
 
 val Project.branchProj: Project
     get() = stonecutter.node.sibling("")!!.project
