@@ -52,7 +52,7 @@ jobs:
         with:
           cache-read-only: false
       - name: Set active version
-        run: printf "${{ matrix.target }}" > ./versions/current
+        run: printf "${{ matrix.target }}" | cut -d':' -f1 > ./versions/current
       - name: Build ${{ matrix.target }}
         run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
         env:
