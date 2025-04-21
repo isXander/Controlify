@@ -11,12 +11,7 @@ plugins {
     id("dev.isxander.modstitch.base") apply false
 }
 
-val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
-if (ciSingleBuild != null) {
-    stonecutter active ciSingleBuild.split(":")[0]
-} else {
-    stonecutter active file("versions/current")
-}
+stonecutter active file("versions/current")
 
 stonecutter.tree.nodes.forEach { it.project.plugins.apply("dev.kikugie.stonecutter") }
 
