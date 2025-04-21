@@ -140,3 +140,14 @@ publishing {
         }
     }
 }
+
+// fix stonecutterGenerate task dependencies
+tasks.named<ProcessResources>("generateModMetadata") {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    dependsOn("stonecutterGenerate")
+}
+modstitch.moddevgradle {
+    tasks.named("createMinecraftArtifacts") {
+        dependsOn("stonecutterGenerate")
+    }
+}

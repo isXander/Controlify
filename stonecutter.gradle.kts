@@ -18,6 +18,8 @@ if (ciSingleBuild != null) {
     stonecutter active file("versions/current")
 }
 
+stonecutter.tree.nodes.forEach { it.project.plugins.apply("dev.kikugie.stonecutter") }
+
 val releaseMod by tasks.registering {
     group = "controlify"
     dependsOn("buildAndCollect")
