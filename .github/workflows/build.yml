@@ -51,10 +51,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
-      - name: Set active version
+      - name: Overwrite current version
         run: printf "${{ matrix.target }}" | cut -d':' -f1 > ./versions/current
+      - name: Refresh stonecutter comments
+        run: ./gradlew "Refresh active project" --stacktrace
       - name: Build ${{ matrix.target }}
-        run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
+        run: ./gradlew buildAndCollectActive --stacktrace
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
       - uses: actions/upload-artifact@v4
