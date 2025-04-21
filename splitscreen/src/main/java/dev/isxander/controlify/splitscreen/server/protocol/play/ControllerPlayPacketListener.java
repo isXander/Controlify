@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen.server.protocol.play;
 
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundHelloPacket;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundKeepAlivePacket;
@@ -10,8 +11,11 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.protocol.game.ServerPacketListener;
+import org.slf4j.Logger;
 
 public class ControllerPlayPacketListener implements ControllerboundCommonPacketListener, ServerPacketListener {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final SplitscreenController controller;
     private SplitscreenPawn pawnInstance;
     private final Connection connection;

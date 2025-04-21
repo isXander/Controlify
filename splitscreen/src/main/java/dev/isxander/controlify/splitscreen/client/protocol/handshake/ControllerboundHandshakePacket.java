@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.PacketType;
 public record ControllerboundHandshakePacket(int protocolVersion) implements Packet<ControllerHandshakePacketListener> {
     public static final StreamCodec<ByteBuf, ControllerboundHandshakePacket> CODEC =
             ByteBufCodecs.INT.map(ControllerboundHandshakePacket::new, ControllerboundHandshakePacket::protocolVersion);
-    public static final PacketType<ControllerboundHandshakePacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND, CUtil.rl("handshake"));
+    public static final PacketType<ControllerboundHandshakePacket> TYPE = new PacketType<>(PacketFlow.SERVERBOUND, CUtil.rl("handshake"));
 
     @Override
     public void handle(ControllerHandshakePacketListener handler) {

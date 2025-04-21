@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen.client.protocol;
 
 import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
 import dev.isxander.controlify.splitscreen.protocol.ConnectionUtils;
 import dev.isxander.controlify.splitscreen.client.protocol.handshake.ControllerboundHandshakePacket;
@@ -25,11 +26,14 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
 
 import java.net.InetAddress;
 import java.util.function.Supplier;
 
 public class PawnConnectionListener {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final Supplier<EpollEventLoopGroup> NETWORK_EPOLL_WORKER_GROUP = Suppliers.memoize(
             () -> new EpollEventLoopGroup(2, new ThreadFactoryBuilder().setNameFormat("Controlify Netty Epoll Client IO #%d").setDaemon(true).build())
     );
@@ -42,7 +46,7 @@ public class PawnConnectionListener {
     public PawnConnectionListener(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
         this.controllerConnection = switch (connectionMethod) {
             case SocketConnectionMethod.TCP(int port) -> connectToTcp(port, minecraft);
-            case SocketConnectionMethod.Unix(String socketPath) -> connectToSocket(socketPath, minecraft);
+            case SocketConnectionMethod.Unix(String socketPath) -> connectToUnixSocket(socketPath, minecraft);
         };
     }
 
@@ -50,13 +54,17 @@ public class PawnConnectionListener {
         return controllerConnection;
     }
 
-    private Connection connectToSocket(String socketPath, Minecraft minecraft) {
+    private Connection connectToUnixSocket(String socketPath, Minecraft minecraft) {
+        LOGGER.info("Connecting to controller unix socket at {}", socketPath);
+
         return connect(minecraft, new Bootstrap()
                 .channel(Epoll.isAvailable() ? EpollDomainSocketChannel.class : NioServerDomainSocketChannel.class)
                 .remoteAddress(new DomainSocketAddress(socketPath)));
     }
 
     private Connection connectToTcp(int port, Minecraft minecraft) {
+        LOGGER.info("Connecting to controller tcp port {}", port);
+
         return connect(minecraft, new Bootstrap()
                 .channel(Epoll.isAvailable() ? EpollSocketChannel.class : NioSocketChannel.class)
                 .remoteAddress(InetAddress.getLoopbackAddress(), port));
@@ -69,10 +77,20 @@ public class PawnConnectionListener {
 
         bootstrap
                 .group(Epoll.isAvailable() ? NETWORK_EPOLL_WORKER_GROUP.get() : NETWORK_WORKER_GROUP.get())
-                .handler(new ChannelInitializer<DomainSocketChannel>() {
+                .handler(new ChannelInitializer<>() {
                     @Override
-                    protected void initChannel(DomainSocketChannel ch) {
-                        PawnConnectionListener.this.initChannel(ch, connection);
+                    protected void initChannel(Channel ch) {
+                        try {
+                            ch.config().setOption(ChannelOption.TCP_NODELAY, true);
+                        } catch (ChannelException ignored) {
+                        }
+
+                        ChannelPipeline pipeline = ch.pipeline()
+                                .addLast("timeout", new ReadTimeoutHandler(5));
+                        ConnectionUtils.configureSerialization(pipeline, PacketFlow.CLIENTBOUND, false, HandshakeProtocols.CONTROLLERBOUND);
+                        connection.configurePacketHandler(pipeline);
+
+                        LOGGER.info("Established connection with controller");
                     }
                 }).connect().syncUninterruptibly();
 
@@ -82,20 +100,9 @@ public class PawnConnectionListener {
             c.setupOutboundProtocol(PlayProtocols.CONTROLLERBOUND);
         });
         // will run after above since it is flushed above
-        connection.send(new ControllerboundHelloPacket(Minecraft.getInstance().getWindow().getWindow()));
+        // TODO: too early to access window handle, it hasn't been created yet, have to negotiate window later
+        connection.send(new ControllerboundHelloPacket(0L));
 
         return connection;
-    }
-
-    private void initChannel(Channel ch, Connection connection) {
-        try {
-            ch.config().setOption(ChannelOption.TCP_NODELAY, true);
-        } catch (ChannelException ignored) {
-        }
-
-        ChannelPipeline pipeline = ch.pipeline()
-                .addLast("timeout", new ReadTimeoutHandler(5));
-        ConnectionUtils.configureSerialization(pipeline, PacketFlow.CLIENTBOUND, false, HandshakeProtocols.CONTROLLERBOUND);
-        connection.configurePacketHandler(pipeline);
     }
 }

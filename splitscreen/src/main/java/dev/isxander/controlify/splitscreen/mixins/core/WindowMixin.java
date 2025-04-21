@@ -42,7 +42,7 @@ public class WindowMixin {
     private void preventIfSplitscreen(String message, CallbackInfo ci) {
         if (SplitscreenBootstrapper.isSplitscreen()) {
             if (!hasDoneInitialSetup) {
-                throw new IllegalStateException("Window did not get enough time to do initial setup before Splitscreen was setup.");
+                return;
             }
 
             LOGGER.info(message);

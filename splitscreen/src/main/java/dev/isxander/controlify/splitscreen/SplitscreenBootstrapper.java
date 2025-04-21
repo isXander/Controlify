@@ -1,15 +1,19 @@
 package dev.isxander.controlify.splitscreen;
 
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.client.protocol.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.server.SplitscreenController;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
 import dev.isxander.controlify.utils.Platform;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Optional;
 
 public class SplitscreenBootstrapper {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static @Nullable SplitscreenController controller;
     private static @Nullable PawnConnectionListener pawnConnectionListener;
 
@@ -27,9 +31,11 @@ public class SplitscreenBootstrapper {
                 .orElseThrow(() -> new RuntimeException("No connection method available"));
 
         // Attempt to be a pawn (client) first...
-        if (SocketUtil.isSocketOpen(connectionMethod)) {
+        if (SocketUtil.isSocketListening(connectionMethod)) {
+            LOGGER.info("Socket already open, attempting to become a pawn");
             bootstrapAsPawn(minecraft, connectionMethod);
         } else {
+            LOGGER.info("Socket not open, attempting to become a controller");
             bootstrapAsController(minecraft, connectionMethod);
         }
     }

@@ -79,9 +79,9 @@ public class ControllerConnectionListener {
         synchronized (this.channels) {
             boostrap
                     .group(Epoll.isAvailable() ? SERVER_EPOLL_EVENT_GROUP.get() : SERVER_EVENT_GROUP.get())
-                    .childHandler(new ChannelInitializer<ServerSocketChannel>() {
+                    .childHandler(new ChannelInitializer<>() {
                         @Override
-                        protected void initChannel(ServerSocketChannel ch) {
+                        protected void initChannel(Channel ch) {
                             try {
                                 ch.config().setOption(ChannelOption.TCP_NODELAY, true);
                             } catch (ChannelException ignored) {}
@@ -136,6 +136,8 @@ public class ControllerConnectionListener {
                         connection.setReadOnly();
                     }
                 } else {
+                    LOGGER.info("Disconnected {}", connection.getLoggableAddress(false));
+
                     it.remove();
                     connection.handleDisconnection();
                 }

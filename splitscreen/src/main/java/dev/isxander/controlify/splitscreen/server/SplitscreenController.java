@@ -1,17 +1,21 @@
 package dev.isxander.controlify.splitscreen.server;
 
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.client.ClientSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.server.protocol.ControllerConnectionListener;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class SplitscreenController {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private final List<SplitscreenPawn> pawns = new ArrayList<>();
     private final ControllerConnectionListener connectionListener;
 
@@ -25,6 +29,8 @@ public class SplitscreenController {
     }
 
     public void addPawn(SplitscreenPawn pawn) {
+        LOGGER.info("Adding pawn #{}", this.pawns.size());
+
         this.pawns.add(pawn);
     }
 

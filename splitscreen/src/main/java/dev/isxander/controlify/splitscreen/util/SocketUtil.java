@@ -1,17 +1,21 @@
 package dev.isxander.controlify.splitscreen.util;
 
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
+import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.StandardProtocolFamily;
-import java.net.UnixDomainSocketAddress;
+import java.net.*;
 import java.nio.channels.AlreadyBoundException;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 public final class SocketUtil {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final boolean IS_AF_UNIX_SUPPORTED;
     static {
         boolean isAfUnixSupported;
@@ -29,7 +33,7 @@ public final class SocketUtil {
         IS_AF_UNIX_SUPPORTED = isAfUnixSupported;
     }
 
-    public static boolean isSocketOpen(SocketConnectionMethod method) {
+    public static boolean isSocketListening(SocketConnectionMethod method) {
         switch (method) {
             case SocketConnectionMethod.TCP(int port) -> {
                 try (ServerSocketChannel server = ServerSocketChannel.open()) {
@@ -38,8 +42,7 @@ public final class SocketUtil {
                 } catch (AlreadyBoundException e) {
                     return true;  // Socket is open
                 } catch (IOException io) {
-                    // Handle other IO exceptions (e.g., permission issues)
-                    return true;  // Socket is open
+                    throw new RuntimeException(io);
                 }
             }
             case SocketConnectionMethod.Unix(String path) -> {
@@ -50,18 +53,32 @@ public final class SocketUtil {
                 var socketPath = Path.of(path);
                 var address = UnixDomainSocketAddress.of(path);
 
-                // If a stale socket file is lying around (common after crashes), remove it first;
-                // otherwise bind() will throw “Address already in use”.
-                try { Files.deleteIfExists(socketPath); } catch (IOException ignored) {}
-
-                try (ServerSocketChannel server = ServerSocketChannel.open(StandardProtocolFamily.UNIX)) {
-                    server.bind(address);
-                    return false; // Socket is not open
-                } catch (AlreadyBoundException e) {
-                    return true;  // Socket is open
-                } catch (IOException io) {
-                    // Handle other IO exceptions (e.g., permission issues)
-                    return true;  // Socket is open
+                // Utilise try-with-resources to ensure the socket is closed automatically
+                try (SocketChannel socket = SocketChannel.open(StandardProtocolFamily.UNIX)) {
+                    LOGGER.info("Attempting to connect to {}", socketPath);
+                    socket.connect(address);
+                    // If connection succeeds, something is listening.
+                    LOGGER.info("Connection successful to {}. Socket is active.", socketPath);
+                    // The try-with-resources will close the socket upon exiting this block.
+                    return true;
+                } catch (ConnectException e) {
+                    // Connection refused means the file might exist,
+                    // but nothing is actively listening/accepting connections.
+                    LOGGER.info("Connection refused for {}: {}", socketPath, e.getMessage());
+                    try {
+                        Files.deleteIfExists(socketPath);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                    return false;
+                } catch (NoSuchFileException e) {
+                    // The socket file doesn't even exist.
+                    LOGGER.info("Socket file not found: {}: {}", socketPath, e.getMessage());
+                    return false;
+                } catch (IOException e) {
+                    // Handle other potential I/O errors (e.g., permission denied)
+                    LOGGER.info("IOException while checking socket {}", socketPath, e);
+                    return false;
                 }
             }
         }
