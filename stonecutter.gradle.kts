@@ -13,7 +13,7 @@ plugins {
 
 val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
 if (ciSingleBuild != null) {
-    stonecutter active ciSingleBuild
+    stonecutter active ciSingleBuild.split(":")[0]
 } else {
     stonecutter active file("versions/current")
 }
