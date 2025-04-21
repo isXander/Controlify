@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen.server;
 
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.server.protocol.play.PawnboundJoinServerPacket;
+import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import net.minecraft.network.Connection;
 
 public class ServerSplitscreenPawn implements SplitscreenPawn {
@@ -14,5 +15,10 @@ public class ServerSplitscreenPawn implements SplitscreenPawn {
     @Override
     public void joinServer(String serverAddress, int serverPort) {
         this.connection.send(new PawnboundJoinServerPacket(serverAddress, serverPort));
+    }
+
+    @Override
+    public void configureWindow(long parentWindowHandle, SplitscreenPosition position) {
+
     }
 }

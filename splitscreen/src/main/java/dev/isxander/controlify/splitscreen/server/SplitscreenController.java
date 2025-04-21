@@ -16,7 +16,7 @@ public class SplitscreenController {
     private final ControllerConnectionListener connectionListener;
 
     public SplitscreenController(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
-        this.connectionListener = new ControllerConnectionListener(connectionMethod);
+        this.connectionListener = new ControllerConnectionListener(connectionMethod, this);
         this.pawns.add(new ClientSplitscreenPawn(minecraft)); // control ourselves as a pawn
     }
 

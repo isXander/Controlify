@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
 import dev.isxander.controlify.splitscreen.protocol.ConnectionUtils;
+import dev.isxander.controlify.splitscreen.server.SplitscreenController;
 import dev.isxander.controlify.splitscreen.server.protocol.common.PawnboundDisconnectPacket;
 import dev.isxander.controlify.splitscreen.client.protocol.handshake.ControllerHandshakePacketListener;
 import dev.isxander.controlify.splitscreen.protocol.HandshakeProtocols;
@@ -50,31 +51,31 @@ public class ControllerConnectionListener {
 
     private volatile boolean running;
 
-    public ControllerConnectionListener(SocketConnectionMethod connectionMethod) {
+    public ControllerConnectionListener(SocketConnectionMethod connectionMethod, SplitscreenController controller) {
         this.running = true;
         switch (connectionMethod) {
-            case SocketConnectionMethod.TCP(int port) -> startTcpListener(port);
-            case SocketConnectionMethod.Unix(String socketPath) -> startUnixListener(socketPath);
+            case SocketConnectionMethod.TCP(int port) -> startTcpListener(port, controller);
+            case SocketConnectionMethod.Unix(String socketPath) -> startUnixListener(socketPath, controller);
         }
     }
 
-    private void startUnixListener(String socketPath) {
+    private void startUnixListener(String socketPath, SplitscreenController controller) {
         LOGGER.info("Starting unix socket listener on {}", socketPath);
 
-        startListener(new ServerBootstrap()
+        startListener(controller, new ServerBootstrap()
                 .channel(Epoll.isAvailable() ? EpollServerDomainSocketChannel.class : NioServerDomainSocketChannel.class)
                 .localAddress(new DomainSocketAddress(socketPath)));
     }
 
-    private void startTcpListener(int port) {
+    private void startTcpListener(int port, SplitscreenController controller) {
         LOGGER.info("Starting tcp listener on port {}", port);
 
-        startListener(new ServerBootstrap()
+        startListener(controller, new ServerBootstrap()
                 .channel(Epoll.isAvailable() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                 .localAddress(InetAddress.getLoopbackAddress(), port));
     }
 
-    private void startListener(ServerBootstrap boostrap) {
+    private void startListener(SplitscreenController controller, ServerBootstrap boostrap) {
         synchronized (this.channels) {
             boostrap
                     .group(Epoll.isAvailable() ? SERVER_EPOLL_EVENT_GROUP.get() : SERVER_EVENT_GROUP.get())
@@ -92,7 +93,7 @@ public class ControllerConnectionListener {
                             Connection connection = new Connection(PacketFlow.SERVERBOUND);
                             ControllerConnectionListener.this.connections.add(connection);
                             connection.configurePacketHandler(pipeline);
-                            connection.setListenerForServerboundHandshake(new ControllerHandshakePacketListener(master, connection));
+                            connection.setListenerForServerboundHandshake(new ControllerHandshakePacketListener(controller, connection));
                             LOGGER.info("Established connection with {}", ch.remoteAddress());
                         }
                     });
