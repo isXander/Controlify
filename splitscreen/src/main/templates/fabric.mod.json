@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_author}"
+  ],
+  "contact": {
+    "homepage": "https://isxander.dev",
+    "issues": "https://github.com/${github}/issues",
+    "sources": "https://github.com/${github}"
+  },
+  "license": "LGPL-3.0-or-later",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.isxander.controlify.splitscreen.SplitscreenEntrypoint"
+    ]
+  },
+  "icon": "icon.png",
+  "depends": {
+    "controlify": "${mod_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "parent": "controlify"
+    }
+  }
+}

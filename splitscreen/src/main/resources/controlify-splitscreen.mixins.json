@@ -1,0 +1,13 @@
+{
+  "package": "dev.isxander.controlify.splitscreen.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "core.WindowAccessor",
+    "core.WindowMixin"
+  ]
+}

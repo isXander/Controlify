@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+#issueTrackerURL = ""
+license = "${mod_license}"
+
+[[mods]]
+modId = "${mod_id}"
+version = "${mod_version}"
+displayName = "${mod_name}"
+authors = "${mod_author}"
+description = '''
+${mod_description}
+'''
+logoFile = "icon.png"
+
+[["dependencies.${mod_id}"]]
+modId = "minecraft"
+mandatory = true
+versionRange = "${mc}"
+ordering = "NONE"
+side = "BOTH"
+
+[["dependencies.${mod_id}"]]
+modId = "controlify"
+versionRange = "${mod_version}"
+mandatory = true
+ordering = "NONE"
+side = "BOTH"
