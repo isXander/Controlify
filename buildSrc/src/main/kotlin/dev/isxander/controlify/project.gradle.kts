@@ -97,21 +97,21 @@ if (modstitch.isLoom) {
 Setup stonecutter for the project.
  */
 stonecutter.apply {
-    consts(
-        "fabric" to modstitch.isLoom,
-        "neoforge" to modstitch.isModDevGradleRegular,
-        "immediately-fast" to isPropDefined("deps.immediatelyFast"),
-        "iris" to isPropDefined("deps.iris"),
-        "mod-menu" to isPropDefined("deps.modMenu"),
-        "sodium" to isPropDefined("deps.sodium"),
-        "simple-voice-chat" to isPropDefined("deps.simpleVoiceChat"),
-        "reeses-sodium-options" to isPropDefined("deps.reesesSodiumOptions"),
-        "fancy-menu" to isPropDefined("deps.fancyMenu"),
-    )
+    constants {
+        put("fabric", modstitch.isLoom)
+        put("neoforge", modstitch.isModDevGradleRegular)
+        put("immediately-fast", isPropDefined("deps.immediatelyFast"))
+        put("iris", isPropDefined("deps.iris"))
+        put("mod-menu", isPropDefined("deps.modMenu"))
+        put("sodium", isPropDefined("deps.sodium"))
+        put("simple-voice-chat", isPropDefined("deps.simpleVoiceChat"))
+        put("reeses-sodium-options", isPropDefined("deps.reesesSodiumOptions"))
+        put("fancy-menu", isPropDefined("deps.fancyMenu"))
+    }
 
-    dependencies(
-        "fapi" to (findProperty("deps.fabricApi")?.toString() ?: "0.0.0"),
-    )
+    dependencies {
+        put("fapi", prop("deps.fabricApi") ?: "0.0.0")
+    }
 }
 
 tasks.named<ProcessResources>("generateModMetadata") {
