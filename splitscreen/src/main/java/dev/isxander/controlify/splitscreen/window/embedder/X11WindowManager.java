@@ -7,9 +7,11 @@ import com.sun.jna.Pointer;
 
 import static org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window;
 
-public class X11WindowEmbedder implements WindowEmbedder {
-    private interface X11Ext extends Library {
-        X11Ext INSTANCE = Native.load("X11", X11Ext.class);
+public class X11WindowManager implements WindowManager {
+    public static final X11WindowManager INSTANCE = new X11WindowManager();
+
+    private interface X11 extends Library {
+        X11 INSTANCE = Native.load("X11", X11.class);
 
         // Display *XOpenDisplay(char *);
         Pointer XOpenDisplay(String display_name);
@@ -25,24 +27,26 @@ public class X11WindowEmbedder implements WindowEmbedder {
 
     private final Pointer display;
 
-    public X11WindowEmbedder() {
-        display = X11Ext.INSTANCE.XOpenDisplay(null);
+    public X11WindowManager() {
+        display = X11.INSTANCE.XOpenDisplay(null);
         if (display == null) {
             throw new RuntimeException("Failed to open X11 display");
         }
     }
 
     @Override
-    public void embedWindow(long childHandle, long parentHandle, int x, int y, int width, int height) {
-        long nativeChildHandle = glfwGetX11Window(childHandle);
-        long nativeParentHandle = glfwGetX11Window(parentHandle);
+    public NativeWindowHandle getNativeWindowHandle(long glfwHandle) {
+        return new NativeWindowHandle(glfwGetX11Window(glfwHandle));
+    }
 
-        NativeLong childWindow = new NativeLong(nativeChildHandle);
-        NativeLong parentWindow = new NativeLong(nativeParentHandle);
+    @Override
+    public void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+        NativeLong childWindow = new NativeLong(childHandle.handle());
+        NativeLong parentWindow = new NativeLong(parentHandle.handle());
 
-        X11Ext.INSTANCE.XReparentWindow(display, childWindow, parentWindow, x, y);
-        X11Ext.INSTANCE.XMoveResizeWindow(display, childWindow, x, y, width, height);
-        X11Ext.INSTANCE.XMapWindow(display, childWindow);
-        X11Ext.INSTANCE.XFlush(display);
+        X11.INSTANCE.XReparentWindow(display, childWindow, parentWindow, x, y);
+        X11.INSTANCE.XMoveResizeWindow(display, childWindow, x, y, width, height);
+        X11.INSTANCE.XMapWindow(display, childWindow);
+        X11.INSTANCE.XFlush(display);
     }
 }

@@ -10,7 +10,9 @@ import java.util.List;
 
 import static org.lwjgl.glfw.GLFWNativeCocoa.glfwGetCocoaWindow;
 
-public class MacOSWindowEmbedder implements WindowEmbedder {
+public class MacOSWindowManager implements WindowManager {
+    public static final MacOSWindowManager INSTANCE = new MacOSWindowManager();
+
     private interface ObjCRuntime extends Library {
         ObjCRuntime INSTANCE = Native.load("objc", ObjCRuntime.class);
         Pointer sel_registerName(String name);
@@ -32,13 +34,15 @@ public class MacOSWindowEmbedder implements WindowEmbedder {
     }
 
     @Override
-    public void embedWindow(long childHandle, long parentHandle, int x, int y, int width, int height) {
-        long nativeChildHandle = glfwGetCocoaWindow(childHandle);
-        long nativeParentHandle = glfwGetCocoaWindow(parentHandle);
+    public NativeWindowHandle getNativeWindowHandle(long glfwHandle) {
+        return new NativeWindowHandle(glfwGetCocoaWindow(glfwHandle));
+    }
 
+    @Override
+    public void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height) {
         ObjCRuntime o = ObjCRuntime.INSTANCE;
-        Pointer childWindow = new Pointer(nativeChildHandle);
-        Pointer parentWindow = new Pointer(nativeParentHandle);
+        Pointer childWindow = new Pointer(childHandle.handle());
+        Pointer parentWindow = new Pointer(parentHandle.handle());
 
         Pointer selAddChild = o.sel_registerName("addChildWindow:ordered:");
         Pointer selSetFrame = o.sel_registerName("setFrame:display:");

@@ -4,9 +4,11 @@ import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundHelloPacket;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundKeepAlivePacket;
+import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundThisIsMyWindowPacket;
 import dev.isxander.controlify.splitscreen.server.ServerSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.server.SplitscreenController;
 import dev.isxander.controlify.splitscreen.client.protocol.common.ControllerboundCommonPacketListener;
+import dev.isxander.controlify.splitscreen.window.embedder.WindowManager;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
@@ -35,6 +37,10 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
         this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
+    }
+    
+    public void handleThisIsMyWindow(ControllerboundThisIsMyWindowPacket packet) {
+        WindowManager.get().embedWindow(packet.nativeWindowHandle(), WindowManager.get().getNativeWindowHandle(controller.getParentWindowHandle()), 1920/2, 0, 1920/2, 1080);
     }
 
     @Override

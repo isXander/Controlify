@@ -8,16 +8,20 @@ import static com.sun.jna.platform.win32.WinDef.HWND;
 import static com.sun.jna.platform.win32.WinUser.*;
 import static org.lwjgl.glfw.GLFWNativeWin32.glfwGetWin32Window;
 
-public class Win32WindowEmbedder implements WindowEmbedder {
+public class Win32WindowManager implements WindowManager {
+    public static final Win32WindowManager INSTANCE = new Win32WindowManager();
+
     private static final User32 USER32 = User32.INSTANCE;
 
     @Override
-    public void embedWindow(long childHandle, long parentHandle, int x, int y, int width, int height) {
-        long nativeChildHandle = glfwGetWin32Window(childHandle);
-        long nativeParentHandle = glfwGetWin32Window(parentHandle);
+    public NativeWindowHandle getNativeWindowHandle(long glfwHandle) {
+        return new NativeWindowHandle(glfwGetWin32Window(glfwHandle));
+    }
 
-        HWND childHwnd = new HWND(new Pointer(nativeChildHandle));
-        HWND parentHwnd = new HWND(new Pointer(nativeParentHandle));
+    @Override
+    public void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+        HWND childHwnd = new HWND(new Pointer(childHandle.handle()));
+        HWND parentHwnd = new HWND(new Pointer(parentHandle.handle()));
 
         USER32.SetParent(childHwnd, parentHwnd);
         int style = WS_CHILD | WS_VISIBLE;

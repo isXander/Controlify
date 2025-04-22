@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen.protocol;
 
+import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundThisIsMyWindowPacket;
 import dev.isxander.controlify.splitscreen.server.protocol.play.ControllerPlayPacketListener;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundHelloPacket;
 import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundKeepAlivePacket;
@@ -19,6 +20,7 @@ public final class PlayProtocols {
                     builder -> CommonProtocols.addControllerboundPackets(builder)
                             .addPacket(ControllerboundHelloPacket.TYPE, ControllerboundHelloPacket.CODEC)
                             .addPacket(ControllerboundKeepAlivePacket.TYPE, ControllerboundKeepAlivePacket.CODEC)
+                            .addPacket(ControllerboundThisIsMyWindowPacket.TYPE, ControllerboundThisIsMyWindowPacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 
     public static final ProtocolInfo<PawnPlayPacketListener> PAWNBOUND =

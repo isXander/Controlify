@@ -39,7 +39,7 @@ public final class SocketUtil {
                 try (ServerSocketChannel server = ServerSocketChannel.open()) {
                     server.bind(new InetSocketAddress(port));
                     return false; // Socket is not open
-                } catch (AlreadyBoundException e) {
+                } catch (AlreadyBoundException | BindException e) {
                     return true;  // Socket is open
                 } catch (IOException io) {
                     throw new RuntimeException(io);
