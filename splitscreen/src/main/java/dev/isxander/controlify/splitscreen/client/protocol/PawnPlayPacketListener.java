@@ -3,12 +3,9 @@ package dev.isxander.controlify.splitscreen.client.protocol;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.client.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.protocol.controllerbound.play.ControllerboundKeepAlivePacket;
-import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundParentWindowPacket;
-import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundSplitscreenPositionPacket;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.server.protocol.PawnboundCommonPacketListener;
 import dev.isxander.controlify.splitscreen.protocol.pawnbound.common.PawnboundDisconnectPacket;
-import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundJoinServerPacket;
-import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundKeepAlivePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
@@ -36,6 +33,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleSplitscreenPosition(PawnboundSplitscreenPositionPacket packet) {
+        LOGGER.info("Pawn setting splitscreen position to {}", packet.position());
         this.minecraft.execute(() ->
                 this.pawn.setWindowSplitscreenMode(packet.position(), packet.parentWidth(), packet.parentHeight())
         );
@@ -49,6 +47,10 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
                         packet.width(), packet.height()
                 )
         );
+    }
+
+    public void handleWindowFocusState(PawnboundWindowFocusStatePacket packet) {
+
     }
 
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {

@@ -1,6 +1,8 @@
 package dev.isxander.controlify.splitscreen.mixins.core;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.platform.WindowEventHandler;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
@@ -41,6 +43,18 @@ public class WindowMixin {
             assert controller.getParentWindow() != null; // ParentWindow is created before the vanilla Window.
             controller.getParentWindow().setTitle(title);
         });
+    }
+
+    /**
+     * GLFW does not correctly report the window focus state when the window is a child.
+     * Instead, the controller will propagate this event from the parent window.
+     * @param instance receiver
+     * @param glfwReportedFocus the incorrect focus state reported by GLFW
+     * @return if the focus state should be set by GLFW child window
+     */
+    @WrapWithCondition(method = "onFocus", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/WindowEventHandler;setWindowActive(Z)V"))
+    private boolean dontListenToChildWindowForFocus(WindowEventHandler instance, boolean glfwReportedFocus) {
+        return !SplitscreenBootstrapper.isSplitscreen();
     }
 
     @Inject(

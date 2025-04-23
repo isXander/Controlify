@@ -50,6 +50,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
+    public void setWindowFocusState(boolean focused) {
+        this.minecraft.setWindowActive(focused);
+    }
+
+    @Override
     public SplitscreenPosition getWindowSplitscreenMode() {
         return position;
     }

@@ -4,6 +4,7 @@ import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundJoinServerPacket;
 import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundParentWindowPacket;
 import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundSplitscreenPositionPacket;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundWindowFocusStatePacket;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import net.minecraft.network.Connection;
@@ -44,6 +45,11 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     public void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight) {
         this.connection.send(new PawnboundSplitscreenPositionPacket(parentWidth, parentHeight, position));
         this.position = position;
+    }
+
+    @Override
+    public void setWindowFocusState(boolean focused) {
+        this.connection.send(new PawnboundWindowFocusStatePacket(focused));
     }
 
     @Override

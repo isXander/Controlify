@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen.mixins.core;
 
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.DisplayData;
@@ -28,5 +29,21 @@ public class MinecraftMixin {
 
         // create original client window
         return original.call(instance, screenSize, videoModeName, title);
+    }
+
+    /**
+     * Hooks in and sets the splitscreen controller's window ready state.
+     * <p>
+     * This is conditional on the resizeDisplay because markWindowReady will cause resizeDisplay to be called anyway.
+     * Allow vanilla call to continue if splitscreen controller is not present.
+     * @param instance receiver
+     * @return if vanilla should call resizeDisplay
+     */
+    @WrapWithCondition(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;resizeDisplay()V"))
+    private boolean markWindowReady(Minecraft instance) {
+        return SplitscreenBootstrapper.getController().map(controller -> {
+            controller.markWindowReady();
+            return false;
+        }).orElse(true);
     }
 }

@@ -10,25 +10,19 @@ import dev.isxander.controlify.splitscreen.client.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.server.protocol.ControllerConnectionListener;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
+import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.slf4j.Logger;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static org.lwjgl.glfw.GLFW.GLFW_NO_ERROR;
-import static org.lwjgl.glfw.GLFW.glfwGetError;
 
 public class SplitscreenController implements ParentWindowEventHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -39,6 +33,7 @@ public class SplitscreenController implements ParentWindowEventHandler {
     private final ControllerConnectionListener connectionListener;
 
     private @Nullable ParentWindow parentWindow;
+    private boolean isWindowReady = false;
     private final Queue<Runnable> waitingForWindowTasks = new ArrayDeque<>();
 
     public SplitscreenController(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
@@ -58,11 +53,18 @@ public class SplitscreenController implements ParentWindowEventHandler {
         this.pawns.add(pawn);
 
         executeWhenWindowReady(parentWindow -> {
+            SplitscreenPosition pos = pawnIndex == 0 ?
+                    SplitscreenPosition.LEFT : SplitscreenPosition.RIGHT;
+            ScreenRectangle windowDims = pos.applyToRealDims(0, 0, parentWindow.getWidth(), parentWindow.getHeight());
+
+            // TODO: this basically repeats the below command, potentially remove window positioning from embedding code?
             pawn.setupWindowParent(
                     WindowManager.get().getNativeWindowHandle(parentWindow.getGlfwWindowHandle()),
-                    1920 / 2 * pawnIndex, 0,
-                    1920 / 2, 1080
+                    windowDims.left(), windowDims.top(),
+                    windowDims.width(), windowDims.height()
             );
+
+            pawn.setWindowSplitscreenMode(pos, parentWindow.getWidth(), parentWindow.getHeight());
         });
     }
 
@@ -83,20 +85,32 @@ public class SplitscreenController implements ParentWindowEventHandler {
         }
 
         this.parentWindow = new ParentWindow(this.minecraft, screenSize, screenManager, this, initialTitle);
-
-        while (!this.waitingForWindowTasks.isEmpty()) {
-            this.waitingForWindowTasks.poll().run();
-        }
     }
 
     @Override
     public void onResizeParentWindow(int width, int height) {
-        LOGGER.info("Resizing parent window to {}x{}", width, height);
-        this.pawns.forEach(pawn -> pawn.setWindowSplitscreenMode(pawn.getWindowSplitscreenMode(), width, height));
+        this.forEachPawn(pawn -> pawn.setWindowSplitscreenMode(pawn.getWindowSplitscreenMode(), width, height));
+    }
+
+    @Override
+    public void onFocusParentWindow(boolean focused) {
+        this.forEachPawn(pawn -> pawn.setWindowFocusState(focused));
     }
 
     public void negotiateSplitscreen() {
 
+    }
+
+    public void markWindowReady() {
+        if (this.isWindowReady) return;
+        if (this.parentWindow == null) throw new IllegalStateException("markWindowReady called before the ParentWindow has been created.");
+        // noinspection ConstantConditions
+        if (this.minecraft.getWindow() == null) throw new IllegalStateException("markWindowReady called before the vanilla Window has been created.");
+        this.isWindowReady = true;
+
+        while (!this.waitingForWindowTasks.isEmpty()) {
+            this.waitingForWindowTasks.poll().run();
+        }
     }
 
     private void executeWhenWindowReady(Consumer<@NotNull ParentWindow> consumer) {

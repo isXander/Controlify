@@ -33,8 +33,7 @@ public interface WindowManager {
 
     /**
      * Embed a child window inside a parent window, positioning and sizing it.
-     * @param childHandle  glfw window handle (e.g. HWND on Windows, XID on X11, NSWindow* on macOS)
-     * @param parentHandle glfw parent window handle
+     * @param parentHandle underlying system's native window handle of the parent window
      * @param x            x-offset within parent
      * @param y            y-offset within parent
      * @param width        width of the child

@@ -29,6 +29,7 @@ public class Win32WindowManager implements WindowManager {
         HWND parentHwnd = new HWND(new Pointer(parentHandle.handle()));
 
         USER32.SetParent(childHwnd, parentHwnd);
+
         int style = WS_CHILD | WS_VISIBLE;
         USER32.SetWindowLong(childHwnd, GWL_STYLE, style);
         USER32.SetWindowPos(childHwnd, null, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE);

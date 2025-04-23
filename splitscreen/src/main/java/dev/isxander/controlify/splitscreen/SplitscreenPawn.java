@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
+import net.minecraft.client.Minecraft;
 
 /**
  * Interface for a splitscreen pawn.
@@ -42,6 +43,12 @@ public interface SplitscreenPawn {
      * @param parentHeight the height of the parent window
      */
     void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight);
+
+    /**
+     * Sets the client window's focus state.
+     * {@link Minecraft#isWindowActive()}
+     */
+    void setWindowFocusState(boolean focused);
 
     /**
      * @return the current splitscreen mode of the window

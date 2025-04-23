@@ -26,5 +26,7 @@ public final class PlayProtocols {
                             .addPacket(PawnboundKeepAlivePacket.TYPE, PawnboundKeepAlivePacket.CODEC)
                             .addPacket(PawnboundJoinServerPacket.TYPE, PawnboundJoinServerPacket.CODEC)
                             .addPacket(PawnboundParentWindowPacket.TYPE, PawnboundParentWindowPacket.CODEC)
+                            .addPacket(PawnboundSplitscreenPositionPacket.TYPE, PawnboundSplitscreenPositionPacket.CODEC)
+                            .addPacket(PawnboundWindowFocusStatePacket.TYPE, PawnboundWindowFocusStatePacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 }

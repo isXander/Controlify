@@ -55,12 +55,21 @@ public class ParentWindow implements AutoCloseable{
             });
         }
 
+        glfwSetWindowFocusCallback(this.glfwWindowHandle, this::windowFocusCallback);
         glfwSetWindowSizeCallback(this.glfwWindowHandle, this::windowPosCallback);
         glfwSetWindowSizeCallback(this.glfwWindowHandle, this::windowSizeCallback);
     }
 
     public long getGlfwWindowHandle() {
         return this.glfwWindowHandle;
+    }
+
+    public int getWidth() {
+        return this.width;
+    }
+
+    public int getHeight() {
+        return this.height;
     }
 
     public void setTitle(String title) {
@@ -120,12 +129,21 @@ public class ParentWindow implements AutoCloseable{
         return glfwWindowShouldClose(this.glfwWindowHandle);
     }
 
+    private void windowFocusCallback(long window, boolean focused) {
+        if (window != this.glfwWindowHandle) return;
+
+        this.eventHandler.onFocusParentWindow(focused);
+    }
+
     private void windowPosCallback(long window, int x, int y) {
 
     }
 
     private void windowSizeCallback(long window, int width, int height) {
         if (window != this.glfwWindowHandle) return;
+
+        this.width = width;
+        this.height = height;
 
         this.eventHandler.onResizeParentWindow(width, height);
     }
