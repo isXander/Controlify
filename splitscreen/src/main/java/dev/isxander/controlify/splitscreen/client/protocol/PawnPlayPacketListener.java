@@ -50,7 +50,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleWindowFocusState(PawnboundWindowFocusStatePacket packet) {
-
+        this.pawn.setWindowFocusState(packet.focused());
     }
 
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {
