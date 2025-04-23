@@ -22,7 +22,7 @@ dependencies {
     fun plugin(id: String, version: String) = "$id:$id.gradle.plugin:$version"
 
     implementation(plugin("dev.isxander.modstitch.base", "0.5.16-unstable"))
-    implementation(plugin("dev.kikugie.stonecutter", "0.7-alpha.9"))
+    implementation(plugin("dev.kikugie.stonecutter", "0.7-alpha.10"))
     implementation(plugin("fabric-loom", "1.10.5"))
     implementation(plugin("net.neoforged.moddev", "2.0.80"))
 }

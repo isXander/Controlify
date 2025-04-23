@@ -53,8 +53,10 @@ jobs:
           cache-read-only: false
       - name: Overwrite current version
         run: printf "${{ matrix.target }}" | cut -d':' -f1 > ./versions/current
+      - name: Set stonecutter version
+        run: ./gradlew "Refresh active project" --stacktrace
       - name: Build ${{ matrix.target }}
-        run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
+        run: ./gradlew buildAndCollectActive --stacktrace
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
 
