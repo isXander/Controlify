@@ -55,6 +55,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
+    public void closeGame() {
+        this.minecraft.stop();
+    }
+
+    @Override
     public SplitscreenPosition getWindowSplitscreenMode() {
         return position;
     }

@@ -12,6 +12,7 @@ import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
@@ -85,6 +86,15 @@ public class SplitscreenController implements ParentWindowEventHandler {
         }
 
         this.parentWindow = new ParentWindow(this.minecraft, screenSize, screenManager, this, initialTitle);
+
+        executeWhenWindowReady(parentWindow -> {
+            ClientTickEvents.START_CLIENT_TICK.register(client -> {
+                if (this.parentWindow.shouldClose() && this.minecraft.isRunning()) {
+                    this.forEachPawn(SplitscreenPawn::closeGame);
+                }
+            });
+        });
+
     }
 
     @Override

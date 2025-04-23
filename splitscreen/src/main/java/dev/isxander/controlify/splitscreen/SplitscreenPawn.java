@@ -51,6 +51,11 @@ public interface SplitscreenPawn {
     void setWindowFocusState(boolean focused);
 
     /**
+     * Closes the game.
+     */
+    void closeGame();
+
+    /**
      * @return the current splitscreen mode of the window
      */
     SplitscreenPosition getWindowSplitscreenMode();

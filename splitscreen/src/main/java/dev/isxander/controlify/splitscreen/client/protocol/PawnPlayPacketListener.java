@@ -53,6 +53,10 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
         this.pawn.setWindowFocusState(packet.focused());
     }
 
+    public void handleCloseGame(PawnboundCloseGamePacket packet) {
+        this.pawn.closeGame();
+    }
+
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {
         this.connection.send(ControllerboundKeepAlivePacket.INSTANCE);
     }

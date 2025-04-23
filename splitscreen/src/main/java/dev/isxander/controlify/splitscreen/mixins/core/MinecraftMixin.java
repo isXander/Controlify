@@ -6,10 +6,15 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.VirtualScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
@@ -45,5 +50,15 @@ public class MinecraftMixin {
             controller.markWindowReady();
             return false;
         }).orElse(true);
+    }
+
+    /**
+     * Ensures the parent window is closed when the game exist.
+     */
+    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;close()V", shift = At.Shift.AFTER))
+    private void closeParentWindow(CallbackInfo ci) {
+        SplitscreenBootstrapper.getController()
+                .flatMap(controller -> Optional.ofNullable(controller.getParentWindow()))
+                .ifPresent(ParentWindow::close);
     }
 }
