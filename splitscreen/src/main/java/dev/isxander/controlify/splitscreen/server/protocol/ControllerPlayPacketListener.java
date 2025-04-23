@@ -1,14 +1,13 @@
-package dev.isxander.controlify.splitscreen.server.protocol.play;
+package dev.isxander.controlify.splitscreen.server.protocol;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundHelloPacket;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundKeepAlivePacket;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundThisIsMyWindowPacket;
-import dev.isxander.controlify.splitscreen.server.ServerSplitscreenPawn;
+import dev.isxander.controlify.splitscreen.protocol.controllerbound.play.ControllerboundHelloPacket;
+import dev.isxander.controlify.splitscreen.protocol.controllerbound.play.ControllerboundKeepAlivePacket;
+import dev.isxander.controlify.splitscreen.server.RemoteSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.server.SplitscreenController;
-import dev.isxander.controlify.splitscreen.client.protocol.common.ControllerboundCommonPacketListener;
-import dev.isxander.controlify.splitscreen.window.embedder.WindowManager;
+import dev.isxander.controlify.splitscreen.client.protocol.ControllerboundCommonPacketListener;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.PawnboundKeepAlivePacket;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
@@ -28,19 +27,18 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleHello(ControllerboundHelloPacket packet) {
-        this.pawnInstance = new ServerSplitscreenPawn(this.connection);
+        this.pawnInstance = new RemoteSplitscreenPawn(this.connection);
         this.controller.addPawn(this.pawnInstance);
 
         // initiate keep alive chain
         this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
+
+        // schedule window parenting
+
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
         this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
-    }
-    
-    public void handleThisIsMyWindow(ControllerboundThisIsMyWindowPacket packet) {
-        WindowManager.get().embedWindow(packet.nativeWindowHandle(), WindowManager.get().getNativeWindowHandle(controller.getParentWindowHandle()), 1920/2, 0, 1920/2, 1080);
     }
 
     @Override

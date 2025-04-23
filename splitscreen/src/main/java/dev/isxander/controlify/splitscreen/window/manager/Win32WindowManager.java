@@ -1,7 +1,8 @@
-package dev.isxander.controlify.splitscreen.window.embedder;
+package dev.isxander.controlify.splitscreen.window.manager;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
+import net.minecraft.client.Minecraft;
 
 
 import static com.sun.jna.platform.win32.WinDef.HWND;
@@ -19,7 +20,11 @@ public class Win32WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+    public void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+        NativeWindowHandle childHandle = this.getNativeWindowHandle(
+                Minecraft.getInstance().getWindow().getWindow()
+        );
+
         HWND childHwnd = new HWND(new Pointer(childHandle.handle()));
         HWND parentHwnd = new HWND(new Pointer(parentHandle.handle()));
 

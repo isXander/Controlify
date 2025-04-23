@@ -1,9 +1,10 @@
-package dev.isxander.controlify.splitscreen.window.embedder;
+package dev.isxander.controlify.splitscreen.window.manager;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import net.minecraft.client.Minecraft;
 
 import static org.lwjgl.glfw.GLFWNativeX11.glfwGetX11Window;
 
@@ -40,7 +41,11 @@ public class X11WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+    public void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+        NativeWindowHandle childHandle = this.getNativeWindowHandle(
+                Minecraft.getInstance().getWindow().getWindow()
+        );
+
         NativeLong childWindow = new NativeLong(childHandle.handle());
         NativeLong parentWindow = new NativeLong(parentHandle.handle());
 

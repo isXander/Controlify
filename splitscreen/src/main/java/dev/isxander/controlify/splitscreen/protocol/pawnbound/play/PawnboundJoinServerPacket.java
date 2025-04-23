@@ -1,6 +1,6 @@
-package dev.isxander.controlify.splitscreen.server.protocol.play;
+package dev.isxander.controlify.splitscreen.protocol.pawnbound.play;
 
-import dev.isxander.controlify.splitscreen.client.protocol.play.PawnPlayPacketListener;
+import dev.isxander.controlify.splitscreen.client.protocol.PawnPlayPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

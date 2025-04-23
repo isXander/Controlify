@@ -1,8 +1,8 @@
 package dev.isxander.controlify.splitscreen.protocol;
 
-import dev.isxander.controlify.splitscreen.server.protocol.common.PawnboundCommonPacketListener;
-import dev.isxander.controlify.splitscreen.server.protocol.common.PawnboundDisconnectPacket;
-import dev.isxander.controlify.splitscreen.client.protocol.common.ControllerboundCommonPacketListener;
+import dev.isxander.controlify.splitscreen.server.protocol.PawnboundCommonPacketListener;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.common.PawnboundDisconnectPacket;
+import dev.isxander.controlify.splitscreen.client.protocol.ControllerboundCommonPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.ProtocolInfoBuilder;
 import net.minecraft.util.Unit;

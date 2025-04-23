@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.window.embedder;
+package dev.isxander.controlify.splitscreen.window.manager;
 
 /**
  * Interface for embedding a child window inside a parent window.
@@ -8,11 +8,17 @@ package dev.isxander.controlify.splitscreen.window.embedder;
 public interface WindowManager {
     static WindowManager get() {
         return switch (dev.isxander.controlify.utils.WindowManager.INSTANCE) {
-            case UNKNOWN -> throw new IllegalStateException("Unknown platform, cannot embed window");
-            case X11 -> X11WindowManager.INSTANCE;
-            case WAYLAND -> throw new IllegalStateException("Wayland is unsupported for Controlify splitscreen");
             case WIN32 -> Win32WindowManager.INSTANCE;
-            case COCOA -> MacOSWindowManager.INSTANCE;
+            // Untested.
+            case X11 -> X11WindowManager.INSTANCE;
+            // Wayland does not support Reparenting windows, so it is impossible to do this.
+            // XWayland would not crash, but Wayland has no way to represent this concept and XReparentWindow is no-op
+            case WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
+            // Although Cocoa does support reparenting, it is impossible for two windows from different processes
+            // to be reparented to each other. NSWindow#setParent(NSWindow) cannot work because either the parent
+            // or child NSWindow pointer will be from a different process, violating the memory safety rules of macOS.
+            case COCOA -> throw new UnsupportedWindowManagerException("macOS is unsupported for Controlify splitscreen");
+            case UNKNOWN -> throw new UnsupportedWindowManagerException("Unknown platform, cannot embed window");
         };
     }
 
@@ -34,5 +40,5 @@ public interface WindowManager {
      * @param width        width of the child
      * @param height       height of the child
      */
-    void embedWindow(NativeWindowHandle childHandle, NativeWindowHandle parentHandle, int x, int y, int width, int height);
+    void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height);
 }

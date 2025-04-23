@@ -1,5 +1,6 @@
-package dev.isxander.controlify.splitscreen.client.protocol.handshake;
+package dev.isxander.controlify.splitscreen.protocol.controllerbound.handshake;
 
+import dev.isxander.controlify.splitscreen.client.protocol.ControllerHandshakePacketListener;
 import dev.isxander.controlify.utils.CUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

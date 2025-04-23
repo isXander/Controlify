@@ -1,6 +1,6 @@
-package dev.isxander.controlify.splitscreen.client.protocol.play;
+package dev.isxander.controlify.splitscreen.protocol.controllerbound.play;
 
-import dev.isxander.controlify.splitscreen.server.protocol.play.ControllerPlayPacketListener;
+import dev.isxander.controlify.splitscreen.server.protocol.ControllerPlayPacketListener;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;

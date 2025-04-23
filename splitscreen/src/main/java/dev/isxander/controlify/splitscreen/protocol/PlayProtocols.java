@@ -1,12 +1,9 @@
 package dev.isxander.controlify.splitscreen.protocol;
 
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundThisIsMyWindowPacket;
-import dev.isxander.controlify.splitscreen.server.protocol.play.ControllerPlayPacketListener;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundHelloPacket;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundKeepAlivePacket;
-import dev.isxander.controlify.splitscreen.client.protocol.play.PawnPlayPacketListener;
-import dev.isxander.controlify.splitscreen.server.protocol.play.PawnboundJoinServerPacket;
-import dev.isxander.controlify.splitscreen.server.protocol.play.PawnboundKeepAlivePacket;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.play.*;
+import dev.isxander.controlify.splitscreen.protocol.controllerbound.play.*;
+import dev.isxander.controlify.splitscreen.server.protocol.ControllerPlayPacketListener;
+import dev.isxander.controlify.splitscreen.client.protocol.PawnPlayPacketListener;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.ProtocolInfo;
@@ -20,7 +17,6 @@ public final class PlayProtocols {
                     builder -> CommonProtocols.addControllerboundPackets(builder)
                             .addPacket(ControllerboundHelloPacket.TYPE, ControllerboundHelloPacket.CODEC)
                             .addPacket(ControllerboundKeepAlivePacket.TYPE, ControllerboundKeepAlivePacket.CODEC)
-                            .addPacket(ControllerboundThisIsMyWindowPacket.TYPE, ControllerboundThisIsMyWindowPacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 
     public static final ProtocolInfo<PawnPlayPacketListener> PAWNBOUND =
@@ -29,5 +25,6 @@ public final class PlayProtocols {
                     builder -> CommonProtocols.addPawnboundPackets(builder)
                             .addPacket(PawnboundKeepAlivePacket.TYPE, PawnboundKeepAlivePacket.CODEC)
                             .addPacket(PawnboundJoinServerPacket.TYPE, PawnboundJoinServerPacket.CODEC)
+                            .addPacket(PawnboundParentWindowPacket.TYPE, PawnboundParentWindowPacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 }

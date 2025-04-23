@@ -2,10 +2,8 @@ package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.client.protocol.PawnConnectionListener;
-import dev.isxander.controlify.splitscreen.client.protocol.play.ControllerboundThisIsMyWindowPacket;
 import dev.isxander.controlify.splitscreen.server.SplitscreenController;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
-import dev.isxander.controlify.splitscreen.window.embedder.WindowManager;
 import dev.isxander.controlify.utils.Platform;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
@@ -44,17 +42,10 @@ public class SplitscreenBootstrapper {
 
     private static void bootstrapAsPawn(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
         pawnConnectionListener = new PawnConnectionListener(minecraft, connectionMethod);
-        Minecraft.getInstance().execute(() -> {
-            pawnConnectionListener.getControllerConnection().send(new ControllerboundThisIsMyWindowPacket(WindowManager.get().getNativeWindowHandle(Minecraft.getInstance().getWindow().getWindow())));
-        });
     }
 
     private static void bootstrapAsController(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
         controller = new SplitscreenController(minecraft, connectionMethod);
-        Minecraft.getInstance().execute(() -> {
-            controller.setupParentWindow();
-        });
-
     }
 
     public static boolean isSplitscreen() {

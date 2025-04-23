@@ -1,7 +1,7 @@
 package dev.isxander.controlify.splitscreen.protocol;
 
-import dev.isxander.controlify.splitscreen.client.protocol.handshake.ControllerHandshakePacketListener;
-import dev.isxander.controlify.splitscreen.client.protocol.handshake.ControllerboundHandshakePacket;
+import dev.isxander.controlify.splitscreen.client.protocol.ControllerHandshakePacketListener;
+import dev.isxander.controlify.splitscreen.protocol.controllerbound.handshake.ControllerboundHandshakePacket;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.ProtocolInfo;

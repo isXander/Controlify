@@ -1,6 +1,6 @@
-package dev.isxander.controlify.splitscreen.server.protocol.common;
+package dev.isxander.controlify.splitscreen.protocol.pawnbound.common;
 
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.splitscreen.server.protocol.PawnboundCommonPacketListener;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;

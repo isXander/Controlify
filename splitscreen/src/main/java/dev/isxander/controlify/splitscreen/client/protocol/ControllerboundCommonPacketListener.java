@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.client.protocol.common;
+package dev.isxander.controlify.splitscreen.client.protocol;
 
 import net.minecraft.network.ServerboundPacketListener;
 

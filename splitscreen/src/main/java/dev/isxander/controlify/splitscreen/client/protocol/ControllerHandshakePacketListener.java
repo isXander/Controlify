@@ -1,9 +1,9 @@
-package dev.isxander.controlify.splitscreen.client.protocol.handshake;
+package dev.isxander.controlify.splitscreen.client.protocol;
 
+import dev.isxander.controlify.splitscreen.protocol.controllerbound.handshake.ControllerboundHandshakePacket;
 import dev.isxander.controlify.splitscreen.server.SplitscreenController;
-import dev.isxander.controlify.splitscreen.client.protocol.common.ControllerboundCommonPacketListener;
-import dev.isxander.controlify.splitscreen.server.protocol.common.PawnboundDisconnectPacket;
-import dev.isxander.controlify.splitscreen.server.protocol.play.ControllerPlayPacketListener;
+import dev.isxander.controlify.splitscreen.protocol.pawnbound.common.PawnboundDisconnectPacket;
+import dev.isxander.controlify.splitscreen.server.protocol.ControllerPlayPacketListener;
 import dev.isxander.controlify.splitscreen.protocol.PlayProtocols;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
