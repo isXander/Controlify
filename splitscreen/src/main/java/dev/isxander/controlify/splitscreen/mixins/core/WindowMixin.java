@@ -3,7 +3,9 @@ package dev.isxander.controlify.splitscreen.mixins.core;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.platform.WindowEventHandler;
+import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -19,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class WindowMixin {
     @Shadow @Final private static Logger LOGGER;
 
+    @Shadow
+    @Final
+    private long window;
     @Unique private boolean hasDoneInitialSetup = false;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -45,16 +50,23 @@ public class WindowMixin {
         });
     }
 
-    /**
-     * GLFW does not correctly report the window focus state when the window is a child.
-     * Instead, the controller will propagate this event from the parent window.
-     * @param instance receiver
-     * @param glfwReportedFocus the incorrect focus state reported by GLFW
-     * @return if the focus state should be set by GLFW child window
-     */
-    @WrapWithCondition(method = "onFocus", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/WindowEventHandler;setWindowActive(Z)V"))
-    private boolean dontListenToChildWindowForFocus(WindowEventHandler instance, boolean glfwReportedFocus) {
-        return !SplitscreenBootstrapper.isSplitscreen();
+//    /**
+//     * GLFW does not correctly report the window focus state when the window is a child.
+//     * Instead, the controller will propagate this event from the parent window.
+//     * @param instance receiver
+//     * @param glfwReportedFocus the incorrect focus state reported by GLFW
+//     * @return if the focus state should be set by GLFW child window
+//     */
+//    @WrapWithCondition(method = "onFocus", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/WindowEventHandler;setWindowActive(Z)V"))
+//    private boolean dontListenToChildWindowForFocus(WindowEventHandler instance, boolean glfwReportedFocus) {
+//        return !SplitscreenBootstrapper.isSplitscreen();
+//    }
+
+    @Inject(method = "onEnter", at = @At("HEAD"))
+    private void giveSelfFocusIfForeground(long window, boolean cursorEntered, CallbackInfo ci) {
+        if (window == this.window && cursorEntered) {
+            SplitscreenBootstrapper.getControllerBridge().ifPresent(ControllerBridge::giveFocusToMeIfForeground);
+        }
     }
 
     @Inject(

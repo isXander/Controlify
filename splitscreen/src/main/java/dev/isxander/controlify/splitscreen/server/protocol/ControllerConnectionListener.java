@@ -20,6 +20,7 @@ import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
@@ -48,10 +49,13 @@ public class ControllerConnectionListener {
     private final List<ChannelFuture> channels = Collections.synchronizedList(new ArrayList<>());
     private final List<Connection> connections = Collections.synchronizedList(new ArrayList<>());
 
+    private final Minecraft minecraft;
+
     private volatile boolean running;
 
-    public ControllerConnectionListener(SocketConnectionMethod connectionMethod, SplitscreenController controller) {
+    public ControllerConnectionListener(SocketConnectionMethod connectionMethod, SplitscreenController controller, Minecraft minecraft) {
         this.running = true;
+        this.minecraft = minecraft;
         switch (connectionMethod) {
             case SocketConnectionMethod.TCP(int port) -> startTcpListener(port, controller);
             case SocketConnectionMethod.Unix(String socketPath) -> startUnixListener(socketPath, controller);
@@ -92,7 +96,7 @@ public class ControllerConnectionListener {
                             Connection connection = new Connection(PacketFlow.SERVERBOUND);
                             ControllerConnectionListener.this.connections.add(connection);
                             connection.configurePacketHandler(pipeline);
-                            connection.setListenerForServerboundHandshake(new ControllerHandshakePacketListener(controller, connection));
+                            connection.setListenerForServerboundHandshake(new ControllerHandshakePacketListener(controller, connection, minecraft));
                             LOGGER.info("Established connection with {}", ch.remoteAddress());
                         }
                     });

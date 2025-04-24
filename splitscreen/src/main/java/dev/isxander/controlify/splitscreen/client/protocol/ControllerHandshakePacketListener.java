@@ -5,6 +5,7 @@ import dev.isxander.controlify.splitscreen.server.SplitscreenController;
 import dev.isxander.controlify.splitscreen.protocol.pawnbound.common.PawnboundDisconnectPacket;
 import dev.isxander.controlify.splitscreen.server.protocol.ControllerPlayPacketListener;
 import dev.isxander.controlify.splitscreen.protocol.PlayProtocols;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
@@ -14,10 +15,12 @@ import net.minecraft.network.protocol.game.ServerPacketListener;
 public class ControllerHandshakePacketListener implements ControllerboundCommonPacketListener, ServerPacketListener {
     private final SplitscreenController controller;
     private final Connection connection;
+    private final Minecraft minecraft;
 
-    public ControllerHandshakePacketListener(SplitscreenController controller, Connection connection) {
+    public ControllerHandshakePacketListener(SplitscreenController controller, Connection connection, Minecraft minecraft) {
         this.controller = controller;
         this.connection = connection;
+        this.minecraft = minecraft;
     }
 
     public void handleHandshake(ControllerboundHandshakePacket packet) {
@@ -29,7 +32,7 @@ public class ControllerHandshakePacketListener implements ControllerboundCommonP
             return;
         }
 
-        this.connection.setupInboundProtocol(PlayProtocols.CONTROLLERBOUND, new ControllerPlayPacketListener(controller, connection));
+        this.connection.setupInboundProtocol(PlayProtocols.CONTROLLERBOUND, new ControllerPlayPacketListener(controller, connection, minecraft));
     }
 
     @Override

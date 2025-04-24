@@ -32,6 +32,9 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     private final List<SplitscreenPawn> pawns = new ArrayList<>();
     private final ControllerConnectionListener connectionListener;
+    private final LocalSplitscreenPawn localPawn;
+
+    private final LocalControllerBridge controllerBridge;
 
     private @Nullable ParentWindow parentWindow;
     private boolean isWindowReady = false;
@@ -39,8 +42,9 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     public SplitscreenController(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
         this.minecraft = minecraft;
-        this.connectionListener = new ControllerConnectionListener(connectionMethod, this);
-        this.addPawn(new LocalSplitscreenPawn(minecraft)); // control ourselves as a pawn
+        this.controllerBridge = new LocalControllerBridge(minecraft, this);
+        this.connectionListener = new ControllerConnectionListener(connectionMethod, this, minecraft);
+        this.addPawn(this.localPawn = new LocalSplitscreenPawn(minecraft)); // control ourselves as a pawn
     }
 
     public void forEachPawn(Consumer<SplitscreenPawn> consumer) {
@@ -71,6 +75,14 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     public void removePawn(SplitscreenPawn pawn) {
         this.pawns.remove(pawn);
+    }
+
+    public LocalSplitscreenPawn getLocalPawn() {
+        return this.localPawn;
+    }
+
+    public LocalControllerBridge getControllerBridge() {
+        return this.controllerBridge;
     }
 
     public @Nullable ParentWindow getParentWindow() {
@@ -104,7 +116,7 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     @Override
     public void onFocusParentWindow(boolean focused) {
-        this.forEachPawn(pawn -> pawn.setWindowFocusState(focused));
+
     }
 
     public void negotiateSplitscreen() {

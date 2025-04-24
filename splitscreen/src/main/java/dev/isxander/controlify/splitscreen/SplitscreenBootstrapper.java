@@ -52,6 +52,11 @@ public class SplitscreenBootstrapper {
         return controller != null || pawnConnectionListener != null;
     }
 
+    public static Optional<ControllerBridge> getControllerBridge() {
+        return getController().<ControllerBridge>map(SplitscreenController::getControllerBridge)
+                .or(() -> getPawn().<ControllerBridge>map(PawnConnectionListener::getControllerBridge));
+    }
+
     public static Optional<SplitscreenController> getController() {
         return Optional.ofNullable(controller);
     }

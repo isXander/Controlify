@@ -4,6 +4,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
+import dev.isxander.controlify.splitscreen.client.RemoteControllerBridge;
 import dev.isxander.controlify.splitscreen.protocol.ConnectionUtils;
 import dev.isxander.controlify.splitscreen.protocol.controllerbound.handshake.ControllerboundHandshakePacket;
 import dev.isxander.controlify.splitscreen.protocol.HandshakeProtocols;
@@ -41,15 +42,22 @@ public class PawnConnectionListener {
 
     private final Connection controllerConnection;
 
+    private final RemoteControllerBridge controllerBridge;
+
     public PawnConnectionListener(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
         this.controllerConnection = switch (connectionMethod) {
             case SocketConnectionMethod.TCP(int port) -> connectToTcp(port, minecraft);
             case SocketConnectionMethod.Unix(String socketPath) -> connectToUnixSocket(socketPath, minecraft);
         };
+        this.controllerBridge = new RemoteControllerBridge(minecraft, this.controllerConnection);
     }
 
     public Connection getControllerConnection() {
         return controllerConnection;
+    }
+
+    public RemoteControllerBridge getControllerBridge() {
+        return controllerBridge;
     }
 
     private Connection connectToUnixSocket(String socketPath, Minecraft minecraft) {

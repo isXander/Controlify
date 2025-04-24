@@ -34,4 +34,21 @@ public class Win32WindowManager implements WindowManager {
         USER32.SetWindowLong(childHwnd, GWL_STYLE, style);
         USER32.SetWindowPos(childHwnd, null, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
     }
+
+    @Override
+    public boolean giveChildFocusIfParentIsForeground(NativeWindowHandle parentHandle, NativeWindowHandle childHandle) {
+        HWND childHwnd = new HWND(new Pointer(childHandle.handle()));
+        HWND parentHwnd = new HWND(new Pointer(parentHandle.handle()));
+
+        HWND foregroundHwnd = USER32.GetForegroundWindow();
+        System.out.println("Parent window:     " + parentHwnd);
+        System.out.println("Foreground window: " + foregroundHwnd);
+        System.out.println("Child window:      " + childHwnd);
+        if (foregroundHwnd.equals(parentHwnd)) {
+            System.out.println("Parent is foreground, setting focus to child");
+            USER32.SetFocus(childHwnd);
+            return true;
+        }
+        return false;
+    }
 }

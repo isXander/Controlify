@@ -54,4 +54,10 @@ public class X11WindowManager implements WindowManager {
         X11.INSTANCE.XMapWindow(display, childWindow);
         X11.INSTANCE.XFlush(display);
     }
+
+    @Override
+    public boolean giveChildFocusIfParentIsForeground(NativeWindowHandle parentHandle, NativeWindowHandle childHandle) {
+        // TODO
+        return false;
+    }
 }

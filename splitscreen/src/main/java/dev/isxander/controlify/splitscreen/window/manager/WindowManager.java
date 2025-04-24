@@ -40,4 +40,6 @@ public interface WindowManager {
      * @param height       height of the child
      */
     void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height);
+
+    boolean giveChildFocusIfParentIsForeground(NativeWindowHandle parentHandle, NativeWindowHandle childHandle);
 }
