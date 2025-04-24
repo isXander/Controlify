@@ -22,7 +22,16 @@ import java.util.function.BiConsumer;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 
-public class ParentWindow implements AutoCloseable{
+/**
+ * Creates and manages the parent window that all pawns attach to.
+ * This allows Controlify to emulate a native splitscreen experience by
+ * making it look like a single window.
+ * <p>
+ * This window become the sole one visible to the user, meaning the icon, title, etc,
+ * must be propagated to this window.
+ * @implNote Window attributes are only propagated from the host window, not the remote pawns.
+ */
+public class ParentWindow implements AutoCloseable {
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -74,7 +83,7 @@ public class ParentWindow implements AutoCloseable{
 
     public void setTitle(String title) {
         RenderSystem.assertOnRenderThread();
-        glfwSetWindowTitle(this.glfwWindowHandle, title + " - Controller Splitscreen");
+        glfwSetWindowTitle(this.glfwWindowHandle, title + " - Controlify Splitscreen");
     }
 
     public void setIcon(PackResources resources, IconSet iconSet) throws IOException {

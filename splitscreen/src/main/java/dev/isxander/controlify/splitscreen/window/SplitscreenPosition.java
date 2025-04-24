@@ -8,6 +8,10 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
+/**
+ * Represents the position and size of each window that makes
+ * up the splitscreen.
+ */
 public enum SplitscreenPosition {
     FULL(0, 0, 1, 1),
     HIDDEN(0, 0, 0, 0),

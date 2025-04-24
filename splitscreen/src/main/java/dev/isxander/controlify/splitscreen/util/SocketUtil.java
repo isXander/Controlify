@@ -1,7 +1,7 @@
 package dev.isxander.controlify.splitscreen.util;
 
 import com.mojang.logging.LogUtils;
-import dev.isxander.controlify.splitscreen.SocketConnectionMethod;
+import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -33,9 +33,9 @@ public final class SocketUtil {
         IS_AF_UNIX_SUPPORTED = isAfUnixSupported;
     }
 
-    public static boolean isSocketListening(SocketConnectionMethod method) {
+    public static boolean isSocketListening(IPCMethod method) {
         switch (method) {
-            case SocketConnectionMethod.TCP(int port) -> {
+            case IPCMethod.TCP(int port) -> {
                 try (ServerSocketChannel server = ServerSocketChannel.open()) {
                     server.bind(new InetSocketAddress(port));
                     return false; // Socket is not open
@@ -45,7 +45,7 @@ public final class SocketUtil {
                     throw new RuntimeException(io);
                 }
             }
-            case SocketConnectionMethod.Unix(String path) -> {
+            case IPCMethod.Unix(String path) -> {
                 if (!isAfUnixSupported()) {
                     throw new UnsupportedOperationException("AF_UNIX sockets are not supported on this platform.");
                 }

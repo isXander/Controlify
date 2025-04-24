@@ -1,11 +1,8 @@
 package dev.isxander.controlify.splitscreen.mixins.core;
 
-import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.platform.Window;
-import com.mojang.blaze3d.platform.WindowEventHandler;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
-import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -32,6 +29,11 @@ public class WindowMixin {
         this.hasDoneInitialSetup = true;
     }
 
+    /**
+     * Propagate the icon of the controller's window to the parent window.
+     * @param iconBuffer the icon buffer to set
+     * @return icon buffer to give to child window
+     */
     @ModifyArg(method = "setIcon", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetWindowIcon(JLorg/lwjgl/glfw/GLFWImage$Buffer;)V"))
     private GLFWImage.Buffer propagateWindowIconToParent(GLFWImage.Buffer iconBuffer) {
         SplitscreenBootstrapper.getController().ifPresent(controller -> {
@@ -42,6 +44,10 @@ public class WindowMixin {
         return iconBuffer;
     }
 
+    /**
+     * Propagate the title of the controller's window to the parent window.
+     * @param title the title to set
+     */
     @Inject(method = "setTitle", at = @At("HEAD"))
     private void propagateTitleToParent(String title, CallbackInfo ci) {
         SplitscreenBootstrapper.getController().ifPresent(controller -> {
@@ -69,6 +75,10 @@ public class WindowMixin {
         }
     }
 
+    /**
+     * We can't allow for child windows to become fullscreen on their own accord.
+     * This will blow everything up.
+     */
     @Inject(
             method = {
                     "setMode",
@@ -81,17 +91,12 @@ public class WindowMixin {
             at = @At("HEAD"),
             cancellable = true)
     private void preventModeChange(CallbackInfo ci) {
-        preventIfSplitscreen("Controlify splitscreen prevented window mode change", ci);
-    }
-
-    @Unique
-    private void preventIfSplitscreen(String message, CallbackInfo ci) {
         if (SplitscreenBootstrapper.isSplitscreen()) {
             if (!hasDoneInitialSetup) {
                 return;
             }
 
-            LOGGER.info(message);
+            LOGGER.info("Preventing fullscreen mode change in child window");
             ci.cancel();
         }
     }

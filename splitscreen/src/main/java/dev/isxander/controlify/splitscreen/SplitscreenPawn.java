@@ -8,12 +8,11 @@ import net.minecraft.client.Minecraft;
  * Interface for a splitscreen pawn.
  * <p>
  * <ul>
- *     <li>If ran on the server, the pawn instance can control itself, or send packets to control remote pawns.</li>
- *     <li>If ran on the client, the packet listener will call upon a local pawn.</li>
+ *     <li>If ran on the server, the pawn instance can controls the self-client, or send packets to control remote pawns.</li>
+ *     <li>If ran on the client, will control itself.</li>
  * </ul>
  * <p>
  * <strong>Unless otherwise stated, methods should expect to be run on the main thread.</strong>
- * 
  */
 public interface SplitscreenPawn {
     /**

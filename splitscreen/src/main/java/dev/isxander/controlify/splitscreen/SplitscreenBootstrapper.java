@@ -1,8 +1,9 @@
 package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
-import dev.isxander.controlify.splitscreen.client.protocol.PawnConnectionListener;
-import dev.isxander.controlify.splitscreen.server.SplitscreenController;
+import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
+import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
+import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
 import dev.isxander.controlify.utils.Platform;
 import net.minecraft.client.Minecraft;
@@ -11,6 +12,11 @@ import org.slf4j.Logger;
 
 import java.util.Optional;
 
+/**
+ * The main class of the splitscreen mod.
+ * Valid on both host and pawns, faciliates the abstraction and access
+ * to the controller and pawn main classes.
+ */
 public class SplitscreenBootstrapper {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -20,14 +26,16 @@ public class SplitscreenBootstrapper {
     /**
      * When a client is started it has to decide whether
      * to become a controller, or a pawn.
-     *
+     * <p>
      * It should do this by testing if the socket is
      * already open (a controller exists), becoming a
      * pawn if so, or opening a socket and becoming a
      * controller if not.
      */
     public static void bootstrap(Minecraft minecraft) {
-        SocketConnectionMethod connectionMethod = getConnectionMethod()
+        LOGGER.info("Boostrapping Controlify splitscreen!");
+
+        IPCMethod connectionMethod = determineIPCMethod()
                 .orElseThrow(() -> new RuntimeException("No connection method available"));
 
         // Attempt to be a pawn (client) first...
@@ -40,11 +48,11 @@ public class SplitscreenBootstrapper {
         }
     }
 
-    private static void bootstrapAsPawn(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
+    private static void bootstrapAsPawn(Minecraft minecraft, IPCMethod connectionMethod) {
         pawnConnectionListener = new PawnConnectionListener(minecraft, connectionMethod);
     }
 
-    private static void bootstrapAsController(Minecraft minecraft, SocketConnectionMethod connectionMethod) {
+    private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod) {
         controller = new SplitscreenController(minecraft, connectionMethod);
     }
 
@@ -52,19 +60,32 @@ public class SplitscreenBootstrapper {
         return controller != null || pawnConnectionListener != null;
     }
 
+    /**
+     * Valid on both controller and pawn, empty if splitscreen is not active
+     * @return the controller bridge
+     */
     public static Optional<ControllerBridge> getControllerBridge() {
         return getController().<ControllerBridge>map(SplitscreenController::getControllerBridge)
                 .or(() -> getPawn().<ControllerBridge>map(PawnConnectionListener::getControllerBridge));
     }
 
+    /**
+     * @return the controller if on host, otherwise empty
+     */
     public static Optional<SplitscreenController> getController() {
         return Optional.ofNullable(controller);
     }
 
+    /**
+     * @return the pawn connection listener if a pawn, otherwise empty
+     */
     public static Optional<PawnConnectionListener> getPawn() {
         return Optional.ofNullable(pawnConnectionListener);
     }
 
+    /**
+     * @return the side of the connection, either controller or pawn, empty if splitscreen is not active
+     */
     public static Optional<Side> getSide() {
         if (controller != null) {
             return Optional.of(Side.CONTROLLER);
@@ -75,15 +96,15 @@ public class SplitscreenBootstrapper {
         }
     }
 
-    private static Optional<SocketConnectionMethod> getConnectionMethod() {
+    private static Optional<IPCMethod> determineIPCMethod() {
         if (SocketUtil.isAfUnixSupported() && false) {
             return switch (Platform.current()) {
-                case WINDOWS -> Optional.of(SocketConnectionMethod.Unix.LOCAL_WINDOWS);
-                case LINUX, MAC -> Optional.of(SocketConnectionMethod.Unix.LOCAL_UNIX);
+                case WINDOWS -> Optional.of(IPCMethod.Unix.LOCAL_WINDOWS);
+                case LINUX, MAC -> Optional.of(IPCMethod.Unix.LOCAL_UNIX);
                 default -> Optional.empty();
             };
         } else {
-            return Optional.of(SocketConnectionMethod.TCP.DEFAULT);
+            return Optional.of(IPCMethod.TCP.DEFAULT);
         }
     }
 }

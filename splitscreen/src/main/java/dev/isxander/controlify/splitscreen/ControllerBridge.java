@@ -8,5 +8,8 @@ package dev.isxander.controlify.splitscreen;
  * </ul>
  */
 public interface ControllerBridge {
+    /**
+     * Sets the caller's client window to be in focus, if the parent window is in foreground.
+     */
     void giveFocusToMeIfForeground();
 }

@@ -41,5 +41,11 @@ public interface WindowManager {
      */
     void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height);
 
+    /**
+     * Gives the {@code childHandle} main focus if the {@code parentHandle} is in the foreground.
+     * @param parentHandle underlying system's native window handle of the parent window
+     * @param childHandle underlying system's native window handle of the child window
+     * @return true if the child window was given focus, false otherwise
+     */
     boolean giveChildFocusIfParentIsForeground(NativeWindowHandle parentHandle, NativeWindowHandle childHandle);
 }
