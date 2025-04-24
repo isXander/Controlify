@@ -1,5 +1,7 @@
 # Controlify Splitscreen
 
+![example](./images/splitscreenwindow.webp)
+
 ## Overview
 
 Controlify Splitscreen is a sub-mod for Controlify that adds local splitscreen multiplayer functionality to Minecraft. It allows multiple players to play on the same computer using different controllers, each with their own game window arranged in a splitscreen layout.
