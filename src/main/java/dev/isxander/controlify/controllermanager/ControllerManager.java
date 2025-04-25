@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controllermanager;
 
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.hid.ControllerHIDService;
 
 import java.util.List;
@@ -15,13 +16,13 @@ public interface ControllerManager {
 
     List<ControllerEntity> getConnectedControllers();
 
-    boolean isControllerConnected(String uid);
+    boolean isControllerConnected(ControllerUID uid);
 
     boolean isControllerGamepad(UniqueControllerID ucid);
 
     Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDService.ControllerHIDInfo hidInfo);
 
-    void closeController(String uid);
+    void closeController(ControllerUID uid);
 
     void close();
 }

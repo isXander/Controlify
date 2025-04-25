@@ -52,7 +52,7 @@ public class ControllerEntity extends ECSEntityImpl {
         logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(ResourceLocation::toString).collect(Collectors.joining(", ")));
     }
 
-    public String uid() {
+    public ControllerUID uid() {
         return this.<UIDComponent>getComponent(UIDComponent.ID).orElseThrow().value();
     }
 

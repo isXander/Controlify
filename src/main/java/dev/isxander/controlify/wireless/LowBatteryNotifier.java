@@ -1,6 +1,7 @@
 package dev.isxander.controlify.wireless;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.controller.battery.PowerState;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class LowBatteryNotifier {
-    private static final Set<String> notifiedControllers = new HashSet<>();
+    private static final Set<ControllerUID> notifiedControllers = new HashSet<>();
     private static int interval;
 
     public static void tick() {
@@ -36,13 +37,13 @@ public class LowBatteryNotifier {
                     .map(BatteryLevelComponent::getBatteryLevel)
                     .orElse(new PowerState.Unknown());
 
-            String uid = controller.uid();
+            ControllerUID uid = controller.uid();
 
-            if (batteryLevel instanceof PowerState.Depleting depleting && depleting.percent() <= 10) {
+            if (batteryLevel instanceof PowerState.Depleting(int percent) && percent <= 10) {
                 if (!notifiedControllers.contains(uid)) {
                     ToastUtils.sendToast(
                             Component.translatable("controlify.toast.low_battery.title"),
-                            Component.translatable("controlify.toast.low_battery.message", controller.name(), depleting.percent() + "%"),
+                            Component.translatable("controlify.toast.low_battery.message", controller.name(), percent + "%"),
                             true
                     );
 

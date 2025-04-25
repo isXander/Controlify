@@ -1,13 +1,20 @@
 package dev.isxander.controlify.controller.info;
 
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.controller.SingleValueComponent;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
-public class UIDComponent extends SingleValueComponent<String> {
+import javax.naming.ldap.Control;
+
+public class UIDComponent extends SingleValueComponent<ControllerUID> {
     public static final ResourceLocation ID = CUtil.rl("uid");
 
-    public UIDComponent(String value) {
+    public UIDComponent(ControllerUID value) {
         super(value, ID);
+    }
+
+    public UIDComponent(String value) {
+        super(new ControllerUID(value), ID);
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
@@ -26,8 +27,8 @@ public abstract class AbstractControllerManager implements ControllerManager {
     protected final Minecraft minecraft;
 
     protected final Map<UniqueControllerID, ControllerEntity> controllersByJid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<ControllerUID, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<ControllerUID, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
 
     protected final ControlifyLogger logger;
 
@@ -119,7 +120,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     @Override
-    public void closeController(String uid) {
+    public void closeController(ControllerUID uid) {
         ControllerEntity controller = controllersByUid.remove(uid);
 
         if (controller == null) return;
@@ -137,7 +138,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     @Override
-    public boolean isControllerConnected(String uid) {
+    public boolean isControllerConnected(ControllerUID uid) {
         return controllersByUid.containsKey(uid);
     }
 

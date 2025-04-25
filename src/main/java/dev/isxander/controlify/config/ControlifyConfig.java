@@ -3,6 +3,7 @@ package dev.isxander.controlify.config;
 import com.google.gson.*;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.controller.input.mapping.MappingEntry;
 import dev.isxander.controlify.controller.input.mapping.MappingEntryTypeAdapter;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -30,6 +31,7 @@ public class ControlifyConfig {
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
             .registerTypeHierarchyAdapter(ResourceLocation.class, new GsonCodecAdapter<>(ResourceLocation.CODEC))
             .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
+            .registerTypeAdapter(ControllerUID.class, new TypeAdapters.StringDerivedTypeAdapter<>(ControllerUID::new, ControllerUID::string))
             .create();
 
     private final Controlify controlify;
@@ -37,11 +39,10 @@ public class ControlifyConfig {
     private boolean dirty;
     private boolean firstLaunch;
 
-    private String currentControllerUid = null;
+    private ControllerUID currentControllerUid = null;
     // used so saving the config doesn't lose controller config that isn't currently connected
     // null means no preference, empty string means I don't want to use a controller.
-    // key: controller uid
-    private final Map<String, JsonObject> storedControllerConfig = new HashMap<>();
+    private final Map<ControllerUID, JsonObject> storedControllerConfig = new HashMap<>();
     private @NotNull GlobalSettings globalSettings = new GlobalSettings();
 
     public ControlifyConfig(Controlify controlify) {
@@ -106,14 +107,14 @@ public class ControlifyConfig {
         { // Current controller
             obj.addProperty(
                     "current_controller",
-                    this.currentControllerUid()
+                    this.currentControllerUid().string()
             );
         }
 
         { // Controller config
             controlify.getControllerManager().ifPresent(this::updateStoredControllerConfig);
             JsonObject controllersObj = new JsonObject();
-            storedControllerConfig.forEach(controllersObj::add);
+            storedControllerConfig.forEach((uid, config) -> controllersObj.add(uid.string(), config));
             obj.add("controllers", controllersObj);
         }
 
@@ -151,7 +152,7 @@ public class ControlifyConfig {
         try {
             JsonElement primitive = json.get("current_controller");
             if (primitive != null) {
-                currentControllerUid = primitive.isJsonNull() ? null : primitive.getAsString();
+                currentControllerUid = ControllerUID.fromNullable(primitive.isJsonNull() ? null : primitive.getAsString());
             } else {
                 CUtil.LOGGER.warn("Current controller is not defined in config!");
                 setDirty();
@@ -164,7 +165,7 @@ public class ControlifyConfig {
         try {
             JsonObject controllersMap = json.getAsJsonObject("controllers");
             controllersMap.asMap().forEach((uid, element) -> {
-                storedControllerConfig.put(uid, element.getAsJsonObject());
+                storedControllerConfig.put(new ControllerUID(uid), element.getAsJsonObject());
             });
             controlify.getControllerManager().ifPresent(this::applyControllerConfig);
         } catch (Exception e) {
@@ -208,11 +209,11 @@ public class ControlifyConfig {
         return false;
     }
 
-    public @Nullable String currentControllerUid() {
+    public @Nullable ControllerUID currentControllerUid() {
         return this.currentControllerUid;
     }
 
-    public void setCurrentControllerUid(@Nullable String uid) {
+    public void setCurrentControllerUid(@Nullable ControllerUID uid) {
         this.currentControllerUid = uid;
     }
 
