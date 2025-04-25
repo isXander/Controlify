@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen;
 
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import net.minecraft.client.Minecraft;
@@ -58,4 +59,10 @@ public interface SplitscreenPawn {
      * @return the current splitscreen mode of the window
      */
     SplitscreenPosition getWindowSplitscreenMode();
+
+    /**
+     * Tells the pawn to use the given controller.
+     * @param controllerUid the UID of the controller to use
+     */
+    void useController(ControllerUID controllerUid);
 }

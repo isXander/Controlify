@@ -51,4 +51,12 @@ public class Win32WindowManager implements WindowManager {
         }
         return false;
     }
+
+    @Override
+    public void setupWindow(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
+        HWND windowHandle = new HWND(new Pointer(handle.handle()));
+
+        USER32.SetWindowPos(windowHandle, null, x, y, width, height,
+                SWP_NOZORDER | SWP_NOACTIVATE | (visible ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
+    }
 }

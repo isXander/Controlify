@@ -8,6 +8,7 @@ import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerConnectionListener;
+import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
@@ -49,7 +50,7 @@ public class SplitscreenController implements ParentWindowEventHandler {
         this.minecraft = minecraft;
         this.controllerBridge = new LocalControllerBridge(minecraft, this);
         this.connectionListener = new ControllerConnectionListener(connectionMethod, this, minecraft);
-        this.addPawn(this.localPawn = new LocalSplitscreenPawn(minecraft)); // control ourselves as a pawn
+        this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft)); // control ourselves as a pawn
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             this.connectionListener.tick();
@@ -132,8 +133,21 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     }
 
-    public void negotiateSplitscreen() {
-
+    public void setSplitscreenMode(ScreenSplitscreenMode mode) {
+        switch (mode) {
+            case FULLSCREEN -> {
+                this.forEachPawn(pawn -> {
+                    this.setPawnWindowSplitscreenMode(pawn, pawn == this.localPawn ?
+                            SplitscreenPosition.FULL : SplitscreenPosition.HIDDEN);
+                });
+            }
+            case SPLITSCREEN -> {
+                this.forEachPawn(pawn -> {
+                    this.setPawnWindowSplitscreenMode(pawn, pawn == this.localPawn ?
+                            SplitscreenPosition.LEFT : SplitscreenPosition.RIGHT);
+                });
+            }
+        }
     }
 
     public void markWindowReady() {
@@ -146,6 +160,13 @@ public class SplitscreenController implements ParentWindowEventHandler {
         while (!this.waitingForWindowTasks.isEmpty()) {
             this.waitingForWindowTasks.poll().run();
         }
+    }
+
+    private void setPawnWindowSplitscreenMode(SplitscreenPawn pawn, SplitscreenPosition pos) {
+        int width = this.parentWindow.getWidth();
+        int height = this.parentWindow.getHeight();
+
+        pawn.setWindowSplitscreenMode(pos, width, height);
     }
 
     private void executeWhenWindowReady(Consumer<@NotNull ParentWindow> consumer) {

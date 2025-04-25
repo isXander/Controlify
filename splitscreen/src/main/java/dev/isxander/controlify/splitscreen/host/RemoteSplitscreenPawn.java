@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen.host;
 
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
@@ -52,6 +53,11 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     @Override
     public void closeGame() {
         this.connection.send(new PawnboundCloseGamePacket());
+    }
+
+    @Override
+    public void useController(ControllerUID controllerUid) {
+        this.connection.send(new PawnboundUseControllerPacket(controllerUid));
     }
 
     @Override

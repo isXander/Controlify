@@ -60,4 +60,9 @@ public class X11WindowManager implements WindowManager {
         // TODO
         return false;
     }
+
+    @Override
+    public void setupWindow(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
+        // TODO
+    }
 }

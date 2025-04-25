@@ -30,5 +30,6 @@ public final class PlayProtocols {
                             .addPacket(PawnboundSplitscreenPositionPacket.TYPE, PawnboundSplitscreenPositionPacket.CODEC)
                             .addPacket(PawnboundWindowFocusStatePacket.TYPE, PawnboundWindowFocusStatePacket.CODEC)
                             .addPacket(PawnboundCloseGamePacket.TYPE, PawnboundCloseGamePacket.CODEC)
+                            .addPacket(PawnboundUseControllerPacket.TYPE, PawnboundUseControllerPacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 }

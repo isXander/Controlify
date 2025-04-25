@@ -10,6 +10,11 @@
     "core.MinecraftMixin",
     "core.VirtualScreenAccessor",
     "core.WindowAccessor",
-    "core.WindowMixin"
+    "core.WindowMixin",
+    "followingame.ClientPacketListenerMixin",
+    "screenop.MinecraftMixin",
+    "screenop.PauseScreenMixin",
+    "screenop.ScreenMixin",
+    "screenop.TitleScreenMixin"
   ]
 }

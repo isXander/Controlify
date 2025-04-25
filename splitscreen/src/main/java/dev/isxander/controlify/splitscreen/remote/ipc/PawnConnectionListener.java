@@ -21,6 +21,7 @@ import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
@@ -112,6 +113,8 @@ public class PawnConnectionListener {
         // will run after above since it is flushed above
         // TODO: too early to access window handle, it hasn't been created yet, have to negotiate window later
         connection.send(new ControllerboundHelloPacket(0L));
+
+        ClientTickEvents.START_CLIENT_TICK.register(client -> connection.tick());
 
         return connection;
     }

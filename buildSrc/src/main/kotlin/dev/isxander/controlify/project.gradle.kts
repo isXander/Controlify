@@ -39,7 +39,7 @@ modstitch.apply {
 
         configureLoom {
             runConfigs.all {
-                ideConfigGenerated(false)
+                ideConfigGenerated(true)
                 vmArg("-Dsodium.checks.issue2561=false")
             }
         }
@@ -52,11 +52,6 @@ modstitch.apply {
         }
 
         defaultRuns()
-        configureNeoforge {
-            runs.all {
-                disableIdeRun()
-            }
-        }
     }
 }
 

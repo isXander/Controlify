@@ -1,5 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
@@ -26,7 +28,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     @Override
     public void joinServer(String host, int port) {
         String ip = host + ":" + port;
-        var address = new ServerAddress(ip, port);
+        var address = new ServerAddress(host, port);
         var data = new ServerData("Splitscreen Master", ip, ServerData.Type.LAN);
 
         ConnectScreen.startConnecting(minecraft.screen, minecraft, address, data, false, null);
@@ -39,11 +41,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
 
     @Override
     public void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight) {
-        ScreenRectangle windowDims = position.applyToRealDims(0, 0, parentWidth, parentHeight);
-
         long windowHandle = minecraft.getWindow().getWindow();
-        GLFW.glfwSetWindowPos(windowHandle, windowDims.left(), windowDims.top());
-        GLFW.glfwSetWindowSize(windowHandle, windowDims.width(), windowDims.height());
+        NativeWindowHandle nativeWindowHandle = WindowManager.get().getNativeWindowHandle(windowHandle);
+
+        ScreenRectangle windowDims = position.applyToRealDims(0, 0, parentWidth, parentHeight);
+        WindowManager.get().setupWindow(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height(), position != SplitscreenPosition.HIDDEN);
 
         this.position = position;
     }
@@ -56,6 +58,17 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     @Override
     public void closeGame() {
         this.minecraft.stop();
+    }
+
+    @Override
+    public void useController(ControllerUID controllerUid) {
+        Controlify.instance().setCurrentController(
+                Controlify.instance().getControllerManager().orElseThrow()
+                        .getConnectedControllers()
+                        .stream().filter(controller -> controller.uid().equals(controllerUid))
+                        .findAny().orElseThrow(),
+                true
+        );
     }
 
     @Override

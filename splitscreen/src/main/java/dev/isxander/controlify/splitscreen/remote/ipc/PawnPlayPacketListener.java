@@ -61,6 +61,11 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
         this.pawn.closeGame();
     }
 
+    public void handleUseController(PawnboundUseControllerPacket packet) {
+        LOGGER.info("Pawn using controller {}", packet.controllerUID());
+        this.pawn.useController(packet.controllerUID());
+    }
+
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {
         this.connection.send(ControllerboundKeepAlivePacket.INSTANCE);
     }
@@ -77,6 +82,8 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
 
     @Override
     public void onDisconnect(DisconnectionDetails details) {
+        // If we disconnect for whatever reason, we can't leave a hanging pawn.
+        this.minecraft.stop();
     }
 
     @Override
