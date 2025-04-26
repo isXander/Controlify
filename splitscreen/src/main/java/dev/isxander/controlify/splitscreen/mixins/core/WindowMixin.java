@@ -1,5 +1,9 @@
 package dev.isxander.controlify.splitscreen.mixins.core;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.mojang.blaze3d.TracyFrameCapture;
+import com.mojang.blaze3d.platform.VideoMode;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
@@ -13,6 +17,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Optional;
 
 @Mixin(Window.class)
 public class WindowMixin {
@@ -75,29 +81,46 @@ public class WindowMixin {
         }
     }
 
-    /**
+    /*
      * We can't allow for child windows to become fullscreen on their own accord.
      * This will blow everything up.
      */
-    @Inject(
-            method = {
-                    "setMode",
-                    "changeFullscreenVideoMode",
-                    "setPreferredFullscreenVideoMode",
-                    "toggleFullScreen",
-                    "setWindowed",
-                    "updateFullscreen"
-            },
-            at = @At("HEAD"),
-            cancellable = true)
-    private void preventModeChange(CallbackInfo ci) {
+    @WrapMethod(method = "setMode")
+    private void preventModeChange(Operation<Void> original) {
+        preventIfSplitscreen(original::call);
+    }
+    @WrapMethod(method = "changeFullscreenVideoMode")
+    private void preventChangeFullscreenVideoMode(Operation<Void> original) {
+        preventIfSplitscreen(original::call);
+    }
+    @WrapMethod(method = "setPreferredFullscreenVideoMode")
+    private void preventSetPreferredFullscreenVideoMode(Optional<VideoMode> preferredFullscreenVideoMode, Operation<Void> original) {
+        preventIfSplitscreen(() -> original.call(preferredFullscreenVideoMode));
+    }
+    @WrapMethod(method = "toggleFullScreen")
+    private void preventToggleFullScreen(Operation<Void> original) {
+        preventIfSplitscreen(original::call);
+    }
+    @WrapMethod(method = "setWindowed")
+    private void preventSetWindowed(int windowedWidth, int windowedHeight, Operation<Void> original) {
+        preventIfSplitscreen(() -> original.call(windowedWidth, windowedHeight));
+    }
+    @WrapMethod(method = "updateFullscreen")
+    private void preventUpdateFullscreen(boolean vsyncEnabled, TracyFrameCapture tracyFrameCapture, Operation<Void> original) {
+        preventIfSplitscreen(() -> original.call(vsyncEnabled, tracyFrameCapture));
+    }
+    @Unique
+    private void preventIfSplitscreen(Runnable originalCall) {
         if (SplitscreenBootstrapper.isSplitscreen()) {
             if (!hasDoneInitialSetup) {
+                originalCall.run();
                 return;
             }
 
             LOGGER.info("Preventing fullscreen mode change in child window");
-            ci.cancel();
+            return;
         }
+
+        originalCall.run();
     }
 }

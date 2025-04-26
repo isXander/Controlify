@@ -105,6 +105,10 @@ public class SplitscreenController implements ParentWindowEventHandler {
         this.pawns.remove(pawn);
     }
 
+    public int getPawnCount() {
+        return this.pawns.size();
+    }
+
     public LocalSplitscreenPawn getLocalPawn() {
         return this.localPawn;
     }
