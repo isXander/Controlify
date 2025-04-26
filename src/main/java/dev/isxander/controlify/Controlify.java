@@ -183,8 +183,6 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
-        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
-                event.controller(), event.hotplugged(), event.newController()));
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
 
         ControlifyBindings.registerModdedBindings();
@@ -280,25 +278,22 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            if(config().currentControllerUid() == null) {
+            Optional<ControllerEntity> preferredController;
+            if (config().currentControllerUid() == null) {
                 // The user hasn't selected a controller yet.
                 // We'll pick one automatically.
-                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
+                preferredController = controllerManager.getConnectedControllers()
                         .stream()
                         .findAny();
-
-                this.setCurrentController(preferredController.orElse(null), false);
-            }
-            else {
+            } else {
                 // The user has selected a preferred controller, or wants to use mouse+kbd (i.e. empty string in currentControllerUid()).
                 // Respect their choice.
-                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
+                preferredController = controllerManager.getConnectedControllers()
                         .stream()
                         .filter(c -> c.uid().equals(config().currentControllerUid()))
                         .findAny();
-
-                this.setCurrentController(preferredController.orElse(null), false);
             }
+            this.setCurrentController(preferredController.orElse(null), false);
         }
 
         config().saveIfDirty();
@@ -359,18 +354,20 @@ public class Controlify implements ControlifyApi {
             if (DebugProperties.INIT_DUMP) {
                 CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
             }
+
+            ControlifyEvents.FINISHED_INIT.invoke(new ControlifyEvents.FinishedInit(this));
         }, minecraft)).thenApply(t -> null);
     }
 
     /**
-     * Called when a controller is connected. Either from controller
-     * discovery or hotplugging.
+     * Called when a controller is connected.
+     * Either from controller discovery or hotplugging.
      *
      * @param controller the new controller
      * @param hotplugged if this was a result of hotplugging
      * @param newController if this controller has never been seen before
      */
-    private void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
+    public void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
 
         wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
@@ -421,6 +418,8 @@ public class Controlify implements ControlifyApi {
         }
 
         setupWizards.add(wizard);
+
+        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplugged, newController));
     }
 
     /**

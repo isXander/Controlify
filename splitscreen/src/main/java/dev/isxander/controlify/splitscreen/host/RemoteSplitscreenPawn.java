@@ -29,13 +29,9 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void setupWindowParent(NativeWindowHandle parentWindow, int x, int y, int width, int height) {
+    public void setupWindowParent(NativeWindowHandle parentWindow) {
         this.connection.send(
-                new PawnboundParentWindowPacket(
-                        parentWindow,
-                        x, y,
-                        width, height
-                )
+                new PawnboundParentWindowPacket(parentWindow)
         );
     }
 

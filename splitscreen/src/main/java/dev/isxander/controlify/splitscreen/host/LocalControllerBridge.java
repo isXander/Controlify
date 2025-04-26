@@ -36,7 +36,7 @@ public class LocalControllerBridge implements ControllerBridge {
 
         if (WindowManager.get().giveChildFocusIfParentIsForeground(nativeParentWindowHandle, childWindow)) {
             this.controller.forEachPawn(pawn -> {
-                pawn.setWindowFocusState(pawn == childPawn);
+                pawn.setWindowFocusState(true);
             });
         }
     }

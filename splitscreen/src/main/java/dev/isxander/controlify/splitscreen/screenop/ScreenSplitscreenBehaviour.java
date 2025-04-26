@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen.screenop;
 
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An interface implemented by {@link net.minecraft.client.gui.screens.Screen}s
@@ -9,6 +10,13 @@ import net.minecraft.client.gui.screens.Screen;
 public interface ScreenSplitscreenBehaviour {
     static ScreenSplitscreenBehaviour fromScreen(Screen screen) {
         return (ScreenSplitscreenBehaviour) screen;
+    }
+
+    static ScreenSplitscreenMode getModeForScreen(@Nullable Screen screen) {
+        if (screen == null) {
+            return ScreenSplitscreenMode.SPLITSCREEN;
+        }
+        return fromScreen(screen).controlify$splitscreen$getMode();
     }
 
     /**

@@ -34,12 +34,8 @@ public interface WindowManager {
     /**
      * Embed a child window inside a parent window, positioning and sizing it.
      * @param parentHandle underlying system's native window handle of the parent window
-     * @param x            x-offset within parent
-     * @param y            y-offset within parent
-     * @param width        width of the child
-     * @param height       height of the child
      */
-    void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height);
+    void embedThisWindow(NativeWindowHandle parentHandle);
 
     /**
      * Gives the {@code childHandle} main focus if the {@code parentHandle} is in the foreground.
@@ -54,5 +50,5 @@ public interface WindowManager {
      * @param handle native window handle
      * @param visible true to show the window, false to hide it
      */
-    void setupWindow(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible);
+    void setupWindowDims(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible);
 }

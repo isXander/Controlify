@@ -26,14 +26,9 @@ public interface SplitscreenPawn {
 
     /**
      * Sets this pawn's window to be a child of the given window.
-     *
      * @param parentWindow the handle of the parent window
-     * @param x relative x position of the child window
-     * @param y relative y position of the child window
-     * @param width width of the child window
-     * @param height height of the child window
      */
-    void setupWindowParent(NativeWindowHandle parentWindow, int x, int y, int width, int height);
+    void setupWindowParent(NativeWindowHandle parentWindow);
 
     /**
      * Sets this pawn's window's splitscreen mode.

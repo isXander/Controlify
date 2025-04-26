@@ -46,9 +46,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     public void handleParentWindow(PawnboundParentWindowPacket packet) {
         this.minecraft.execute(() ->
                 this.pawn.setupWindowParent(
-                        packet.parentWindowHandle(),
-                        packet.x(), packet.y(),
-                        packet.width(), packet.height()
+                        packet.parentWindowHandle()
                 )
         );
     }

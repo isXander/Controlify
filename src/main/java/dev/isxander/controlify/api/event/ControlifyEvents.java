@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.event;
 
 import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -10,6 +11,8 @@ public final class ControlifyEvents {
     public static final EventHandler<ControllerConnected> CONTROLLER_CONNECTED = EventHandler.createPlatformBackedEvent();
 
     public static final EventHandler<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventHandler.createPlatformBackedEvent();
+
+    public static final EventHandler<FinishedInit> FINISHED_INIT = EventHandler.createPlatformBackedEvent();
 
     /**
      * Triggers when the input mode is changed from keyboard to controller or vice versa.
@@ -52,6 +55,10 @@ public final class ControlifyEvents {
     }
 
     public record ControllerDisconnected(ControllerEntity controller) {
+    }
+
+    public record FinishedInit(ControlifyApi controlify) {
+
     }
 
     public record InputModeChanged(InputMode mode) {

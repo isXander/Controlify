@@ -41,7 +41,7 @@ public class X11WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+    public void embedThisWindow(NativeWindowHandle parentHandle) {
         NativeWindowHandle childHandle = this.getNativeWindowHandle(
                 Minecraft.getInstance().getWindow().getWindow()
         );
@@ -49,8 +49,7 @@ public class X11WindowManager implements WindowManager {
         NativeLong childWindow = new NativeLong(childHandle.handle());
         NativeLong parentWindow = new NativeLong(parentHandle.handle());
 
-        X11.INSTANCE.XReparentWindow(display, childWindow, parentWindow, x, y);
-        X11.INSTANCE.XMoveResizeWindow(display, childWindow, x, y, width, height);
+        X11.INSTANCE.XReparentWindow(display, childWindow, parentWindow, 0, 0);
         X11.INSTANCE.XMapWindow(display, childWindow);
         X11.INSTANCE.XFlush(display);
     }
@@ -62,7 +61,10 @@ public class X11WindowManager implements WindowManager {
     }
 
     @Override
-    public void setupWindow(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
-        // TODO
+    public void setupWindowDims(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
+        NativeLong window = new NativeLong(handle.handle());
+
+        X11.INSTANCE.XMoveResizeWindow(display, window, x, y, width, height);
+        // TODO: hide/show window
     }
 }

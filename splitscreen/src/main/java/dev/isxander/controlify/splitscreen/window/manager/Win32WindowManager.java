@@ -20,7 +20,7 @@ public class Win32WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedThisWindow(NativeWindowHandle parentHandle, int x, int y, int width, int height) {
+    public void embedThisWindow(NativeWindowHandle parentHandle) {
         NativeWindowHandle childHandle = this.getNativeWindowHandle(
                 Minecraft.getInstance().getWindow().getWindow()
         );
@@ -32,7 +32,7 @@ public class Win32WindowManager implements WindowManager {
 
         int style = WS_CHILD | WS_VISIBLE;
         USER32.SetWindowLong(childHwnd, GWL_STYLE, style);
-        USER32.SetWindowPos(childHwnd, null, x, y, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
+        USER32.SetWindowPos(childHwnd, null, 0, 0, 10, 10, SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class Win32WindowManager implements WindowManager {
     }
 
     @Override
-    public void setupWindow(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
+    public void setupWindowDims(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible) {
         HWND windowHandle = new HWND(new Pointer(handle.handle()));
 
         USER32.SetWindowPos(windowHandle, null, x, y, width, height,

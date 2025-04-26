@@ -4,10 +4,15 @@ import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.ScreenManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.event.ControlifyEvents;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerConnectionListener;
+import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenBehaviour;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
@@ -15,7 +20,6 @@ import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -24,6 +28,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
@@ -61,6 +66,12 @@ public class SplitscreenController implements ParentWindowEventHandler {
         pawns.forEach(consumer);
     }
 
+    public void forEachPawn(BiConsumer<SplitscreenPawn, Integer> consumer) {
+        for (int i = 0; i < pawns.size(); i++) {
+            consumer.accept(pawns.get(i), i);
+        }
+    }
+
     public void addPawn(SplitscreenPawn pawn) {
         int pawnIndex = this.pawns.size();
         LOGGER.info("Adding pawn #{}", pawnIndex);
@@ -68,20 +79,25 @@ public class SplitscreenController implements ParentWindowEventHandler {
         this.pawns.add(pawn);
 
         executeWhenWindowReady(parentWindow -> {
-            SplitscreenPosition pos = pawnIndex == 0 ?
-                    SplitscreenPosition.LEFT : SplitscreenPosition.RIGHT;
-            ScreenRectangle windowDims = pos.applyToRealDims(0, 0, parentWindow.getWidth(), parentWindow.getHeight());
+            ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(this.minecraft.screen);
 
-            LOGGER.info("Pawn #{} has been assigned splitscreen position {}", pawnIndex, pos);
-
-            // TODO: this basically repeats the below command, potentially remove window positioning from embedding code?
             pawn.setupWindowParent(
-                    WindowManager.get().getNativeWindowHandle(parentWindow.getGlfwWindowHandle()),
-                    windowDims.left(), windowDims.top(),
-                    windowDims.width(), windowDims.height()
+                    WindowManager.get().getNativeWindowHandle(parentWindow.getGlfwWindowHandle())
             );
 
-            pawn.setWindowSplitscreenMode(pos, parentWindow.getWidth(), parentWindow.getHeight());
+            this.setSplitscreenMode(splitscreenMode);
+        });
+
+        ControlifyEvents.FINISHED_INIT.register(event -> {
+            ControllerManager controllerManager = Controlify.instance().getControllerManager().orElseThrow();
+
+            ControllerEntity controller = controllerManager.getConnectedControllers().get(pawnIndex);
+            if (controller == null) {
+                LOGGER.warn("Could not assign controller to pawn #{}: no usable controller found", pawnIndex);
+                return;
+            }
+
+            pawn.useController(controller.uid());
         });
     }
 
@@ -142,9 +158,23 @@ public class SplitscreenController implements ParentWindowEventHandler {
                 });
             }
             case SPLITSCREEN -> {
-                this.forEachPawn(pawn -> {
-                    this.setPawnWindowSplitscreenMode(pawn, pawn == this.localPawn ?
-                            SplitscreenPosition.LEFT : SplitscreenPosition.RIGHT);
+                int pawnCount = this.pawns.size();
+                List<SplitscreenPosition> positions = switch (pawnCount) {
+                    case 1 -> List.of(SplitscreenPosition.FULL);
+                    case 2 -> List.of(SplitscreenPosition.LEFT, SplitscreenPosition.RIGHT);
+                    case 3 -> List.of(SplitscreenPosition.LEFT, SplitscreenPosition.TOP_RIGHT, SplitscreenPosition.BOTTOM_RIGHT);
+                    case 4 -> List.of(SplitscreenPosition.TOP_LEFT, SplitscreenPosition.TOP_RIGHT, SplitscreenPosition.BOTTOM_LEFT, SplitscreenPosition.BOTTOM_RIGHT);
+                    default -> null;
+                };
+                if (positions == null) {
+                    LOGGER.error("Splitscreen mode not supported for {} pawns", pawnCount);
+                    return;
+                }
+
+                this.forEachPawn((pawn, i) -> {
+                    SplitscreenPosition position = positions.get(i);
+                    LOGGER.info("Setting pawn #{} to {}", i, position);
+                    this.setPawnWindowSplitscreenMode(pawn, positions.get(i));
                 });
             }
         }

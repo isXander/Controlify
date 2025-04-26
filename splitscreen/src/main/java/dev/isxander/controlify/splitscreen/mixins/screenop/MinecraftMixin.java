@@ -32,8 +32,7 @@ public class MinecraftMixin {
     private void updateSplitscreenMode(CallbackInfo ci, @Local(argsOnly = true) LocalRef<Screen> guiScreenRef) {
         Screen guiScreen = guiScreenRef.get();
 
-        ScreenSplitscreenMode splitscreenMode = guiScreen == null ? ScreenSplitscreenMode.SPLITSCREEN :
-                ScreenSplitscreenBehaviour.fromScreen(guiScreen).controlify$splitscreen$getMode();
+        ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(guiScreen);
 
         if (splitscreenMode == ScreenSplitscreenMode.FULLSCREEN && SplitscreenBootstrapper.getPawn().isPresent()) {
             guiScreenRef.set(new ImHiddenScreen());

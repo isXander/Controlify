@@ -10,7 +10,6 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * A splitscreen pawn object that actually executes and controls a client.
@@ -35,8 +34,8 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void setupWindowParent(NativeWindowHandle parentWindow, int x, int y, int width, int height) {
-        WindowManager.get().embedThisWindow(parentWindow, x, y, width, height);
+    public void setupWindowParent(NativeWindowHandle parentWindow) {
+        WindowManager.get().embedThisWindow(parentWindow);
     }
 
     @Override
@@ -45,7 +44,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
         NativeWindowHandle nativeWindowHandle = WindowManager.get().getNativeWindowHandle(windowHandle);
 
         ScreenRectangle windowDims = position.applyToRealDims(0, 0, parentWidth, parentHeight);
-        WindowManager.get().setupWindow(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height(), position != SplitscreenPosition.HIDDEN);
+        WindowManager.get().setupWindowDims(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height(), position != SplitscreenPosition.HIDDEN);
 
         this.position = position;
     }

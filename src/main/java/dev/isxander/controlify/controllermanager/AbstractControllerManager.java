@@ -92,7 +92,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         logger.log("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
-        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplug, newController));
+        this.controlify.onControllerAdded(controller, hotplug, newController);
     }
 
     protected void onControllerRemoved(ControllerEntity controller) {
