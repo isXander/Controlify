@@ -74,7 +74,7 @@ public class MinecraftMixin {
     /**
      * Ensures the parent window is closed when the game exist.
      */
-    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;close()V", shift = At.Shift.AFTER))
+    @Inject(method = "close", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;close()V"))
     private void closeParentWindow(CallbackInfo ci) {
         SplitscreenBootstrapper.getController()
                 .flatMap(controller -> Optional.ofNullable(controller.getParentWindow()))
