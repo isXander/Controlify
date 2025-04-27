@@ -6,7 +6,7 @@ plugins {
 
 modstitch {
     metadata {
-        modId = "controlify-splitscreen"
+        modId = "controlify_splitscreen"
         modName = "Controlify (Splitscreen)"
     }
 
