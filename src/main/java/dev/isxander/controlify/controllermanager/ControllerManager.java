@@ -16,6 +16,8 @@ public interface ControllerManager {
 
     List<ControllerEntity> getConnectedControllers();
 
+    Optional<ControllerEntity> getController(ControllerUID uid);
+
     boolean isControllerConnected(ControllerUID uid);
 
     boolean isControllerGamepad(UniqueControllerID ucid);

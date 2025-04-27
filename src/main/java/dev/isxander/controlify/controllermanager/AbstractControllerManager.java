@@ -138,6 +138,11 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     @Override
+    public Optional<ControllerEntity> getController(ControllerUID uid) {
+        return Optional.ofNullable(controllersByUid.get(uid));
+    }
+
+    @Override
     public boolean isControllerConnected(ControllerUID uid) {
         return controllersByUid.containsKey(uid);
     }
