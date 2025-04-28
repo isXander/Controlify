@@ -21,7 +21,7 @@
   },
   "icon": "icon.png",
   "depends": {
-    "controlify": "${mod_version}"
+    "controlify": "*"
   },
   "custom": {
     "modmenu": {
