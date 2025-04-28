@@ -6,6 +6,7 @@ plugins {
 
 modstitch {
     metadata {
+        modVersion = "0.1.0-alpha.1+${stonecutter.current.version}"
         modId = "controlify_splitscreen"
         modName = "Controlify (Splitscreen)"
     }

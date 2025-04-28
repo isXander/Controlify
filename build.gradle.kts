@@ -17,6 +17,7 @@ val loader = when {
 
 modstitch {
     metadata {
+        modVersion = "${project.modVersion}+${stonecutter.current.project}"
         modId = "controlify"
         modName = "Controlify"
     }
@@ -44,7 +45,7 @@ dependencies {
 
     propMap("deps.mixinExtras") {
         when {
-            modstitch.isLoom -> modstitchApi(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$it")!!).jij()
+            modstitch.isLoom -> modstitchApi("io.github.llamalad7:mixinextras-fabric:$it").jij()
             modstitch.isModDevGradleRegular -> api("io.github.llamalad7:mixinextras-neoforge:$it").jij()
             else -> error("Unknown loader")
         }
