@@ -125,4 +125,13 @@ public class MinecraftMixin {
     private void notifyControllerGameReady(CallbackInfo ci) {
         SplitscreenBootstrapper.getControllerBridge().ifPresent(bridge -> bridge.signalImReady(true, 1));
     }
+
+    /**
+     * Controlify Splitscreen overrides splitscreen modes when an overlay is present
+     * to fullscreen only. This ensures that we don't go out of sync with that.
+     */
+    @Inject(method = "setOverlay", at = @At("RETURN"))
+    private void updateSplitscreenWhenOverlayChanges(CallbackInfo ci) {
+        SplitscreenBootstrapper.getController().ifPresent(SplitscreenController::updateSplitscreenMode);
+    }
 }

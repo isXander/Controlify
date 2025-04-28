@@ -113,7 +113,7 @@ public class SplitscreenController implements ParentWindowEventHandler {
             this.pendingRelaunchClients.remove(controllerUid);
             LOGGER.info("Pawn {} is ready", controllerUid);
 
-            this.setSplitscreenMode(ScreenSplitscreenBehaviour.getModeForScreen(this.minecraft.screen));
+            this.updateSplitscreenMode();
 
             NativeWindowHandle parentHandle = WindowManager.get().getNativeWindowHandle(this.parentWindow.getGlfwWindowHandle());
             NativeWindowHandle childHandle = WindowManager.get().getNativeWindowHandle(this.minecraft.getWindow().getWindow());
@@ -186,6 +186,11 @@ public class SplitscreenController implements ParentWindowEventHandler {
     }
 
     public void setSplitscreenMode(ScreenSplitscreenMode mode) {
+        // Do not allow splitscreen if we're loading something, it will ruin the illusion.
+        if (this.minecraft.getOverlay() != null) {
+            mode = ScreenSplitscreenMode.FULLSCREEN;
+        }
+
         switch (mode) {
             case FULLSCREEN -> {
                 this.forEachPawn(pawn -> {
@@ -210,6 +215,10 @@ public class SplitscreenController implements ParentWindowEventHandler {
                 });
             }
         }
+    }
+
+    public void updateSplitscreenMode() {
+        this.setSplitscreenMode(PawnSplitscreenModeRegistry.getMode(this.minecraft.screen));
     }
 
     public void markWindowReady() {
