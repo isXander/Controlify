@@ -1,5 +1,7 @@
 package dev.isxander.controlify.splitscreen.ipc;
 
+import java.nio.file.Path;
+
 /**
  * Represents the method of connection/hosting of the IPC.
  */
@@ -18,7 +20,8 @@ public sealed interface IPCMethod {
      * @param path path to socket
      */
     record Unix(String path) implements IPCMethod {
-        public static final Unix LOCAL_UNIX = new Unix("/tmp/minecraft-controlify-splitscreen.sock");
-        public static final Unix LOCAL_WINDOWS = new Unix("\\\\.\\pipe\\minecraft-controlify-splitscreen");
+        public static Unix inDirectory(Path path) {
+            return new Unix(path.resolve("controlify-splitscreen.sock").toAbsolutePath().toString());
+        }
     }
 }

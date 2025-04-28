@@ -30,7 +30,7 @@ public class RelaunchProcessHandler {
         launchInfo.jvmArgs().add(RelaunchArguments.PAWN_INDEX.asArgument(pawnIndex));
         switch (ipcMethod) {
             case IPCMethod.TCP(int port) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_TCP_PORT.asArgument(port));
-            case IPCMethod.Unix(String socket) -> throw new UnsupportedOperationException("Unix sockets are not supported yet");
+            case IPCMethod.Unix(String socket) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_SOCKET_PATH.asArgument(socket));
         }
 
         String username = minecraft.getUser().getName();

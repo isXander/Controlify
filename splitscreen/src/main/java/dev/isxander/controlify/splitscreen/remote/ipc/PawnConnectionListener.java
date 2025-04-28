@@ -18,6 +18,7 @@ import io.netty.channel.epoll.EpollDomainSocketChannel;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioDomainSocketChannel;
 import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.unix.DomainSocketAddress;
@@ -30,6 +31,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 
 import java.net.InetAddress;
+import java.net.UnixDomainSocketAddress;
 import java.util.function.Supplier;
 
 /**
@@ -70,8 +72,8 @@ public class PawnConnectionListener {
         LOGGER.info("Connecting to controller unix socket at {}", socketPath);
 
         return connect(minecraft, new Bootstrap()
-                .channel(Epoll.isAvailable() ? EpollDomainSocketChannel.class : NioServerDomainSocketChannel.class)
-                .remoteAddress(new DomainSocketAddress(socketPath)));
+                .channel(Epoll.isAvailable() ? EpollDomainSocketChannel.class : NioDomainSocketChannel.class)
+                .remoteAddress(UnixDomainSocketAddress.of(socketPath)));
     }
 
     private Connection connectToTcp(int port, Minecraft minecraft) {

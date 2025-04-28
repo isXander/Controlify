@@ -2,12 +2,14 @@ package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
+import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
 import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
-import dev.isxander.controlify.utils.Platform;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.HttpUtil;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -37,26 +39,35 @@ public class SplitscreenBootstrapper {
     public static void bootstrap(Minecraft minecraft) {
         LOGGER.info("Boostrapping Controlify splitscreen!");
 
-        IPCMethod ipcMethod;
-
         boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
         if (relaunched) {
-            int port = RelaunchArguments.IPC_TCP_PORT.get().orElseThrow();
+            int port = RelaunchArguments.IPC_TCP_PORT.get().orElse(-1);
+            String socketPath = RelaunchArguments.IPC_SOCKET_PATH.get().orElse(null);
+
+            IPCMethod ipcMethod;
+            if (socketPath != null) {
+                ipcMethod = new IPCMethod.Unix(socketPath);
+            } else if (port != -1) {
+                ipcMethod = new IPCMethod.TCP(port);
+            } else {
+                throw new RelaunchException("No socket path or TCP port provided");
+            }
+
             int pawnIndex = RelaunchArguments.PAWN_INDEX.get().orElseThrow();
 
-            ipcMethod = new IPCMethod.TCP(port);
-
             LOGGER.info("Detected relaunch, becoming pawn#{} and connecting to controller via TCP at port {}", pawnIndex, port);
-        } else {
-            LOGGER.info("Not a relaunch, determining launch method manually.");
-            ipcMethod = determineIPCMethod()
-                    .orElseThrow(() -> new RuntimeException("No connection method available"));
-        }
-
-        if (relaunched) {
             bootstrapAsPawn(minecraft, ipcMethod);
         } else {
-            LOGGER.info("Socket not open, attempting to become a controller");
+            LOGGER.info("Not a relaunch, becoming controller!");
+
+            IPCMethod ipcMethod;
+            if (SocketUtil.isAfUnixSupported()) {
+                ipcMethod = IPCMethod.Unix.inDirectory(FabricLoader.getInstance().getGameDir());
+            } else {
+                int openPort = HttpUtil.getAvailablePort();
+                ipcMethod = new IPCMethod.TCP(openPort);
+            }
+
             bootstrapAsController(minecraft, ipcMethod);
         }
     }
@@ -106,18 +117,6 @@ public class SplitscreenBootstrapper {
             return Optional.of(Side.PAWN);
         } else {
             return Optional.empty();
-        }
-    }
-
-    private static Optional<IPCMethod> determineIPCMethod() {
-        if (SocketUtil.isAfUnixSupported() && false) {
-            return switch (Platform.current()) {
-                case WINDOWS -> Optional.of(IPCMethod.Unix.LOCAL_WINDOWS);
-                case LINUX, MAC -> Optional.of(IPCMethod.Unix.LOCAL_UNIX);
-                default -> Optional.empty();
-            };
-        } else {
-            return Optional.of(IPCMethod.TCP.DEFAULT);
         }
     }
 }

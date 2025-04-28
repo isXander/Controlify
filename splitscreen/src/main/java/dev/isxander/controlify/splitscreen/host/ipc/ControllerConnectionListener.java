@@ -17,7 +17,6 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -26,7 +25,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnixDomainSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -67,9 +70,17 @@ public class ControllerConnectionListener {
     private void startUnixListener(String socketPath, SplitscreenController controller) {
         LOGGER.info("Starting unix socket listener on {}", socketPath);
 
+        Path socketPathFile = Path.of(socketPath);
+        try {
+            Files.createDirectories(socketPathFile.getParent());
+            Files.deleteIfExists(socketPathFile);
+        } catch (IOException e) {
+            LOGGER.error("Failed to cleanup socket path", e);
+        }
+
         startListener(controller, new ServerBootstrap()
                 .channel(Epoll.isAvailable() ? EpollServerDomainSocketChannel.class : NioServerDomainSocketChannel.class)
-                .localAddress(new DomainSocketAddress(socketPath)));
+                .localAddress(UnixDomainSocketAddress.of(socketPathFile)));
     }
 
     private void startTcpListener(int port, SplitscreenController controller) {

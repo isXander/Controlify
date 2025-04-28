@@ -7,6 +7,7 @@ public final class RelaunchArguments {
     public static final RelaunchArgument<ControllerUID> CONTROLLER = RelaunchArgument.controller("controlify.splitscreen.controller");
     public static final RelaunchArgument<Integer> PAWN_INDEX = RelaunchArgument.integer("controlify.splitscreen.pawn_index");
     public static final RelaunchArgument<Integer> IPC_TCP_PORT = RelaunchArgument.integer("controlify.splitscreen.ipc.tcp_port");
+    public static final RelaunchArgument<String> IPC_SOCKET_PATH = RelaunchArgument.string("controlify.splitscreen.ipc.socket_path");
     public static final RelaunchArgument<String> USERNAME = RelaunchArgument.string("controlify.splitscreen.username");
     public static final RelaunchArgument<String> LAN_GAME = RelaunchArgument.string("controlify.splitscreen.lan_game");
 
