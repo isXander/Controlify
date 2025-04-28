@@ -17,6 +17,9 @@
   "entrypoints": {
     "client": [
       "dev.isxander.controlify.splitscreen.SplitscreenEntrypoint"
+    ],
+    "controlify": [
+      "dev.isxander.controlify.splitscreen.ControlifyExtension"
     ]
   },
   "icon": "icon.png",

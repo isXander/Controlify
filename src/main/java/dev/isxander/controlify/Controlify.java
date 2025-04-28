@@ -369,7 +369,9 @@ public class Controlify implements ControlifyApi {
      */
     public void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
+        boolean silentSetup = true; // TODO: controlify splitscreen works with wizard
 
+        if (!silentSetup)
         wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
         boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
@@ -391,10 +393,12 @@ public class Controlify implements ControlifyApi {
                 },
                 nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
         );
+        if (!silentSetup)
         wizard.addStage(
                 () -> !calibrated,
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
+        if (!silentSetup)
         wizard.addStage(
                 () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
                 nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)

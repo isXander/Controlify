@@ -1,0 +1,7 @@
+{
+  "defaults": {
+    "controlify_splitscreen:add_player": {
+      "button": "controlify:button/start"
+    }
+  }
+}

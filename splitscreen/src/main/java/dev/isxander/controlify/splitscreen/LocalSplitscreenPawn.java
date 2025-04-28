@@ -10,6 +10,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A splitscreen pawn object that actually executes and controls a client.
@@ -19,9 +20,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     private final Minecraft minecraft;
 
     private SplitscreenPosition position = null;
+    private final @Nullable ControllerUID associatedController;
 
-    public LocalSplitscreenPawn(Minecraft minecraft) {
+    public LocalSplitscreenPawn(Minecraft minecraft, @Nullable ControllerUID associatedController) {
         this.minecraft = minecraft;
+        this.associatedController = associatedController;
     }
 
     @Override
@@ -43,8 +46,15 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
         long windowHandle = minecraft.getWindow().getWindow();
         NativeWindowHandle nativeWindowHandle = WindowManager.get().getNativeWindowHandle(windowHandle);
 
-        ScreenRectangle windowDims = position.applyToRealDims(0, 0, parentWidth, parentHeight);
-        WindowManager.get().setupWindowDims(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height(), position != SplitscreenPosition.HIDDEN);
+        switch (position) {
+            case SplitscreenPosition.Visible visible -> {
+                ScreenRectangle windowDims = visible.applyToRealDims(0, 0, parentWidth, parentHeight);
+                WindowManager.get().setupWindowDims(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height());
+            }
+            case SplitscreenPosition.Hidden ignored -> {
+                WindowManager.get().hideWindow(nativeWindowHandle);
+            }
+        }
 
         this.position = position;
     }
@@ -73,5 +83,15 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     @Override
     public SplitscreenPosition getWindowSplitscreenMode() {
         return position;
+    }
+
+    @Override
+    public @Nullable ControllerUID getAssociatedController() {
+        return associatedController;
+    }
+
+    @Override
+    public boolean isRemote() {
+        return false;
     }
 }

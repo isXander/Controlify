@@ -29,8 +29,9 @@ public class ControllerHandshakePacketListener implements ControllerboundCommonP
         this.connection.setupOutboundProtocol(PlayProtocols.PAWNBOUND);
 
         if (packet.protocolVersion() != 1) {
-            this.connection.send(new PawnboundDisconnectPacket());
-            this.connection.disconnect(Component.literal("Unsupported protocol version: " + packet.protocolVersion()));
+            var reason = Component.literal("Unsupported protocol version: " + packet.protocolVersion());
+            this.connection.send(new PawnboundDisconnectPacket(reason));
+            this.connection.disconnect(reason);
             return;
         }
 

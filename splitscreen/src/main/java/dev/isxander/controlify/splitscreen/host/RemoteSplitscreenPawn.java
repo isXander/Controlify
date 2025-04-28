@@ -6,6 +6,7 @@ import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import net.minecraft.network.Connection;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A splitscreen pawn object that remotely controls another client using packets.
@@ -14,13 +15,16 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     private final Connection connection;
 
     private SplitscreenPosition position = null;
+    private final @Nullable ControllerUID associatedController;
 
     /**
      * Creates a new handle to a remote splitscreen pawn.
      * @param connection connection to a remote client
+     * @param associatedController the controller uid associated with this pawn
      */
-    public RemoteSplitscreenPawn(Connection connection) {
+    public RemoteSplitscreenPawn(Connection connection, @Nullable ControllerUID associatedController) {
         this.connection = connection;
+        this.associatedController = associatedController;
     }
 
     @Override
@@ -59,5 +63,15 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     @Override
     public SplitscreenPosition getWindowSplitscreenMode() {
         return this.position;
+    }
+
+    @Override
+    public @Nullable ControllerUID getAssociatedController() {
+        return this.associatedController;
+    }
+
+    @Override
+    public boolean isRemote() {
+        return true;
     }
 }

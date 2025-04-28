@@ -1,10 +1,12 @@
 package dev.isxander.controlify.splitscreen.host;
 
+import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of {@link ControllerBridge} for when this client is the controller.
@@ -39,5 +41,20 @@ public class LocalControllerBridge implements ControllerBridge {
                 pawn.setWindowFocusState(true);
             });
         }
+    }
+
+    @Override
+    public void signalImReady(boolean finished, float progress) {
+        // no-op
+        // The controller is always ready, so we don't need to signal anything.
+    }
+
+    public void signalRemoteClientReady(boolean finished, float progress, @Nullable ControllerUID associatedController) {
+        this.controller.onPawnReadySignal(finished, progress, associatedController);
+    }
+
+    @Override
+    public boolean isRemote() {
+        return false;
     }
 }

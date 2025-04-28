@@ -46,9 +46,20 @@ public interface WindowManager {
     boolean giveChildFocusIfParentIsForeground(NativeWindowHandle parentHandle, NativeWindowHandle childHandle);
 
     /**
-     * Set the visibility of the window.
+     * Configure the dimensions of the window, also makes it visible.
+     *
      * @param handle native window handle
-     * @param visible true to show the window, false to hide it
      */
-    void setupWindowDims(NativeWindowHandle handle, int x, int y, int width, int height, boolean visible);
+    void setupWindowDims(NativeWindowHandle handle, int x, int y, int width, int height);
+
+    /**
+     * Hide the window.
+     *
+     * @param handle native window handle
+     */
+    void hideWindow(NativeWindowHandle handle);
+
+    void setWindowForeground(NativeWindowHandle handle);
+
+    void setWindowFocused(NativeWindowHandle handle);
 }

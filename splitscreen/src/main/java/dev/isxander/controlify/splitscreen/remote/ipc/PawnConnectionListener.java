@@ -4,6 +4,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
+import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.remote.RemoteControllerBridge;
 import dev.isxander.controlify.splitscreen.ipc.ConnectionUtils;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.handshake.ControllerboundHandshakePacket;
@@ -111,8 +112,7 @@ public class PawnConnectionListener {
             c.setupOutboundProtocol(PlayProtocols.CONTROLLERBOUND);
         });
         // will run after above since it is flushed above
-        // TODO: too early to access window handle, it hasn't been created yet, have to negotiate window later
-        connection.send(new ControllerboundHelloPacket(0L));
+        connection.send(new ControllerboundHelloPacket(RelaunchArguments.CONTROLLER.get().orElse(null)));
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> connection.tick());
 

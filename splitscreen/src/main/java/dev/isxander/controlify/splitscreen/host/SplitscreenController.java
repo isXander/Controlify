@@ -4,19 +4,20 @@ import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.ScreenManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.controlify.splitscreen.host.gui.SplitscreenFakeReloadInstance;
+import dev.isxander.controlify.splitscreen.host.gui.SplitscreenLoadingOverlay;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerConnectionListener;
+import dev.isxander.controlify.splitscreen.host.relaunch.RelaunchProcessHandler;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenBehaviour;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
+import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
@@ -24,10 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -41,8 +39,10 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     private final Minecraft minecraft;
 
-    private final List<SplitscreenPawn> pawns = new ArrayList<>();
     private final ControllerConnectionListener connectionListener;
+    private final IPCMethod ipcMethod;
+
+    private final List<SplitscreenPawn> pawns = new ArrayList<>();
     private final LocalSplitscreenPawn localPawn;
 
     private final LocalControllerBridge controllerBridge;
@@ -51,13 +51,18 @@ public class SplitscreenController implements ParentWindowEventHandler {
     private boolean isWindowReady = false;
     private final Queue<Runnable> waitingForWindowTasks = new ArrayDeque<>();
 
-    public SplitscreenController(Minecraft minecraft, IPCMethod connectionMethod) {
+    private final Map<ControllerUID, RelaunchProcessHandler> relaunchProcessHandlers = new HashMap<>();
+    private final Map<ControllerUID, PendingRelaunchClientStatus> pendingRelaunchClients = new HashMap<>();
+    private @Nullable SplitscreenFakeReloadInstance splitscreenLoaderStatus = null;
+
+    public SplitscreenController(Minecraft minecraft, IPCMethod ipcMethod, @Nullable ControllerUID associatedController) {
         this.minecraft = minecraft;
         this.controllerBridge = new LocalControllerBridge(minecraft, this);
-        this.connectionListener = new ControllerConnectionListener(connectionMethod, this, minecraft);
-        this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft)); // control ourselves as a pawn
+        this.ipcMethod = ipcMethod;
+        this.connectionListener = new ControllerConnectionListener(ipcMethod, this, minecraft);
+        this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft, associatedController)); // control ourselves as a pawn
 
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
             this.connectionListener.tick();
         });
     }
@@ -73,32 +78,59 @@ public class SplitscreenController implements ParentWindowEventHandler {
     }
 
     public void addPawn(SplitscreenPawn pawn) {
+        // TODO: receive the pawn index from the pawn itself as there may be a mismatch with relaunch (race condition)
         int pawnIndex = this.pawns.size();
         LOGGER.info("Adding pawn #{}", pawnIndex);
 
         this.pawns.add(pawn);
 
         executeWhenWindowReady(parentWindow -> {
-            ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(this.minecraft.screen);
-
             pawn.setupWindowParent(
                     WindowManager.get().getNativeWindowHandle(parentWindow.getGlfwWindowHandle())
             );
 
-            this.setSplitscreenMode(splitscreenMode);
+            this.setPawnWindowSplitscreenMode(pawn, SplitscreenPosition.HIDDEN);
         });
 
-        ControlifyEvents.FINISHED_INIT.register(event -> {
-            ControllerManager controllerManager = Controlify.instance().getControllerManager().orElseThrow();
+        @Nullable ControllerUID associatedController = pawn.getAssociatedController();
+        if (associatedController != null) {
+            PendingRelaunchClientStatus newStatus = new PendingRelaunchClientStatus.WaitingForReadySignal(0);
+            PendingRelaunchClientStatus oldStatus = this.pendingRelaunchClients.put(associatedController, newStatus);
 
-            ControllerEntity controller = controllerManager.getConnectedControllers().get(pawnIndex);
-            if (controller == null) {
-                LOGGER.warn("Could not assign controller to pawn #{}: no usable controller found", pawnIndex);
-                return;
+            if (!(oldStatus instanceof PendingRelaunchClientStatus.WaitingForConnection)) {
+                LOGGER.warn("Pawn connected with controller {} but we were not expecting it", associatedController);
             }
+        }
+    }
 
-            pawn.useController(controller.uid());
-        });
+    public void onPawnReadySignal(boolean finished, float progress, @Nullable ControllerUID controllerUid) {
+        if (controllerUid == null) {
+            LOGGER.warn("Pawn ready signal received with no controller UID");
+            return;
+        }
+
+        if (finished) {
+            this.pendingRelaunchClients.remove(controllerUid);
+            LOGGER.info("Pawn {} is ready", controllerUid);
+
+            this.setSplitscreenMode(ScreenSplitscreenBehaviour.getModeForScreen(this.minecraft.screen));
+
+            NativeWindowHandle parentHandle = WindowManager.get().getNativeWindowHandle(this.parentWindow.getGlfwWindowHandle());
+            NativeWindowHandle childHandle = WindowManager.get().getNativeWindowHandle(this.minecraft.getWindow().getWindow());
+            WindowManager.get().setWindowForeground(parentHandle);
+            WindowManager.get().setWindowFocused(childHandle);
+
+            this.forEachPawn(pawn -> {
+                pawn.setWindowFocusState(true);
+            });
+        } else {
+            var newStatus = new PendingRelaunchClientStatus.WaitingForReadySignal(progress);
+            var oldStatus = this.pendingRelaunchClients.put(controllerUid, newStatus);
+
+            if (oldStatus == null) {
+                LOGGER.warn("Pawn {} sent ready update but we were not waiting on it", controllerUid);
+            }
+        }
     }
 
     public void removePawn(SplitscreenPawn pawn) {
@@ -163,22 +195,18 @@ public class SplitscreenController implements ParentWindowEventHandler {
             }
             case SPLITSCREEN -> {
                 int pawnCount = this.pawns.size();
-                List<SplitscreenPosition> positions = switch (pawnCount) {
-                    case 1 -> List.of(SplitscreenPosition.FULL);
-                    case 2 -> List.of(SplitscreenPosition.LEFT, SplitscreenPosition.RIGHT);
-                    case 3 -> List.of(SplitscreenPosition.LEFT, SplitscreenPosition.TOP_RIGHT, SplitscreenPosition.BOTTOM_RIGHT);
-                    case 4 -> List.of(SplitscreenPosition.TOP_LEFT, SplitscreenPosition.TOP_RIGHT, SplitscreenPosition.BOTTOM_LEFT, SplitscreenPosition.BOTTOM_RIGHT);
-                    default -> null;
+                SplitscreenPosition.Visible[] positions = switch (pawnCount) {
+                    case 1 -> new SplitscreenPosition.Visible[]{SplitscreenPosition.FULL};
+                    case 2 -> SplitscreenPosition.LEFT_RIGHT;
+                    case 3 -> SplitscreenPosition.LEFT_TOP_BOTTOM;
+                    case 4 -> SplitscreenPosition.FOUR_WAY;
+                    default -> SplitscreenPosition.Visible.arrangeInGridForN(pawnCount);
                 };
-                if (positions == null) {
-                    LOGGER.error("Splitscreen mode not supported for {} pawns", pawnCount);
-                    return;
-                }
 
                 this.forEachPawn((pawn, i) -> {
-                    SplitscreenPosition position = positions.get(i);
+                    SplitscreenPosition position = positions[i];
                     LOGGER.info("Setting pawn #{} to {}", i, position);
-                    this.setPawnWindowSplitscreenMode(pawn, positions.get(i));
+                    this.setPawnWindowSplitscreenMode(pawn, position);
                 });
             }
         }
@@ -204,10 +232,47 @@ public class SplitscreenController implements ParentWindowEventHandler {
     }
 
     private void executeWhenWindowReady(Consumer<@NotNull ParentWindow> consumer) {
-        if (this.parentWindow != null) {
+        if (this.isWindowReady) {
             consumer.accept(this.parentWindow);
         } else {
             this.waitingForWindowTasks.add(() -> consumer.accept(this.parentWindow));
         }
+    }
+
+    /**
+     * Relaunches the game to add another player, bound to a specific controller.
+     *
+     * @param controller the controller to associate with this new pawn
+     * @return if the pawn was successfully summoned
+     */
+    public boolean summonNewPawnClient(ControllerUID controller) {
+        if (this.relaunchProcessHandlers.containsKey(controller)) {
+            return false;
+        }
+
+        int pawnIndex = this.pawns.size();
+        RelaunchProcessHandler handler = RelaunchProcessHandler.createProcess(this.minecraft, controller, pawnIndex, this.ipcMethod);
+        this.relaunchProcessHandlers.put(controller, handler);
+        this.pendingRelaunchClients.put(controller, new PendingRelaunchClientStatus.WaitingForConnection());
+
+        if (this.splitscreenLoaderStatus == null) {
+            this.splitscreenLoaderStatus = new SplitscreenFakeReloadInstance(this.pendingRelaunchClients.values());
+
+            if (this.minecraft.getOverlay() != null) {
+                LOGGER.error("Tried to open the splitscreen loading overlay but another overlay was open");
+            } else {
+                this.minecraft.setOverlay(new SplitscreenLoadingOverlay(this.minecraft, this.splitscreenLoaderStatus, (err) -> {
+                    this.splitscreenLoaderStatus = null;
+                }, true));
+            }
+        }
+
+        handler.onExit().whenComplete((h, throwable) -> {
+            if (this.pendingRelaunchClients.remove(controller) != null) {
+                LOGGER.info("Relaunch client exited before it was ready, did it crash?");
+            }
+        });
+
+        return true;
     }
 }

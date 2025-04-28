@@ -1,57 +1,114 @@
 package dev.isxander.controlify.splitscreen.window;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
+import com.mojang.datafixers.util.Either;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+
+import java.util.function.Function;
 
 /**
  * Represents the position and size of each window that makes
  * up the splitscreen.
  */
-public enum SplitscreenPosition {
-    FULL(0, 0, 1, 1),
-    HIDDEN(0, 0, 0, 0),
+public sealed interface SplitscreenPosition {
+    Visible FULL = new Visible(0, 0, 1, 1);
+    Hidden HIDDEN = Hidden.INSTANCE;
 
-    LEFT(0, 0, 0.5f, 1),
-    RIGHT(0.5f, 0, 0.5f, 1),
-    TOP(0f, 0f, 1f, 0.5f),
-    BOTTOM(0f, 0.5f, 1, 0.5f),
+    /* 2-player left-right splitscreen */
+    Visible LEFT = new Visible(0, 0, 2, 1);
+    Visible RIGHT = new Visible(1, 0, 2, 1);
+    Visible[] LEFT_RIGHT = new Visible[]{LEFT, RIGHT};
 
-    TOP_LEFT(0, 0, 0.5f, 0.5f),
-    TOP_RIGHT(0.5f, 0, 0.5f, 0.5f),
-    BOTTOM_LEFT(0f, 0.5f, 0.5f, 0.5f),
-    BOTTOM_RIGHT(0.5f, 0.5f, 0.5f, 0.5f);
+    /* 2-player top-bottom splitscreen */
+    Visible TOP = new Visible(0, 0, 1, 2);
+    Visible BOTTOM = new Visible(0, 1, 1, 2);
+    Visible[] TOP_BOTTOM = new Visible[]{TOP, BOTTOM};
 
-    private final float x, y;
-    private final float width, height;
+    /* 4-player splitscreen */
+    Visible TOP_LEFT = new Visible(0, 0, 2, 2);
+    Visible TOP_RIGHT = new Visible(1, 0, 2, 2);
+    Visible BOTTOM_LEFT = new Visible(0, 1, 2, 2);
+    Visible BOTTOM_RIGHT = new Visible(1, 1, 2, 2);
+    Visible[] FOUR_WAY = new Visible[]{TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT};
 
-    SplitscreenPosition(float x, float y, float width, float height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    /* 3-player side-by-side splitscreen */
+    Visible LEFT_THIRD = new Visible(0, 0, 3, 1);
+    Visible CENTER_THIRD = new Visible(1, 0, 3, 1);
+    Visible RIGHT_THIRD = new Visible(2, 0, 3, 1);
+    Visible[] LEFT_CENTER_RIGHT = new Visible[]{LEFT_THIRD, CENTER_THIRD, RIGHT_THIRD};
+
+    /* 3-player unbalanced splitscreen */
+    Visible[] LEFT_TOP_BOTTOM = new Visible[]{LEFT, TOP_RIGHT, BOTTOM_RIGHT};
+
+    StreamCodec<ByteBuf, SplitscreenPosition> STREAM_CODEC =
+            ByteBufCodecs.either(Visible.STREAM_CODEC, Hidden.STREAM_CODEC)
+                    .map(
+                            either -> either.map(Function.identity(), Function.identity()),
+                            pos -> switch (pos) {
+                                case Visible visible -> Either.left(visible);
+                                case Hidden ignored -> Either.right(HIDDEN);
+                            }
+                    );
+
+    /**
+     * Represents a visible splitscreen position.
+     * @param x the cell x coordinate
+     * @param y the cell y coordinate
+     * @param width the amount of cells to occupy in the x direction
+     * @param height the amount of cells to occupy in the y direction
+     * @param cellCountX the total cell count making up the window width
+     * @param cellCountY the total cell count making up the window height
+     */
+    record Visible(int x, int y, int width, int height, int cellCountX, int cellCountY) implements SplitscreenPosition {
+        public static final StreamCodec<ByteBuf, Visible> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.INT,
+                        Visible::x,
+                        ByteBufCodecs.INT,
+                        Visible::y,
+                        ByteBufCodecs.INT,
+                        Visible::width,
+                        ByteBufCodecs.INT,
+                        Visible::height,
+                        ByteBufCodecs.INT,
+                        Visible::cellCountX,
+                        ByteBufCodecs.INT,
+                        Visible::cellCountY,
+                        Visible::new
+                );
+
+        public Visible(int x, int y, int cellCountX, int cellCountY) {
+            this(x, y, 1, 1, cellCountX, cellCountY);
+        }
+
+        public ScreenRectangle applyToRealDims(int x, int y, int width, int height) {
+            int quadrantWidth = width / cellCountX;
+            int quadrantHeight = height / cellCountY;
+            int realX = x + this.x * quadrantWidth;
+            int realY = y + this.y * quadrantHeight;
+            return new ScreenRectangle(realX, realY, quadrantWidth, quadrantHeight);
+        }
+
+        public static Visible[] arrangeInGridForN(int n) {
+            int cellCountX = (int) Math.ceil(Math.sqrt(n));
+            int cellCountY = (int) Math.ceil((double) n / cellCountX);
+
+            Visible[] positions = new Visible[n];
+            for (int i = 0; i < n; i++) {
+                int x = i % cellCountX;
+                int y = i / cellCountX;
+                positions[i] = new Visible(x, y, cellCountX, cellCountY);
+            }
+
+            return positions;
+        }
     }
 
-    public ScreenRectangle applyToRealDims(int x, int y, int width, int height) {
-        return new ScreenRectangle(x + (int) (this.x * width), y + (int) (this.y * height), (int) (this.width * width), (int) (this.height * height));
+    record Hidden() implements SplitscreenPosition {
+        private static final Hidden INSTANCE = new Hidden();
+
+        public static final StreamCodec<ByteBuf, Hidden> STREAM_CODEC = StreamCodec.unit(INSTANCE);
     }
-
-    public static final Codec<SplitscreenPosition> CODEC = Codec.INT
-            .comapFlatMap(
-                    ordinal -> {
-                        if (ordinal >= 0 && ordinal < SplitscreenPosition.values().length) {
-                            return DataResult.success(SplitscreenPosition.values()[ordinal]);
-                        } else {
-                            return DataResult.error(() -> "Invalid ordinal");
-                        }
-                    },
-                    Enum::ordinal
-            );
-
-    public static final StreamCodec<ByteBuf, SplitscreenPosition> STREAM_CODEC = ByteBufCodecs.INT
-            .map(ordinal -> SplitscreenPosition.values()[ordinal], Enum::ordinal);
 }

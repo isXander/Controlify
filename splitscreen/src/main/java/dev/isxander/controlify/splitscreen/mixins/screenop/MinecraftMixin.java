@@ -1,6 +1,10 @@
 package dev.isxander.controlify.splitscreen.mixins.screenop;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.remote.screenop.ImHiddenScreen;
@@ -16,9 +20,33 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
+
     /**
-     * Hooks in when the screen is set to update the splitscreen mode.
-     * @param guiScreenRef arg from target method, the new screen to be set - has been modified by the method
+     * Don't show screens when on hidden pawns. This could lead to unintended behaviour.
+     * @param newScreen the screen that is attempted to be set
+     * @param splitscreenModeRef local ref of the gathered splitscreen mode to pass to the next injector below
+     * @return the screen to assign to the Minecraft.screen field
+     */
+    @Definition(id = "screen", field = "Lnet/minecraft/client/Minecraft;screen:Lnet/minecraft/client/gui/screens/Screen;")
+    @Definition(id = "newScreen", local = @Local(type = Screen.class, argsOnly = true))
+    @Expression("this.screen = @(newScreen)")
+    @ModifyExpressionValue(method = "setScreen", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private Screen overrideScreenIfPawnFullscreen(Screen newScreen, @Local(argsOnly = true) LocalRef<Screen> newScreenRef, @Share("splitscreenMode") LocalRef<ScreenSplitscreenMode> splitscreenModeRef) {
+        ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(newScreen);
+        splitscreenModeRef.set(splitscreenMode);
+        if (splitscreenMode == ScreenSplitscreenMode.FULLSCREEN && SplitscreenBootstrapper.getPawn().isPresent()) {
+            System.out.println("Attempted to set " + newScreen.getClass().getSimpleName() + " as the screen on a pawn client.");
+
+            var hiddenScreen = new ImHiddenScreen();
+            newScreenRef.set(hiddenScreen);
+            return hiddenScreen;
+        }
+
+        return newScreen;
+    }
+
+    /**
+     * Update whether the current screen is a fullscreen or splitscreen screen
      */
     @Inject(
             method = "setScreen",
@@ -29,17 +57,10 @@ public class MinecraftMixin {
                     @At(value = "INVOKE", target = "Lnet/minecraft/client/sounds/SoundManager;resume()V")
             }
     )
-    private void updateSplitscreenMode(CallbackInfo ci, @Local(argsOnly = true) LocalRef<Screen> guiScreenRef) {
-        Screen guiScreen = guiScreenRef.get();
-
-        ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(guiScreen);
-
-        if (splitscreenMode == ScreenSplitscreenMode.FULLSCREEN && SplitscreenBootstrapper.getPawn().isPresent()) {
-            guiScreenRef.set(new ImHiddenScreen());
-        } else {
-            SplitscreenBootstrapper.getController().ifPresent(controller -> {
-                controller.setSplitscreenMode(splitscreenMode);
-            });
-        }
+    private void updateSplitscreenMode(CallbackInfo ci, @Share("splitscreenMode") LocalRef<ScreenSplitscreenMode> splitscreenModeRef) {
+        ScreenSplitscreenMode splitscreenMode = splitscreenModeRef.get();
+        SplitscreenBootstrapper.getController().ifPresent(controller -> {
+            controller.setSplitscreenMode(splitscreenMode);
+        });
     }
 }

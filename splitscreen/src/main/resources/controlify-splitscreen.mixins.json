@@ -10,15 +10,26 @@
   },
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "core.IntegratedServerMixin",
     "core.MinecraftMixin",
     "core.VirtualScreenAccessor",
     "core.WindowAccessor",
     "core.WindowMixin",
     "followingame.ClientPacketListenerMixin",
+    "followingame.ConnectScreenMixin",
     "followingame.IntegratedServerMixin",
+    "relaunch.MainMixin",
+    "screenop.ConnectScreenMixin",
+    "screenop.DisconnectScreenMixin",
+    "screenop.GenericMessageScreenMixin",
     "screenop.MinecraftMixin",
     "screenop.PauseScreenMixin",
+    "screenop.ProgressScreenMixin",
     "screenop.ScreenMixin",
     "screenop.TitleScreenMixin"
+  ],
+  "mixins": [
+    "controlify.ControlifyConfigMixin",
+    "controlify.ControlifyMixin"
   ]
 }

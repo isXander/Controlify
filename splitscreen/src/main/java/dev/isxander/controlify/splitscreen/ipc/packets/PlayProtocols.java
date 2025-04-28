@@ -18,6 +18,7 @@ public final class PlayProtocols {
                             .addPacket(ControllerboundHelloPacket.TYPE, ControllerboundHelloPacket.CODEC)
                             .addPacket(ControllerboundKeepAlivePacket.TYPE, ControllerboundKeepAlivePacket.CODEC)
                             .addPacket(ControllerboundGiveMeFocusIfForegroundPacket.TYPE, ControllerboundGiveMeFocusIfForegroundPacket.CODEC)
+                            .addPacket(ControllerboundSignalReadyPacket.TYPE, ControllerboundSignalReadyPacket.CODEC)
             ).bind(FriendlyByteBuf::new);
 
     public static final ProtocolInfo<PawnPlayPacketListener> PAWNBOUND =

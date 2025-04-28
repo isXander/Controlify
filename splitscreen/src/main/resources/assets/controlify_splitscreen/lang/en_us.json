@@ -1,0 +1,5 @@
+{
+  "controlify.splitscreen.bind.category": "Splitscreen",
+  "controlify.binding.controlify_splitscreen.add_player": "Add Player",
+  "controlify.binding.controlify_splitscreen.add_player.desc": "Press this input on a connected controller to add the controller as a new splitscreen player."
+}

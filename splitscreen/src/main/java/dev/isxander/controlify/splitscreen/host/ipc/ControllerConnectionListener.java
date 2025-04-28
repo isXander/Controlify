@@ -137,7 +137,7 @@ public class ControllerConnectionListener {
                     } catch (Throwable e) {
                         LOGGER.error("Failed to handle packet for {}", connection.getLoggableAddress(false), e);
                         Component component = Component.literal("Internal server error");
-                        connection.send(new PawnboundDisconnectPacket(), PacketSendListener.thenRun(() -> connection.disconnect(component)));
+                        connection.send(new PawnboundDisconnectPacket(component), PacketSendListener.thenRun(() -> connection.disconnect(component)));
                         connection.setReadOnly();
                     }
                 } else {

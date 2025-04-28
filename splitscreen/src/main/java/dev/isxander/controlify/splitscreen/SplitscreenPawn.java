@@ -4,6 +4,7 @@ import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import net.minecraft.client.Minecraft;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Interface for a splitscreen pawn.
@@ -15,7 +16,7 @@ import net.minecraft.client.Minecraft;
  * <p>
  * <strong>Unless otherwise stated, methods should expect to be run on the main thread.</strong>
  */
-public interface SplitscreenPawn {
+public interface SplitscreenPawn extends Bridge {
     /**
      * Connects client to the given server.
      *
@@ -60,4 +61,9 @@ public interface SplitscreenPawn {
      * @param controllerUid the UID of the controller to use
      */
     void useController(ControllerUID controllerUid);
+
+    /**
+     * @return the associated controller UID for this pawn, or null if no controller is associated
+     */
+    @Nullable ControllerUID getAssociatedController();
 }

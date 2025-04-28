@@ -55,7 +55,7 @@ public class ParentWindow implements AutoCloseable {
         this.glfwWindowHandle = glfwCreateWindow(
                 this.width, this.height,
                 initialTitle,
-                0L, // only needs setting if splitscreen it seems (following vanilla behaviour)
+                0L, // only needs setting if fullscreen it seems (following vanilla behaviour)
                 0L
         );
         if (this.glfwWindowHandle == 0L) {

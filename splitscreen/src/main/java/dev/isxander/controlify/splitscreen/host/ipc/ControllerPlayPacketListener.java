@@ -7,6 +7,7 @@ import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.Cont
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundKeepAlivePacket;
 import dev.isxander.controlify.splitscreen.host.RemoteSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.PawnboundKeepAlivePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -35,7 +36,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleHello(ControllerboundHelloPacket packet) {
-        this.pawnInstance = new RemoteSplitscreenPawn(this.connection);
+        this.pawnInstance = new RemoteSplitscreenPawn(this.connection, packet.controller());
         this.controller.addPawn(this.pawnInstance);
 
         // initiate keep alive chain
@@ -46,6 +47,10 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
         this.minecraft.execute(() -> {
             this.controller.getControllerBridge().giveFocusToChildIfForeground(packet.childWindow(), this.pawnInstance);
         });
+    }
+
+    public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
+        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance.getAssociatedController());
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {

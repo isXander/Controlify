@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
@@ -32,19 +33,31 @@ public class SplitscreenBootstrapper {
      * pawn if so, or opening a socket and becoming a
      * controller if not.
      */
+    // TODO: bootstrap late when a second controller is added, not at init
     public static void bootstrap(Minecraft minecraft) {
         LOGGER.info("Boostrapping Controlify splitscreen!");
 
-        IPCMethod connectionMethod = determineIPCMethod()
-                .orElseThrow(() -> new RuntimeException("No connection method available"));
+        IPCMethod ipcMethod;
 
-        // Attempt to be a pawn (client) first...
-        if (SocketUtil.isSocketListening(connectionMethod)) {
-            LOGGER.info("Socket already open, attempting to become a pawn");
-            bootstrapAsPawn(minecraft, connectionMethod);
+        boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
+        if (relaunched) {
+            int port = RelaunchArguments.IPC_TCP_PORT.get().orElseThrow();
+            int pawnIndex = RelaunchArguments.PAWN_INDEX.get().orElseThrow();
+
+            ipcMethod = new IPCMethod.TCP(port);
+
+            LOGGER.info("Detected relaunch, becoming pawn#{} and connecting to controller via TCP at port {}", pawnIndex, port);
+        } else {
+            LOGGER.info("Not a relaunch, determining launch method manually.");
+            ipcMethod = determineIPCMethod()
+                    .orElseThrow(() -> new RuntimeException("No connection method available"));
+        }
+
+        if (relaunched) {
+            bootstrapAsPawn(minecraft, ipcMethod);
         } else {
             LOGGER.info("Socket not open, attempting to become a controller");
-            bootstrapAsController(minecraft, connectionMethod);
+            bootstrapAsController(minecraft, ipcMethod);
         }
     }
 
@@ -53,7 +66,7 @@ public class SplitscreenBootstrapper {
     }
 
     private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod) {
-        controller = new SplitscreenController(minecraft, connectionMethod);
+        controller = new SplitscreenController(minecraft, connectionMethod, null);
     }
 
     public static boolean isSplitscreen() {

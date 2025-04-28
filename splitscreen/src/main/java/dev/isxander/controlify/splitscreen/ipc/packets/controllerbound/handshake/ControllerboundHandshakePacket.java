@@ -1,7 +1,7 @@
 package dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.handshake;
 
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerHandshakePacketListener;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.splitscreen.util.CSUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +12,7 @@ import net.minecraft.network.protocol.PacketType;
 public record ControllerboundHandshakePacket(int protocolVersion) implements Packet<ControllerHandshakePacketListener> {
     public static final StreamCodec<ByteBuf, ControllerboundHandshakePacket> CODEC =
             ByteBufCodecs.INT.map(ControllerboundHandshakePacket::new, ControllerboundHandshakePacket::protocolVersion);
-    public static final PacketType<ControllerboundHandshakePacket> TYPE = new PacketType<>(PacketFlow.SERVERBOUND, CUtil.rl("handshake"));
+    public static final PacketType<ControllerboundHandshakePacket> TYPE = new PacketType<>(PacketFlow.SERVERBOUND, CSUtil.rl("handshake"));
 
     @Override
     public void handle(ControllerHandshakePacketListener handler) {

@@ -116,4 +116,13 @@ public class MinecraftMixin {
 
         return localOnlyLanServer && !isFullscreen;
     }
+
+    /**
+     * Inject when game is fully ready to notify the controller that we are ready and
+     * it can remove the waiting screen.
+     */
+    @Inject(method = "onGameLoadFinished", at = @At("HEAD"))
+    private void notifyControllerGameReady(CallbackInfo ci) {
+        SplitscreenBootstrapper.getControllerBridge().ifPresent(bridge -> bridge.signalImReady(true, 1));
+    }
 }

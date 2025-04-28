@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen.remote;
 
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundGiveMeFocusIfForegroundPacket;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
 import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -28,5 +29,15 @@ public class RemoteControllerBridge implements ControllerBridge {
                         this.minecraft.getWindow().getWindow()
                 )
         ));
+    }
+
+    @Override
+    public void signalImReady(boolean finished, float progress) {
+        this.connection.send(new ControllerboundSignalReadyPacket(finished, progress));
+    }
+
+    @Override
+    public boolean isRemote() {
+        return true;
     }
 }

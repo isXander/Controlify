@@ -5,6 +5,7 @@ import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundKeepAlivePacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
+import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
@@ -26,7 +27,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     private final Minecraft minecraft;
 
     public PawnPlayPacketListener(Connection connection, Minecraft minecraft) {
-        this.pawn = new LocalSplitscreenPawn(minecraft);
+        this.pawn = new LocalSplitscreenPawn(minecraft, RelaunchArguments.CONTROLLER.get().orElse(null));
         this.connection = connection;
         this.minecraft = minecraft;
     }

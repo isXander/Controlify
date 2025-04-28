@@ -239,6 +239,13 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         @Override
         public void onConfigSaveLoad(ControllerEntity controller) {
             this.validateRadialActions(controller);
+
+            // TODO: re-add deadzone calibration for controlify splitscreen
+            if (!this.deadzonesCalibrated) {
+                this.deadzonesCalibrated = true;
+                this.deadzones.put(CUtil.rl("left_stick"), 0.1f);
+                this.deadzones.put(CUtil.rl("right_stick"), 0.1f);
+            }
         }
 
         private void validateRadialActions(ControllerEntity controller) {
