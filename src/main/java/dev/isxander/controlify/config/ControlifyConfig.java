@@ -31,7 +31,7 @@ public class ControlifyConfig {
             .registerTypeHierarchyAdapter(Class.class, new TypeAdapters.ClassTypeAdapter())
             .registerTypeHierarchyAdapter(ResourceLocation.class, new GsonCodecAdapter<>(ResourceLocation.CODEC))
             .registerTypeAdapter(MappingEntry.class, new MappingEntryTypeAdapter()) // not hierarchy!! otherwise stackoverflow when using default gson record deserializer
-            .registerTypeAdapter(ControllerUID.class, new TypeAdapters.StringDerivedTypeAdapter<>(ControllerUID::new, ControllerUID::string))
+            .registerTypeAdapter(ControllerUID.class, new TypeAdapters.StringDerivedTypeAdapter<>(ControllerUID::fromNullableString, ControllerUID::toNullableString))
             .create();
 
     private final Controlify controlify;
@@ -39,7 +39,7 @@ public class ControlifyConfig {
     private boolean dirty;
     private boolean firstLaunch;
 
-    private ControllerUID currentControllerUid = null;
+    private @Nullable ControllerUID currentControllerUid = null;
     // used so saving the config doesn't lose controller config that isn't currently connected
     // null means no preference, empty string means I don't want to use a controller.
     private final Map<ControllerUID, JsonObject> storedControllerConfig = new HashMap<>();
@@ -107,7 +107,7 @@ public class ControlifyConfig {
         { // Current controller
             obj.addProperty(
                     "current_controller",
-                    this.currentControllerUid().string()
+                    ControllerUID.toNullableString(this.currentControllerUid())
             );
         }
 
@@ -152,7 +152,7 @@ public class ControlifyConfig {
         try {
             JsonElement primitive = json.get("current_controller");
             if (primitive != null) {
-                currentControllerUid = ControllerUID.fromNullable(primitive.isJsonNull() ? null : primitive.getAsString());
+                currentControllerUid = ControllerUID.fromNullableString(primitive.isJsonNull() ? null : primitive.getAsString());
             } else {
                 CUtil.LOGGER.warn("Current controller is not defined in config!");
                 setDirty();

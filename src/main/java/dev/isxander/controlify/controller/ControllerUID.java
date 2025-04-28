@@ -10,7 +10,11 @@ import org.jetbrains.annotations.Nullable;
  * @param string The string representation of the UID.
  */
 public record ControllerUID(@NotNull String string) {
-    public static @Nullable ControllerUID fromNullable(@Nullable String value) {
+    public static @Nullable ControllerUID fromNullableString(@Nullable String value) {
         return value == null ? null : new ControllerUID(value);
+    }
+
+    public static @Nullable String toNullableString(@Nullable ControllerUID uid) {
+        return uid == null ? null : uid.string();
     }
 }
