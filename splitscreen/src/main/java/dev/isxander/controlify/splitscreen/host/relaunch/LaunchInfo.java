@@ -1,5 +1,7 @@
 package dev.isxander.controlify.splitscreen.host.relaunch;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,5 +29,10 @@ public record LaunchInfo(
         return new ProcessBuilder()
                 .command(buildCommand())
                 .directory(workingDirectory.toFile());
+    }
+
+    @Override
+    public @NotNull String toString() {
+        throw new UnsupportedOperationException("LaunchInfo may contain sensitive information that should not be printed to the console.");
     }
 }

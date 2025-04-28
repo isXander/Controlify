@@ -7,6 +7,8 @@ import dev.isxander.controlify.splitscreen.host.relaunch.RelaunchUtil;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class HackyRelauncher {
     private static LaunchInfo launchInfo = null;
@@ -33,7 +35,7 @@ public class HackyRelauncher {
 
         // +1 to skip the space after the main class
         String joinedGameArgs = programArgs.substring(mainClass.length()).trim();
-        List<String> gameArgs = List.of(joinedGameArgs.split(" "));
+        List<String> gameArgs = splitGameArgs(joinedGameArgs);
 
         List<String> jvmArgs = RelaunchUtil.findJVMArgs();
         String classpath = RelaunchUtil.findClasspath();
@@ -48,6 +50,19 @@ public class HackyRelauncher {
                 gameArgs,
                 workingDirectory
         );
+    }
+
+
+    // Converts '--flag some value --otherflag some other value' to '["--flag", "some value", "--otherflag", "some other value"]'
+    private static final Pattern FLAG_PATTERN = Pattern.compile("(--\\S+)\\s+(.+?)(?=(?:\\s+--\\S+)|$)");
+    private static List<String> splitGameArgs(String args) {
+        return FLAG_PATTERN.matcher(args)
+                .results()
+                .flatMap(m -> Stream.of(
+                        m.group(1),
+                        m.group(2).trim()
+                ))
+                .toList();
     }
 
     private static String findEntrypointMainClassFromStacktrace() {
