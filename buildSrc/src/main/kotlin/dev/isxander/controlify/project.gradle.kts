@@ -21,7 +21,6 @@ modstitch.apply {
             propMap(property, ifNull = {""}) { block(it) }
         }
 
-        modVersion = "${project.modVersion}+${stonecutter.current.project}"
         modGroup = "dev.isxander"
         modLicense = "LGPL-3.0-or-later"
         modAuthor = "isXander"
@@ -42,6 +41,8 @@ modstitch.apply {
                 ideConfigGenerated(true)
                 vmArg("-Dsodium.checks.issue2561=false")
             }
+
+            mixin.useLegacyMixinAp = false
         }
     }
 

@@ -9,7 +9,7 @@ import java.util.List;
 
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 
-@Mixin(value = AbstractFrame.class, remap = false)
+@Mixin(AbstractFrame.class)
 public interface AbstractFrameAccessor {
     @Accessor
     List<ControlElement<?>> getControlElements();

@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
-@Mixin(value = FlatButtonWidget.class, remap = false)
+@Mixin(FlatButtonWidget.class)
 public interface FlatButtonWidgetAccessor {
     @Invoker
     void invokeDoAction();
