@@ -3,9 +3,10 @@ package dev.isxander.controlify.splitscreen.remote.ipc;
 import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
+import dev.isxander.controlify.splitscreen.ipc.SplitscreenConnection;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
-import dev.isxander.controlify.splitscreen.remote.RemoteControllerBridge;
 import dev.isxander.controlify.splitscreen.ipc.ConnectionUtils;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.handshake.ControllerboundHandshakePacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.HandshakeProtocols;
@@ -19,9 +20,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDomainSocketChannel;
-import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
@@ -49,23 +48,18 @@ public class PawnConnectionListener {
     );
 
     private final Connection controllerConnection;
+    private final LocalSplitscreenPawn pawn;
 
-    private final RemoteControllerBridge controllerBridge;
-
-    public PawnConnectionListener(Minecraft minecraft, IPCMethod connectionMethod) {
+    public PawnConnectionListener(Minecraft minecraft, IPCMethod connectionMethod, LocalSplitscreenPawn pawn) {
+        this.pawn = pawn;
         this.controllerConnection = switch (connectionMethod) {
             case IPCMethod.TCP(int port) -> connectToTcp(port, minecraft);
             case IPCMethod.Unix(String socketPath) -> connectToUnixSocket(socketPath, minecraft);
         };
-        this.controllerBridge = new RemoteControllerBridge(minecraft, this.controllerConnection);
     }
 
     public Connection getControllerConnection() {
         return controllerConnection;
-    }
-
-    public RemoteControllerBridge getControllerBridge() {
-        return controllerBridge;
     }
 
     private Connection connectToUnixSocket(String socketPath, Minecraft minecraft) {
@@ -87,7 +81,7 @@ public class PawnConnectionListener {
     private Connection connect(Minecraft minecraft, Bootstrap bootstrap) {
         Validate.isTrue(controllerConnection == null, "Already connected to a controller");
 
-        Connection connection = new Connection(PacketFlow.CLIENTBOUND);
+        Connection connection = new SplitscreenConnection(PacketFlow.CLIENTBOUND);
 
         bootstrap
                 .group(Epoll.isAvailable() ? NETWORK_EPOLL_WORKER_GROUP.get() : NETWORK_WORKER_GROUP.get())
@@ -109,7 +103,7 @@ public class PawnConnectionListener {
                 }).connect().syncUninterruptibly();
 
         connection.runOnceConnected(c -> {
-            c.setupInboundProtocol(PlayProtocols.PAWNBOUND, new PawnPlayPacketListener(c, minecraft));
+            c.setupInboundProtocol(PlayProtocols.PAWNBOUND, new PawnPlayPacketListener(c, this.pawn, minecraft));
             c.send(new ControllerboundHandshakePacket(1), null, true);
             c.setupOutboundProtocol(PlayProtocols.CONTROLLERBOUND);
         });

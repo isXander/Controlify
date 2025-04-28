@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen.host.relaunch;
 
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.controlify.splitscreen.host.RemoteSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.util.LANUtil;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.relaunch.impl.HackyRelauncher;
@@ -9,6 +10,7 @@ import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.server.IntegratedServer;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,8 @@ public class RelaunchProcessHandler {
     private final int pawnIndex;
     private final Logger logger;
 
+    private @Nullable RemoteSplitscreenPawn pawn;
+
     public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, int pawnIndex, IPCMethod ipcMethod) {
         LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
@@ -31,6 +35,7 @@ public class RelaunchProcessHandler {
         switch (ipcMethod) {
             case IPCMethod.TCP(int port) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_TCP_PORT.asArgument(port));
             case IPCMethod.Unix(String socket) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_SOCKET_PATH.asArgument(socket));
+            default -> throw new UnsupportedOperationException("Unrecognized IPC method: " + ipcMethod);
         }
 
         String username = minecraft.getUser().getName();
@@ -99,6 +104,17 @@ public class RelaunchProcessHandler {
         } catch (IOException e) {
             throw new RelaunchException("Failed to start new pawn process", e);
         }
+    }
+
+    public void setPawn(@Nullable RemoteSplitscreenPawn pawn) {
+        if (this.pawn != null && this.pawn != pawn) {
+            throw new IllegalStateException("Pawn already set to " + this.pawn);
+        }
+        this.pawn = pawn;
+    }
+
+    public @Nullable RemoteSplitscreenPawn getPawn() {
+        return pawn;
     }
 
     private Runnable pipeStream(InputStream stream, PrintStream output) {

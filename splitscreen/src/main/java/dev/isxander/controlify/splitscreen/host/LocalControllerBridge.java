@@ -49,8 +49,8 @@ public class LocalControllerBridge implements ControllerBridge {
         // The controller is always ready, so we don't need to signal anything.
     }
 
-    public void signalRemoteClientReady(boolean finished, float progress, @Nullable ControllerUID associatedController) {
-        this.controller.onPawnReadySignal(finished, progress, associatedController);
+    public void signalRemoteClientReady(boolean finished, float progress, RemoteSplitscreenPawn pawn, @Nullable ControllerUID associatedController) {
+        this.controller.onPawnReadySignal(finished, progress, pawn, associatedController);
     }
 
     @Override

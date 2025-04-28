@@ -10,7 +10,7 @@ import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
-import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenBehaviour;
+import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import net.minecraft.client.Minecraft;
@@ -112,7 +112,7 @@ public class MinecraftMixin {
         int pawnCount = controller.getPawnCount();
         boolean localOnlyLanServer = playerCount == pawnCount;
 
-        boolean isFullscreen = ScreenSplitscreenBehaviour.getModeForScreen(this.screen) == ScreenSplitscreenMode.FULLSCREEN;
+        boolean isFullscreen = PawnSplitscreenModeRegistry.getMode(this.screen) == ScreenSplitscreenMode.FULLSCREEN;
 
         return localOnlyLanServer && !isFullscreen;
     }

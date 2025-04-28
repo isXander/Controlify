@@ -19,7 +19,7 @@ public class ImHiddenScreen extends GenericMessageScreen implements ScreenSplits
     }
 
     @Override
-    public ScreenSplitscreenMode controlify$splitscreen$getMode() {
+    public ScreenSplitscreenMode getSplitscreenMode() {
         return ScreenSplitscreenMode.SPLITSCREEN;
     }
 }

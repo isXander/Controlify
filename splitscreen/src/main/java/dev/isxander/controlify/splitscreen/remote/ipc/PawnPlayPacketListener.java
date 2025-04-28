@@ -26,8 +26,8 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     private final Connection connection;
     private final Minecraft minecraft;
 
-    public PawnPlayPacketListener(Connection connection, Minecraft minecraft) {
-        this.pawn = new LocalSplitscreenPawn(minecraft, RelaunchArguments.CONTROLLER.get().orElse(null));
+    public PawnPlayPacketListener(Connection connection, LocalSplitscreenPawn pawn, Minecraft minecraft) {
+        this.pawn = pawn;
         this.connection = connection;
         this.minecraft = minecraft;
     }

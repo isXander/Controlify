@@ -3,9 +3,11 @@ package dev.isxander.controlify.splitscreen;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
+import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
 import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
+import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -24,7 +26,7 @@ public class SplitscreenBootstrapper {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static @Nullable SplitscreenController controller;
-    private static @Nullable PawnConnectionListener pawnConnectionListener;
+    private static @Nullable RemotePawnMain remotePawnMain;
 
     /**
      * When a client is started it has to decide whether
@@ -38,6 +40,8 @@ public class SplitscreenBootstrapper {
     // TODO: bootstrap late when a second controller is added, not at init
     public static void bootstrap(Minecraft minecraft) {
         LOGGER.info("Boostrapping Controlify splitscreen!");
+
+        PawnSplitscreenModeRegistry.init();
 
         boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
         if (relaunched) {
@@ -73,7 +77,7 @@ public class SplitscreenBootstrapper {
     }
 
     private static void bootstrapAsPawn(Minecraft minecraft, IPCMethod connectionMethod) {
-        pawnConnectionListener = new PawnConnectionListener(minecraft, connectionMethod);
+        remotePawnMain = new RemotePawnMain(minecraft, connectionMethod);
     }
 
     private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod) {
@@ -81,7 +85,7 @@ public class SplitscreenBootstrapper {
     }
 
     public static boolean isSplitscreen() {
-        return controller != null || pawnConnectionListener != null;
+        return controller != null || remotePawnMain != null;
     }
 
     /**
@@ -90,7 +94,7 @@ public class SplitscreenBootstrapper {
      */
     public static Optional<ControllerBridge> getControllerBridge() {
         return getController().<ControllerBridge>map(SplitscreenController::getControllerBridge)
-                .or(() -> getPawn().<ControllerBridge>map(PawnConnectionListener::getControllerBridge));
+                .or(() -> getPawn().<ControllerBridge>map(RemotePawnMain::getControllerBridge));
     }
 
     /**
@@ -103,8 +107,8 @@ public class SplitscreenBootstrapper {
     /**
      * @return the pawn connection listener if a pawn, otherwise empty
      */
-    public static Optional<PawnConnectionListener> getPawn() {
-        return Optional.ofNullable(pawnConnectionListener);
+    public static Optional<RemotePawnMain> getPawn() {
+        return Optional.ofNullable(remotePawnMain);
     }
 
     /**
@@ -113,7 +117,7 @@ public class SplitscreenBootstrapper {
     public static Optional<Side> getSide() {
         if (controller != null) {
             return Optional.of(Side.CONTROLLER);
-        } else if (pawnConnectionListener != null) {
+        } else if (remotePawnMain != null) {
             return Optional.of(Side.PAWN);
         } else {
             return Optional.empty();

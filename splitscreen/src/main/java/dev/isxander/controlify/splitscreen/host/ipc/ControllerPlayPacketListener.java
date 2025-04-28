@@ -25,7 +25,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final SplitscreenController controller;
-    private SplitscreenPawn pawnInstance;
+    private RemoteSplitscreenPawn pawnInstance;
     private final Connection connection;
     private final Minecraft minecraft;
 
@@ -50,7 +50,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
-        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance.getAssociatedController());
+        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {

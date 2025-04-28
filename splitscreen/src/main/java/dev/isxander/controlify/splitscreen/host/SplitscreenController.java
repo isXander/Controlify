@@ -12,7 +12,7 @@ import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerConnectionListener;
 import dev.isxander.controlify.splitscreen.host.relaunch.RelaunchProcessHandler;
-import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenBehaviour;
+import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import dev.isxander.controlify.splitscreen.window.ParentWindow;
 import dev.isxander.controlify.splitscreen.window.ParentWindowEventHandler;
@@ -103,11 +103,14 @@ public class SplitscreenController implements ParentWindowEventHandler {
         }
     }
 
-    public void onPawnReadySignal(boolean finished, float progress, @Nullable ControllerUID controllerUid) {
+    public void onPawnReadySignal(boolean finished, float progress, RemoteSplitscreenPawn pawn, @Nullable ControllerUID controllerUid) {
         if (controllerUid == null) {
             LOGGER.warn("Pawn ready signal received with no controller UID");
             return;
         }
+
+        RelaunchProcessHandler process = this.relaunchProcessHandlers.get(controllerUid);
+        process.setPawn(pawn);
 
         if (finished) {
             this.pendingRelaunchClients.remove(controllerUid);
@@ -120,8 +123,8 @@ public class SplitscreenController implements ParentWindowEventHandler {
             WindowManager.get().setWindowForeground(parentHandle);
             WindowManager.get().setWindowFocused(childHandle);
 
-            this.forEachPawn(pawn -> {
-                pawn.setWindowFocusState(true);
+            this.forEachPawn(p -> {
+                p.setWindowFocusState(true);
             });
         } else {
             var newStatus = new PendingRelaunchClientStatus.WaitingForReadySignal(progress);
@@ -135,6 +138,7 @@ public class SplitscreenController implements ParentWindowEventHandler {
 
     public void removePawn(SplitscreenPawn pawn) {
         this.pawns.remove(pawn);
+        this.updateSplitscreenMode();
     }
 
     public int getPawnCount() {
@@ -276,12 +280,24 @@ public class SplitscreenController implements ParentWindowEventHandler {
             }
         }
 
-        handler.onExit().whenComplete((h, throwable) -> {
-            if (this.pendingRelaunchClients.remove(controller) != null) {
-                LOGGER.info("Relaunch client exited before it was ready, did it crash?");
-            }
-        });
+        handler.onExit().whenComplete((h, throwable) ->
+                this.onRelaunchedPawnExit(controller, handler, throwable));
 
         return true;
+    }
+
+    private void onRelaunchedPawnExit(ControllerUID controller, RelaunchProcessHandler process, Throwable throwable) {
+        if (this.pendingRelaunchClients.remove(controller) != null) {
+            LOGGER.info("Relaunch client exited before it was ready, did it crash?");
+        }
+
+        if (this.relaunchProcessHandlers.remove(controller) != null) {
+            LOGGER.info("Relaunch process for {} exited", controller);
+        }
+
+        SplitscreenPawn pawn = process.getPawn();
+        if (pawn != null) {
+            this.removePawn(pawn);
+        }
     }
 }

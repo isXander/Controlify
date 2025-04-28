@@ -19,17 +19,12 @@
     "followingame.ConnectScreenMixin",
     "followingame.IntegratedServerMixin",
     "relaunch.MainMixin",
-    "screenop.ConnectScreenMixin",
-    "screenop.DisconnectScreenMixin",
-    "screenop.GenericMessageScreenMixin",
     "screenop.MinecraftMixin",
-    "screenop.PauseScreenMixin",
-    "screenop.ProgressScreenMixin",
-    "screenop.ScreenMixin",
-    "screenop.TitleScreenMixin"
+    "screenop.ScreenMixin"
   ],
   "mixins": [
     "controlify.ControlifyConfigMixin",
-    "controlify.ControlifyMixin"
+    "controlify.ControlifyMixin",
+    "core.ConnectionMixin"
   ]
 }

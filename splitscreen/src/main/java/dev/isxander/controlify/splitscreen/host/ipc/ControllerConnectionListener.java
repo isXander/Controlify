@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.ipc.ConnectionUtils;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
+import dev.isxander.controlify.splitscreen.ipc.SplitscreenConnection;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.HandshakeProtocols;
 import io.netty.bootstrap.ServerBootstrap;
@@ -106,7 +107,7 @@ public class ControllerConnectionListener {
                                     .addLast("timeout", new ReadTimeoutHandler(5));
 
                             ConnectionUtils.configureSerialization(pipeline, PacketFlow.SERVERBOUND, false, HandshakeProtocols.CONTROLLERBOUND);
-                            Connection connection = new Connection(PacketFlow.SERVERBOUND);
+                            Connection connection = new SplitscreenConnection(PacketFlow.SERVERBOUND);
                             ControllerConnectionListener.this.connections.add(connection);
                             connection.configurePacketHandler(pipeline);
                             connection.setListenerForServerboundHandshake(new ControllerHandshakePacketListener(controller, connection, minecraft));

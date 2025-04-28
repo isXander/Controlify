@@ -7,12 +7,11 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.remote.screenop.ImHiddenScreen;
-import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenBehaviour;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,7 +31,7 @@ public class MinecraftMixin {
     @Expression("this.screen = @(newScreen)")
     @ModifyExpressionValue(method = "setScreen", at = @At("MIXINEXTRAS:EXPRESSION"))
     private Screen overrideScreenIfPawnFullscreen(Screen newScreen, @Local(argsOnly = true) LocalRef<Screen> newScreenRef, @Share("splitscreenMode") LocalRef<ScreenSplitscreenMode> splitscreenModeRef) {
-        ScreenSplitscreenMode splitscreenMode = ScreenSplitscreenBehaviour.getModeForScreen(newScreen);
+        ScreenSplitscreenMode splitscreenMode = PawnSplitscreenModeRegistry.getMode(newScreen);
         splitscreenModeRef.set(splitscreenMode);
         if (splitscreenMode == ScreenSplitscreenMode.FULLSCREEN && SplitscreenBootstrapper.getPawn().isPresent()) {
             System.out.println("Attempted to set " + newScreen.getClass().getSimpleName() + " as the screen on a pawn client.");
