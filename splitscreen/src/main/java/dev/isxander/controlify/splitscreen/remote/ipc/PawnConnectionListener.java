@@ -4,6 +4,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
+import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.ipc.SplitscreenConnection;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
@@ -12,6 +13,7 @@ import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.handshake
 import dev.isxander.controlify.splitscreen.ipc.packets.HandshakeProtocols;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundHelloPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.PlayProtocols;
+import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -48,10 +50,10 @@ public class PawnConnectionListener {
     );
 
     private final Connection controllerConnection;
-    private final LocalSplitscreenPawn pawn;
+    private final RemotePawnMain remotePawnMain;
 
-    public PawnConnectionListener(Minecraft minecraft, IPCMethod connectionMethod, LocalSplitscreenPawn pawn) {
-        this.pawn = pawn;
+    public PawnConnectionListener(Minecraft minecraft, IPCMethod connectionMethod, RemotePawnMain remotePawnMain) {
+        this.remotePawnMain = remotePawnMain;
         this.controllerConnection = switch (connectionMethod) {
             case IPCMethod.TCP(int port) -> connectToTcp(port, minecraft);
             case IPCMethod.Unix(String socketPath) -> connectToUnixSocket(socketPath, minecraft);
@@ -103,9 +105,11 @@ public class PawnConnectionListener {
                 }).connect().syncUninterruptibly();
 
         connection.runOnceConnected(c -> {
-            c.setupInboundProtocol(PlayProtocols.PAWNBOUND, new PawnPlayPacketListener(c, this.pawn, minecraft));
+            SplitscreenEngine splitscreenEngine = this.remotePawnMain.getSplitscreenEngine();
+
+            c.setupInboundProtocol(PlayProtocols.pawnbound(splitscreenEngine.getPawnboundCustomPayloadCodec()), new PawnPlayPacketListener(c, this.remotePawnMain, minecraft));
             c.send(new ControllerboundHandshakePacket(1), null, true);
-            c.setupOutboundProtocol(PlayProtocols.CONTROLLERBOUND);
+            c.setupOutboundProtocol(PlayProtocols.controllerbound(splitscreenEngine.getControllerboundCustomPayloadCodec()));
         });
         // will run after above since it is flushed above
         connection.send(new ControllerboundHelloPacket(RelaunchArguments.CONTROLLER.get().orElse(null)));

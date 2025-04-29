@@ -1,4 +1,6 @@
-package dev.isxander.controlify.splitscreen.window.manager;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager;
+
+import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * Interface for embedding a child window inside a parent window.
@@ -7,18 +9,18 @@ package dev.isxander.controlify.splitscreen.window.manager;
  */
 public interface WindowManager {
     static WindowManager get() {
-        return switch (dev.isxander.controlify.utils.WindowManager.INSTANCE) {
-            case WIN32 -> Win32WindowManager.INSTANCE;
-            // Untested.
-            case X11 -> X11WindowManager.INSTANCE;
+        return switch (glfwGetPlatform()) {
+            case GLFW_PLATFORM_WIN32 -> Win32WindowManager.INSTANCE;
+            // Broken.
+            case GLFW_PLATFORM_X11 -> X11WindowManager.INSTANCE;
             // Wayland does not support Reparenting windows, so it is impossible to do this.
             // XWayland would not crash, but Wayland has no way to represent this concept and XReparentWindow is no-op
-            case WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
+            case GLFW_PLATFORM_WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
             // Although Cocoa does support reparenting, it is impossible for two windows from different processes
             // to be reparented to each other. NSWindow#setParent(NSWindow) cannot work because either the parent
             // or child NSWindow pointer will be from a different process, violating the memory safety rules of macOS.
-            case COCOA -> throw new UnsupportedWindowManagerException("macOS is unsupported for Controlify splitscreen");
-            case UNKNOWN -> throw new UnsupportedWindowManagerException("Unknown platform, cannot embed window");
+            case GLFW_PLATFORM_COCOA -> throw new UnsupportedWindowManagerException("macOS is unsupported for Controlify splitscreen");
+            default -> throw new UnsupportedWindowManagerException("Unknown platform, cannot embed window");
         };
     }
 
@@ -33,9 +35,11 @@ public interface WindowManager {
 
     /**
      * Embed a child window inside a parent window, positioning and sizing it.
+     *
      * @param parentHandle underlying system's native window handle of the parent window
+     * @param childHandle
      */
-    void embedThisWindow(NativeWindowHandle parentHandle);
+    void embedWindow(NativeWindowHandle parentHandle, NativeWindowHandle childHandle);
 
     /**
      * Gives the {@code childHandle} main focus if the {@code parentHandle} is in the foreground.

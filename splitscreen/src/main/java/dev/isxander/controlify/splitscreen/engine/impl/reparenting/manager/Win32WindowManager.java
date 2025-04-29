@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.window.manager;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
@@ -22,11 +22,7 @@ public class Win32WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedThisWindow(NativeWindowHandle parentHandle) {
-        NativeWindowHandle childHandle = this.getNativeWindowHandle(
-                Minecraft.getInstance().getWindow().getWindow()
-        );
-
+    public void embedWindow(NativeWindowHandle parentHandle, NativeWindowHandle childHandle) {
         HWND childHwnd = hwnd(childHandle);
         HWND parentHwnd = hwnd(parentHandle);
 

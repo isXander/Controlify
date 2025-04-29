@@ -1,11 +1,13 @@
 package dev.isxander.controlify.splitscreen.remote;
 
 import dev.isxander.controlify.splitscreen.ControllerBridge;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundEngineCustomPayloadPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundGiveMeFocusIfForegroundPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
-import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /**
  * A bridge to communicate with the controller client from a remote client.
@@ -34,6 +36,10 @@ public class RemoteControllerBridge implements ControllerBridge {
     @Override
     public void signalImReady(boolean finished, float progress) {
         this.connection.send(new ControllerboundSignalReadyPacket(finished, progress));
+    }
+
+    public void sendEnginePayload(CustomPacketPayload payload) {
+        this.connection.send(new ControllerboundEngineCustomPayloadPacket(payload));
     }
 
     @Override

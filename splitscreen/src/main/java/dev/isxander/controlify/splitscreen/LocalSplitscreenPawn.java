@@ -2,9 +2,8 @@ package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerUID;
-import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
-import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ConnectScreen;
@@ -34,34 +33,6 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
         var data = new ServerData("Splitscreen Master", ip, ServerData.Type.LAN);
 
         ConnectScreen.startConnecting(minecraft.screen, minecraft, address, data, false, null);
-    }
-
-    @Override
-    public void setupWindowParent(NativeWindowHandle parentWindow) {
-        WindowManager.get().embedThisWindow(parentWindow);
-    }
-
-    @Override
-    public void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight) {
-        long windowHandle = minecraft.getWindow().getWindow();
-        NativeWindowHandle nativeWindowHandle = WindowManager.get().getNativeWindowHandle(windowHandle);
-
-        switch (position) {
-            case SplitscreenPosition.Visible visible -> {
-                ScreenRectangle windowDims = visible.applyToRealDims(0, 0, parentWidth, parentHeight);
-                WindowManager.get().setupWindowDims(nativeWindowHandle, windowDims.left(), windowDims.top(), windowDims.width(), windowDims.height());
-            }
-            case SplitscreenPosition.Hidden ignored -> {
-                WindowManager.get().hideWindow(nativeWindowHandle);
-            }
-        }
-
-        this.position = position;
-    }
-
-    @Override
-    public void setWindowFocusState(boolean focused) {
-        this.minecraft.setWindowActive(focused);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.platform.VideoMode;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingHostSplitscreenEngine;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -42,9 +43,8 @@ public class WindowMixin {
      */
     @ModifyArg(method = "setIcon", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetWindowIcon(JLorg/lwjgl/glfw/GLFWImage$Buffer;)V"))
     private GLFWImage.Buffer propagateWindowIconToParent(GLFWImage.Buffer iconBuffer) {
-        SplitscreenBootstrapper.getController().ifPresent(controller -> {
-            assert controller.getParentWindow() != null; // ParentWindow is created before the vanilla Window.
-            controller.getParentWindow().setIcon(iconBuffer);
+        SplitscreenBootstrapper.getController().flatMap(ReparentingHostSplitscreenEngine::tryGet).ifPresent(engine -> {
+            engine.getParentWindow().setIcon(iconBuffer);
         });
 
         return iconBuffer;
@@ -56,9 +56,8 @@ public class WindowMixin {
      */
     @Inject(method = "setTitle", at = @At("HEAD"))
     private void propagateTitleToParent(String title, CallbackInfo ci) {
-        SplitscreenBootstrapper.getController().ifPresent(controller -> {
-            assert controller.getParentWindow() != null; // ParentWindow is created before the vanilla Window.
-            controller.getParentWindow().setTitle(title);
+        SplitscreenBootstrapper.getController().flatMap(ReparentingHostSplitscreenEngine::tryGet).ifPresent(engine -> {
+            engine.getParentWindow().setTitle(title);
         });
     }
 

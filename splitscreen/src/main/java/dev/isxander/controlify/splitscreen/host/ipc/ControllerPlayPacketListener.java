@@ -2,12 +2,9 @@ package dev.isxander.controlify.splitscreen.host.ipc;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
-import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundGiveMeFocusIfForegroundPacket;
-import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundHelloPacket;
-import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundKeepAlivePacket;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.*;
 import dev.isxander.controlify.splitscreen.host.RemoteSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
-import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.PawnboundKeepAlivePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -55,6 +52,10 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
         this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
+    }
+
+    public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
+
     }
 
     @Override

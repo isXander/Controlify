@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.window;
+package dev.isxander.controlify.splitscreen;
 
 import com.mojang.datafixers.util.Either;
 import io.netty.buffer.ByteBuf;

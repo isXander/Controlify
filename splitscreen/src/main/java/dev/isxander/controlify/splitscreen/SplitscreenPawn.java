@@ -1,8 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.controller.ControllerUID;
-import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,27 +23,6 @@ public interface SplitscreenPawn extends Bridge {
      * @param serverPort port of the server
      */
     void joinServer(String serverAddress, int serverPort);
-
-    /**
-     * Sets this pawn's window to be a child of the given window.
-     * @param parentWindow the handle of the parent window
-     */
-    void setupWindowParent(NativeWindowHandle parentWindow);
-
-    /**
-     * Sets this pawn's window's splitscreen mode.
-     *
-     * @param position the splitscreen position of the window
-     * @param parentWidth the width of the parent window
-     * @param parentHeight the height of the parent window
-     */
-    void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight);
-
-    /**
-     * Sets the client window's focus state.
-     * {@link Minecraft#isWindowActive()}
-     */
-    void setWindowFocusState(boolean focused);
 
     /**
      * Closes the game.

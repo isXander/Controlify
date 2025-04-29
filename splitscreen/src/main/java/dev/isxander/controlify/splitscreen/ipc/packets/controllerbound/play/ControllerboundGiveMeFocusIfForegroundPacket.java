@@ -1,13 +1,14 @@
 package dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play;
 
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerPlayPacketListener;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketType;
 
 public record ControllerboundGiveMeFocusIfForegroundPacket(NativeWindowHandle childWindow) implements ControllerboundPlayPacket {
-    public static final StreamCodec<ByteBuf, ControllerboundGiveMeFocusIfForegroundPacket> CODEC =
+    public static final StreamCodec<FriendlyByteBuf, ControllerboundGiveMeFocusIfForegroundPacket> CODEC =
             NativeWindowHandle.STREAM_CODEC.map(ControllerboundGiveMeFocusIfForegroundPacket::new, ControllerboundGiveMeFocusIfForegroundPacket::childWindow);
     public static final PacketType<ControllerboundGiveMeFocusIfForegroundPacket> TYPE =
             ControllerboundPlayPacket.createType("give_me_focus_if_foreground");

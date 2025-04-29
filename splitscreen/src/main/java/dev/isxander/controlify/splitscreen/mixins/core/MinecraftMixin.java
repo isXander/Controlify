@@ -6,13 +6,18 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import com.mojang.blaze3d.platform.DisplayData;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingHostSplitscreenEngine;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingRemoteSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
-import dev.isxander.controlify.splitscreen.window.ParentWindow;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent.ParentWindow;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.VirtualScreen;
@@ -22,13 +27,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
 
 @Mixin(Minecraft.class)
-public class MinecraftMixin {
+public abstract class MinecraftMixin {
     @Shadow
     @Nullable
     public Screen screen;
@@ -37,22 +43,13 @@ public class MinecraftMixin {
     @Nullable
     private IntegratedServer singleplayerServer;
 
-    /**
-     * Hooks in to create a parent window for the splitscreen controller.
-     * @param instance receiver type
-     * @param screenSize arg1
-     * @param videoModeName arg2
-     * @param title arg3
-     * @param original operation
-     * @return client window
-     */
-    @WrapOperation(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/VirtualScreen;newWindow(Lcom/mojang/blaze3d/platform/DisplayData;Ljava/lang/String;Ljava/lang/String;)Lcom/mojang/blaze3d/platform/Window;"))
-    private Window createParentWindow(VirtualScreen instance, DisplayData screenSize, String videoModeName, String title, Operation<Window> original) {
-        SplitscreenBootstrapper.getController().ifPresent(controller ->
-                controller.setupParentWindow(screenSize, ((VirtualScreenAccessor) (Object) instance).getScreenManager(), title));
+    @Shadow
+    protected abstract String createTitle();
 
-        // create original client window
-        return original.call(instance, screenSize, videoModeName, title);
+    @ModifyArg(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/VirtualScreen;newWindow(Lcom/mojang/blaze3d/platform/DisplayData;Ljava/lang/String;Ljava/lang/String;)Lcom/mojang/blaze3d/platform/Window;"))
+    private DisplayData captureDisplayData(DisplayData displayData, @Share("screenSize") LocalRef<DisplayData> screenSize) {
+        screenSize.set(displayData);
+        return displayData;
     }
 
     /**
@@ -64,9 +61,11 @@ public class MinecraftMixin {
      * @return if vanilla should call resizeDisplay
      */
     @WrapWithCondition(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;resizeDisplay()V"))
-    private boolean markWindowReady(Minecraft instance) {
-        return SplitscreenBootstrapper.getController().map(controller -> {
-            controller.markWindowReady();
+    private boolean markWindowReady(Minecraft instance, @Share("screenSize") LocalRef<DisplayData> screenSize) {
+        SplitscreenBootstrapper.getPawn().flatMap(ReparentingRemoteSplitscreenEngine::tryGet).ifPresent(ReparentingRemoteSplitscreenEngine::onWindowInit);
+
+        return SplitscreenBootstrapper.getController().flatMap(ReparentingHostSplitscreenEngine::tryGet).map(engine -> {
+            engine.initWindow(screenSize.get(), ((VirtualScreenAccessor) instance).getScreenManager(), this.createTitle());
             return false;
         }).orElse(true);
     }
@@ -77,8 +76,8 @@ public class MinecraftMixin {
     @Inject(method = "close", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/Window;close()V"))
     private void closeParentWindow(CallbackInfo ci) {
         SplitscreenBootstrapper.getController()
-                .flatMap(controller -> Optional.ofNullable(controller.getParentWindow()))
-                .ifPresent(ParentWindow::close);
+                .flatMap(ReparentingHostSplitscreenEngine::tryGet)
+                .ifPresent(engine -> engine.getParentWindow().close());
     }
 
 

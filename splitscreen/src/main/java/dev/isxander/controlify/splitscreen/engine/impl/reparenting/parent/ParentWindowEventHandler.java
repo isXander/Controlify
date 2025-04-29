@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.window;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent;
 
 public interface ParentWindowEventHandler {
     ParentWindowEventHandler NO_OP = new ParentWindowEventHandler() {};

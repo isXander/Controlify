@@ -1,6 +1,7 @@
-package dev.isxander.controlify.splitscreen.window.manager;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -13,6 +14,7 @@ import net.minecraft.network.codec.StreamCodec;
  */
 // java please add value classes
 public record NativeWindowHandle(long handle) {
-    public static final StreamCodec<ByteBuf, NativeWindowHandle> STREAM_CODEC =
-            ByteBufCodecs.LONG.map(NativeWindowHandle::new, NativeWindowHandle::handle);
+    public static final StreamCodec<FriendlyByteBuf, NativeWindowHandle> STREAM_CODEC =
+            ByteBufCodecs.LONG.mapStream(FriendlyByteBuf::unwrap)
+                    .map(NativeWindowHandle::new, NativeWindowHandle::handle);
 }

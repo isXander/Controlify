@@ -3,7 +3,6 @@ package dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerPlayPacketListener;
 import dev.isxander.controlify.splitscreen.ipc.utils.ExtraStreamCodecs;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;

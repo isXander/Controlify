@@ -1,5 +1,6 @@
 package dev.isxander.controlify.splitscreen.host.ipc;
 
+import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.handshake.ControllerboundHandshakePacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
@@ -26,7 +27,9 @@ public class ControllerHandshakePacketListener implements ControllerboundCommonP
     }
 
     public void handleHandshake(ControllerboundHandshakePacket packet) {
-        this.connection.setupOutboundProtocol(PlayProtocols.PAWNBOUND);
+        SplitscreenEngine splitscreenEngine = this.controller.getSplitscreenEngine();
+
+        this.connection.setupOutboundProtocol(PlayProtocols.pawnbound(splitscreenEngine.getPawnboundCustomPayloadCodec()));
 
         if (packet.protocolVersion() != 1) {
             var reason = Component.literal("Unsupported protocol version: " + packet.protocolVersion());
@@ -35,7 +38,7 @@ public class ControllerHandshakePacketListener implements ControllerboundCommonP
             return;
         }
 
-        this.connection.setupInboundProtocol(PlayProtocols.CONTROLLERBOUND, new ControllerPlayPacketListener(controller, connection, minecraft));
+        this.connection.setupInboundProtocol(PlayProtocols.controllerbound(splitscreenEngine.getControllerboundCustomPayloadCodec()), new ControllerPlayPacketListener(controller, connection, minecraft));
     }
 
     @Override

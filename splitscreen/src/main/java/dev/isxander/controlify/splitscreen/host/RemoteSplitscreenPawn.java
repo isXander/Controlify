@@ -3,8 +3,8 @@ package dev.isxander.controlify.splitscreen.host;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
-import dev.isxander.controlify.splitscreen.window.SplitscreenPosition;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.SplitscreenPosition;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import net.minecraft.network.Connection;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,24 +33,6 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void setupWindowParent(NativeWindowHandle parentWindow) {
-        this.connection.send(
-                new PawnboundParentWindowPacket(parentWindow)
-        );
-    }
-
-    @Override
-    public void setWindowSplitscreenMode(SplitscreenPosition position, int parentWidth, int parentHeight) {
-        this.connection.send(new PawnboundSplitscreenPositionPacket(parentWidth, parentHeight, position));
-        this.position = position;
-    }
-
-    @Override
-    public void setWindowFocusState(boolean focused) {
-        this.connection.send(new PawnboundWindowFocusStatePacket(focused));
-    }
-
-    @Override
     public void closeGame() {
         this.connection.send(new PawnboundCloseGamePacket());
     }
@@ -73,5 +55,9 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     @Override
     public boolean isRemote() {
         return true;
+    }
+
+    public Connection getConnection() {
+        return this.connection;
     }
 }

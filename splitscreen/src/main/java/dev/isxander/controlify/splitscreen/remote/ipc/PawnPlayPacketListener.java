@@ -6,6 +6,7 @@ import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.Cont
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
+import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
@@ -22,12 +23,14 @@ import org.slf4j.Logger;
 public class PawnPlayPacketListener implements PawnboundCommonPacketListener, ClientboundPacketListener {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private final RemotePawnMain remotePawnMain;
     private final LocalSplitscreenPawn pawn;
     private final Connection connection;
     private final Minecraft minecraft;
 
-    public PawnPlayPacketListener(Connection connection, LocalSplitscreenPawn pawn, Minecraft minecraft) {
-        this.pawn = pawn;
+    public PawnPlayPacketListener(Connection connection, RemotePawnMain remotePawnMain, Minecraft minecraft) {
+        this.remotePawnMain = remotePawnMain;
+        this.pawn = remotePawnMain.getPawn();
         this.connection = connection;
         this.minecraft = minecraft;
     }
@@ -37,23 +40,8 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
         minecraft.execute(() -> this.pawn.joinServer(packet.host(), packet.port()));
     }
 
-    public void handleSplitscreenPosition(PawnboundSplitscreenPositionPacket packet) {
-        LOGGER.info("Pawn setting splitscreen position to {}", packet.position());
-        this.minecraft.execute(() ->
-                this.pawn.setWindowSplitscreenMode(packet.position(), packet.parentWidth(), packet.parentHeight())
-        );
-    }
-
-    public void handleParentWindow(PawnboundParentWindowPacket packet) {
-        this.minecraft.execute(() ->
-                this.pawn.setupWindowParent(
-                        packet.parentWindowHandle()
-                )
-        );
-    }
-
-    public void handleWindowFocusState(PawnboundWindowFocusStatePacket packet) {
-        this.pawn.setWindowFocusState(packet.focused());
+    public void handleEngineCustomPayload(PawnboundEngineCustomPayloadPacket packet) {
+        this.remotePawnMain.getSplitscreenEngine().handleInboundPayload(packet.payload());
     }
 
     public void handleCloseGame(PawnboundCloseGamePacket packet) {

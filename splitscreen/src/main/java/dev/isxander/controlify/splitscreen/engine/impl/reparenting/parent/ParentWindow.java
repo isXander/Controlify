@@ -1,8 +1,10 @@
-package dev.isxander.controlify.splitscreen.window;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent;
 
 import com.mojang.blaze3d.platform.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.IoSupplier;
@@ -71,6 +73,10 @@ public class ParentWindow implements AutoCloseable {
 
     public long getGlfwWindowHandle() {
         return this.glfwWindowHandle;
+    }
+
+    public NativeWindowHandle getNativeWindowHandle() {
+        return WindowManager.get().getNativeWindowHandle(this.getGlfwWindowHandle());
     }
 
     public int getWidth() {
@@ -162,9 +168,6 @@ public class ParentWindow implements AutoCloseable {
         RenderSystem.assertOnRenderThread();
         glfwFreeCallbacks(this.glfwWindowHandle);
         glfwDestroyWindow(this.glfwWindowHandle);
-
-        // TODO: determine if the parent window should terminate or if the client's window should terminate
-        //glfwTerminate();
     }
 
     private static void handleLastGLFWError(BiConsumer<Integer, String> handler) {

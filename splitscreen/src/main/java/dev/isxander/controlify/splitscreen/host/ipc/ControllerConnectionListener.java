@@ -18,6 +18,7 @@ import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerDomainSocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.unix.DomainSocketAddress;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -81,7 +82,7 @@ public class ControllerConnectionListener {
 
         startListener(controller, new ServerBootstrap()
                 .channel(Epoll.isAvailable() ? EpollServerDomainSocketChannel.class : NioServerDomainSocketChannel.class)
-                .localAddress(UnixDomainSocketAddress.of(socketPathFile)));
+                .localAddress(Epoll.isAvailable() ? new DomainSocketAddress(socketPath) : UnixDomainSocketAddress.of(socketPathFile)));
     }
 
     private void startTcpListener(int port, SplitscreenController controller) {

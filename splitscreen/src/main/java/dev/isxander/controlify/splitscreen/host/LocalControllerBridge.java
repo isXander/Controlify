@@ -3,8 +3,8 @@ package dev.isxander.controlify.splitscreen.host;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
-import dev.isxander.controlify.splitscreen.window.manager.NativeWindowHandle;
-import dev.isxander.controlify.splitscreen.window.manager.WindowManager;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,14 +33,14 @@ public class LocalControllerBridge implements ControllerBridge {
     }
 
     public void giveFocusToChildIfForeground(NativeWindowHandle childWindow, SplitscreenPawn childPawn) {
-        long glfwParentWindowHandle = controller.getParentWindow().getGlfwWindowHandle();
-        NativeWindowHandle nativeParentWindowHandle = WindowManager.get().getNativeWindowHandle(glfwParentWindowHandle);
-
-        if (WindowManager.get().giveChildFocusIfParentIsForeground(nativeParentWindowHandle, childWindow)) {
-            this.controller.forEachPawn(pawn -> {
-                pawn.setWindowFocusState(true);
-            });
-        }
+//        long glfwParentWindowHandle = controller.getParentWindow().getGlfwWindowHandle();
+//        NativeWindowHandle nativeParentWindowHandle = WindowManager.get().getNativeWindowHandle(glfwParentWindowHandle);
+//
+//        if (WindowManager.get().giveChildFocusIfParentIsForeground(nativeParentWindowHandle, childWindow)) {
+//            this.controller.forEachPawn(pawn -> {
+//                pawn.setWindowFocusState(true);
+//            });
+//        }
     }
 
     @Override

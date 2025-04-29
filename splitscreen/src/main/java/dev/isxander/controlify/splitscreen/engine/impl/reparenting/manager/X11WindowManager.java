@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.window.manager;
+package dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager;
 
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
@@ -50,13 +50,9 @@ public class X11WindowManager implements WindowManager {
     }
 
     @Override
-    public void embedThisWindow(NativeWindowHandle parentHandle) {
+    public void embedWindow(NativeWindowHandle parentHandle, NativeWindowHandle childHandle) {
         X11.Display dpy = getDisplay();
         if (dpy == null) return;
-
-        NativeWindowHandle childHandle = this.getNativeWindowHandle(
-                Minecraft.getInstance().getWindow().getWindow()
-        );
 
         Window childXid = xid(childHandle);
         Window parentXid = xid(parentHandle);
