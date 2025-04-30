@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.mixins.core;
+package dev.isxander.controlify.splitscreen.mixins.engine.reparent;
 
 import com.mojang.blaze3d.platform.ScreenManager;
 import net.minecraft.client.renderer.VirtualScreen;

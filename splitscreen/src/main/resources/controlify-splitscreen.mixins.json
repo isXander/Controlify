@@ -12,9 +12,10 @@
   "client": [
     "core.IntegratedServerMixin",
     "core.MinecraftMixin",
-    "core.VirtualScreenAccessor",
+    "engine.reparent.VirtualScreenAccessor",
     "core.WindowAccessor",
-    "core.WindowMixin",
+    "engine.reparent.WindowMixin",
+    "engine.reparent.MinecraftMixin",
     "followingame.ClientPacketListenerMixin",
     "followingame.ConnectScreenMixin",
     "followingame.IntegratedServerMixin",

@@ -8,8 +8,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public interface RemoteSplitscreenEngine extends SplitscreenEngine {
 
-    static RemoteSplitscreenEngine create(Minecraft minecraft, RemoteControllerBridge bridge, LocalSplitscreenPawn pawn) {
-        return new ReparentingRemoteSplitscreenEngine(minecraft, bridge, pawn);
+    static RemoteSplitscreenEngine create(Minecraft minecraft, SplitscreenEnginePayloadSender payloadSender, LocalSplitscreenPawn pawn) {
+        return new ReparentingRemoteSplitscreenEngine(minecraft, payloadSender, pawn);
     }
 
     void handleInboundPayload(CustomPacketPayload payload);

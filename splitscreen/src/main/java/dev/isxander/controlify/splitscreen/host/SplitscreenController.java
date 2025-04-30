@@ -116,6 +116,8 @@ public class SplitscreenController  {
 
     public void removePawn(SplitscreenPawn pawn) {
         this.pawns.remove(pawn);
+        this.splitscreenEngine.removeWindow(pawn.getAssociatedController());
+        this.splitscreenEngine.consumeDirty();
         this.updateSplitscreenMode();
     }
 

@@ -94,7 +94,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
             p.setWindowFocusState(true);
         }
 
-        this.dirty = true;
+        this.setDirty();
     }
 
     public void registerRemotePawn(ControllerUID window, Connection connection, ControllerboundThisIsMyWindowPayload payload) {
@@ -110,6 +110,11 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
     @Override
     public void setSplitscreenMode(ControllerUID window, SplitscreenPosition position) {
         ReparentingPawn pawn = this.getPawn(window);
+        if (pawn == null) {
+            LOGGER.warn("Tried to set splitscreen mode for a non-existent window {}", window);
+            return;
+        }
+
         NativeWindowHandle windowHandle = pawn.getNativeWindowHandle();
 
         switch (position) {
@@ -123,10 +128,13 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         }
     }
 
-    public @NotNull ParentWindow getParentWindow() {
-        if (this.parentWindow == null) {
-            throw new IllegalStateException("Parent window not yet initialised");
-        }
+    @Override
+    public void removeWindow(ControllerUID window) {
+        this.setDirty();
+        this.pawns.remove(window);
+    }
+
+    public @Nullable ParentWindow getParentWindow() {
         return this.parentWindow;
     }
 
@@ -140,6 +148,10 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
     @Override
     public boolean isDirty() {
         return this.dirty;
+    }
+
+    private void setDirty() {
+        this.dirty = true;
     }
 
     @Override
@@ -158,7 +170,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
 
     @Override
     public void onResizeParentWindow(int width, int height) {
-        this.dirty = true;
+        this.setDirty();
     }
 
     @Override
@@ -175,13 +187,10 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         }
     }
 
-    private @NotNull ReparentingPawn getPawn(ControllerUID window) {
-        ReparentingPawn pawn = this.pawns.get(window);
-        if (pawn == null) {
-            throw new IllegalStateException("No pawn for " + window);
-        }
-        return pawn;
+    private @Nullable ReparentingPawn getPawn(ControllerUID window) {
+        return this.pawns.get(window);
     }
+
 
     private void executeWhenWindowReady(Consumer<@NotNull ParentWindow> task) {
         if (this.parentWindow != null) {

@@ -3,6 +3,7 @@ package dev.isxander.controlify.splitscreen.remote;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.engine.RemoteSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundEngineCustomPayloadPacket;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
@@ -19,9 +20,9 @@ public class RemotePawnMain {
     public RemotePawnMain(Minecraft minecraft, IPCMethod ipcMethod) {
         this.minecraft = minecraft;
         this.pawn = new LocalSplitscreenPawn(minecraft, RelaunchArguments.CONTROLLER.get().orElse(null));
+        this.splitscreenEngine = RemoteSplitscreenEngine.create(this.minecraft, payload -> this.getConnectionListener().getControllerConnection().send(new ControllerboundEngineCustomPayloadPacket(payload)), this.pawn);
         this.connectionListener = new PawnConnectionListener(this.minecraft, ipcMethod, this);
         this.controllerBridge = new RemoteControllerBridge(this.minecraft, this.connectionListener.getControllerConnection());
-        this.splitscreenEngine = RemoteSplitscreenEngine.create(this.minecraft, this.controllerBridge, this.pawn);
 
         PawnScreenOverrides.init();
     }

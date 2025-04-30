@@ -1,7 +1,5 @@
 package dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager;
 
-import static org.lwjgl.glfw.GLFW.*;
-
 /**
  * Interface for embedding a child window inside a parent window.
  * This is used to create a splitscreen effect by embedding the child window
@@ -9,17 +7,17 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public interface WindowManager {
     static WindowManager get() {
-        return switch (glfwGetPlatform()) {
-            case GLFW_PLATFORM_WIN32 -> Win32WindowManager.INSTANCE;
+        return switch (dev.isxander.controlify.utils.WindowManager.INSTANCE) {
+            case WIN32 -> Win32WindowManager.INSTANCE;
             // Broken.
-            case GLFW_PLATFORM_X11 -> X11WindowManager.INSTANCE;
+            case X11 -> X11WindowManager.INSTANCE;
             // Wayland does not support Reparenting windows, so it is impossible to do this.
             // XWayland would not crash, but Wayland has no way to represent this concept and XReparentWindow is no-op
-            case GLFW_PLATFORM_WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
+            case WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
             // Although Cocoa does support reparenting, it is impossible for two windows from different processes
             // to be reparented to each other. NSWindow#setParent(NSWindow) cannot work because either the parent
             // or child NSWindow pointer will be from a different process, violating the memory safety rules of macOS.
-            case GLFW_PLATFORM_COCOA -> throw new UnsupportedWindowManagerException("macOS is unsupported for Controlify splitscreen");
+            case COCOA -> throw new UnsupportedWindowManagerException("macOS is unsupported for Controlify splitscreen");
             default -> throw new UnsupportedWindowManagerException("Unknown platform, cannot embed window");
         };
     }

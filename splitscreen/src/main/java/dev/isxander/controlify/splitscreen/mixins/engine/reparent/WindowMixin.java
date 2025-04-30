@@ -1,4 +1,4 @@
-package dev.isxander.controlify.splitscreen.mixins.core;
+package dev.isxander.controlify.splitscreen.mixins.engine.reparent;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -8,6 +8,7 @@ import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingHostSplitscreenEngine;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingSplitscreenEngine;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -44,7 +45,7 @@ public class WindowMixin {
     @ModifyArg(method = "setIcon", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwSetWindowIcon(JLorg/lwjgl/glfw/GLFWImage$Buffer;)V"))
     private GLFWImage.Buffer propagateWindowIconToParent(GLFWImage.Buffer iconBuffer) {
         SplitscreenBootstrapper.getController().flatMap(ReparentingHostSplitscreenEngine::tryGet).ifPresent(engine -> {
-            engine.getParentWindow().setIcon(iconBuffer);
+            Optional.ofNullable(engine.getParentWindow()).ifPresent(win -> win.setIcon(iconBuffer));
         });
 
         return iconBuffer;
@@ -57,7 +58,7 @@ public class WindowMixin {
     @Inject(method = "setTitle", at = @At("HEAD"))
     private void propagateTitleToParent(String title, CallbackInfo ci) {
         SplitscreenBootstrapper.getController().flatMap(ReparentingHostSplitscreenEngine::tryGet).ifPresent(engine -> {
-            engine.getParentWindow().setTitle(title);
+            Optional.ofNullable(engine.getParentWindow()).ifPresent(win -> win.setTitle(title));
         });
     }
 
@@ -110,7 +111,7 @@ public class WindowMixin {
     }
     @Unique
     private void preventIfSplitscreen(Runnable originalCall) {
-        if (SplitscreenBootstrapper.isSplitscreen()) {
+        if (SplitscreenBootstrapper.getEngine().map(engine -> engine instanceof ReparentingSplitscreenEngine).orElse(false)) {
             if (!hasDoneInitialSetup) {
                 originalCall.run();
                 return;

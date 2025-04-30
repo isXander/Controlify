@@ -55,7 +55,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
-
+        this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
     }
 
     @Override

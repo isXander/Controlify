@@ -12,7 +12,8 @@ public class SplitscreenConnection extends Connection implements ConnectionDisco
     }
 
     @Override
-    public Packet<?> createDisconnectPacket(Component reason, boolean login) {
+    public Packet<?> createDisconnectPacket(Throwable throwable, Component reason, boolean login) {
+        throwable.printStackTrace();
         return new PawnboundDisconnectPacket(reason);
     }
 

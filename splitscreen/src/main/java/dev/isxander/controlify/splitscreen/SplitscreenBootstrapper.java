@@ -1,10 +1,10 @@
 package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
 import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
-import dev.isxander.controlify.splitscreen.remote.ipc.PawnConnectionListener;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
@@ -109,6 +109,11 @@ public class SplitscreenBootstrapper {
      */
     public static Optional<RemotePawnMain> getPawn() {
         return Optional.ofNullable(remotePawnMain);
+    }
+
+    public static Optional<SplitscreenEngine> getEngine() {
+        return getController().<SplitscreenEngine>map(SplitscreenController::getSplitscreenEngine)
+                .or(() -> getPawn().<SplitscreenEngine>map(RemotePawnMain::getSplitscreenEngine));
     }
 
     /**

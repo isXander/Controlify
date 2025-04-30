@@ -59,7 +59,8 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
 
     @Override
     public void handleDisconnect(PawnboundDisconnectPacket packet) {
-        this.connection.disconnect(Component.empty());
+        System.out.println("Disconnecting from server: " + packet.reason().getString());
+        this.connection.disconnect(packet.reason());
     }
 
     @Override
@@ -70,6 +71,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     @Override
     public void onDisconnect(DisconnectionDetails details) {
         // If we disconnect for whatever reason, we can't leave a hanging pawn.
+        System.out.println("Disconnecting from server2: " + details.reason().getString());
         this.minecraft.stop();
     }
 

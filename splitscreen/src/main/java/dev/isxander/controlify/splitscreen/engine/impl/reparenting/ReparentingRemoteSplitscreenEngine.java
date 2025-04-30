@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.Window;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.engine.RemoteSplitscreenEngine;
+import dev.isxander.controlify.splitscreen.engine.SplitscreenEnginePayloadSender;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundSetWindowActivePayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
@@ -25,14 +26,14 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
     private final Minecraft minecraft;
     private final WindowManager windowManager;
 
-    private final RemoteControllerBridge bridge;
+    private final SplitscreenEnginePayloadSender payloadSender;
     private final LocalSplitscreenPawn localMainPawn;
     private @Nullable LocalReparentingPawn localPawn;
 
-    public ReparentingRemoteSplitscreenEngine(Minecraft minecraft, RemoteControllerBridge bridge, LocalSplitscreenPawn localMainPawn) {
+    public ReparentingRemoteSplitscreenEngine(Minecraft minecraft, SplitscreenEnginePayloadSender payloadSender, LocalSplitscreenPawn localMainPawn) {
         this.minecraft = minecraft;
         this.windowManager = WindowManager.get();
-        this.bridge = bridge;
+        this.payloadSender = payloadSender;
         this.localMainPawn = localMainPawn;
     }
 
@@ -47,7 +48,8 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
         Window window = this.minecraft.getWindow();
         NativeWindowHandle nativeHandle = this.windowManager.getNativeWindowHandle(window.getWindow());
 
-        this.bridge.sendEnginePayload(new ControllerboundThisIsMyWindowPayload(nativeHandle));
+        this.localPawn = new LocalReparentingPawn(this.minecraft, nativeHandle);
+        this.payloadSender.sendPayload(new ControllerboundThisIsMyWindowPayload(nativeHandle));
     }
 
     public void onPayloadSetWindowActive(@NotNull LocalReparentingPawn localPawn, PawnboundSetWindowActivePayload payload) {

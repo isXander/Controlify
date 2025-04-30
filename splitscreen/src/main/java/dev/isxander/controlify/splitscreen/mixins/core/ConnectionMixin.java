@@ -20,9 +20,9 @@ public class ConnectionMixin {
     @Definition(id = "send", method = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V")
     @Expression("this.send(@(?), ?)")
     @ModifyExpressionValue(method = "exceptionCaught", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private Packet<?> modifyDisconnectPacket(Packet<?> packet, @Local Component reason) {
+    private Packet<?> modifyDisconnectPacket(Packet<?> packet, @Local Component reason, @Local(argsOnly = true) Throwable throwable) {
         if (this instanceof ConnectionDisconnectPacketFactory factory) {
-            return factory.createDisconnectPacket(reason, this.sendLoginDisconnect);
+            return factory.createDisconnectPacket(throwable, reason, this.sendLoginDisconnect);
         }
         return packet;
     }

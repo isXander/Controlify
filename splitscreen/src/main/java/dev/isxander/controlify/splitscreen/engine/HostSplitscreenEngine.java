@@ -24,6 +24,8 @@ public interface HostSplitscreenEngine extends SplitscreenEngine {
      */
     void setSplitscreenMode(ControllerUID window, SplitscreenPosition position);
 
+    void removeWindow(ControllerUID window);
+
     /**
      * Notifies that the engine requires the controller to refresh the splitscreen mode
      * of all the pawns.
@@ -38,6 +40,4 @@ public interface HostSplitscreenEngine extends SplitscreenEngine {
     boolean shouldExit();
 
     void handleInboundPayload(ControllerUID window, Connection connection, CustomPacketPayload payload);
-
-
 }
