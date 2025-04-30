@@ -1,4 +1,5 @@
 import dev.isxander.controlify.branchProj
+import dev.isxander.controlify.mcVersion
 
 plugins {
     id("dev.isxander.controlify.project")
@@ -17,10 +18,19 @@ modstitch {
     }
 }
 
+val lwjglVersion = when (project.mcVersion) {
+    "1.21.5" -> "3.3.3"
+    else -> throw IllegalStateException("Can't get LWJGL version for: $mcVersion")
+}
+
 dependencies {
+    fun Dependency?.jij() = this?.let { modstitchJiJ(it) }
+
     if (modstitch.isLoom) {
         api(project(path = branchProj.path, configuration = "namedElements"))
     } else if (modstitch.isModDevGradleRegular) {
         api(branchProj)
     }
+
+    modstitchCompileOnly("org.lwjgl:lwjgl-vulkan:$lwjglVersion")
 }
