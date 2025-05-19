@@ -19,6 +19,7 @@ public class LANUtil {
         return new ServerAddress(getLANServerBindAddress().getHostAddress(), getPortOrPublishServer(server));
     }
 
+    // TODO: make this a setting to allow regular LAN play
     public static InetAddress getLANServerBindAddress() {
         return InetAddress.getLoopbackAddress();
     }
@@ -31,8 +32,6 @@ public class LANUtil {
         } else {
             port = server.getPort();
         }
-        // the other clients are in offline mode
-        server.setUsesAuthentication(false);
         return port;
     }
 }

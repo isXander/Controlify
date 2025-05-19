@@ -7,6 +7,7 @@ import dev.isxander.controlify.splitscreen.engine.RemoteSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEnginePayloadSender;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundSetWindowActivePayload;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundThrottleFrameratePayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import dev.isxander.controlify.splitscreen.remote.RemoteControllerBridge;
@@ -37,6 +38,10 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
         this.localMainPawn = localMainPawn;
     }
 
+    public boolean shouldThrottleFps() {
+        return localPawn != null && localPawn.shouldThrottleFramerate();
+    }
+
     public static Optional<ReparentingRemoteSplitscreenEngine> tryGet(RemotePawnMain remotePawnMain) {
         if (remotePawnMain.getSplitscreenEngine() instanceof ReparentingRemoteSplitscreenEngine engine) {
             return Optional.of(engine);
@@ -52,17 +57,22 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
         this.payloadSender.sendPayload(new ControllerboundThisIsMyWindowPayload(nativeHandle));
     }
 
-    public void onPayloadSetWindowActive(@NotNull LocalReparentingPawn localPawn, PawnboundSetWindowActivePayload payload) {
-        localPawn.setWindowFocusState(payload.active());
-    }
-
     @Override
     public void handleInboundPayload(CustomPacketPayload payload) {
         if (this.localPawn == null) throw new IllegalStateException("Local pawn not initialized");
 
         switch (payload) {
             case PawnboundSetWindowActivePayload p -> this.onPayloadSetWindowActive(this.localPawn, p);
+            case PawnboundThrottleFrameratePayload p -> this.onThrottleFramerate(this.localPawn, p);
             default -> LOGGER.error("Unknown payload type: {}", payload.getClass().getName());
         }
+    }
+
+    private void onPayloadSetWindowActive(@NotNull LocalReparentingPawn localPawn, PawnboundSetWindowActivePayload payload) {
+        localPawn.setWindowFocusState(payload.active());
+    }
+
+    private void onThrottleFramerate(@NotNull LocalReparentingPawn localPawn, PawnboundThrottleFrameratePayload payload) {
+        localPawn.setThrottleFramerate(payload.throttle());
     }
 }

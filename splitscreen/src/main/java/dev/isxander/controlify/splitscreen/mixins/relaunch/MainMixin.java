@@ -16,9 +16,9 @@ import java.util.Optional;
 public class MainMixin {
     /**
      * When using relaunch, we can't log into the same account twice, take the username from the relaunch
-     * arguments and overwrite the user data with that.
-     * @param originalData the original user data, duplicated from the controller client
-     * @return the modified user data
+     * arguments and overwrite the user nonce with that.
+     * @param originalData the original user nonce, duplicated from the controller client
+     * @return the modified user nonce
      */
     @ModifyExpressionValue(method = "main", at = @At(value = "NEW", target = "net/minecraft/client/main/GameConfig$UserData"))
     private static GameConfig.UserData modifyUserData(GameConfig.UserData originalData) {
@@ -42,8 +42,8 @@ public class MainMixin {
     /**
      * It's possible we relaunched directly from in-game. In this case,
      * instead of reinventing the wheel, just pipe our LAN server into quickplay.
-     * @param originalData the original quickplay data, duplicated from the controller client
-     * @return the modified quickplay data
+     * @param originalData the original quickplay nonce, duplicated from the controller client
+     * @return the modified quickplay nonce
      */
     @ModifyExpressionValue(method = "main", at = @At(value = "NEW", target = "net/minecraft/client/main/GameConfig$QuickPlayData"))
     private static GameConfig.QuickPlayData modifyQuickPlayData(GameConfig.QuickPlayData originalData) {

@@ -7,17 +7,23 @@ import org.jetbrains.annotations.Nullable;
 
 public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
     public HostLocalSplitscreenPawn(Minecraft minecraft, @Nullable ControllerUID associatedController) {
-        super(minecraft, associatedController);
+        super(minecraft, 0, associatedController);
     }
 
     /**
      * This is a no-op because the host does not need to join a server.
      * The host is always the server.
-     * @param host address of the server
-     * @param port port of the server
+     *
+     * @param host  address of the server
+     * @param port  port of the server
+     * @param nonce
      */
     @Override
-    public void joinServer(String host, int port) {
+    public void joinServer(String host, int port, byte @Nullable [] nonce) {
         // no-op
+    }
+
+    public void setLastLoginNonce(byte[] nonce) {
+        this.nonce = nonce;
     }
 }

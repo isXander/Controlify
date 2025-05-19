@@ -92,39 +92,39 @@ public class ParentWindow implements AutoCloseable {
         glfwSetWindowTitle(this.glfwWindowHandle, title + " - Controlify Splitscreen");
     }
 
-    public void setIcon(PackResources resources, IconSet iconSet) throws IOException {
-        switch (glfwGetPlatform()) {
-            case GLFW_PLATFORM_WIN32, GLFW_PLATFORM_X11 -> {
-                List<IoSupplier<InputStream>> icons = iconSet.getStandardIcons(resources);
-                List<ByteBuffer> iconBuffers = new ArrayList<>(icons.size());
+    public void setIcon(PackResources resources, IconSet iconSet) {
+        try {
+            switch (glfwGetPlatform()) {
+                case GLFW_PLATFORM_WIN32, GLFW_PLATFORM_X11 -> {
+                    List<IoSupplier<InputStream>> icons = iconSet.getStandardIcons(resources);
 
-                try (MemoryStack stack = MemoryStack.stackPush()) {
-                    try (GLFWImage.Buffer imgBuffer = GLFWImage.malloc(icons.size(), stack)) {
-                        for (int i = 0; i < icons.size(); i++) {
-                            try (NativeImage image = NativeImage.read(icons.get(i).get())) {
-                                ByteBuffer iconBuffer = MemoryUtil.memAlloc(image.getWidth() * image.getHeight() * NativeImage.Format.RGBA.components());
-                                iconBuffers.add(iconBuffer);
-                                iconBuffer.asIntBuffer().put(image.getPixelsABGR());
+                    try (MemoryStack stack = MemoryStack.stackPush()) {
+                        try (GLFWImage.Buffer imgBuffer = GLFWImage.malloc(icons.size(), stack)) {
+                            for (int i = 0; i < icons.size(); i++) {
+                                try (NativeImage image = NativeImage.read(icons.get(i).get())) {
+                                    ByteBuffer iconBuffer = MemoryUtil.memAlloc(image.getWidth() * image.getHeight() * NativeImage.Format.RGBA.components());
+                                    iconBuffer.asIntBuffer().put(image.getPixelsABGR());
 
-                                imgBuffer.position(i);
-                                imgBuffer.width(image.getWidth());
-                                imgBuffer.height(image.getHeight());
-                                imgBuffer.pixels(iconBuffer);
+                                    imgBuffer.position(i);
+                                    imgBuffer.width(image.getWidth());
+                                    imgBuffer.height(image.getHeight());
+                                    imgBuffer.pixels(iconBuffer);
+                                }
                             }
+                            imgBuffer.flip();
+
+                            this.setIcon(imgBuffer);
                         }
-                        imgBuffer.flip();
-
-                        this.setIcon(imgBuffer);
                     }
-                } finally {
-                    iconBuffers.forEach(MemoryUtil::memFree);
-                }
 
+                }
+                // macOS sets icon application-wide, this is done by vanilla Window so we don't need to propagate here
+                case GLFW_PLATFORM_COCOA -> { /* no-op */ }
+                // Wayland doesn't support changing icons
+                case GLFW_PLATFORM_WAYLAND -> { /* no-op */ }
             }
-            // macOS sets icon application-wide, this is done by vanilla Window so we don't need to propagate here
-            case GLFW_PLATFORM_COCOA -> { /* no-op */ }
-            // Wayland doesn't support changing icons
-            case GLFW_PLATFORM_WAYLAND -> { /* no-op */ }
+        } catch (IOException e) {
+            LOGGER.error("Failed to set window icon", e);
         }
     }
 

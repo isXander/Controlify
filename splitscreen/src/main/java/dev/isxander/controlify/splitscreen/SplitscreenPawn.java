@@ -1,8 +1,6 @@
 package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.controller.ControllerUID;
-import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
-import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -16,18 +14,30 @@ import org.jetbrains.annotations.Nullable;
  * <strong>Unless otherwise stated, methods should expect to be run on the main thread.</strong>
  */
 public interface SplitscreenPawn extends Bridge {
+
+    /**
+     * the ID of the pawn
+     */
+    int pawnIndex();
+
     /**
      * Connects client to the given server.
      *
      * @param serverAddress address of the server
-     * @param serverPort port of the server
+     * @param serverPort    port of the server
+     * @param nonce the nonce to use for the connection, or null if not applicable
      */
-    void joinServer(String serverAddress, int serverPort);
+    void joinServer(String serverAddress, int serverPort, byte @Nullable [] nonce);
 
     /**
      * Closes the game.
      */
     void closeGame();
+
+    /**
+     * Tells the pawn to disconnect from the server it's currently connected to.
+     */
+    void disconnectFromServer();
 
     /**
      * @return the current splitscreen mode of the window

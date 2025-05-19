@@ -13,7 +13,7 @@
     "sources": "https://github.com/${github}"
   },
   "license": "LGPL-3.0-or-later",
-  "environment": "client",
+  "environment": "*",
   "entrypoints": {
     "client": [
       "dev.isxander.controlify.splitscreen.SplitscreenEntrypoint"

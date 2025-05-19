@@ -15,9 +15,6 @@
   "license": "LGPL-3.0-or-later",
   "environment": "*",
   "entrypoints": {
-    "preLaunch": [
-      "com.llamalad7.mixinextras.MixinExtrasBootstrap::init"
-    ],
     "modmenu": [
       "dev.isxander.controlify.config.ModMenuIntegration"
     ],

@@ -3,9 +3,11 @@ package dev.isxander.controlify.splitscreen.engine.impl.reparenting;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundSetWindowActivePayload;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundThrottleFrameratePayload;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundEngineCustomPayloadPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.PawnboundEngineCustomPayloadPacket;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.common.custom.DiscardedPayload;
@@ -30,7 +32,8 @@ public abstract class ReparentingSplitscreenEngine implements SplitscreenEngine 
             CustomPacketPayload.codec(
                     id -> DiscardedPayload.codec(id, 1048576),
                     List.of(
-                        new CustomPacketPayload.TypeAndCodec<>(PawnboundSetWindowActivePayload.TYPE, PawnboundSetWindowActivePayload.CODEC)
+                            new CustomPacketPayload.TypeAndCodec<>(PawnboundSetWindowActivePayload.TYPE, PawnboundSetWindowActivePayload.CODEC),
+                            new CustomPacketPayload.TypeAndCodec<>(PawnboundThrottleFrameratePayload.TYPE, PawnboundThrottleFrameratePayload.CODEC)
                     )
             ).map(PawnboundEngineCustomPayloadPacket::new, PawnboundEngineCustomPayloadPacket::payload);
 

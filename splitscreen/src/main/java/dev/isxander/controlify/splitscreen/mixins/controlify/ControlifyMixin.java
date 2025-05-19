@@ -15,6 +15,13 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Controlify.class)
 public class ControlifyMixin {
+    /**
+     * Modify the toast message when a controller is connected to say
+     * "Press <input> to start splitscreen" if there are multiple controllers connected.
+     * @param component original toast content
+     * @param controller the controller that was added
+     * @return the modified toast content
+     */
     @Definition(id = "translatable", method = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;")
     @Definition(id = "sendToast", method = "Ldev/isxander/controlify/utils/ToastUtils;sendToast(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Z)V")
     @Expression("sendToast(?, @(translatable('controlify.toast.controller_connected.description', ?)), ?)")

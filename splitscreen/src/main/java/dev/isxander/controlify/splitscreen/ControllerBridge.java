@@ -1,5 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
+import net.minecraft.network.chat.Component;
+
 /**
  * Facilitates communication between a client and the controller.
  * <ul>
@@ -17,4 +19,10 @@ public interface ControllerBridge extends Bridge {
      * Signals to the controller that the pawn has fully loaded.
      */
     void signalImReady(boolean finished, float progress);
+
+    /**
+     * Signals to the controller that the pawn has been disconnected from the server.
+     * @param reason The reason for disconnection, if any.
+     */
+    void serverDisconnected(Component reason);
 }

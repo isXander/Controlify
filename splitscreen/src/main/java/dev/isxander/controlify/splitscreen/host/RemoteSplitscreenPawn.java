@@ -4,9 +4,10 @@ import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.SplitscreenPosition;
-import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import net.minecraft.network.Connection;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * A splitscreen pawn object that remotely controls another client using packets.
@@ -15,6 +16,7 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     private final Connection connection;
 
     private SplitscreenPosition position = null;
+    private final int index;
     private final @Nullable ControllerUID associatedController;
 
     /**
@@ -22,19 +24,30 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
      * @param connection connection to a remote client
      * @param associatedController the controller uid associated with this pawn
      */
-    public RemoteSplitscreenPawn(Connection connection, @Nullable ControllerUID associatedController) {
+    public RemoteSplitscreenPawn(Connection connection, int index, @Nullable ControllerUID associatedController) {
         this.connection = connection;
+        this.index = index;
         this.associatedController = associatedController;
     }
 
     @Override
-    public void joinServer(String serverAddress, int serverPort) {
-        this.connection.send(new PawnboundJoinServerPacket(serverAddress, serverPort));
+    public int pawnIndex() {
+        return this.index;
+    }
+
+    @Override
+    public void joinServer(String serverAddress, int serverPort, byte @Nullable [] nonce) {
+        this.connection.send(new PawnboundJoinServerPacket(serverAddress, serverPort, Optional.ofNullable(nonce)));
     }
 
     @Override
     public void closeGame() {
         this.connection.send(new PawnboundCloseGamePacket());
+    }
+
+    @Override
+    public void disconnectFromServer() {
+        this.connection.send(PawnboundServerDisconnectPacket.UNIT);
     }
 
     @Override

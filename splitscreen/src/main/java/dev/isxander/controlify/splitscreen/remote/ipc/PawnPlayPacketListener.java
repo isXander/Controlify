@@ -5,14 +5,12 @@ import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundKeepAlivePacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
-import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
-import net.minecraft.network.chat.Component;
 import org.slf4j.Logger;
 
 /**
@@ -37,7 +35,12 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
 
     public void handleJoinServer(PawnboundJoinServerPacket packet) {
         LOGGER.info("Pawn joining server server {}:{}", packet.host(), packet.port());
-        minecraft.execute(() -> this.pawn.joinServer(packet.host(), packet.port()));
+        minecraft.execute(() -> this.pawn.joinServer(packet.host(), packet.port(), packet.nonce().orElse(null)));
+    }
+
+    public void handleServerDisconnect(PawnboundServerDisconnectPacket packet) {
+        LOGGER.info("Pawn disconnecting from server");
+        minecraft.execute(this.pawn::disconnectFromServer);
     }
 
     public void handleEngineCustomPayload(PawnboundEngineCustomPayloadPacket packet) {

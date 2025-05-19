@@ -81,7 +81,7 @@ public abstract class MinecraftMixin {
         SplitscreenController controller = controllerOpt.get();
 
         int playerCount = this.singleplayerServer.getPlayerCount();
-        int pawnCount = controller.getPawnCount();
+        int pawnCount = controller.getPawnCount(true);
         boolean localOnlyLanServer = playerCount == pawnCount;
 
         boolean isFullscreen = PawnSplitscreenModeRegistry.getMode(this.screen) == ScreenSplitscreenMode.FULLSCREEN;

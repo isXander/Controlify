@@ -2,11 +2,9 @@ package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerUID;
-import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
-import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import org.jetbrains.annotations.Nullable;
@@ -19,20 +17,39 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     private final Minecraft minecraft;
 
     private SplitscreenPosition position = null;
+    private final int index;
     private final @Nullable ControllerUID associatedController;
 
-    public LocalSplitscreenPawn(Minecraft minecraft, @Nullable ControllerUID associatedController) {
+    protected byte[] nonce;
+
+    public LocalSplitscreenPawn(Minecraft minecraft, int index, @Nullable ControllerUID associatedController) {
         this.minecraft = minecraft;
+        this.index = index;
         this.associatedController = associatedController;
     }
 
     @Override
-    public void joinServer(String host, int port) {
+    public int pawnIndex() {
+        return this.index;
+    }
+
+    @Override
+    public void joinServer(String host, int port, byte @Nullable [] nonce) {
         String ip = host + ":" + port;
         var address = new ServerAddress(host, port);
         var data = new ServerData("Splitscreen Master", ip, ServerData.Type.LAN);
+        this.nonce = nonce;
 
         ConnectScreen.startConnecting(minecraft.screen, minecraft, address, data, false, null);
+    }
+
+    @Override
+    public void disconnectFromServer() {
+        if (this.minecraft.level != null) {
+            this.minecraft.level.disconnect();
+        }
+        this.minecraft.disconnect();
+        this.minecraft.setScreen(new JoinMultiplayerScreen(null));
     }
 
     @Override
@@ -64,5 +81,9 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     @Override
     public boolean isRemote() {
         return false;
+    }
+
+    public byte[] getLastNonce() {
+        return nonce;
     }
 }

@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
+import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginFlowClient;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
 import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
@@ -9,12 +10,12 @@ import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.util.SocketUtil;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.HttpUtil;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -66,7 +67,7 @@ public class SplitscreenBootstrapper {
 
             IPCMethod ipcMethod;
             if (SocketUtil.isAfUnixSupported()) {
-                ipcMethod = IPCMethod.Unix.inDirectory(FabricLoader.getInstance().getGameDir());
+                ipcMethod = IPCMethod.Unix.inDirectory(Path.of(System.getProperty("user.home")));
             } else {
                 int openPort = HttpUtil.getAvailablePort();
                 ipcMethod = new IPCMethod.TCP(openPort);
@@ -74,6 +75,8 @@ public class SplitscreenBootstrapper {
 
             bootstrapAsController(minecraft, ipcMethod);
         }
+
+        SplitscreenLoginFlowClient.init();
     }
 
     private static void bootstrapAsPawn(Minecraft minecraft, IPCMethod connectionMethod) {

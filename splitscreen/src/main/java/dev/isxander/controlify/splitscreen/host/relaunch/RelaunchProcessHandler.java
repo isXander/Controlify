@@ -8,13 +8,15 @@ import dev.isxander.controlify.splitscreen.host.relaunch.impl.HackyRelauncher;
 import dev.isxander.controlify.splitscreen.host.relaunch.impl.PrismRelauncher;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.server.IntegratedServer;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 public class RelaunchProcessHandler {
@@ -32,6 +34,7 @@ public class RelaunchProcessHandler {
         launchInfo.jvmArgs().add(RelaunchArguments.RELAUNCHED.asArgument(true));
         launchInfo.jvmArgs().add(RelaunchArguments.CONTROLLER.asArgument(controller));
         launchInfo.jvmArgs().add(RelaunchArguments.PAWN_INDEX.asArgument(pawnIndex));
+        launchInfo.jvmArgs().add(RelaunchArguments.HOST_UUID.asArgument(minecraft.getUser().getProfileId()));
         switch (ipcMethod) {
             case IPCMethod.TCP(int port) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_TCP_PORT.asArgument(port));
             case IPCMethod.Unix(String socket) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_SOCKET_PATH.asArgument(socket));
@@ -51,7 +54,7 @@ public class RelaunchProcessHandler {
     public RelaunchProcessHandler(LaunchInfo launchInfo, int pawnIndex) {
         this.pawnIndex = pawnIndex;
         this.logger = LoggerFactory.getLogger("RelaunchProcessHandler#" + pawnIndex);
-        this.process = startProcess(launchInfo);
+        this.process = handleProcess(launchInfo);
     }
 
     public boolean isAlive() {
@@ -63,47 +66,68 @@ public class RelaunchProcessHandler {
     }
 
     private Process startProcess(LaunchInfo launchInfo) {
-        ProcessBuilder processBuilder = launchInfo.buildProcess()
-                .redirectOutput(ProcessBuilder.Redirect.PIPE)
-                .redirectError(ProcessBuilder.Redirect.PIPE)
-                .redirectInput(ProcessBuilder.Redirect.INHERIT);
-
-        final Thread[] readerThreads = new Thread[2];
+        Path argFile = null;
         try {
-            Process process = processBuilder.start();
+            String argFileContent = launchInfo.buildArgfile();
+            argFile = Files.createTempFile(launchInfo.workingDirectory(), "pawn-args", ".txt");
+            Files.writeString(argFile, argFileContent);
 
-            readerThreads[0] = Thread.ofVirtual().name("stdout-reader")
-                    .start(pipeStream(process.getInputStream(), System.out));
-            readerThreads[1] = Thread.ofVirtual().name("stderr-reader")
-                    .start(pipeStream(process.getErrorStream(), System.err));
+            ProcessBuilder processBuilder = launchInfo.buildProcessWithArgfile(launchInfo.workingDirectory().relativize(argFile))
+                    .redirectOutput(ProcessBuilder.Redirect.PIPE)
+                    .redirectError(ProcessBuilder.Redirect.PIPE)
+                    .redirectInput(ProcessBuilder.Redirect.INHERIT);
 
-            logger.info("Pawn #{} started with PID {}", pawnIndex, process.pid());
-
-            CompletableFuture<Process> onExit = process.onExit();
-
-            onExit.thenAcceptAsync(exitedProcess -> {
-                logger.info("Pawn #{} exited with code {}", pawnIndex, exitedProcess.exitValue());
-
-                try {
-                    for (Thread thread : readerThreads) {
-                        thread.join(1000);
-                    }
-                    logger.info("All reader threads joined successfully for Pawn #{}", pawnIndex);
-                } catch (InterruptedException e) {
-                    logger.error("Async callback interrupted while joining reader threads for Pawn #{}", pawnIndex, e);
-                    Thread.currentThread().interrupt();
-                }
-            });
-
-            onExit.exceptionally(throwable -> {
-                logger.error("An exception occurred in the async completion stage", throwable);
-                return null;
-            });
-
-            return process;
-        } catch (IOException e) {
-            throw new RelaunchException("Failed to start new pawn process", e);
+            try {
+                return processBuilder.start();
+            } catch (IOException e) {
+                throw new RelaunchException("Failed to start new pawn process", e);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (argFile != null) {
+//                try {
+//                    Files.delete(argFile);
+//                } catch (IOException e) {
+//                    logger.error("Failed to delete arg file", e);
+//                }
+            }
         }
+    }
+
+    private Process handleProcess(LaunchInfo launchInfo) {
+        final Thread[] readerThreads = new Thread[2];
+        Process process = startProcess(launchInfo);
+
+        readerThreads[0] = Thread.ofVirtual().name("stdout-reader")
+                .start(pipeStream(process.getInputStream(), System.out));
+        readerThreads[1] = Thread.ofVirtual().name("stderr-reader")
+                .start(pipeStream(process.getErrorStream(), System.err));
+
+        logger.info("Pawn #{} started with PID {}", pawnIndex, process.pid());
+
+        CompletableFuture<Process> onExit = process.onExit();
+
+        onExit.thenAcceptAsync(exitedProcess -> {
+            logger.info("Pawn #{} exited with code {}", pawnIndex, exitedProcess.exitValue());
+
+            try {
+                for (Thread thread : readerThreads) {
+                    thread.join(1000);
+                }
+                logger.info("All reader threads joined successfully for Pawn #{}", pawnIndex);
+            } catch (InterruptedException e) {
+                logger.error("Async callback interrupted while joining reader threads for Pawn #{}", pawnIndex, e);
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        onExit.exceptionally(throwable -> {
+            logger.error("An exception occurred in the async completion stage", throwable);
+            return null;
+        });
+
+        return process;
     }
 
     public void setPawn(@Nullable RemoteSplitscreenPawn pawn) {

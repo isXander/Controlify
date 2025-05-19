@@ -3,10 +3,12 @@ package dev.isxander.controlify.splitscreen.remote;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundEngineCustomPayloadPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundGiveMeFocusIfForegroundPacket;
+import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundServerDisconnectedPacket;
 import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /**
@@ -36,6 +38,11 @@ public class RemoteControllerBridge implements ControllerBridge {
     @Override
     public void signalImReady(boolean finished, float progress) {
         this.connection.send(new ControllerboundSignalReadyPacket(finished, progress));
+    }
+
+    @Override
+    public void serverDisconnected(Component reason) {
+        this.connection.send(new ControllerboundServerDisconnectedPacket(reason));
     }
 
     public void sendEnginePayload(CustomPacketPayload payload) {

@@ -18,6 +18,17 @@ modstitch {
     }
 }
 
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven(url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1") { name = "DevAuth" }
+        }
+        filter {
+            includeGroup("me.djtheredstoner")
+        }
+    }
+}
+
 val lwjglVersion = when (project.mcVersion) {
     "1.21.5" -> "3.3.3"
     else -> throw IllegalStateException("Can't get LWJGL version for: $mcVersion")
@@ -33,4 +44,6 @@ dependencies {
     }
 
     modstitchCompileOnly("org.lwjgl:lwjgl-vulkan:$lwjglVersion")
+
+    modstitchModRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 }

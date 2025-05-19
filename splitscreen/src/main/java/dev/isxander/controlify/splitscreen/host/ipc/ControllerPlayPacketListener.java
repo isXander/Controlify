@@ -33,21 +33,26 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleHello(ControllerboundHelloPacket packet) {
-        this.pawnInstance = new RemoteSplitscreenPawn(this.connection, packet.controller());
-        this.controller.addPawn(this.pawnInstance);
+        // queue on the main thread to prevent race conditions when getting the next pawn index
+        this.minecraft.execute(() -> {
+            this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.controller());
+            this.controller.addPawn(this.pawnInstance);
 
-        // initiate keep alive chain
-        this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
+            // initiate keep alive chain
+            this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
+        });
     }
 
     public void handleGiveChildFocusIfForeground(ControllerboundGiveMeFocusIfForegroundPacket packet) {
         this.minecraft.execute(() -> {
-            this.controller.getControllerBridge().giveFocusToChildIfForeground(packet.childWindow(), this.pawnInstance);
+            //this.controller.getControllerBridge().giveFocusToChildIfForeground(packet.childWindow(), this.pawnInstance);
         });
     }
 
     public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
-        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
+        this.minecraft.execute(() -> {
+            this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
+        });
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
@@ -55,12 +60,22 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
-        this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
+        this.minecraft.execute(() -> {
+            this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
+        });
+    }
+
+    public void handleServerDisconnected(ControllerboundServerDisconnectedPacket packet) {
+        this.minecraft.execute(() -> {
+            this.controller.getControllerBridge().serverDisconnectedRemote(packet.disconnectReason(), pawnInstance);
+        });
     }
 
     @Override
     public void onDisconnect(DisconnectionDetails details) {
-        controller.removePawn(pawnInstance);
+        this.minecraft.execute(() -> {
+            controller.removePawn(pawnInstance);
+        });
     }
 
     @Override

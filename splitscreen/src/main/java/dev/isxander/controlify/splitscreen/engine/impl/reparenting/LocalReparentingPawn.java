@@ -9,6 +9,8 @@ public class LocalReparentingPawn implements ReparentingPawn {
 
     private final NativeWindowHandle windowHandle;
 
+    private boolean throttleFramerate = false;
+
     public LocalReparentingPawn(Minecraft minecraft, NativeWindowHandle windowHandle) {
         this.minecraft = minecraft;
         this.windowHandle = windowHandle;
@@ -17,6 +19,15 @@ public class LocalReparentingPawn implements ReparentingPawn {
     @Override
     public void setWindowFocusState(boolean active) {
         this.minecraft.setWindowActive(active);
+    }
+
+    @Override
+    public void setThrottleFramerate(boolean throttleFramerate) {
+        this.throttleFramerate = throttleFramerate;
+    }
+
+    public boolean shouldThrottleFramerate() {
+        return this.throttleFramerate;
     }
 
     @Override

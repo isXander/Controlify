@@ -7,7 +7,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketType;
 
-public record PawnboundJoinServerPacket(String host, int port) implements PawnboundPlayPacket {
+import java.util.Optional;
+
+public record PawnboundJoinServerPacket(String host, int port, Optional<byte[]> nonce) implements PawnboundPlayPacket {
     public static final StreamCodec<FriendlyByteBuf, PawnboundJoinServerPacket> CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.STRING_UTF8,
@@ -15,6 +17,9 @@ public record PawnboundJoinServerPacket(String host, int port) implements Pawnbo
 
                     ByteBufCodecs.INT,
                     PawnboundJoinServerPacket::port,
+
+                    ByteBufCodecs.optional(ByteBufCodecs.byteArray(16)),
+                    PawnboundJoinServerPacket::nonce,
 
                     PawnboundJoinServerPacket::new
             );

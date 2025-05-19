@@ -36,7 +36,7 @@ public class SplitscreenController  {
     private final IPCMethod ipcMethod;
 
     private final List<SplitscreenPawn> pawns = new ArrayList<>();
-    private final LocalSplitscreenPawn localPawn;
+    private final HostLocalSplitscreenPawn localPawn;
 
     private final LocalControllerBridge controllerBridge;
 
@@ -60,11 +60,15 @@ public class SplitscreenController  {
             if (this.splitscreenEngine.consumeDirty()) {
                 this.updateSplitscreenMode();
             }
+
+            if (this.splitscreenEngine.shouldExit()) {
+                this.minecraft.stop();
+            }
         });
     }
 
     public void forEachPawn(Consumer<SplitscreenPawn> consumer) {
-        pawns.forEach(consumer);
+        this.pawns.forEach(consumer);
     }
 
     public void forEachPawn(BiConsumer<SplitscreenPawn, Integer> consumer) {
@@ -73,8 +77,17 @@ public class SplitscreenController  {
         }
     }
 
+    public int getNextPawnIndex() {
+        return this.pawns.size();
+    }
+
     public void addPawn(SplitscreenPawn pawn) {
-        int pawnIndex = this.pawns.size();
+        int pawnIndex = this.getNextPawnIndex();
+
+        if (pawn.pawnIndex() != pawnIndex) {
+            throw new IllegalArgumentException("pawn's index does not match pawn list size. race condition?");
+        }
+
         LOGGER.info("Adding pawn #{}", pawnIndex);
 
         this.pawns.add(pawn);
@@ -121,11 +134,11 @@ public class SplitscreenController  {
         this.updateSplitscreenMode();
     }
 
-    public int getPawnCount() {
-        return this.pawns.size();
+    public int getPawnCount(boolean includeLocal) {
+        return this.pawns.size() - (includeLocal ? 0 : 1);
     }
 
-    public LocalSplitscreenPawn getLocalPawn() {
+    public HostLocalSplitscreenPawn getLocalPawn() {
         return this.localPawn;
     }
 

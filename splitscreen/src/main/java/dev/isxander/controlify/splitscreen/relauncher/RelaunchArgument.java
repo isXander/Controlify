@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class RelaunchArgument<T> {
@@ -27,6 +28,10 @@ public class RelaunchArgument<T> {
 
     public static RelaunchArgument<ControllerUID> controller(String name) {
         return new RelaunchArgument<>(name, ControllerUID::new, ControllerUID::string);
+    }
+
+    public static RelaunchArgument<UUID> uuid(String name) {
+        return new RelaunchArgument<>(name, UUID::fromString, UUID::toString);
     }
 
     private RelaunchArgument(String name, Function<String, T> toValue, Function<T, String> toString) {

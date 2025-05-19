@@ -19,13 +19,25 @@
     "followingame.ClientPacketListenerMixin",
     "followingame.ConnectScreenMixin",
     "followingame.IntegratedServerMixin",
+    "framethrottle.FramerateLimitTrackerMixin",
     "relaunch.MainMixin",
     "screenop.MinecraftMixin",
-    "screenop.ScreenMixin"
+    "screenop.ScreenMixin",
+    "server.login.ClientHandshakePacketListenerImplAccessor",
+    "server.login.DisconnectedScreenAccessor",
+    "server.status.ServerDataMixin",
+    "server.status.ServerSelectionList$OnlineServerEntryMixin",
+    "server.status.ServerStatusPingerListenerMixin"
   ],
   "mixins": [
     "controlify.ControlifyConfigMixin",
     "controlify.ControlifyMixin",
-    "core.ConnectionMixin"
+    "core.ConnectionMixin",
+    "server.login.MemoryServerHandshakePacketListenerImplMixin",
+    "server.login.ServerConfigurationPacketListenerImplMixin",
+    "server.login.ServerGamePacketListenerImplMixin",
+    "server.login.ServerLoginPacketListenerImplMixin",
+    "server.status.MinecraftServerMixin",
+    "server.status.ServerStatusMixin"
   ]
 }

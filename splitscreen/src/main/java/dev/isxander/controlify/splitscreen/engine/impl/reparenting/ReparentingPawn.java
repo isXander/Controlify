@@ -6,4 +6,6 @@ public interface ReparentingPawn {
     NativeWindowHandle getNativeWindowHandle();
 
     void setWindowFocusState(boolean active);
+
+    void setThrottleFramerate(boolean throttle);
 }

@@ -1,5 +1,16 @@
 {
   "controlify.splitscreen.bind.category": "Splitscreen",
   "controlify.binding.controlify_splitscreen.add_player": "Add Player",
-  "controlify.binding.controlify_splitscreen.add_player.desc": "Press this input on a connected controller to add the controller as a new splitscreen player."
+  "controlify.binding.controlify_splitscreen.add_player.desc": "Press this input on a connected controller to add the controller as a new splitscreen player.",
+  "controlify.splitscreen.login.controller_not_found": "The host controller you are trying to join for could not be found.",
+  "controlify.splitscreen.login.invalid_hmac": "Failed splitscreen sub-player authentication.",
+  "controlify.splitscreen.login.late_login_not_allowed": "Late logins are not allowed on this server.",
+  "controlify.splitscreen.login.invalid_subplayer_index": "Invalid sub-player index.",
+  "controlify.splitscreen.login.invalid_profile": "Invalid splitscreen profile.",
+  "controlify.splitscreen.login.subplayer_already_logged_in": "Subplayer already logged in.",
+  "controlify.splitscreen.login.too_many_requested_clients": "Server only accepts a maximum of %s-player splitscreen.",
+  "controlify.splitscreen.disconnect.remote_pawn": "Pawn %s disconnected",
+  "controlify.splitscreen.disconnect.host_pawn": "Pawn 0 disconnected",
+  "controlify.splitscreen.tooltip.supported": "Splitscreen supported",
+  "controlify.splitscreen.tooltip.unsupported": "Server only supports splitscreen up to %s players"
 }

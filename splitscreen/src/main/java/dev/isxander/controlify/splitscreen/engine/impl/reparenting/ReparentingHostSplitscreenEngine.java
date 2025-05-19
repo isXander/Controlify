@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen.engine.impl.reparenting;
 
 import com.mojang.blaze3d.platform.DisplayData;
+import com.mojang.blaze3d.platform.IconSet;
 import com.mojang.blaze3d.platform.ScreenManager;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.controller.ControllerUID;
@@ -13,6 +14,7 @@ import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.Windo
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent.ParentWindow;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent.ParentWindowEventHandler;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.Connection;
@@ -68,6 +70,8 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         this.parentWindow = new ParentWindow(this.minecraft, screenSize, screenManager, this, initialTitle);
         this.localPawn = new LocalReparentingPawn(this.minecraft, this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().getWindow()));
         this.registerPawn(this.localController, this.localPawn);
+
+        this.parentWindow.setIcon(minecraft.getVanillaPackResources(), SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
 
         while (!this.pendingWindowTasks.isEmpty()) {
             var task = this.pendingWindowTasks.poll();
@@ -126,6 +130,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
                 this.windowManager.hideWindow(windowHandle);
             }
         }
+        pawn.setThrottleFramerate(position instanceof SplitscreenPosition.Hidden);
     }
 
     @Override

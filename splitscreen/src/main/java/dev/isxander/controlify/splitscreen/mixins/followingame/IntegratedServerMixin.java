@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.host.util.LANUtil;
 import net.minecraft.client.server.IntegratedServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,7 +28,6 @@ public class IntegratedServerMixin {
     private InetAddress modifyLANBindAddress(InetAddress original) {
         if (!SplitscreenBootstrapper.isSplitscreen()) return original;
 
-        // TODO: make this a setting to allow regular LAN play
-        return InetAddress.getLoopbackAddress();
+        return LANUtil.getLANServerBindAddress();
     }
 }

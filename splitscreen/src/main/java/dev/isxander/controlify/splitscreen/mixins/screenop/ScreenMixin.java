@@ -14,8 +14,9 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class ScreenMixin {
 
     /**
-     * Fullscreen screens in-game should not render the first pawn's game background,
+     * Fullscreen screens in-game should not render the host's blurred level background,
      * as it breaks the illusion of this fake splitscreen. Instead, render the panorama.
+     * TODO: when we get fboshare, we can render the other pawns behind the pause screen like proper splitscreen
      * @param hasNoLevel original condition to render panorama, if not in game
      * @return if the screen should render the panorama
      */
