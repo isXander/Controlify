@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen.engine.impl.reparenting;
 
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundTakeFocusPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundSetWindowActivePayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundThrottleFrameratePayload;
@@ -19,7 +20,8 @@ public abstract class ReparentingSplitscreenEngine implements SplitscreenEngine 
             CustomPacketPayload.codec(
                     id -> DiscardedPayload.codec(id, 1048576),
                     List.of(
-                            new CustomPacketPayload.TypeAndCodec<>(ControllerboundThisIsMyWindowPayload.TYPE, ControllerboundThisIsMyWindowPayload.CODEC)
+                            new CustomPacketPayload.TypeAndCodec<>(ControllerboundThisIsMyWindowPayload.TYPE, ControllerboundThisIsMyWindowPayload.CODEC),
+                            new CustomPacketPayload.TypeAndCodec<>(ControllerboundTakeFocusPayload.TYPE, ControllerboundTakeFocusPayload.STREAM_CODEC)
                     )
             ).map(ControllerboundEngineCustomPayloadPacket::new, ControllerboundEngineCustomPayloadPacket::payload);
 

@@ -33,10 +33,13 @@
     "controlify.ControlifyConfigMixin",
     "controlify.ControlifyMixin",
     "core.ConnectionMixin",
+    "engine.reparent.InputConstantsMixin",
     "server.login.MemoryServerHandshakePacketListenerImplMixin",
+    "server.login.PlayerListMixin",
     "server.login.ServerConfigurationPacketListenerImplMixin",
     "server.login.ServerGamePacketListenerImplMixin",
     "server.login.ServerLoginPacketListenerImplMixin",
+    "server.login.ServerPlayerMixin",
     "server.status.MinecraftServerMixin",
     "server.status.ServerStatusMixin"
   ]

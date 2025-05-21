@@ -2,12 +2,14 @@ package dev.isxander.controlify.splitscreen.server.login;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
+import dev.isxander.controlify.splitscreen.config.SplitscreenConfig;
 import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.host.gui.SplitscreenDisconnectedScreen;
 import dev.isxander.controlify.splitscreen.mixins.server.login.ClientHandshakePacketListenerImplAccessor;
 import dev.isxander.controlify.splitscreen.mixins.server.login.DisconnectedScreenAccessor;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.remote.RemotePawnMain;
+import dev.isxander.controlify.splitscreen.server.login.packets.ClientboundIdentifyPacket;
 import dev.isxander.controlify.splitscreen.server.login.packets.ClientboundNoncePacket;
 import dev.isxander.controlify.splitscreen.server.login.packets.ServerboundIdentifyPacket;
 import dev.isxander.controlify.splitscreen.server.login.packets.ServerboundNonceAckPacket;
@@ -24,15 +26,21 @@ public class SplitscreenLoginFlowClient {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static void init() {
-        SplitscreenLoginFlowServer.init();
-
         // Only register the login flow if splitscreen has been enabled
         SplitscreenBootstrapper.getSide().ifPresent(side -> {
             Optional<SplitscreenController> controllerOpt = SplitscreenBootstrapper.getController();
             Optional<RemotePawnMain> pawnOpt = SplitscreenBootstrapper.getPawn();
 
             ClientLoginNetworking.registerGlobalReceiver(SplitscreenLoginFlowServer.CHANNEL_IDENTIFY, (client, listener, buf, sender) -> {
-                LOGGER.info("Received splitscreen identify packet.");
+                LOGGER.info("Received splitscreen identify packet. This server supports Splitscreen!");
+
+                ClientboundIdentifyPacket packet = ClientboundIdentifyPacket.STREAM_CODEC.decode(buf);
+                int requestedProtocolVersion = packet.protocolVersion();
+                int supportedProtocolVersion = SplitscreenLoginFlowServer.PROTOCOL_VERSION;
+                if (requestedProtocolVersion != supportedProtocolVersion) {
+                    LOGGER.error("Requested splitscreen protocol version {} does not match supported version {}", requestedProtocolVersion, supportedProtocolVersion);
+                    return CompletableFuture.completedFuture(null);
+                }
 
                 ClientIdentification identification = switch (side) {
                     case CONTROLLER -> {
@@ -41,7 +49,7 @@ public class SplitscreenLoginFlowClient {
                         int subPlayerCount = controller.getPawnCount(false);
                         LOGGER.info("Identifying as controller with {} sub-players", subPlayerCount);
 
-                        yield new ClientIdentification.Controller(subPlayerCount);
+                        yield new ClientIdentification.Controller(subPlayerCount, SplitscreenConfig.INSTANCE.createSharedConfig());
                     }
                     case PAWN -> {
                         RemotePawnMain pawn = pawnOpt.orElseThrow();

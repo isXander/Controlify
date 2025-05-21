@@ -26,7 +26,7 @@ public final class PawnSplitscreenModeRegistry {
         register(ConnectScreen.class, ScreenSplitscreenMode.SPLITSCREEN);
         register(ProgressScreen.class, ScreenSplitscreenMode.SPLITSCREEN);
         register(GenericMessageScreen.class, ScreenSplitscreenMode.SPLITSCREEN);
-        register(DisconnectedScreen.class, ScreenSplitscreenMode.SPLITSCREEN); // TODO: not technically splitscreen, we should propagate this to controller and disconnect all clients
+        register(DisconnectedScreen.class, ScreenSplitscreenMode.FULLSCREEN);
         register(AdvancementsScreen.class, ScreenSplitscreenMode.SPLITSCREEN);
     }
 

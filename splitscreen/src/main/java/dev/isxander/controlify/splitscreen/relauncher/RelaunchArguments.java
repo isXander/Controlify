@@ -13,6 +13,7 @@ public final class RelaunchArguments {
     public static final RelaunchArgument<String> USERNAME = RelaunchArgument.string("controlify.splitscreen.username");
     public static final RelaunchArgument<String> LAN_GAME = RelaunchArgument.string("controlify.splitscreen.lan_game");
     public static final RelaunchArgument<UUID> HOST_UUID = RelaunchArgument.uuid("controlify.splitscreen.host_uuid");
+    public static final RelaunchArgument<String> ARGFILE_PATH = RelaunchArgument.string("controlify.splitscreen.argfile_path");
 
     private RelaunchArguments() {}
 }

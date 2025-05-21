@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.SplitscreenPosition;
 import dev.isxander.controlify.splitscreen.engine.HostSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEnginePayloadSender;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundTakeFocusPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
@@ -180,7 +181,18 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
 
     @Override
     public void onFocusParentWindow(boolean focused) {
+        if (focused) {
+            this.windowManager.setWindowForeground(this.parentWindow.getNativeWindowHandle());
+            this.windowManager.setWindowFocused(this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().getWindow()));
+        }
+    }
 
+    public void onOtherClientGotFocus(ControllerUID window) {
+        this.onFocusParentWindow(true);
+
+        for (ReparentingPawn p : this.pawns.values()) {
+            p.setWindowFocusState(true);
+        }
     }
 
     @Override
@@ -188,6 +200,8 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         switch (payload) {
             case ControllerboundThisIsMyWindowPayload registerPayload ->
                 this.registerRemotePawn(window, connection, registerPayload);
+            case ControllerboundTakeFocusPayload takeFocusPayload ->
+                this.onOtherClientGotFocus(window);
             default -> LOGGER.warn("Received unknown payload {}", payload.getClass().getSimpleName());
         }
     }

@@ -8,7 +8,6 @@ import dev.isxander.controlify.splitscreen.host.relaunch.impl.HackyRelauncher;
 import dev.isxander.controlify.splitscreen.host.relaunch.impl.PrismRelauncher;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -30,11 +29,19 @@ public class RelaunchProcessHandler {
     public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, int pawnIndex, IPCMethod ipcMethod) {
         LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
+        Path argFile;
+        try {
+            argFile = launchInfo.workingDirectory().relativize(Files.createTempFile(launchInfo.workingDirectory(), "pawn-args", ".txt"));
+        } catch (IOException e) {
+            throw new RelaunchException("Failed to create arg file", e);
+        }
+
         // append own JVM args to pass to the new process
         launchInfo.jvmArgs().add(RelaunchArguments.RELAUNCHED.asArgument(true));
         launchInfo.jvmArgs().add(RelaunchArguments.CONTROLLER.asArgument(controller));
         launchInfo.jvmArgs().add(RelaunchArguments.PAWN_INDEX.asArgument(pawnIndex));
         launchInfo.jvmArgs().add(RelaunchArguments.HOST_UUID.asArgument(minecraft.getUser().getProfileId()));
+        launchInfo.jvmArgs().add(RelaunchArguments.ARGFILE_PATH.asArgument(argFile.toString()));
         switch (ipcMethod) {
             case IPCMethod.TCP(int port) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_TCP_PORT.asArgument(port));
             case IPCMethod.Unix(String socket) -> launchInfo.jvmArgs().add(RelaunchArguments.IPC_SOCKET_PATH.asArgument(socket));
@@ -42,19 +49,19 @@ public class RelaunchProcessHandler {
         }
 
         String username = minecraft.getUser().getName();
-        String pawnUsername = username + pawnIndex;
+        String pawnUsername = username + "." + pawnIndex;
         launchInfo.jvmArgs().add(RelaunchArguments.USERNAME.asArgument(pawnUsername));
 
         LANUtil.getOrPublishLANServer().ifPresent(address ->
                 launchInfo.jvmArgs().add(RelaunchArguments.LAN_GAME.asArgument(address.toString())));
 
-        return new RelaunchProcessHandler(launchInfo, pawnIndex);
+        return new RelaunchProcessHandler(launchInfo, pawnIndex, argFile);
     }
 
-    public RelaunchProcessHandler(LaunchInfo launchInfo, int pawnIndex) {
+    private RelaunchProcessHandler(LaunchInfo launchInfo, int pawnIndex, Path argfilePath) {
         this.pawnIndex = pawnIndex;
         this.logger = LoggerFactory.getLogger("RelaunchProcessHandler#" + pawnIndex);
-        this.process = handleProcess(launchInfo);
+        this.process = handleProcess(launchInfo, argfilePath);
     }
 
     public boolean isAlive() {
@@ -65,14 +72,12 @@ public class RelaunchProcessHandler {
         return process.onExit().thenApply(proc -> this);
     }
 
-    private Process startProcess(LaunchInfo launchInfo) {
-        Path argFile = null;
+    private Process startProcess(LaunchInfo launchInfo, Path argfilePath) {
         try {
             String argFileContent = launchInfo.buildArgfile();
-            argFile = Files.createTempFile(launchInfo.workingDirectory(), "pawn-args", ".txt");
-            Files.writeString(argFile, argFileContent);
+            Files.writeString(argfilePath, argFileContent);
 
-            ProcessBuilder processBuilder = launchInfo.buildProcessWithArgfile(launchInfo.workingDirectory().relativize(argFile))
+            ProcessBuilder processBuilder = launchInfo.buildProcessWithArgfile(argfilePath)
                     .redirectOutput(ProcessBuilder.Redirect.PIPE)
                     .redirectError(ProcessBuilder.Redirect.PIPE)
                     .redirectInput(ProcessBuilder.Redirect.INHERIT);
@@ -84,20 +89,12 @@ public class RelaunchProcessHandler {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if (argFile != null) {
-//                try {
-//                    Files.delete(argFile);
-//                } catch (IOException e) {
-//                    logger.error("Failed to delete arg file", e);
-//                }
-            }
         }
     }
 
-    private Process handleProcess(LaunchInfo launchInfo) {
+    private Process handleProcess(LaunchInfo launchInfo, Path argfilePath) {
         final Thread[] readerThreads = new Thread[2];
-        Process process = startProcess(launchInfo);
+        Process process = startProcess(launchInfo, argfilePath);
 
         readerThreads[0] = Thread.ofVirtual().name("stdout-reader")
                 .start(pipeStream(process.getInputStream(), System.out));

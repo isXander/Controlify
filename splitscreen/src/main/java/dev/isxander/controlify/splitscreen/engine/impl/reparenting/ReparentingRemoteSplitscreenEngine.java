@@ -5,6 +5,8 @@ import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.engine.RemoteSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEnginePayloadSender;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.events.VanillaWindowFocusEvent;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundTakeFocusPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.ControllerboundThisIsMyWindowPayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundSetWindowActivePayload;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ipc.PawnboundThrottleFrameratePayload;
@@ -36,6 +38,10 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
         this.windowManager = WindowManager.get();
         this.payloadSender = payloadSender;
         this.localMainPawn = localMainPawn;
+
+        VanillaWindowFocusEvent.EVENT.register((window, focused) -> {
+            if (focused) giveFocusToController();
+        });
     }
 
     public boolean shouldThrottleFps() {
@@ -66,6 +72,11 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
             case PawnboundThrottleFrameratePayload p -> this.onThrottleFramerate(this.localPawn, p);
             default -> LOGGER.error("Unknown payload type: {}", payload.getClass().getName());
         }
+    }
+
+    private void giveFocusToController() {
+        this.payloadSender.sendPayload(new ControllerboundTakeFocusPayload());
+        this.localPawn.setWindowFocusState(true);
     }
 
     private void onPayloadSetWindowActive(@NotNull LocalReparentingPawn localPawn, PawnboundSetWindowActivePayload payload) {

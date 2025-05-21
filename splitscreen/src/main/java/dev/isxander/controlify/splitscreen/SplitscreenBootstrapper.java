@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.config.SplitscreenConfig;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
 import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginFlowClient;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
@@ -15,6 +16,7 @@ import net.minecraft.util.HttpUtil;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -43,9 +45,19 @@ public class SplitscreenBootstrapper {
         LOGGER.info("Boostrapping Controlify splitscreen!");
 
         PawnSplitscreenModeRegistry.init();
+        SplitscreenConfig.INSTANCE.loadFromFile();
 
         boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
         if (relaunched) {
+            RelaunchArguments.ARGFILE_PATH.get().ifPresent(pathString -> {
+                Path path = Path.of(pathString);
+                try {
+                    Files.delete(path);
+                } catch (Exception e) {
+                    LOGGER.error("Failed to delete arg file", e);
+                }
+            });
+
             int port = RelaunchArguments.IPC_TCP_PORT.get().orElse(-1);
             String socketPath = RelaunchArguments.IPC_SOCKET_PATH.get().orElse(null);
 

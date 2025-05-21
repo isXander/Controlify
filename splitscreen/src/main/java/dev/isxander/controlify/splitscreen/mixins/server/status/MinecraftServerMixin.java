@@ -2,7 +2,7 @@ package dev.isxander.controlify.splitscreen.mixins.server.status;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginConfig;
+import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginFlowServer;
 import dev.isxander.controlify.splitscreen.server.status.ServerStatusSplitscreenExt;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
@@ -17,7 +17,7 @@ public class MinecraftServerMixin {
      */
     @WrapMethod(method = "buildServerStatus")
     private ServerStatus addSplitscreenInfoToServerStatus(Operation<ServerStatus> operation) {
-        var splitscreenExt = new ServerStatusSplitscreenExt(new int[]{1}, SplitscreenLoginConfig.MAX_CLIENTS);
+        var splitscreenExt = SplitscreenLoginFlowServer.buildSplitscreenStatus();
         return ServerStatusSplitscreenExt.construct(operation::call, splitscreenExt);
     }
 }

@@ -1,14 +1,18 @@
 package dev.isxander.controlify.splitscreen.mixins.engine.reparent;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.TracyFrameCapture;
 import com.mojang.blaze3d.platform.VideoMode;
 import com.mojang.blaze3d.platform.Window;
+import com.mojang.blaze3d.platform.WindowEventHandler;
 import dev.isxander.controlify.splitscreen.ControllerBridge;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingHostSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingSplitscreenEngine;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.events.VanillaWindowFocusEvent;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -35,6 +39,14 @@ public class WindowMixin {
     private void markInitialSetup(CallbackInfo ci) {
         // Just a bug check to ensure things aren't going wrong preventing window from setting up correctly.
         this.hasDoneInitialSetup = true;
+    }
+
+    /**
+     * Always transfer focus to the controller's window.
+     */
+    @WrapOperation(method = "onFocus", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/WindowEventHandler;setWindowActive(Z)V"))
+    private void transferFocusToController(WindowEventHandler instance, boolean hasFocus, Operation<Void> original) {
+        VanillaWindowFocusEvent.EVENT.invoker().onFocus((Window) (Object) this, hasFocus);
     }
 
     /**

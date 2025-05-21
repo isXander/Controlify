@@ -1,5 +1,7 @@
 package dev.isxander.controlify.splitscreen.server.login;
 
+import dev.isxander.controlify.splitscreen.config.SplitscreenServerSharedConfig;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,10 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.UUID;
 
 public sealed interface ClientIdentification {
-    record Controller(int subPlayerCount) implements ClientIdentification {
+    record Controller(int subPlayerCount, SplitscreenServerSharedConfig config) implements ClientIdentification {
         public static final StreamCodec<FriendlyByteBuf, Controller> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.VAR_INT,
                 Controller::subPlayerCount,
+                ByteBufCodecs.fromCodec(SplitscreenServerSharedConfig.CODEC),
+                Controller::config,
                 Controller::new
         );
     }
@@ -22,10 +26,7 @@ public sealed interface ClientIdentification {
         public static final int HMAC_SIZE_BYTES = HMAC_SIZE_BITS / 8;
 
         public static final StreamCodec<FriendlyByteBuf, Pawn> STREAM_CODEC = StreamCodec.composite(
-                StreamCodec.of(
-                        (buf, uuid) -> buf.writeUUID(uuid),
-                        buf -> buf.readUUID()
-                ),
+                UUIDUtil.STREAM_CODEC,
                 Pawn::controllerUuid,
                 ByteBufCodecs.byteArray(HMAC_SIZE_BYTES),
                 Pawn::hmac,

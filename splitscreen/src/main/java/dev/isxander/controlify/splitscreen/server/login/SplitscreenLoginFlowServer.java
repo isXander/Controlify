@@ -2,21 +2,21 @@ package dev.isxander.controlify.splitscreen.server.login;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.splitscreen.config.SplitscreenServerConfig;
+import dev.isxander.controlify.splitscreen.config.SplitscreenServerSharedConfig;
 import dev.isxander.controlify.splitscreen.server.login.packets.ClientboundIdentifyPacket;
 import dev.isxander.controlify.splitscreen.server.login.packets.ClientboundNoncePacket;
 import dev.isxander.controlify.splitscreen.server.login.packets.ServerboundIdentifyPacket;
+import dev.isxander.controlify.splitscreen.server.status.ServerStatusSplitscreenExt;
 import dev.isxander.controlify.splitscreen.util.CSUtil;
 import net.fabricmc.fabric.api.networking.v1.*;
 import net.fabricmc.fabric.impl.networking.server.ServerNetworkingImpl;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.jetbrains.annotations.Nullable;
@@ -25,14 +25,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-// TODO: disconnect sub-players if the main player disconnects
-// TODO: formats for usernames, negotiated via the Nonce packet
 public class SplitscreenLoginFlowServer {
+    public static final int PROTOCOL_VERSION = 1;
     public static final ResourceLocation CHANNEL_IDENTIFY = CSUtil.rl("splitscreen_identify");
     public static final ResourceLocation CHANNEL_CONTROLLER = CSUtil.rl("splitscreen_controller");
 
@@ -40,8 +40,8 @@ public class SplitscreenLoginFlowServer {
     private static final Random RANDOM = new SecureRandom();
 
     // map of primary uuid to state
-    // TODO: remove from this map as players log out
     private static final Map<UUID, ControllerState> CONTROLLER_STATE = new ConcurrentHashMap<>();
+    private static final Map<UUID, UUID> SUB_PLAYER_TO_CONTROLLER = new ConcurrentHashMap<>();
 
     public static void init() {
     }
@@ -50,9 +50,11 @@ public class SplitscreenLoginFlowServer {
      * Called from {@link dev.isxander.controlify.splitscreen.mixins.server.login.ServerLoginPacketListenerImplMixin#onHello(ServerboundHelloPacket, CallbackInfo)},
      * this method initiates the login flow for splitscreen.
      * It's responsible for sending the identify packet to the client and waiting for the client to respond with:
-     * - "I'm a controller"
-     * - "I'm a pawn"
-     * - "I do not understand this packet" (vanilla/non splitscreen client)
+     * <ul>
+     *     <li>I'm a controller</li>
+     *     <li>I'm a pawn</li>
+     *     <li>I do not understand this packet (vanilla/non splitscreen client)</li>
+     * </ul>
      * @param listener0 the listener associated with this login
      * @param connection the connection associated with this player
      * @param helloPacket the hello packet send by the client to initiate the login
@@ -62,7 +64,7 @@ public class SplitscreenLoginFlowServer {
         LoginPacketSender sender0 = ServerNetworkingImpl.getAddon(listener0);
 
         // send that identify packet
-        sender0.sendPacket(CHANNEL_IDENTIFY, new ClientboundIdentifyPacket().encode());
+        sender0.sendPacket(CHANNEL_IDENTIFY, new ClientboundIdentifyPacket(PROTOCOL_VERSION).encode());
         // listen for a response for the client
         ServerLoginNetworking.registerReceiver(listener0, CHANNEL_IDENTIFY, (server, listener, understood, buf, synchronizer, sender) -> {
             try { // to ensure that early returns and exceptions don't leave the channel open
@@ -105,7 +107,7 @@ public class SplitscreenLoginFlowServer {
 
                     if (controllerState.allDone().isDone()) {
                         // if the clients have already been logged in, we need to check if we allow late logins
-                        if (!SplitscreenLoginConfig.ALLOW_LATE_LOGINS && server.isDedicatedServer()) {
+                        if (!SplitscreenServerConfig.INSTANCE.allowLateLogins.get() && server.isDedicatedServer()) {
                             LOGGER.error("Pawn has attempted to log in late but it is not allowed on this server.");
                             listener.disconnect(Component.translatable("controlify.splitscreen.login.late_login_not_allowed"));
                             return;
@@ -123,7 +125,7 @@ public class SplitscreenLoginFlowServer {
                     // enforce the username of the sub-player so they can't impersonate other players
                     // and are clearly associated with the main player.
                     GameProfile subPlayerProfile = controllerState.subPlayerProfile(subPlayerIndex);
-                    if (!SplitscreenLoginConfig.ALLOW_ANY_USERNAME && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
+                    if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
                         LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.getName());
                         listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_profile"));
                         return;
@@ -138,7 +140,8 @@ public class SplitscreenLoginFlowServer {
                         return;
                     }
 
-                    controllerState.signalSubPlayerFinished(subPlayerIndex, subPlayerProfile.getId(), connection);
+                    SUB_PLAYER_TO_CONTROLLER.put(subPlayerProfile.getId(), controllerUuid);
+                    controllerState.signalSubPlayerFinished(subPlayerIndex, subPlayerProfile, connection);
                     listenerState.passedSplitscreenAuth = true;
                     listenerState.controllerState = controllerState;
                 }
@@ -173,12 +176,13 @@ public class SplitscreenLoginFlowServer {
 
         LOGGER.info("Saved client identification {}", identification);
 
-        if (identification instanceof ClientIdentification.Controller(int subPlayerCount)) {
+        if (identification instanceof ClientIdentification.Controller(int subPlayerCount, SplitscreenServerSharedConfig config)) {
             // we have to enforce the maximum amount of clients that our nonce is allowed to spawn in.
             // TODO: potentially give out a one-time-use nonce for each sub-player requested, but this prevents late logins completely
-            if (subPlayerCount > SplitscreenLoginConfig.MAX_CLIENTS) {
-                LOGGER.error("Controller has requested too many clients. {} is greater than server-defined limit of {}", subPlayerCount, SplitscreenLoginConfig.MAX_CLIENTS);
-                listener.disconnect(Component.translatable("controlify.splitscreen.login.too_many_requested_clients", SplitscreenLoginConfig.MAX_CLIENTS + 1));
+            int maxClients = SplitscreenServerConfig.INSTANCE.maxClients.get();
+            if (subPlayerCount > maxClients) {
+                LOGGER.error("Controller has requested too many clients. {} is greater than server-defined limit of {}", subPlayerCount, maxClients);
+                listener.disconnect(Component.translatable("controlify.splitscreen.login.too_many_requested_clients", maxClients + 1));
                 return true;
             }
 
@@ -187,7 +191,7 @@ public class SplitscreenLoginFlowServer {
             // This means we can safely send the nonce to the client securely.
 
             byte[] nonce = generateNonce();
-            var controllerState = new ControllerState(profile, nonce, subPlayerCount);
+            var controllerState = new ControllerState(profile, nonce, subPlayerCount, config);
             CONTROLLER_STATE.put(profile.getId(), controllerState);
             state.controllerState = controllerState;
 
@@ -224,12 +228,33 @@ public class SplitscreenLoginFlowServer {
         }
     }
 
+    public static ServerStatusSplitscreenExt buildSplitscreenStatus() {
+        int maxClients = SplitscreenServerConfig.INSTANCE.maxClients.get();
+        return new ServerStatusSplitscreenExt(new int[]{PROTOCOL_VERSION}, maxClients);
+    }
+
     public static ListenerState state(ServerLoginPacketListenerImpl listener) {
         return ((LoginListenerStateHolder) listener).splitscreen$state();
     }
 
     private static @Nullable ControllerState state(UUID uuid) {
         return CONTROLLER_STATE.get(uuid);
+    }
+
+    public static @Nullable ControllerState getStateFromControllerOrSubplayer(UUID uuid) {
+        // check if the uuid is a controller
+        ControllerState controllerState = CONTROLLER_STATE.get(uuid);
+        if (controllerState != null) {
+            return controllerState;
+        }
+
+        // check if the uuid is a sub-player
+        UUID controllerUuid = SUB_PLAYER_TO_CONTROLLER.get(uuid);
+        if (controllerUuid != null) {
+            return CONTROLLER_STATE.get(controllerUuid);
+        }
+
+        return null;
     }
 
     private static byte[] generateNonce() {
@@ -280,14 +305,18 @@ public class SplitscreenLoginFlowServer {
         private final Set<Integer> subPlayerWaiting = ConcurrentHashMap.newKeySet();
         private final CompletableFuture<Void> allDoneFuture = new CompletableFuture<>();
         private final Map<UUID, WeakReference<Connection>> subPlayerConnections = new ConcurrentHashMap<>();
+        private final GameProfile[] subPlayerProfiles;
+        private final SplitscreenServerSharedConfig sharedConfig;
 
-        private ControllerState(GameProfile hostProfile, byte[] nonce, int subPlayers) {
+        private ControllerState(GameProfile hostProfile, byte[] nonce, int subPlayers, SplitscreenServerSharedConfig sharedConfig) {
             this.hostProfile = hostProfile;
             this.nonce = nonce;
             this.subPlayers = subPlayers;
             for (int i = 0; i < subPlayers; i++) {
                 subPlayerWaiting.add(i);
             }
+            this.subPlayerProfiles = new GameProfile[subPlayers];
+            this.sharedConfig = sharedConfig;
         }
 
         public GameProfile hostProfile() {
@@ -295,9 +324,15 @@ public class SplitscreenLoginFlowServer {
         }
 
         public GameProfile subPlayerProfile(int index) {
-            // TODO: figure out an invalid-but-parsable format so we don't conflict with other players on the server.
-            // TODO: alternatively, prioritise the existing real player over the subplayer (don't disconnect them)
-            return UUIDUtil.createOfflineProfile(hostProfile().getName() + (index + 1));
+            // uses the `.` to make sure a splitscreen player can never share a username with an actual authenticated player
+            String username = hostProfile.getName() + "." + (index + 1);
+            // uuid should be deterministic from the *account*, not their current username.
+            // this prevents the main player's username from changing the sub-player's uuid
+            // this comes with the side effect that the load order of the sub-player determines their uuid
+            // which may not be ideal
+            UUID uuid = UUID.nameUUIDFromBytes((this.hostProfile.getId() + "splitscreen" + index).getBytes(StandardCharsets.UTF_8));
+
+            return new GameProfile(uuid, username);
         }
 
         public CompletableFuture<Void> allDone() {
@@ -320,15 +355,20 @@ public class SplitscreenLoginFlowServer {
             return subPlayerWaiting.contains(index);
         }
 
-        public void signalSubPlayerFinished(int index, UUID uuid, Connection connection) {
+        public void signalSubPlayerFinished(int index, GameProfile profile, Connection connection) {
             if (subPlayerWaiting.remove(index)) {
-                subPlayerConnections.put(uuid, new WeakReference<>(connection));
+                subPlayerConnections.put(profile.getId(), new WeakReference<>(connection));
+                subPlayerProfiles[index] = profile;
                 if (subPlayerWaiting.isEmpty()) {
                     allDoneFuture.complete(null);
                 }
             } else {
                 throw new IllegalStateException("Subplayer " + index + " was not waiting. Duplicate login?");
             }
+        }
+
+        public GameProfile[] subPlayerProfiles() {
+            return subPlayerProfiles;
         }
 
         public Connection subPlayerConnection(UUID uuid) {
@@ -338,6 +378,10 @@ public class SplitscreenLoginFlowServer {
             } else {
                 return null;
             }
+        }
+
+        public SplitscreenServerSharedConfig sharedConfig() {
+            return sharedConfig;
         }
     }
 }
