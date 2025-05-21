@@ -44,6 +44,4 @@ dependencies {
     }
 
     modstitchCompileOnly("org.lwjgl:lwjgl-vulkan:$lwjglVersion")
-
-    modstitchModRuntimeOnly("me.djtheredstoner:DevAuth-fabric:1.2.1")
 }
