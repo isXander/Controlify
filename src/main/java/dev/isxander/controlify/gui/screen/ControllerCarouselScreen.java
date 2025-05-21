@@ -87,7 +87,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         Component donateText = Component.translatable("controlify.gui.carousel.donate")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
         FakePositionPlainTextButton donateBtn = this.addRenderableWidget(new FakePositionPlainTextButton(donateText, font, 3, 3, btn -> {
-            Util.getPlatform().openUri("https://ko-fi.com/isxander");
+            Util.getPlatform().openUri("https://patreon.com/isxander");
         }));
         donateBtn.setFakePosition(new ScreenRectangle(0, height, width, 1));
 
