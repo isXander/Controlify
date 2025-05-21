@@ -83,67 +83,78 @@ public class SplitscreenLoginFlowServer {
 
                 // controllers are given their nonce *after* mojang authentication completes successfully
                 // for pawns we need to skip mojang authentication, so we do it immediately.
-                if (packet.identification() instanceof ClientIdentification.Pawn(UUID controllerUuid, byte[] hmac, int subPlayerIndex)) {
-                    LOGGER.info("Client has identified as a pawn.");
-                    @Nullable ControllerState controllerState = state(controllerUuid);
-                    ListenerState listenerState = state(listener);
+                switch (packet.identification()) {
+                    case ClientIdentification.Pawn(UUID controllerUuid, byte[] hmac, int subPlayerIndex) -> {
+                        LOGGER.info("Client has identified as a pawn.");
+                        @Nullable ControllerState controllerState = state(controllerUuid);
+                        ListenerState listenerState = state(listener);
 
-                    if (controllerState == null) {
-                        LOGGER.error("Client has identified as a pawn for a controller that is not attempting log in.");
-                        listener.disconnect(Component.translatable("controlify.splitscreen.login.controller_not_found"));
-                        return;
-                    }
-
-                    // regenerate the hmac the client has generated from the nonce and compare
-                    // we do it this way since encryption has not yet been enabled in the protocol, and we don't
-                    // want the nonce to be intercepted
-                    byte[] expectedHmac = generateHmac(controllerState.nonce, controllerUuid, subPlayerIndex);
-//                    LOGGER.info("Server HMAC: controller UUID {}, sub-player index {}, nonce {}", controllerUuid, subPlayerIndex, Hex.encodeHexString(controllerState.nonce));
-                    if (!Arrays.equals(expectedHmac, hmac)) {
-                        LOGGER.error("Pawn has sent an incorrect HMAC.");
-                        listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_hmac"));
-                        return;
-                    }
-
-                    if (controllerState.allDone().isDone()) {
-                        // if the clients have already been logged in, we need to check if we allow late logins
-                        if (!SplitscreenServerConfig.INSTANCE.allowLateLogins.get() && server.isDedicatedServer()) {
-                            LOGGER.error("Pawn has attempted to log in late but it is not allowed on this server.");
-                            listener.disconnect(Component.translatable("controlify.splitscreen.login.late_login_not_allowed"));
+                        if (controllerState == null) {
+                            LOGGER.error("Client has identified as a pawn for a controller that is not attempting log in.");
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.controller_not_found"));
                             return;
-                        } else {
-                            LOGGER.warn("Allowing pawn to log in late.");
                         }
-                    } else if (!controllerState.isValidSubPlayerIndex(subPlayerIndex)) {
-                        // don't allow sub-players with out-of-range indexes to what the controller has requested
-                        // e.g. don't accept Player10 if the controller has only requested 4 players
-                        LOGGER.error("Pawn has sent an invalid sub-player index. {} is not in range 0-{}", subPlayerIndex, controllerState.subPlayers());
-                        listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_subplayer_index"));
-                        return;
-                    }
 
-                    // enforce the username of the sub-player so they can't impersonate other players
-                    // and are clearly associated with the main player.
-                    GameProfile subPlayerProfile = controllerState.subPlayerProfile(subPlayerIndex);
-                    if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
-                        LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.getName());
-                        listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_profile"));
-                        return;
-                    }
+                        // regenerate the hmac the client has generated from the nonce and compare
+                        // we do it this way since encryption has not yet been enabled in the protocol, and we don't
+                        // want the nonce to be intercepted
+                        byte[] expectedHmac = generateHmac(controllerState.nonce, controllerUuid, subPlayerIndex);
+//                    LOGGER.info("Server HMAC: controller UUID {}, sub-player index {}, nonce {}", controllerUuid, subPlayerIndex, Hex.encodeHexString(controllerState.nonce));
+                        if (!Arrays.equals(expectedHmac, hmac)) {
+                            LOGGER.error("Pawn has sent an incorrect HMAC.");
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_hmac"));
+                            return;
+                        }
 
-                    // if the player index is in range, but we're not waiting for it, it's already logged in
-                    // we could rely on the vanilla flow to detect this, but I'd rather be explicit, and that
-                    // would disconnect the existing player, not the currently logging in one
-                    if (!controllerState.isWaitingForSubPlayer(subPlayerIndex)) {
-                        LOGGER.error("Pawn has attempted to log in with a sub-player index that is already logged in.");
-                        listener.disconnect(Component.translatable("controlify.splitscreen.login.subplayer_already_logged_in"));
-                        return;
-                    }
+                        if (controllerState.allDone().isDone()) {
+                            // if the clients have already been logged in, we need to check if we allow late logins
+                            if (!SplitscreenServerConfig.INSTANCE.allowLateLogins.get() && server.isDedicatedServer()) {
+                                LOGGER.error("Pawn has attempted to log in late but it is not allowed on this server.");
+                                listener.disconnect(Component.translatable("controlify.splitscreen.login.late_login_not_allowed"));
+                                return;
+                            } else {
+                                LOGGER.warn("Allowing pawn to log in late.");
+                            }
+                        } else if (!controllerState.isValidSubPlayerIndex(subPlayerIndex)) {
+                            // don't allow sub-players with out-of-range indexes to what the controller has requested
+                            // e.g. don't accept Player10 if the controller has only requested 4 players
+                            LOGGER.error("Pawn has sent an invalid sub-player index. {} is not in range 0-{}", subPlayerIndex, controllerState.subPlayers());
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_subplayer_index"));
+                            return;
+                        }
 
-                    SUB_PLAYER_TO_CONTROLLER.put(subPlayerProfile.getId(), controllerUuid);
-                    controllerState.signalSubPlayerFinished(subPlayerIndex, subPlayerProfile, connection);
-                    listenerState.passedSplitscreenAuth = true;
-                    listenerState.controllerState = controllerState;
+                        // enforce the username of the sub-player so they can't impersonate other players
+                        // and are clearly associated with the main player.
+                        GameProfile subPlayerProfile = controllerState.subPlayerProfile(subPlayerIndex);
+                        if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
+                            LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.getName());
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_profile"));
+                            return;
+                        }
+
+                        // if the player index is in range, but we're not waiting for it, it's already logged in
+                        // we could rely on the vanilla flow to detect this, but I'd rather be explicit, and that
+                        // would disconnect the existing player, not the currently logging in one
+                        if (!controllerState.isWaitingForSubPlayer(subPlayerIndex)) {
+                            LOGGER.error("Pawn has attempted to log in with a sub-player index that is already logged in.");
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.subplayer_already_logged_in"));
+                            return;
+                        }
+
+                        SUB_PLAYER_TO_CONTROLLER.put(subPlayerProfile.getId(), controllerUuid);
+                        controllerState.signalSubPlayerFinished(subPlayerIndex, subPlayerProfile, connection);
+                        listenerState.passedSplitscreenAuth = true;
+                        listenerState.controllerState = controllerState;
+                    }
+                    case ClientIdentification.Controller(int subPlayerCount, SplitscreenServerSharedConfig config) -> {
+                        // we have to enforce the maximum amount of clients that our nonce is allowed to spawn in.
+                        int maxClients = SplitscreenServerConfig.INSTANCE.maxClients.get();
+                        if (subPlayerCount > maxClients) {
+                            LOGGER.error("Controller has requested too many clients. {} is greater than server-defined limit of {}", subPlayerCount, maxClients);
+                            listener.disconnect(Component.translatable("controlify.splitscreen.login.too_many_requested_clients", maxClients + 1));
+                            return;
+                        }
+                    }
                 }
             } finally {
                 // don't accept any more packets on this channel
@@ -177,15 +188,6 @@ public class SplitscreenLoginFlowServer {
         LOGGER.info("Saved client identification {}", identification);
 
         if (identification instanceof ClientIdentification.Controller(int subPlayerCount, SplitscreenServerSharedConfig config)) {
-            // we have to enforce the maximum amount of clients that our nonce is allowed to spawn in.
-            // TODO: potentially give out a one-time-use nonce for each sub-player requested, but this prevents late logins completely
-            int maxClients = SplitscreenServerConfig.INSTANCE.maxClients.get();
-            if (subPlayerCount > maxClients) {
-                LOGGER.error("Controller has requested too many clients. {} is greater than server-defined limit of {}", subPlayerCount, maxClients);
-                listener.disconnect(Component.translatable("controlify.splitscreen.login.too_many_requested_clients", maxClients + 1));
-                return true;
-            }
-
             // At this point in the login flow (if online mode is enabled) this client has been authenticated
             // fully with their Minecraft account, and encryption has been enabled if applicable.
             // This means we can safely send the nonce to the client securely.
