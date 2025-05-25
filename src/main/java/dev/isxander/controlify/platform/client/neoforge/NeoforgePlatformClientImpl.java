@@ -2,6 +2,7 @@
 /*package dev.isxander.controlify.platform.client.neoforge;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.platform.client.HudRenderLayer;
 import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
 import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
 import dev.isxander.controlify.platform.client.events.LifecycleEvent;
@@ -12,7 +13,6 @@ import dev.isxander.controlify.platform.neoforge.VanillaKeyMappingHolder;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -95,10 +95,10 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer) {
+    public void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer) {
         getModEventBus().addListener(
                 RegisterGuiLayersEvent.class,
-                e -> e.registerAboveAll(id, renderLayer)
+                e -> e.registerAboveAll(id, renderLayer::render)
         );
     }
 

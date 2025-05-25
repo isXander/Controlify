@@ -17,7 +17,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -113,10 +115,11 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
         Animator.INSTANCE.tick(getTickDelta());
     }
 
-    @Inject(method = "addInitialScreens", at = @At("TAIL"))
-    private void injectCustomInitialScreens(List<Function<Runnable, Screen>> output, CallbackInfo ci) {
+    @ModifyVariable(method = "addInitialScreens", at = @At("TAIL"), argsOnly = true)
+    private List<Function<Runnable, Screen>> injectCustomInitialScreens(List<Function<Runnable, Screen>> output) {
         output.addAll(initialScreenCallbacks);
         initialScreensHappened = true;
+        return output;
     }
 
     @Unique

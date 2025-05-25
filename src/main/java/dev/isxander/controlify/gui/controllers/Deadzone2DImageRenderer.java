@@ -1,18 +1,14 @@
 package dev.isxander.controlify.gui.controllers;
 
-import com.mojang.blaze3d.vertex.*;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.render.elements.CircleElementRenderState;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -48,15 +44,29 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         graphics.vLine((int) (x + radius), y, (int)(y + radius*2), 0xFFAAAAAA);
 
         // 100% outline
-        drawCircleOutline(graphics.pose(), x + radius, y + radius, 0, radius, 1f, -1, 360);
-
+        CircleElementRenderState.outline(
+                graphics,
+                x + radius, y + radius,
+                radius, 1f,
+                -1
+        ).submit(graphics);
         // deadzone outline
         float deadzone = deadzoneOption.get().pendingValue();
         boolean aboveDeadzone = Math.abs(currentX) > deadzone || Math.abs(currentY) > deadzone;
-        drawCircleOutline(graphics.pose(), x + radius, y + radius, 0, deadzone * radius, 1f, aboveDeadzone ? 0xFF00FFFF : 0xFFFF0000, 360);
+        CircleElementRenderState.outline(
+                graphics,
+                x + radius, y + radius,
+                deadzone * radius, 1f,
+                aboveDeadzone ? 0xFF00FFFF : 0xFFFF0000
+        ).submit(graphics);
 
         // current axis point
-        drawCircle(graphics.pose(), x + radius + currentX * radius, y + radius + currentY * radius, 0, 1f, 0xFF00FF00, 8);
+        CircleElementRenderState.filled(
+                graphics,
+                x + radius + currentX * radius,
+                y + radius + currentY * radius,
+                1f, 0xFF00FF00
+        ).submit(graphics);
 
         Font font = Minecraft.getInstance().font;
         DecimalFormat format = new DecimalFormat("0.000");
@@ -69,43 +79,5 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
     @Override
     public void close() {
 
-    }
-
-    private static void drawCircle(PoseStack poseStack, float originX, float originY, float z, float radius, int colour, int segments) {
-        drawCircleOutline(poseStack, originX, originY, z, radius, radius, colour, segments);
-    }
-
-    private static void drawCircleOutline(PoseStack poseStack, float originX, float originY, float z, float radius, float thickness, int colour, int segments) {
-        // our GUI rendertype dictates we must use Quads, we can't use TRIANGLE_STRIP
-        BufferBuilder buffer = CUtil.beginBuffer(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-
-        Matrix4f position = poseStack.last().pose();
-
-        float innerRadius = radius - thickness;
-        for (int i = 0; i <= segments - 1; i++) {
-            float angle = (float) i / segments * 360f;
-            float nextAngle = (float) (i + 1) / segments * 360f;
-
-            float rad = angle * Mth.DEG_TO_RAD;
-            float nextRad = nextAngle * Mth.DEG_TO_RAD;
-
-            float xi1 = originX + Mth.sin(rad) * innerRadius;
-            float yi1 = originY + Mth.cos(rad) * innerRadius;
-            float xi2 = originX + Mth.sin(nextRad) * innerRadius;
-            float yi2 = originY + Mth.cos(nextRad) * innerRadius;
-
-            float xo1 = originX + Mth.sin(rad) * radius;
-            float yo1 = originY + Mth.cos(rad) * radius;
-            float xo2 = originX + Mth.sin(nextRad) * radius;
-            float yo2 = originY + Mth.cos(nextRad) * radius;
-
-            buffer.addVertex(position, xi1, yi1, z).setColor(colour);
-            buffer.addVertex(position, xo1, yo1, z).setColor(colour);
-            buffer.addVertex(position, xo2, yo2, z).setColor(colour);
-            buffer.addVertex(position, xi2, yi2, z).setColor(colour);
-        }
-
-        RenderType renderType = RenderType.gui();
-        renderType.draw(buffer.buildOrThrow());
     }
 }

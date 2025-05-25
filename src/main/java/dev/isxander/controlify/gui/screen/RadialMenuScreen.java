@@ -19,6 +19,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.utils.render.Blit;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -265,11 +266,11 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
         @Override
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-            graphics.pose().pushPose();
-            graphics.pose().translate(x + translateX, y + translateY, 0);
+            var pose = CGuiPose.ofPush(graphics);
+            pose.translate(x + translateX, y + translateY);
 
-            graphics.pose().pushPose();
-            graphics.pose().scale(2, 2, 1);
+            pose.push();
+            pose.scale(2, 2);
 
             Blit.tex(
                     graphics,
@@ -280,20 +281,20 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     32, 16
             );
 
-            graphics.pose().popPose();
+            pose.pop();
 
             if (editMode == null || !focused) {
-                graphics.pose().pushPose();
-                graphics.pose().translate(4, 4, 0);
-                graphics.pose().scale(1.5f, 1.5f, 1);
+                pose.push();
+                pose.translate(4, 4);
+                pose.scale(1.5f, 1.5f);
                 this.item.icon().draw(graphics, 0, 0, delta);
-                graphics.pose().popPose();
+                pose.pop();
             } else {
                 Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputIcon();
                 graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 
-            graphics.pose().popPose();
+            pose.pop();
 
             if (focused)
                 name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));

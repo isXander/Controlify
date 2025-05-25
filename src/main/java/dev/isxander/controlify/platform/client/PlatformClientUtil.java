@@ -6,7 +6,6 @@ import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -51,7 +50,7 @@ public final class PlatformClientUtil {
         IMPL.registerPostScreenRender(event);
     }
 
-    public static void addHudLayer(ResourceLocation id, LayeredDraw.Layer layer) {
+    public static void addHudLayer(ResourceLocation id, HudRenderLayer layer) {
         IMPL.addHudLayer(id, layer);
     }
 

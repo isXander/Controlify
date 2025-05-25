@@ -1,5 +1,6 @@
 package dev.isxander.controlify.gui.guide;
 
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.guide.ActionPriority;
@@ -7,19 +8,20 @@ import dev.isxander.controlify.api.guide.GuideActionNameSupplier;
 import dev.isxander.controlify.api.ingameguide.*;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.ColumnLayoutComponent;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
+import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -88,45 +90,13 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             return;
 
         float scale = Controlify.instance().config().globalSettings().ingameButtonGuideScale;
-        boolean customScale = scale != 1f;
 
-        Matrix4f prevProjection = null;
-        if (customScale) {
-            // ensure our custom projection matrix doesn't screw up the rest of the rendering
-            graphics.flush();
-
-            prevProjection = RenderSystem.getProjectionMatrix();
-            double guiScale = minecraft.getWindow().getGuiScale() * scale;
-            Matrix4f matrix4f = new Matrix4f()
-                    .setOrtho(
-                            0.0F, (float)((double)minecraft.getWindow().getWidth() / guiScale), (float)((double)minecraft.getWindow().getHeight() / guiScale), 0.0F, 1000.0F, 21000.0F
-                    );
-            RenderSystem.setProjectionMatrix(
-                    matrix4f,
-                    //? if >=1.21.2 {
-                    com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
-                    //?} else {
-                    /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
-                     *///?}
-            );
-        }
-
-        leftLayout.renderComponent(graphics, tickDelta);
-        rightLayout.renderComponent(graphics, tickDelta);
-
-        if (customScale) {
-            // ensure our custom projection matrix doesn't screw up the rest of the rendering
-            graphics.flush();
-
-            RenderSystem.setProjectionMatrix(
-                    prevProjection,
-                    //? if >=1.21.2 {
-                    com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
-                    //?} else {
-                    /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
-                    *///?}
-            );
-        }
+        this.renderWithCustomGuiScale(graphics, scale, () -> {
+            Blit.batchDraw(graphics, () -> {
+                leftLayout.renderComponent(graphics, tickDelta);
+                rightLayout.renderComponent(graphics, tickDelta);
+            });
+        });
     }
 
     public void tick() {
@@ -135,7 +105,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         leftLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
         rightLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
 
-        double guiScale = minecraft.getWindow().getGuiScale() * Controlify.instance().config().globalSettings().ingameButtonGuideScale;
+        double guiScale = minecraft.getWindow().getGuiScale() /*? if <1.21.6 {*/ *Controlify.instance().config().globalSettings().ingameButtonGuideScale/*?}*/;
         int width = (int) (minecraft.getWindow().getWidth() / guiScale);
         int height = (int) (minecraft.getWindow().getHeight() / guiScale);
 
@@ -157,9 +127,26 @@ public class InGameButtonGuide implements IngameGuideRegistry {
     }
 
     private void registerDefaultActions() {
-        var options = Minecraft.getInstance().options;
+        var options = minecraft.options;
+
         registerGuideAction(ControlifyBindings.JUMP.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
+
+            if (player.getVehicle() != null)
+                switch (player.getVehicle()) {
+                    //? if >=1.21.6 {
+                    /*case net.minecraft.world.entity.animal.HappyGhast happyGhast -> {
+                        return Optional.of(Component.translatable("controlify.guide.ingame.fly_up"));
+                    }
+                    *///?}
+                    case AbstractHorse horse -> {
+                        return horse.isSaddled()
+                                ? Optional.of(Component.translatable("key.jump"))
+                                : Optional.empty();
+                    }
+                    default -> {}
+                }
+
             if (player.getAbilities().flying)
                 return Optional.of(Component.translatable("controlify.guide.ingame.fly_up"));
 
@@ -187,13 +174,16 @@ public class InGameButtonGuide implements IngameGuideRegistry {
 
             return Optional.empty();
         });
-        //? if >=1.21.2 {
-        boolean shifting = player.input.keyPresses.shift();
-        //?} else {
-        /*boolean shifting = player.input.shiftKeyDown;
-        *///?}
+
         registerGuideAction(ControlifyBindings.SNEAK.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
+
+            //? if >=1.21.2 {
+            boolean shifting = player.input.keyPresses.shift();
+            //?} else {
+            /*boolean shifting = player.input.shiftKeyDown;
+             *///?}
+
             if (player.getVehicle() != null)
                 return Optional.of(Component.translatable("controlify.guide.ingame.dismount"));
             if (player.getAbilities().flying)
@@ -209,13 +199,15 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             return Optional.empty();
         });
 
-        //? if >=1.21.2 {
-        boolean sprinting = player.input.keyPresses.sprint();
-        //?} else {
-        /*boolean sprinting = options.keySprint.isDown();
-        *///?}
         registerGuideAction(ControlifyBindings.SPRINT.on(controller), ActionLocation.LEFT, (ctx) -> {
             var player = ctx.player();
+
+            //? if >=1.21.2 {
+            boolean sprinting = player.input.keyPresses.sprint();
+            //?} else {
+            /*boolean sprinting = options.keySprint.isDown();
+             *///?}
+
             if (!sprinting) {
                 if (!player.input.getMoveVector().equals(Vec2.ZERO)) {
                     if (player.isUnderWater())
@@ -326,5 +318,52 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         } else {
             return pickResult;
         }
+    }
+
+    private void renderWithCustomGuiScale(GuiGraphics graphics, float guiScale, Runnable renderer) {
+        if (guiScale == 1f) {
+            renderer.run();
+            return;
+        }
+
+        Window window = minecraft.getWindow();
+        float vanillaGuiScale = (float) window.getGuiScale();
+        float scale = vanillaGuiScale * guiScale;
+
+        //? if >=1.21.6 {
+        /*// broken on 1.21.6+
+        renderer.run();
+        *///?} else {
+        Matrix4f projMatrix = new Matrix4f()
+                .setOrtho(
+                        0.0F, window.getWidth() / scale, window.getHeight() / scale, 0.0F, 1000.0F, 21000.0F
+                );
+        Matrix4f oldProjection = RenderSystem.getProjectionMatrix();
+
+        // ensure that any previous rendering isn't affected by our custom projection matrix
+        graphics.flush();
+
+        RenderSystem.setProjectionMatrix(
+                projMatrix,
+                //? if >=1.21.2 {
+                com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
+                //?} else {
+                /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                 *///?}
+        );
+
+        renderer.run();
+
+        graphics.flush();
+
+        RenderSystem.setProjectionMatrix(
+                oldProjection,
+                //? if >=1.21.2 {
+                com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
+                //?} else {
+                /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                 *///?}
+        );
+        //?}
     }
 }

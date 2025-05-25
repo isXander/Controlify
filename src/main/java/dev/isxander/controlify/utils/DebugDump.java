@@ -22,7 +22,7 @@ public class DebugDump {
         dump.line("CONTROLIFY DEBUG DUMP - ", formattedDate, '\n');
 
         dump.line("Controlify version: ", PlatformMainUtil.getControlifyVersion());
-        dump.line("Minecraft version: ", SharedConstants.getCurrentVersion().getName());
+        dump.line("Minecraft version: ", SharedConstants.getCurrentVersion()/*? if >=1.21.6 {*/ /*.name() *//*?} else {*/ .getName() /*?}*/);
 
         if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
             dump.line("Client").pushIndent();
@@ -56,19 +56,17 @@ public class DebugDump {
                     dump.line("Input Component:").pushIndent();
 
                     dump.line("Definitely gamepad: ", input.isDefinitelyGamepad());
-                    if (!input.isDefinitelyGamepad()) {
-                        dump.line("Available inputs:").pushIndent();
-                        for (ResourceLocation button : input.stateNow().getButtons()) {
-                            dump.line("BTN ", button);
-                        }
-                        for (ResourceLocation axis : input.stateNow().getAxes()) {
-                            dump.line("AXS ", axis);
-                        }
-                        for (ResourceLocation hat : input.stateNow().getHats()) {
-                            dump.line("HAT ", hat);
-                        }
-                        dump.popIndent(); // available inputs
+                    dump.line("Available inputs:").pushIndent();
+                    for (ResourceLocation button : input.stateNow().getButtons()) {
+                        dump.line("BTN ", button);
                     }
+                    for (ResourceLocation axis : input.stateNow().getAxes()) {
+                        dump.line("AXS ", axis);
+                    }
+                    for (ResourceLocation hat : input.stateNow().getHats()) {
+                        dump.line("HAT ", hat);
+                    }
+                    dump.popIndent(); // available inputs
 
                     dump.popIndent(); // input component
                 }, () -> dump.line("Input Component: UNSUPPORTED"));

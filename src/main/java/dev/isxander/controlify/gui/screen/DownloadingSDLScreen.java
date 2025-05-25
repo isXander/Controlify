@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
@@ -56,16 +57,16 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
 
         super.render(graphics, mouseX, mouseY, delta);
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(width / 2f - font.width(this.getTitle()) / 2f * 2.5f, 30, 0);
-        graphics.pose().scale(2.5f, 2.5f, 1f);
+        var pose = CGuiPose.ofPush(graphics);
+        pose.translate(width / 2f - font.width(this.getTitle()) / 2f * 2.5f, 30);
+        pose.scale(2.5f, 2.5f);
 
         graphics.drawString(font, this.getTitle(), 0, 0, -1);
 
-        graphics.pose().popPose();
+        pose.pop();
 
-        graphics.pose().pushPose();
-        graphics.pose().scale(2f, 2f, 1f);
+        pose.push();
+        pose.scale(2f, 2f);
 
         ClientUtils.drawBar(
                 graphics,
@@ -74,7 +75,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
                 (float) receivedBytes / totalBytes
         );
 
-        graphics.pose().popPose();
+        pose.pop();
 
         String totalString = format.format(totalBytes / 1024f / 1024f);
         graphics.drawString(

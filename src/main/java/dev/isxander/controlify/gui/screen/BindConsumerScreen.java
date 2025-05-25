@@ -5,6 +5,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,13 +37,16 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
         Dimension<Integer> dim = widgetToFocus.getDimension();
 
-        guiGraphics.pose().pushPose();
+        var pose = CGuiPose.ofPush(guiGraphics);
         // text renders with z > 0 so push everything back so text doesn't pop through fill
+        //? if <1.21.6
         guiGraphics.pose().translate(0, 0, -20);
 
         backgroundScreen.render(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
 
-        guiGraphics.pose().popPose();
+        pose.pop();
+        //? if >=1.21.6
+        /*guiGraphics.nextStratum();*/
 
         // darken everything except the widget
         guiGraphics.fill(0, 0, width, dim.y() - 1, 0x80000000);

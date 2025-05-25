@@ -22,9 +22,6 @@ modstitch {
         modName = "Controlify"
     }
 
-    /*
-    Dynamically add mixins based on this target's supported mods.
-     */
     mixin {
         addMixinsToModManifest = true
 
@@ -36,6 +33,20 @@ modstitch {
         if (isPropDefined("deps.simpleVoiceChat")) configs.register("controlify-compat.simple-voice-chat")
         if (modstitch.isLoom) configs.register("controlify-platform.fabric")
         if (modstitch.isModDevGradleRegular) configs.register("controlify-platform.neoforge")
+    }
+
+    loom {
+        configureLoom {
+            accessWidenerPath = rootProject.file("src/main/resources/controlify.accesswidener")
+        }
+
+        tasks.getByName("validateAccessWidener").enabled = false
+    }
+
+    moddevgradle {
+        configureNeoforge {
+            validateAccessTransformers = false
+        }
     }
 }
 

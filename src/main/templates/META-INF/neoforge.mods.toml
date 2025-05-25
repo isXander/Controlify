@@ -13,14 +13,14 @@ ${mod_description}
 '''
 logoFile = "icon.png"
 
-[["dependencies.${mod_id}"]]
+[[dependencies."${mod_id}"]]
 modId = "minecraft"
 mandatory = true
 versionRange = "${mc}"
 ordering = "NONE"
 side = "BOTH"
 
-[["dependencies.${mod_id}"]]
+[[dependencies."${mod_id}"]]
 modId = "yet_another_config_lib_v3"
 mandatory = true
 ordering = "NONE"

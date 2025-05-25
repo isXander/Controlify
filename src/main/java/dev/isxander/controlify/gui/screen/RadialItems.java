@@ -6,6 +6,7 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugOverlayHelper;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
@@ -250,10 +251,10 @@ public final class RadialItems {
                     graphics.renderItem(stack, x, y);
 
                     if (showNumbers) {
-                        graphics.pose().pushPose();
-                        graphics.pose().translate(0, 0, 1000);
+                        // TODO: Old code had Z=1000 for translate
+                        var pose = CGuiPose.ofPush(graphics);
                         graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
-                        graphics.pose().popPose();
+                        pose.pop();
                     }
                 };
             }
@@ -341,7 +342,7 @@ public final class RadialItems {
             Minecraft client = Minecraft.getInstance();
             if (client.gameMode != null && client.player != null) {
                 if (client.player.hasPermissions(2) && client.gameMode.getPlayerMode() != gameType) {
-                    client.player.connection.sendUnsignedCommand(command);
+                    client.player.connection.sendCommand(command);
                     return true;
                 }
             }

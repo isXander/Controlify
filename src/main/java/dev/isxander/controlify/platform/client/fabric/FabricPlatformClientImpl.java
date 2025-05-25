@@ -2,6 +2,7 @@
 package dev.isxander.controlify.platform.client.fabric;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.platform.client.HudRenderLayer;
 import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
 import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
 import dev.isxander.controlify.platform.client.events.LifecycleEvent;
@@ -19,7 +20,6 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -31,9 +31,10 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-//? if >=1.21.5 {
+//? if =1.21.5 {
 import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
+import net.minecraft.client.gui.LayeredDraw;
 //?} else {
 /*import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 *///?}
@@ -86,10 +87,10 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer) {
-        //? if >=1.21.5 {
+    public void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer) {
+        //? if =1.21.5 {
         HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
-            layeredDrawer.addLayer(IdentifiedLayer.of(id, renderLayer));
+            layeredDrawer.addLayer(IdentifiedLayer.of(id, renderLayer::render));
         });
         //?} else {
         /*HudRenderCallback.EVENT.register(renderLayer::render);
@@ -116,11 +117,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 
     @Override
     public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
-        //? fapi: >=0.100.0 {
         return new FAPIApiCreativeTabHelper(creativeScreen);
-        //?} else {
-        /*return new FAPIImplCreativeTabHelper(creativeScreen);
-        *///?}
     }
 }
 //?}

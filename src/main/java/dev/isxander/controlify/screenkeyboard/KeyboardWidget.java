@@ -64,7 +64,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
 
         // draw in a managed context so we can batch render calls
         // everything within here is rendered in a single draw call
-        Blit.drawManaged(guiGraphics, bufferSource -> {
+        Blit.batchDraw(guiGraphics, () -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
             guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
