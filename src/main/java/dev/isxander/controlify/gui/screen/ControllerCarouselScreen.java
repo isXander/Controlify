@@ -18,6 +18,7 @@ import dev.isxander.controlify.utils.ColorUtils;
 import dev.isxander.controlify.utils.animation.api.Animatable;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -87,7 +88,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         Component donateText = Component.translatable("controlify.gui.carousel.donate")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
         FakePositionPlainTextButton donateBtn = this.addRenderableWidget(new FakePositionPlainTextButton(donateText, font, 3, 3, btn -> {
-            Util.getPlatform().openUri("https://ko-fi.com/isxander");
+            Util.getPlatform().openUri("https://patreon.com/isxander");
         }));
         donateBtn.setFakePosition(new ScreenRectangle(0, height, width, 1));
 
@@ -273,8 +274,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             graphics.enableScissor(x, y, x + width + (translationX > 0 ? 1 : 0), y + height + (translationY > 0 ? 1 : 0));
 
-            graphics.pose().pushPose();
-            graphics.pose().translate(translationX, translationY, 0);
+            var pose = CGuiPose.ofPush(graphics);
+            pose.translate(translationX, translationY);
 
             //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
@@ -292,8 +293,8 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             }
 
             Component currentlyInUseText = Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN);
-            graphics.pose().pushPose();
-            graphics.pose().translate((4 + 9 + 4 + font.width(currentlyInUseText)) * (currentlyUsedPos - 1), 0, 0);
+            pose.push();
+            pose.translate((4 + 9 + 4 + font.width(currentlyInUseText)) * (currentlyUsedPos - 1), 0);
 
             if (currentlyUsedPos > 0) {
                 ClientUtils.drawSprite(graphics, CHECKMARK, x + 4, y + 4, 9, 8);
@@ -304,23 +305,23 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 graphics.drawString(font, Component.translatable("controlify.steam_deck_no_driver"), x + 17, y + 4 + 10, -1);
             }
 
-            graphics.pose().popPose();
+            pose.pop();
 
             int iconWidth = width - 6;
             //                      buttons   4px padding top  currently in use       controller name                                   image padding
             int iconHeight = height - 22       - 4             - font.lineHeight - 8  - (font.lineHeight * (hasNickname ? 2 : 1) + 1) - 6;
             int iconSize = Mth.roundToward(Math.min(iconHeight, iconWidth), 2);
 
-            graphics.pose().pushPose();
-            graphics.pose().translate(x + width / 2f - iconSize / 2f, y + font.lineHeight + 12 + iconHeight / 2f - iconSize / 2f, 0);
-            graphics.pose().scale(iconSize / 64f, iconSize / 64f, 1);
+            pose.push();
+            pose.translate(x + width / 2f - iconSize / 2f, y + font.lineHeight + 12 + iconHeight / 2f - iconSize / 2f);
+            pose.scale(iconSize / 64f, iconSize / 64f);
             ClientUtils.drawSprite(graphics, controller.info().type().getIconSprite(), 0, 0, 64, 64);
-            graphics.pose().popPose();
+            pose.pop();
 
-            graphics.pose().translate(0, 0, 1);
+            pose.translate(0, 0);
             graphics.fill(x, y, x + width, y + height, overlayColor);
 
-            graphics.pose().popPose();
+            pose.pop();
 
             graphics.disableScissor();
 

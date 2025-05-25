@@ -28,6 +28,7 @@
       "dev.isxander.controlify.ControlifyBootstrap"
     ]
   },
+  "accessWidener": "controlify.accesswidener",
   "icon": "icon.png",
   "depends": {
     "fabricloader": ">=0.15.0",

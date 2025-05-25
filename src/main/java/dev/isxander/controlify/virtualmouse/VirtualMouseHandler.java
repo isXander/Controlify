@@ -19,6 +19,7 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccess
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.utils.render.Blit;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
@@ -360,13 +361,13 @@ public class VirtualMouseHandler {
         var scaledX = currentX * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
         var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
-        graphics.pose().pushPose();
-        graphics.pose().translate(scaledX, scaledY, 1000f);
-        graphics.pose().scale(0.5f, 0.5f, 0.5f);
+        var pose = CGuiPose.ofPush(graphics);
+        pose.translate((float) scaledX, (float) scaledY); // TODO: figure out the z translation on 1.21.6+ (previously +1000f)
+        pose.scale(0.5f, 0.5f);
 
         Blit.tex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
 
-        graphics.pose().popPose();
+        pose.pop();
     }
 
     public void enableVirtualMouse() {

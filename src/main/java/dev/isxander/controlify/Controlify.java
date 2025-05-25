@@ -371,8 +371,7 @@ public class Controlify implements ControlifyApi {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
         boolean silentSetup = true; // TODO: controlify splitscreen works with wizard
 
-        if (!silentSetup)
-        wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
+        // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
         boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
                 || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);

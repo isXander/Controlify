@@ -7,17 +7,17 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 public final class Blit {
-    public static void drawManaged(GuiGraphics graphics, Consumer<MultiBufferSource> consumer) {
-        //? if >=1.21.2 {
-        graphics.drawSpecial(consumer);
+    public static void batchDraw(GuiGraphics graphics, Runnable renderer) {
+        //? if >=1.21.6 {
+        /*renderer.run();
+        *///?} elif >=1.21.2 {
+        graphics.drawSpecial(bufferSource -> renderer.run());
         //?} else {
         /*// noinspection deprecation
-        graphics.drawManaged(() -> {
-            consumer.accept(graphics.bufferSource());
-        });
+        graphics.drawManaged(renderer);
         *///?}
     }
 
@@ -34,7 +34,7 @@ public final class Blit {
 
         graphics.blit(
                 //? if >=1.21.2
-                RenderType::guiTextured,
+                guiTextured(),
                 texture,
                 x, y,
                 u, v,
@@ -59,7 +59,7 @@ public final class Blit {
 
         graphics.blit(
                 //? if >=1.21.2
-                RenderType::guiTextured,
+                guiTextured(),
                 atlasLocation,
                 x, y,
                 textureX, textureY,
@@ -89,7 +89,7 @@ public final class Blit {
 
         graphics.blit(
                 //? if >=1.21.2
-                RenderType::guiTextured,
+                guiTextured(),
                 texture,
                 x, y,
                 u, v,
@@ -114,7 +114,7 @@ public final class Blit {
     ) {
         graphics.blitSprite(
                 //? if >=1.21.2
-                RenderType::guiTextured,
+                guiTextured(),
                 sprite,
                 x, y,
                 width, height
@@ -131,7 +131,7 @@ public final class Blit {
     ) {
         graphics.blitSprite(
                 //? if >=1.21.2
-                RenderType::guiTextured,
+                guiTextured(),
                 sprite,
                 textureWidth, textureHeight,
                 u, v,
@@ -149,7 +149,7 @@ public final class Blit {
     ) {
         //? if >=1.21.2 {
         graphics.blitSprite(
-                RenderType::guiTextured,
+                guiTextured(),
                 sprite,
                 x, y,
                 width, height,
@@ -165,4 +165,14 @@ public final class Blit {
         );
         *///?}
     }
+
+    //? if >=1.21.6 {
+    /*public static com.mojang.blaze3d.pipeline.RenderPipeline guiTextured() {
+        return RenderPipelines.GUI_TEXTURED;
+    }
+    *///?} elif >=1.21.2 {
+    public static Function<ResourceLocation, RenderType> guiTextured() {
+        return RenderType::guiTextured;
+    }
+    //?}
 }

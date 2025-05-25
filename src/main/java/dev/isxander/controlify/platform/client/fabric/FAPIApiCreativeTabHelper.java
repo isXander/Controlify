@@ -1,4 +1,4 @@
-//? if fabric && fapi: >=0.100.0 {
+//? if fabric {
 package dev.isxander.controlify.platform.client.fabric;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;

@@ -3,7 +3,6 @@ package dev.isxander.controlify.platform.client;
 import dev.isxander.controlify.platform.client.events.*;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -26,7 +25,7 @@ public interface PlatformClientUtilImpl {
 
     void registerBuiltinResourcePack(ResourceLocation id, Component displayName);
 
-    void addHudLayer(ResourceLocation id, LayeredDraw.Layer renderLayer);
+    void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer);
 
     void registerPostScreenRender(ScreenRenderEvent event);
 

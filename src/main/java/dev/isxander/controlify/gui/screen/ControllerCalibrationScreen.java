@@ -8,6 +8,7 @@ import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -96,20 +97,18 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
-
         super.render(graphics, mouseX, mouseY, delta);
 
         graphics.drawCenteredString(font, Component.translatable("controlify.calibration.title", controller.name()).withStyle(ChatFormatting.BOLD), width / 2, 8, -1);
 
-        graphics.pose().pushPose();
-        graphics.pose().scale(2f, 2f, 1f);
+        var pose = CGuiPose.ofPush(graphics);
+        pose.scale(2f, 2f);
 
         float progress = (calibrationTicks - 1 + delta) / 100f;
         progress = 1 - (float)Math.pow(1 - progress, 3);
         ClientUtils.drawBar(graphics, width / 2 / 2, 30 / 2, progress);
 
-        graphics.pose().popPose();
+        pose.pop();
 
         MultiLineLabel label;
         if (calibrating) label = waitLabel;
@@ -118,13 +117,13 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         label.renderCentered(graphics, width / 2, 55);
 
-        graphics.pose().pushPose();
+        pose.push();
         float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
-        graphics.pose().translate(width / 2f - 32 * scale, 55 + font.lineHeight * label.getLineCount(), 0f);
-        graphics.pose().scale(scale, scale, 1f);
+        pose.translate(width / 2f - 32 * scale, 55 + font.lineHeight * label.getLineCount());
+        pose.scale(scale, scale);
         ClientUtils.drawSprite(graphics, controller.info().type().getIconSprite(), 0, 0, 64, 64);
 
-        graphics.pose().popPose();
+        pose.pop();
     }
 
     @Override

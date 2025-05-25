@@ -2,17 +2,32 @@
 
 ![Controlify - Controller support for Minecraft Java](https://raw.githubusercontent.com/isXander/Controlify/multiversion/dev/assets/controlify-banner.png)
 
-[![Mod Loader - Fabric](https://img.shields.io/badge/Mod%20Loader-Fabric-lightyellow?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFHGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE4LTEyLTE2VDE2OjU0OjE3LTA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHN0RXZ0OndoZW49IjIwMTgtMTItMTZUMTY6NTQ6MTctMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChXaW5kb3dzKSIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4/HiGMAAAAtUlEQVRYw+XXrQqAMBQF4D2P2eBL+QIG8RnEJFaNBjEum+0+zMQLtwwv+wV3ZzhhMDgfJ0wUSinxZUQWgKos1JP/AbD4OneIDyQPwCFniA+EJ4CaXm4TxAXCC0BNHgLhAdAnx9hC8PwGSRtAFVMQjF7cNTWED8B1cgwW20yfJgAvrssAsZ1cB3g/xckAxr6FmCDU5N6f488BrpCQ4rQBJkiMYh4ACmLzwOQF0CExinkCsvw7vgGikl+OotaKRwAAAABJRU5ErkJggg==)](https://fabricmc.net)
-[![wakatime](https://wakatime.com/badge/user/75903a5e-3254-43c5-b168-b082ed4dfc1b/project/62700873-0895-4dae-8159-86692dcceb33.svg)](https://wakatime.com/badge/user/75903a5e-3254-43c5-b168-b082ed4dfc1b/project/62700873-0895-4dae-8159-86692dcceb33)
+<img alt="supports fabric loader" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_vector.svg">
+<img alt="supports neoforge loader" height="56" src="https://raw.githubusercontent.com/intergrav/devins-badges/8494ec1ac495cfb481dc7e458356325510933eb0/assets/cozy/supported/neoforge_vector.svg">
 
+[![wakatime](https://wakatime.com/badge/user/75903a5e-3254-43c5-b168-b082ed4dfc1b/project/62700873-0895-4dae-8159-86692dcceb33.svg)](https://wakatime.com/badge/user/75903a5e-3254-43c5-b168-b082ed4dfc1b/project/62700873-0895-4dae-8159-86692dcceb33)
 [![Modrinth download count](https://img.shields.io/modrinth/dt/DOUdJVEm?logo=modrinth&style=flat-square)](https://modrinth.com/mod/controlify)
 [![CurseForge download count](https://cf.way2muchnoise.eu/full_835847_downloads.svg)](https://curseforge.com/minecraft/mc-mods/controlify)
 
-[![Ko-fi donation page](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/isxander)
+[![https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/patreon-singular_vector.svg](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/patreon-singular_vector.svg)](https://patreon.com/isxander)
 
 A mod that adds the best **controller support** for Minecraft: Java Edition.
 
 </div>
+
+# SPLITSCREEN!
+
+(Advertisement)
+
+Controlify Splitscreen is a **separate mod in development** that adds splitscreen support to the game! JARs are currently only available on Patreon!
+
+[![https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/compact/donate/patreon-singular_vector.svg](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/donate/patreon-singular_vector.svg)](https://patreon.com/isxander)
+
+![splitscreen demo](https://cdn.modrinth.com/data/cached_images/23ac6e3fc051e7aaa473ef3af2c510399d9448cc.png)
+
+## What is Controlify?
+
+Controlify is a mod that adds the best controller support to Minecraft: Java Edition. It aims to meet (or exceed) a console-like experience with support for as many controllers as possible, including their advanced features, such as vibration (rumble), gyro, HD haptics and vendor-specific buttons (like mute).
 
 ## Why Controlify?
 
@@ -43,20 +58,20 @@ that lets you focus on playing the game, instead of battling through the menus.
 
 ### Does it support Steam Deck?
 
-**Yes!** Controlify has full support for Steam Deck using a custom controller driver built right in to Controlify!
-You can utilise gyro, back buttons and touchpads. Controlify also auto-pauses the game when you open the Steam or Quick
-Access Menu.
-
-This enhanced Steam Deck support requires Decky Loader to function properly.
+**Yes!** Controlify has been tested and is fully working on the Steam Deck, and works great.
+However, due to limitations with SteamOS, only Steam games can currently interface with the gyroscope and the
+back buttons directly, though [this is set to change in the coming months](https://github.com/libsdl-org/SDL/issues/9148)!
+For now, you can use Steam Input to convert the gyro into a mouse input, and map the back buttons to other, more common
+buttons.
 
 ### Does it support my controller?
 
 Controlify supports most controllers out of the box, any generic gamepad-like controller is bound to work fine, at
-least in a basic state, giving inputs. Though, more strange and uncommon controllers such as handhelds like the ROG 
+least in a basic state, giving inputs. Though, more strange and uncommon controllers such as handhelds like the ROG
 Ally may be missing features such as gyroscope.
 
-If you are having trouble getting your controller working correctly, you can 
-[join my discord server](https://short.isxander.dev/discord) or consult 
+If you are having trouble getting your controller working correctly, you can
+[join my discord server](https://short.isxander.dev/discord) or consult
 [the wiki](https://docs.isxander.dev/controlify/users/controller-compatibility-guide) for assistance.
 
 ## Features
@@ -129,7 +144,7 @@ without convoluted support throughout the whole mod's codebase, making it diffic
 
 ### Automatic controller deadzone calibration
 
-The deadzone values of your controller are automatically calibrated, 
+The deadzone values of your controller are automatically calibrated,
 meaning you don't have to worry about it.
 
 ![image of calibration screen](https://cdn.modrinth.com/data/DOUdJVEm/images/f5f8e2a0a05e61adb95dd919760b424165ca5d14.png)
@@ -146,7 +161,3 @@ A few features in various points in the horizon are:
 
 This mod is only and will only be available for **1.19.4** and above, this is because in 1.19.4, Mojang
 introduced arrow key navigation which was easily ported to controller, below 1.19.4, this is not possible.
-
-## License
-
-This mod is under the [GNU Lesser General Public License, v3.0](/LICENSE).

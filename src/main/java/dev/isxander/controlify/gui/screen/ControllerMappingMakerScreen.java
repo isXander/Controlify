@@ -13,6 +13,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.ColorUtils;
 import dev.isxander.controlify.utils.render.Blit;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
@@ -238,10 +239,10 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         int safeZone = Math.min(width, height) - 30;
         float scale = safeZone / 32f;
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(width / 2f, -5, 0);
-        guiGraphics.pose().translate(-32 * scale / 2f, 0, 0);
-        guiGraphics.pose().scale(scale, scale, 1f);
+        var pose = CGuiPose.ofPush(guiGraphics);
+        pose.translate(width / 2f, -5);
+        pose.translate(-32 * scale / 2f, 0);
+        pose.scale(scale, scale);
 
         float colour = currentStage != null && currentStage.isSatisfied() ? 0.46f : 1f;
 
@@ -270,7 +271,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             );
         }
 
-        guiGraphics.pose().popPose();
+        pose.pop();
 
         float progress = currentStage != null ? (float) (stages.indexOf(currentStage) + 1) / stages.size() : 0;
         ClientUtils.drawBar(guiGraphics, width / 2, height - 30, progress);
