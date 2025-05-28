@@ -357,6 +357,15 @@ public class SplitscreenLoginFlowServer {
             return subPlayerWaiting.contains(index);
         }
 
+        public int getSubPlayerIndex(GameProfile profile) {
+            for (int i = 0; i < subPlayerProfiles().length; i++) {
+                if (subPlayerProfiles()[i].equals(profile)) {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
         public void signalSubPlayerFinished(int index, GameProfile profile, Connection connection) {
             if (subPlayerWaiting.remove(index)) {
                 subPlayerConnections.put(profile.getId(), new WeakReference<>(connection));

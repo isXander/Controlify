@@ -32,7 +32,9 @@ public sealed interface SplitscreenPlayerInfo {
     boolean isController();
     boolean isSubPlayer();
 
-    record Controller(GameProfile[] subPlayerProfiles, SplitscreenServerSharedConfig sharedConfig, MinecraftServer server) implements SplitscreenPlayerInfo {
+    ServerPlayer player();
+
+    record Controller(GameProfile[] subPlayerProfiles, SplitscreenServerSharedConfig sharedConfig, MinecraftServer server, ServerPlayer player) implements SplitscreenPlayerInfo {
         @Override
         public Controller controller() {
             return this;
@@ -70,7 +72,7 @@ public sealed interface SplitscreenPlayerInfo {
         }
     }
 
-    record SubPlayer(GameProfile controllerProfile, SplitscreenServerSharedConfig sharedConfig, MinecraftServer server) implements SplitscreenPlayerInfo {
+    record SubPlayer(GameProfile controllerProfile, SplitscreenServerSharedConfig sharedConfig, int pawnIndex, MinecraftServer server, ServerPlayer player) implements SplitscreenPlayerInfo {
         @Override
         public Controller controller() {
             return (Controller) get(server.getPlayerList().getPlayer(controllerProfile.getId())).orElseThrow();

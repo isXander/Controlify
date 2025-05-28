@@ -3,6 +3,7 @@ package dev.isxander.controlify.splitscreen;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.config.SplitscreenConfig;
 import dev.isxander.controlify.splitscreen.engine.SplitscreenEngine;
+import dev.isxander.controlify.splitscreen.server.SplitscreenSSClient;
 import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginFlowClient;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
@@ -88,7 +89,7 @@ public class SplitscreenBootstrapper {
             bootstrapAsController(minecraft, ipcMethod);
         }
 
-        SplitscreenLoginFlowClient.init();
+        SplitscreenSSClient.init();
     }
 
     private static void bootstrapAsPawn(Minecraft minecraft, IPCMethod connectionMethod) {

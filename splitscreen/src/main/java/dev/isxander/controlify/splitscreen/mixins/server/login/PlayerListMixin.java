@@ -35,10 +35,16 @@ public class PlayerListMixin {
 
             if (state.hostProfile().equals(gameProfile)) {
                 // we are the controller
-                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.Controller(state.subPlayerProfiles(), state.sharedConfig(), this.server));
+                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.Controller(state.subPlayerProfiles(), state.sharedConfig(), this.server, player));
             } else {
                 // we are a subplayer
-                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.SubPlayer(state.hostProfile(), state.sharedConfig(), this.server));
+                int subPlayerIndex = state.getSubPlayerIndex(player.getGameProfile());
+
+                if (subPlayerIndex == -1) {
+                    throw new IllegalStateException("Player " + player.getGameProfile().getName() + " has no subplayer index");
+                }
+
+                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.SubPlayer(state.hostProfile(), state.sharedConfig(), subPlayerIndex, this.server, player));
             }
         }
 

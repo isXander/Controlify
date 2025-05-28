@@ -2,6 +2,7 @@ package dev.isxander.controlify.splitscreen;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.config.SplitscreenServerConfig;
+import dev.isxander.controlify.splitscreen.server.SplitscreenSSServer;
 import dev.isxander.controlify.splitscreen.server.login.SplitscreenLoginFlowServer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.DedicatedServerModInitializer;
@@ -23,7 +24,7 @@ public class SplitscreenEntrypoint implements ModInitializer, ClientModInitializ
             LOGGER.info("CONTROLIFY SPLITSCREEN CLOSED BETA - DO NOT REDISTRIBUTE!!!");
         }
 
-        SplitscreenLoginFlowServer.init();
+        SplitscreenSSServer.init();
     }
 
     @Override

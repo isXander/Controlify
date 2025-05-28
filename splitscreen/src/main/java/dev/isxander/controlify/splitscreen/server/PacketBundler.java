@@ -1,0 +1,41 @@
+package dev.isxander.controlify.splitscreen.server;
+
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+import java.util.function.BiFunction;
+
+public interface PacketBundler<T extends Packet<?>, B extends CustomPacketPayload> {
+    Class<T> packetClass();
+
+    B bundle(
+            T packet,
+            double x, double y, double z,
+            double radius,
+            ResourceKey<Level> dimension,
+            SplitscreenPlayerInfo.Controller controller,
+            List<ServerPlayer> players
+    );
+
+    record Simple<T extends Packet<?>, B extends CustomPacketPayload>(
+            Class<T> packetClass,
+            BiFunction<BundledPacketInfo, T, B> bundleFunction
+    ) implements PacketBundler<T, B> {
+        @Override
+        public B bundle(
+                T packet,
+                double x, double y, double z,
+                double radius,
+                ResourceKey<Level> dimension,
+                SplitscreenPlayerInfo.Controller controller,
+                List<ServerPlayer> players
+        ) {
+            var bundleInfo = BundledPacketInfo.create(controller, players);
+            return this.bundleFunction.apply(bundleInfo, packet);
+        }
+    }
+}
