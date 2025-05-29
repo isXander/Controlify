@@ -6,6 +6,7 @@ import dev.isxander.controlify.splitscreen.server.play.sound.ClientboundBundledS
 import dev.isxander.controlify.splitscreen.server.play.sound.ClientboundSetBundleStatePacket;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 
@@ -35,8 +36,8 @@ public class SplitscreenSSServer {
         registerBundler(new PacketBundler.Simple<>(ClientboundSoundEntityPacket.class, ClientboundBundledSoundEntityPacket::new));
     }
 
-    public static <T extends Packet<?>> Optional<PacketBundler<T, ?>> getBundler(Class<T> clazz) {
-        return Optional.ofNullable((PacketBundler<T, ?>) BUNDLERS.get(clazz));
+    public static Optional<PacketBundler<?, ?>> getBundler(Class<?> clazz) {
+        return Optional.ofNullable(BUNDLERS.get(clazz));
     }
 
 

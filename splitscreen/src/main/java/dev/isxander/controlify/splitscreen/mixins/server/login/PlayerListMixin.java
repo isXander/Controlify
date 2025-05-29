@@ -57,7 +57,7 @@ public class PlayerListMixin {
      * @param oldPlayer the old, dead, player
      * @return the new player
      */
-    @ModifyExpressionValue(method = "respawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/level/ServerLevel;Lcom/mojang/authlib/GameProfile;Lnet/minecraft/server/level/ClientInformation;)V"))
+    @ModifyExpressionValue(method = "respawn", at = @At(value = "NEW", target = "net/minecraft/server/level/ServerPlayer"))
     private ServerPlayer attachSplitscreenInfoAtRespawn(ServerPlayer player, @Local(argsOnly = true) ServerPlayer oldPlayer) {
         ((SplitscreenPlayerInfo.SplitscreenPlayerInfoHolder) player).splitscreen$setPlayerInfo(SplitscreenPlayerInfo.get(oldPlayer).orElse(null));
         return player;

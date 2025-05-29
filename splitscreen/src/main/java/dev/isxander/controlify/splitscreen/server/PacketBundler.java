@@ -22,9 +22,15 @@ public interface PacketBundler<T extends Packet<?>, B extends CustomPacketPayloa
     );
 
     record Simple<T extends Packet<?>, B extends CustomPacketPayload>(
-            Class<T> packetClass,
+            Class<? extends T> packetClassWild,
             BiFunction<BundledPacketInfo, T, B> bundleFunction
     ) implements PacketBundler<T, B> {
+        @SuppressWarnings("unchecked")
+        @Override
+        public Class<T> packetClass() {
+            return (Class<T>) packetClassWild;
+        }
+
         @Override
         public B bundle(
                 T packet,
