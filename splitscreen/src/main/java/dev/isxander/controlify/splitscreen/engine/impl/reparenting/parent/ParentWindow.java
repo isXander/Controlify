@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -199,24 +200,28 @@ public class ParentWindow implements AutoCloseable {
             switch (glfwGetPlatform()) {
                 case GLFW_PLATFORM_WIN32, GLFW_PLATFORM_X11 -> {
                     List<IoSupplier<InputStream>> icons = iconSet.getStandardIcons(resources);
+                    List<ByteBuffer> iconBuffers = new ArrayList<>(icons.size());
 
                     try (MemoryStack stack = MemoryStack.stackPush()) {
-                        try (GLFWImage.Buffer imgBuffer = GLFWImage.malloc(icons.size(), stack)) {
-                            for (int i = 0; i < icons.size(); i++) {
-                                try (NativeImage image = NativeImage.read(icons.get(i).get())) {
-                                    ByteBuffer iconBuffer = MemoryUtil.memAlloc(image.getWidth() * image.getHeight() * NativeImage.Format.RGBA.components());
-                                    iconBuffer.asIntBuffer().put(image.getPixelsABGR());
+                        GLFWImage.Buffer imgBuffer = GLFWImage.malloc(icons.size(), stack);
 
-                                    imgBuffer.position(i);
-                                    imgBuffer.width(image.getWidth());
-                                    imgBuffer.height(image.getHeight());
-                                    imgBuffer.pixels(iconBuffer);
-                                }
+                        for (int i = 0; i < icons.size(); i++) {
+                            try (NativeImage image = NativeImage.read(icons.get(i).get())) {
+                                ByteBuffer iconBuffer = MemoryUtil.memAlloc(image.getWidth() * image.getHeight() * NativeImage.Format.RGBA.components());
+                                iconBuffers.add(iconBuffer);
+                                iconBuffer.asIntBuffer().put(image.getPixelsABGR());
+
+                                imgBuffer.position(i);
+                                imgBuffer.width(image.getWidth());
+                                imgBuffer.height(image.getHeight());
+                                imgBuffer.pixels(iconBuffer);
                             }
-                            imgBuffer.flip();
-
-                            this.setIcon(imgBuffer);
                         }
+                        imgBuffer.flip();
+
+                        this.setIcon(imgBuffer);
+                    } finally {
+                        iconBuffers.forEach(MemoryUtil::memFree);
                     }
 
                 }
