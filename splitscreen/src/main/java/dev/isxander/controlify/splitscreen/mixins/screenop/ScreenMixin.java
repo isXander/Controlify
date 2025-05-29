@@ -6,12 +6,19 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
 import dev.isxander.controlify.splitscreen.screenop.ScreenSplitscreenMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin {
+
+    @Shadow
+    @Nullable
+    protected Minecraft minecraft;
 
     /**
      * Fullscreen screens in-game should not render the host's blurred level background,
@@ -26,7 +33,8 @@ public abstract class ScreenMixin {
     private boolean shouldRenderPanorama(boolean hasNoLevel) {
         boolean isSplitscreen = SplitscreenBootstrapper.isSplitscreen();
         boolean inFullscreenMode = PawnSplitscreenModeRegistry.getMode((Screen) (Object) this) == ScreenSplitscreenMode.FULLSCREEN;
+        boolean isIntegratedServer = this.minecraft.getSingleplayerServer() != null;
 
-        return hasNoLevel || (isSplitscreen && inFullscreenMode);
+        return hasNoLevel || (isSplitscreen && inFullscreenMode && !isIntegratedServer);
     }
 }
