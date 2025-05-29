@@ -1,12 +1,12 @@
 package dev.isxander.controlify.splitscreen.host.gui;
 
+import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.config.AudioMethod;
 import dev.isxander.controlify.splitscreen.config.MusicMethod;
 import dev.isxander.controlify.splitscreen.config.SplitscreenConfig;
-import dev.isxander.yacl3.api.ConfigCategory;
-import dev.isxander.yacl3.api.Option;
-import dev.isxander.yacl3.api.OptionDescription;
-import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.controlify.splitscreen.host.SplitscreenController;
+import dev.isxander.yacl3.api.*;
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.CyclingListControllerBuilder;
 import dev.isxander.yacl3.config.v3.ConfigEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,28 +19,36 @@ public class SplitscreenConfigGuiFactory {
     public static Screen buildScreen(@Nullable Screen parent) {
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.splitscreen.config.title"))
-                .category(buildAudioCategory())
+                .category(buildBasicCategory())
+                .save(SplitscreenConfig.INSTANCE::saveToFile)
                 .build().generateScreen(parent);
     }
 
-    private static ConfigCategory buildAudioCategory() {
+    private static ConfigCategory buildBasicCategory() {
         SplitscreenConfig config = config();
 
         return ConfigCategory.createBuilder()
-                .name(Component.translatable("controlify.splitscreen.config.audio"))
+                .name(Component.translatable("controlify.splitscreen.config.basic"))
                 .option(
-                        startOption(config.audioMethod, "audio", (builder, translationKey) -> builder
-                                .controller(opt -> CyclingListControllerBuilder.create(opt)
-                                        .values(AudioMethod.values())
-                                        .formatValue(method -> Component.translatable(translationKey + "." + method.getSerializedName())))
+                        startOption(config.preferVerticalSplitscreen, "basic", (builder, translationKey) -> builder
+                                .controller(opt -> BooleanControllerBuilder.create(opt)
+                                        .formatValue(vertical -> Component.translatable(translationKey + (vertical ? ".vertical" : ".horizontal"))))
                         ).build())
-                .option(
-                        startOption(config.musicMethod, "audio", (builder, translationKey) -> builder
-                                .controller(opt -> CyclingListControllerBuilder.create(opt)
-                                        .values(MusicMethod.values())
-                                        .formatValue(method -> Component.translatable(translationKey + "." + method.getSerializedName())))
-                        ).build()
-                )
+                .group(OptionGroup.createBuilder()
+                        .name(Component.translatable("controlify.splitscreen.config.audio"))
+                        .option(
+                                startOption(config.audioMethod, "basic", (builder, translationKey) -> builder
+                                        .controller(opt -> CyclingListControllerBuilder.create(opt)
+                                                .values(AudioMethod.values())
+                                                .formatValue(method -> Component.translatable(translationKey + "." + method.getSerializedName())))
+                                ).build())
+                        .option(
+                                startOption(config.musicMethod, "basic", (builder, translationKey) -> builder
+                                        .controller(opt -> CyclingListControllerBuilder.create(opt)
+                                                .values(MusicMethod.values())
+                                                .formatValue(method -> Component.translatable(translationKey + "." + method.getSerializedName())))
+                                ).build())
+                        .build())
                 .build();
     }
 

@@ -11,6 +11,7 @@ import net.minecraft.network.ClientboundPacketListener;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.protocol.PacketUtils;
 import org.slf4j.Logger;
 
 /**
@@ -34,13 +35,17 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleJoinServer(PawnboundJoinServerPacket packet) {
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
         LOGGER.info("Pawn joining server server {}:{}", packet.host(), packet.port());
-        minecraft.execute(() -> this.pawn.joinServer(packet.host(), packet.port(), packet.nonce().orElse(null)));
+        this.pawn.joinServer(packet.host(), packet.port(), packet.nonce().orElse(null));
     }
 
     public void handleServerDisconnect(PawnboundServerDisconnectPacket packet) {
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
         LOGGER.info("Pawn disconnecting from server");
-        minecraft.execute(this.pawn::disconnectFromServer);
+        this.pawn.disconnectFromServer();
     }
 
     public void handleEngineCustomPayload(PawnboundEngineCustomPayloadPacket packet) {
@@ -52,12 +57,20 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleUseController(PawnboundUseControllerPacket packet) {
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
         LOGGER.info("Pawn using controller {}", packet.controllerUID());
         this.pawn.useController(packet.controllerUID());
     }
 
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {
         this.connection.send(ControllerboundKeepAlivePacket.INSTANCE);
+    }
+
+    public void handleLoadConfig(PawnboundLoadConfigPacket packet) {
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
+        this.pawn.onConfigSave(packet.config());
     }
 
     @Override

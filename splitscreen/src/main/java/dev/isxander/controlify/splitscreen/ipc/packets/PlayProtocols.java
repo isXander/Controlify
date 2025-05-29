@@ -34,6 +34,7 @@ public final class PlayProtocols {
                         .addPacket(PawnboundCloseGamePacket.TYPE, PawnboundCloseGamePacket.CODEC)
                         .addPacket(PawnboundUseControllerPacket.TYPE, PawnboundUseControllerPacket.CODEC)
                         .addPacket(PawnboundServerDisconnectPacket.TYPE, PawnboundServerDisconnectPacket.CODEC)
+                        .addPacket(PawnboundLoadConfigPacket.TYPE, PawnboundLoadConfigPacket.CODEC)
                         .addPacket(PawnboundEngineCustomPayloadPacket.TYPE, engineCodec)
         ).bind(FriendlyByteBuf::new);
     }

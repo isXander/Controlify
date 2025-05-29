@@ -2,11 +2,13 @@ package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.controlify.splitscreen.configsync.ConfigSyncRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -66,6 +68,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
                         .findAny().orElseThrow(),
                 true
         );
+    }
+
+    @Override
+    public void onConfigSave(ResourceLocation config) {
+        ConfigSyncRegistry.onSave(config);
     }
 
     @Override

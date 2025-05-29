@@ -3,6 +3,7 @@ package dev.isxander.controlify.splitscreen.host;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
@@ -16,10 +17,20 @@ public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
      *
      * @param host  address of the server
      * @param port  port of the server
-     * @param nonce
+     * @param nonce the nonce for splitscreen authentication
      */
     @Override
     public void joinServer(String host, int port, byte @Nullable [] nonce) {
+        // no-op
+    }
+
+    /**
+     * This client was the one that published this event.
+     * This would get recursive.
+     * @param config the id of the config that was saved
+     */
+    @Override
+    public void onConfigSave(ResourceLocation config) {
         // no-op
     }
 }

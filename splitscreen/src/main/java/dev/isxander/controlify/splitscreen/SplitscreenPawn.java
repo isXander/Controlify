@@ -1,6 +1,7 @@
 package dev.isxander.controlify.splitscreen;
 
 import dev.isxander.controlify.controller.ControllerUID;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -49,6 +50,12 @@ public interface SplitscreenPawn extends Bridge {
      * @param controllerUid the UID of the controller to use
      */
     void useController(ControllerUID controllerUid);
+
+    /**
+     * Tells the pawns to load a specific config as it has been saved on the controller.
+     * @param config the id of the config that was saved
+     */
+    void onConfigSave(ResourceLocation config);
 
     /**
      * @return the associated controller UID for this pawn, or null if no controller is associated

@@ -41,6 +41,8 @@ public sealed interface SplitscreenPosition {
 
     /* 3-player unbalanced splitscreen */
     Visible[] LEFT_TOP_BOTTOM = new Visible[]{LEFT, TOP_RIGHT, BOTTOM_RIGHT};
+    /* 3-balance unbalanced splitscreen */
+    Visible[] LEFT_RIGHT_BOTTOM = new Visible[]{TOP_LEFT, TOP_RIGHT, BOTTOM};
 
     StreamCodec<ByteBuf, SplitscreenPosition> STREAM_CODEC =
             ByteBufCodecs.either(Visible.STREAM_CODEC, Hidden.STREAM_CODEC)

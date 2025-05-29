@@ -2,12 +2,12 @@ package dev.isxander.controlify.splitscreen.host;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.controlify.splitscreen.config.SplitscreenConfig;
 import dev.isxander.controlify.splitscreen.engine.HostSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.host.gui.SplitscreenFakeReloadInstance;
 import dev.isxander.controlify.splitscreen.host.gui.SplitscreenLoadingOverlay;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.SplitscreenPawn;
-import dev.isxander.controlify.splitscreen.LocalSplitscreenPawn;
 import dev.isxander.controlify.splitscreen.host.ipc.ControllerConnectionListener;
 import dev.isxander.controlify.splitscreen.host.relaunch.RelaunchProcessHandler;
 import dev.isxander.controlify.splitscreen.screenop.PawnSplitscreenModeRegistry;
@@ -163,10 +163,12 @@ public class SplitscreenController  {
             }
             case SPLITSCREEN -> {
                 int pawnCount = this.pawns.size();
+                boolean horizontal = !SplitscreenConfig.INSTANCE.preferVerticalSplitscreen.get();
+
                 SplitscreenPosition.Visible[] positions = switch (pawnCount) {
                     case 1 -> new SplitscreenPosition.Visible[]{SplitscreenPosition.FULL};
-                    case 2 -> SplitscreenPosition.LEFT_RIGHT;
-                    case 3 -> SplitscreenPosition.LEFT_TOP_BOTTOM;
+                    case 2 -> horizontal ? SplitscreenPosition.LEFT_RIGHT : SplitscreenPosition.TOP_BOTTOM;
+                    case 3 -> horizontal ? SplitscreenPosition.LEFT_TOP_BOTTOM : SplitscreenPosition.LEFT_RIGHT_BOTTOM;
                     case 4 -> SplitscreenPosition.FOUR_WAY;
                     default -> SplitscreenPosition.Visible.arrangeInGridForN(pawnCount);
                 };

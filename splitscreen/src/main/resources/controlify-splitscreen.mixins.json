@@ -24,6 +24,7 @@
     "framethrottle.FramerateLimitTrackerMixin",
     "relaunch.MainMixin",
     "screenop.MinecraftMixin",
+    "screenop.OptionsScreenMixin",
     "screenop.ScreenMixin",
     "server.login.ClientHandshakePacketListenerImplAccessor",
     "server.login.DisconnectedScreenAccessor",

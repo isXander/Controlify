@@ -5,6 +5,7 @@ import dev.isxander.controlify.splitscreen.SplitscreenPawn;
 import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.controlify.splitscreen.SplitscreenPosition;
 import net.minecraft.network.Connection;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -53,6 +54,11 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     @Override
     public void useController(ControllerUID controllerUid) {
         this.connection.send(new PawnboundUseControllerPacket(controllerUid));
+    }
+
+    @Override
+    public void onConfigSave(ResourceLocation config) {
+        this.connection.send(new PawnboundLoadConfigPacket(config));
     }
 
     @Override
