@@ -51,9 +51,6 @@ public abstract class MinecraftMixin {
     @Final
     private VirtualScreen virtualScreen;
 
-
-
-
     /**
      * Minecraft only usually pauses the game when in a singleplayer world with no LAN.
      * This is a problem for splitscreen, even if all players are local, it will be treated as
@@ -84,7 +81,9 @@ public abstract class MinecraftMixin {
         int pawnCount = controller.getPawnCount(true);
         boolean localOnlyLanServer = playerCount == pawnCount;
 
-        boolean isFullscreen = PawnSplitscreenModeRegistry.getMode(this.screen) == ScreenSplitscreenMode.FULLSCREEN;
+        // even if this screen isn't a fullscreen screen, if there's only one player all screens are fullscreen
+        boolean isFullscreen = PawnSplitscreenModeRegistry.getMode(this.screen) == ScreenSplitscreenMode.FULLSCREEN
+                || playerCount == 1;
 
         return localOnlyLanServer && !isFullscreen;
     }
