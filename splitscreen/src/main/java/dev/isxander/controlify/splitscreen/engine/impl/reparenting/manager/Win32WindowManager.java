@@ -111,7 +111,7 @@ public class Win32WindowManager implements WindowManager {
 
             USER32.SetWindowPos(
                     windowHandle,
-                    new HWND(Pointer.createConstant(HWND_TOPMOST)),
+                    new HWND(Pointer.createConstant(HWND_TOP)),
                     x, y,
                     width, height,
                     SWP_FRAMECHANGED | SWP_SHOWWINDOW | SWP_NOACTIVATE
