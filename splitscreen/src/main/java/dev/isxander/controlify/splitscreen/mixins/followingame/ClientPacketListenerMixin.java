@@ -36,7 +36,7 @@ public abstract class ClientPacketListenerMixin extends ClientCommonPacketListen
     @Inject(method = "handleLogin", at = @At("RETURN"))
     private void forceSplitscreenToJoin(CallbackInfo ci) {
         SplitscreenBootstrapper.getController().ifPresent(controller -> {
-            byte @Nullable [] nonce = controller.getLocalPawn().getLastNonce();
+            byte @Nullable [] nonce = controller.getLocalPawn().getLastLoginNonce();
             if (this.minecraft.hasSingleplayerServer()) {
                 if (nonce == null) {
                     LOGGER.error("Nonce has not been set, join attempt will probably fail.");

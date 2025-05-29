@@ -22,8 +22,4 @@ public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
     public void joinServer(String host, int port, byte @Nullable [] nonce) {
         // no-op
     }
-
-    public void setLastLoginNonce(byte[] nonce) {
-        this.nonce = nonce;
-    }
 }

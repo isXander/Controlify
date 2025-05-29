@@ -196,7 +196,7 @@ public class SplitscreenController  {
         }
 
         int pawnIndex = this.pawns.size();
-        RelaunchProcessHandler handler = RelaunchProcessHandler.createProcess(this.minecraft, controller, pawnIndex, this.ipcMethod);
+        RelaunchProcessHandler handler = RelaunchProcessHandler.createProcess(this.minecraft, controller, this, pawnIndex, this.ipcMethod);
         this.relaunchProcessHandlers.put(controller, handler);
         this.pendingRelaunchClients.put(controller, new PendingRelaunchClientStatus.WaitingForConnection());
 

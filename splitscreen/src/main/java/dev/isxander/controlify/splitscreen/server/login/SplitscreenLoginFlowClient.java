@@ -56,7 +56,7 @@ public class SplitscreenLoginFlowClient {
 
                         UUID controllerUuid = RelaunchArguments.HOST_UUID.get().orElseThrow();
                         int subPlayerIndex = RelaunchArguments.PAWN_INDEX.get().orElseThrow() - 1;
-                        byte[] nonce = pawn.getPawn().getLastNonce();
+                        byte[] nonce = pawn.getPawn().getLastLoginNonce();
                         byte[] hmac = SplitscreenLoginFlowServer.generateHmac(nonce, controllerUuid, subPlayerIndex);
 //                        LOGGER.info("Client HMAC: controller UUID {}, sub-player index {}, nonce {}", controllerUuid, subPlayerIndex, Hex.encodeHexString(nonce));
 
@@ -80,7 +80,7 @@ public class SplitscreenLoginFlowClient {
 
                     if (!client.hasSingleplayerServer()) {
                         ServerAddress address = ServerAddress.parseString(((ClientHandshakePacketListenerImplAccessor) listener).getServerData().ip);
-                        controller.forEachPawn(pawn -> pawn.joinServer(address.getHost(), address.getPort(), controller.getLocalPawn().getLastNonce()));
+                        controller.forEachPawn(pawn -> pawn.joinServer(address.getHost(), address.getPort(), controller.getLocalPawn().getLastLoginNonce()));
                     }
 
                     return CompletableFuture.completedFuture(new ServerboundNonceAckPacket().encode());

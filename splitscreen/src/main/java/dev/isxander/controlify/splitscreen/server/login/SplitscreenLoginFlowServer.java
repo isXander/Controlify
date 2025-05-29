@@ -112,15 +112,30 @@ public class SplitscreenLoginFlowServer {
                                 LOGGER.error("Pawn has attempted to log in late but it is not allowed on this server.");
                                 listener.disconnect(Component.translatable("controlify.splitscreen.login.late_login_not_allowed"));
                                 return;
+                            } else if (!controllerState.isNextSubPlayerIndex(subPlayerIndex)) {
+                                LOGGER.error("Pawn that is logging in late does not have the sequential sub player index. Expected {} got {}", controllerState.subPlayers, subPlayerIndex);
+                                listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_subplayer_index"));
+                                return;
                             } else {
                                 LOGGER.warn("Allowing pawn to log in late.");
                             }
-                        } else if (!controllerState.isValidSubPlayerIndex(subPlayerIndex)) {
-                            // don't allow sub-players with out-of-range indexes to what the controller has requested
-                            // e.g. don't accept Player10 if the controller has only requested 4 players
-                            LOGGER.error("Pawn has sent an invalid sub-player index. {} is not in range 0-{}", subPlayerIndex, controllerState.subPlayers());
-                            listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_subplayer_index"));
-                            return;
+                        } else {
+                            if (!controllerState.isValidSubPlayerIndex(subPlayerIndex)) {
+                                // don't allow sub-players with out-of-range indexes to what the controller has requested
+                                // e.g. don't accept Player10 if the controller has only requested 4 players
+                                LOGGER.error("Pawn has sent an invalid sub-player index. {} is not in range 0-{}", subPlayerIndex, controllerState.subPlayers());
+                                listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_subplayer_index"));
+                                return;
+                            }
+
+                            // if the player index is in range, but we're not waiting for it, it's already logged in
+                            // we could rely on the vanilla flow to detect this, but I'd rather be explicit, and that
+                            // would disconnect the existing player, not the currently logging in one
+                            if (!controllerState.isWaitingForSubPlayer(subPlayerIndex)) {
+                                LOGGER.error("Pawn has attempted to log in with a sub-player index {} that is already logged in.", subPlayerIndex);
+                                listener.disconnect(Component.translatable("controlify.splitscreen.login.subplayer_already_logged_in"));
+                                return;
+                            }
                         }
 
                         // enforce the username of the sub-player so they can't impersonate other players
@@ -129,15 +144,6 @@ public class SplitscreenLoginFlowServer {
                         if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
                             LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.getName());
                             listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_profile"));
-                            return;
-                        }
-
-                        // if the player index is in range, but we're not waiting for it, it's already logged in
-                        // we could rely on the vanilla flow to detect this, but I'd rather be explicit, and that
-                        // would disconnect the existing player, not the currently logging in one
-                        if (!controllerState.isWaitingForSubPlayer(subPlayerIndex)) {
-                            LOGGER.error("Pawn has attempted to log in with a sub-player index that is already logged in.");
-                            listener.disconnect(Component.translatable("controlify.splitscreen.login.subplayer_already_logged_in"));
                             return;
                         }
 
@@ -202,6 +208,9 @@ public class SplitscreenLoginFlowServer {
 
             ServerLoginNetworking.registerReceiver(listener, CHANNEL_CONTROLLER, (server, listener1, understood, buf, synchronizer, sender1) -> {
                 state.nonceAck |= understood;
+                if (subPlayerCount == 0) {
+                    controllerState.allDone().complete(null);
+                }
             });
         }
 
@@ -353,6 +362,10 @@ public class SplitscreenLoginFlowServer {
             return index >= 0 && index < subPlayers;
         }
 
+        public boolean isNextSubPlayerIndex(int index) {
+            return index == subPlayers;
+        }
+
         public boolean isWaitingForSubPlayer(int index) {
             return subPlayerWaiting.contains(index);
         }
@@ -373,7 +386,7 @@ public class SplitscreenLoginFlowServer {
                 if (subPlayerWaiting.isEmpty()) {
                     allDoneFuture.complete(null);
                 }
-            } else {
+            } else if (!allDone().isDone()) {
                 throw new IllegalStateException("Subplayer " + index + " was not waiting. Duplicate login?");
             }
         }

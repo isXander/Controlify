@@ -83,7 +83,11 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
         return false;
     }
 
-    public byte[] getLastNonce() {
+    public byte[] getLastLoginNonce() {
         return nonce;
+    }
+
+    public void setLastLoginNonce(byte[] nonce) {
+        this.nonce = nonce;
     }
 }

@@ -2,13 +2,17 @@ package dev.isxander.controlify.splitscreen.host.relaunch;
 
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.splitscreen.host.RemoteSplitscreenPawn;
+import dev.isxander.controlify.splitscreen.host.SplitscreenController;
 import dev.isxander.controlify.splitscreen.host.util.LANUtil;
 import dev.isxander.controlify.splitscreen.ipc.IPCMethod;
 import dev.isxander.controlify.splitscreen.host.relaunch.impl.HackyRelauncher;
 import dev.isxander.controlify.splitscreen.host.relaunch.impl.PrismRelauncher;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchArguments;
 import dev.isxander.controlify.splitscreen.relauncher.RelaunchException;
+import dev.isxander.controlify.splitscreen.relauncher.RelaunchQuickPlayFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import org.apache.commons.codec.binary.Hex;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class RelaunchProcessHandler {
@@ -26,7 +31,7 @@ public class RelaunchProcessHandler {
 
     private @Nullable RemoteSplitscreenPawn pawn;
 
-    public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, int pawnIndex, IPCMethod ipcMethod) {
+    public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, SplitscreenController splitscreenController, int pawnIndex, IPCMethod ipcMethod) {
         LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
         Path argFile;
@@ -52,8 +57,16 @@ public class RelaunchProcessHandler {
         String pawnUsername = username + "." + pawnIndex;
         launchInfo.jvmArgs().add(RelaunchArguments.USERNAME.asArgument(pawnUsername));
 
-        LANUtil.getOrPublishLANServer().ifPresent(address ->
-                launchInfo.jvmArgs().add(RelaunchArguments.LAN_GAME.asArgument(address.toString())));
+        LANUtil.getOrPublishLANServer()
+                .or(() -> Optional.ofNullable(minecraft.getCurrentServer())
+                        .map(data -> ServerAddress.parseString(data.ip)))
+                .ifPresent(address -> {
+                    var quickPlayFormat = RelaunchQuickPlayFormat.asString(
+                            address.toString(),
+                            Hex.encodeHexString(splitscreenController.getLocalPawn().getLastLoginNonce())
+                    );
+                    launchInfo.jvmArgs().add(RelaunchArguments.LAN_GAME.asArgument(quickPlayFormat));
+                });
 
         return new RelaunchProcessHandler(launchInfo, pawnIndex, argFile);
     }
