@@ -10,7 +10,7 @@ public interface WindowManager {
         return switch (dev.isxander.controlify.utils.WindowManager.INSTANCE) {
             case WIN32 -> Win32WindowManager.INSTANCE;
             // Broken.
-            case X11 -> X11WindowManager.INSTANCE;
+            case X11 -> throw new UnsupportedWindowManagerException("X11 is not supported");
             // Wayland does not support Reparenting windows, so it is impossible to do this.
             // XWayland would not crash, but Wayland has no way to represent this concept and XReparentWindow is no-op
             case WAYLAND -> throw new UnsupportedWindowManagerException("Wayland is unsupported for Controlify splitscreen");
@@ -64,4 +64,6 @@ public interface WindowManager {
     void setWindowForeground(NativeWindowHandle handle);
 
     void setWindowFocused(NativeWindowHandle handle);
+
+    void setBorderless(NativeWindowHandle handle, boolean borderless, int x, int y, int width, int height);
 }

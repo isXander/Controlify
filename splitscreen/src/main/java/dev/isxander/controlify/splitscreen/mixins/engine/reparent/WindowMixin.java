@@ -1,6 +1,6 @@
 package dev.isxander.controlify.splitscreen.mixins.engine.reparent;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -13,6 +13,7 @@ import dev.isxander.controlify.splitscreen.SplitscreenBootstrapper;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingHostSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.ReparentingSplitscreenEngine;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.events.VanillaWindowFocusEvent;
+import dev.isxander.controlify.splitscreen.engine.impl.reparenting.parent.ParentWindow;
 import org.lwjgl.glfw.GLFWImage;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -25,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 @Mixin(Window.class)
 public class WindowMixin {
@@ -111,16 +114,51 @@ public class WindowMixin {
     }
     @WrapMethod(method = "toggleFullScreen")
     private void preventToggleFullScreen(Operation<Void> original) {
-        preventIfSplitscreen(original::call);
+        reparentingEngine()
+                .flatMap(filterHost())
+                .flatMap(hostEngine -> Optional.ofNullable(hostEngine.getParentWindow()))
+                .ifPresentOrElse(
+                        ParentWindow::toggleFullscreen,
+                        original::call
+                );
     }
     @WrapMethod(method = "setWindowed")
     private void preventSetWindowed(int windowedWidth, int windowedHeight, Operation<Void> original) {
-        preventIfSplitscreen(() -> original.call(windowedWidth, windowedHeight));
+        reparentingEngine()
+                .flatMap(filterHost())
+                .flatMap(hostEngine -> Optional.ofNullable(hostEngine.getParentWindow()))
+                .ifPresentOrElse(
+                        window -> {
+                            window.setWindowed(windowedWidth, windowedHeight);
+                        },
+                        original::call
+                );
     }
     @WrapMethod(method = "updateFullscreen")
     private void preventUpdateFullscreen(boolean vsyncEnabled, TracyFrameCapture tracyFrameCapture, Operation<Void> original) {
         preventIfSplitscreen(() -> original.call(vsyncEnabled, tracyFrameCapture));
     }
+
+    @ModifyReturnValue(method = "isFullscreen", at = @At("RETURN"))
+    private boolean injectParentStateToFullscreenCheck(boolean childIsFullscreen) {
+        return reparentingEngine()
+                .flatMap(filterHost())
+                .flatMap(hostEngine -> Optional.ofNullable(hostEngine.getParentWindow()))
+                .map(ParentWindow::isFullscreen)
+                .orElse(childIsFullscreen);
+    }
+
+    @Unique
+    private Optional<ReparentingSplitscreenEngine> reparentingEngine() {
+        return SplitscreenBootstrapper.getEngine()
+                .flatMap(engine -> engine instanceof ReparentingSplitscreenEngine reparenting ? Optional.of(reparenting) : Optional.empty());
+    }
+
+    @Unique
+    private Function<ReparentingSplitscreenEngine, Optional<ReparentingHostSplitscreenEngine>> filterHost() {
+        return engine -> engine instanceof ReparentingHostSplitscreenEngine reparenting ? Optional.of(reparenting) : Optional.empty();
+    }
+
     @Unique
     private void preventIfSplitscreen(Runnable originalCall) {
         if (SplitscreenBootstrapper.getEngine().map(engine -> engine instanceof ReparentingSplitscreenEngine).orElse(false)) {

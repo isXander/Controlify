@@ -5,9 +5,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.NativeWindowHandle;
 import dev.isxander.controlify.splitscreen.engine.impl.reparenting.manager.WindowManager;
+import dev.isxander.controlify.splitscreen.mixins.engine.reparent.ScreenManagerAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.resources.IoSupplier;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.system.MemoryStack;
@@ -17,7 +20,6 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -42,7 +44,21 @@ public class ParentWindow implements AutoCloseable {
     private final ParentWindowEventHandler eventHandler;
 
     private final long glfwWindowHandle;
+
+    // current x y of the window
+    private int x, y;
+    // cached the position in window mode so it can be restored when exiting fullscreen
+    private int windowedX, windowedY;
+
+    // current width and height of the window
     private int width, height;
+    // cache the dimensions in window mode so it can be restored when exiting fullscreen
+    private int windowedWidth, windowedHeight;
+
+    // current desired fullscreen state
+    private boolean fullscreen;
+    // if the window state is currently fullscreen
+    private boolean actualFullscreen;
 
     public ParentWindow(Minecraft minecraft, DisplayData screenSize, ScreenManager screenManager, ParentWindowEventHandler eventHandler, String initialTitle) {
         this.screenManager = screenManager;
@@ -50,8 +66,10 @@ public class ParentWindow implements AutoCloseable {
         this.eventHandler = eventHandler;
 
         Monitor monitor = screenManager.getMonitor(glfwGetPrimaryMonitor());
-        this.width = Math.max(screenSize.width(), 1);
-        this.height = Math.max(screenSize.height(), 1);
+        this.width = this.windowedWidth = Math.max(screenSize.width(), 1);
+        this.height = this.windowedHeight = Math.max(screenSize.height(), 1);
+        this.fullscreen = screenSize.isFullscreen();
+        this.actualFullscreen = false;
 
         glfwDefaultWindowHints();
         this.glfwWindowHandle = glfwCreateWindow(
@@ -69,6 +87,14 @@ public class ParentWindow implements AutoCloseable {
         glfwSetWindowFocusCallback(this.glfwWindowHandle, this::windowFocusCallback);
         glfwSetWindowSizeCallback(this.glfwWindowHandle, this::windowPosCallback);
         glfwSetWindowSizeCallback(this.glfwWindowHandle, this::windowSizeCallback);
+
+        int[] xBuffer = new int[1];
+        int[] yBuffer = new int[1];
+        glfwGetWindowPos(this.glfwWindowHandle, xBuffer, yBuffer);
+        this.x = this.windowedX = xBuffer[0];
+        this.y = this.windowedY = yBuffer[0];
+
+        this.updateFullscreen();
     }
 
     public long getGlfwWindowHandle() {
@@ -85,6 +111,82 @@ public class ParentWindow implements AutoCloseable {
 
     public int getHeight() {
         return this.height;
+    }
+
+    public boolean isFullscreen() {
+        return this.fullscreen;
+    }
+
+    public void setWindowed(int width, int height) {
+        this.width = width;
+        this.height = height;
+        this.fullscreen = false;
+        this.updateFullscreen();
+        this.flushWindowDimensions();
+    }
+
+    public void setFullscreen(boolean fullscreen) {
+        this.fullscreen = fullscreen;
+        this.updateFullscreen();
+    }
+
+    public void toggleFullscreen() {
+        this.fullscreen = !this.fullscreen;
+        this.updateFullscreen();
+    }
+
+    private void updateFullscreen() {
+        if (this.fullscreen != this.actualFullscreen) {
+            var windowManager = WindowManager.get();
+
+            if (this.fullscreen) {
+                Monitor bestMonitor = this.findBestMonitor();
+                if (bestMonitor == null) {
+                    LOGGER.error("Failed to fullscreen update: no best monitor found");
+                    this.fullscreen = false;
+                    return;
+                }
+
+                VideoMode videoMode = bestMonitor.getCurrentMode();
+                this.windowedX = this.x;
+                this.windowedY = this.y;
+                this.windowedWidth = this.width;
+                this.windowedHeight = this.height;
+
+                this.x = 0;
+                this.y = 0;
+                this.width = videoMode.getWidth();
+                this.height = videoMode.getHeight();
+
+                this.actualFullscreen = true;
+
+                windowManager.setBorderless(
+                        windowManager.getNativeWindowHandle(this.glfwWindowHandle),
+                        true,
+                        this.x, this.y,
+                        this.width, this.height
+                );
+            } else {
+                this.x = this.windowedX;
+                this.y = this.windowedY;
+                this.width = this.windowedWidth;
+                this.height = this.windowedHeight;
+
+                this.actualFullscreen = false;
+
+                windowManager.setBorderless(
+                        windowManager.getNativeWindowHandle(this.glfwWindowHandle),
+                        false,
+                        this.x, this.y,
+                        this.width, this.height
+                );
+            }
+        }
+    }
+
+    private void flushWindowDimensions() {
+        glfwSetWindowPos(this.glfwWindowHandle, this.x, this.y);
+        glfwSetWindowSize(this.glfwWindowHandle, this.width, this.height);
     }
 
     public void setTitle(String title) {
@@ -151,7 +253,10 @@ public class ParentWindow implements AutoCloseable {
     }
 
     private void windowPosCallback(long window, int x, int y) {
+        if (window != this.glfwWindowHandle) return;
 
+        this.x = x;
+        this.y = y;
     }
 
     private void windowSizeCallback(long window, int width, int height) {
@@ -168,6 +273,43 @@ public class ParentWindow implements AutoCloseable {
         RenderSystem.assertOnRenderThread();
         glfwFreeCallbacks(this.glfwWindowHandle);
         glfwDestroyWindow(this.glfwWindowHandle);
+    }
+
+    private @Nullable Monitor findBestMonitor() {
+        int windowLeftX = this.x;
+        int windowRightX = windowLeftX + this.width;
+        int windowTopY = this.y;
+        int windowBottomY = windowTopY + this.height;
+
+        int maxOverlapArea = -1;
+        Monitor bestMonitor = null;
+
+        long primaryMonitorHandle = glfwGetPrimaryMonitor();
+
+        for (Monitor monitor : ((ScreenManagerAccessor) this.screenManager).getMonitors().values()) {
+            int monitorLeftX = monitor.getX();
+            int monitorRightX = monitorLeftX + monitor.getCurrentMode().getWidth();
+            int monitorTopY = monitor.getY();
+            int monitorBottomY = monitorTopY + monitor.getCurrentMode().getHeight();
+
+            int clampedWindowLeftX = Mth.clamp(windowLeftX, monitorLeftX, monitorRightX);
+            int clampedWindowRightX = Mth.clamp(windowRightX, monitorLeftX, monitorRightX);
+            int clampedWindowTopY = Mth.clamp(windowTopY, monitorTopY, monitorBottomY);
+            int clampedWindowBottomY = Mth.clamp(windowBottomY, monitorTopY, monitorBottomY);
+
+            int overlapWidth = Math.max(0, clampedWindowRightX - clampedWindowLeftX);
+            int overlapHeight = Math.max(0, clampedWindowBottomY - clampedWindowTopY);
+            int overlapArea = overlapWidth * overlapHeight;
+
+            if (overlapArea > maxOverlapArea) {
+                maxOverlapArea = overlapArea;
+                bestMonitor = monitor;
+            } else if (overlapArea == maxOverlapArea && primaryMonitorHandle == monitor.getMonitor()) {
+                bestMonitor = monitor;
+            }
+        }
+
+        return bestMonitor;
     }
 
     private static void handleLastGLFWError(BiConsumer<Integer, String> handler) {
