@@ -1,0 +1,20 @@
+package dev.isxander.splitscreen.ipc;
+
+import dev.isxander.splitscreen.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
+import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.PacketFlow;
+
+public class SplitscreenConnection extends Connection implements ConnectionDisconnectPacketFactory {
+    public SplitscreenConnection(PacketFlow receiving) {
+        super(receiving);
+    }
+
+    @Override
+    public Packet<?> createDisconnectPacket(Throwable throwable, Component reason, boolean login) {
+        throwable.printStackTrace();
+        return new PawnboundDisconnectPacket(reason);
+    }
+
+}

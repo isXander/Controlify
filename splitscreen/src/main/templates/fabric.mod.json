@@ -16,10 +16,10 @@
   "environment": "*",
   "entrypoints": {
     "client": [
-      "dev.isxander.controlify.splitscreen.SplitscreenEntrypoint"
+      "dev.isxander.splitscreen.SplitscreenEntrypoint"
     ],
     "controlify": [
-      "dev.isxander.controlify.splitscreen.ControlifyExtension"
+      "dev.isxander.splitscreen.ControlifyExtension"
     ]
   },
   "icon": "icon.png",

@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.splitscreen.mixins",
+  "package": "dev.isxander.splitscreen.mixins",
   "required": true,
   "minVersion": "0.8",
   "mixinextras": {
