@@ -9,6 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Data sent along with common bundled packets to indicate all the recipients the
+ * non bundled packets were destined for.
+ * @param includeController If the recipients included the controller itself
+ * @param pawnIndexes All the pawns that were intended to receive the packet
+ */
 public record BundledPacketInfo(boolean includeController, Collection<Integer> pawnIndexes) {
 
     public static final StreamCodec<FriendlyByteBuf, BundledPacketInfo> STREAM_CODEC = StreamCodec.composite(

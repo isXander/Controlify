@@ -1,6 +1,7 @@
 package dev.isxander.splitscreen;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.config.SplitscreenServerConfig;
 import dev.isxander.splitscreen.server.SplitscreenSSServer;
 import net.fabricmc.api.ClientModInitializer;

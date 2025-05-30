@@ -4,7 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import dev.isxander.splitscreen.config.SplitscreenServerConfig;
 import dev.isxander.splitscreen.config.SplitscreenServerSharedConfig;
-import dev.isxander.splitscreen.mixins.server.login.ServerLoginPacketListenerImplMixin;
+import dev.isxander.splitscreen.server.mixins.login.ServerLoginPacketListenerImplMixin;
 import dev.isxander.splitscreen.server.login.packets.ClientboundIdentifyPacket;
 import dev.isxander.splitscreen.server.login.packets.ClientboundNoncePacket;
 import dev.isxander.splitscreen.server.login.packets.ServerboundIdentifyPacket;

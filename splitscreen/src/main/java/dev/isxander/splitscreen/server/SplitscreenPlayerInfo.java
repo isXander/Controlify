@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+/**
+ * Data attached to {@link ServerPlayer} objects, it's a server-side way to describe
+ * a specific player within a splitscreen system.
+ */
 public sealed interface SplitscreenPlayerInfo {
     static Optional<SplitscreenPlayerInfo> get(ServerPlayer player) {
         return Optional.ofNullable(((SplitscreenPlayerInfoHolder) player).splitscreen$getPlayerInfo());

@@ -14,7 +14,8 @@ modstitch {
 
     mixin {
         addMixinsToModManifest = true
-        configs.register("controlify-splitscreen")
+        configs.register("splitscreen")
+        configs.register("splitscreen-client")
     }
 }
 

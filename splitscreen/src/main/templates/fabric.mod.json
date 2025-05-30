@@ -19,7 +19,7 @@
       "dev.isxander.splitscreen.SplitscreenEntrypoint"
     ],
     "controlify": [
-      "dev.isxander.splitscreen.ControlifyExtension"
+      "dev.isxander.splitscreen.client.integrations.ControlifyExtension"
     ]
   },
   "icon": "icon.png",

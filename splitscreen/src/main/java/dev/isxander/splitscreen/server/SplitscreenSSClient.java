@@ -1,7 +1,7 @@
 package dev.isxander.splitscreen.server;
 
-import dev.isxander.splitscreen.SplitscreenBootstrapper;
-import dev.isxander.splitscreen.host.SplitscreenController;
+import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
+import dev.isxander.splitscreen.client.host.SplitscreenController;
 import dev.isxander.splitscreen.server.login.SplitscreenLoginFlowClient;
 import dev.isxander.splitscreen.server.play.sound.ClientboundBundledSoundEntityPacket;
 import dev.isxander.splitscreen.server.play.sound.ClientboundBundledSoundPacket;
@@ -9,6 +9,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.network.protocol.game.ClientboundSoundEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 
+/**
+ * Class name is abbreviated Splitscreen Server-side (Client).
+ * It's the client-side main class of all server-side functionality.
+ */
 public class SplitscreenSSClient {
     public static void init() {
         SplitscreenSSServer.init();

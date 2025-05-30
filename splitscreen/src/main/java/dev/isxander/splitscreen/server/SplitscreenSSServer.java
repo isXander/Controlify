@@ -12,6 +12,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Class name is abbreviated Splitscreen Server-side (Server)
+ * It's the server-side main class of all networking stuff to provide server-side features.
+ */
 public class SplitscreenSSServer {
     private static final Map<Class<?>, PacketBundler<?, ?>> BUNDLERS = new HashMap<>();
 

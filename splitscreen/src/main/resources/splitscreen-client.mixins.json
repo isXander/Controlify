@@ -1,0 +1,36 @@
+{
+  "package": "dev.isxander.splitscreen.client.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0-rc.2"
+  },
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "core.IntegratedServerMixin",
+    "core.MinecraftMixin",
+    "core.WindowAccessor",
+    "engine.reparent.MinecraftMixin",
+    "engine.reparent.ScreenManagerAccessor",
+    "engine.reparent.VirtualScreenAccessor",
+    "engine.reparent.WindowMixin",
+    "followingame.ClientPacketListenerMixin",
+    "followingame.ConnectScreenMixin",
+    "followingame.IntegratedServerMixin",
+    "followingame.QuickPlayMixin",
+    "framethrottle.FramerateLimitTrackerMixin",
+    "relaunch.MainMixin",
+    "screenop.MinecraftMixin",
+    "screenop.OptionsScreenMixin",
+    "screenop.ScreenMixin"
+  ],
+  "mixins": [
+    "controlify.ControlifyConfigMixin",
+    "controlify.ControlifyMixin",
+    "core.ConnectionMixin",
+    "engine.reparent.InputConstantsMixin"
+  ]
+}

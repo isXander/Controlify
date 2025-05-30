@@ -4,6 +4,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
+/**
+ * Send to ONLY splitscreen controller clients after they have successfully authenticated
+ * with Mojang and the server is about to switch to configuration phase.
+ * This gives them the nonce that it can distribute to its remote pawns for their connections.
+ * The server waits for {@link ServerboundNonceAckPacket}.
+ */
 public record ClientboundNoncePacket(byte[] nonce) implements CodedPacket<ClientboundNoncePacket> {
 
     public static final int NONCE_SIZE_BITS = 128;

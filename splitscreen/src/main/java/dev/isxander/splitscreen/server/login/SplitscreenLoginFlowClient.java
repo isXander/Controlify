@@ -1,14 +1,14 @@
 package dev.isxander.splitscreen.server.login;
 
 import com.mojang.logging.LogUtils;
-import dev.isxander.splitscreen.SplitscreenBootstrapper;
-import dev.isxander.splitscreen.config.SplitscreenConfig;
-import dev.isxander.splitscreen.host.SplitscreenController;
-import dev.isxander.splitscreen.host.gui.SplitscreenDisconnectedScreen;
-import dev.isxander.splitscreen.mixins.server.login.ClientHandshakePacketListenerImplAccessor;
-import dev.isxander.splitscreen.mixins.server.login.DisconnectedScreenAccessor;
-import dev.isxander.splitscreen.relauncher.RelaunchArguments;
-import dev.isxander.splitscreen.remote.RemotePawnMain;
+import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
+import dev.isxander.splitscreen.client.config.SplitscreenConfig;
+import dev.isxander.splitscreen.client.host.SplitscreenController;
+import dev.isxander.splitscreen.client.host.gui.SplitscreenDisconnectedScreen;
+import dev.isxander.splitscreen.server.mixins.login.ClientHandshakePacketListenerImplAccessor;
+import dev.isxander.splitscreen.server.mixins.login.DisconnectedScreenAccessor;
+import dev.isxander.splitscreen.client.features.relaunch.RelaunchArguments;
+import dev.isxander.splitscreen.client.remote.RemotePawnMain;
 import dev.isxander.splitscreen.server.login.packets.ClientboundIdentifyPacket;
 import dev.isxander.splitscreen.server.login.packets.ClientboundNoncePacket;
 import dev.isxander.splitscreen.server.login.packets.ServerboundIdentifyPacket;

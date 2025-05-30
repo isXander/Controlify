@@ -1,0 +1,30 @@
+{
+  "package": "dev.isxander.splitscreen.server.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0-rc.2"
+  },
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "login.ClientHandshakePacketListenerImplAccessor",
+    "login.DisconnectedScreenAccessor",
+    "status.ServerDataMixin",
+    "status.ServerSelectionList$OnlineServerEntryMixin",
+    "status.ServerStatusPingerListenerMixin"
+  ],
+  "mixins": [
+    "login.MemoryServerHandshakePacketListenerImplMixin",
+    "login.PlayerListMixin",
+    "login.ServerConfigurationPacketListenerImplMixin",
+    "login.ServerGamePacketListenerImplMixin",
+    "login.ServerLoginPacketListenerImplMixin",
+    "login.ServerPlayerMixin",
+    "play.PlayerListMixin",
+    "status.MinecraftServerMixin",
+    "status.ServerStatusMixin"
+  ]
+}

@@ -10,6 +10,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
+/**
+ * Data that the client sends to the server in response to {@link dev.isxander.splitscreen.server.login.packets.ClientboundIdentifyPacket}
+ * within {@link dev.isxander.splitscreen.server.login.packets.ServerboundIdentifyPacket}.
+ * Describes if the client attempting to connect is a controller or a pawn, and specialised data
+ * relevant to that.
+ */
 public sealed interface ClientIdentification {
     record Controller(int subPlayerCount, SplitscreenServerSharedConfig config) implements ClientIdentification {
         public static final StreamCodec<FriendlyByteBuf, Controller> STREAM_CODEC = StreamCodec.composite(

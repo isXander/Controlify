@@ -9,6 +9,12 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 import java.util.function.BiFunction;
 
+/**
+ * Registered in {@link SplitscreenSSServer}, it implements how to turn a packet meant for
+ * multiple clients into a single packet sent to the controller within a splitscreen system.
+ * @param <T> the unbundled packet (input)
+ * @param <B> the bundled packet (output)
+ */
 public interface PacketBundler<T extends Packet<?>, B extends CustomPacketPayload> {
     Class<T> packetClass();
 

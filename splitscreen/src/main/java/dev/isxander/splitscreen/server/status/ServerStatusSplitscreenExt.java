@@ -14,6 +14,13 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
+/**
+ * Additional data attached to {@link ServerStatus} that the server sends when clients ping them.
+ * <p>
+ * An additional object is serialized in the {@link ServerStatus} JSON with the key <code>isxander_splitscreen</code>.
+ * @param supportedProtocols a list of all the splitscreen protocols this server supports
+ * @param maxSubPlayers the amount of sub-players a single client is permitted to join with
+ */
 public record ServerStatusSplitscreenExt(int[] supportedProtocols, int maxSubPlayers) {
     public static final ResourceLocation SPLITSCREEN_SUPPORTED_SPRITE = CSUtil.rl("splitscreen_supported");
     public static final ResourceLocation SPLITSCREEN_UNSUPPORTED_SPRITE = CSUtil.rl("splitscreen_unsupported");
@@ -28,7 +35,7 @@ public record ServerStatusSplitscreenExt(int[] supportedProtocols, int maxSubPla
                     )
                     .apply(instance, ServerStatusSplitscreenExt::new)
     );
-    public static final Codec<Optional<ServerStatusSplitscreenExt>> CODEC_FIELD_OPT = CODEC.lenientOptionalFieldOf("controlify:splitscreen").codec();
+    public static final Codec<Optional<ServerStatusSplitscreenExt>> CODEC_FIELD_OPT = CODEC.lenientOptionalFieldOf("isxander_splitscreen").codec();
 
     public static final ThreadLocal<ServerStatusSplitscreenExt> inProgressParam = new ThreadLocal<>();
 
