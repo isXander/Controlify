@@ -44,6 +44,9 @@ public class ControlifyServer {
     }
 
     private void setServerPolicy(ServerPolicies policy, ServerPlayer player, boolean option) {
+        // only mandate something if it differs from the default
+        if (option == policy.getUnsetValue()) return;
+
         SidedNetworkApi.S2C().sendPacket(
                 player,
                 ServerPolicyPacket.CHANNEL,
