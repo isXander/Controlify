@@ -62,7 +62,7 @@ public class SplitscreenLoginFlowServer {
      */
     public static void startIdentifyFlow(ServerLoginPacketListenerImpl listener0, Connection connection, ServerboundHelloPacket helloPacket) {
         // crude impl way to send packets outside of listeners and FAPI events
-        LoginPacketSender sender0 = ServerNetworkingImpl.getAddon(listener0);
+        LoginPacketSender sender0 = ServerLoginNetworking.getSender(listener0);
 
         // send that identify packet
         sender0.sendPacket(CHANNEL_IDENTIFY, new ClientboundIdentifyPacket(PROTOCOL_VERSION).encode());
@@ -190,7 +190,7 @@ public class SplitscreenLoginFlowServer {
     public static boolean onLoginComplete(ServerLoginPacketListenerImpl listener, GameProfile profile) {
         ListenerState state = state(listener);
         @Nullable ClientIdentification identification = state.identification;
-        LoginPacketSender sender = ServerNetworkingImpl.getAddon(listener);
+        LoginPacketSender sender = ServerLoginNetworking.getSender(listener);
 
         LOGGER.info("Saved client identification {}", identification);
 
