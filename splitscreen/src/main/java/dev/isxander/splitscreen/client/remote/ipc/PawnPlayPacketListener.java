@@ -3,7 +3,6 @@ package dev.isxander.splitscreen.client.remote.ipc;
 import com.mojang.logging.LogUtils;
 import dev.isxander.splitscreen.client.LocalSplitscreenPawn;
 import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.ControllerboundKeepAlivePacket;
-import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.splitscreen.client.ipc.packets.pawnbound.common.PawnboundDisconnectPacket;
 import dev.isxander.splitscreen.client.ipc.packets.pawnbound.play.*;
 import dev.isxander.splitscreen.client.remote.RemotePawnMain;

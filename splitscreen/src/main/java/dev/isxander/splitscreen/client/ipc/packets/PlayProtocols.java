@@ -1,12 +1,8 @@
 package dev.isxander.splitscreen.client.ipc.packets;
 
-import dev.isxander.controlify.splitscreen.ipc.packets.pawnbound.play.*;
-import dev.isxander.controlify.splitscreen.ipc.packets.controllerbound.play.*;
 import dev.isxander.splitscreen.client.host.ipc.ControllerPlayPacketListener;
 import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.*;
 import dev.isxander.splitscreen.client.ipc.packets.pawnbound.play.*;
-import dev.isxander.splitscreen.ipc.packets.controllerbound.play.*;
-import dev.isxander.splitscreen.ipc.packets.pawnbound.play.*;
 import dev.isxander.splitscreen.client.remote.ipc.PawnPlayPacketListener;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.FriendlyByteBuf;
