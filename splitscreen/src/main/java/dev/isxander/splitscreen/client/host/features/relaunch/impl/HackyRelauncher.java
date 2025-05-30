@@ -37,6 +37,14 @@ public class HackyRelauncher {
         String joinedGameArgs = programArgs.substring(mainClass.length()).trim();
         List<String> gameArgs = splitGameArgs(joinedGameArgs);
 
+        // make sure to clean the gameargs of the access token since the other players can't log in twice anyway.
+        int accessTokenIndex = gameArgs.indexOf("--accessToken");
+        if (accessTokenIndex != -1) {
+            gameArgs.remove(accessTokenIndex);
+            // remove the actual token which is a separate element in the list
+            gameArgs.remove(accessTokenIndex);
+        }
+
         List<String> jvmArgs = RelaunchUtil.findJVMArgs();
         String classpath = RelaunchUtil.findClasspath();
 
