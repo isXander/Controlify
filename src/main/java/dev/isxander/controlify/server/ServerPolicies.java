@@ -30,6 +30,10 @@ public enum ServerPolicies {
         };
     }
 
+    public boolean getUnsetValue() {
+        return unsetValue;
+    }
+
     public boolean isUnset() {
         return value == ServerPolicy.UNSET;
     }
