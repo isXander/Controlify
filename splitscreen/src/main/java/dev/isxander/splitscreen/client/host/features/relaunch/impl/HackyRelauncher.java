@@ -70,6 +70,7 @@ public class HackyRelauncher {
                         m.group(1),
                         m.group(2).trim()
                 ))
+                .map(RelaunchUtil::quoteArg)
                 .toList();
     }
 

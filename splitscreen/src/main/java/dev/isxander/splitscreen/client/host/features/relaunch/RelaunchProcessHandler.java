@@ -3,6 +3,7 @@ package dev.isxander.splitscreen.client.host.features.relaunch;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.splitscreen.client.host.RemoteSplitscreenPawn;
 import dev.isxander.splitscreen.client.host.SplitscreenController;
+import dev.isxander.splitscreen.client.host.features.relaunch.impl.FabricLoaderRelauncher;
 import dev.isxander.splitscreen.client.host.util.LANUtil;
 import dev.isxander.splitscreen.client.ipc.IPCMethod;
 import dev.isxander.splitscreen.client.host.features.relaunch.impl.HackyRelauncher;
@@ -10,6 +11,7 @@ import dev.isxander.splitscreen.client.host.features.relaunch.impl.PrismRelaunch
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchArguments;
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchException;
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchQuickPlayFormat;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import org.apache.commons.codec.binary.Hex;
@@ -32,7 +34,8 @@ public class RelaunchProcessHandler {
     private @Nullable RemoteSplitscreenPawn pawn;
 
     public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, SplitscreenController splitscreenController, int pawnIndex, IPCMethod ipcMethod) {
-        LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
+        boolean isDevLaunchInjector = FabricLoader.getInstance().isDevelopmentEnvironment();
+        LaunchInfo launchInfo = !isDevLaunchInjector ? FabricLoaderRelauncher.getLaunchInfo() : PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
         Path argFile;
         try {

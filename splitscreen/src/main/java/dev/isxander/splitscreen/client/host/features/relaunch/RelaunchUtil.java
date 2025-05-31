@@ -2,6 +2,7 @@ package dev.isxander.splitscreen.client.host.features.relaunch;
 
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchException;
 import dev.isxander.controlify.utils.Platform;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
@@ -55,5 +56,48 @@ public class RelaunchUtil {
 
     public static Path findWorkingDirectory() {
         return Path.of(System.getProperty("user.dir"));
+    }
+
+    // https://github.com/FabricMC/fabric-loom/blob/b37c4d3474fccd30f69beb25a20cc84da94f0574/src/main/java/net/fabricmc/loom/task/AbstractRunTask.java#L173-L198
+    public static String quoteArg(String arg) {
+        final String specials = " #'\"\n\r\t\f";
+
+        if (!containsAnyChar(arg, specials)) {
+            return arg;
+        }
+
+        final StringBuilder sb = new StringBuilder(arg.length() * 2);
+
+        for (int i = 0; i < arg.length(); i++) {
+            char c = arg.charAt(i);
+
+            switch (c) {
+                case ' ', '#', '\'' -> sb.append('"').append(c).append('"');
+                case '"' -> sb.append("\"\\\"\"");
+                case '\n' -> sb.append("\"\\n\"");
+                case '\r' -> sb.append("\"\\r\"");
+                case '\t' -> sb.append("\"\\t\"");
+                case '\f' -> sb.append("\"\\f\"");
+                default -> sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    private static boolean containsAnyChar(@NotNull String value, @NotNull String chars) {
+        return chars.length() > value.length()
+                ? containsAnyChar(value, chars, 0, value.length())
+                : containsAnyChar(chars, value, 0, chars.length());
+    }
+
+    private static boolean containsAnyChar(final @NotNull String value, final @NotNull String chars, final int start, final int end) {
+        for (int i = start; i < end; i++) {
+            if (chars.indexOf(value.charAt(i)) >= 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

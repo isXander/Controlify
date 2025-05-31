@@ -6,6 +6,7 @@ import dev.isxander.splitscreen.client.host.features.relaunch.RelaunchUtil;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class PrismRelauncher {
     private static final boolean IS_PRISM = System.getProperty("org.prismlauncher.launch.mainclass") != null;
@@ -31,7 +32,9 @@ public class PrismRelauncher {
         String mainClass = System.getProperty("org.prismlauncher.launch.mainclass");
         // the program arguments prism is passing to the main class
         // delimited by \u001F, the ASCII unit separator
-        List<String> gameArgs = List.of(System.getProperty("org.prismlauncher.launch.gameargs").split("\u001F"));
+        List<String> gameArgs = Stream.of(System.getProperty("org.prismlauncher.launch.gameargs").split("\u001F"))
+                .map(RelaunchUtil::quoteArg)
+                .toList();
 
         List<String> jvmArgs = RelaunchUtil.findJVMArgs();
 
