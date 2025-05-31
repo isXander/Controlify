@@ -22,6 +22,7 @@
     "followingame.IntegratedServerMixin",
     "followingame.QuickPlayMixin",
     "framethrottle.FramerateLimitTrackerMixin",
+    "music.MusicManagerMixin",
     "relaunch.MainMixin",
     "screenop.MinecraftMixin",
     "screenop.OptionsScreenMixin",

@@ -1,15 +1,14 @@
 package dev.isxander.splitscreen.client.remote;
 
 import dev.isxander.splitscreen.client.ControllerBridge;
-import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.ControllerboundEngineCustomPayloadPacket;
-import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.ControllerboundGiveMeFocusIfForegroundPacket;
-import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.ControllerboundServerDisconnectedPacket;
-import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.ControllerboundSignalReadyPacket;
+import dev.isxander.splitscreen.client.ipc.packets.controllerbound.play.*;
 import dev.isxander.splitscreen.client.engine.impl.reparenting.wm.WindowManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.sounds.Music;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A bridge to communicate with the controller client from a remote client.
@@ -43,6 +42,11 @@ public class RemoteControllerBridge implements ControllerBridge {
     @Override
     public void serverDisconnected(Component reason) {
         this.connection.send(new ControllerboundServerDisconnectedPacket(reason));
+    }
+
+    @Override
+    public void requestPlayMusic(@Nullable Music music, float volume) {
+        this.connection.send(new ControllerboundRequestPlayMusicPacket(music, volume));
     }
 
     public void sendEnginePayload(CustomPacketPayload payload) {

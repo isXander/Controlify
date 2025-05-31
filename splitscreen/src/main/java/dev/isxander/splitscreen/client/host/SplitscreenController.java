@@ -2,6 +2,7 @@ package dev.isxander.splitscreen.client.host;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.host.features.music.PawnMusicManager;
 import dev.isxander.splitscreen.client.host.features.relaunch.PendingRelaunchClientStatus;
 import dev.isxander.splitscreen.client.config.SplitscreenConfig;
 import dev.isxander.splitscreen.client.engine.HostSplitscreenEngine;
@@ -43,6 +44,8 @@ public class SplitscreenController  {
 
     private final HostSplitscreenEngine splitscreenEngine;
 
+    private final PawnMusicManager pawnMusicManager;
+
     private final Map<ControllerUID, RelaunchProcessHandler> relaunchProcessHandlers = new HashMap<>();
     private final Map<ControllerUID, PendingRelaunchClientStatus> pendingRelaunchClients = new HashMap<>();
     private @Nullable SplitscreenFakeReloadInstance splitscreenLoaderStatus = null;
@@ -54,6 +57,7 @@ public class SplitscreenController  {
         this.connectionListener = new ControllerConnectionListener(ipcMethod, this, minecraft);
         this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft, associatedController)); // control ourselves as a pawn
         this.splitscreenEngine = HostSplitscreenEngine.create(this.minecraft, associatedController);
+        this.pawnMusicManager = new PawnMusicManager();
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
             this.connectionListener.tick();
@@ -185,6 +189,10 @@ public class SplitscreenController  {
 
     public void updateSplitscreenMode() {
         this.setSplitscreenMode(ScreenSplitscreenModeRegistry.getMode(this.minecraft.screen));
+    }
+
+    public PawnMusicManager getPawnMusicManager() {
+        return this.pawnMusicManager;
     }
 
     /**

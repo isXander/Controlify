@@ -1,6 +1,8 @@
 package dev.isxander.splitscreen.client;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.Music;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Facilitates communication between a client and the controller.
@@ -25,4 +27,9 @@ public interface ControllerBridge extends Bridge {
      * @param reason The reason for disconnection, if any.
      */
     void serverDisconnected(Component reason);
+
+    /**
+     * The client's music manager has attempted to play a track.
+     */
+    void requestPlayMusic(@Nullable Music music, float volume);
 }

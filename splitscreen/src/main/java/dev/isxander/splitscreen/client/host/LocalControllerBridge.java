@@ -2,9 +2,11 @@ package dev.isxander.splitscreen.client.host;
 
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.splitscreen.client.ControllerBridge;
+import dev.isxander.splitscreen.client.SplitscreenPawn;
 import dev.isxander.splitscreen.client.host.gui.SplitscreenDisconnectedScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.Music;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -56,6 +58,15 @@ public class LocalControllerBridge implements ControllerBridge {
 
     public void signalRemoteClientReady(boolean finished, float progress, RemoteSplitscreenPawn pawn, @Nullable ControllerUID associatedController) {
         this.controller.onPawnReadySignal(finished, progress, pawn, associatedController);
+    }
+
+    @Override
+    public void requestPlayMusic(@Nullable Music music, float volume) {
+        this.requestPlayMusicRemote(music, volume, this.controller.getLocalPawn());
+    }
+
+    public void requestPlayMusicRemote(@Nullable Music music, float volume, SplitscreenPawn pawn) {
+        this.controller.getPawnMusicManager().onRequest(music, volume, pawn);
     }
 
     @Override

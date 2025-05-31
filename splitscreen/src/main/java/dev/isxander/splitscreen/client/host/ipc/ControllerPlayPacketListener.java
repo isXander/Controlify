@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ServerPacketListener;
 import org.slf4j.Logger;
 
@@ -32,14 +33,13 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleHello(ControllerboundHelloPacket packet) {
-        // queue on the main thread to prevent race conditions when getting the next pawn index
-        this.minecraft.execute(() -> {
-            this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.controller());
-            this.controller.addPawn(this.pawnInstance);
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
 
-            // initiate keep alive chain
-            this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
-        });
+        this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.controller());
+        this.controller.addPawn(this.pawnInstance);
+
+        // initiate keep alive chain
+        this.connection.send(PawnboundKeepAlivePacket.INSTANCE);
     }
 
     public void handleGiveChildFocusIfForeground(ControllerboundGiveMeFocusIfForegroundPacket packet) {
@@ -49,9 +49,9 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
-        this.minecraft.execute(() -> {
-            this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
-        });
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
+        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
@@ -59,15 +59,21 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
-        this.minecraft.execute(() -> {
-            this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
-        });
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
+        this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
     }
 
     public void handleServerDisconnected(ControllerboundServerDisconnectedPacket packet) {
-        this.minecraft.execute(() -> {
-            this.controller.getControllerBridge().serverDisconnectedRemote(packet.disconnectReason(), pawnInstance);
-        });
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
+        this.controller.getControllerBridge().serverDisconnectedRemote(packet.disconnectReason(), this.pawnInstance);
+    }
+
+    public void handleRequestMusic(ControllerboundRequestPlayMusicPacket packet) {
+        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+
+        this.controller.getControllerBridge().requestPlayMusicRemote(packet.music().orElse(null), packet.volume(), this.pawnInstance);
     }
 
     @Override
