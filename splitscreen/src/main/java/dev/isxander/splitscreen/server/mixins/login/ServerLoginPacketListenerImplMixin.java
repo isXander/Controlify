@@ -6,12 +6,14 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import dev.isxander.splitscreen.server.login.LoginListenerStateHolder;
 import dev.isxander.splitscreen.server.login.SplitscreenLoginFlowServer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.login.ClientboundHelloPacket;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
@@ -115,16 +117,20 @@ public abstract class ServerLoginPacketListenerImplMixin implements LoginListene
     /**
      * Delegate this until the splitscreen login flow is complete.
      * We re-run this in {@link #checkIfLoginCanComplete(CallbackInfo)} (on tick).
+     * <p>
+     * Wrapping the packet send operation rather than the method so the vanilla can set the state to PROTOCOL_SWITCHING
+     * instead of potentially WAITING_FOR_DUPE_DISCONNECT which would cause a run every tick.
      * @param profile the profile associated with this login
      * @param original the original method body
      */
-    @WrapMethod(method = "finishLoginAndWaitForClient")
-    private void onLoginComplete(GameProfile profile, Operation<Void> original) {
-        if (firstFinishLoginPass && SplitscreenLoginFlowServer.onLoginComplete((ServerLoginPacketListenerImpl) (Object) this, profile)) {
+    @WrapOperation(method = "finishLoginAndWaitForClient", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;)V"))
+    private void onLoginComplete(Connection instance, Packet<?> packet, Operation<Void> original, @Local(argsOnly = true) GameProfile profile) {
+        var targetThis = (ServerLoginPacketListenerImpl) (Object) this;
+        if (firstFinishLoginPass && SplitscreenLoginFlowServer.onLoginComplete(targetThis, profile)) {
             firstFinishLoginPass = false;
         } else {
             finishedFinishLogin = true;
-            original.call(profile);
+            original.call(instance, packet);
         }
     }
 

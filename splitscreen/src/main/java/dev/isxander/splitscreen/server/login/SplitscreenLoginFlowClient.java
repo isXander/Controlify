@@ -5,6 +5,7 @@ import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.client.config.SplitscreenConfig;
 import dev.isxander.splitscreen.client.host.SplitscreenController;
 import dev.isxander.splitscreen.client.host.gui.SplitscreenDisconnectedScreen;
+import dev.isxander.splitscreen.client.host.util.LANUtil;
 import dev.isxander.splitscreen.server.mixins.login.ClientHandshakePacketListenerImplAccessor;
 import dev.isxander.splitscreen.server.mixins.login.DisconnectedScreenAccessor;
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchArguments;
@@ -15,6 +16,7 @@ import dev.isxander.splitscreen.server.login.packets.ServerboundIdentifyPacket;
 import dev.isxander.splitscreen.server.login.packets.ServerboundNonceAckPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import org.slf4j.Logger;
 
@@ -78,10 +80,13 @@ public class SplitscreenLoginFlowClient {
 
                     controllerOpt.get().getLocalPawn().setLastLoginNonce(nonce);
 
+                    ServerAddress address;
                     if (!client.hasSingleplayerServer()) {
-                        ServerAddress address = ServerAddress.parseString(((ClientHandshakePacketListenerImplAccessor) listener).getServerData().ip);
-                        controller.forEachPawn(pawn -> pawn.joinServer(address.getHost(), address.getPort(), controller.getLocalPawn().getLastLoginNonce()));
+                        address = ServerAddress.parseString(((ClientHandshakePacketListenerImplAccessor) listener).getServerData().ip);
+                    } else {
+                        address = LANUtil.getOrPublishLANServer(client.getSingleplayerServer());
                     }
+                    controller.forEachPawn(pawn -> pawn.joinServer(address.getHost(), address.getPort(), controller.getLocalPawn().getLastLoginNonce()));
 
                     return CompletableFuture.completedFuture(new ServerboundNonceAckPacket().encode());
                 });

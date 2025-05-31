@@ -6,7 +6,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -53,8 +55,9 @@ public sealed interface SplitscreenPlayerInfo {
         }
 
         public List<ServerPlayer> subPlayers() {
-            return Stream.of(subPlayerProfiles)
+            return Stream.of(subPlayerProfiles())
                     .map(profile -> server.getPlayerList().getPlayer(profile.getId()))
+                    .filter(Objects::nonNull) // race condition from sound playing immediately after the controller logs in, before the pawns have got player objects
                     .toList();
         }
 

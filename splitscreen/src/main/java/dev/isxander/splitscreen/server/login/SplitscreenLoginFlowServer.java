@@ -305,8 +305,8 @@ public class SplitscreenLoginFlowServer {
         }
 
         public boolean canFinishLogin() {
-            return (identification instanceof ClientIdentification.Controller && nonceAck) ||
-                    controllerState.allDone().isDone();
+            return controllerState.allDone().isDone() &&
+                    (!(identification instanceof ClientIdentification.Controller) || nonceAck);
         }
     }
 
