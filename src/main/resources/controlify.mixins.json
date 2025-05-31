@@ -39,6 +39,7 @@
     "feature.oofinput.GameRendererMixin",
     "feature.patches.boatfix.BoatMixin",
     "feature.patches.boatfix.LocalPlayerMixin",
+    "feature.patches.sprintfix.LocalPlayerMixin",
     "feature.reacharound.GameRendererMixin",
     "feature.rumble.MinecraftMixin",
     "feature.rumble.blockbreak.MultiPlayerGameModeMixin",
