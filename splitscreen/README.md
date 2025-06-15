@@ -105,12 +105,14 @@ The splitscreen implementation follows a client-server architecture:
 ## Component Interactions
 
 1. **Initialization**:
+
    - SplitscreenEntrypoint calls SplitscreenBootstrapper.bootstrap()
    - SplitscreenBootstrapper determines whether to become a controller or pawn
    - If controller, creates SplitscreenController and sets up IPC server
    - If pawn, creates PawnConnectionListener and connects to controller
 
 2. **Window Management**:
+
    - Controller creates `ParentWindow`
    - Each pawn's window is embedded in the ParentWindow using `WindowManager`
    - `SplitscreenPosition` determines the layout of each pawn's window
@@ -155,3 +157,5 @@ The codebase is organized into several packages:
 - `dev.isxander.controlify.splitscreen.remote`: Remote pawn-side classes
 - `dev.isxander.controlify.splitscreen.ipc`: IPC system
 - `dev.isxander.controlify.splitscreen.window`: Window management
+
+## Build
