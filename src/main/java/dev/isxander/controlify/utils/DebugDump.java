@@ -22,7 +22,7 @@ public class DebugDump {
         dump.line("CONTROLIFY DEBUG DUMP - ", formattedDate, '\n');
 
         dump.line("Controlify version: ", PlatformMainUtil.getControlifyVersion());
-        dump.line("Minecraft version: ", SharedConstants.getCurrentVersion()/*? if >=1.21.6 {*/ /*.name() *//*?} else {*/ .getName() /*?}*/);
+        dump.line("Minecraft version: ", SharedConstants.getCurrentVersion()/*? if >=1.21.6 {*/ .name() /*?} else {*/ /*.getName() *//*?}*/);
 
         if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
             dump.line("Client").pushIndent();

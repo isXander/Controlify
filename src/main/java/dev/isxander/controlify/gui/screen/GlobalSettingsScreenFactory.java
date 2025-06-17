@@ -30,7 +30,7 @@ public class GlobalSettingsScreenFactory {
         var globalSettings = Controlify.instance().config().globalSettings();
         AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
 
-        boolean is12106OrLater = /*? if >=1.21.6 {*/ /*true *//*?} else {*/ false /*?}*/;;
+        boolean is12106OrLater = /*? if >=1.21.6 {*/ true /*?} else {*/ /*false *//*?}*/;;
 
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))

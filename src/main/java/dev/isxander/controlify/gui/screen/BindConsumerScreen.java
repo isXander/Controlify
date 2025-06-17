@@ -40,19 +40,22 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         var pose = CGuiPose.ofPush(guiGraphics);
         // text renders with z > 0 so push everything back so text doesn't pop through fill
         //? if <1.21.6
-        guiGraphics.pose().translate(0, 0, -20);
+        /*guiGraphics.pose().translate(0, 0, -20);*/
 
         backgroundScreen.render(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
 
         pose.pop();
-        //? if >=1.21.6
-        /*guiGraphics.nextStratum();*/
+
+        pose.push();
+        pose.nextLayer(1000f);
 
         // darken everything except the widget
         guiGraphics.fill(0, 0, width, dim.y() - 1, 0x80000000);
         guiGraphics.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
         guiGraphics.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
         guiGraphics.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
+
+        pose.pop();
 
         super.render(guiGraphics, mouseX, mouseY, tickDelta);
     }
