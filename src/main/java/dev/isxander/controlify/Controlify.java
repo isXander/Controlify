@@ -26,6 +26,7 @@ import dev.isxander.controlify.driver.sdl.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
@@ -220,7 +221,7 @@ public class Controlify implements ControlifyApi {
                 );
             } else {
                 probeMode = true;
-                PlatformClientUtil.registerClientTickEnded(client -> this.probeTick());
+                PlatformClientUtil.registerClientTickEnded(TickEvent.interval(20, client -> this.probeTick()));
             }
         } else {
             finishControlifyInit();
