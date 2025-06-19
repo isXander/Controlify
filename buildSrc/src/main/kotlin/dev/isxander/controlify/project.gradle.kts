@@ -62,9 +62,9 @@ modstitch.apply {
 
 repositories {
     maven("https://maven.terraformersmc.com")
+    maven("https://maven.quiltmc.org/repository/release")
     maven("https://maven.isxander.dev/releases")
     maven("https://maven.isxander.dev/snapshots")
-    maven("https://maven.quiltmc.org/repository/release")
 }
 
 /*
