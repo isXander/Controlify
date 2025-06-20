@@ -12,6 +12,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
+import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.ColorUtils;
@@ -44,7 +45,9 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
     public static final ResourceLocation CHECKMARK = ResourceLocation.withDefaultNamespace("icon/checkmark");
@@ -131,25 +134,40 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         ControllerEntity prevSelectedController;
         if (carouselEntries != null && !carouselEntries.isEmpty()) {
             carouselEntries.forEach(this::removeWidget);
-            prevSelectedController = carouselEntries.get(carouselIndex).controller;
+            CarouselEntry prevEntry = carouselEntries.get(carouselIndex);
+            if (prevEntry instanceof ControllerCarouselEntry cce) {
+                prevSelectedController = cce.controller;
+            } else {
+                prevSelectedController = null;
+            }
         } else {
             prevSelectedController = null;
         }
 
-        carouselEntries = controllerManager.getConnectedControllers().stream()
-                .map(c -> new CarouselEntry(c, this.width / 3, this.height - 66))
-                .peek(this::addRenderableWidget)
-                .toList();
+        carouselEntries = new ArrayList<>();
+
+        controllerManager.getConnectedControllers().stream()
+                .map(c -> new ControllerCarouselEntry(c, this.width / 3, this.height - 66))
+                .forEach(entry -> {
+                    carouselEntries.add(entry);
+                });
         carouselIndex = carouselEntries.stream()
-                .filter(e -> e.controller == prevSelectedController)
+                .filter(e -> (e instanceof ControllerCarouselEntry ce && ce.controller == prevSelectedController) || (prevSelectedController == null && e instanceof KBMControllerCarouselEntry))
                 .findFirst()
                 .map(carouselEntries::indexOf)
                 .orElse(Controlify.instance().getCurrentController()
                         .map(c -> controllerManager.getConnectedControllers().indexOf(c))
                         .orElse(0)
                 );
-        if (!carouselEntries.isEmpty())
+        if (!carouselEntries.isEmpty()) {
+            // insert the keyboard & mouse entry at the start
+            // but only do it if there are other options available
+            // so we can show the controllerNotDetected UI
+            carouselEntries.addFirst(new KBMControllerCarouselEntry(this.width / 3, this.height - 66));
+
+            carouselEntries.forEach(this::addRenderableWidget);
             carouselEntries.get(carouselIndex).overlayColor = 0;
+        }
 
         float offsetX = (this.width / 2f) * -(carouselIndex - 1) - this.width / 6f;
         for (int i = 0; i < carouselEntries.size(); i++) {
@@ -226,16 +244,13 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         minecraft.setScreen(parent);
     }
 
-    private class CarouselEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+    private abstract class CarouselEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
         private int x, y;
         private final int width, height;
         private float translationX, translationY;
 
-        private final ControllerEntity controller;
-        private final boolean hasNickname;
-
-        private final Button useControllerButton;
-        private final Button settingsButton;
+        private final Button useButton;
+        private final @Nullable Button settingsButton;
         private final ImmutableList<? extends GuiEventListener> children;
 
         private boolean prevUse;
@@ -246,31 +261,40 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         private boolean hovered = false;
 
-        private final boolean badSteamDeck;
-
-        private CarouselEntry(ControllerEntity controller, int width, int height) {
+        private CarouselEntry(int width, int height) {
             this.width = width;
             this.height = height;
 
-            this.controller = controller;
-            this.hasNickname = this.controller.genericConfig().config().nickname != null;
+            int buttonWidth = this.hasSettingsButton() ? (getWidth() / 2) / 2 - 2 : getWidth() - 4;
+            this.settingsButton = !this.hasSettingsButton() ? null : Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), this::onSettingsButtonPressed).width(buttonWidth).build();
+            this.useButton = Button.builder(Component.empty(), this::onUseButtonPressed).width(buttonWidth).build();
 
-            this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller))).width((getWidth() - 2) / 2 - 2).build();
-            this.useControllerButton = Button.builder(Component.empty(), btn -> onUseStopUsingButton()).width(settingsButton.getWidth()).build();
             updateUseStopUsingButton();
-            this.children = ImmutableList.of(settingsButton, useControllerButton);
+            this.children = this.hasSettingsButton() ? ImmutableList.of(settingsButton, useButton) : ImmutableList.of(useButton);
 
             this.prevUse = isCurrentlyUsed();
             this.currentlyUsedPos = prevUse ? 1 : 0;
+        }
 
-            // Check if the Steam Deck is loaded but not with dedicated driver (the component is only provided by the dedicated driver)
-            this.badSteamDeck = controller.info().type().isSteamDeck()
-                                && controller.getComponent(SteamDeckComponent.ID).isEmpty();
+        protected abstract Component getName();
+        protected abstract Optional<Component> getNickname();
+
+        protected abstract ResourceLocation getIconSprite();
+
+        protected abstract boolean hasSettingsButton();
+        protected abstract void onSettingsButtonPressed(Button button);
+
+        protected abstract boolean isCurrentlyUsed();
+        protected abstract void onUseButtonPressed();
+
+        protected void doExtraRendering(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         }
 
         @Override
         public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             hovered = isMouseOver(mouseX, mouseY);
+
+            boolean hasNickname = getNickname().isPresent();
 
             graphics.enableScissor(x, y, x + width + (translationX > 0 ? 1 : 0), y + height + (translationY > 0 ? 1 : 0));
 
@@ -280,17 +304,15 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
             graphics.renderOutline(x, y, width, height, 0x5AFFFFFF);
-            useControllerButton.render(graphics, mouseX, mouseY, delta);
-            settingsButton.render(graphics, mouseX, mouseY, delta);
-
-            graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight - (hasNickname ? font.lineHeight + 1 : 0), 0xFFFFFF);
-            if (hasNickname) {
-                GenericControllerConfig config = this.controller.genericConfig().config();
-                String nickname = config.nickname;
-                config.nickname = null;
-                graphics.drawCenteredString(font, controller.name(), x + width / 2, y + height - 26 - font.lineHeight, 0xAAAAAA);
-                config.nickname = nickname;
+            useButton.render(graphics, mouseX, mouseY, delta);
+            if (this.hasSettingsButton()) {
+                settingsButton.render(graphics, mouseX, mouseY, delta);
             }
+
+            graphics.drawCenteredString(font, this.getName(), x + width / 2, y + height - 26 - font.lineHeight - (hasNickname ? font.lineHeight + 1 : 0), 0xFFFFFFFF);
+            this.getNickname().ifPresent(nickname -> {
+                graphics.drawCenteredString(font, nickname, x + width / 2, y + height - 26 - font.lineHeight, 0xFFAAAAAA);
+            });
 
             Component currentlyInUseText = Component.translatable("controlify.gui.carousel.entry.in_use").withStyle(ChatFormatting.GREEN);
             pose.push();
@@ -300,10 +322,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 ClientUtils.drawSprite(graphics, CHECKMARK, x + 4, y + 4, 9, 8);
                 graphics.drawString(font, currentlyInUseText, x + 17, y + 4, -1);
             }
-            if (badSteamDeck) {
-                ClientUtils.drawSprite(graphics, DANGER, x + 4, y + 4 + 10, 9, 8);
-                graphics.drawString(font, Component.translatable("controlify.steam_deck_no_driver"), x + 17, y + 4 + 10, -1);
-            }
+            this.doExtraRendering(graphics, mouseX, mouseY, delta);
 
             pose.pop();
 
@@ -315,7 +334,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             pose.push();
             pose.translate(x + width / 2f - iconSize / 2f, y + font.lineHeight + 12 + iconHeight / 2f - iconSize / 2f);
             pose.scale(iconSize / 64f, iconSize / 64f);
-            ClientUtils.drawSprite(graphics, controller.info().type().getIconSprite(), 0, 0, 64, 64);
+            ClientUtils.drawSprite(graphics, this.getIconSprite(), 0, 0, 64, 64);
             pose.pop();
 
             pose.translate(0, 0);
@@ -351,22 +370,14 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             return super.mouseClicked(mouseX, mouseY, button);
         }
 
-        private void onUseStopUsingButton() {
-            if (!isCurrentlyUsed()) {
-                Controlify.instance().setCurrentController(controller, true);
-            } else {
-                Controlify.instance().setCurrentController(null, true);
-                Controlify.instance().config().setCurrentControllerUid(null);
-            }
+        private void onUseButtonPressed(Button button) {
+            this.onUseButtonPressed();
             updateUseStopUsingButton();
         }
 
         private void updateUseStopUsingButton() {
-            useControllerButton.setMessage(Component.translatable(
-                    isCurrentlyUsed()
-                            ? "controlify.gui.carousel.entry.stop_using"
-                            : "controlify.gui.carousel.entry.use"
-            ));
+            useButton.setMessage(Component.translatable("controlify.gui.carousel.entry.use"));
+            useButton.active = !isCurrentlyUsed();
         }
 
         @Override
@@ -388,16 +399,26 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         public void setX(float x) {
-            this.x = (int)x;
-            this.settingsButton.setX((int)x + 2);
-            this.useControllerButton.setX(this.settingsButton.getX() + this.settingsButton.getWidth() + 2);
+            this.x = (int) x;
+
+            if (this.hasSettingsButton()) {
+                this.settingsButton.setX((int) x + 2);
+                this.useButton.setX(this.settingsButton.getX() + this.settingsButton.getWidth() + 2);
+            } else {
+                this.useButton.setX((int) x + 2);
+            }
             this.translationX = x - (int)x;
         }
 
         public void setY(float y) {
             this.y = (int)y;
-            this.useControllerButton.setY((int)y + getHeight() - 20 - 2);
-            this.settingsButton.setY(this.useControllerButton.getY());
+
+            int buttonRowY = (int)y + getHeight() - 20 - 2;
+            this.useButton.setY(buttonRowY);
+            if (this.hasSettingsButton()) {
+                this.settingsButton.setY(buttonRowY);
+            }
+
             this.translationY = y - (int)y;
         }
 
@@ -430,10 +451,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             return new ScreenRectangle(x, y, width, height);
         }
 
-        public boolean isCurrentlyUsed() {
-            return Controlify.instance().getCurrentController().orElse(null) == controller;
-        }
-
         @Override
         public NarrationPriority narrationPriority() {
             return isFocused() ? NarrationPriority.FOCUSED : hovered ? NarrationPriority.HOVERED : NarrationPriority.NONE;
@@ -441,8 +458,120 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         @Override
         public void updateNarration(NarrationElementOutput builder) {
-            builder.add(NarratedElementType.TITLE, controller.name());
+            builder.add(NarratedElementType.TITLE, getName());
             builder.add(NarratedElementType.USAGE, Component.literal("Left arrow to go to previous controller, right arrow to go to next controller."));
+        }
+    }
+
+    private class ControllerCarouselEntry extends CarouselEntry {
+
+        private final ControllerEntity controller;
+        private final boolean badSteamDeck;
+
+        private ControllerCarouselEntry(ControllerEntity controller, int width, int height) {
+            super(width, height);
+            this.controller = controller;
+
+            // Check if the Steam Deck is loaded but not with dedicated driver (the component is only provided by the dedicated driver)
+            this.badSteamDeck = controller.info().type().isSteamDeck()
+                                && controller.getComponent(SteamDeckComponent.ID).isEmpty();
+        }
+
+        @Override
+        protected Component getName() {
+            return Component.literal(controller.name());
+        }
+
+        @Override
+        protected Optional<Component> getNickname() {
+            GenericControllerConfig config = this.controller.genericConfig().config();
+            @Nullable String nickname = config.nickname;
+
+            Component ogName = null;
+
+            if (nickname != null) {
+                config.nickname = null;
+                ogName = Component.literal(controller.name());
+                config.nickname = nickname;
+            }
+
+            return Optional.ofNullable(ogName);
+        }
+
+        @Override
+        protected ResourceLocation getIconSprite() {
+            return controller.info().type().getIconSprite();
+        }
+
+        @Override
+        protected boolean hasSettingsButton() {
+            return true;
+        }
+
+        @Override
+        protected void onSettingsButtonPressed(Button button) {
+            minecraft.setScreen(ControllerConfigScreenFactory.generateConfigScreen(ControllerCarouselScreen.this, controller));
+        }
+
+        @Override
+        protected boolean isCurrentlyUsed() {
+            return Controlify.instance().getCurrentController().orElse(null) == controller;
+        }
+
+        @Override
+        protected void onUseButtonPressed() {
+            Controlify.instance().setCurrentController(controller, true);
+        }
+
+        @Override
+        protected void doExtraRendering(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+            if (badSteamDeck) {
+                ClientUtils.drawSprite(graphics, DANGER, this.getX() + 4, this.getY() + 4 + 10, 9, 8);
+                graphics.drawString(font, Component.translatable("controlify.steam_deck.no_driver"), this.getX() + 17, this.getY() + 4 + 10, -1);
+            }
+        }
+    }
+
+    private class KBMControllerCarouselEntry extends CarouselEntry {
+
+        private KBMControllerCarouselEntry(int width, int height) {
+            super(width, height);
+        }
+
+        @Override
+        protected Component getName() {
+            return Component.translatable("controlify.gui.carousel.entry.keyboard_mouse");
+        }
+
+        @Override
+        protected Optional<Component> getNickname() {
+            return Optional.empty();
+        }
+
+        @Override
+        protected ResourceLocation getIconSprite() {
+            return CUtil.rl("keyboard_mouse");
+        }
+
+        @Override
+        protected boolean hasSettingsButton() {
+            return false;
+        }
+
+        @Override
+        protected void onSettingsButtonPressed(Button button) {
+
+        }
+
+        @Override
+        protected boolean isCurrentlyUsed() {
+            return Controlify.instance().getCurrentController().orElse(null) == null;
+        }
+
+        @Override
+        protected void onUseButtonPressed() {
+            Controlify.instance().setCurrentController(null, true);
+            Controlify.instance().config().setCurrentControllerUid(null);
         }
     }
 }
