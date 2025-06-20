@@ -51,6 +51,8 @@ public final class SDLNativesLoader {
                 path = libsLocation.resolve("libSDL3.so").toString();
             }
 
+            logger.log("Attempting to load SDL3 from {}", path);
+
             SdlNativeLibraryLoader.loadLibSDL3FromFilePathNow(path);
 
             loadedSDLNatives = new LoadedSDLNatives();
