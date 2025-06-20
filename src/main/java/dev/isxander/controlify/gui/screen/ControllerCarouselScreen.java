@@ -77,11 +77,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     public static void openConfigScreen(Screen parent) {
-        var controlify = Controlify.instance();
-
-        controlify.finishControlifyInit().whenComplete((v, th) -> {
-            Minecraft.getInstance().setScreen(new ControllerCarouselScreen(parent));
-        });
+        Minecraft.getInstance().setScreen(new ControllerCarouselScreen(parent));
     }
 
     @Override

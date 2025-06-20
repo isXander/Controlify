@@ -24,14 +24,11 @@ public class GlobalSettings {
     @SerializedName("keyboardMovement") public boolean alwaysKeyboardMovement = false;
     public List<String> keyboardMovementWhitelist = new ArrayList<>();
     public boolean outOfFocusInput = false;
-    public boolean loadVibrationNatives = false;
-    public String customVibrationNativesPath = "";
     public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
     public boolean allowServerRumble = true;
     public boolean uiSounds = false;
     public boolean notifyLowBattery = true;
-    public boolean quietMode = false;
     public float ingameButtonGuideScale = 1f;
     public boolean useEnhancedSteamDeckDriver = true;
 
@@ -42,10 +39,5 @@ public class GlobalSettings {
         return alwaysKeyboardMovement
                || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith))
                || ServerPolicies.KEYBOARD_LIKE_MOVEMENT.get();
-    }
-
-    // Quiet mode does not work on Steam Deck
-    public boolean isQuietMode() {
-        return this.quietMode && !SteamDeckUtil.DECK_MODE.isSteamDeck();
     }
 }

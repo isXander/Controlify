@@ -4,7 +4,6 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.driver.sdl.SDL3NativesManager;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
@@ -40,33 +39,6 @@ public class GlobalSettingsScreenFactory {
                         .option(ButtonOption.createBuilder()
                                 .name(Component.translatable("controlify.gui.open_issue_tracker"))
                                 .action((screen, button) -> Util.getPlatform().openUri("https://github.com/isxander/controlify/issues"))
-                                .build())
-                        .group(OptionGroup.createBuilder()
-                                .name(Component.translatable("controlify.gui.natives"))
-                                .option(Option.<Boolean>createBuilder()
-                                        .name(Component.translatable("controlify.gui.load_vibration_natives"))
-                                        .description(OptionDescription.createBuilder()
-                                                .text(Component.translatable("controlify.gui.load_vibration_natives.tooltip"))
-                                                .text(Component.translatable("controlify.gui.load_vibration_natives.tooltip.warning").withStyle(ChatFormatting.RED))
-                                                .build())
-                                        .binding(true, () -> globalSettings.loadVibrationNatives, v -> globalSettings.loadVibrationNatives = v)
-                                        .controller(opt -> BooleanControllerBuilder.create(opt).yesNoFormatter())
-                                        .flag(OptionFlag.GAME_RESTART)
-                                        .available(SDL3NativesManager.isSupportedOnThisPlatform())
-                                        .build())
-                                .option(Option.<String>createBuilder()
-                                        .name(Component.translatable("controlify.gui.custom_natives_path"))
-                                        .description(OptionDescription.createBuilder()
-                                                .text(Component.translatable("controlify.gui.custom_natives_path.tooltip"))
-                                                .text(Component.translatable("controlify.gui.custom_natives_path.tooltip.warning").withStyle(ChatFormatting.RED))
-                                                .build())
-                                        .binding("", () -> globalSettings.customVibrationNativesPath, v -> globalSettings.customVibrationNativesPath = v)
-                                        .customController(opt -> new FormattableStringController(opt, s -> {
-                                            if (s.isEmpty())
-                                                return Component.translatable("controlify.gui.custom_natives_path.none");
-                                            return Component.literal(s);
-                                        }))
-                                        .build())
                                 .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Component.translatable("controlify.gui.server_options"))
