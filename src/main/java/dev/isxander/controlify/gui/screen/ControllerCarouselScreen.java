@@ -261,7 +261,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             this.width = width;
             this.height = height;
 
-            int buttonWidth = this.hasSettingsButton() ? (getWidth() / 2) / 2 - 2 : getWidth() - 4;
+            int buttonWidth = this.hasSettingsButton() ? (getWidth() - 2) / 2 - 2 : getWidth() - 4;
             this.settingsButton = !this.hasSettingsButton() ? null : Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), this::onSettingsButtonPressed).width(buttonWidth).build();
             this.useButton = Button.builder(Component.empty(), this::onUseButtonPressed).width(buttonWidth).build();
 
@@ -372,7 +372,6 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         private void updateUseStopUsingButton() {
-            useButton.setMessage(Component.translatable("controlify.gui.carousel.entry.use"));
             useButton.active = !isCurrentlyUsed();
         }
 
