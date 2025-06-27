@@ -67,7 +67,7 @@ public final class RadialIcons {
 
     private static void addPotionEffects(Map<ResourceLocation, RadialIcon> map) {
         //? if <1.21.6
-        var mobEffectTextureManager = minecraft.getMobEffectTextures();
+        /*var mobEffectTextureManager = minecraft.getMobEffectTextures();*/
 
         BuiltInRegistries.MOB_EFFECT.entrySet().forEach(entry -> {
             ResourceKey<MobEffect> key = entry.getKey();
@@ -76,14 +76,14 @@ public final class RadialIcons {
 
             boolean render = true;
             //? if >=1.21.6 {
-            /*ResourceLocation sprite = Gui.getMobEffectSprite(effect);
-            *///?} else {
-            TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
+            ResourceLocation sprite = Gui.getMobEffectSprite(effect);
+            //?} else {
+            /*TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
 
             if (sprite == null || sprite.atlasLocation() == null) {
                 render = false;
             }
-            //?}
+            *///?}
 
             if (render) {
                 map.put(key.location().withPrefix("effect/"), (graphics, x, y, tickDelta) -> {
@@ -91,7 +91,7 @@ public final class RadialIcons {
                     pose.translate(x, y);
                     pose.scale(0.88f, 0.88f);
 
-                    Blit.sprite(graphics, sprite, 0, 0, 18, 18 /*? if <1.21.6 >>*/,-1 );
+                    Blit.sprite(graphics, sprite, 0, 0, 18, 18 /*? if <1.21.6 >>*//*,-1*/ );
 
                     pose.pop();
                 });

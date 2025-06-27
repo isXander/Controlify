@@ -118,7 +118,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             logger.debugLog("DualSense controller detected.");
 
             // macOS HD haptics are broken
-            if (Util.getPlatform() != Util.OS.OSX) {
+            if (Util.getPlatform() != Util.OS.OSX && SDLNativesLoader.get().orElseThrow().hasAudio()) {
                 SDL_AudioDeviceID dualsenseAudioDev = null;
                 SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
 

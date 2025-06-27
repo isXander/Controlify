@@ -7,18 +7,18 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 //? if >=1.21.6 {
-/*import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.render.state.GuiRenderState;
-*///?} else {
-import net.minecraft.client.renderer.MultiBufferSource;
-//?}
+//?} else {
+/*import net.minecraft.client.renderer.MultiBufferSource;
+*///?}
 
 @Mixin(GuiGraphics.class)
 public class GuiGraphicsMixin implements GuiRenderStateSink {
 
     //? if >=1.21.6 {
-    /*@Shadow @Final private GuiRenderState guiRenderState;
+    @Shadow @Final private GuiRenderState guiRenderState;
 
     @Override
     public void controlify$submit(GuiElementRenderState renderState) {
@@ -32,8 +32,8 @@ public class GuiGraphicsMixin implements GuiRenderStateSink {
     public ScreenRectangle controlify$peekScissorStack() {
         return this.scissorStack.peek();
     }
-    *///?} else {
-    @Shadow
+    //?} else {
+    /*@Shadow
     @Final
     private MultiBufferSource.BufferSource bufferSource;
 
@@ -41,6 +41,6 @@ public class GuiGraphicsMixin implements GuiRenderStateSink {
     public MultiBufferSource controlify$bufferSource() {
         return this.bufferSource;
     }
-    //?}
+    *///?}
 }
 

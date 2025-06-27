@@ -362,7 +362,8 @@ public class VirtualMouseHandler {
         var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
         var pose = CGuiPose.ofPush(graphics);
-        pose.translate((float) scaledX, (float) scaledY); // TODO: figure out the z translation on 1.21.6+ (previously +1000f)
+        pose.translate((float) scaledX, (float) scaledY);
+        pose.nextLayer(1000f);
         pose.scale(0.5f, 0.5f);
 
         Blit.tex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);

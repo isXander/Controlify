@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;)V", at = @At("HEAD"))
-    private void clearRumbleEffects(Screen disconnectScreen, CallbackInfo ci) {
+    @Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;"/*? if >=1.21.6 {*/ + "Z" /*?}*/ + ")V", at = @At("HEAD"))
+    private void clearRumbleEffects(CallbackInfo ci) {
         ControlifyApi.get().getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(controller -> controller.rumbleManager().clearEffects());

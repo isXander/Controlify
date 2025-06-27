@@ -10,9 +10,9 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.CompoundDriver;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.driver.sdl.SDL3NativesManager;
 import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
 import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
+import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.sdl.SDLUtil;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
@@ -58,7 +58,7 @@ public class SDLControllerManager extends AbstractControllerManager {
     public SDLControllerManager(ControlifyLogger logger) {
         super(logger);
         logger.debugLog("Controller manager using SDL3");
-        logger.validateIsTrue(SDL3NativesManager.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
+        logger.validateIsTrue(SDLNativesLoader.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
 
         SDL_SetEventFilter(eventFilter = new EventFilter(), Pointer.NULL);
     }

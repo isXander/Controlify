@@ -105,7 +105,7 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         leftLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
         rightLayout.getComponent().getChildComponents().forEach(renderer -> renderer.updateName(context));
 
-        double guiScale = minecraft.getWindow().getGuiScale() /*? if <1.21.6 {*/ *Controlify.instance().config().globalSettings().ingameButtonGuideScale/*?}*/;
+        double guiScale = minecraft.getWindow().getGuiScale() /*? if <1.21.6 {*/ /**Controlify.instance().config().globalSettings().ingameButtonGuideScale*//*?}*/;
         int width = (int) (minecraft.getWindow().getWidth() / guiScale);
         int height = (int) (minecraft.getWindow().getHeight() / guiScale);
 
@@ -135,10 +135,10 @@ public class InGameButtonGuide implements IngameGuideRegistry {
             if (player.getVehicle() != null)
                 switch (player.getVehicle()) {
                     //? if >=1.21.6 {
-                    /*case net.minecraft.world.entity.animal.HappyGhast happyGhast -> {
+                    case net.minecraft.world.entity.animal.HappyGhast happyGhast -> {
                         return Optional.of(Component.translatable("controlify.guide.ingame.fly_up"));
                     }
-                    *///?}
+                    //?}
                     case AbstractHorse horse -> {
                         return horse.isSaddled()
                                 ? Optional.of(Component.translatable("key.jump"))
@@ -331,10 +331,10 @@ public class InGameButtonGuide implements IngameGuideRegistry {
         float scale = vanillaGuiScale * guiScale;
 
         //? if >=1.21.6 {
-        /*// broken on 1.21.6+
+        // broken on 1.21.6+
         renderer.run();
-        *///?} else {
-        Matrix4f projMatrix = new Matrix4f()
+        //?} else {
+        /*Matrix4f projMatrix = new Matrix4f()
                 .setOrtho(
                         0.0F, window.getWidth() / scale, window.getHeight() / scale, 0.0F, 1000.0F, 21000.0F
                 );
@@ -348,8 +348,8 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 //? if >=1.21.2 {
                 com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
                 //?} else {
-                /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
-                 *///?}
+                /^com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                 ^///?}
         );
 
         renderer.run();
@@ -361,9 +361,9 @@ public class InGameButtonGuide implements IngameGuideRegistry {
                 //? if >=1.21.2 {
                 com.mojang.blaze3d.ProjectionType.ORTHOGRAPHIC
                 //?} else {
-                /*com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
-                 *///?}
+                /^com.mojang.blaze3d.vertex.VertexSorting.ORTHOGRAPHIC_Z
+                 ^///?}
         );
-        //?}
+        *///?}
     }
 }

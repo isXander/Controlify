@@ -146,21 +146,8 @@ j52j {
 
 /*
 START
-Set up the configuration to put native hashes in the jar
+Set up the configuration to put natives in the jar
  */
-val offlineJar by tasks.registering(Jar::class) {
-    group = "controlify/versioned/internal"
-
-    // include the contents of the regular jar
-    val inputJar = modstitch.finalJarTask
-    from(zipTree(inputJar.flatMap { it.archiveFile }))
-    dependsOn(inputJar)
-
-    // set the classifier
-    archiveClassifier.set("offline")
-}
-tasks.assemble { dependsOn(offlineJar) }
-
 class NativeTarget(
     val classifier: String,
     val fileExtension: String,
@@ -173,9 +160,8 @@ class NativeTarget(
 val nativeTargets = listOf(
     NativeTarget(classifier = "linux-aarch64", fileExtension = "so", jnaPrefix = "linux-aarch64/", fileName = "libSDL3", configuration = "LinuxAarch64"),
     NativeTarget(classifier = "linux-x86_64", fileExtension = "so", jnaPrefix = "linux-x86-64/", fileName = "libSDL3", configuration = "LinuxX86_64"),
-    NativeTarget(classifier = "macos-universal", fileExtension = "dylib", jnaPrefix = "darwin-aarch64/", fileName = "libSDL3", configuration = "MacArm"),
-    NativeTarget(classifier = "macos-universal", fileExtension = "dylib", jnaPrefix = "darwin-x86-64/", fileName = "libSDL3", configuration = "MacIntel"),
-    NativeTarget(classifier = "windows-x86", fileExtension = "dll", jnaPrefix = "win32-x86/", fileName = "SDL3", configuration = "WinX86"),
+    NativeTarget(classifier = "macos-aarch64", fileExtension = "dylib", jnaPrefix = "darwin-aarch64/", fileName = "libSDL3", configuration = "MacArm"),
+    NativeTarget(classifier = "macos-x86_64", fileExtension = "dylib", jnaPrefix = "darwin-x86-64/", fileName = "libSDL3", configuration = "MacIntel"),
     NativeTarget(classifier = "windows-x86_64", fileExtension = "dll", jnaPrefix = "win32-x86-64/", fileName = "SDL3", configuration = "WinX86_64"),
 )
 
@@ -189,7 +175,7 @@ nativeTargets.forEach { target ->
         nativeHashConfiguration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}.md5")
     }
 
-    offlineJar {
+    tasks.jar {
         from(nativesConfiguration) {
             into(target.jnaPrefix)
             rename { "${target.fileName}.${target.fileExtension}" }
@@ -220,7 +206,6 @@ val releaseModVersion by tasks.registering {
 createActiveTask(releaseModVersion)
 
 val finalJarTasks = listOf(
-    offlineJar,
     modstitch.finalJarTask,
 )
 
@@ -242,7 +227,6 @@ publishMods {
     dryRun = rootProject.publishMods.dryRun
 
     file = modstitch.finalJarTask.flatMap { it.archiveFile }
-    additionalFiles.setFrom(offlineJar.map { it.archiveFile })
 
     displayName = "$modVersion for $loader $mcVersion"
     modLoaders.add(loader)

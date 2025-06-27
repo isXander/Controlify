@@ -4,8 +4,8 @@ import com.google.common.primitives.Ints;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.id.ControllerType;
-import dev.isxander.controlify.driver.sdl.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
+import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ToastUtils;
 import net.minecraft.network.chat.Component;
@@ -77,14 +77,12 @@ public class ControllerHIDService {
     private ControllerHIDInfo fetchType0(int jid) {
         if (firstFetch) {
             firstFetch = false;
-            if (isDisabled() && !SDL3NativesManager.isLoaded()) {
-                if (Controlify.instance().controllerHIDService().isDisabled() && !SDL3NativesManager.isLoaded()) {
-                    ToastUtils.sendToast(
-                            Component.translatable("controlify.error.hid"),
-                            Component.translatable("controlify.error.hid.desc"),
-                            true
-                    );
-                }
+            if (isDisabled() && !SDLNativesLoader.isLoaded()) {
+                ToastUtils.sendToast(
+                        Component.translatable("controlify.error.hid"),
+                        Component.translatable("controlify.error.hid.desc"),
+                        true
+                );
             }
         }
 

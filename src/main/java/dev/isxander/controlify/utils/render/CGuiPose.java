@@ -13,51 +13,64 @@ public interface CGuiPose {
 
     CGuiPose scale(float x, float y);
 
+    CGuiPose nextLayer(float legacyZShift);
+
     static CGuiPose of(GuiGraphics graphics) {
         //? if >=1.21.6 {
-        /*return new Impl2D(graphics.pose());
-        *///?} else {
-        return new Impl3D(graphics.pose());
-        //?}
+        return new Impl2D(graphics);
+        //?} else {
+        /*return new Impl3D(graphics.pose());
+        *///?}
     }
 
     static CGuiPose ofPush(GuiGraphics graphics) {
         return of(graphics).push();
     }
 
+    //? if >=1.21.6 {
     class Impl2D implements CGuiPose {
-        private final Matrix3x2fStack stack;
+        private final GuiGraphics graphics;
 
-        public Impl2D(Matrix3x2fStack stack) {
-            this.stack = stack;
+        public Impl2D(GuiGraphics graphics) {
+            this.graphics = graphics;
+        }
+
+        private Matrix3x2fStack stack() {
+            return this.graphics.pose();
         }
 
         @Override
         public CGuiPose push() {
-            this.stack.pushMatrix();
+            this.stack().pushMatrix();
             return this;
         }
 
         @Override
         public CGuiPose pop() {
-            this.stack.popMatrix();
+            this.stack().popMatrix();
             return this;
         }
 
         @Override
         public CGuiPose translate(float x, float y) {
-            this.stack.translate(x, y);
+            this.stack().translate(x, y);
             return this;
         }
 
         @Override
         public CGuiPose scale(float x, float y) {
-            this.stack.scale(x, y);
+            this.stack().scale(x, y);
+            return this;
+        }
+
+        @Override
+        public CGuiPose nextLayer(float legacyZShift) {
+            this.graphics.nextStratum();
             return this;
         }
     }
-
-    class Impl3D implements CGuiPose {
+    //?} else {
+    /*class Impl3D implements CGuiPose {
         private final PoseStack stack;
 
         public Impl3D(PoseStack stack) {
@@ -87,5 +100,12 @@ public interface CGuiPose {
             this.stack.scale(x, y, 1);
             return this;
         }
+
+        @Override
+        public CGuiPose nextLayer(float legacyZShift) {
+            this.stack.translate(0, 0, legacyZShift);
+            return this;
+        }
     }
+    *///?}
 }

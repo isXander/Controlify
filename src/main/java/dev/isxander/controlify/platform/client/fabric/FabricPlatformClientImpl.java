@@ -31,11 +31,13 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-//? if =1.21.5 {
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+//? if >=1.21.6 {
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
+//?} else if >=1.21.5 {
+/*import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
 import net.minecraft.client.gui.LayeredDraw;
-//?} else {
+*///?} else {
 /*import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 *///?}
 
@@ -88,11 +90,13 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 
     @Override
     public void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer) {
-        //? if =1.21.5 {
-        HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
+        //? if >=1.21.6 {
+        HudElementRegistry.addLast(id, renderLayer::render);
+        //?} else if >=1.21.5 {
+        /*HudLayerRegistrationCallback.EVENT.register(layeredDrawer -> {
             layeredDrawer.addLayer(IdentifiedLayer.of(id, renderLayer::render));
         });
-        //?} else {
+        *///?} else {
         /*HudRenderCallback.EVENT.register(renderLayer::render);
         *///?}
     }

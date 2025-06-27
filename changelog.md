@@ -5,11 +5,10 @@ This version has the following targets:
 
 [![](https://short.isxander.dev/bisect-img)](https://short.isxander.dev/bisect)
 
-**By donating on my [Ko-Fi](https://ko-fi.com/isxander), you will gain access to builds of Controlify for snapshot
-builds of Minecraft.**
+**By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support**
 
-## Fixes
+## Bug fixes
 
-- Fix startup crash on literally every target
-
+- Fix crashes on Linux
+- Fix broken controller carousel screen
 

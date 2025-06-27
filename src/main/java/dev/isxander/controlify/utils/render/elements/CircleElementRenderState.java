@@ -16,17 +16,18 @@ public record CircleElementRenderState(
     @Override
     public void buildVertices(VertexConsumer vertexConsumer, float z) {
         float innerRadius = radius - thickness;
-        for (int i = 0; i < segments - 1; i++) {
-            float angle = (float) i / segments * Mth.TWO_PI;
-            float nextAngle = (float) (i + 1) / segments * Mth.TWO_PI;
+        for (int i = 0; i < segments; i++) {
+            int j = (i + 1) % segments;
+            float angle     = (float) i / segments * Mth.TWO_PI;
+            float nextAngle = (float) j / segments * Mth.TWO_PI;
 
-            float xi1 = originX + Mth.sin(angle) * innerRadius;
-            float yi1 = originY + Mth.cos(angle) * innerRadius;
+            float xi1 = originX + Mth.sin(angle)     * innerRadius;
+            float yi1 = originY + Mth.cos(angle)     * innerRadius;
             float xi2 = originX + Mth.sin(nextAngle) * innerRadius;
             float yi2 = originY + Mth.cos(nextAngle) * innerRadius;
 
-            float xo1 = originX + Mth.sin(angle) * radius;
-            float yo1 = originY + Mth.cos(angle) * radius;
+            float xo1 = originX + Mth.sin(angle)     * radius;
+            float yo1 = originY + Mth.cos(angle)     * radius;
             float xo2 = originX + Mth.sin(nextAngle) * radius;
             float yo2 = originY + Mth.cos(nextAngle) * radius;
 
@@ -43,10 +44,10 @@ public record CircleElementRenderState(
             float radius, float thickness,
             int color
     ) {
-        int minX = (int) (originX - radius);
-        int minY = (int) (originY - radius);
-        int maxX = (int) (originX + radius);
-        int maxY = (int) (originY + radius);
+        int minX = Mth.floor(originX - radius);
+        int minY = Mth.floor(originY - radius);
+        int maxX = Mth.ceil(originX + radius);
+        int maxY = Mth.ceil(originY + radius);
 
         return new CircleElementRenderState(
                 BaseRenderState.create(graphics, null, minX, minY, maxX, maxY),

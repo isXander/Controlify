@@ -7,7 +7,6 @@ import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
-import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
@@ -18,11 +17,11 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
-import dev.isxander.controlify.driver.sdl.SDL3NativesManager;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
@@ -66,9 +65,6 @@ public class Controlify implements ControlifyApi {
 
     private ControllerManager controllerManager;
 
-    private boolean finishedInit = false;
-    private boolean probeMode = false;
-
     private ControllerEntity currentController = null;
     private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
 
@@ -81,8 +77,6 @@ public class Controlify implements ControlifyApi {
     private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
-
-    private CompletableFuture<Boolean> nativeOnboardingFuture = null;
 
     private final ControlifyConfig config = new ControlifyConfig(this);
 
@@ -193,35 +187,27 @@ public class Controlify implements ControlifyApi {
                     ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
                 }));
 
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControlifyInit(this);
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
+        boolean loadedSDL = SDLNativesLoader.tryLoad();
+        try {
+            controllerManager = loadedSDL ? new SDLControllerManager(CUtil.LOGGER) : new GLFWControllerManager(CUtil.LOGGER);
+        } catch (Throwable throwable) {
+            CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
+            return;
+        }
 
-        if (config().globalSettings().isQuietMode()) {
-            // Use GLFW to probe for controllers without asking for natives
-            boolean controllersConnected = GLFWControllerManager.areControllersConnected();
+        PlatformClientUtil.registerClientTickStarted(this::tick);
 
-            if (controllersConnected) {
-                ToastUtils.sendToast(
-                        Component.translatable("controlify.toast.setup_in_config.title"),
-                        Component.translatable(
-                                "controlify.toast.setup_in_config.description",
-                                Component.translatable("options.title"),
-                                Component.translatable("controls.title"),
-                                Component.literal("Controlify")
-                        ),
-                        false
-                );
-            } else {
-                probeMode = true;
-                PlatformClientUtil.registerClientTickEnded(client -> this.probeTick());
-            }
-        } else {
-            finishControlifyInit();
+        // initialise and compatability modules that controlify implements itself
+        // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
+        ControlifyCompat.init();
+
+        // make sure people don't someone add binds after controllers could have been created
+        ControlifyBindApiImpl.INSTANCE.lock();
+
+        discoverControllers();
+
+        if (DebugProperties.INIT_DUMP) {
+            CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
         }
 
         // register events
@@ -230,6 +216,14 @@ public class Controlify implements ControlifyApi {
         if (this.config().globalSettings().useEnhancedSteamDeckDriver) {
             doSteamDeckChecks();
         }
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyInit(this);
+            } catch (Throwable e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
     }
 
     private void doSteamDeckChecks() {
@@ -305,58 +299,6 @@ public class Controlify implements ControlifyApi {
                 CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
         });
-    }
-
-    /**
-     * Completely finishes controlify initialization.
-     * This can be run at any point during the game's lifecycle.
-     * @return the future that completes when controlify has finished initializing
-     */
-    public CompletableFuture<Void> finishControlifyInit() {
-        if (finishedInit) {
-            return CompletableFuture.completedFuture(null);
-        }
-        probeMode = false;
-        finishedInit = true;
-
-        return askNatives().whenComplete((loaded, th) -> UnhandledCompletableFutures.run(() -> {
-            CUtil.LOGGER.log("Finishing Controlify init...");
-
-            if (!loaded) {
-                CUtil.LOGGER.warn("CONTROLIFY DID NOT LOAD SDL3 NATIVES. MANY FEATURES DISABLED!");
-            }
-
-            try {
-                controllerManager = loaded ? new SDLControllerManager(CUtil.LOGGER) : new GLFWControllerManager(CUtil.LOGGER);
-            } catch (Throwable throwable) {
-                CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
-                return;
-            }
-
-            PlatformClientUtil.registerClientTickStarted(this::tick);
-
-            // initialise and compatability modules that controlify implements itself
-            // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
-            ControlifyCompat.init();
-
-            // make sure people don't someone add binds after controllers could have been created
-            ControlifyBindApiImpl.INSTANCE.lock();
-
-            // assume that if someone explicitly went into controlify settings,
-            // they have a controller and want the full experience.
-            if (config().globalSettings().isQuietMode()) {
-                config().globalSettings().quietMode = false;
-                config().setDirty();
-            }
-
-            discoverControllers();
-
-            if (DebugProperties.INIT_DUMP) {
-                CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
-            }
-
-            ControlifyEvents.FINISHED_INIT.invoke(new ControlifyEvents.FinishedInit(this));
-        }, minecraft)).thenApply(t -> null);
     }
 
     /**
@@ -445,70 +387,8 @@ public class Controlify implements ControlifyApi {
     }
 
     /**
-     * Asks the user if they want to download the SDL3 library,
-     * or initialises it if it hasn't been already.
-     * If the user has already been asked and SDL is already initialised,
-     * a completed future is returned.
-     * The future is completed once the user has made their choice and SDL
-     * has been downloaded and initialised (or not).
-     */
-    public CompletableFuture<Boolean> askNatives() {
-        // if the future already exists, just return it
-        if (nativeOnboardingFuture != null)
-            return nativeOnboardingFuture;
-
-        GlobalSettings settings = config().globalSettings();
-
-        // try offline load without asking permission (because nothing is downloaded)
-        if ((!settings.vibrationOnboarded || settings.loadVibrationNatives) && SDL3NativesManager.tryOfflineLoadAndStart()) {
-            settings.vibrationOnboarded = true;
-            settings.loadVibrationNatives = true;
-            config().setDirty();
-
-            return nativeOnboardingFuture = CompletableFuture.completedFuture(true);
-        }
-
-        // just say no if the platform doesn't support it
-        if (!SDL3NativesManager.isSupportedOnThisPlatform()) {
-            CUtil.LOGGER.warn("SDL is not supported on this platform. Platform: {}", SDL3NativesManager.Target.CURRENT);
-            nativeOnboardingFuture = new CompletableFuture<>();
-            minecraft.setScreen(new NoSDLScreen(() -> nativeOnboardingFuture.complete(false), minecraft.screen));
-            return nativeOnboardingFuture;
-        }
-
-        // the user has already been asked, initialise SDL if necessary
-        // and return a completed future
-        if (config().globalSettings().vibrationOnboarded) {
-            if (config().globalSettings().loadVibrationNatives) {
-                return nativeOnboardingFuture = SDL3NativesManager.maybeLoad();
-            }
-            // micro-optimization. no need to create a new future every time. use the first not null check
-            return nativeOnboardingFuture = CompletableFuture.completedFuture(false);
-        }
-
-        nativeOnboardingFuture = new CompletableFuture<>();
-
-        // open the SDL onboarding screen. complete the future when the user has made their choice
-        InitialScreenRegistryDuck.registerInitialScreen(runnable -> new SDLOnboardingScreen(
-                runnable,
-                answer -> {
-                    if (answer) {
-                        SDL3NativesManager.maybeLoad().whenComplete((loaded, th) -> {
-                            if (th != null) nativeOnboardingFuture.completeExceptionally(th);
-                            else nativeOnboardingFuture.complete(loaded);
-                        });
-                    } else {
-                        nativeOnboardingFuture.complete(false);
-                    }
-                }
-        ));
-
-        return nativeOnboardingFuture;
-    }
-
-    /**
      * The main loop of Controlify.
-     * In Controlify's current state, only the current controller is ticked.
+     * Only the current controller ticks.
      */
     public void tick(Minecraft client) {
         if (minecraft.getOverlay() == null) {
@@ -546,7 +426,6 @@ public class Controlify implements ControlifyApi {
 
         LowBatteryNotifier.tick();
 
-        // if splitscreen ever happens this can tick over every controller
         getCurrentController().ifPresent(currentController -> {
             wrapControllerError(
                     () -> tickController(currentController, outOfFocus),
@@ -613,15 +492,6 @@ public class Controlify implements ControlifyApi {
             }
 
             ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
-        }
-    }
-
-    private void probeTick() {
-        if (probeMode) {
-            if (GLFWControllerManager.areControllersConnected()) {
-                probeMode = false;
-                minecraft.execute(this::finishControlifyInit);
-            }
         }
     }
 
