@@ -31,7 +31,7 @@ repositories {
 }
 
 val lwjglVersion = when (project.mcVersion) {
-    "1.21.5" -> "3.3.3"
+    "1.21.6" -> "3.3.3"
     else -> throw IllegalStateException("Can't get LWJGL version for: $mcVersion")
 }
 

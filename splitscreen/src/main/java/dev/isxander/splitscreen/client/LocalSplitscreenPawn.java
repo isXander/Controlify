@@ -5,7 +5,9 @@ import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.splitscreen.client.features.configsync.ConfigSyncRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.resources.ResourceLocation;
@@ -47,11 +49,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
 
     @Override
     public void disconnectFromServer() {
-        if (this.minecraft.level != null) {
-            this.minecraft.level.disconnect();
-        }
-        this.minecraft.disconnect();
-        this.minecraft.setScreen(new JoinMultiplayerScreen(null));
+        PauseScreen.disconnectFromWorld(this.minecraft, ClientLevel.DEFAULT_QUIT_MESSAGE);
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -37,13 +38,13 @@ public class ServerSelectionList$OnlineServerEntryMixin {
                     ? ServerStatusSplitscreenExt.SPLITSCREEN_SUPPORTED_SPRITE
                     : ServerStatusSplitscreenExt.SPLITSCREEN_UNSUPPORTED_SPRITE;
 
-            guiGraphics.blitSprite(RenderType::guiTextured, sprite, x, top, 10, 8);
+            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, top, 10, 8);
 
             if (mouseX >= x && mouseX <= x + 10 && mouseY >= top && mouseY <= top + 8) {
                 Component tooltip = supported
                         ? Component.translatable("controlify.splitscreen.tooltip.supported")
                         : Component.translatable("controlify.splitscreen.tooltip.unsupported", ext.maxSubPlayers() + 1);
-                screen.setTooltipForNextRenderPass(tooltip);
+                guiGraphics.setTooltipForNextFrame(tooltip, mouseX, mouseY);
             }
         });
     }

@@ -49,10 +49,7 @@ public class MainMixin {
     private static GameConfig.QuickPlayData modifyQuickPlayData(GameConfig.QuickPlayData originalData) {
         return RelaunchArguments.LAN_GAME.get()
                 .map(lanIp -> new GameConfig.QuickPlayData(
-                    null, // path to world
-                        null, // singleplayer world name
-                        lanIp, // multiplayer ip
-                        null // realm id
+                    null, new GameConfig.QuickPlayMultiplayerData(lanIp)
                 ))
                 .orElse(originalData);
     }

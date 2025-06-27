@@ -4,6 +4,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
@@ -38,8 +39,7 @@ public class SplitscreenLoadingOverlay extends Overlay {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 1000);
+        guiGraphics.nextStratum();
 
         int width = guiGraphics.guiWidth();
         int height = guiGraphics.guiHeight();
@@ -58,16 +58,16 @@ public class SplitscreenLoadingOverlay extends Overlay {
 
             logoFade = 1 - Mth.clamp(fadeOutProgress - 1, 0, 1);
             int opacity = Mth.ceil(logoFade * 255);
-            guiGraphics.fill(RenderType.guiOverlay(), 0, 0, width, height, ARGB.color(opacity, BACKGROUND_COLOUR));
+            guiGraphics.fill(RenderPipelines.GUI, 0, 0, width, height, ARGB.color(opacity, BACKGROUND_COLOUR));
         } else if (this.fadeIn) {
             this.renderScreen(guiGraphics, partialTick);
 
             int alpha = Mth.ceil(Mth.clamp(fadeInProgress, 0.15, 1.0) * 255);
-            guiGraphics.fill(RenderType.guiOverlay(), 0, 0, width, height, ARGB.color(alpha, BACKGROUND_COLOUR));
+            guiGraphics.fill(RenderPipelines.GUI, 0, 0, width, height, ARGB.color(alpha, BACKGROUND_COLOUR));
             logoFade = Mth.clamp(fadeInProgress, 0, 1);
         } else {
             int backgroundColor = BACKGROUND_COLOUR;
-            guiGraphics.fill(RenderType.guiOverlay(), 0, 0, width, height, backgroundColor);
+            guiGraphics.fill(RenderPipelines.GUI, 0, 0, width, height, backgroundColor);
             logoFade = 1;
         }
 
@@ -102,8 +102,6 @@ public class SplitscreenLoadingOverlay extends Overlay {
                 this.minecraft.screen.init(this.minecraft, guiGraphics.guiWidth(), guiGraphics.guiHeight());
             }
         }
-
-        guiGraphics.pose().popPose();
     }
 
     private void renderScreen(GuiGraphics guiGraphics, float partialTick) {

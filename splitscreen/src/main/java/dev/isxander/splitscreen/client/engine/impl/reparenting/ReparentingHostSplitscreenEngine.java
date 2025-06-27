@@ -72,7 +72,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         this.localPawn = new LocalReparentingPawn(this.minecraft, this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().getWindow()));
         this.registerPawn(this.localController, this.localPawn);
 
-        this.parentWindow.setIcon(minecraft.getVanillaPackResources(), SharedConstants.getCurrentVersion().isStable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
+        this.parentWindow.setIcon(minecraft.getVanillaPackResources(), SharedConstants.getCurrentVersion().stable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
 
         while (!this.pendingWindowTasks.isEmpty()) {
             var task = this.pendingWindowTasks.poll();

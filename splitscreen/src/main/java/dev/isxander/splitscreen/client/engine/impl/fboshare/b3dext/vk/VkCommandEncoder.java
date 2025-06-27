@@ -275,6 +275,7 @@ public class VkCommandEncoder implements SplitscreenCommandEncoder {
         return switch (format) {
             case RGBA8 -> VK_FORMAT_R8G8B8A8_UNORM;
             case RED8 -> VK_FORMAT_R8_UNORM;
+            case RED8I -> VK_FORMAT_R8_SINT;
             case DEPTH32 -> VK_FORMAT_D32_SFLOAT;
         };
     }
