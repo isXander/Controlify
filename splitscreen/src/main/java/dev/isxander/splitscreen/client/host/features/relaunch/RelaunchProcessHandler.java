@@ -35,7 +35,7 @@ public class RelaunchProcessHandler {
 
     public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, SplitscreenController splitscreenController, int pawnIndex, IPCMethod ipcMethod) {
         boolean isDevLaunchInjector = FabricLoader.getInstance().isDevelopmentEnvironment();
-        LaunchInfo launchInfo = !isDevLaunchInjector ? FabricLoaderRelauncher.getLaunchInfo() : PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
+        LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : !isDevLaunchInjector ? FabricLoaderRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
         Path argFile;
         try {
