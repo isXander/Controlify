@@ -21,6 +21,7 @@ public final class PlayProtocols {
                         .addPacket(ControllerboundGiveMeFocusIfForegroundPacket.TYPE, ControllerboundGiveMeFocusIfForegroundPacket.CODEC)
                         .addPacket(ControllerboundSignalReadyPacket.TYPE, ControllerboundSignalReadyPacket.CODEC)
                         .addPacket(ControllerboundServerDisconnectedPacket.TYPE, ControllerboundServerDisconnectedPacket.CODEC)
+                        .addPacket(ControllerboundRequestPlayMusicPacket.TYPE, ControllerboundRequestPlayMusicPacket.CODEC)
                         .addPacket(ControllerboundEngineCustomPayloadPacket.TYPE, engineCodec)
         ).bind(FriendlyByteBuf::new);
     }
