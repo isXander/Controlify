@@ -77,13 +77,10 @@ public class SplitscreenBootstrapper {
         } else {
             LOGGER.info("Not a relaunch, becoming controller!");
 
-            IPCMethod ipcMethod;
-            if (SocketUtil.isAfUnixSupported()) {
-                ipcMethod = IPCMethod.Unix.inDirectory(Path.of(System.getProperty("user.home")));
-            } else {
-                int openPort = HttpUtil.getAvailablePort();
-                ipcMethod = new IPCMethod.TCP(openPort);
-            }
+            IPCMethod ipcMethod = IPCMethod.Unix.inDirectory(Path.of(System.getProperty("user.home")))
+                    .map(m -> (IPCMethod) m) // upcast the optional to IPCMethod instead of IPCMethod.Unix
+                    .filter(m -> SocketUtil.isAfUnixSupported())
+                    .orElseGet(() -> new IPCMethod.TCP(HttpUtil.getAvailablePort()));
 
             bootstrapAsController(minecraft, ipcMethod);
         }
