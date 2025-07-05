@@ -149,6 +149,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "Always use the gyroscope.",
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Cambia el comportamiento de las asignaciones de mira arriba/abajo/izquierda/derecha para rotar la dirección de mira 90 grados en la dirección correspondiente al presionar. Esto debe combinarse con la mira del giroscopio para obtener una puntería más precisa y rápida.",
+  "controlify.gui.flick_animation_ticks": "Duración del Flick",
+  "controlify.gui.flick_animation_ticks.tooltip": "Modifica la cantidad de tiempo (en Ticks) que dura la animacion cuando haces flick. \nSi esta en 0, se deshabilitara la animación.",
   "controlify.gui.group.advanced": "Avanzado",
   "controlify.gui.group.advanced.tooltip": "¡Ajustes que probablemente no debas tocar!.",
   "controlify.gui.screen_repeat_navi_delay": "Retraso de Navegación de Repetición de Pantalla",

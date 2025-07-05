@@ -149,6 +149,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "總是使用陀螺儀。",
   "controlify.gui.flick_stick": "快速搖桿",
   "controlify.gui.flick_stick.tooltip": "改變上、下、左和右看向按鍵的行為，以在按下時將看向方向旋轉 90 度。這應該與陀螺儀一起使用，以獲得最準確和快速的瞄準。",
+  "controlify.gui.flick_animation_ticks": "Flick Duration",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 0, it will disable the animation.",
   "controlify.gui.group.advanced": "進階",
   "controlify.gui.group.advanced.tooltip": "你可能不應該調整的設定！",
   "controlify.gui.screen_repeat_navi_delay": "螢幕重複導航延遲",

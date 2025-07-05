@@ -506,15 +506,15 @@ public class ControllerConfigScreenFactory {
                 .build();
         gyroGroup.option(relativeModeOpt);
 	var flickAnimationTicks = Option.<Integer>createBuilder()
-	    .name(Component.literal("YACL test"))
+	    .name(Component.translatable("controlify.gui.flick_animation_ticks"))
 	    .description(OptionDescription.createBuilder()
-	        .text(Component.literal("YACL test since I don't know how it works"))
+	        .text(Component.translatable("controlify.gui.flick_animation_ticks.tooltip"))
 		.build())
 	    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
 	    .controller(opt -> IntegerSliderControllerBuilder.create(opt)
 	        .range(0, 32)
 		.step(1)
-		.valueFormatter(val -> Component.literal(val + " ticks")))
+		.valueFormatter(val -> Component.literal(val + " Ticks")))
 	    .build();
 	gyroGroup.option(flickAnimationTicks);
         gyroGroup.option(Util.make(() -> {

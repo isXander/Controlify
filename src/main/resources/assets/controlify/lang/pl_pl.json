@@ -149,6 +149,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "Zawsze używaj żyroskopu.",
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Zmienia zachowanie przypisanych przycisków do patrzenia w górę/dół/lewo/prawo, aby obracać kierunek widzenia o 90 stopni w odpowiednim kierunku po naciśnięciu. Należy to łączyć z żyroskopem, aby uzyskać najdokładniejsze i najszybsze celowanie.",
+  "controlify.gui.flick_animation_ticks": "Flick Duration",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 0, it will disable the animation.",
   "controlify.gui.group.advanced": "Zaawansowane",
   "controlify.gui.group.advanced.tooltip": "Ustawienia, których prawdopodobnie nie powinieneś(aś) zmieniać!",
   "controlify.gui.screen_repeat_navi_delay": "Opóźnienie powtarzania nawigacji po ekranie",

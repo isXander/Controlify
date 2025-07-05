@@ -149,6 +149,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "Her zaman jiroskopu kullan.",
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Yukarı/aşağı/sola/sağa bakış bağlantılarının davranışını, basıldığında bakış yönünü istenen yönde 90 derece döndürmek için değiştirir. Bu, en doğru ve hızlı hedeflemeyi elde etmek için gyro bakışı ile birleştirilmelidir.",
+  "controlify.gui.flick_animation_ticks": "Flick Duration",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 0, it will disable the animation.",
   "controlify.gui.group.advanced": "Gelişmiş",
   "controlify.gui.group.advanced.tooltip": "Muhtemelen dokunmamanız gereken ayarlar!.",
   "controlify.gui.screen_repeat_navi_delay": "Ekran Yineleme Navigasyon Gecikmesi",

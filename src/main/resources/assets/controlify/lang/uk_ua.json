@@ -149,6 +149,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "Always use the gyroscope.",
   "controlify.gui.flick_stick": "Турбо-стіки",
   "controlify.gui.flick_stick.tooltip": "Змінює поведінку прив'язок погляду вгору/вниз/вліво/вправо для повороту напрямку погляду на 90 градусів у відповідному напрямку при натисканні. Це слід поєднувати з гіроскопом для максимально точного і швидкого прицілювання.",
+  "controlify.gui.flick_animation_ticks": "Flick Duration",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 0, it will disable the animation.",
   "controlify.gui.group.advanced": "Розширені",
   "controlify.gui.group.advanced.tooltip": "Налаштування, які краще не чіпати!",
   "controlify.gui.screen_repeat_navi_delay": "Затримка навігації при повторенні екрана",
