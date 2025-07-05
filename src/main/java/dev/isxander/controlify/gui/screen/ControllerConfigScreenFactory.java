@@ -505,6 +505,18 @@ public class ControllerConfigScreenFactory {
                         .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
                 .build();
         gyroGroup.option(relativeModeOpt);
+	var flickAnimationTicks = Option.<Integer>createBuilder()
+	    .name(Component.literal("YACL test"))
+	    .description(OptionDescription.createBuilder()
+	        .text(Component.literal("YACL test since I don't know how it works"))
+		.build())
+	    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
+	    .controller(opt -> IntegerSliderControllerBuilder.create(opt)
+	        .range(0, 32)
+		.step(1)
+		.valueFormatter(val -> Component.literal(val + " ticks")))
+	    .build();
+	gyroGroup.option(flickAnimationTicks);
         gyroGroup.option(Util.make(() -> {
             var option = Option.<GyroYawMode>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_yaw_mode"))
@@ -570,22 +582,7 @@ public class ControllerConfigScreenFactory {
             gyroOptions.add(opt);
             return opt;
         }));
-	gyroGroup.option(Util.make(() -> {
-	    var opt = Option.<Integer>createBuilder()
-		    .name(Component.literal("YACL Test"))
-		    .description(OptionDescription.createBuilder()
-			    .text(Component.literal("YACL Test since I don't know how it works"))
-			    .build())
-		    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
-		    .controller(opt -> IntegerSliderController.create(opt)
-			    .range(0, 32)
-			    .step(1)
-			    .valueFormatter(val -> Component.literal(val + " ticks")))
-		    .available(gyroSensitivity.pendingValue() > 0)
-		    .build();
-	    gyroOptions.add(opt);
-	    return opt;
-	}));
+
 
         return Optional.of(gyroGroup.build());
     }
