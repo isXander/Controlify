@@ -585,7 +585,7 @@ public class ControllerConfigScreenFactory {
 		    .build();
 	    gyroOptions.add(opt);
 	    return opt;
-	}))
+	}));
 
         return Optional.of(gyroGroup.build());
     }
