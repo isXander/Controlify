@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "Kuis Kayu Bedik",
   "controlify.gui.flick_stick.tooltip": "Mengubah tingkah laku pandangan ke atas/bawah/kiri/kanan untuk memutarkan arah pandangan 90 darjah ke arah yang dihormati apabila ditekan. Ini harus digabungkan dengan pandangan giro untuk mendapatkan sasaran yang paling tepat dan pantas.",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 0, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
   "controlify.gui.group.advanced": "Lanjutan",
   "controlify.gui.group.advanced.tooltip": "Tetapan yang mungkin anda tidak patut sentuh!.",
   "controlify.gui.screen_repeat_navi_delay": "Kelewatan Navigasi Ulang Skrin",

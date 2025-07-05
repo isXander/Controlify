@@ -512,7 +512,7 @@ public class ControllerConfigScreenFactory {
 		.build())
 	    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
 	    .controller(opt -> IntegerSliderControllerBuilder.create(opt)
-	        .range(0, 32)
+	        .range(1, 32)
 		.step(1)
 		.valueFormatter(val -> Component.literal(val + " Ticks")))
 	    .build();

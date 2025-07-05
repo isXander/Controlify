@@ -282,7 +282,7 @@ public class InGameInputHandler {
         controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
 
         if (controller.gyro().map(gyro -> gyro.confObj().lookSensitivity > 0 && gyro.confObj().flickStick).orElse(false)) {
-            handleFlickStick(player);
+            controller.gyro().ifPresent(gyro -> handleFlickStick(gyro, player));
         } else {
             controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
         }
@@ -379,7 +379,9 @@ public class InGameInputHandler {
         } * (config.invertX ? -1 : 1);
     }
 
-    protected void handleFlickStick(LocalPlayer player) {
+    protected void handleFlickStick(GyroComponent gyro, LocalPlayer player) {
+	GyroComponent.Config config = gyro.confObj();
+
         float y = ControlifyBindings.LOOK_DOWN.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_UP.on(controller).analogueNow();
         float x = ControlifyBindings.LOOK_RIGHT.on(controller).analogueNow()
@@ -399,7 +401,7 @@ public class InGameInputHandler {
             flickAnimation.skipToEnd();
         }
 
-        flickAnimation = Animation.of(8)
+        flickAnimation = Animation.of(config.flickAnimationTicks)
                 .easing(EasingFunction.EASE_OUT_EXPO)
                 .deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
                 .play();
