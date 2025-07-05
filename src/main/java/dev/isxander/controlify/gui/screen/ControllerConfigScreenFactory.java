@@ -570,6 +570,22 @@ public class ControllerConfigScreenFactory {
             gyroOptions.add(opt);
             return opt;
         }));
+	gyroGroup.option(Util.make(() -> {
+	    var opt = Option.<Interger>createBuilder()
+		    .name(Component.literal("YACL Test"))
+		    .description(OptionDescription.createBuilder()
+			    .text(Component.literal("YACL Test since I don't know how it works"))
+			    .build())
+		    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
+		    .controller(opt -> IntergerSliderController.create(opt)
+			    .range(0, 32)
+			    .step(1)
+			    .valueFormatter(val -> Component.literal(val + " ticks")))
+		    .available(gyroSensitivity.pendingValue() > 0)
+		    .build();
+	    gyroOptions.add(opt);
+	    return opt;
+	}))
 
         return Optional.of(gyroGroup.build());
     }
