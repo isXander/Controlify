@@ -571,13 +571,13 @@ public class ControllerConfigScreenFactory {
             return opt;
         }));
 	gyroGroup.option(Util.make(() -> {
-	    var opt = Option.<Interger>createBuilder()
+	    var opt = Option.<Integer>createBuilder()
 		    .name(Component.literal("YACL Test"))
 		    .description(OptionDescription.createBuilder()
 			    .text(Component.literal("YACL Test since I don't know how it works"))
 			    .build())
 		    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
-		    .controller(opt -> IntergerSliderController.create(opt)
+		    .controller(opt -> IntegerSliderController.create(opt)
 			    .range(0, 32)
 			    .step(1)
 			    .valueFormatter(val -> Component.literal(val + " ticks")))
