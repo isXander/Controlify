@@ -401,10 +401,15 @@ public class InGameInputHandler {
             flickAnimation.skipToEnd();
         }
 
-        flickAnimation = Animation.of(config.flickAnimationTicks)
-                .easing(EasingFunction.EASE_OUT_EXPO)
-                .deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
-                .play();
+	if (config.flickAnimationTicks != 0) {
+        	flickAnimation = Animation.of(config.flickAnimationTicks)
+                	.easing(EasingFunction.EASE_OUT_EXPO)
+                	.deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
+                	.play();
+	} else {
+		player.turn(flickAngle / 0.15, 0);
+	}
+
     }
 
     public void processPlayerLook(float deltaTime) {
