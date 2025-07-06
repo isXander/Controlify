@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Changes the behaviour of the look up/down/left/right binds to rotate the look direction 90 degrees in the respected direction upon press. This should be combined with gyro look to get the most accurate and fast aiming.",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "Haladó",
   "controlify.gui.group.advanced.tooltip": "Settings you probably shouldn't touch!.",
   "controlify.gui.screen_repeat_navi_delay": "Screen Repeat Navigation Delay",

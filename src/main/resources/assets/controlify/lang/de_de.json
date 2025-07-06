@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "Flick Stick",
   "controlify.gui.flick_stick.tooltip": "Ändert das Verhalten der hoch/runter/links/rechts Tasten zu einer 90° Drehung in die jeweilige Richtung. Dies sollte am besten zusammen mit Gyro-Steuerung verwendet werden, für akkurates und schnelles Zielen.",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "Advanced",
   "controlify.gui.group.advanced.tooltip": "Einstellungen, die du besser nicht anrühren solltest.",
   "controlify.gui.screen_repeat_navi_delay": "Bildschirmeingabe Wiederholungsverzögerung",

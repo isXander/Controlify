@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "Турбо-стики",
   "controlify.gui.flick_stick.tooltip": "Изменяет поведение биндов обзора вверх/вниз/влево/вправо так, что при нажатии направление обзора поворачивается на 90 градусов в нужном направлении. Это следует сочетать с гироскопическим взглядом для получения наиболее точного и быстрого прицеливания.",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "Продвинутые",
   "controlify.gui.group.advanced.tooltip": "Настройки, которые вы не должны менять!",
   "controlify.gui.screen_repeat_navi_delay": "Задержка при повторе навигации по экрану",

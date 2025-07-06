@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "スティックを回転",
   "controlify.gui.flick_stick.tooltip": "ルックアップ/ダウン/左/右の動作を変更し、尊重された方向で90度回転させるためにバインドします。 最も正確で迅速な照準を得るためにはジャイロ視点操作と組み合わせる必要があります",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "高度な設定",
   "controlify.gui.group.advanced.tooltip": "おそらく触れてはいけない設定です！",
   "controlify.gui.screen_repeat_navi_delay": "画面リピートナビゲーション遅延",

@@ -150,7 +150,7 @@
   "controlify.gui.flick_stick": "Thanh trượt",
   "controlify.gui.flick_stick.tooltip": "Thay đổi hành vi của liên kết tìm kiếm lên/xuống/trái/phải để xoay hướng nhìn 90 độ theo hướng tương ứng khi nhấn. Điều này nên được kết hợp với con quay hồi chuyển để có được mục tiêu chính xác và nhanh nhất.",
   "controlify.gui.flick_animation_ticks": "Flick Duration",
-  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Ticks) of the animation when using the Flick Stick. \nIf set to 1, it will disable the animation.",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "Nâng cao",
   "controlify.gui.group.advanced.tooltip": "Cài đặt bạn có thể không nên chạm vào!.",
   "controlify.gui.screen_repeat_navi_delay": "Độ trễ điều hướng lặp lại màn hình",
