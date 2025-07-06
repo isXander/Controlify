@@ -512,9 +512,9 @@ public class ControllerConfigScreenFactory {
 		.build())
 	    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
 	    .controller(opt -> IntegerSliderControllerBuilder.create(opt)
-	        .range(1, 32)
+	        .range(0, 32)
 		.step(1)
-		.valueFormatter(val -> Component.literal(val + " Ticks")))
+		.formatValue(v -> v == 0 ? CommonComponents.OPTION_OFF : ticksToMillisFormatter.format(v)))
 	    .build();
 	gyroGroup.option(flickAnimationTicks);
         gyroGroup.option(Util.make(() -> {
