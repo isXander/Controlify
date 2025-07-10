@@ -387,8 +387,24 @@ public class InGameInputHandler {
         float x = ControlifyBindings.LOOK_RIGHT.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_LEFT.on(controller).analogueNow();
 
+	// TODO: Find a way to obtain the camera's yRot.
+	/*
+        if (!ControlifyBindings.LOOK_DOWN.on(controller).digitalNow()
+                && !ControlifyBindings.LOOK_UP.on(controller).digitalNow()
+                && !ControlifyBindings.LOOK_LEFT.on(controller).digitalNow()
+                && !ControlifyBindings.LOOK_RIGHT.on(controller).digitalNow()
+        ) {
+		float yawOrigin = yRot; // Probably needs to be declared outside this function for it to persist.
+        }
+
+	float yawCurrent = yRot;
+	*/
+
         float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
+	// yawTurn = flickAngle - (yawCurrent - yawOrigin);
+
+	// TODO: Remove this block once it's properly implemented.
         if (!ControlifyBindings.LOOK_DOWN.on(controller).justPressed()
                 && !ControlifyBindings.LOOK_UP.on(controller).justPressed()
                 && !ControlifyBindings.LOOK_LEFT.on(controller).justPressed()
@@ -401,6 +417,8 @@ public class InGameInputHandler {
             flickAnimation.skipToEnd();
         }
 
+
+	// TODO: Replace flickAngle with yawTurn once it's properly implemented
 	if (config.flickAnimationTicks != 0) {
         	flickAnimation = Animation.of(config.flickAnimationTicks)
                 	.easing(EasingFunction.EASE_OUT_EXPO)
