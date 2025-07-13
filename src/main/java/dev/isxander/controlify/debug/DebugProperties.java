@@ -31,18 +31,18 @@ public class DebugProperties {
         if (properties.stream().noneMatch(prop -> prop.state() != prop.def()))
             return;
 
-        String header = "*----------------- Controlify Debug Properties -----------------*";
+        String header = "*------------------------ Controlify Debug Properties ------------------------*";
         CUtil.LOGGER.error(header);
 
         int maxWidth = properties.stream().mapToInt(prop -> prop.name().length()).max().orElse(0);
         for (var prop : properties) {
             String line = "| %s%s = %s".formatted(prop.name(), " ".repeat(maxWidth - prop.name().length()), prop.state());
-            line += " ".repeat(header.length() - line.length() - 1) + "|";
+            line += " ".repeat(Math.max(0, header.length() - line.length() - 1)) + "|";
 
             CUtil.LOGGER.error(line);
         }
 
-        CUtil.LOGGER.error("*---------------------------------------------------------------*");
+        CUtil.LOGGER.error("*-----------------------------------------------------------------------------*");
     }
 
     private static boolean boolProp(String name, boolean defProd, boolean defDev) {
