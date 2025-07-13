@@ -149,4 +149,9 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SDL_Joystick> {
     protected boolean SDL_SendControllerEffect(SDL_Joystick ptrController, Pointer effect, int size) {
         return SDL_SendJoystickEffect(ptrController, effect, size);
     }
+
+    @Override
+    protected boolean SDL_SetControllerLED(SDL_Joystick ptrController, byte red, byte green, byte blue) {
+        return SDL_SetJoystickLED(ptrController, red, green, blue);
+    }
 }
