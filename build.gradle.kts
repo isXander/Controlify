@@ -154,7 +154,7 @@ class NativeTarget(
     val fileName: String,
     configuration: String,
 ) {
-    val configurationName = "offlineNative$configuration"
+    val configuration = configurations.create("offlineNative$configuration")
 }
 val nativeTargets = listOf(
     NativeTarget(classifier = "linux-aarch64", fileExtension = "so", jnaPrefix = "linux-aarch64/", fileName = "libSDL3", configuration = "LinuxAarch64"),
@@ -167,25 +167,36 @@ val nativeTargets = listOf(
 val nativeHashConfiguration = configurations.create("nativeHashes")
 
 nativeTargets.forEach { target ->
-    val nativesConfiguration = configurations.create(target.configurationName)
-
     dependencies {
-        nativesConfiguration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}")
+        target.configuration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}")
         nativeHashConfiguration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}.md5")
     }
+}
 
-    tasks.jar {
-        from(nativesConfiguration) {
+val prepareNatives = tasks.register<Sync>("prepareNativeResources") {
+    group = "controlify/internal"
+
+    into(layout.buildDirectory.dir("generated-resources/sdl-natives"))
+
+    nativeTargets.forEach { target ->
+        from(target.configuration) {
             into(target.jnaPrefix)
             rename { "${target.fileName}.${target.fileExtension}" }
         }
     }
-}
-
-tasks.jar {
     from(nativeHashConfiguration) {
         into("sdl3-hashes/")
     }
+}
+
+sourceSets {
+    main {
+        resources.srcDir(prepareNatives.map { it.destinationDir })
+    }
+}
+
+tasks.processResources {
+    dependsOn(prepareNatives)
 }
 /*
 END
