@@ -32,15 +32,9 @@ public class SplitscreenBootstrapper {
     private static @Nullable RemotePawnMain remotePawnMain;
 
     /**
-     * When a client is started it has to decide whether
-     * to become a controller, or a pawn.
-     * <p>
-     * It should do this by testing if the socket is
-     * already open (a controller exists), becoming a
-     * pawn if so, or opening a socket and becoming a
-     * controller if not.
+     * When a client is started, this method is called.
+     * It initializes the pawn behaviour if the client is a pawn.
      */
-    // TODO: bootstrap late when a second controller is added, not at init
     public static void bootstrap(Minecraft minecraft) {
         LOGGER.info("Boostrapping Controlify splitscreen!");
 
@@ -49,51 +43,57 @@ public class SplitscreenBootstrapper {
 
         boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
         if (relaunched) {
-            RelaunchArguments.ARGFILE_PATH.get().ifPresent(pathString -> {
-                Path path = Path.of(pathString);
-                try {
-                    Files.delete(path);
-                } catch (Exception e) {
-                    LOGGER.error("Failed to delete arg file", e);
-                }
-            });
-
-            int port = RelaunchArguments.IPC_TCP_PORT.get().orElse(-1);
-            String socketPath = RelaunchArguments.IPC_SOCKET_PATH.get().orElse(null);
-
-            IPCMethod ipcMethod;
-            if (socketPath != null) {
-                ipcMethod = new IPCMethod.Unix(socketPath);
-            } else if (port != -1) {
-                ipcMethod = new IPCMethod.TCP(port);
-            } else {
-                throw new RelaunchException("No socket path or TCP port provided");
-            }
-
-            int pawnIndex = RelaunchArguments.PAWN_INDEX.get().orElseThrow();
-
-            LOGGER.info("Detected relaunch, becoming pawn#{} and connecting to controller via TCP at port {}", pawnIndex, port);
-            bootstrapAsPawn(minecraft, ipcMethod);
+            bootstrapAsPawn(minecraft);
         } else {
-            LOGGER.info("Not a relaunch, becoming controller!");
-
-            IPCMethod ipcMethod = IPCMethod.Unix.inDirectory(Path.of(System.getProperty("user.home")))
-                    .map(m -> (IPCMethod) m) // upcast the optional to IPCMethod instead of IPCMethod.Unix
-                    .filter(m -> SocketUtil.isAfUnixSupported())
-                    .orElseGet(() -> new IPCMethod.TCP(HttpUtil.getAvailablePort()));
-
-            bootstrapAsController(minecraft, ipcMethod);
+            LOGGER.info("Not a relaunch, deferring bootstrap to player action.");
         }
 
         SplitscreenSSClient.init();
+    }
+
+    public static void bootstrapAsPawn(Minecraft minecraft) {
+        RelaunchArguments.ARGFILE_PATH.get().ifPresent(pathString -> {
+            Path path = Path.of(pathString);
+            try {
+                Files.delete(path);
+            } catch (Exception e) {
+                LOGGER.error("Failed to delete arg file", e);
+            }
+        });
+
+        int port = RelaunchArguments.IPC_TCP_PORT.get().orElse(-1);
+        String socketPath = RelaunchArguments.IPC_SOCKET_PATH.get().orElse(null);
+
+        IPCMethod ipcMethod;
+        if (socketPath != null) {
+            ipcMethod = new IPCMethod.Unix(socketPath);
+        } else if (port != -1) {
+            ipcMethod = new IPCMethod.TCP(port);
+        } else {
+            throw new RelaunchException("No socket path or TCP port provided");
+        }
+
+        int pawnIndex = RelaunchArguments.PAWN_INDEX.get().orElseThrow();
+
+        LOGGER.info("Detected relaunch, becoming pawn#{} and connecting to controller via TCP at port {}", pawnIndex, port);
+        bootstrapAsPawn(minecraft, ipcMethod);
     }
 
     private static void bootstrapAsPawn(Minecraft minecraft, IPCMethod connectionMethod) {
         remotePawnMain = new RemotePawnMain(minecraft, connectionMethod);
     }
 
-    private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod) {
-        controller = new SplitscreenController(minecraft, connectionMethod, null);
+    public static void boostrapAsController(Minecraft minecraft, InputMethod localInputMethod) {
+        IPCMethod ipcMethod = IPCMethod.Unix.inDirectory(Path.of(System.getProperty("user.home")))
+                .map(m -> (IPCMethod) m) // upcast the optional to IPCMethod instead of IPCMethod.Unix
+                .filter(m -> SocketUtil.isAfUnixSupported())
+                .orElseGet(() -> new IPCMethod.TCP(HttpUtil.getAvailablePort()));
+
+        bootstrapAsController(minecraft, ipcMethod, localInputMethod);
+    }
+
+    private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod, InputMethod localInputMethod) {
+        controller = new SplitscreenController(minecraft, connectionMethod, localInputMethod);
     }
 
     public static boolean isSplitscreen() {
@@ -129,15 +129,10 @@ public class SplitscreenBootstrapper {
     }
 
     /**
-     * @return the side of the connection, either controller or pawn, empty if splitscreen is not active
+     * @return the side of the connection, either controller or pawn
      */
-    public static Optional<Side> getSide() {
-        if (controller != null) {
-            return Optional.of(Side.CONTROLLER);
-        } else if (remotePawnMain != null) {
-            return Optional.of(Side.PAWN);
-        } else {
-            return Optional.empty();
-        }
+    public static Side getSide() {
+        boolean relaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
+        return relaunched ? Side.PAWN : Side.CONTROLLER;
     }
 }

@@ -111,7 +111,7 @@ public class PawnConnectionListener {
             c.setupOutboundProtocol(PlayProtocols.controllerbound(splitscreenEngine.getControllerboundCustomPayloadCodec()));
         });
         // will run after above since it is flushed above
-        connection.send(new ControllerboundHelloPacket(RelaunchArguments.CONTROLLER.get().orElse(null)));
+        connection.send(new ControllerboundHelloPacket(RelaunchArguments.INPUT_METHOD.get().orElse(null)));
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> connection.tick());
 

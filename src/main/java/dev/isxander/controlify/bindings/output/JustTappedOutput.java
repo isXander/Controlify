@@ -4,7 +4,7 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.StateAccess;
 
 public class JustTappedOutput implements DigitalOutput {
-    public static final int DEFAULT_MAX_HOLD_TIME_TICKS = 2;
+    public static final int DEFAULT_MAX_HOLD_TIME_TICKS = 6;
 
     private final StateAccess stateAccess;
     private final int maxHoldTime;

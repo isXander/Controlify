@@ -33,7 +33,7 @@ public final class PlayProtocols {
                         .addPacket(PawnboundKeepAlivePacket.TYPE, PawnboundKeepAlivePacket.CODEC)
                         .addPacket(PawnboundJoinServerPacket.TYPE, PawnboundJoinServerPacket.CODEC)
                         .addPacket(PawnboundCloseGamePacket.TYPE, PawnboundCloseGamePacket.CODEC)
-                        .addPacket(PawnboundUseControllerPacket.TYPE, PawnboundUseControllerPacket.CODEC)
+                        .addPacket(PawnboundUseInputMethodPacket.TYPE, PawnboundUseInputMethodPacket.CODEC)
                         .addPacket(PawnboundServerDisconnectPacket.TYPE, PawnboundServerDisconnectPacket.CODEC)
                         .addPacket(PawnboundLoadConfigPacket.TYPE, PawnboundLoadConfigPacket.CODEC)
                         .addPacket(PawnboundEngineCustomPayloadPacket.TYPE, engineCodec)

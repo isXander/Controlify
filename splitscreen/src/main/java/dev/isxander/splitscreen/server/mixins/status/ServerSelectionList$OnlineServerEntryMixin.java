@@ -3,11 +3,9 @@ package dev.isxander.splitscreen.server.mixins.status;
 import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.server.status.ServerStatusSplitscreenExt;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Final;
@@ -21,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ServerSelectionList.OnlineServerEntry.class)
 public class ServerSelectionList$OnlineServerEntryMixin {
     @Shadow @Final private ServerData serverData;
-    @Shadow @Final private JoinMultiplayerScreen screen;
 
     /**
      * Render the splitscreen status icon in the server entries

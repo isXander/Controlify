@@ -17,7 +17,7 @@ public class ConnectionMixin {
     @Shadow
     private volatile boolean sendLoginDisconnect;
 
-    @Definition(id = "send", method = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V")
+    @Definition(id = "send", method = "Lnet/minecraft/network/Connection;send(Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;)V")
     @Expression("this.send(@(?), ?)")
     @ModifyExpressionValue(method = "exceptionCaught", at = @At("MIXINEXTRAS:EXPRESSION"))
     private Packet<?> modifyDisconnectPacket(Packet<?> packet, @Local Component reason, @Local(argsOnly = true) Throwable throwable) {

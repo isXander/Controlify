@@ -56,11 +56,11 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
         this.pawn.closeGame();
     }
 
-    public void handleUseController(PawnboundUseControllerPacket packet) {
+    public void handleUseInputMethod(PawnboundUseInputMethodPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
 
-        LOGGER.info("Pawn using controller {}", packet.controllerUID());
-        this.pawn.useController(packet.controllerUID());
+        LOGGER.info("Pawn using input method {}", packet.inputMethod());
+        this.pawn.useInputMethod(packet.inputMethod());
     }
 
     public void handleKeepAlive(PawnboundKeepAlivePacket packet) {

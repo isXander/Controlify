@@ -1,6 +1,5 @@
 package dev.isxander.splitscreen.client;
 
-import dev.isxander.controlify.controller.ControllerUID;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,15 +40,11 @@ public interface SplitscreenPawn extends Bridge {
     void disconnectFromServer();
 
     /**
-     * @return the current splitscreen mode of the window
-     */
-    SplitscreenPosition getWindowSplitscreenMode();
-
-    /**
      * Tells the pawn to use the given controller.
-     * @param controllerUid the UID of the controller to use
+     *
+     * @param inputMethod the UID of the controller to use
      */
-    void useController(ControllerUID controllerUid);
+    void useInputMethod(InputMethod inputMethod);
 
     /**
      * Tells the pawns to load a specific config as it has been saved on the controller.
@@ -60,5 +55,5 @@ public interface SplitscreenPawn extends Bridge {
     /**
      * @return the associated controller UID for this pawn, or null if no controller is associated
      */
-    @Nullable ControllerUID getAssociatedController();
+    InputMethod getAssociatedInputMethod();
 }

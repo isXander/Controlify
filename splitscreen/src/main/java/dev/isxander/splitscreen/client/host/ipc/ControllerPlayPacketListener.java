@@ -35,7 +35,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     public void handleHello(ControllerboundHelloPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
 
-        this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.controller());
+        this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.inputMethod());
         this.controller.addPawn(this.pawnInstance);
 
         // initiate keep alive chain
@@ -51,7 +51,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
 
-        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedController());
+        this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedInputMethod());
     }
 
     public void handleKeepAlive(ControllerboundKeepAlivePacket packet) {
@@ -61,7 +61,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
 
-        this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedController(), this.connection, packet.payload());
+        this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedInputMethod(), this.connection, packet.payload());
     }
 
     public void handleServerDisconnected(ControllerboundServerDisconnectedPacket packet) {

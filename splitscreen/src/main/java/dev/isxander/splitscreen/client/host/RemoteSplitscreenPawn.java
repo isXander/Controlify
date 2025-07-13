@@ -1,6 +1,6 @@
 package dev.isxander.splitscreen.client.host;
 
-import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.SplitscreenPawn;
 import dev.isxander.splitscreen.client.SplitscreenPosition;
 import dev.isxander.splitscreen.client.ipc.packets.pawnbound.play.*;
@@ -16,19 +16,18 @@ import java.util.Optional;
 public class RemoteSplitscreenPawn implements SplitscreenPawn {
     private final Connection connection;
 
-    private SplitscreenPosition position = null;
     private final int index;
-    private final @Nullable ControllerUID associatedController;
+    private final InputMethod associatedInputMethod;
 
     /**
      * Creates a new handle to a remote splitscreen pawn.
      * @param connection connection to a remote client
-     * @param associatedController the controller uid associated with this pawn
+     * @param associatedInputMethod the controller uid associated with this pawn
      */
-    public RemoteSplitscreenPawn(Connection connection, int index, @Nullable ControllerUID associatedController) {
+    public RemoteSplitscreenPawn(Connection connection, int index, InputMethod associatedInputMethod) {
         this.connection = connection;
         this.index = index;
-        this.associatedController = associatedController;
+        this.associatedInputMethod = associatedInputMethod;
     }
 
     @Override
@@ -52,8 +51,8 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void useController(ControllerUID controllerUid) {
-        this.connection.send(new PawnboundUseControllerPacket(controllerUid));
+    public void useInputMethod(InputMethod inputMethod) {
+        this.connection.send(new PawnboundUseInputMethodPacket(inputMethod));
     }
 
     @Override
@@ -62,13 +61,8 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public SplitscreenPosition getWindowSplitscreenMode() {
-        return this.position;
-    }
-
-    @Override
-    public @Nullable ControllerUID getAssociatedController() {
-        return this.associatedController;
+    public InputMethod getAssociatedInputMethod() {
+        return this.associatedInputMethod;
     }
 
     @Override

@@ -2,6 +2,7 @@ package dev.isxander.splitscreen.client.host;
 
 import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.host.features.music.PawnMusicManager;
 import dev.isxander.splitscreen.client.host.features.relaunch.PendingRelaunchClientStatus;
 import dev.isxander.splitscreen.client.config.SplitscreenConfig;
@@ -46,17 +47,17 @@ public class SplitscreenController  {
 
     private final PawnMusicManager pawnMusicManager;
 
-    private final Map<ControllerUID, RelaunchProcessHandler> relaunchProcessHandlers = new HashMap<>();
-    private final Map<ControllerUID, PendingRelaunchClientStatus> pendingRelaunchClients = new HashMap<>();
+    private final Map<InputMethod, RelaunchProcessHandler> relaunchProcessHandlers = new HashMap<>();
+    private final Map<InputMethod, PendingRelaunchClientStatus> pendingRelaunchClients = new HashMap<>();
     private @Nullable SplitscreenFakeReloadInstance splitscreenLoaderStatus = null;
 
-    public SplitscreenController(Minecraft minecraft, IPCMethod ipcMethod, @Nullable ControllerUID associatedController) {
+    public SplitscreenController(Minecraft minecraft, IPCMethod ipcMethod, InputMethod associatedInputMethod) {
         this.minecraft = minecraft;
         this.controllerBridge = new LocalControllerBridge(minecraft, this);
         this.ipcMethod = ipcMethod;
         this.connectionListener = new ControllerConnectionListener(ipcMethod, this, minecraft);
-        this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft, associatedController)); // control ourselves as a pawn
-        this.splitscreenEngine = HostSplitscreenEngine.create(this.minecraft, associatedController);
+        this.addPawn(this.localPawn = new HostLocalSplitscreenPawn(minecraft, associatedInputMethod)); // control ourselves as a pawn
+        this.splitscreenEngine = HostSplitscreenEngine.create(this.minecraft, associatedInputMethod);
         this.pawnMusicManager = new PawnMusicManager();
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> {
@@ -97,8 +98,9 @@ public class SplitscreenController  {
 
         this.pawns.add(pawn);
 
-        @Nullable ControllerUID associatedController = pawn.getAssociatedController();
-        if (associatedController != null) {
+        if (pawn instanceof RemoteSplitscreenPawn) {
+            InputMethod associatedController = pawn.getAssociatedInputMethod();
+
             PendingRelaunchClientStatus newStatus = new PendingRelaunchClientStatus.WaitingForReadySignal(0);
             PendingRelaunchClientStatus oldStatus = this.pendingRelaunchClients.put(associatedController, newStatus);
 
@@ -108,33 +110,28 @@ public class SplitscreenController  {
         }
     }
 
-    public void onPawnReadySignal(boolean finished, float progress, RemoteSplitscreenPawn pawn, @Nullable ControllerUID controllerUid) {
-        if (controllerUid == null) {
-            LOGGER.warn("Pawn ready signal received with no controller UID");
-            return;
-        }
-
-        RelaunchProcessHandler process = this.relaunchProcessHandlers.get(controllerUid);
+    public void onPawnReadySignal(boolean finished, float progress, RemoteSplitscreenPawn pawn, InputMethod inputMethod) {
+        RelaunchProcessHandler process = this.relaunchProcessHandlers.get(inputMethod);
         process.setPawn(pawn);
 
         if (finished) {
-            this.pendingRelaunchClients.remove(controllerUid);
-            LOGGER.info("Pawn {} is ready", controllerUid);
+            this.pendingRelaunchClients.remove(inputMethod);
+            LOGGER.info("Pawn {} is ready", inputMethod);
 
             this.updateSplitscreenMode();
         } else {
             var newStatus = new PendingRelaunchClientStatus.WaitingForReadySignal(progress);
-            var oldStatus = this.pendingRelaunchClients.put(controllerUid, newStatus);
+            var oldStatus = this.pendingRelaunchClients.put(inputMethod, newStatus);
 
             if (oldStatus == null) {
-                LOGGER.warn("Pawn {} sent ready update but we were not waiting on it", controllerUid);
+                LOGGER.warn("Pawn {} sent ready update but we were not waiting on it", inputMethod);
             }
         }
     }
 
     public void removePawn(SplitscreenPawn pawn) {
         this.pawns.remove(pawn);
-        this.splitscreenEngine.removeWindow(pawn.getAssociatedController());
+        this.splitscreenEngine.removeWindow(pawn.getAssociatedInputMethod());
         this.splitscreenEngine.consumeDirty();
         this.updateSplitscreenMode();
     }
@@ -161,7 +158,7 @@ public class SplitscreenController  {
             case FULLSCREEN -> {
                 this.forEachPawn(pawn -> {
                     this.splitscreenEngine.setSplitscreenMode(
-                            pawn.getAssociatedController(),
+                            pawn.getAssociatedInputMethod(),
                             pawn == this.localPawn ? SplitscreenPosition.FULL : SplitscreenPosition.HIDDEN
                     );
                 });
@@ -181,7 +178,7 @@ public class SplitscreenController  {
                 this.forEachPawn((pawn, i) -> {
                     SplitscreenPosition position = positions[i];
                     LOGGER.info("Setting pawn #{} to {}", i, position);
-                    this.splitscreenEngine.setSplitscreenMode(pawn.getAssociatedController(), position);
+                    this.splitscreenEngine.setSplitscreenMode(pawn.getAssociatedInputMethod(), position);
                 });
             }
         }
@@ -198,18 +195,18 @@ public class SplitscreenController  {
     /**
      * Relaunches the game to add another player, bound to a specific controller.
      *
-     * @param controller the controller to associate with this new pawn
+     * @param inputMethod the input method to associate with this new pawn
      * @return if the pawn was successfully summoned
      */
-    public boolean summonNewPawnClient(ControllerUID controller) {
-        if (this.relaunchProcessHandlers.containsKey(controller)) {
+    public boolean summonNewPawnClient(InputMethod inputMethod) {
+        if (this.relaunchProcessHandlers.containsKey(inputMethod)) {
             return false;
         }
 
         int pawnIndex = this.pawns.size();
-        RelaunchProcessHandler handler = RelaunchProcessHandler.createProcess(this.minecraft, controller, this, pawnIndex, this.ipcMethod);
-        this.relaunchProcessHandlers.put(controller, handler);
-        this.pendingRelaunchClients.put(controller, new PendingRelaunchClientStatus.WaitingForConnection());
+        RelaunchProcessHandler handler = RelaunchProcessHandler.createProcess(this.minecraft, inputMethod, this, pawnIndex, this.ipcMethod);
+        this.relaunchProcessHandlers.put(inputMethod, handler);
+        this.pendingRelaunchClients.put(inputMethod, new PendingRelaunchClientStatus.WaitingForConnection());
 
         if (this.splitscreenLoaderStatus == null) {
             this.splitscreenLoaderStatus = new SplitscreenFakeReloadInstance(this.pendingRelaunchClients.values());
@@ -224,18 +221,18 @@ public class SplitscreenController  {
         }
 
         handler.onExit().whenComplete((h, throwable) ->
-                this.onRelaunchedPawnExit(controller, handler, throwable));
+                this.onRelaunchedPawnExit(inputMethod, handler, throwable));
 
         return true;
     }
 
-    private void onRelaunchedPawnExit(ControllerUID controller, RelaunchProcessHandler process, Throwable throwable) {
-        if (this.pendingRelaunchClients.remove(controller) != null) {
+    private void onRelaunchedPawnExit(InputMethod inputMethod, RelaunchProcessHandler process, Throwable throwable) {
+        if (this.pendingRelaunchClients.remove(inputMethod) != null) {
             LOGGER.info("Relaunch client exited before it was ready, did it crash?");
         }
 
-        if (this.relaunchProcessHandlers.remove(controller) != null) {
-            LOGGER.info("Relaunch process for {} exited", controller);
+        if (this.relaunchProcessHandlers.remove(inputMethod) != null) {
+            LOGGER.info("Relaunch process for {} exited", inputMethod, throwable);
         }
 
         SplitscreenPawn pawn = process.getPawn();

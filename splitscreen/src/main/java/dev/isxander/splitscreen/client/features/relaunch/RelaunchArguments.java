@@ -1,12 +1,12 @@
 package dev.isxander.splitscreen.client.features.relaunch;
 
-import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 
 import java.util.UUID;
 
 public final class RelaunchArguments {
     public static final RelaunchArgument<Boolean> RELAUNCHED = RelaunchArgument.bool("controlify.splitscreen.relaunched");
-    public static final RelaunchArgument<ControllerUID> CONTROLLER = RelaunchArgument.controller("controlify.splitscreen.controller");
+    public static final RelaunchArgument<InputMethod> INPUT_METHOD = RelaunchArgument.inputMethod("controlify.splitscreen.controller");
     public static final RelaunchArgument<Integer> PAWN_INDEX = RelaunchArgument.integer("controlify.splitscreen.pawn_index");
     public static final RelaunchArgument<Integer> IPC_TCP_PORT = RelaunchArgument.integer("controlify.splitscreen.ipc.tcp_port");
     public static final RelaunchArgument<String> IPC_SOCKET_PATH = RelaunchArgument.string("controlify.splitscreen.ipc.socket_path");

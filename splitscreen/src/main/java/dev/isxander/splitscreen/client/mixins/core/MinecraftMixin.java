@@ -32,13 +32,6 @@ public abstract class MinecraftMixin {
     @Nullable
     private IntegratedServer singleplayerServer;
 
-    @Shadow
-    protected abstract String createTitle();
-
-    @Shadow
-    @Final
-    private VirtualScreen virtualScreen;
-
     /**
      * Minecraft only usually pauses the game when in a singleplayer world with no LAN.
      * This is a problem for splitscreen, even if all players are local, it will be treated as

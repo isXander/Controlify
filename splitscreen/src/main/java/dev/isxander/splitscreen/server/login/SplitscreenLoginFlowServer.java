@@ -275,12 +275,17 @@ public class SplitscreenLoginFlowServer {
         return nonce;
     }
 
-    static byte[] generateHmac(byte[] nonce, UUID controllerUuid, int subPlayerIndex) {
+    static byte[] generateHmac(byte @Nullable [] nonce, UUID controllerUuid, int subPlayerIndex) {
         ByteBuffer hmacBuf = ByteBuffer.allocate(Long.BYTES * 2 + Integer.BYTES);
         hmacBuf.putLong(controllerUuid.getMostSignificantBits());
         hmacBuf.putLong(controllerUuid.getLeastSignificantBits());
         hmacBuf.putInt(subPlayerIndex);
         hmacBuf.flip();
+
+        if (nonce == null) {
+            LOGGER.warn("Generating HMAC with random nonce, since none was provided. Server will probably deny login.");
+            nonce = generateNonce();
+        }
 
         return new HmacUtils(HmacAlgorithms.HMAC_SHA_256, nonce).hmac(hmacBuf);
     }

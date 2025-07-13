@@ -32,7 +32,7 @@ public class ControlifyMixin {
                 .getConnectedControllers().size();
         if (controllersConnected > 1) {
             InputBinding binding = ControlifyExtension.ADD_PLAYER_BIND.on(controller);
-            return Component.literal("Press ").append(binding.inputIcon()).append(" to start splitscreen");
+            return Component.translatable("controlify.splitscreen.toast.long_press_to_join", binding.inputIcon());
         }
         return component;
     }

@@ -1,6 +1,7 @@
 package dev.isxander.splitscreen.client.features.relaunch;
 
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,8 +27,8 @@ public class RelaunchArgument<T> {
         return new RelaunchArgument<>(name, Boolean::parseBoolean, Object::toString);
     }
 
-    public static RelaunchArgument<ControllerUID> controller(String name) {
-        return new RelaunchArgument<>(name, ControllerUID::new, ControllerUID::string);
+    public static RelaunchArgument<InputMethod> inputMethod(String name) {
+        return new RelaunchArgument<>(name, InputMethod::fromString, InputMethod::asString);
     }
 
     public static RelaunchArgument<UUID> uuid(String name) {

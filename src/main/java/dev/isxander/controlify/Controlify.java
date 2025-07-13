@@ -201,6 +201,17 @@ public class Controlify implements ControlifyApi {
         // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
         ControlifyCompat.init();
 
+        // register events
+        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyInit(this);
+            } catch (Throwable e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
+
         // make sure people don't someone add binds after controllers could have been created
         ControlifyBindApiImpl.INSTANCE.lock();
 
@@ -210,20 +221,9 @@ public class Controlify implements ControlifyApi {
             CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
         }
 
-        // register events
-        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
-
         if (this.config().globalSettings().useEnhancedSteamDeckDriver) {
             doSteamDeckChecks();
         }
-
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControlifyInit(this);
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
     }
 
     private void doSteamDeckChecks() {

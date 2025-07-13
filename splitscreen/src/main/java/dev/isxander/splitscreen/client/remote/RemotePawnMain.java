@@ -18,7 +18,7 @@ public class RemotePawnMain {
 
     public RemotePawnMain(Minecraft minecraft, IPCMethod ipcMethod) {
         this.minecraft = minecraft;
-        this.pawn = new LocalSplitscreenPawn(minecraft, RelaunchArguments.PAWN_INDEX.get().orElseThrow(), RelaunchArguments.CONTROLLER.get().orElse(null));
+        this.pawn = new LocalSplitscreenPawn(minecraft, RelaunchArguments.PAWN_INDEX.get().orElseThrow(), RelaunchArguments.INPUT_METHOD.get().orElse(null));
         this.splitscreenEngine = RemoteSplitscreenEngine.create(this.minecraft, payload -> this.getConnectionListener().getControllerConnection().send(new ControllerboundEngineCustomPayloadPacket(payload)), this.pawn);
         this.connectionListener = new PawnConnectionListener(this.minecraft, ipcMethod, this);
         this.controllerBridge = new RemoteControllerBridge(this.minecraft, this.connectionListener.getControllerConnection());

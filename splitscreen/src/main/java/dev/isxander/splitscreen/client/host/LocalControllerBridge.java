@@ -2,6 +2,7 @@ package dev.isxander.splitscreen.client.host;
 
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.splitscreen.client.ControllerBridge;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.SplitscreenPawn;
 import dev.isxander.splitscreen.client.host.gui.SplitscreenDisconnectedScreen;
 import net.minecraft.client.Minecraft;
@@ -56,8 +57,8 @@ public class LocalControllerBridge implements ControllerBridge {
         });
     }
 
-    public void signalRemoteClientReady(boolean finished, float progress, RemoteSplitscreenPawn pawn, @Nullable ControllerUID associatedController) {
-        this.controller.onPawnReadySignal(finished, progress, pawn, associatedController);
+    public void signalRemoteClientReady(boolean finished, float progress, RemoteSplitscreenPawn pawn, InputMethod inputMethod) {
+        this.controller.onPawnReadySignal(finished, progress, pawn, inputMethod);
     }
 
     @Override

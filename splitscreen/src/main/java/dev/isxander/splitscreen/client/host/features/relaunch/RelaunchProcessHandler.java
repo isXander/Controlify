@@ -1,6 +1,6 @@
 package dev.isxander.splitscreen.client.host.features.relaunch;
 
-import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.host.RemoteSplitscreenPawn;
 import dev.isxander.splitscreen.client.host.SplitscreenController;
 import dev.isxander.splitscreen.client.host.features.relaunch.impl.FabricLoaderRelauncher;
@@ -33,7 +33,7 @@ public class RelaunchProcessHandler {
 
     private @Nullable RemoteSplitscreenPawn pawn;
 
-    public static RelaunchProcessHandler createProcess(Minecraft minecraft, ControllerUID controller, SplitscreenController splitscreenController, int pawnIndex, IPCMethod ipcMethod) {
+    public static RelaunchProcessHandler createProcess(Minecraft minecraft, InputMethod inputMethod, SplitscreenController splitscreenController, int pawnIndex, IPCMethod ipcMethod) {
         boolean isDevLaunchInjector = FabricLoader.getInstance().isDevelopmentEnvironment();
         LaunchInfo launchInfo = PrismRelauncher.isPrism() ? PrismRelauncher.getLaunchInfo() : !isDevLaunchInjector ? FabricLoaderRelauncher.getLaunchInfo() : HackyRelauncher.getLaunchInfo();
 
@@ -46,7 +46,7 @@ public class RelaunchProcessHandler {
 
         // append own JVM args to pass to the new process
         launchInfo.jvmArgs().add(RelaunchArguments.RELAUNCHED.asArgument(true));
-        launchInfo.jvmArgs().add(RelaunchArguments.CONTROLLER.asArgument(controller));
+        launchInfo.jvmArgs().add(RelaunchArguments.INPUT_METHOD.asArgument(inputMethod));
         launchInfo.jvmArgs().add(RelaunchArguments.PAWN_INDEX.asArgument(pawnIndex));
         launchInfo.jvmArgs().add(RelaunchArguments.HOST_UUID.asArgument(minecraft.getUser().getProfileId()));
         launchInfo.jvmArgs().add(RelaunchArguments.ARGFILE_PATH.asArgument(argFile.toString()));

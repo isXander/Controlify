@@ -84,7 +84,7 @@ public class InGameInputHandler {
         if (minecraft.screen != null)
             return;
 
-        if (ControlifyBindings.PAUSE.on(controller).justPressed()) {
+        if (ControlifyBindings.PAUSE.on(controller).justTapped()) {
             minecraft.pauseGame(false);
         }
         if (minecraft.player != null) {

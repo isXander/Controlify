@@ -32,5 +32,7 @@
   "controlify.splitscreen.config.basic.music_method.desc": "How in-game music should be handled across the splitscreen system.",
   "controlify.splitscreen.config.basic.music_method.first_player": "First player",
   "controlify.splitscreen.config.basic.music_method.priority": "Priority",
-  "controlify.splitscreen.open_button": "Splitscreen..."
+  "controlify.splitscreen.open_button": "Splitscreen...",
+  "controlify.splitscreen.toast.long_press_to_join.title": "Splitscreen",
+  "controlify.splitscreen.toast.long_press_to_join": "Long-press %s to start splitscreen"
 }

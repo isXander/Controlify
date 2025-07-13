@@ -1,14 +1,14 @@
 package dev.isxander.splitscreen.client.host;
 
-import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.LocalSplitscreenPawn;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
-    public HostLocalSplitscreenPawn(Minecraft minecraft, @Nullable ControllerUID associatedController) {
-        super(minecraft, 0, associatedController);
+    public HostLocalSplitscreenPawn(Minecraft minecraft, InputMethod associatedInputMethod) {
+        super(minecraft, 0, associatedInputMethod);
     }
 
     /**

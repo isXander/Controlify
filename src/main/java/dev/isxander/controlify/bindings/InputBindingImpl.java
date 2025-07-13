@@ -36,6 +36,7 @@ public class InputBindingImpl implements InputBinding {
     private final DigitalOutput justPressed;
     private final DigitalOutput justReleased;
     private final DigitalOutput justTapped;
+    private final LongPressedOutput longPressed;
     private final GuiPressOutput guiPressOutput;
 
     private final Map<ResourceLocation, DigitalOutput> digitalOutputs;
@@ -75,6 +76,7 @@ public class InputBindingImpl implements InputBinding {
         this.justPressed = addDigitalOutput(JUST_PRESSED, new JustPressedOutput(this));
         this.justReleased = addDigitalOutput(JUST_RELEASED, new JustReleasedOutput(this));
         this.justTapped = addDigitalOutput(JUST_TAPPED, new JustTappedOutput(this));
+        this.longPressed = addDigitalOutput(LONG_PRESSED, new LongPressedOutput(this));
         this.guiPressOutput = addDigitalOutput(GUI_PRESSED, new GuiPressOutput(this));
     }
 
@@ -229,6 +231,15 @@ public class InputBindingImpl implements InputBinding {
     @Override
     public boolean justTapped() {
         return this.justTapped.get();
+    }
+
+    @Override
+    public boolean longPressed(boolean consume) {
+        boolean longPressed = this.longPressed.get();
+        if (consume && longPressed) {
+            this.longPressed.consume();
+        }
+        return longPressed;
     }
 
     @Override

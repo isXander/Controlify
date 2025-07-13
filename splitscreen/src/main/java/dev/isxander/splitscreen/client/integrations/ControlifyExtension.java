@@ -4,11 +4,14 @@ import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.controlify.utils.ToastUtils;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchArguments;
 import dev.isxander.splitscreen.client.features.relaunch.RelaunchException;
@@ -21,10 +24,15 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+import java.util.Optional;
+
 public class ControlifyExtension implements ControlifyEntrypoint {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private static final Component BINDING_CATEGORY = Component.translatable("controlify.splitscreen.bind.category");
+
+    private static final boolean isRelaunched = RelaunchArguments.RELAUNCHED.get().orElse(false);
+    private static final @Nullable InputMethod relaunchedInputMethod = RelaunchArguments.INPUT_METHOD.get().orElse(null);
 
     public static InputBindingSupplier ADD_PLAYER_BIND;
 
@@ -52,24 +60,63 @@ public class ControlifyExtension implements ControlifyEntrypoint {
         ControllerEntity controller = event.controller();
         Controlify controlify = Controlify.instance();
 
-        SplitscreenBootstrapper.getController().ifPresent(splitController -> {
+        // since this extension runs on all pawns, this logic should only happen on the host, where isRelaunched is false
+        if (!isRelaunched) {
             controller.input().ifPresent(input -> {
-                if (ADD_PLAYER_BIND.on(controller).justPressed()) {
-                    int controllersConnected = Controlify.instance()
-                            .getControllerManager().orElseThrow()
-                            .getConnectedControllers().size();
-                    boolean isCurrentController = controller == controlify.getCurrentController().orElse(null);
+                int controllersConnected = Controlify.instance()
+                        .getControllerManager().orElseThrow()
+                        .getConnectedControllers().size();
 
-                    if (controllersConnected >= 2 && !isCurrentController) {
-                        splitController.summonNewPawnClient(controller.uid());
+                ControllerEntity currentController = controlify.getCurrentController().orElse(null);
+
+                if (ADD_PLAYER_BIND.on(controller).longPressed(true)) {
+                    if (controllersConnected == 1) {
+                        // in the case where there is only one controller connected, we initialise
+                        // splitscreen as Player 1: KB&M, Player 2: Controller 1
+
+                        // bootstrap if we haven't already bootstrapped
+                        if (!SplitscreenBootstrapper.isSplitscreen()) {
+                            SplitscreenBootstrapper.boostrapAsController(Minecraft.getInstance(), InputMethod.keyboardAndMouse());
+                        }
+
+                        controlify.setCurrentController(null, true);
+
+                        SplitscreenBootstrapper.getController().orElseThrow()
+                                .summonNewPawnClient(InputMethod.controller(controller.uid()));
+                    } else if (controllersConnected >= 2 && controller != currentController) {
+                        // when there are more than one controller connected, and the controller
+                        // that is not in use attempts to join, just do a simple 2 controller splitscreen
+
+                        ControllerEntity player1 = currentController;
+                        ControllerEntity playerX = controller;
+
+                        // bootstrap if we haven't already bootstrapped
+                        if (!SplitscreenBootstrapper.isSplitscreen()) {
+                            SplitscreenBootstrapper.boostrapAsController(Minecraft.getInstance(), InputMethod.controller(player1.uid()));
+                        }
+
+                        SplitscreenBootstrapper.getController().orElseThrow()
+                                .summonNewPawnClient(InputMethod.controller(playerX.uid()));
+                    }
+                } else if (ADD_PLAYER_BIND.on(controller).justTapped()) {
+                    if (controllersConnected >= 2 && controller != currentController) {
+                        // if they tried to join but only with a tap, tell them they need to hold the button
+                        // so they learn the behaviour
+                        InputBinding binding = ADD_PLAYER_BIND.on(controller);
+
+                        ToastUtils.sendToast(
+                                Component.translatable("controlify.splitscreen.toast.long_press_to_join.title"),
+                                Component.translatable("controlify.splitscreen.toast.long_press_to_join", binding.inputIcon()),
+                                true
+                        );
                     }
                 }
             });
-        });
+        }
     }
 
     private void onFinishedInit(ControlifyEvents.FinishedInit event) {
-        if (RelaunchArguments.CONTROLLER.get().isPresent() && this.controller == null) {
+        if (relaunchedInputMethod != null && relaunchedInputMethod.isController() && this.controller == null) {
             var exception = new RelaunchException("Relaunched client could not find controller it is associated to!");
 
             CrashReport report = CrashReport.forThrowable(exception, "Relaunch failed");
@@ -78,7 +125,9 @@ public class ControlifyExtension implements ControlifyEntrypoint {
     }
 
     private void onControllerConnected(ControlifyEvents.ControllerConnected event) {
-        ControllerUID relaunchController = RelaunchArguments.CONTROLLER.get().orElse(null);
+        ControllerUID relaunchController = Optional.ofNullable(relaunchedInputMethod)
+                .flatMap(InputMethod::getControllerUID)
+                .orElse(null);
         if (event.controller().uid().equals(relaunchController)) {
             LOGGER.info("Our bound controller {} has been connected!", relaunchController);
             this.controller = event.controller();

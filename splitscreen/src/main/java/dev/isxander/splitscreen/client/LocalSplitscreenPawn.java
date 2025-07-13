@@ -6,7 +6,6 @@ import dev.isxander.splitscreen.client.features.configsync.ConfigSyncRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
-import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
@@ -20,16 +19,15 @@ import org.jetbrains.annotations.Nullable;
 public class LocalSplitscreenPawn implements SplitscreenPawn {
     private final Minecraft minecraft;
 
-    private SplitscreenPosition position = null;
     private final int index;
-    private final @Nullable ControllerUID associatedController;
+    private final InputMethod associatedInputMethod;
 
     protected byte[] nonce;
 
-    public LocalSplitscreenPawn(Minecraft minecraft, int index, @Nullable ControllerUID associatedController) {
+    public LocalSplitscreenPawn(Minecraft minecraft, int index, InputMethod associatedInputMethod) {
         this.minecraft = minecraft;
         this.index = index;
-        this.associatedController = associatedController;
+        this.associatedInputMethod = associatedInputMethod;
     }
 
     @Override
@@ -58,14 +56,23 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void useController(ControllerUID controllerUid) {
-        Controlify.instance().setCurrentController(
-                Controlify.instance().getControllerManager().orElseThrow()
-                        .getConnectedControllers()
-                        .stream().filter(controller -> controller.uid().equals(controllerUid))
-                        .findAny().orElseThrow(),
-                true
-        );
+    public void useInputMethod(InputMethod inputMethod) {
+        Controlify controlify = Controlify.instance();
+
+        switch (inputMethod) {
+            case InputMethod.KeyboardAndMouse() -> {
+                controlify.setCurrentController(null, true);
+            }
+            case InputMethod.Controller(ControllerUID uid) -> {
+                controlify.setCurrentController(
+                        controlify.getControllerManager().orElseThrow()
+                                .getConnectedControllers()
+                                .stream().filter(c -> c.uid().equals(uid))
+                                .findAny().orElseThrow(),
+                        true
+                );
+            }
+        }
     }
 
     @Override
@@ -74,13 +81,8 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public SplitscreenPosition getWindowSplitscreenMode() {
-        return position;
-    }
-
-    @Override
-    public @Nullable ControllerUID getAssociatedController() {
-        return associatedController;
+    public InputMethod getAssociatedInputMethod() {
+        return associatedInputMethod;
     }
 
     @Override

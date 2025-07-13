@@ -1,6 +1,6 @@
 package dev.isxander.splitscreen.client.engine.impl.fboshare.consumer;
 
-import dev.isxander.controlify.controller.ControllerUID;
+import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.SplitscreenPosition;
 import dev.isxander.splitscreen.client.engine.HostSplitscreenEngine;
 import dev.isxander.splitscreen.client.engine.impl.fboshare.FboshareSplitscreenEngine;
@@ -12,12 +12,12 @@ public class FboshareHostSplitscreenEngine extends FboshareSplitscreenEngine imp
 
 
     @Override
-    public void setSplitscreenMode(ControllerUID window, SplitscreenPosition position) {
+    public void setSplitscreenMode(InputMethod window, SplitscreenPosition position) {
 
     }
 
     @Override
-    public void removeWindow(ControllerUID window) {
+    public void removeWindow(InputMethod window) {
 
     }
 
@@ -36,12 +36,12 @@ public class FboshareHostSplitscreenEngine extends FboshareSplitscreenEngine imp
         return false;
     }
 
-    private void handleShareMemory(ControllerUID window, CustomPacketPayload payload) {
+    private void handleShareMemory(InputMethod window, CustomPacketPayload payload) {
 
     }
 
     @Override
-    public void handleInboundPayload(ControllerUID window, Connection connection, CustomPacketPayload payload) {
+    public void handleInboundPayload(InputMethod window, Connection connection, CustomPacketPayload payload) {
         switch (payload) {
             case ControllerboundShareMemoryPayload shareMemoryPayload -> {
                 // Handle the share memory payload

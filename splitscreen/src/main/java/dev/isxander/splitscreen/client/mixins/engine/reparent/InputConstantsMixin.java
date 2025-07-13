@@ -14,7 +14,9 @@ public class InputConstantsMixin {
      */
     @WrapMethod(method = "grabOrReleaseMouse")
     private static void shouldAllowMouseGrab(long window, int cursorValue, double xPos, double yPos, Operation<Void> original) {
-        if (!SplitscreenBootstrapper.isSplitscreen()) {
+        if (SplitscreenBootstrapper.getController()
+                .map(c -> c.getLocalPawn().getAssociatedInputMethod().isKeyboardAndMouse())
+                .orElse(false) || !SplitscreenBootstrapper.isSplitscreen()) {
             original.call(window, cursorValue, xPos, yPos);
         }
     }

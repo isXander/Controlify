@@ -209,6 +209,13 @@ public interface InputBinding {
     boolean justTapped();
 
     /**
+     * Returns true if the binding is currently pressed and has been pressed for a long time.
+     * @param consume if true, this method will not return true again until the input is released and long pressed again.
+     * @return true if the binding is long pressed, false otherwise
+     */
+    boolean longPressed(boolean consume);
+
+    /**
      * A more advanced output that returns true after the input was released,
      * but only if the player has not navigated away from the button where the input was initially pressed.
      *
@@ -223,6 +230,7 @@ public interface InputBinding {
     ResourceLocation JUST_PRESSED = CUtil.rl("just_pressed");
     ResourceLocation JUST_RELEASED = CUtil.rl("just_released");
     ResourceLocation JUST_TAPPED = CUtil.rl("just_tapped");
+    ResourceLocation LONG_PRESSED = CUtil.rl("long_pressed");
     ResourceLocation GUI_PRESSED = CUtil.rl("gui_pressed");
     ResourceLocation KEY_EMULATION = CUtil.rl("key_emulation");
 
