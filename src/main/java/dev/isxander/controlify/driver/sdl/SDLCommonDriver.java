@@ -273,11 +273,11 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         if (this.dualSenseComponent.consumeDirty()) {
             // Left Trigger Effect
             effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
-            effectsState.rgucLeftTriggerEffect = this.dualSenseComponent.getLeftTriggerEffect();
+            effectsState.rgucLeftTriggerEffect = this.dualSenseComponent.getLeftTriggerEffect().createState();
 
             // Right Trigger Effect
             effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
-            effectsState.rgucRightTriggerEffect = this.dualSenseComponent.getRightTriggerEffect();
+            effectsState.rgucRightTriggerEffect = this.dualSenseComponent.getRightTriggerEffect().createState();
 
             // Mute Light
             effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
