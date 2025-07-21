@@ -9,10 +9,10 @@ repositories {
     maven("https://maven.fabricmc.net")
     maven("https://maven.neoforged.net/releases")
     exclusiveContent {
-        forRepository {
-            maven("https://maven.kikugie.dev/releases")
-            maven("https://maven.kikugie.dev/snapshots")
-        }
+        forRepositories(
+            maven("https://maven.kikugie.dev/releases"),
+            maven("https://maven.kikugie.dev/snapshots"),
+        )
         filter {
             includeGroupAndSubgroups("dev.kikugie")
         }
@@ -22,8 +22,8 @@ repositories {
 dependencies {
     fun plugin(id: String, version: String) = "$id:$id.gradle.plugin:$version"
 
-    implementation(plugin("dev.isxander.modstitch.base", "0.5.16-unstable"))
-    implementation(plugin("dev.kikugie.stonecutter", "0.7-beta.7"))
-    implementation(plugin("fabric-loom", "1.10.5"))
-    implementation(plugin("net.neoforged.moddev", "2.0.80"))
+    implementation(plugin("dev.isxander.modstitch.base", "0.6.1-unstable"))
+    implementation(plugin("dev.kikugie.stonecutter", "0.7.1"))
+    implementation(plugin("fabric-loom", "1.11.4"))
+    implementation(plugin("net.neoforged.moddev", "2.0.103"))
 }
