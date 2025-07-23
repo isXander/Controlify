@@ -231,7 +231,7 @@ public class Controlify implements ControlifyApi {
     private void doSteamDeckChecks() {
         CUtil.LOGGER.log("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
 
-        if (!SteamDeckUtil.IS_STEAM_DECK) {
+        if (!SteamDeckUtil.IS_STEAM_DECK && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
             return;
         }
 
