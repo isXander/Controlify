@@ -70,7 +70,7 @@
 
     "hids": [
       [0x57e, 0x2009], // Many other switch controllers spoof this ID
-      [0x057e, 0x2008], // Switch 1 Joycons (L+R)
+      [0x57e, 0x2008], // Switch 1 Joycons (L+R)
     ]
   },
   {
