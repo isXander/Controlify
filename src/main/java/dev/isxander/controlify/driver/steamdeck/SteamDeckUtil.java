@@ -34,7 +34,7 @@ public final class SteamDeckUtil {
         }
         triedToLoad = true;
 
-        if (!DECK_MODE.isGamingMode()) {
+        if (!DECK_MODE.isGamingMode() && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
             logger.warn("Device is not a Steam Deck or not in gaming mode, skipping Steam Deck driver initialization.");
             return Optional.empty();
         }

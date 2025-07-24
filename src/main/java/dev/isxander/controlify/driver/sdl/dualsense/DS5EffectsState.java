@@ -64,6 +64,8 @@ public class DS5EffectsState extends Structure {
 
     @FieldOrder({"effectType", "p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"})
     public static class TriggerEffect extends Structure {
+        public static final TriggerEffect OFF = new TriggerEffect(DualsenseTriggerEffectTypes.OFF, new byte[0]);
+
         public byte effectType;
         public byte p0;
         public byte p1;
@@ -98,8 +100,8 @@ public class DS5EffectsState extends Structure {
             this.p9 = p9;
         }
 
-        public TriggerEffect(DualsenseTriggerEffects.EffectType effectType, byte[] params) {
-            this.effectType = effectType.value;
+        public TriggerEffect(byte effectType, byte[] params) {
+            this.effectType = effectType;
             byte[] dest = new byte[10];
             System.arraycopy(params, 0, dest, 0, Math.min(params.length, 10));
             this.p0 = dest[0];

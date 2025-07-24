@@ -12,6 +12,7 @@ import dev.isxander.controlify.controller.info.DriverNameComponent;
 import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
 import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
+import dev.isxander.controlify.controller.led.LEDComponent;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
@@ -121,6 +122,10 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public Optional<DualSenseComponent> dualSense() {
         return this.getComponent(DualSenseComponent.ID);
+    }
+
+    public Optional<LEDComponent> led() {
+        return this.getComponent(LEDComponent.ID);
     }
 
     public IConfig<GenericControllerConfig> genericConfig() {

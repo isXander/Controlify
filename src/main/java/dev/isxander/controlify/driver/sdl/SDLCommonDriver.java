@@ -16,6 +16,7 @@ import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.info.DriverNameComponent;
 import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
+import dev.isxander.controlify.controller.led.LEDComponent;
 import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
@@ -63,10 +64,12 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     protected RumbleComponent rumbleComponent;
     protected TriggerRumbleComponent triggerRumbleComponent;
     protected HDHapticComponent hdHapticComponent;
+    protected LEDComponent ledComponent;
     protected DualSenseComponent dualSenseComponent;
     
     protected final boolean isRumbleSupported, isTriggerRumbleSupported;
     protected final boolean isDualsense;
+    protected final boolean isRGBLedSupported;
     
     protected final SDL_JoystickGUID guid;
     protected final String guidString;
@@ -106,6 +109,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         
         this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
         this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+        this.isRGBLedSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
 
         DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
         logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
@@ -159,6 +163,9 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         if (this.isTriggerRumbleSupported) {
             controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
         }
+        if (this.isRGBLedSupported) {
+            controller.setComponent(this.ledComponent = new LEDComponent(1));
+        }
         if (this.isDualsense) {
             controller.setComponent(this.dualSenseComponent = new DualSenseComponent());
         }
@@ -180,6 +187,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
         updateRumble();
         updateBatteryLevel();
+        updateLED();
         updateDualSense();
         updateHDHaptic();
     }
@@ -240,6 +248,24 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         this.batteryLevelComponent.setBatteryLevel(level);
     }
 
+    private void updateLED() {
+        if (ledComponent == null) return;
+
+        if (ledComponent.consumeDirty()) {
+            int color = ledComponent.get(0); // SDL only supports one LED
+
+            byte red = (byte) ((color >> 16) & 0xFF);
+            byte green = (byte) ((color >> 8) & 0xFF);
+            byte blue = (byte) (color & 0xFF);
+
+            if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
+                logger.error("Could not set controller LED: {}", SDL_GetError());
+            } else {
+                logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
+            }
+        }
+    }
+
     private void updateDualSense() {
         if (dualSenseComponent == null) return;
 
@@ -248,11 +274,11 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         if (this.dualSenseComponent.consumeDirty()) {
             // Left Trigger Effect
             effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
-            effectsState.rgucLeftTriggerEffect = this.dualSenseComponent.getLeftTriggerEffect();
+            effectsState.rgucLeftTriggerEffect = this.dualSenseComponent.getLeftTriggerEffect().createState();
 
             // Right Trigger Effect
             effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
-            effectsState.rgucRightTriggerEffect = this.dualSenseComponent.getRightTriggerEffect();
+            effectsState.rgucRightTriggerEffect = this.dualSenseComponent.getRightTriggerEffect().createState();
 
             // Mute Light
             effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
@@ -391,6 +417,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     @MagicConstant(valuesFromClass = SDL_PowerState.class)
     protected abstract int SDL_GetControllerPowerInfo(SDL_Controller ptrController, IntByReference percent);
     protected abstract boolean SDL_SendControllerEffect(SDL_Controller ptrController, Pointer effect, int size);
+    protected abstract boolean SDL_SetControllerLED(SDL_Controller ptrController, byte red, byte green, byte blue);
 
     private static void audioFmtEndian(SDL_AudioSpec spec, int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
         if (ss == 16) {

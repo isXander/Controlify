@@ -73,7 +73,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
 
         List<Driver> drivers = new ArrayList<>();
-        if (SteamDeckUtil.DECK_MODE.isGamingMode()
+        if ((SteamDeckUtil.DECK_MODE.isGamingMode() || DebugProperties.STEAM_DECK_CUSTOM_CEF_URL != null)
             && !steamDeckConsumed
             && hidInfo.type().namespace().equals(SteamDeckUtil.STEAM_DECK_NAMESPACE)
         ) {
