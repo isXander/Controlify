@@ -9,7 +9,6 @@ plugins {
 
 modstitch.apply {
     minecraftVersion = mcVersion
-    javaTarget = 21
 
     parchment {
         propMap("parchment.version") { mappingsVersion = it }
@@ -47,10 +46,8 @@ modstitch.apply {
     }
 
     moddevgradle {
-        enable {
-            propMap("deps.neoForge") { neoForgeVersion = it }
-            propMap("deps.forge") { forgeVersion = it }
-        }
+        propMap("deps.neoForge") { neoForgeVersion = it }
+        propMap("deps.forge") { forgeVersion = it }
 
         defaultRuns()
     }
@@ -143,7 +140,9 @@ tasks.named<ProcessResources>("generateModMetadata") {
     dependsOn("stonecutterGenerate")
 }
 modstitch.moddevgradle {
-    tasks.named("createMinecraftArtifacts") {
-        dependsOn("stonecutterGenerate")
+    modstitch.onEnable {
+        tasks.named("createMinecraftArtifacts") {
+            dependsOn("stonecutterGenerate")
+        }
     }
 }

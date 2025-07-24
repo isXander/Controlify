@@ -35,20 +35,6 @@ modstitch {
         if (modstitch.isLoom) configs.register("controlify-platform.fabric")
         if (modstitch.isModDevGradleRegular) configs.register("controlify-platform.neoforge")
     }
-
-    loom {
-        configureLoom {
-            accessWidenerPath = rootProject.file("src/main/resources/controlify.accesswidener")
-        }
-
-        tasks.getByName("validateAccessWidener").enabled = false
-    }
-
-    moddevgradle {
-        configureNeoforge {
-            validateAccessTransformers = false
-        }
-    }
 }
 
 dependencies {

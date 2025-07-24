@@ -1,6 +1,4 @@
 accessWidener v2 named
 
-#? if >=1.21.6 {
 accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
 accessible method net/minecraft/client/gui/GuiGraphics$ScissorStack peek ()Lnet/minecraft/client/gui/navigation/ScreenRectangle;
-#? }
