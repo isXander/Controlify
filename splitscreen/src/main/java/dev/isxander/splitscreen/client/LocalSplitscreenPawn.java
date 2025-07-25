@@ -22,7 +22,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     private final int index;
     private final InputMethod associatedInputMethod;
 
-    protected byte[] nonce;
+    protected byte @Nullable [] nonce;
 
     public LocalSplitscreenPawn(Minecraft minecraft, int index, InputMethod associatedInputMethod) {
         this.minecraft = minecraft;
@@ -90,7 +90,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
         return false;
     }
 
-    public byte[] getLastLoginNonce() {
+    public byte @Nullable [] getLastLoginNonce() {
         return nonce;
     }
 
