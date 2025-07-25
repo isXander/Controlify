@@ -2,7 +2,10 @@ package dev.isxander.controlify
 
 import dev.isxander.modstitch.base.extensions.ModstitchExtension
 import dev.kikugie.stonecutter.build.StonecutterBuildExtension
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 
@@ -63,5 +66,11 @@ fun Project.createActiveTask(
 
     return activeTaskName
 }
+
+fun RepositoryHandler.strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
+    exclusiveContent {
+        forRepository { maven(url) }
+        filter(action)
+    }
 
 

@@ -5,6 +5,7 @@ import net.fabricmc.loom.task.prod.ClientProductionRunTask
 plugins {
     id("dev.isxander.modstitch.base")
     `maven-publish`
+    `java-library`
 }
 
 modstitch.apply {
@@ -60,10 +61,15 @@ modstitch.apply {
 }
 
 repositories {
-    maven("https://maven.terraformersmc.com")
-    maven("https://maven.quiltmc.org/repository/release")
-    maven("https://maven.isxander.dev/releases")
-    maven("https://maven.isxander.dev/snapshots")
+    strictMaven("https://maven.terraformersmc.com") {
+        includeGroupAndSubgroups("com.terraformersmc")
+    }
+    strictMaven("https://maven.quiltmc.org/repository/release") {
+        includeGroupAndSubgroups("org.quiltmc")
+    }
+    strictMaven("https://maven.isxander.dev/releases") {
+        includeGroupAndSubgroups("dev.isxander")
+    }
 }
 
 /*
@@ -91,6 +97,9 @@ if (modstitch.isLoom) {
     }
 }
 
+java {
+    withSourcesJar()
+}
 
 /*
 Setup stonecutter for the project.
