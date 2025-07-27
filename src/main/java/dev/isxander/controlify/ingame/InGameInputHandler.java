@@ -49,6 +49,7 @@ public class InGameInputHandler {
     private boolean gyroToggledOn;
     private boolean wasAiming;
     private Animation flickAnimation;
+    // private float yawOrigin // TODO: Uncomment this once it get's implemented
 
     private boolean shouldShowPlayerList;
 
@@ -387,8 +388,20 @@ public class InGameInputHandler {
         float x = ControlifyBindings.LOOK_RIGHT.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_LEFT.on(controller).analogueNow();
 
+	// TODO: Find a way to obtain the camera's yRot
+	/*
+	if (y == 0f && x == 0f) {
+		yawOrigin = yRot;
+	} else {
+	
+		float yawCurrent = yRot;
+	*/
+
         float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
+	// float yawTurn = Mth.wrapDegrees((float) (yawOrigin + flickAngle) - yawCurrent);
+
+	// TODO: Remove this block once this is properly implemented
         if (!ControlifyBindings.LOOK_DOWN.on(controller).justPressed()
                 && !ControlifyBindings.LOOK_UP.on(controller).justPressed()
                 && !ControlifyBindings.LOOK_LEFT.on(controller).justPressed()
@@ -401,6 +414,7 @@ public class InGameInputHandler {
             flickAnimation.skipToEnd();
         }
 
+	// TODO: Replace flickAngle with yawTurn once this is properly implemented
 	if (config.flickAnimationTicks != 0) {
         	flickAnimation = Animation.of(config.flickAnimationTicks)
                 	.easing(EasingFunction.EASE_OUT_EXPO)
