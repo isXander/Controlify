@@ -4,18 +4,26 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
-    gradlePluginPortal()
-    maven("https://maven.fabricmc.net")
-    maven("https://maven.neoforged.net/releases")
-    exclusiveContent {
-        forRepositories(
-            maven("https://maven.kikugie.dev/releases"),
-            maven("https://maven.kikugie.dev/snapshots"),
-        )
-        filter {
-            includeGroupAndSubgroups("dev.kikugie")
+    fun strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
+        exclusiveContent {
+            forRepository { maven(url) }
+            filter(action)
         }
+
+    gradlePluginPortal()
+    mavenCentral()
+    strictMaven("https://maven.fabricmc.net") {
+        includeGroupAndSubgroups("net.fabricmc")
+        includeGroup("fabric-loom")
+    }
+    strictMaven("https://maven.neoforged.net/releases/") {
+        includeGroupAndSubgroups("net.neoforged")
+    }
+    strictMaven("https://maven.kikugie.dev/releases") {
+        includeGroupAndSubgroups("dev.kikugie")
+    }
+    strictMaven("https://quiltmc.org/repository/release") {
+        includeGroupAndSubgroups("org.quiltmc")
     }
 }
 

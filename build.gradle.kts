@@ -131,7 +131,7 @@ j52j {
 
 /*
 START
-Set up the configuration to put natives in the jar
+Include native libraries for SDL3 in the jar.
  */
 class NativeTarget(
     val classifier: String,
@@ -186,7 +186,7 @@ tasks.processResources {
 }
 /*
 END
-Set up the configuration to put native hashes in the jar
+Include native libraries for SDL3 in the jar.
  */
 
 
