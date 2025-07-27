@@ -19,8 +19,10 @@ import dev.isxander.controlify.utils.DebugOverlayHelper;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
+import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -43,13 +45,14 @@ public class InGameInputHandler {
     private final ControllerEntity controller;
     private final Controlify controlify;
     private final Minecraft minecraft;
+    private final Camera camera;
 
     private double lookInputX, lookInputY; // in degrees per tick
     private final GyroState gyroInput = new GyroState();
     private boolean gyroToggledOn;
     private boolean wasAiming;
     private Animation flickAnimation;
-    // private float yawOrigin // TODO: Uncomment this once it get's implemented
+    private float yawOrigin;
 
     private boolean shouldShowPlayerList;
 
@@ -62,6 +65,7 @@ public class InGameInputHandler {
     public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
+	this.camera = minecraft.gameRenderer.getMainCamera();
         this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
         this.hotbarNextRepeatHelper = new HoldRepeatHelper(10, 4);
@@ -388,40 +392,29 @@ public class InGameInputHandler {
         float x = ControlifyBindings.LOOK_RIGHT.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_LEFT.on(controller).analogueNow();
 
-	// TODO: Find a way to obtain the camera's yRot
-	/*
 	if (y == 0f && x == 0f) {
-		yawOrigin = yRot;
+		yawOrigin = camera.getYRot();
 	} else {
 	
-		float yawCurrent = yRot;
-	*/
+		float yawCurrent = camera.getYRot();
 
         float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
-	// float yawTurn = Mth.wrapDegrees((float) (yawOrigin + flickAngle) - yawCurrent);
-
-	// TODO: Remove this block once this is properly implemented
-        if (!ControlifyBindings.LOOK_DOWN.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_UP.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_LEFT.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_RIGHT.on(controller).justPressed()
-        ) {
-            return;
-        }
+	float yawTurn = Mth.wrapDegrees((float) (yawOrigin + flickAngle) - yawCurrent);
 
         if (flickAnimation != null && flickAnimation.isPlaying()) {
             flickAnimation.skipToEnd();
         }
 
-	// TODO: Replace flickAngle with yawTurn once this is properly implemented
 	if (config.flickAnimationTicks != 0) {
         	flickAnimation = Animation.of(config.flickAnimationTicks)
                 	.easing(EasingFunction.EASE_OUT_EXPO)
-                	.deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
+                	.deltaConsumerD(angle -> player.turn(angle, 0), 0, yawTurn / 0.15)
                 	.play();
 	} else {
-		player.turn(flickAngle / 0.15, 0);
+		player.turn(yawTurn / 0.15, 0);
+	}
+
 	}
 
     }
