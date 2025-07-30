@@ -36,6 +36,16 @@ modstitch {
     }
 }
 
+repositories {
+    exclusiveContent {
+        forRepository { mavenLocal() }
+        filter {
+            includeVersionByRegex("net\\.fabricmc\\.fabric-api", "fabric.*", ".*local")
+            includeVersion("dev.isxander", "yet-another-config-lib", "3.7.1+1.21.9-fabric")
+        }
+    }
+}
+
 dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)
     fun Dependency?.productionMod() = this?.also { "productionMods"(it) }
@@ -75,17 +85,25 @@ dependencies {
     }
 
     if (modstitch.isLoom) {
-        modDependency("fabricApi", { "net.fabricmc.fabric-api:fabric-api:$it" }, api = true)
+        //modDependency("fabricApi", { "net.fabricmc.fabric-api:fabric-api:$it" }, api = true)
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-api-base:0.4.64+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v0:3.1.11+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-networking-api-v1:5.0.1+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-lifecycle-events-v1:2.6.3+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-command-api-v2:2.3.0+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-rendering-v1:12.4.0+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1:6.4.1+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-screen-api-v1:2.1.0+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-key-binding-api-v1:1.0.65+local").productionMod().jij()
+        modstitchModImplementation("net.fabricmc.fabric-api:fabric-item-group-api-v1:4.2.13+local").productionMod().jij()
 
         // mod menu compat
         modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
     }
 
     modstitchModApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
-        // was including old fapi version that broke things at runtime
-        exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
         exclude(group = "thedarkcolour")
-    }.productionMod()
+    }.productionMod().jij()
 
     // bindings for SDL3
     modstitchApi("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")

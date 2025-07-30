@@ -9,17 +9,38 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public interface SimpleControlifyReloadListener<T> extends ControlifyReloadListener {
+    //? if >=1.21.9 {
     @Override
+    default @NotNull CompletableFuture<Void> reload(
+            SharedState sharedState,
+            Executor loadExecutor,
+            PreparationBarrier preparationBarrier,
+            Executor applyExecutor
+    ) {
+        return reload0(preparationBarrier, sharedState.resourceManager(), loadExecutor, applyExecutor);
+    }
+    //?} else {
+    /*@Override
     default @NotNull CompletableFuture<Void> reload(
             PreparableReloadListener.PreparationBarrier helper,
             ResourceManager manager,
             //? if <1.21.2
-            /*ProfilerFiller loadProfiler, ProfilerFiller applyProfiler,*/
+            /^ProfilerFiller loadProfiler, ProfilerFiller applyProfiler,^/
             Executor loadExecutor, Executor applyExecutor
     ) {
-        return load(manager, loadExecutor).thenCompose(helper::wait).thenCompose(
-                (o) -> apply(o, manager, applyExecutor)
-        );
+        return reload0(helper, manager, loadExecutor, applyExecutor);
+    }
+    *///?}
+
+    default @NotNull CompletableFuture<Void> reload0(
+            PreparationBarrier preparationBarrier,
+            ResourceManager resourceManager,
+            Executor loadExecutor,
+            Executor applyExecutor
+    ) {
+        return load(resourceManager, loadExecutor)
+                .thenCompose(preparationBarrier::wait)
+                .thenCompose(data -> apply(data, resourceManager, applyExecutor));
     }
 
     /**

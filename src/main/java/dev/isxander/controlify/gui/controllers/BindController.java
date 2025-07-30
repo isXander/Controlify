@@ -92,7 +92,7 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
                 openConsumerScreen();
                 return true;

@@ -67,7 +67,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
     @Override
     public void registerBindContext(BindContext context) {
-        Registry.register(BindContext.REGISTRY, context.id(), context);
+        BindContext.CONTEXTS.put(context.id(), context);
     }
 
     private void checkLocked() {

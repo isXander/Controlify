@@ -56,24 +56,24 @@ public class RecipeBookScreenProcessor
         StateSwitchingButton button;
         if (ControlifyBindings.VMOUSE_PAGE_NEXT.on(controller).justPressed()) {
             button = pageAccessor.getForwardButton();
-            recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+            recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0 /*? if >=1.21.9 >>*/ ,false );
         }
         if (ControlifyBindings.VMOUSE_PAGE_PREV.on(controller).justPressed()) {
             button = pageAccessor.getBackButton();
-            recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+            recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0 /*? if >=1.21.9 >>*/ ,false );
         }
         if (ControlifyBindings.VMOUSE_PAGE_DOWN.on(controller).justPressed()) {
             int index = tabs.indexOf(selectedTab);
             if (index != tabs.size() - 1) {
                 button = tabs.get(index + 1);
-                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0 /*? if >=1.21.9 >>*/ ,false );
             }
         }
         if (ControlifyBindings.VMOUSE_PAGE_UP.on(controller).justPressed()) {
             int index = tabs.indexOf(selectedTab);
             if (index != 0) {
                 button = tabs.get(index - 1);
-                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
+                recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0 /*? if >=1.21.9 >>*/ ,false );
             }
         }
     }

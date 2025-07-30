@@ -54,7 +54,11 @@ public final class BindingFontHelper {
     }
 
     private static int getHeight(Font font, int codepoint, Style style) {
-        FontSet fontSet = ((FontAccessor) font).invokeGetFontSet(style.getFont());
+        //? if >=1.21.9 {
+        // TODO: find a workaround for this.
+        return font.lineHeight + 3;
+        //?} else {
+        /*FontSet fontSet = ((FontAccessor) font).invokeGetFontSet(style.getFont());
         GlyphInfo glyphInfo = fontSet.getGlyphInfo(codepoint, false);
         // GlyphInfo does not expose height, hack a solution
         MutableInt f = new MutableInt(0);
@@ -63,5 +67,6 @@ public final class BindingFontHelper {
             return null;
         });
         return f.intValue();
+        *///?}
     }
 }
