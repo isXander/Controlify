@@ -7,8 +7,6 @@ import dev.isxander.controlify.mixins.feature.font.FontAccessor;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.client.gui.font.GlyphStitcher;
-import net.minecraft.client.gui.font.glyphs.BakeableGlyph;
 import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
@@ -19,6 +17,11 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
+
+//? if >=1.21.9 {
+import net.minecraft.client.gui.font.GlyphStitcher;
+import net.minecraft.client.gui.font.glyphs.BakeableGlyph;
+//?}
 
 public final class BindingFontHelper {
     public static final ResourceLocation WRAPPER_FONT = CUtil.rl("inputs");
@@ -81,6 +84,7 @@ public final class BindingFontHelper {
         *///?}
     }
 
+    //? if >=1.21.9 {
     private static class GlyphStitcherHeightCapture extends GlyphStitcher {
         public static final GlyphStitcherHeightCapture INSTANCE = new GlyphStitcherHeightCapture();
 
@@ -108,4 +112,5 @@ public final class BindingFontHelper {
         @Override
         public void reset() {}
     }
+    //?}
 }
