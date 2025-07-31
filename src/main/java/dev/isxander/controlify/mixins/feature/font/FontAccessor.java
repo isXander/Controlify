@@ -2,12 +2,21 @@ package dev.isxander.controlify.mixins.feature.font;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.font.FontSet;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
+//? if >=1.21.9
+import net.minecraft.client.gui.font.glyphs.BakeableGlyph;
+
 @Mixin(Font.class)
 public interface FontAccessor {
+    //? if >=1.21.9 {
     @Invoker
+    BakeableGlyph invokeGetGlyph(int i, Style style);
+    //?} else {
+    /*@Invoker
     FontSet invokeGetFontSet(ResourceLocation id);
+    *///?}
 }

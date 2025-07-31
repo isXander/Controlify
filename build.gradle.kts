@@ -82,10 +82,8 @@ dependencies {
     }
 
     modstitchModApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
-        // was including old fapi version that broke things at runtime
-        exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
         exclude(group = "thedarkcolour")
-    }.productionMod()
+    }.productionMod().jij()
 
     // bindings for SDL3
     modstitchApi("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")

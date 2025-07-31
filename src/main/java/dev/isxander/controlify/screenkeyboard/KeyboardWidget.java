@@ -167,7 +167,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
             if (isMouseOver(mouseX, mouseY)) {
                 onPress();
                 return true;
@@ -375,8 +375,8 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
     }
 
     @Override

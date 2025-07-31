@@ -26,7 +26,7 @@ import java.util.Optional;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 
-@Mixin(value = SodiumVideoOptionsScreen.class, remap = false)
+@Mixin(SodiumVideoOptionsScreen.class)
 public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
     @Shadow
     private FlatButtonWidget applyButton;

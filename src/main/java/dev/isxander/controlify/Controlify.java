@@ -404,7 +404,7 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
-        this.thisTickContexts = BindContext.REGISTRY.stream()
+        this.thisTickContexts = BindContext.CONTEXTS.values().stream()
                 .filter(ctx -> ctx.isApplicable().apply(minecraft))
                 .collect(Collectors.toUnmodifiableSet());
 

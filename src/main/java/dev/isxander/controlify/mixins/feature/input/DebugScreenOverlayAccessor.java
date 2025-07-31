@@ -6,6 +6,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(DebugScreenOverlay.class)
 public interface DebugScreenOverlayAccessor {
-    @Accessor
+    //? if <1.21.9 {
+    /*@Accessor
     boolean isRenderDebug();
+    *///?}
 }

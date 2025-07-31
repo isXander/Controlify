@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 import java.util.Optional;
 
-@Mixin(value = TabFrame.class, remap = false)
+@Mixin(TabFrame.class)
 public interface TabFrameAccessor {
     @Accessor
     List<Tab<?>> getTabs();

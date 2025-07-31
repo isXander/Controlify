@@ -10,6 +10,7 @@ plugins {
 
 modstitch.apply {
     minecraftVersion = mcVersion
+    javaVersion = 21
 
     parchment {
         propMap("parchment.version") { mappingsVersion = it }
@@ -67,9 +68,7 @@ repositories {
     strictMaven("https://maven.quiltmc.org/repository/release") {
         includeGroupAndSubgroups("org.quiltmc")
     }
-    strictMaven("https://maven.isxander.dev/releases") {
-        includeGroupAndSubgroups("dev.isxander")
-    }
+    maven("https://maven.isxander.dev/releases")
 }
 
 /*
