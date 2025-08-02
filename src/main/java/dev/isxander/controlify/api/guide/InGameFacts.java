@@ -3,10 +3,13 @@ package dev.isxander.controlify.api.guide;
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import dev.isxander.controlify.utils.CUtil;
+import net.minecraft.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
@@ -59,7 +62,7 @@ public final class InGameFacts {
                     && !ctx.player().hasEffect(MobEffects.LEVITATION)
                     && Util.make(() -> {
                         var chestStack = ctx.player().getItemBySlot(EquipmentSlot.CHEST);
-                        return chestStack.is(Items.ELYTRA) && net.minecraft.world.item.ElytraItem.isEnabled(chestStack);
+                        return chestStack.is(Items.ELYTRA) && net.minecraft.world.item.ElytraItem.isFlyEnabled(chestStack);
                     })
                     && !ctx.player().onGround()
                     && !ctx.player().isInLiquid()
@@ -135,12 +138,12 @@ public final class InGameFacts {
     /** When the player is in {@link GameType#ADVENTURE adventure mode} */
     public static final Fact<InGameCtx> IS_ADVENTURE = register(
             CUtil.rl("is_adventure"),
-            ctx -> ctx.player().gameMode() == GameType.ADVENTURE
+            ctx -> getGameMode(ctx) == GameType.ADVENTURE
     );
     /** When the player is in {@link GameType#SURVIVAL survival mode} */
     public static final Fact<InGameCtx> IS_SURVIVAL = register(
             CUtil.rl("is_survival"),
-            ctx -> ctx.player().gameMode() == GameType.SURVIVAL
+            ctx -> getGameMode(ctx) == GameType.SURVIVAL
     );
     /** When the player is currently looking at an entity and is in range to interact with it */
     public static final Fact<InGameCtx> LOOKING_AT_ENTITY = register(
@@ -184,6 +187,14 @@ public final class InGameFacts {
                 return !holdingItem.isEmpty() && holdingItem.getCount() > 1;
             }
     );
+
+    private static GameType getGameMode(InGameCtx ctx) {
+        //? if >=1.21.5 {
+        return ctx.player().gameMode();
+        //?} else {
+        /*return ctx.client().gameMode.getPlayerMode();
+        *///?}
+    }
 
     private static Fact<InGameCtx> register(ResourceLocation id, FactProvider<InGameCtx> provider) {
         var fact = Fact.of(id, provider);
