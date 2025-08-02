@@ -102,18 +102,9 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
         return bindings;
     }
 
-    private InputBindingSupplier createSupplier(ResourceLocation bindingId) {
-        return new InputBindingSupplier() {
-            @Override
-            public @Nullable InputBinding onOrNull(@NotNull ControllerEntity controller) {
-                return controller.input().map(input -> input.getBinding(bindingId)).orElse(null);
-            }
-
-            @Override
-            public ResourceLocation bindId() {
-                return bindingId;
-            }
-        };
+    @Override
+    public InputBindingSupplier createSupplier(ResourceLocation bindingId) {
+        return new InputBindingSupplierImpl(bindingId);
     }
 
     public void lock() {

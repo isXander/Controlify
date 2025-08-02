@@ -1,0 +1,85 @@
+{
+  "rules": [
+    /* ───────────────  LEFT-HAND GUIDES ─────────────── */
+    /* ----- exit ----- */
+    {
+      "for": "controlify:gui_back",
+      "where": "left",
+      "then": { "translate": "controlify.guide.container.exit" }
+    },
+
+    /* ----- inv_select ----- */
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "when": ["controlify:holding_many_items", "controlify:hovering_item", "controlify:can_place_held_item"],
+      "then": { "translate": "controlify.guide.container.place_all" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "when": ["controlify:holding_item", "controlify:hovering_item", "controlify:can_place_held_item"],
+      "then": { "translate": "controlify.guide.container.place_one" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "when": ["controlify:holding_item", "controlify:hovering_item"],
+      "forbid": ["controlify:can_place_held_item"],
+      "then": { "translate": "controlify.guide.container.swap" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "when": ["controlify:cursor_outside_container", "controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.drop" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "when": ["controlify:hovering_item"],
+      "forbid": ["controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.take" }
+    },
+
+    /*  ───────────────  RIGHT-HAND GUIDES ─────────────── */
+    /* ----- inv_select ----- */
+    {
+      "for": "controlify:drop_inventory",
+      "where": "right",
+      "when": ["controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.drop" }
+    },
+
+    /* ----- quick_move ----- */
+    {
+      "for": "controlify:inv_quick_move",
+      "where": "right",
+      "when": ["controlify:hovering_item"],
+      "forbid": ["controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.quick_move" }
+    },
+
+    /* ----- take_half ----- */
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "when": ["controlify:hovering_item_is_bundle", "controlify:selected_bundle_slot"],
+      "forbid": ["controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.take_from_bundle" }
+    },
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "when": ["controlify:hovering_many_items"],
+      "forbid": ["controlify:holding_item"],
+      "then": { "translate": "controlify.guide.container.take_half" }
+    },
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "when": ["controlify:hovering_slot", "controlify:holding_item", "controlify:can_place_held_item"],
+      "then": { "translate": "controlify.guide.container.take_one" }
+    }
+  ]
+}

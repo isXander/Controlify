@@ -190,7 +190,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
                 InputBinding binding = shortcutPressBind.on(controller.get());
 
                 return Component.empty()
-                        .append(binding.inputIcon())
+                        .append(binding.inputGlyph())
                         .append(name);
             }
 

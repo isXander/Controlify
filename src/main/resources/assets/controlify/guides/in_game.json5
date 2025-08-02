@@ -1,0 +1,218 @@
+{
+  "rules": [
+    /* ───────────────  LEFT-HAND BINDINGS ─────────────── */
+
+    /* ----- JUMP ----- */
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:riding_happy_ghast"],
+      "then": { "translate": "controlify.guide.ingame.fly_up" }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:riding_saddled_horse"],
+      "then": { "translate": "key.jump" }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:flying"],
+      "then": { "translate": "controlify.guide.ingame.fly_up" }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:on_ground"],
+      "then": { "translate": "key.jump" }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:in_water"],
+      "then": { "translate": "controlify.guide.ingame.swim_up" }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "when": ["controlify:can_elytra_fly"],
+      "then": { "translate": "controlify.guide.ingame.start_elytra" }
+    },
+
+    /* ----- SNEAK ----- */
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "when": ["controlify:in_vehicle"],
+      "then": { "translate": "controlify.guide.ingame.dismount" }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "when": ["controlify:flying"],
+      "then": { "translate": "controlify.guide.ingame.fly_down" }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "when": ["controlify:in_water"],
+      "forbid": ["controlify:on_ground"],
+      "then": { "translate": "controlify.guide.ingame.swim_down" }
+    },
+    {
+      /* toggle-sneak: stop */
+      "for": "controlify:sneak",
+      "where": "left",
+      "when": ["controlify:is_toggle_sneak", "controlify:sneaking"],
+      "then": { "translate": "controlify.guide.ingame.stop_sneaking" }
+    },
+    {
+      /* toggle-sneak: start */
+      "for": "controlify:sneak",
+      "where": "left",
+      "when": ["controlify:is_toggle_sneak"],
+      "forbid": ["controlify:sneaking"],
+      "then": { "translate": "controlify.guide.ingame.start_sneaking" }
+    },
+    {
+      /* hold-to-sneak */
+      "for": "controlify:sneak",
+      "where": "left",
+      "forbid": ["controlify:is_toggle_sneak", "controlify:sneaking"],
+      "then": { "translate": "controlify.guide.ingame.sneak" }
+    },
+
+    /* ----- SPRINT ----- */
+    {
+      "for": "controlify:sprint",
+      "where": "left",
+      "when": ["controlify:input_moving", "controlify:under_water"],
+      "forbid": ["controlify:sprinting", "controlify:in_vehicle", "controlify:flying"],
+      "then": { "translate": "controlify.guide.ingame.start_swimming" }
+    },
+    {
+      "for": "controlify:sprint",
+      "where": "left",
+      "when": ["controlify:input_moving"],
+      "forbid": ["controlify:sprinting", "controlify:in_vehicle"],
+      "then": { "translate": "controlify.guide.ingame.start_sprinting" }
+    },
+    {
+      "for": "controlify:sprint",
+      "where": "left",
+      "when": ["controlify:sprinting", "controlify:is_toggle_sprint", "controlify:under_water", "controlify:in_vehicle"],
+      "then": { "translate": "controlify.guide.ingame.stop_swimming" }
+    },
+    {
+      "for": "controlify:sprint",
+      "where": "left",
+      "when": ["controlify:sprinting", "controlify:is_toggle_sprint", "controlify:in_vehicle"],
+      "then": { "translate": "controlify.guide.ingame.stop_sprinting" }
+    },
+
+    /* ───────────────  RIGHT-HAND BINDINGS ─────────────── */
+
+    /* ----- INVENTORY ----- */
+    {
+      "for": "controlify:inventory",
+      "where": "right",
+      "then": { "translate": "controlify.guide.ingame.inventory" }
+    },
+
+    /* ----- RADIAL MENU ----- */
+    {
+      "for": "controlify:radial_menu",
+      "where": "right",
+      "then": { "translate": "controlify.gui.radial_menu" }
+    },
+
+    /* ----- ATTACK ----- */
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "when": ["controlify:looking_at_entity", "controlify:is_spectator"],
+      "then": { "translate": "controlify.guide.ingame.spectate" }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "when": ["controlify:looking_at_entity"],
+      "forbid": ["controlify:is_spectator"],
+      "then": { "translate": "controlify.guide.ingame.attack" }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "when": ["controlify:looking_at_block"],
+      "then": { "translate": "controlify.guide.ingame.break" }
+    },
+
+    /* ----- USE / INTERACT ----- */
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "when": ["controlify:looking_at_entity", "controlify:is_spectator"],
+      "then": { "translate": "controlify.guide.ingame.spectate" }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "when": ["controlify:looking_at_entity"],
+      "forbid": ["controlify:is_spectator"],
+      "then": { "translate": "controlify.guide.ingame.interact" }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "when": ["controlify:looking_at_block"],
+      "then": { "translate": "controlify.guide.ingame.use" }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "when": ["controlify:has_item_in_either_hand"],
+      "then": { "translate": "controlify.guide.ingame.use" }
+    },
+
+    /* ----- DROP ONE ----- */
+    {
+      "for": "controlify:drop",
+      "where": "right",
+      "when": ["controlify:has_item_in_mainhand"],
+      "then": { "translate": "controlify.guide.ingame.drop" }
+    },
+
+    /* ----- DROP STACK ----- */
+    {
+      "for": "controlify:drop_stack",
+      "where": "right",
+      "when": ["controlify:has_multiple_items_in_hand"],
+      "then": { "translate": "controlify.binding.controlify.drop_stack" }
+    },
+
+    /* ----- SWAP HANDS ----- */
+    {
+      "for": "controlify:swap_hands",
+      "where": "right",
+      "when": ["controlify:has_item_in_either_hand"],
+      "then": { "translate": "controlify.guide.ingame.swap_hands" }
+    },
+
+    /* ----- PICK BLOCK ----- */
+    {
+      "for": "controlify:pick_block",
+      "where": "right",
+      "when": ["controlify:looking_at_block", "controlify:is_creative"],
+      "then": { "translate": "controlify.guide.ingame.pick_block" }
+    },
+
+    /* ----- PICK BLOCK (NBT) ----- */
+    {
+      "for": "controlify:pick_block_nbt",
+      "where": "right",
+      "when": ["controlify:looking_at_block", "controlify:is_creative"],
+      "then": { "translate": "controlify.binding.controlify.pick_block_nbt" }
+    }
+  ]
+}

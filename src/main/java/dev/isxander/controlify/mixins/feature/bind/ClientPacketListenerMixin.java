@@ -27,7 +27,7 @@ public class ClientPacketListenerMixin {
         return ControlifyApi.get().getCurrentController()
                 .flatMap(c -> ControlifyApi.get().currentInputMode().isController() ? Optional.of(c) : Optional.empty())
                 .flatMap(c -> Optional.ofNullable(ControlifyBindings.SNEAK.on(c)))
-                .map(InputBinding::inputIcon)
+                .map(InputBinding::inputGlyph)
                 .orElse(original);
     }
 }

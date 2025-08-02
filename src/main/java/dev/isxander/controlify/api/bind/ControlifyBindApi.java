@@ -37,6 +37,17 @@ public interface ControlifyBindApi {
     InputBindingSupplier registerBinding(RegistryCallback callback, Predicate<ControllerEntity> filter);
 
     /**
+     * Creates a supplier for an input binding with the given bind ID.
+     * Useful when fetching bindings by ID, rather than by java reference, such is needed
+     * in cases of data-driven systems.
+     * {@link InputBindingSupplier#on(ControllerEntity)} may throw an exception if the binding does not exist,
+     * when it is attempted to be resolved.
+     * @param bindId the ID of the binding to create a supplier for
+     * @return the supplier for the binding
+     */
+    InputBindingSupplier createSupplier(ResourceLocation bindId);
+
+    /**
      * Get all the controller bindings for a vanilla key mapping.
      * This is populated using {@link InputBindingBuilder#addKeyCorrelation(KeyMapping)}
      * or {@link InputBindingBuilder#keyEmulation(KeyMapping)}.

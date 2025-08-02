@@ -1,5 +1,7 @@
 package dev.isxander.controlify.api.bind;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -37,4 +39,9 @@ public interface InputBindingSupplier {
      * @return id of the binding.
      */
     ResourceLocation bindId();
+
+    Codec<InputBindingSupplier> CODEC = ResourceLocation.CODEC.xmap(
+            bindId -> ControlifyBindApi.get().createSupplier(bindId),
+            InputBindingSupplier::bindId
+    );
 }
