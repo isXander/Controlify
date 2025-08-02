@@ -27,13 +27,13 @@ public interface ButtonGuideRenderer<T> {
         public Component getControllerMessage(InputBinding bind, Component actualLabel) {
             var component = Component.empty();
             if (!Minecraft.getInstance().font.isBidirectional()) {
-                component.append(bind.inputIcon());
+                component.append(bind.inputGlyph());
                 component.append(CommonComponents.SPACE);
             }
             component.append(actualLabel);
             if (Minecraft.getInstance().font.isBidirectional()) {
                 component.append(CommonComponents.SPACE);
-                component.append(bind.inputIcon());
+                component.append(bind.inputGlyph());
             }
             return component;
         }

@@ -14,6 +14,7 @@ import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
@@ -77,7 +78,7 @@ public final class BindingFontHelper {
         // GlyphInfo does not expose height, hack a solution
         MutableInt f = new MutableInt(0);
         glyphInfo.bake(sheetGlyphInfo -> {
-            f.setValue(sheetGlyphInfo.getPixelHeight());
+            f.setValue(Mth.ceil(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample()));
             return null;
         });
         return f.intValue();
@@ -102,7 +103,7 @@ public final class BindingFontHelper {
 
         @Override
         public @Nullable BakedGlyph stitch(SheetGlyphInfo sheetGlyphInfo) {
-            height.set(sheetGlyphInfo.getPixelHeight());
+            height.set(Mth.ceil(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample()));
             return null;
         }
 

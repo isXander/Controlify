@@ -2,7 +2,6 @@ package dev.isxander.controlify.api.event;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
-import dev.isxander.controlify.api.ingameguide.IngameGuideRegistry;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.platform.EventHandler;
 
@@ -33,11 +32,6 @@ public final class ControlifyEvents {
     public static final EventHandler<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = EventHandler.createPlatformBackedEvent();
 
     /**
-     * Triggers when the button guide entries are being populated, so you can add more of your own.
-     */
-    public static final EventHandler<IngameGuideRegistryEvent> INGAME_GUIDE_REGISTRY = EventHandler.createPlatformBackedEvent();
-
-    /**
      * Triggers in a GUI when the virtual mouse is toggled on or off.
      */
     public static final EventHandler<VirtualMouseToggled> VIRTUAL_MOUSE_TOGGLED = EventHandler.createPlatformBackedEvent();
@@ -58,9 +52,6 @@ public final class ControlifyEvents {
     }
 
     public record ControllerStateUpdate(ControllerEntity controller) {
-    }
-
-    public record IngameGuideRegistryEvent(ControllerEntity bindings, IngameGuideRegistry registry) {
     }
 
     public record VirtualMouseToggled(boolean enabled) {

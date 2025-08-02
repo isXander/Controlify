@@ -6,8 +6,6 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.guide.GuideAction;
-import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -112,22 +110,22 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         animation.play();
 
         if (editMode != null) {
-            var exitGuide = addRenderableWidget(new PositionedComponent<>(
-                    new GuideActionRenderer<>(
-                            new GuideAction<>(
-                                    ControlifyBindings.GUI_BACK.on(controller),
-                                    obj -> Optional.of(CommonComponents.GUI_DONE)
-                            ),
-                            false,
-                            true
-                    ),
-                    AnchorPoint.BOTTOM_CENTER,
-                    0, -10,
-                    AnchorPoint.BOTTOM_CENTER
-            ));
-
-            exitGuide.getComponent().updateName(null);
-            exitGuide.updatePosition(width, height);
+//            var exitGuide = addRenderableWidget(new PositionedComponent<>(
+//                    new GuideActionRenderer(
+//                            new GuideAction(
+//                                    ControlifyBindings.GUI_BACK.on(controller),
+//                                    obj -> Optional.of(CommonComponents.GUI_DONE)
+//                            ),
+//                            false,
+//                            true
+//                    ),
+//                    AnchorPoint.BOTTOM_CENTER,
+//                    0, -10,
+//                    AnchorPoint.BOTTOM_CENTER
+//            ));
+//
+//            exitGuide.getComponent().updateName(null);
+//            exitGuide.updatePosition(width, height);
         }
     }
 
@@ -290,7 +288,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 this.item.icon().draw(graphics, 0, 0, delta);
                 pose.pop();
             } else {
-                Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputIcon();
+                Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputGlyph();
                 graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 

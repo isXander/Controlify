@@ -52,7 +52,16 @@ public interface InputBinding {
      * The icon glyph of the input
      * @return the icon component
      */
-    Component inputIcon();
+    Component inputGlyph();
+
+    /**
+     * The icon glyph of the input
+     * @return the icon component
+     */
+    @Deprecated
+    default Component inputIcon() {
+        return this.inputGlyph();
+    }
 
     /**
      * Create a new state access with the given history required.
