@@ -116,8 +116,9 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
         String literal = inputs.stream()
                 .map(input -> String.valueOf(getChar(fontMap, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style ->
-                style.withFont(fontMap.namespace().withPrefix("controller/")));
+        return Component.literal(literal).withStyle(style -> style
+                .withFont(fontMap.namespace().withPrefix("controller/"))
+                .withShadowColor(0x00000000)); // remove shadow
     }
 
     private char getChar(FontMap fontMap, ResourceLocation input) {
