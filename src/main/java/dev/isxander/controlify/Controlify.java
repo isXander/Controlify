@@ -487,7 +487,7 @@ public class Controlify implements ControlifyApi {
         boolean isPaused = minecraft.isPaused() || minecraft.screen instanceof PauseScreen;
         boolean isConfigScreen = minecraft.screen instanceof YACLScreen;
 
-        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen)));
+        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
         if (outOfFocus) {
             state = ControllerState.EMPTY;
         } else {
