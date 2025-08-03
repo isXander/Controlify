@@ -24,14 +24,14 @@
     {
       "for": "controlify:jump",
       "where": "left",
-      "when": ["controlify:on_ground"],
-      "then": { "translate": "key.jump" }
+      "when": ["controlify:in_water"],
+      "then": { "translate": "controlify.guide.ingame.swim_up" }
     },
     {
       "for": "controlify:jump",
       "where": "left",
-      "when": ["controlify:in_water"],
-      "then": { "translate": "controlify.guide.ingame.swim_up" }
+      "when": ["controlify:on_ground"],
+      "then": { "translate": "key.jump" }
     },
     {
       "for": "controlify:jump",
