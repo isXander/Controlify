@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.controller.ECSEntity;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Contract;
 
 import java.util.*;
 
@@ -16,6 +17,7 @@ public class ECSEntityImpl implements ECSEntity {
 
     @SuppressWarnings("unchecked")
     @Override
+    @Contract(pure = true)
     public <T extends ECSComponent> Optional<T> getComponent(ResourceLocation id) {
         return Optional.ofNullable((T) this.components.get(id));
     }

@@ -1,4 +1,5 @@
-package dev.isxander.controlify.platform.neoforge.mixins;
+//? if neoforge {
+/*package dev.isxander.controlify.platform.neoforge.mixins;
 
 import dev.isxander.controlify.platform.neoforge.VanillaKeyMappingHolder;
 import net.minecraft.client.KeyMapping;
@@ -28,3 +29,4 @@ public class OptionsMixin implements VanillaKeyMappingHolder {
         return controlify$vanillaKeyMappings;
     }
 }
+*///?}

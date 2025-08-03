@@ -81,9 +81,7 @@ public class MultiPlayerGameModeMixin {
                 .build();
 
         blockBreakRumble = effect;
-        ControlifyApi.get().getCurrentController()
-                .flatMap(ControllerEntity::rumble)
-                .ifPresent(rumble -> rumble.rumbleManager().play(RumbleSource.INTERACTION, effect));
+        ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
     }
 
     @Unique

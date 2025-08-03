@@ -118,7 +118,8 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
                 .collect(Collectors.joining("+"));
         return Component.literal(literal).withStyle(style -> style
                 .withFont(fontMap.namespace().withPrefix("controller/"))
-                .withShadowColor(0x00000000)); // remove shadow
+                .withShadowColor(0x00000000) // remove shadow
+                .withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
     }
 
     private char getChar(FontMap fontMap, ResourceLocation input) {

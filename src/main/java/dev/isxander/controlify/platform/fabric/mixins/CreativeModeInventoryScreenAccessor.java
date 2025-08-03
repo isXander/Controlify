@@ -1,3 +1,4 @@
+//? if fabric {
 package dev.isxander.controlify.platform.fabric.mixins;
 
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -16,3 +17,4 @@ public interface CreativeModeInventoryScreenAccessor {
     @Invoker
     void invokeSelectTab(CreativeModeTab tab);
 }
+//?}

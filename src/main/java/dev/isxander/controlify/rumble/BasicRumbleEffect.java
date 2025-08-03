@@ -142,19 +142,9 @@ public final class BasicRumbleEffect implements RumbleEffect {
     }
 
     public static BasicRumbleEffect join(BasicRumbleEffect... effects) {
-        int totalTicks = 0;
-        for (BasicRumbleEffect effect : effects) {
-            totalTicks += effect.states().length;
-        }
-
-        RumbleState[] states = new RumbleState[totalTicks];
-        int currentTick = 0;
-        for (BasicRumbleEffect effect : effects) {
-            for (RumbleState state : effect.states()) {
-                states[currentTick] = state;
-                currentTick++;
-            }
-        }
+        RumbleState[] states = Arrays.stream(effects)
+                .flatMap(effect -> Arrays.stream(effect.states()))
+                .toArray(RumbleState[]::new);
 
         return new BasicRumbleEffect(states);
     }

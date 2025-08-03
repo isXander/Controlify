@@ -21,18 +21,16 @@ public class ClientPacketListenerMixin {
     private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
         float initialMagnitude = calculateMagnitude(packet);
 
-        ControlifyApi.get().getCurrentController()
-                .flatMap(ControllerEntity::rumble)
-                .ifPresent(rumble -> rumble.rumbleManager().play(
-                        RumbleSource.WORLD,
-                        BasicRumbleEffect.join(
-                                BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
-                                BasicRumbleEffect.byTime(t -> {
-                                    float magnitude = calculateMagnitude(packet);
-                                    return new RumbleState(0f, magnitude - t * magnitude);
-                                }, 20) // explosion
-                        )
-                ));
+        ControlifyApi.get().playRumbleEffect(
+                RumbleSource.WORLD,
+                BasicRumbleEffect.join(
+                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+                        BasicRumbleEffect.byTime(t -> {
+                            float magnitude = calculateMagnitude(packet);
+                            return new RumbleState(0f, magnitude - t * magnitude);
+                        }, 20) // explosion
+                )
+        );
     }
 
     @Unique

@@ -581,5 +581,7 @@
 
 
   "controlify.extra_pack.legacy_console.name": "Legacy Console",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs."
+  "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs.",
+
+  "controlify.tutorial.look.description": "Use your mouse or controller to turn"
 }

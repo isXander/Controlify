@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.patches.boatfix;
+package dev.isxander.controlify.mixins.feature.patches.analogueboat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.fixes.boatfix.AnalogBoatInput;

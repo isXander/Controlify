@@ -29,6 +29,14 @@ public final class BindingFontHelper {
     public static final String PLACEHOLDER_KEY = "controlify.placeholder";
     public static final String PLACEHOLDER_CONTROLLER_ACTIVE_KEY = "controlify.placeholder.controller_active";
 
+    public static Component bindingWithActiveFallback(ResourceLocation binding, Component fallback) {
+        return Component.translatableWithFallback(PLACEHOLDER_CONTROLLER_ACTIVE_KEY, "%2$s", binding(binding), fallback);
+    }
+
+    public static Component bindingWithActiveFallback(InputBinding binding, Component fallback) {
+        return bindingWithActiveFallback(binding.id(), fallback);
+    }
+
     public static Component bindingWithFallback(ResourceLocation binding, Component fallback) {
         return Component.translatableWithFallback("controlify.placeholder", "%2$s", binding(binding), fallback);
     }

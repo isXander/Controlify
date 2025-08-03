@@ -66,12 +66,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
                     })
                     .timeout(100)
                     .build();
-            ControlifyApi.get().getCurrentController()
-                    .flatMap(ControllerEntity::rumble)
-                    .ifPresent(rumble -> rumble.rumbleManager().play(
-                            RumbleSource.PLAYER,
-                            slowBlockRumble
-                    ));
+            ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, slowBlockRumble);
         } else {
             slowBlockRumble.heartbeat();
         }
