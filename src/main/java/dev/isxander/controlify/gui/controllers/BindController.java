@@ -135,7 +135,7 @@ public class BindController implements Controller<Input> {
 
         @Override
         protected int getValueColor() {
-            return control.conflicting ? 0xFF5555 : super.getValueColor();
+            return control.conflicting ? 0xFFFF5555 : super.getValueColor();
         }
 
         public Optional<Input> getPressedBind() {
