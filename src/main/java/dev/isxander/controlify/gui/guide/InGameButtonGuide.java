@@ -29,6 +29,9 @@ public class InGameButtonGuide {
         GenericControllerConfig config = controller.genericConfig().config();
 
         if (config.showIngameGuide) {
+            if (minecraft.hitResult == null) {
+                minecraft.gameRenderer.pick(1f);
+            }
             GuideDomains.IN_GAME.updateGuides(new InGameCtx(minecraft, minecraft.player, minecraft.level, minecraft.hitResult, controller, config.guideVerbosity), minecraft.font);
         }
     }
