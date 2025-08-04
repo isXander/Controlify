@@ -199,6 +199,12 @@ val releaseModVersion by tasks.registering {
 }
 createActiveTask(releaseModVersion)
 
+if (project.isPublishingEnabled) {
+    rootProject.tasks.named("releaseModVersions") {
+        dependsOn(releaseModVersion)
+    }
+}
+
 val finalJarTasks = listOf(
     modstitch.finalJarTask,
 )
@@ -234,7 +240,7 @@ publishMods {
     val stableMCVersions = versionList("pub.stableMC")
 
     val modrinthId: String by project
-    if (modrinthId.isNotBlank() && hasProperty("modrinth.token") && !isExperimentalBuild) {
+    if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
         modrinth {
             projectId.set(modrinthId)
             accessToken.set(findProperty("modrinth.token")?.toString())
@@ -253,7 +259,7 @@ publishMods {
     }
 
     val curseforgeId: String by project
-    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token") && !isExperimentalBuild) {
+    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token")) {
         curseforge {
             projectId = curseforgeId
             projectSlug = findProperty("curseforgeSlug")!!.toString()

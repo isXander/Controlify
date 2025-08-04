@@ -13,11 +13,9 @@ plugins {
 
 stonecutter active file("versions/current")
 
-val releaseMod by tasks.registering {
+// subprojects depend themselves on this task
+val releaseModVersions by tasks.registering {
     group = "controlify"
-    dependsOn("buildAndCollect")
-    dependsOn("releaseModVersion")
-    dependsOn("publishMods")
 }
 
 // download the most up to date controller database for SDL2

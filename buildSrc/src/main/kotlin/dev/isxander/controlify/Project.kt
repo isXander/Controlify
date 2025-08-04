@@ -22,8 +22,8 @@ val Project.modVersion: String
     get() = prop("modVersion")!!
 val Project.mcVersion: String
     get() = prop("mcVersion")!!
-val Project.isExperimentalBuild: Boolean
-    get() = "exp" in stonecutter.current.project
+val Project.isPublishingEnabled: Boolean
+    get() = prop("pub.enabled") { "true" }!!.toBooleanStrict()
 
 fun <T> Project.propMap(property: String, required: Boolean = false, ifNull: () -> String? = { null }, block: (String) -> T?): T? {
     return ((System.getenv(property) ?: branchProj.findProperty(property)?.toString())
