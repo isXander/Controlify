@@ -47,10 +47,8 @@ jobs:
         with:
           java-version: 21
           distribution: temurin
-      - name: Setup gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          cache-read-only: false
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
       - name: Overwrite current version
         run: printf "%s" "${{ matrix.target }}" | cut -d':' -f1 | tr -d '\n' > ./versions/current
       - name: Build ${{ matrix.target }}

@@ -1,0 +1,37 @@
+name: Update gamecontrollerdb.txt
+
+on:
+  workflow_dispatch:
+
+  # Runs on a schedule (every Sunday at 3:00 AM UTC)
+  schedule:
+    - cron: '0 3 * * 0'
+
+jobs:
+  update-gamecontrollerdb:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # Required to commit changes to the repository
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Update gamecontrollerdb.txt
+        run: ./gradlew :downloadHidDb
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          file_pattern: '**/gamecontrollerdb-*.txt'
+          commit_message: "chore: update gamecontrollerdb.txt"
