@@ -52,7 +52,9 @@ jobs:
       - name: Overwrite current version
         run: printf "%s" "${{ matrix.target }}" | cut -d':' -f1 | tr -d '\n' > ./versions/current
       - name: Build ${{ matrix.target }}
-        run: ./gradlew "Refresh active project" buildAndCollectActive --stacktrace
+        run: |
+          ./gradlew "Refresh active project"
+          ./gradlew buildAndCollectActive --stacktrace
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
 
