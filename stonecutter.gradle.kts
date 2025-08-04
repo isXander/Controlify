@@ -56,10 +56,7 @@ publishMods {
             .takeIf { it.exists() }
             ?.readText()
             ?.replace("{version}", modVersion)
-            ?.replace(
-                "{targets}", stonecutter.versions
-                .map { it.project + (if ("exp" in it.project) " (donator only)" else "") }
-                .joinToString(separator = "\n") { "- $it" })
+            ?.replace("{targets}", stonecutter.versions.joinToString(separator = "\n") { "- $it" })
             ?: "No changelog provided."
     }
     changelog.set(modChangelog)
