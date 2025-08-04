@@ -27,4 +27,4 @@ players to make their own guides, or mod developers to add guides for their mods
 ## Bug fixes
 
 - Fixed the crash on startup for some users, with the log `Argument value 0x200000001 exceeds native capacity`
-- Fix Switch 1 Joy-Cons having incorrect button glyphs ([by rinOfTheStars]())
+- Fix Switch 1 Joy-Cons having incorrect button glyphs ([by rinOfTheStars](https://github.com/isXander/Controlify/pull/643))
