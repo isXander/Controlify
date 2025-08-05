@@ -1,0 +1,8 @@
+{
+  "width": 10,
+  "keys": [
+    [ ["q", "qwerty!"],                                                                 "w", "e", "r", "t", "y", "u", "i", "o", "p" ],
+    [ {"regular": {"action": "shift"}, "shortcut": "controlify:gui_abstract_action_3"}, "a", "s", "d", "f", "g", "h", "j", "k", "l" ],
+    [ " ",                                                                              " ", "z", "x", "c", "v", "b", "n", "m", " " ]
+  ]
+}

@@ -63,6 +63,7 @@
     "feature.rumble.useitem.LocalPlayerMixin",
     "feature.rumble.waterland.LocalPlayerMixin",
     "feature.rumble.waterland.PlayerMixin",
+    "feature.screenkeyboard.AbstractSignEditScreenMixin",
     "feature.screenkeyboard.ChatComponentMixin",
     "feature.screenkeyboard.ChatScreenMixin",
     "feature.screenkeyboard.CommandSuggestionsMixin",

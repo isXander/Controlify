@@ -1,4 +1,4 @@
-package dev.isxander.controlify.utils;
+package dev.isxander.controlify.utils.codec;
 
 import com.mojang.serialization.*;
 

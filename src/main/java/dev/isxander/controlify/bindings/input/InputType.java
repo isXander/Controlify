@@ -1,21 +1,17 @@
 package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.FuzzyMapCodec;
-import dev.isxander.controlify.utils.StrictEitherMapCodec;
+import dev.isxander.controlify.utils.codec.FuzzyMapCodec;
+import dev.isxander.controlify.utils.codec.StrictEitherMapCodec;
 import net.minecraft.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record InputType<T extends Input>(String id, MapCodec<T> codec) implements StringRepresentable {

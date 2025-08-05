@@ -4,8 +4,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.screenkeyboard.ChatKeyboardWidget;
-import dev.isxander.controlify.screenkeyboard.KeyPressConsumer;
+import dev.isxander.controlify.screenkeyboard.KeyboardInputConsumer;
+import dev.isxander.controlify.screenkeyboard.KeyboardLayouts;
+import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDucky {
     @Unique
-    private ChatKeyboardWidget keyboard;
+    private KeyboardWidget keyboard;
     @Unique
     private float shiftChatAmt = 0f;
 
@@ -52,16 +53,17 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
             } else {
                 this.shiftChatAmt = 0.5f;
                 int keyboardHeight = (int) (this.height * this.shiftChatAmt);
-                this.addRenderableWidget(keyboard = new ChatKeyboardWidget((ChatScreen) (Object) this, 0, this.height - keyboardHeight, this.width, keyboardHeight, KeyPressConsumer.of(
-                        (keycode, scancode, modifiers) -> {
-                            input.keyPressed(keycode, scancode, modifiers);
-                            this.keyPressed(keycode, scancode, modifiers);
-                        },
-                        (codePoint, modifiers) -> {
-                            this.charTyped(codePoint, modifiers);
-                            input.charTyped(codePoint, modifiers);
-                        }
-                )));
+                this.addRenderableWidget(keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), new KeyboardInputConsumer() {
+                    @Override
+                    public void acceptChar(char ch, int modifiers) {
+                        input.charTyped(ch, modifiers);
+                    }
+
+                    @Override
+                    public void acceptKeyCode(int keycode, int scancode, int modifiers) {
+                        input.keyPressed(keycode, scancode, modifiers);
+                    }
+                }, (ChatScreen) (Object) this));
             }
         });
     }

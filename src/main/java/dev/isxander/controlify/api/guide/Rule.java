@@ -3,7 +3,7 @@ package dev.isxander.controlify.api.guide;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.utils.SetCodec;
+import dev.isxander.controlify.utils.codec.SetCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.ResourceLocation;
