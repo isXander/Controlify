@@ -46,7 +46,7 @@ public final class BindingFontHelper {
     }
 
     public static Component binding(ResourceLocation binding) {
-        return Component.keybind(binding.toString()).withStyle(style -> style.withFont(WRAPPER_FONT));
+        return Component.keybind(binding.toString()).withStyle(style -> style.withFont(CUtil.createResourceFont(WRAPPER_FONT)));
     }
 
     public static Component binding(InputBinding binding) {
@@ -76,8 +76,10 @@ public final class BindingFontHelper {
         BakeableGlyph glyph = ((FontAccessor) font).invokeGetGlyph(codepoint, style);
 
         var heightCapture = GlyphStitcherHeightCapture.INSTANCE;
-        heightCapture.resetHeight(font.lineHeight + 5);
-        glyph.info().bake(heightCapture);
+        heightCapture.resetHeight(font.lineHeight);
+        if (glyph.info() instanceof GlyphInfo.Stitched stitchedGlyph) {
+            stitchedGlyph.bake(heightCapture);
+        }
 
         return heightCapture.height.get();
         //?} else {
