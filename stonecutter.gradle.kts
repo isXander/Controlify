@@ -3,7 +3,6 @@ import de.undercouch.gradle.tasks.download.Download
 plugins {
     base
     id("me.modmuss50.mod-publish-plugin")
-    id("org.ajoberstar.grgit") version "5.0.+"
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
     id("org.moddedmc.wiki.toolkit") version "0.2.5"

@@ -30,7 +30,7 @@ repositories {
 dependencies {
     fun plugin(id: String, version: String) = "$id:$id.gradle.plugin:$version"
 
-    implementation(plugin("dev.isxander.modstitch.base", "0.6.4-unstable"))
+    implementation(plugin("dev.isxander.modstitch.base", "0.7.0-unstable"))
     implementation(plugin("dev.kikugie.stonecutter", "0.7.6"))
     implementation(plugin("fabric-loom", "1.11.4"))
     implementation(plugin("net.neoforged.moddev", "2.0.103"))
