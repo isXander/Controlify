@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenkeyboard;
 
+import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.ComponentPath;
@@ -11,53 +12,72 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.function.Predicate;
 
 public class KeyboardWidget extends AbstractWidget implements ContainerEventHandler {
-    private final KeyboardLayout layout;
-    final KeyboardInputConsumer inputConsumer;
+    private final ResourceLocation currentLayout;
+    private KeyboardInputConsumer inputConsumer;
 
-    private final List<KeyWidget> keys;
+    private List<KeyWidget> keys = ImmutableList.of();
 
-    boolean shifting;
+    private boolean shifted, shiftLocked;
 
-    private @Nullable GuiEventListener focused;
+    private @Nullable KeyWidget focused;
     private boolean isDragging;
 
     private final Screen containingScreen;
 
-    public KeyboardWidget(int x, int y, int width, int height, KeyboardLayout layout, KeyboardInputConsumer inputConsumer, Screen containingScreen) {
+    public KeyboardWidget(int x, int y, int width, int height, KeyboardLayoutWithId layout, KeyboardInputConsumer inputConsumer, Screen containingScreen) {
         super(x, y, width, height, Component.literal("On-Screen Keyboard"));
-        this.layout = layout;
         this.inputConsumer = inputConsumer;
         this.containingScreen = containingScreen;
+        this.currentLayout = layout.id();
+        this.updateLayout(layout.layout(), "initial_focus", null);
+    }
 
-        int keyCount = this.layout.keys().stream()
+    public void updateLayout(KeyboardLayoutWithId layout) {
+        ResourceLocation oldLayoutId = this.getCurrentLayoutId();
+        @Nullable String oldIdentifier = Optional.ofNullable(getFocused())
+                .map(k -> k.getKey().identifier())
+                .orElse(null);
+
+        this.updateLayout(layout.layout(), oldIdentifier, oldLayoutId);
+    }
+
+    public void updateLayout(KeyboardLayout layout, @Nullable String identifierToFocus, @Nullable ResourceLocation oldLayoutChangerToFocus) {
+        this.arrangeKeys(layout);
+
+        findKey(
+                identifierToFocus != null,
+                k -> Objects.equals(k.getKey().identifier(), identifierToFocus)
+        ).or(() -> findKey(
+                oldLayoutChangerToFocus != null,
+                k -> k.getKey() instanceof KeyboardLayout.Key.ChangeLayoutKey changeLayoutKey && changeLayoutKey.otherLayout().equals(oldLayoutChangerToFocus))
+        );
+    }
+
+    private void arrangeKeys(KeyboardLayout layout) {
+        int keyCount = layout.keys().stream()
                 .mapToInt(List::size)
                 .sum();
         this.keys = new ArrayList<>(keyCount);
-        this.arrangeKeys();
-        System.out.println(layout);
-    }
 
-    private void arrangeKeys() {
-        this.keys.clear();
+        float unitWidth = this.getWidth() / layout.width();
+        float keyHeight = (float) this.getHeight() / layout.keys().size();
 
-        float unitWidth = (float) this.getWidth() / this.layout.rowWidth();
-        int keyHeight = (int)((float) this.getHeight() / this.layout.keys().size());
-
-        int y = this.getY();
-        for (List<KeyboardLayout.ShiftableKey> row : this.layout.keys()) {
-            int x = this.getX();
+        float y = this.getY();
+        for (List<KeyboardLayout.ShiftableKey> row : layout.keys()) {
+            float x = this.getX();
             for (KeyboardLayout.ShiftableKey key : row) {
-                int keyWidth = (int) (key.regular().width() * unitWidth);
+                float keyWidth = key.width() * unitWidth;
 
                 var keyWidget = new KeyWidget(
-                        x, y, keyWidth, keyHeight,
+                        (int) x, (int) y, (int) keyWidth, (int) keyHeight,
                         key, this
                 );
                 ScreenProcessorProvider.provide(this.containingScreen).addEventListener(keyWidget);
@@ -97,9 +117,47 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         });
     }
 
+    public void setShifted(boolean shifted) {
+        this.shifted = shifted;
+    }
+
+    public boolean isShifted() {
+        return shifted;
+    }
+
+    public void setShiftLocked(boolean shiftLocked) {
+        this.shiftLocked = shiftLocked;
+    }
+
+    public boolean isShiftLocked() {
+        return shiftLocked;
+    }
+
+    public void setInputConsumer(KeyboardInputConsumer inputConsumer) {
+        this.inputConsumer = inputConsumer;
+    }
+
+    public KeyboardInputConsumer getInputConsumer() {
+        return inputConsumer;
+    }
+
+    public ResourceLocation getCurrentLayoutId() {
+        return this.currentLayout;
+    }
+
+    private Optional<KeyWidget> findKey(boolean skipSearch, Predicate<KeyWidget> predicate) {
+        if (skipSearch) {
+            return Optional.empty();
+        }
+
+        return this.keys.stream()
+                .filter(predicate)
+                .findFirst();
+    }
+
     @Override
     public @NotNull List<KeyWidget> children() {
-        return this.keys;
+        return Collections.unmodifiableList(keys);
     }
 
     @Override
@@ -118,12 +176,16 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
     }
 
     @Override
-    public @Nullable GuiEventListener getFocused() {
+    public @Nullable KeyWidget getFocused() {
         return focused;
     }
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
+        if (focused != null && (!(focused instanceof KeyWidget) || !this.keys.contains(focused))) {
+            throw new IllegalArgumentException("Focused widget must be a KeyWidget in this KeyboardWidget");
+        }
+
         if (this.focused != null) {
             this.focused.setFocused(false);
         }
@@ -132,7 +194,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
             focused.setFocused(true);
         }
 
-        this.focused = focused;
+        this.focused = (KeyWidget) focused;
     }
 
     @Nullable

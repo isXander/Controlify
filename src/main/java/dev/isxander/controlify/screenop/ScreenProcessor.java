@@ -158,8 +158,9 @@ public class ScreenProcessor<T extends Screen> {
 
                 controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
 
-                if (Controlify.instance().config().globalSettings().uiSounds)
-                    minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
+                if (Controlify.instance().config().globalSettings().extraUiSounds) {
+                    playFocusChangeSound();
+                }
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 
                 var newFocusTree = getFocusTree();
@@ -309,5 +310,9 @@ public class ScreenProcessor<T extends Screen> {
 
     public static void playClackSound() {
         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
+
+    public static void playFocusChangeSound() {
+        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1.0F));
     }
 }

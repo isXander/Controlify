@@ -33,7 +33,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     public static final ResourceLocation ID = CUtil.rl("controller_type");
 
     private static final Codec<ControllerTypeEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.list(HIDIdentifier.LIST_CODEC)
+            Codec.list(HIDIdentifier.CODEC)
                     .comapFlatMap(list -> list.isEmpty() ? DataResult.error(() -> "At least one HID must be present") : DataResult.success(list), list -> list)
                     .fieldOf("hids")
                     .forGetter(ControllerTypeEntry::hid),

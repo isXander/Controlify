@@ -2,7 +2,6 @@ package dev.isxander.controlify.config;
 
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.SerializedName;
-import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
 import net.minecraft.client.Minecraft;
@@ -27,7 +26,7 @@ public class GlobalSettings {
     public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
     public boolean allowServerRumble = true;
-    public boolean uiSounds = false;
+    public boolean extraUiSounds = true;
     public boolean notifyLowBattery = true;
     public float ingameButtonGuideScale = 1f;
     public boolean useEnhancedSteamDeckDriver = true;

@@ -8,6 +8,7 @@ import dev.isxander.controlify.screenkeyboard.KeyboardInputConsumer;
 import dev.isxander.controlify.screenkeyboard.KeyboardLayouts;
 import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -66,6 +67,11 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
                 }, (ChatScreen) (Object) this));
             }
         });
+    }
+
+    @ModifyArg(method = "setInitialFocus", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;setInitialFocus(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V"))
+    private GuiEventListener modifyInitialFocus(GuiEventListener editBox) {
+        return this.keyboard != null ? this.keyboard : editBox;
     }
 
     @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen$1;<init>(Lnet/minecraft/client/gui/screens/ChatScreen;Lnet/minecraft/client/gui/Font;IIIILnet/minecraft/network/chat/Component;)V"), index = 3)

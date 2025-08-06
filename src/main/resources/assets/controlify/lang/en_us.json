@@ -583,5 +583,18 @@
   "controlify.extra_pack.legacy_console.name": "Legacy Console",
   "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs.",
 
+  "controlify.keyboard.special.shift": "Shift",
+  "controlify.keyboard.special.shift_lock": "Shift Lock",
+  "controlify.keyboard.special.enter": "Enter",
+  "controlify.keyboard.special.backspace": "Del",
+  "controlify.keyboard.special.tab": "Tab",
+  "controlify.keyboard.special.left_arrow": "←",
+  "controlify.keyboard.special.right_arrow": "→",
+  "controlify.keyboard.special.up_arrow": "↑",
+  "controlify.keyboard.special.down_arrow": "↓",
+  "controlify.keyboard.special.copy_all": "Copy All",
+  "controlify.keyboard.special.paste": "Paste",
+  "controlify.keyboard.special.previous_layout": "Previous Layout",
+
   "controlify.tutorial.look.description": "Use your mouse or controller to turn"
 }

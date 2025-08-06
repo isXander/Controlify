@@ -18,9 +18,10 @@ public class InGameButtonGuide {
     public void renderHud(GuiGraphics graphics, float tickDelta) {
         boolean debugOpen = minecraft.getDebugOverlay().showDebugScreen();
         boolean hideGui = minecraft.options.hideGui;
+        boolean screenOpen = minecraft.screen != null;
         GenericControllerConfig config = controller.genericConfig().config();
 
-        if (!debugOpen && !hideGui && config.showIngameGuide) {
+        if (!debugOpen && !hideGui && !screenOpen && config.showIngameGuide) {
             GuideRenderer.render(graphics, GuideDomains.IN_GAME, minecraft, config.ingameGuideBottom, true);
         }
     }

@@ -11,10 +11,6 @@ import java.util.stream.Stream;
 
 public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) implements Codec<Set<E>> {
 
-    public SetCodec(final Codec<E> elementCodec) {
-        this(elementCodec, 0, Integer.MAX_VALUE);
-    }
-
     private <R> DataResult<R> createTooShortError(final int size) {
         return DataResult.error(() -> "Set is too short: " + size + ", expected range [" + minSize + "-" + maxSize + "]");
     }

@@ -8,8 +8,12 @@ public final class KeyboardLayouts {
 
     public static final ResourceLocation CHAT = CUtil.rl("chat");
 
-    public static KeyboardLayout chat() {
+    public static KeyboardLayoutWithId chat() {
         return Controlify.instance().keyboardLayoutManager().getLayout(CHAT);
+    }
+
+    public static KeyboardLayoutWithId fallback() {
+        return new KeyboardLayoutWithId(FallbackKeyboardLayout.QWERTY, FallbackKeyboardLayout.ID);
     }
 
     private KeyboardLayouts() {}

@@ -3,6 +3,7 @@ package dev.isxander.controlify.bindings.input;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.codec.CExtraCodecs;
 import dev.isxander.controlify.utils.codec.FuzzyMapCodec;
 import dev.isxander.controlify.utils.codec.StrictEitherMapCodec;
 import net.minecraft.Util;
@@ -27,7 +28,7 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
     public static <T extends StringRepresentable, E> MapCodec<E> createCodec(
             T[] types, Function<T, MapCodec<? extends E>> codecGetter, Function<E, T> typeGetter, String typeFieldName
     ) {
-        MapCodec<E> fuzzyCodec = new FuzzyMapCodec<>(
+        MapCodec<E> fuzzyCodec = CExtraCodecs.fuzzyMap(
                 Stream.of(types).map(codecGetter).toList(),
                 obj -> codecGetter.apply(typeGetter.apply(obj))
         );
