@@ -110,7 +110,7 @@ public final class ControlifyBindings {
     public static final InputBindingSupplier PAUSE = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "pause")
             .category(GAMEPLAY_CATEGORY)
-            .allowedContexts(BindContext.IN_GAME)
+            .allowedContexts(BindContext.IN_GAME, BindContext.REGULAR_SCREEN)
             .radialCandidate(RadialIcons.getItem(Items.STRUCTURE_VOID)));
     public static final InputBindingSupplier CHANGE_PERSPECTIVE = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "change_perspective")

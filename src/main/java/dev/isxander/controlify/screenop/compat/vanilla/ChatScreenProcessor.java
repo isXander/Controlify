@@ -161,7 +161,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
     @Override
     protected HoldRepeatHelper createHoldRepeatHelper() {
         // make the initial delay way less
-        return new HoldRepeatHelper(3, 4);
+        return new HoldRepeatHelper(5, 4);
     }
 
     public interface CmdSuggestionsController {

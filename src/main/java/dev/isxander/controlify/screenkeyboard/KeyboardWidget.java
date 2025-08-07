@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
+import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
@@ -94,7 +95,6 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                         (int) x, (int) y, (int) keyWidth, (int) keyHeight,
                         key, this
                 );
-                ScreenProcessorProvider.provide(this.containingScreen).addEventListener(keyWidget);
 
                 this.keys.add(keyWidget);
 
@@ -133,6 +133,8 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+        this.keys.forEach(k -> k.onControllerInput(controller));
+
         // prevent default button handling for gui press which would send enter which is most likely submit
         return ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get();
     }

@@ -1,80 +1,23 @@
 {
-  "width": 16,
+  "width": 12,
   "keys": [
     [
-      { "regular": " ", "width": 1 },
-      ["`", "~"],
-      ["1", "!"],
-      ["2", "@"],
-      ["3", "#"],
-      ["4", "$"],
-      ["5", "%"],
-      ["6", "^"],
-      ["7", "&"],
-      ["8", "*"],
-      ["9", "("],
-      ["0", ")"],
-      ["-", "_"],
-      ["=", "+"],
-      { "regular": { "action": "backspace"}, "shortcut": "controlify:gui_abstract_action_1", "width": 2.0 }
+      ["0", "!"], ["1", "?"], ["2", "$"], ["3", "#"], ["4", "-"], ["5", "_"], ["6", "+"], ["7", "("], ["8", ")"], ["9", "\""],
+      { "regular": { "action": "shift_lock" }, "width": 2.0 }
     ],
     [
-      { "regular": " ", "width": 2 },
-      "q",
-      "w",
-      "e",
-      "r",
-      "t",
-      "y",
-      "u",
-      "i",
-      "o",
-      "p",
-      ["[", "{"],
-      ["]", "}"],
-      ["\\", "|"],
-      " "
+      "q", "w", "e", "r", "t", "y", "u", "i", "o", "p",
+      { "regular": { "action": "backspace" }, "shortcut": "controlify:gui_abstract_action_1", "width": 2.0 }
     ],
     [
-      { "regular": { "action": "shift_lock" }, "width": 2.0 },
-      "a",
-      "s",
-      "d",
-      "f",
-      "g",
-      "h",
-      "j",
-      "k",
-      "l",
-      [";", ":"],
-      ["'", "\""],
-      { "regular": { "action": "enter", "shortcut": "controlify:gui_abstract_action_1" }, "width": 3.0 }
+      ["/", "|"],
+      "a", "s", "d", "f", "g", "h", "j", "k", "l",
+      { "regular": { "action": "enter" }, "shortcut": "controlify:pause", "width": 2.0 }
     ],
     [
       { "regular": { "action": "shift" }, "shortcut": "controlify:gui_abstract_action_3", "width": 2.0 },
-      "z",
-      "x",
-      "c",
-      "v",
-      "b",
-      "n",
-      "m",
-      [",", "<"],
-      [".", ">"],
-      ["/", "?"],
-      {
-        "regular": { "action": "paste" },
-        "shifted": { "action": "copy_all" },
-        "width": 2.0
-      },
-      { "action": "left_arrow" },
-      { "action": "right_arrow" }
-    ],
-    [
-      { "regular": { "layout": "controlify:emoji", "display_name": "☺" }, "width": 2.0 },
-      { "regular": { "chars": " ", "display_name": "Space" }, "shortcut": "controlify:gui_abstract_action_2", "width": 12.0 },
-      { "action": "up_arrow" },
-      { "action": "down_arrow" }
+      "z", "x", "c", "v", "b", "n", "m", [",", "."],
+      { "regular": { "chars": " ", "display_name": "Space" }, "shortcut": "controlify:gui_abstract_action_2", "width": 2.0 }
     ]
   ]
 }
