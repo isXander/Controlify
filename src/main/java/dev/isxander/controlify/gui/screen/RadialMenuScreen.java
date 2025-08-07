@@ -188,10 +188,6 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        if (editMode != null) {
-            renderBackground(graphics, mouseX, mouseY, delta);
-        }
-
         super.render(graphics, mouseX, mouseY, delta);
 
         if (editMode == null) {
@@ -202,6 +198,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     height - 39,
                     -1
             );
+        }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (editMode != null) {
+            super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
 
