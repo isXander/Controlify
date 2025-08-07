@@ -1,6 +1,10 @@
 package dev.isxander.controlify.screenkeyboard;
 
 import com.google.common.collect.ImmutableList;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.screenop.ComponentProcessor;
+import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.ComponentPath;
@@ -19,9 +23,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class KeyboardWidget extends AbstractWidget implements ContainerEventHandler {
-    private final ResourceLocation currentLayout;
-    private KeyboardInputConsumer inputConsumer;
+public class KeyboardWidget extends AbstractWidget implements ContainerEventHandler, ComponentProcessor {
+    private ResourceLocation currentLayout;
+    private @Nullable ResourceLocation previousLayout;
+
+    private InputTarget inputConsumer;
 
     private List<KeyWidget> keys = ImmutableList.of();
 
@@ -32,12 +38,11 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
     private final Screen containingScreen;
 
-    public KeyboardWidget(int x, int y, int width, int height, KeyboardLayoutWithId layout, KeyboardInputConsumer inputConsumer, Screen containingScreen) {
+    public KeyboardWidget(int x, int y, int width, int height, KeyboardLayoutWithId layout, InputTarget inputConsumer, Screen containingScreen) {
         super(x, y, width, height, Component.literal("On-Screen Keyboard"));
         this.inputConsumer = inputConsumer;
         this.containingScreen = containingScreen;
-        this.currentLayout = layout.id();
-        this.updateLayout(layout.layout(), "initial_focus", null);
+        this.updateLayout(layout, "initial_focus", null);
     }
 
     public void updateLayout(KeyboardLayoutWithId layout) {
@@ -46,18 +51,21 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                 .map(k -> k.getKey().identifier())
                 .orElse(null);
 
-        this.updateLayout(layout.layout(), oldIdentifier, oldLayoutId);
+        this.updateLayout(layout, oldIdentifier, oldLayoutId);
     }
 
-    public void updateLayout(KeyboardLayout layout, @Nullable String identifierToFocus, @Nullable ResourceLocation oldLayoutChangerToFocus) {
-        this.arrangeKeys(layout);
+    public void updateLayout(KeyboardLayoutWithId layout, @Nullable String identifierToFocus, @Nullable ResourceLocation oldLayoutChangerToFocus) {
+        this.previousLayout = this.currentLayout;
+        this.currentLayout = layout.id();
+
+        this.arrangeKeys(layout.layout());
 
         findKey(
                 identifierToFocus != null,
                 k -> Objects.equals(k.getKey().identifier(), identifierToFocus)
         ).or(() -> findKey(
                 oldLayoutChangerToFocus != null,
-                k -> k.getKey() instanceof KeyboardLayout.Key.ChangeLayoutKey changeLayoutKey && changeLayoutKey.otherLayout().equals(oldLayoutChangerToFocus))
+                k -> k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.ChangeLayoutFunc changeLayoutKey && (changeLayoutKey.layout().equals(oldLayoutChangerToFocus) || changeLayoutKey.isPreviousLayout()))
         );
     }
 
@@ -71,9 +79,9 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         float keyHeight = (float) this.getHeight() / layout.keys().size();
 
         float y = this.getY();
-        for (List<KeyboardLayout.ShiftableKey> row : layout.keys()) {
+        for (List<KeyboardLayout.Key> row : layout.keys()) {
             float x = this.getX();
-            for (KeyboardLayout.ShiftableKey key : row) {
+            for (KeyboardLayout.Key key : row) {
                 float keyWidth = key.width() * unitWidth;
 
                 var keyWidget = new KeyWidget(
@@ -117,6 +125,12 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         });
     }
 
+    @Override
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+        // prevent default button handling for gui press which would send enter which is most likely submit
+        return ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get();
+    }
+
     public void setShifted(boolean shifted) {
         this.shifted = shifted;
     }
@@ -133,16 +147,20 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         return shiftLocked;
     }
 
-    public void setInputConsumer(KeyboardInputConsumer inputConsumer) {
+    public void setInputTarget(InputTarget inputConsumer) {
         this.inputConsumer = inputConsumer;
     }
 
-    public KeyboardInputConsumer getInputConsumer() {
+    public InputTarget getInputTarget() {
         return inputConsumer;
     }
 
     public ResourceLocation getCurrentLayoutId() {
         return this.currentLayout;
+    }
+
+    public Optional<ResourceLocation> getPreviousLayoutId() {
+        return Optional.ofNullable(this.previousLayout);
     }
 
     private Optional<KeyWidget> findKey(boolean skipSearch, Predicate<KeyWidget> predicate) {
@@ -182,8 +200,17 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
     @Override
     public void setFocused(@Nullable GuiEventListener focused) {
-        if (focused != null && (!(focused instanceof KeyWidget) || !this.keys.contains(focused))) {
-            throw new IllegalArgumentException("Focused widget must be a KeyWidget in this KeyboardWidget");
+        if (focused != null) {
+            if (!(focused instanceof KeyWidget)) {
+                throw new IllegalArgumentException("Focused widget must be a KeyWidget in this KeyboardWidget");
+            }
+
+            // This case happens when mouse clicking on a change_layout key
+            // since the action happens first which removes the key from the list,
+            // and then the container sets the focus, which is no longer in the key list.
+            if (!this.keys.contains(focused)) {
+                focused = null;
+            }
         }
 
         if (this.focused != null) {

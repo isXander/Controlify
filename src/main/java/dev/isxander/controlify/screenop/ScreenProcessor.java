@@ -34,7 +34,7 @@ import java.util.*;
 
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
-    protected final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
+    protected final HoldRepeatHelper holdRepeatHelper;
     protected static final Minecraft minecraft = Minecraft.getInstance();
 
     private final List<ScreenControllerEventListener> eventListeners = new ArrayList<>();
@@ -44,6 +44,7 @@ public class ScreenProcessor<T extends Screen> {
         if (screen instanceof ScreenControllerEventListener eventListener) {
             eventListeners.add(eventListener);
         }
+        this.holdRepeatHelper = createHoldRepeatHelper();
     }
 
     public void onControllerUpdate(ControllerEntity controller) {
@@ -272,6 +273,10 @@ public class ScreenProcessor<T extends Screen> {
 
     public void addEventListener(ScreenControllerEventListener listener) {
         eventListeners.add(listener);
+    }
+
+    protected HoldRepeatHelper createHoldRepeatHelper() {
+        return new HoldRepeatHelper(10, 3);
     }
 
     protected Queue<GuiEventListener> getFocusTree() {

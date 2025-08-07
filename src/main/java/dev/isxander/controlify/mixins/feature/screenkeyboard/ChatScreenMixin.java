@@ -1,12 +1,10 @@
 package dev.isxander.controlify.mixins.feature.screenkeyboard;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
-import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.screenkeyboard.KeyboardInputConsumer;
-import dev.isxander.controlify.screenkeyboard.KeyboardLayouts;
-import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
+import dev.isxander.controlify.screenkeyboard.*;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -20,10 +18,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
 import java.util.Optional;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDucky {
+public abstract class ChatScreenMixin extends Screen implements MixinInputTarget, ChatKeyboardDucky {
     @Unique
     private KeyboardWidget keyboard;
     @Unique
@@ -54,17 +53,7 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
             } else {
                 this.shiftChatAmt = 0.5f;
                 int keyboardHeight = (int) (this.height * this.shiftChatAmt);
-                this.addRenderableWidget(keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), new KeyboardInputConsumer() {
-                    @Override
-                    public void acceptChar(char ch, int modifiers) {
-                        input.charTyped(ch, modifiers);
-                    }
-
-                    @Override
-                    public void acceptKeyCode(int keycode, int scancode, int modifiers) {
-                        input.keyPressed(keycode, scancode, modifiers);
-                    }
-                }, (ChatScreen) (Object) this));
+                this.addRenderableWidget(keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), this, (ChatScreen) (Object) this));
             }
         });
     }
@@ -92,5 +81,47 @@ public abstract class ChatScreenMixin extends Screen implements ChatKeyboardDuck
     @Override
     public float controlify$keyboardShiftAmount() {
         return this.shiftChatAmt;
+    }
+
+
+
+    @Override
+    public boolean controlify$supportsCharInput() {
+        return true;
+    }
+
+    @Override
+    public boolean controlify$acceptChar(char ch, int modifiers) {
+        this.input.charTyped(ch, modifiers);
+        return true;
+    }
+
+    @Override
+    public boolean controlify$supportsKeyCodeInput() {
+        return true;
+    }
+
+    @Override
+    public boolean controlify$acceptKeyCode(int keycode, int scancode, int modifiers) {
+        boolean bypassInput = List.of(
+                InputConstants.KEY_RETURN,
+                InputConstants.KEY_ESCAPE
+        ).contains(keycode);
+
+        if (bypassInput) {
+            return ((ChatScreen) (Object) this).keyPressed(keycode, scancode, modifiers);
+        }
+        return this.input.keyPressed(keycode, scancode, modifiers);
+    }
+
+    @Override
+    public boolean controlify$supportsCopying() {
+        return true;
+    }
+
+    @Override
+    public boolean controlify$copy() {
+        minecraft.keyboardHandler.setClipboard(this.input.getValue());
+        return true;
     }
 }

@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.isxander.controlify.screenkeyboard.KeyboardLayout.ShiftableKey;
-import static dev.isxander.controlify.screenkeyboard.KeyboardLayout.Key.*;
+import static dev.isxander.controlify.screenkeyboard.KeyboardLayout.Key;
+import static dev.isxander.controlify.screenkeyboard.KeyboardLayout.KeyFunction.*;
 
 public final class FallbackKeyboardLayout {
     public static final ResourceLocation ID = CUtil.rl("fallback");
@@ -28,10 +28,10 @@ public final class FallbackKeyboardLayout {
                     k("i"),
                     k("o"),
                     k("p"),
-                    k(SpecialKey.Action.BACKSPACE, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_1)
+                    k(SpecialFunc.Action.BACKSPACE, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_1)
             ),
             List.of(
-                    k(SpecialKey.Action.TAB, 1f, null),
+                    k(SpecialFunc.Action.TAB, 1f, null),
                     k("a"),
                     k("s"),
                     k("d"),
@@ -42,10 +42,10 @@ public final class FallbackKeyboardLayout {
                     k("k"),
                     k("l"),
                     k("'", "\""),
-                    k(SpecialKey.Action.ENTER, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_2)
+                    k(SpecialFunc.Action.ENTER, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_2)
             ),
             List.of(
-                    k(SpecialKey.Action.SHIFT, 2f, ControlifyBindings.GUI_ABSTRACT_ACTION_3),
+                    k(SpecialFunc.Action.SHIFT, 2f, ControlifyBindings.GUI_ABSTRACT_ACTION_3),
                     k("z"),
                     k("x"),
                     k("c"),
@@ -55,26 +55,26 @@ public final class FallbackKeyboardLayout {
                     k("m"),
                     k(",", "."),
                     k("/", "\\"),
-                    k(SpecialKey.Action.LEFT_ARROW, 1f, null),
-                    k(SpecialKey.Action.RIGHT_ARROW, 1f, null)
+                    k(SpecialFunc.Action.LEFT_ARROW, 1f, null),
+                    k(SpecialFunc.Action.RIGHT_ARROW, 1f, null)
             ),
             List.of(
-                    k(SpecialKey.Action.UP_ARROW, 1f, null),
+                    k(SpecialFunc.Action.UP_ARROW, 1f, null),
                     k(" ", 11f),
-                    k(SpecialKey.Action.DOWN_ARROW, 1f, null)
+                    k(SpecialFunc.Action.DOWN_ARROW, 1f, null)
             )
     );
 
-    private static ShiftableKey k(SpecialKey.Action action, float width, @Nullable InputBindingSupplier shortcutBinding) {
-        return new ShiftableKey(new SpecialKey(action), width, Optional.ofNullable(shortcutBinding));
+    private static Key k(SpecialFunc.Action action, float width, @Nullable InputBindingSupplier shortcutBinding) {
+        return new Key(new SpecialFunc(action), width, Optional.ofNullable(shortcutBinding));
     }
-    private static ShiftableKey k(String string) {
-        return new ShiftableKey(new StringKey(string));
+    private static Key k(String string) {
+        return new Key(new StringFunc(string));
     }
-    private static ShiftableKey k(String regular, String shifted) {
-        return new ShiftableKey(new StringKey(regular), new StringKey(shifted));
+    private static Key k(String regular, String shifted) {
+        return new Key(new StringFunc(regular), new StringFunc(shifted));
     }
-    private static ShiftableKey k(String string, float width) {
-        return new ShiftableKey(new StringKey(string), width);
+    private static Key k(String string, float width) {
+        return new Key(new StringFunc(string), width);
     }
 }

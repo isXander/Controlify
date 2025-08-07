@@ -20,31 +20,38 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
+import java.util.Optional;
+
 public class KeyWidget extends AbstractWidget implements ComponentProcessor, ScreenControllerEventListener {
     public static final ResourceLocation SPRITE = CUtil.rl("keyboard/key");
     public static final ResourceLocation SPRITE_PRESSED = CUtil.rl("keyboard/key_pressed");
 
     private final KeyboardWidget keyboard;
-    private final KeyboardLayout.ShiftableKey key;
+    private final KeyboardLayout.Key key;
 
-    private final Component unshiftedLabel, shiftedLabel;
+    private final Component regularLabel, shiftedLabel;
+    private final boolean supportsRegular, supportsShifted;
 
     private boolean shortcutPressed;
     private final HoldRepeatHelper holdRepeatHelper;
 
     private boolean buttonPressed, mousePressed;
 
-    public KeyWidget(int x, int y, int width, int height, KeyboardLayout.ShiftableKey key, KeyboardWidget keyboard) {
+    public KeyWidget(int x, int y, int width, int height, KeyboardLayout.Key key, KeyboardWidget keyboard) {
         super(x, y, width, height, Component.literal("Key"));
         this.keyboard = keyboard;
         this.key = key;
         this.holdRepeatHelper = new HoldRepeatHelper(10, 2);
 
-        this.unshiftedLabel = createLabel(key, false);
+        this.regularLabel = createLabel(key, false);
         this.shiftedLabel = createLabel(key, true);
+        this.supportsRegular = supportsAction(false);
+        this.supportsShifted = supportsAction(true);
     }
 
     public void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.active = this.supportsAction();
+
         if (!this.isFocused()) {
             // the call in overrideControllerButtons won't be triggered to un-press if the key is not focused
             this.buttonPressed = false;
@@ -57,10 +64,15 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         } else if (!shortcutPressed) {
             this.holdRepeatHelper.reset();
         }
+
+        if (!this.active) {
+            // gray out the key if it does not support the action
+            graphics.fill(getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x30000000);
+        }
     }
 
     public void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float deltaTick) {
-        Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.unshiftedLabel;
+        Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.regularLabel;
         graphics.drawCenteredString(
                 Minecraft.getInstance().font,
                 label,
@@ -94,7 +106,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             holdRepeatHelper.onNavigate();
         }
 
-        return true;
+        return false;
     }
 
     @Override
@@ -128,25 +140,28 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     private void onPress() {
-        KeyboardLayout.Key key = this.getKey();
-        KeyboardInputConsumer inputConsumer = this.keyboard.getInputConsumer();
+        KeyboardLayout.KeyFunction keyFunction = this.getKeyFunction();
+        InputTarget inputConsumer = this.keyboard.getInputTarget();
 
         ScreenProcessor.playClackSound();
 
         boolean wasShiftAction = false;
 
-        switch (key) {
-            case KeyboardLayout.Key.StringKey stringKey ->
+        switch (keyFunction) {
+            case KeyboardLayout.KeyFunction.StringFunc stringKey ->
                 insertText(stringKey.string(), inputConsumer);
 
-            case KeyboardLayout.Key.CodeKey codeKey ->
-                    inputConsumer.acceptKeyCode(codeKey.keycode(), codeKey.scancode(), codeKey.modifier());
+            case KeyboardLayout.KeyFunction.CodeFunc codeKey ->
+                codeKey.codes().forEach(code -> inputConsumer.acceptKeyCode(code.keycode(), code.scancode(), code.modifier()));
 
-            case KeyboardLayout.Key.SpecialKey specialKey -> {
+            case KeyboardLayout.KeyFunction.SpecialFunc specialKey -> {
                 switch (specialKey.action()) {
                     case SHIFT -> {
                         if (!this.keyboard.isShiftLocked()) {
                             this.keyboard.setShifted(!this.keyboard.isShifted());
+                        } else {
+                            this.keyboard.setShifted(false);
+                            this.keyboard.setShiftLocked(false);
                         }
                         wasShiftAction = true;
                     }
@@ -170,6 +185,13 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
                         String clipboard = Minecraft.getInstance().keyboardHandler.getClipboard();
                         insertText(clipboard, inputConsumer);
                     }
+                    case COPY_ALL -> {
+                        inputConsumer.copy();
+                    }
+
+                    case PREVIOUS_LAYOUT -> {
+                        this.keyboard.getPreviousLayoutId().ifPresent(this::changeLayout);
+                    }
 
                     default -> {
                         CUtil.LOGGER.warn("Unhandled code action: " + specialKey.action());
@@ -177,11 +199,8 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
                 }
             }
 
-            case KeyboardLayout.Key.ChangeLayoutKey changeLayoutKey -> {
-                ResourceLocation layoutId = changeLayoutKey.otherLayout();
-                KeyboardLayoutWithId layoutWithId = Controlify.instance().keyboardLayoutManager().getLayout(layoutId);
-                this.keyboard.updateLayout(layoutWithId);
-            }
+            case KeyboardLayout.KeyFunction.ChangeLayoutFunc func ->
+                this.changeLayout(func.layout());
         }
 
         if (!wasShiftAction && this.keyboard.isShifted() && !this.keyboard.isShiftLocked()) {
@@ -193,11 +212,59 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     public KeyboardLayout.Key getKey() {
-        return this.key.get(this.keyboard.isShifted());
+        return this.key;
+    }
+
+    public KeyboardLayout.KeyFunction getKeyFunction() {
+        return this.key.getFunction(this.keyboard.isShifted());
     }
 
     public boolean isVisuallyPressed() {
-        return this.buttonPressed || this.shortcutPressed || this.mousePressed;
+        return this.buttonPressed
+                || this.shortcutPressed
+                || this.mousePressed
+                || this.isShiftKeyAndShifting()
+                || this.isShiftLockKeyAndShiftLocked();
+    }
+
+    private boolean isShiftKeyAndShifting() {
+        return this.keyboard.isShifted() && !this.keyboard.isShiftLocked()
+                && this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(KeyboardLayout.KeyFunction.SpecialFunc.Action action)
+                && action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT;
+    }
+
+    private boolean isShiftLockKeyAndShiftLocked() {
+        return this.keyboard.isShiftLocked()
+                && this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(KeyboardLayout.KeyFunction.SpecialFunc.Action action)
+                && action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT_LOCK;
+    }
+
+    private boolean supportsAction(boolean shifted) {
+        boolean supportsCharInput = this.keyboard.getInputTarget().supportsCharInput();
+        boolean supportsKeyCodeInput = this.keyboard.getInputTarget().supportsKeyCodeInput();
+        boolean supportsCopying = this.keyboard.getInputTarget().supportsCopying();
+
+        return switch (this.getKey().getFunction(shifted)) {
+            case KeyboardLayout.KeyFunction.StringFunc ignored -> supportsCharInput;
+            case KeyboardLayout.KeyFunction.CodeFunc ignored -> supportsKeyCodeInput;
+            case KeyboardLayout.KeyFunction.SpecialFunc specialFunc ->
+                switch (specialFunc.action()) {
+                    case ENTER, BACKSPACE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW -> supportsKeyCodeInput;
+                    case TAB, PASTE -> supportsCharInput;
+                    case COPY_ALL -> supportsCopying;
+                    case SHIFT, SHIFT_LOCK, PREVIOUS_LAYOUT -> true;
+                };
+            case KeyboardLayout.KeyFunction.ChangeLayoutFunc ignored -> true;
+        };
+    }
+
+    private boolean supportsAction() {
+        return this.keyboard.isShifted() ? this.supportsShifted : this.supportsRegular;
+    }
+
+    private void changeLayout(ResourceLocation layoutId) {
+        KeyboardLayoutWithId layoutWithId = Controlify.instance().keyboardLayoutManager().getLayout(layoutId);
+        this.keyboard.updateLayout(layoutWithId);
     }
 
     @Override
@@ -205,7 +272,11 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
     }
 
-    private static void insertText(String text, KeyboardInputConsumer inputConsumer) {
+    private static void insertText(String text, InputTarget inputConsumer) {
+        // One `char` is not necessarily one visible character.
+        // Some characters, such as emojis, are represented using surrogate pairs,
+        // meaning they span two `char`s.
+        // Code points are used to represent characters that *may* be represented by surrogate pairs.
         text.codePoints().forEach((codePoint) -> {
             // guess the modifier based on the nature of the character
             int modCapital = Character.isUpperCase(codePoint) ? GLFW.GLFW_MOD_SHIFT : 0;
@@ -220,15 +291,15 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         });
     }
 
-    private static Component createLabel(KeyboardLayout.ShiftableKey shiftableKey, boolean shift) {
-        KeyboardLayout.Key key = shiftableKey.get(shift);
+    private static Component createLabel(KeyboardLayout.Key key, boolean shift) {
+        KeyboardLayout.KeyFunction keyFunction = key.getFunction(shift);
 
-        return shiftableKey.shortcutBinding()
+        return key.shortcutBinding()
                 .map(b -> BindingFontHelper.binding(b.bindId()))
                 .<Component>map(glyph -> Component.empty()
                         .append(glyph)
                         .append(" ")
-                        .append(key.displayName()))
-                .orElseGet(key::displayName);
+                        .append(keyFunction.displayName()))
+                .orElseGet(keyFunction::displayName);
     }
 }
