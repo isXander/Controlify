@@ -18,8 +18,8 @@ public class CyclingControllerElementComponentProcessor implements ComponentProc
 
     @Override
     public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
-        boolean left = ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).digitalNow();
-        boolean right = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalNow();
+        boolean left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalNow();
+        boolean right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalNow();
 
         if (!((ControllerWidgetAccessor) cyclingController).getControl().option().available()) {
             return false;

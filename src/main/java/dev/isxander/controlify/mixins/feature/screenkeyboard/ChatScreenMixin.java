@@ -1,10 +1,20 @@
 package dev.isxander.controlify.mixins.feature.screenkeyboard;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
-import dev.isxander.controlify.screenkeyboard.*;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.font.BindingFontHelper;
+import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
+import dev.isxander.controlify.screenkeyboard.KeyboardLayouts;
+import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
+import dev.isxander.controlify.screenkeyboard.MixinInputTarget;
+import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.screenop.compat.vanilla.ChatScreenProcessor;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -19,20 +29,22 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.Optional;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements MixinInputTarget, ChatKeyboardDucky {
-    @Unique
-    private KeyboardWidget keyboard;
-    @Unique
-    private float shiftChatAmt = 0f;
+public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
+    @Unique private KeyboardWidget keyboard;
+    @Unique private float shiftChatAmt = 0f;
+    @Shadow protected EditBox input;
+    @Shadow CommandSuggestions commandSuggestions;
+    @Shadow public abstract boolean keyPressed(int keyCode, int scanCode, int modifiers);
 
-    @Shadow
-    protected EditBox input;
-
-    @Shadow
-    public abstract boolean keyPressed(int keyCode, int scanCode, int modifiers);
+    @Unique
+    private final ChatScreenProcessor screenProcessor = new ChatScreenProcessor(
+            (ChatScreen) (Object) this,
+            () -> this.input,
+            () -> this.keyboard,
+            () -> (ChatScreenProcessor.CmdSuggestionsController) this.commandSuggestions
+    );
 
     protected ChatScreenMixin(Component title) {
         super(title);
@@ -40,21 +52,17 @@ public abstract class ChatScreenMixin extends Screen implements MixinInputTarget
 
     @Inject(method = "init", at = @At("HEAD"))
     private void addKeyboard(CallbackInfo ci) {
+        this.shiftChatAmt = 0f;
+
         ControlifyApi.get().getCurrentController().ifPresent(c -> {
-            if (!ControlifyApi.get().currentInputMode().isController()) return;
+            // if the keyboard is already present, re-add it even if we're in kb/m mode since
+            // setting fullscreen will turn it to that mode
+            if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
             if (!c.genericConfig().config().showOnScreenKeyboard) return;
 
-            Optional<NativeKeyboardComponent> nativeKeyboardOpt = c.nativeKeyboard();
-            if (nativeKeyboardOpt.isPresent() && nativeKeyboardOpt.get().confObj().useNativeKeyboard) {
-                NativeKeyboardComponent nativeKeyboard = nativeKeyboardOpt.get();
-
-                this.shiftChatAmt = nativeKeyboard.getKeyboardHeight();
-                nativeKeyboard.open();
-            } else {
-                this.shiftChatAmt = 0.5f;
-                int keyboardHeight = (int) (this.height * this.shiftChatAmt);
-                this.addRenderableWidget(keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), this, (ChatScreen) (Object) this));
-            }
+            this.shiftChatAmt = 0.5f;
+            int keyboardHeight = (int) (this.height * this.shiftChatAmt);
+            this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), this, (ChatScreen) (Object) this));
         });
     }
 
@@ -63,17 +71,36 @@ public abstract class ChatScreenMixin extends Screen implements MixinInputTarget
         return this.keyboard != null ? this.keyboard : editBox;
     }
 
-    @ModifyArg(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen$1;<init>(Lnet/minecraft/client/gui/screens/ChatScreen;Lnet/minecraft/client/gui/Font;IIIILnet/minecraft/network/chat/Component;)V"), index = 3)
+    @Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
+    @Definition(id = "width", field = "Lnet/minecraft/client/gui/screens/ChatScreen;width:I")
+    // EditBox can't be referenced here because it's an anonymous subclass that doesn't have a concrete Class<?> type
+    @Expression("new ?(?, ?, 4, @(this.height - 12), this.width - 4, 12, ?)")
+    @ModifyExpressionValue(method = "init", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifyInputBoxY(int y) {
-        return (int) (y - this.height * this.shiftChatAmt);
+        return this.height - (int) (this.height * this.shiftChatAmt) - 12;
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V"), index = 1)
-    private int modifyInputBoxBackgroundY(int y) {
-        return (int) (y - this.height * this.shiftChatAmt);
+    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V")
+    @Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
+    @Definition(id = "width", field = "Lnet/minecraft/client/gui/screens/ChatScreen;width:I")
+    @Expression("?.fill(2, @(this.height - 14), this.width - 2, this.height - 2, ?)")
+    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private int modifyInputBoxBackgroundTop(int y) {
+        return this.input.getY() - 2;
     }
 
-    @ModifyExpressionValue(method = "init", at = @At(value = "CONSTANT", args = "intValue=10"))
+    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V")
+    @Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
+    @Definition(id = "width", field = "Lnet/minecraft/client/gui/screens/ChatScreen;width:I")
+    @Expression("?.fill(2, this.height - 14, this.width - 2, @(this.height - 2), ?)")
+    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private int modifyInputBoxBackgroundBottom(int y) {
+        return this.input.getBottom() - 2;
+    }
+
+    @Definition(id = "CommandSuggestions", type = CommandSuggestions.class)
+    @Expression("new CommandSuggestions(?, ?, ?, ?, ?, ?, ?, @(10), ?, ?)")
+    @ModifyExpressionValue(method = "init", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifyMaxSuggestionCount(int count) {
         return shiftChatAmt > 0 ? 8 : count;
     }
@@ -123,5 +150,10 @@ public abstract class ChatScreenMixin extends Screen implements MixinInputTarget
     public boolean controlify$copy() {
         minecraft.keyboardHandler.setClipboard(this.input.getValue());
         return true;
+    }
+
+    @Override
+    public ChatScreenProcessor screenProcessor() {
+        return this.screenProcessor;
     }
 }

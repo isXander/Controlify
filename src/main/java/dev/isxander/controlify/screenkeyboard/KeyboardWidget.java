@@ -65,7 +65,13 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                 k -> Objects.equals(k.getKey().identifier(), identifierToFocus)
         ).or(() -> findKey(
                 oldLayoutChangerToFocus != null,
-                k -> k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.ChangeLayoutFunc changeLayoutKey && (changeLayoutKey.layout().equals(oldLayoutChangerToFocus) || changeLayoutKey.isPreviousLayout()))
+                k -> {
+                    boolean isOldLayout = k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.ChangeLayoutFunc changeLayoutKey
+                            && changeLayoutKey.layout().equals(oldLayoutChangerToFocus);
+                    boolean isPrevLayout = k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc specialFunc
+                            && specialFunc.action() == KeyboardLayout.KeyFunction.SpecialFunc.Action.PREVIOUS_LAYOUT;
+                    return isOldLayout || isPrevLayout;
+                })
         );
     }
 

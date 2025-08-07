@@ -71,6 +71,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
      * Keys can also have an optional shortcut binding, which is used to display a shortcut for the key in the UI.
      * <p>
      * Each key function provides the display name of the key with {@link KeyFunction#displayName()}.
+     *
      * @param regular the regular key function, which is used when the shift is not enabled.
      * @param shifted the shifted key function, which is used when the shift is enabled
      * @param width the unit width of the key, which is multiplied by the keyboard width to determine the actual pixel width of the key
@@ -229,6 +230,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 
             /**
              * A key code is a combination of a keycode, scancode, and modifier.
+             *
              * @param keycode is the logical key code, platform agnostic. use {@link com.mojang.blaze3d.platform.InputConstants} to get the key code.
              * @param scancode is the physical key code, platform specific. usually leaving blank is fine since no one ever looks at it.
              * @param modifier is the modifier bitset, which can be used to specify additional key modifiers like shift, ctrl, alt, etc.

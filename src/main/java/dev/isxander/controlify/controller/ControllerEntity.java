@@ -11,7 +11,6 @@ import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.info.DriverNameComponent;
 import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
-import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.controller.led.LEDComponent;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
@@ -157,11 +156,6 @@ public class ControllerEntity extends ECSEntityImpl {
     @Contract(pure = true)
     public Optional<BluetoothDeviceComponent> bluetooth() {
         return this.getComponent(BluetoothDeviceComponent.ID);
-    }
-
-    @Contract(pure = true)
-    public Optional<NativeKeyboardComponent> nativeKeyboard() {
-        return this.getComponent(NativeKeyboardComponent.ID);
     }
 
     public void update(boolean outOfFocus) {

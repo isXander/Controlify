@@ -335,8 +335,10 @@
   "controlify.binding.controlify.gui_navi_up": "GUI Navi Up",
   "controlify.binding.controlify.gui_navi_left": "GUI Navi Left",
   "controlify.binding.controlify.gui_navi_right": "GUI Navi Right",
-  "controlify.binding.controlify.cycle_opt_forward": "Cycle Option Forward",
-  "controlify.binding.controlify.cycle_opt_backward": "Cycle Option Backward",
+  "controlify.binding.controlify.gui_secondary_navi_down": "GUI Secondary Navi Down",
+  "controlify.binding.controlify.gui_secondary_navi_up": "GUI Secondary Navi Up",
+  "controlify.binding.controlify.gui_secondary_navi_left": "GUI Secondary Navi Left",
+  "controlify.binding.controlify.gui_secondary_navi_right": "GUI Secondary Navi Right",
   "controlify.binding.controlify.clear_binding": "Clear Binding",
 
   "controlify.binding.voicechat.ptt_hold": "Push-To-Talk (Hold)",
@@ -596,5 +598,8 @@
   "controlify.keyboard.special.paste": "Paste",
   "controlify.keyboard.special.previous_layout": "Previous Layout",
 
-  "controlify.tutorial.look.description": "Use your mouse or controller to turn"
+  "controlify.tutorial.look.description": "Use your mouse or controller to turn",
+
+  "controlify.hint.chat_cursor_movement": "Use %s and %s to move the chat cursor",
+  "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them."
 }
