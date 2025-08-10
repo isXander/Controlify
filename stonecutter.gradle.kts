@@ -12,6 +12,8 @@ plugins {
 
 stonecutter active file("versions/current")
 
+stonecutter.tree.nodes.forEach { it.project.plugins.apply("dev.kikugie.stonecutter") }
+
 // subprojects depend themselves on this task
 val releaseModVersions by tasks.registering {
     group = "controlify"
