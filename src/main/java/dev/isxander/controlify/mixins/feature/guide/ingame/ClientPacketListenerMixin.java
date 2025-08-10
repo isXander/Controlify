@@ -41,8 +41,8 @@ public class ClientPacketListenerMixin {
 
     @Unique
     private void initButtonGuide() {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (Controlify.instance().currentInputMode().isController() && player != null)
-            Controlify.instance().inGameButtonGuide = new InGameButtonGuide(Controlify.instance().getCurrentController().orElseThrow(), player);
+        var minecraft = Minecraft.getInstance();
+        if (Controlify.instance().currentInputMode().isController() && minecraft.player != null)
+            Controlify.instance().inGameButtonGuide = new InGameButtonGuide(Controlify.instance().getCurrentController().orElseThrow(), minecraft);
     }
 }

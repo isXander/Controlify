@@ -1,20 +1,31 @@
 pluginManagement {
     repositories {
-        mavenCentral()
+        fun strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
+            exclusiveContent {
+                forRepository { maven(url) }
+                filter(action)
+            }
+
         gradlePluginPortal()
-        maven("https://maven.fabricmc.net")
-        maven("https://maven.quiltmc.org/repository/release")
-        maven("https://maven.architectury.dev")
-        maven("https://maven.neoforged.net/releases/")
-        maven("https://maven.minecraftforge.net/")
-        maven("https://maven.kikugie.dev/releases")
-        maven("https://maven.kikugie.dev/snapshots")
-        maven("https://maven.isxander.dev/releases")
+        mavenCentral()
+        strictMaven("https://maven.fabricmc.net") {
+            includeGroupAndSubgroups("net.fabricmc")
+            includeGroup("fabric-loom")
+        }
+        strictMaven("https://maven.neoforged.net/releases/") {
+            includeGroupAndSubgroups("net.neoforged")
+        }
+        strictMaven("https://maven.kikugie.dev/releases") {
+            includeGroupAndSubgroups("dev.kikugie")
+        }
+        strictMaven("https://maven.quiltmc.org/repository/release") {
+            includeGroupAndSubgroups("org.quiltmc")
+        }
     }
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7.1"
+    id("dev.kikugie.stonecutter") version "0.7.6"
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
 }
 

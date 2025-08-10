@@ -15,11 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LocalPlayerMixin extends LivingEntityMixin {
     @Override
     protected void onBreakItemParticles(ItemStack stack, CallbackInfo ci) {
-        ControlifyApi.get().getCurrentController()
-                .flatMap(ControllerEntity::rumble)
-                .ifPresent(controller -> controller.rumbleManager().play(
-                        RumbleSource.PLAYER,
-                        BasicRumbleEffect.byTick(tick -> new RumbleState(tick <= 4 ? 1f : 0f, 1f), 10)
-                ));
+        ControlifyApi.get().playRumbleEffect(
+                RumbleSource.PLAYER,
+                BasicRumbleEffect.byTick(tick -> new RumbleState(tick <= 4 ? 1f : 0f, 1f), 10)
+        );
     }
 }

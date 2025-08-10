@@ -2,6 +2,13 @@ package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.entrypoint.InitContext;
+import dev.isxander.controlify.api.entrypoint.PreInitContext;
+import dev.isxander.controlify.api.guide.ContainerCtx;
+import dev.isxander.controlify.api.guide.GuideDomainRegistries;
+import dev.isxander.controlify.api.guide.GuideDomainRegistry;
+import dev.isxander.controlify.api.guide.InGameCtx;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -21,6 +28,7 @@ import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
+import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
@@ -53,7 +61,6 @@ import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
@@ -112,6 +119,8 @@ public class Controlify implements ControlifyApi {
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
         PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
         PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
+        PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
+        PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
@@ -152,6 +161,25 @@ public class Controlify implements ControlifyApi {
 
         PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
                 inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyPreInit(() -> new GuideDomainRegistries() {
+                    @Override
+                    public GuideDomainRegistry<InGameCtx> inGame() {
+                        return GuideDomains.IN_GAME;
+                    }
+
+                    @Override
+                    public GuideDomainRegistry<ContainerCtx> container() {
+                        return GuideDomains.CONTAINER;
+                    }
+                });
+            } catch (Throwable e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
+        GuideDomains.freeze();
     }
 
     private void registerBuiltinPack(String id) {
@@ -177,6 +205,8 @@ public class Controlify implements ControlifyApi {
 
         config().load();
 
+        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
+                event.controller(), event.hotplugged(), event.newController()));
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
 
         ControlifyBindings.registerModdedBindings();
@@ -201,17 +231,6 @@ public class Controlify implements ControlifyApi {
         // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
         ControlifyCompat.init();
 
-        // register events
-        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
-
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControlifyInit(this);
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
-
         // make sure people don't someone add binds after controllers could have been created
         ControlifyBindApiImpl.INSTANCE.lock();
 
@@ -221,9 +240,30 @@ public class Controlify implements ControlifyApi {
             CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
         }
 
+        // register events
+        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
+
         if (this.config().globalSettings().useEnhancedSteamDeckDriver) {
             doSteamDeckChecks();
         }
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyInit(new InitContext() {
+                    @Override
+                    public ControlifyBindApi bindings() {
+                        return ControlifyBindApiImpl.INSTANCE;
+                    }
+
+                    @Override
+                    public ControlifyApi controlify() {
+                        return Controlify.this;
+                    }
+                });
+            } catch (Throwable e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
     }
 
     private void doSteamDeckChecks() {
@@ -272,22 +312,25 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            Optional<ControllerEntity> preferredController;
-            if (config().currentControllerUid() == null) {
+            if(config().currentControllerUid() == null) {
                 // The user hasn't selected a controller yet.
                 // We'll pick one automatically.
-                preferredController = controllerManager.getConnectedControllers()
+                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
                         .findAny();
-            } else {
+
+                this.setCurrentController(preferredController.orElse(null), false);
+            }
+            else {
                 // The user has selected a preferred controller, or wants to use mouse+kbd (i.e. empty string in currentControllerUid()).
                 // Respect their choice.
-                preferredController = controllerManager.getConnectedControllers()
+                Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
                         .filter(c -> c.uid().equals(config().currentControllerUid()))
                         .findAny();
+
+                this.setCurrentController(preferredController.orElse(null), false);
             }
-            this.setCurrentController(preferredController.orElse(null), false);
         }
 
         config().saveIfDirty();
@@ -302,16 +345,15 @@ public class Controlify implements ControlifyApi {
     }
 
     /**
-     * Called when a controller is connected.
-     * Either from controller discovery or hotplugging.
+     * Called when a controller is connected. Either from controller
+     * discovery or hotplugging.
      *
      * @param controller the new controller
      * @param hotplugged if this was a result of hotplugging
      * @param newController if this controller has never been seen before
      */
-    public void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
+    private void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
-        boolean silentSetup = true; // TODO: controlify splitscreen works with wizard
 
         // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
@@ -334,12 +376,10 @@ public class Controlify implements ControlifyApi {
                 },
                 nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
         );
-        if (!silentSetup)
         wizard.addStage(
                 () -> !calibrated,
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
-        if (!silentSetup)
         wizard.addStage(
                 () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
                 nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
@@ -363,8 +403,6 @@ public class Controlify implements ControlifyApi {
         }
 
         setupWizards.add(wizard);
-
-        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplugged, newController));
     }
 
     /**
@@ -404,7 +442,7 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
-        this.thisTickContexts = BindContext.REGISTRY.stream()
+        this.thisTickContexts = BindContext.CONTEXTS.values().stream()
                 .filter(ctx -> ctx.isApplicable().apply(minecraft))
                 .collect(Collectors.toUnmodifiableSet());
 
@@ -449,7 +487,7 @@ public class Controlify implements ControlifyApi {
         boolean isPaused = minecraft.isPaused() || minecraft.screen instanceof PauseScreen;
         boolean isConfigScreen = minecraft.screen instanceof YACLScreen;
 
-        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen)));
+        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
         if (outOfFocus) {
             state = ControllerState.EMPTY;
         } else {
@@ -575,7 +613,7 @@ public class Controlify implements ControlifyApi {
             if (currentInputMode == InputMode.KEYBOARD_MOUSE) {
                 this.inGameButtonGuide = null;
             } else {
-                this.inGameButtonGuide = this.getCurrentController().map(c -> new InGameButtonGuide(c, Minecraft.getInstance().player)).orElse(null);
+                this.inGameButtonGuide = this.getCurrentController().map(c -> new InGameButtonGuide(c, minecraft)).orElse(null);
             }
         }
         if (Blaze3D.getTime() - lastInputSwitchTime < 20) {

@@ -12,13 +12,9 @@ plugins {
 
 stonecutter active file("versions/current")
 
-stonecutter.tree.nodes.forEach { it.project.plugins.apply("dev.kikugie.stonecutter") }
-
-val releaseMod by tasks.registering {
+// subprojects depend themselves on this task
+val releaseModVersions by tasks.registering {
     group = "controlify"
-    dependsOn("buildAndCollect")
-    dependsOn("releaseModVersion")
-    dependsOn("publishMods")
 }
 
 // download the most up to date controller database for SDL2
@@ -59,10 +55,7 @@ publishMods {
             .takeIf { it.exists() }
             ?.readText()
             ?.replace("{version}", modVersion)
-            ?.replace(
-                "{targets}", stonecutter.versions
-                .map { it.project + (if ("exp" in it.project) " (donator only)" else "") }
-                .joinToString(separator = "\n") { "- $it" })
+            ?.replace("{targets}", stonecutter.versions.joinToString(separator = "\n") { "- $it" })
             ?: "No changelog provided."
     }
     changelog.set(modChangelog)

@@ -1,6 +1,6 @@
 package dev.isxander.controlify.fixes.boatfix;
 
-import dev.isxander.controlify.mixins.feature.patches.boatfix.BoatMixin;
+import dev.isxander.controlify.mixins.feature.patches.analogueboat.BoatMixin;
 
 /**
  * @see BoatMixin

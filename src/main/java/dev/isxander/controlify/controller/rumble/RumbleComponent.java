@@ -1,6 +1,5 @@
 package dev.isxander.controlify.controller.rumble;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;

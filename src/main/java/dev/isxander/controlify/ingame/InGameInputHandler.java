@@ -407,7 +407,11 @@ public class InGameInputHandler {
 
     public void processPlayerLook(float deltaTime) {
         if (minecraft.player != null) {
-            minecraft.player.turn(lookInputX / 0.15 * deltaTime, lookInputY / 0.15 * deltaTime);
+            double velX = lookInputX / 0.15 * deltaTime;
+            double velY = lookInputY / 0.15 * deltaTime;
+            //noinspection SuspiciousNameCombination
+            minecraft.player.turn(velX, velY);
+            minecraft.getTutorial().onMouse(velX, velY);
         }
     }
 

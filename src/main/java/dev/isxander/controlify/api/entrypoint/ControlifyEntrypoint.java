@@ -16,14 +16,13 @@ public interface ControlifyEntrypoint {
      * have not yet been discovered and constructed. This is the ideal
      * time to register events in preparation for controller discovery.
      */
-    default void onControlifyInit(ControlifyApi controlify) {
-        this.onControlifyPreInit(controlify);
-    }
+    void onControlifyInit(InitContext context);
 
 
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated
-    default void onControlifyPreInit(ControlifyApi controlify) {
-    }
+    /**
+     * Called at the end of Controlify's client-side entrypoint.
+     * You can register guides here.
+     */
+    void onControlifyPreInit(PreInitContext context);
 
 }

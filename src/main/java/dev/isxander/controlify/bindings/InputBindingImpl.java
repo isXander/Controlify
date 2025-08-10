@@ -101,7 +101,7 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public Component inputIcon() {
+    public Component inputGlyph() {
         return Controlify.instance().inputFontMapper().getComponentFromInputs(
                 controller.info().type().namespace(),
                 boundInput.getRelevantInputs()

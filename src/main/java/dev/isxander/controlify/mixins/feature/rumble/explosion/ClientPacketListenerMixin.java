@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,20 +21,19 @@ public class ClientPacketListenerMixin {
     private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
         float initialMagnitude = calculateMagnitude(packet);
 
-        ControlifyApi.get().getCurrentController()
-                .flatMap(ControllerEntity::rumble)
-                .ifPresent(rumble -> rumble.rumbleManager().play(
-                        RumbleSource.WORLD,
-                        BasicRumbleEffect.join(
-                                BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
-                                BasicRumbleEffect.byTime(t -> {
-                                    float magnitude = calculateMagnitude(packet);
-                                    return new RumbleState(0f, magnitude - t * magnitude);
-                                }, 20) // explosion
-                        )
-                ));
+        ControlifyApi.get().playRumbleEffect(
+                RumbleSource.WORLD,
+                BasicRumbleEffect.join(
+                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+                        BasicRumbleEffect.byTime(t -> {
+                            float magnitude = calculateMagnitude(packet);
+                            return new RumbleState(0f, magnitude - t * magnitude);
+                        }, 20) // explosion
+                )
+        );
     }
 
+    @Unique
     private float calculateMagnitude(ClientboundExplodePacket packet) {
         //? if >=1.21.2 {
         double x = packet.center().x();

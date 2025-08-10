@@ -4,26 +4,34 @@ plugins {
 }
 
 repositories {
-    mavenCentral()
-    gradlePluginPortal()
-    maven("https://maven.fabricmc.net")
-    maven("https://maven.neoforged.net/releases")
-    exclusiveContent {
-        forRepositories(
-            maven("https://maven.kikugie.dev/releases"),
-            maven("https://maven.kikugie.dev/snapshots")
-        )
-        filter {
-            includeGroupAndSubgroups("dev.kikugie")
+    fun strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
+        exclusiveContent {
+            forRepository { maven(url) }
+            filter(action)
         }
+
+    gradlePluginPortal()
+    mavenCentral()
+    strictMaven("https://maven.fabricmc.net") {
+        includeGroupAndSubgroups("net.fabricmc")
+        includeGroup("fabric-loom")
+    }
+    strictMaven("https://maven.neoforged.net/releases/") {
+        includeGroupAndSubgroups("net.neoforged")
+    }
+    strictMaven("https://maven.kikugie.dev/releases") {
+        includeGroupAndSubgroups("dev.kikugie")
+    }
+    strictMaven("https://quiltmc.org/repository/release") {
+        includeGroupAndSubgroups("org.quiltmc")
     }
 }
 
 dependencies {
     fun plugin(id: String, version: String) = "$id:$id.gradle.plugin:$version"
 
-    implementation(plugin("dev.isxander.modstitch.base", "0.6.2-unstable"))
-    implementation(plugin("dev.kikugie.stonecutter", "0.7.1"))
-    implementation(plugin("fabric-loom", "1.10.5"))
-    implementation(plugin("net.neoforged.moddev", "2.0.80"))
+    implementation(plugin("dev.isxander.modstitch.base", "0.7.0-unstable"))
+    implementation(plugin("dev.kikugie.stonecutter", "0.7.6"))
+    implementation(plugin("fabric-loom", "1.11.4"))
+    implementation(plugin("net.neoforged.moddev", "2.0.103"))
 }

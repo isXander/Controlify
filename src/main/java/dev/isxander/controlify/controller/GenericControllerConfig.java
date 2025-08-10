@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller;
 
+import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +17,7 @@ public class GenericControllerConfig implements ConfigClass {
     public boolean toggleSneak = true;
     public boolean disableFlyDrifting = false;
 
+    public GuideVerbosity guideVerbosity = GuideVerbosity.FULL;
     public boolean showIngameGuide = true;
     public boolean ingameGuideBottom = false;
     public boolean showScreenGuides = true;

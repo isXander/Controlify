@@ -89,6 +89,8 @@
   "controlify.gui.show_ingame_guide.tooltip": "Show a HUD in-game displaying actions you can do with controller buttons.",
   "controlify.gui.ingame_button_guide_position": "Ingame Button Guide Position",
   "controlify.gui.ingame_button_guide_position.tooltip": "Where the ingame button guide is positioned.",
+  "controlify.gui.guide_verbosity": "Guide Verbosity",
+  "controlify.gui.guide_verbosity.tooltip": "How much information is shown in button guides.",
   "controlify.gui.show_screen_guide": "Show Screen Button Guide",
   "controlify.gui.show_screen_guide.tooltip": "Show various helpers in GUIs to assist in using controller input.",
   "controlify.gui.show_keyboard": "Show On-Screen Keyboard",
@@ -513,6 +515,10 @@
   "controlify.battery_level.high": "High",
   "controlify.battery_level.full": "Full",
 
+  "controlify.guide_verbosity.full": "Full",
+  "controlify.guide_verbosity.reduced": "Reduced",
+  "controlify.guide_verbosity.minimal": "Minimal",
+
   "controlify.command.vibratecontroller.static.single": "Vibrated controller of 1 player.",
   "controlify.command.vibratecontroller.static.multiple": "Vibrated controller of %s players.",
   "controlify.command.vibratecontroller.pos.single": "Vibrated controller of 1 player at %s, %s, %s.",
@@ -575,5 +581,7 @@
 
 
   "controlify.extra_pack.legacy_console.name": "Legacy Console",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs."
+  "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs.",
+
+  "controlify.tutorial.look.description": "Use your mouse or controller to turn"
 }

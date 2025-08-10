@@ -2,7 +2,10 @@ package dev.isxander.controlify
 
 import dev.isxander.modstitch.base.extensions.ModstitchExtension
 import dev.kikugie.stonecutter.build.StonecutterBuildExtension
+import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.*
 
@@ -19,8 +22,8 @@ val Project.modVersion: String
     get() = prop("modVersion")!!
 val Project.mcVersion: String
     get() = prop("mcVersion")!!
-val Project.isExperimentalBuild: Boolean
-    get() = "exp" in stonecutter.current.project
+val Project.isPublishingEnabled: Boolean
+    get() = prop("pub.enabled") { "true" }!!.toBooleanStrict()
 
 fun <T> Project.propMap(property: String, required: Boolean = false, ifNull: () -> String? = { null }, block: (String) -> T?): T? {
     return ((System.getenv(property) ?: branchProj.findProperty(property)?.toString())
@@ -63,5 +66,11 @@ fun Project.createActiveTask(
 
     return activeTaskName
 }
+
+fun RepositoryHandler.strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
+    exclusiveContent {
+        forRepository { maven(url) }
+        filter(action)
+    }
 
 
