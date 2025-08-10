@@ -1,4 +1,4 @@
-package dev.isxander.controlify.mixins.feature.screenkeyboard;
+package dev.isxander.controlify.mixins.feature.screenkeyboard.chat;
 
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;

@@ -1,19 +1,13 @@
-package dev.isxander.controlify.mixins.feature.screenkeyboard;
+package dev.isxander.controlify.mixins.feature.screenkeyboard.chat;
 
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.font.BindingFontHelper;
-import dev.isxander.controlify.screenkeyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.screenkeyboard.KeyboardLayouts;
-import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
-import dev.isxander.controlify.screenkeyboard.MixinInputTarget;
+import dev.isxander.controlify.screenkeyboard.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.ChatScreenProcessor;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -31,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
+public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky, KeyboardSupportedMarker {
     @Unique private KeyboardWidget keyboard;
     @Unique private float shiftChatAmt = 0f;
     @Shadow protected EditBox input;
@@ -64,6 +58,11 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
             int keyboardHeight = (int) (this.height * this.shiftChatAmt);
             this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.chat(), this, (ChatScreen) (Object) this));
         });
+    }
+
+    @Inject(method = "init", at = @At("RETURN"))
+    private void markEditBoxAsSupported(CallbackInfo ci) {
+        KeyboardSupportedMarker.setKeyboardSupported(this.input, true);
     }
 
     @ModifyArg(method = "setInitialFocus", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;setInitialFocus(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V"))
@@ -155,5 +154,10 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
     @Override
     public ChatScreenProcessor screenProcessor() {
         return this.screenProcessor;
+    }
+
+    @Override
+    public boolean controlify$isKeyboardSupported() {
+        return this.keyboard != null;
     }
 }
