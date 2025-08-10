@@ -12,6 +12,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.render.Blit;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -37,7 +38,10 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
     private boolean buttonPressed, mousePressed;
 
-    public KeyWidget(int x, int y, int width, int height, KeyboardLayout.Key key, KeyboardWidget keyboard) {
+    private final int renderScale;
+    private final int renderWidth, renderHeight;
+
+    public KeyWidget(int x, int y, int width, int height, int renderScale, KeyboardLayout.Key key, KeyboardWidget keyboard) {
         super(x, y, width, height, Component.literal("Key"));
         this.keyboard = keyboard;
         this.key = key;
@@ -47,6 +51,10 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         this.shiftedLabel = createLabel(key, true);
         this.supportsRegular = supportsAction(false);
         this.supportsShifted = supportsAction(true);
+
+        this.renderScale = renderScale;
+        this.renderWidth = width / renderScale;
+        this.renderHeight = height / renderScale;
     }
 
     public void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -57,29 +65,33 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             this.buttonPressed = false;
         }
 
-        Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, getWidth() - 2, getHeight() - 2);
+        doScaledRender(graphics, () -> {
+            Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, renderWidth - 2, renderHeight - 2);
 
-        if (isHoveredOrFocused()) {
-            graphics.renderOutline(getX() - 1, getY() - 1, getWidth() + 2, getHeight() + 2, 0x80FFFFFF);
-        } else if (!shortcutPressed) {
-            this.holdRepeatHelper.reset();
-        }
+            if (isHoveredOrFocused()) {
+                graphics.renderOutline(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
+            } else if (!shortcutPressed) {
+                this.holdRepeatHelper.reset();
+            }
 
-        if (!this.active) {
-            // gray out the key if it does not support the action
-            graphics.fill(getX() + 1, getY() + 1, getX() + getWidth() - 1, getY() + getHeight() - 1, 0x30000000);
-        }
+            if (!this.active) {
+                // gray out the key if it does not support the action
+                graphics.fill(getX() + 1, getY() + 1, getX() + renderWidth - 1, getY() + renderHeight - 1, 0x30000000);
+            }
+        });
     }
 
     public void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float deltaTick) {
-        Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.regularLabel;
-        graphics.drawCenteredString(
-                Minecraft.getInstance().font,
-                label,
-                getX() + getWidth() / 2,
-                getY() + getHeight() / 2 - 4 + (isVisuallyPressed() ? 2 : 0),
-                0xFFFFFFFF
-        );
+        doScaledRender(graphics, () -> {
+            Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.regularLabel;
+            graphics.drawCenteredString(
+                    Minecraft.getInstance().font,
+                    label,
+                    getX() + renderWidth / 2,
+                    getY() + renderHeight / 2 - 4 + (isVisuallyPressed() ? 2 : 0),
+                    0xFFFFFFFF
+            );
+        });
     }
 
     @Override
@@ -270,6 +282,17 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     @Override
     protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
 
+    }
+
+    private void doScaledRender(GuiGraphics graphics, Runnable runnable) {
+        var pose = CGuiPose.ofPush(graphics);
+        pose.translate(getX(), getY());
+        pose.scale(this.renderScale, this.renderScale);
+        pose.translate(-getX(), -getY());
+
+        runnable.run();
+
+        pose.pop();
     }
 
     private static void insertText(String text, InputTarget inputConsumer) {

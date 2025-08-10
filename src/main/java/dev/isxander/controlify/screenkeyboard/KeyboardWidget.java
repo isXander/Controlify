@@ -18,6 +18,7 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -85,6 +86,8 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         float unitWidth = this.getWidth() / layout.width();
         float keyHeight = (float) this.getHeight() / layout.keys().size();
 
+        int renderScale = Mth.floor(Math.max(0, Math.min(unitWidth, keyHeight) / 60f)) + 1;
+
         float y = this.getY();
         for (List<KeyboardLayout.Key> row : layout.keys()) {
             float x = this.getX();
@@ -93,6 +96,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
                 var keyWidget = new KeyWidget(
                         (int) x, (int) y, (int) keyWidth, (int) keyHeight,
+                        renderScale,
                         key, this
                 );
 
