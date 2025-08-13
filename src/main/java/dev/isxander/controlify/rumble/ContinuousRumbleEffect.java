@@ -116,7 +116,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
 
         public Builder inWorld(Supplier<Vec3> sourceLocation, float min, float max, float effectRange, Function<Float, Float> fallofFunction) {
             this.inWorldProperties = new InWorldProperties(sourceLocation, min, max, effectRange, fallofFunction);
-            stopCondition(() -> Minecraft.getInstance().cameraEntity == null);
+            stopCondition(() -> Minecraft.getInstance().getCameraEntity() == null);
             return this;
         }
 
@@ -140,10 +140,10 @@ public class ContinuousRumbleEffect implements RumbleEffect {
         private record InWorldProperties(Supplier<Vec3> sourceLocation, float minMagnitude, float maxMagnitude, float effectRange, Function<Float, Float> fallofFunction) {
             private Function<Integer, RumbleState> modify(Function<Integer, RumbleState> stateFunction) {
                 return tick -> {
-                    if (Minecraft.getInstance().cameraEntity == null)
+                    if (Minecraft.getInstance().getCameraEntity() == null)
                         return RumbleState.NONE;
 
-                    float distanceSqr = (float) Minecraft.getInstance().cameraEntity.distanceToSqr(sourceLocation.get());
+                    float distanceSqr = (float) Minecraft.getInstance().getCameraEntity().distanceToSqr(sourceLocation.get());
                     float normalizedDistance = Mth.clamp(distanceSqr / (effectRange * effectRange), 0, 1);
                     float multiplier = Mth.lerp(fallofFunction.apply(1f - normalizedDistance), minMagnitude, maxMagnitude);
 

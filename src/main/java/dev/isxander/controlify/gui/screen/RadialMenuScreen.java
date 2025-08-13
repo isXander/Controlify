@@ -297,8 +297,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
             pose.pop();
 
-            if (focused)
-                name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));
+            if (focused) {
+                //? if >=1.21.9 {
+                name.render(graphics, MultiLineLabel.Align.CENTER, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight), font.lineHeight, false, -1);
+                //?} else {
+                /*name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));
+                *///?}
+            }
         }
 
         public boolean invoke() {
@@ -411,7 +416,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
             graphics.disableScissor();
 
-            graphics.renderOutline(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
+            graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
         }
 
         @Override
