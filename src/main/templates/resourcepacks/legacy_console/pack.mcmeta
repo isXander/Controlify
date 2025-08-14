@@ -1,6 +1,9 @@
 {
   "pack": {
     "description": { "translate": "controlify.extra_pack.legacy_console.desc" },
-    "pack_format": ${pack_format}
+    "supported_formats": [34, 10000],
+    "pack_format": 64,
+    "min_format": 34,
+    "max_format": [10000, 0]
   }
 }

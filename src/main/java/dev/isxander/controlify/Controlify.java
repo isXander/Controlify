@@ -2,6 +2,13 @@ package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.entrypoint.InitContext;
+import dev.isxander.controlify.api.entrypoint.PreInitContext;
+import dev.isxander.controlify.api.guide.ContainerCtx;
+import dev.isxander.controlify.api.guide.GuideDomainRegistries;
+import dev.isxander.controlify.api.guide.GuideDomainRegistry;
+import dev.isxander.controlify.api.guide.InGameCtx;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -21,6 +28,7 @@ import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
+import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
@@ -53,7 +61,6 @@ import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
@@ -112,6 +119,8 @@ public class Controlify implements ControlifyApi {
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
         PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
         PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
+        PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
+        PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
         controllerHIDService = new ControllerHIDService();
         controllerHIDService.start();
@@ -152,6 +161,25 @@ public class Controlify implements ControlifyApi {
 
         PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
                 inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
+
+        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+            try {
+                entrypoint.onControlifyPreInit(() -> new GuideDomainRegistries() {
+                    @Override
+                    public GuideDomainRegistry<InGameCtx> inGame() {
+                        return GuideDomains.IN_GAME;
+                    }
+
+                    @Override
+                    public GuideDomainRegistry<ContainerCtx> container() {
+                        return GuideDomains.CONTAINER;
+                    }
+                });
+            } catch (Throwable e) {
+                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+            }
+        });
+        GuideDomains.freeze();
     }
 
     private void registerBuiltinPack(String id) {
@@ -221,7 +249,17 @@ public class Controlify implements ControlifyApi {
 
         PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
-                entrypoint.onControlifyInit(this);
+                entrypoint.onControlifyInit(new InitContext() {
+                    @Override
+                    public ControlifyBindApi bindings() {
+                        return ControlifyBindApiImpl.INSTANCE;
+                    }
+
+                    @Override
+                    public ControlifyApi controlify() {
+                        return Controlify.this;
+                    }
+                });
             } catch (Throwable e) {
                 CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
             }
@@ -404,7 +442,7 @@ public class Controlify implements ControlifyApi {
 
         boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
 
-        this.thisTickContexts = BindContext.REGISTRY.stream()
+        this.thisTickContexts = BindContext.CONTEXTS.values().stream()
                 .filter(ctx -> ctx.isApplicable().apply(minecraft))
                 .collect(Collectors.toUnmodifiableSet());
 
@@ -449,7 +487,7 @@ public class Controlify implements ControlifyApi {
         boolean isPaused = minecraft.isPaused() || minecraft.screen instanceof PauseScreen;
         boolean isConfigScreen = minecraft.screen instanceof YACLScreen;
 
-        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen)));
+        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
         if (outOfFocus) {
             state = ControllerState.EMPTY;
         } else {
@@ -575,7 +613,7 @@ public class Controlify implements ControlifyApi {
             if (currentInputMode == InputMode.KEYBOARD_MOUSE) {
                 this.inGameButtonGuide = null;
             } else {
-                this.inGameButtonGuide = this.getCurrentController().map(c -> new InGameButtonGuide(c, Minecraft.getInstance().player)).orElse(null);
+                this.inGameButtonGuide = this.getCurrentController().map(c -> new InGameButtonGuide(c, minecraft)).orElse(null);
             }
         }
         if (Blaze3D.getTime() - lastInputSwitchTime < 20) {

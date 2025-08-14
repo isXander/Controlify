@@ -11,7 +11,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.Option;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 import net.caffeinemc.mods.sodium.client.util.Dim2i;
 
-@Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.SliderControl$Button", remap = false)
+@Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.SliderControl$Button")
 public abstract class SliderControlElementMixin extends ControlElement<Integer> implements ComponentProcessorProvider {
     @Shadow @Final private int interval;
     @Shadow @Final private int min;

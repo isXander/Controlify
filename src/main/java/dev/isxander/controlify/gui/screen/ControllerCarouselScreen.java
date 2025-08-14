@@ -298,7 +298,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
-            graphics.renderOutline(x, y, width, height, 0x5AFFFFFF);
+            graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(x, y, width, height, 0x5AFFFFFF);
             useButton.render(graphics, mouseX, mouseY, delta);
             if (this.hasSettingsButton()) {
                 settingsButton.render(graphics, mouseX, mouseY, delta);
@@ -351,7 +351,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
             if (isMouseOver(mouseX, mouseY)) {
                 int index = carouselEntries.indexOf(this);
                 if (index != carouselIndex) {
@@ -362,7 +362,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 }
             }
 
-            return super.mouseClicked(mouseX, mouseY, button);
+            return super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
         }
 
         private void onUseButtonPressed(Button button) {

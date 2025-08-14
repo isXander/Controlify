@@ -116,8 +116,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
         String literal = inputs.stream()
                 .map(input -> String.valueOf(getChar(fontMap, input)))
                 .collect(Collectors.joining("+"));
-        return Component.literal(literal).withStyle(style ->
-                style.withFont(fontMap.namespace().withPrefix("controller/")));
+
+        return Component.literal(literal).withStyle(style -> style
+                .withFont(CUtil.createResourceFont(fontMap.namespace().withPrefix("controller/")))
+                //? if >=1.21.4
+                .withShadowColor(0x00000000) // remove shadow
+                .withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
     }
 
     private char getChar(FontMap fontMap, ResourceLocation input) {

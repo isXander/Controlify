@@ -1,5 +1,7 @@
 package dev.isxander.controlify.mixins.feature.screenop.vanilla;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
@@ -7,17 +9,11 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.SelectWorldScreenProcessor;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(SelectWorldScreen.class)
 public class SelectWorldScreenMixin implements ScreenProcessorProvider {
@@ -29,22 +25,11 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         return processor;
     }
 
-    @ModifyExpressionValue(
-            method = "init()V",
-            slice = @Slice(
-                    from = @At(
-                            value = "FIELD",
-                            target = "Lnet/minecraft/network/chat/CommonComponents;GUI_BACK:Lnet/minecraft/network/chat/Component;",
-                            opcode = Opcodes.GETSTATIC,
-                            ordinal = 0
-                    )
-            ),
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
-                    ordinal = 0
-            )
-    )
+    @Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
+    @Definition(id = "GUI_BACK", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_BACK:Lnet/minecraft/network/chat/Component;")
+    @Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
+    @Expression("builder(GUI_BACK, ?).?(?, ?, ?, ?).build()")
+    @ModifyExpressionValue(method = "init()V", at = @At("MIXINEXTRAS:EXPRESSION"))
     private Button modifyCancelButton(Button button) {
         ButtonGuideApi.addGuideToButton(
                 button,
@@ -54,20 +39,11 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         return button;
     }
 
-    @ModifyExpressionValue(
-            method = "init()V",
-            slice = @Slice(
-                    from = @At(
-                            value = "CONSTANT",
-                            args = "stringValue=selectWorld.create"
-                    )
-            ),
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
-                    ordinal = 0
-            )
-    )
+    @Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
+    @Definition(id = "translatable", method = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")
+    @Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
+    @Expression("builder(translatable('selectWorld.create'), ?).?(?, ?, ?, ?).build()")
+    @ModifyExpressionValue(method = "init()V", at = @At("MIXINEXTRAS:EXPRESSION"))
     private Button modifyCreateButton(Button button) {
         ButtonGuideApi.addGuideToButton(
                 button,

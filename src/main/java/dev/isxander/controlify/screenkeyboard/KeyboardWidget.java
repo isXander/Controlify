@@ -66,7 +66,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         // everything within here is rendered in a single draw call
         Blit.batchDraw(guiGraphics, () -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-            guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
+            guiGraphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
             for (T key : keys) {
                 // every key background is rendered into the same vertex buffer to upload at once
@@ -130,7 +130,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
             }
 
             if (isHoveredOrFocused() || shortcutPressed) {
-                graphics.renderOutline(getX(), getY(), getWidth(), getHeight(), -1);
+                graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX(), getY(), getWidth(), getHeight(), -1);
             } else {
                 holdRepeatHelper.reset();
             }
@@ -167,7 +167,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
             if (isMouseOver(mouseX, mouseY)) {
                 onPress();
                 return true;
@@ -190,7 +190,7 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
                 InputBinding binding = shortcutPressBind.on(controller.get());
 
                 return Component.empty()
-                        .append(binding.inputIcon())
+                        .append(binding.inputGlyph())
                         .append(name);
             }
 
@@ -375,8 +375,8 @@ public abstract class KeyboardWidget<T extends KeyboardWidget.Key> extends Abstr
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
     }
 
     @Override

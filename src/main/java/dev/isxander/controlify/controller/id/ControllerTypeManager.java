@@ -51,19 +51,20 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     @Override
     public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> manager.getResourceStack(CUtil.rl("controllers/controller_identification.json5")), executor)
-                .thenCompose(resources -> {
+                .thenComposeAsync(resources -> {
                     List<CompletableFuture<List<Map.Entry<HIDIdentifier, ControllerType>>>> futures = new ArrayList<>();
                     for (Resource resource : resources) {
                         futures.add(CompletableFuture.supplyAsync(() -> readIdentificationResource(resource), executor));
                     }
 
                     return Util.sequence(futures)
-                            .thenApply(listOfEntries -> listOfEntries.stream()
+                            .thenApplyAsync(listOfEntries -> listOfEntries.stream()
                                     .flatMap(List::stream)
-                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)));
+                                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b)),
+                                    executor);
 
-                })
-                .thenApply(Preparations::new);
+                }, executor)
+                .thenApplyAsync(Preparations::new, executor);
     }
 
     private List<Map.Entry<HIDIdentifier, ControllerType>> readIdentificationResource(Resource resource) {

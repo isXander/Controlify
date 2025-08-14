@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
-@Mixin(value = FlatButtonWidget.class, remap = false)
+@Mixin(FlatButtonWidget.class)
 public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidget> {
     @Shadow
     private boolean enabled;
@@ -37,8 +37,7 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
                     value = "FIELD",
                     target = "Lnet/caffeinemc/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
                     opcode = Opcodes.GETFIELD
-            ),
-            remap = true // overrides mc's Renderable
+            )
     )
     private Component modifyRenderedLabel(Component actualLabel) {
         return getControllerMessage(actualLabel);

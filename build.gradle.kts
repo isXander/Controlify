@@ -82,10 +82,8 @@ dependencies {
     }
 
     modstitchModApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
-        // was including old fapi version that broke things at runtime
-        exclude(group = "net.fabricmc.fabric-api", module = "fabric-api")
         exclude(group = "thedarkcolour")
-    }.productionMod()
+    }.productionMod().jij()
 
     // bindings for SDL3
     modstitchApi("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
@@ -133,28 +131,31 @@ j52j {
 START
 Include native libraries for SDL3 in the jar.
  */
-class NativeTarget(
+data class NativeTarget(
     val classifier: String,
     val fileExtension: String,
     val jnaPrefix: String,
     val fileName: String,
-    configuration: String,
-) {
-    val configuration = configurations.create("offlineNative$configuration")
-}
-val nativeTargets = listOf(
-    NativeTarget(classifier = "linux-aarch64", fileExtension = "so", jnaPrefix = "linux-aarch64/", fileName = "libSDL3", configuration = "LinuxAarch64"),
-    NativeTarget(classifier = "linux-x86_64", fileExtension = "so", jnaPrefix = "linux-x86-64/", fileName = "libSDL3", configuration = "LinuxX86_64"),
-    NativeTarget(classifier = "macos-aarch64", fileExtension = "dylib", jnaPrefix = "darwin-aarch64/", fileName = "libSDL3", configuration = "MacArm"),
-    NativeTarget(classifier = "macos-x86_64", fileExtension = "dylib", jnaPrefix = "darwin-x86-64/", fileName = "libSDL3", configuration = "MacIntel"),
-    NativeTarget(classifier = "windows-x86_64", fileExtension = "dll", jnaPrefix = "win32-x86-64/", fileName = "SDL3", configuration = "WinX86_64"),
+    val configurationName: String,
 )
 
+val nativeTargets = listOf(
+    NativeTarget(classifier = "linux-aarch64", fileExtension = "so", jnaPrefix = "linux-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxAarch64"),
+    NativeTarget(classifier = "linux-x86_64", fileExtension = "so", jnaPrefix = "linux-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxX86_64"),
+    NativeTarget(classifier = "macos-aarch64", fileExtension = "dylib", jnaPrefix = "darwin-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeMacArm"),
+    NativeTarget(classifier = "macos-x86_64", fileExtension = "dylib", jnaPrefix = "darwin-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeMacIntel"),
+    NativeTarget(classifier = "windows-x86_64", fileExtension = "dll", jnaPrefix = "win32-x86-64/", fileName = "SDL3", configurationName = "offlineNativeWinX86_64"),
+)
+
+// Create configurations
+val nativeConfigurations = nativeTargets.associate { target ->
+    target.configurationName to configurations.create(target.configurationName)
+}
 val nativeHashConfiguration = configurations.create("nativeHashes")
 
 nativeTargets.forEach { target ->
     dependencies {
-        target.configuration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}")
+        nativeConfigurations[target.configurationName]!!("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}")
         nativeHashConfiguration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}.md5")
     }
 }
@@ -165,12 +166,12 @@ val prepareNatives = tasks.register<Sync>("prepareNativeResources") {
     into(layout.buildDirectory.dir("generated-resources/sdl-natives"))
 
     nativeTargets.forEach { target ->
-        from(target.configuration) {
+        from(configurations.named(target.configurationName)) {
             into(target.jnaPrefix)
             rename { "${target.fileName}.${target.fileExtension}" }
         }
     }
-    from(nativeHashConfiguration) {
+    from(configurations.named("nativeHashes")) {
         into("sdl3-hashes/")
     }
 }
@@ -200,6 +201,12 @@ val releaseModVersion by tasks.registering {
     }
 }
 createActiveTask(releaseModVersion)
+
+if (project.isPublishingEnabled) {
+    rootProject.tasks.named("releaseModVersions") {
+        dependsOn(releaseModVersion)
+    }
+}
 
 val finalJarTasks = listOf(
     modstitch.finalJarTask,
@@ -236,7 +243,7 @@ publishMods {
     val stableMCVersions = versionList("pub.stableMC")
 
     val modrinthId: String by project
-    if (modrinthId.isNotBlank() && hasProperty("modrinth.token") && !isExperimentalBuild) {
+    if (modrinthId.isNotBlank() && hasProperty("modrinth.token")) {
         modrinth {
             projectId.set(modrinthId)
             accessToken.set(findProperty("modrinth.token")?.toString())
@@ -255,7 +262,7 @@ publishMods {
     }
 
     val curseforgeId: String by project
-    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token") && !isExperimentalBuild) {
+    if (curseforgeId.isNotBlank() && hasProperty("curseforge.token")) {
         curseforge {
             projectId = curseforgeId
             projectSlug = findProperty("curseforgeSlug")!!.toString()

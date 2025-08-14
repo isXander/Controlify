@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
@@ -239,7 +240,14 @@ public class ControllerConfigScreenFactory {
                         .binding(def.ingameGuideBottom, () -> config.ingameGuideBottom, v -> config.ingameGuideBottom = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .formatValue(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
-                        .flag(mc -> Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::refreshLayout))
+                        .build())
+                .option(Option.<GuideVerbosity>createBuilder()
+                        .name(Component.translatable("controlify.gui.guide_verbosity"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.guide_verbosity.tooltip")))
+                        .binding(def.guideVerbosity, () -> config.guideVerbosity, v -> config.guideVerbosity = v)
+                        .controller(opt -> CyclingListControllerBuilder.create(opt)
+                                .values(GuideVerbosity.values())
+                                .formatValue(NameableEnum::getDisplayName))
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.show_screen_guide"))

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import java.util.List;
 
 @SuppressWarnings("UnstableApiUsage")
-@Mixin(value = KeyBindingRegistryImpl.class, remap = false)
+@Mixin(KeyBindingRegistryImpl.class)
 public interface KeyBindingRegistryImplAccessor {
     @Accessor("MODDED_KEY_BINDINGS")
     static List<KeyMapping> getCustomKeys() {

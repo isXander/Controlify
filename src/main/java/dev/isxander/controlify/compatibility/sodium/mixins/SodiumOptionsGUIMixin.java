@@ -19,7 +19,7 @@ import net.caffeinemc.mods.sodium.client.gui.options.OptionPage;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
-@Mixin(value = SodiumOptionsGUI.class, remap = false)
+@Mixin(SodiumOptionsGUI.class)
 public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
     @Shadow @Final private List<ControlElement<?>> controls;
 

@@ -103,8 +103,8 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean consumed = super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        boolean consumed = super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;

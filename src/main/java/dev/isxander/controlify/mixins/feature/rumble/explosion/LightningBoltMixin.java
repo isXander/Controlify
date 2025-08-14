@@ -15,15 +15,13 @@ public class LightningBoltMixin {
     @ModifyExpressionValue(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;isClientSide()Z"))
     private boolean onLightningStrike(boolean client) {
         if (client) {
-            ControlifyApi.get().getCurrentController()
-                    .flatMap(ControllerEntity::rumble)
-                    .ifPresent(controller -> controller.rumbleManager().play(
-                            RumbleSource.WORLD,
-                            BasicRumbleEffect.join(
-                                    BasicRumbleEffect.constant(1f, 0.2f, 6), // initial boom
-                                    BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t*0.2f), 10) // explosion
-                            )
-                    ));
+            ControlifyApi.get().playRumbleEffect(
+                    RumbleSource.WORLD,
+                    BasicRumbleEffect.join(
+                            BasicRumbleEffect.constant(1f, 0.2f, 6), // initial boom
+                            BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t*0.2f), 10) // explosion
+                    )
+            );
         }
         return client;
     }

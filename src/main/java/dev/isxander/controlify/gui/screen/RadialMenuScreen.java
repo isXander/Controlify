@@ -6,8 +6,6 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.guide.GuideAction;
-import dev.isxander.controlify.gui.guide.GuideActionRenderer;
 import dev.isxander.controlify.gui.layout.AnchorPoint;
 import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -112,22 +110,22 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         animation.play();
 
         if (editMode != null) {
-            var exitGuide = addRenderableWidget(new PositionedComponent<>(
-                    new GuideActionRenderer<>(
-                            new GuideAction<>(
-                                    ControlifyBindings.GUI_BACK.on(controller),
-                                    obj -> Optional.of(CommonComponents.GUI_DONE)
-                            ),
-                            false,
-                            true
-                    ),
-                    AnchorPoint.BOTTOM_CENTER,
-                    0, -10,
-                    AnchorPoint.BOTTOM_CENTER
-            ));
-
-            exitGuide.getComponent().updateName(null);
-            exitGuide.updatePosition(width, height);
+//            var exitGuide = addRenderableWidget(new PositionedComponent<>(
+//                    new GuideActionRenderer(
+//                            new GuideAction(
+//                                    ControlifyBindings.GUI_BACK.on(controller),
+//                                    obj -> Optional.of(CommonComponents.GUI_DONE)
+//                            ),
+//                            false,
+//                            true
+//                    ),
+//                    AnchorPoint.BOTTOM_CENTER,
+//                    0, -10,
+//                    AnchorPoint.BOTTOM_CENTER
+//            ));
+//
+//            exitGuide.getComponent().updateName(null);
+//            exitGuide.updatePosition(width, height);
         }
     }
 
@@ -190,10 +188,6 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        if (editMode != null) {
-            renderBackground(graphics, mouseX, mouseY, delta);
-        }
-
         super.render(graphics, mouseX, mouseY, delta);
 
         if (editMode == null) {
@@ -204,6 +198,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     height - 39,
                     -1
             );
+        }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (editMode != null) {
+            super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         }
     }
 
@@ -290,14 +291,19 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 this.item.icon().draw(graphics, 0, 0, delta);
                 pose.pop();
             } else {
-                Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputIcon();
+                Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputGlyph();
                 graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 
             pose.pop();
 
-            if (focused)
-                name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));
+            if (focused) {
+                //? if >=1.21.9 {
+                name.render(graphics, MultiLineLabel.Align.CENTER, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight), font.lineHeight, false, -1);
+                //?} else {
+                /*name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));
+                *///?}
+            }
         }
 
         public boolean invoke() {
@@ -410,7 +416,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
             graphics.disableScissor();
 
-            graphics.renderOutline(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
+            graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
         }
 
         @Override
