@@ -253,7 +253,6 @@
   "controlify.bluetooth_warning.desc": "Some controllers may be missing features when connected via Bluetooth. For example, HD haptics on DualSense. If you think you are missing a feature, try using USB before reporting.",
   "controlify.bluetooth_warning.dont_show": "Don't show again",
 
-  "controlify.binding.controlify.gamepad_gyro_button": "Activate Gyroscope",
   "controlify.binding.controlify.walk_forward": "Walk Forward",
   "controlify.binding.controlify.walk_backward": "Walk Backward",
   "controlify.binding.controlify.strafe_left": "Strafe Left",
@@ -433,6 +432,7 @@
 
   "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Virtual Mouse",
+  "controlify.binding_category.debug": "Debug",
 
   "controlify.custom_binding.vanilla_description": "Automatically generated key binding from Fabric API.",
 
@@ -601,5 +601,6 @@
   "controlify.tutorial.look.description": "Use your mouse or controller to turn",
 
   "controlify.hint.chat_cursor_movement": "Use %s and %s to move the chat cursor",
-  "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them."
+  "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them",
+  "controlify.hint.edit_box_keyboard": "Press %s to open keyboard"
 }

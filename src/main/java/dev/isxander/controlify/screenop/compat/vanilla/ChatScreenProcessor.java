@@ -4,7 +4,9 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
-import dev.isxander.controlify.screenkeyboard.KeyboardWidget;
+import dev.isxander.controlify.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
+import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.LazyComponentDims;
@@ -19,8 +21,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
-    private final HoldRepeatHelper textFwdCursorHoldRepeatHelper = new HoldRepeatHelper(10, 2);
-    private final HoldRepeatHelper textBwdCursorHoldRepeatHelper = new HoldRepeatHelper(10, 2);
     private final HoldRepeatHelper suggestionsFwdHoldRepeatHelper = new HoldRepeatHelper(10, 4);
     private final HoldRepeatHelper suggestionsBwdHoldRepeatHelper = new HoldRepeatHelper(10, 4);
 
@@ -55,28 +55,6 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
     @Override
     protected void handleButtons(ControllerEntity controller) {
         super.handleButtons(controller);
-
-        if (this.textFwdCursorHoldRepeatHelper.shouldAction(ControlifyBindings.GUI_NEXT_TAB.on(controller))) {
-            this.inputSupplier.get().moveCursor(1, false);
-
-            this.textFwdCursorHoldRepeatHelper.onNavigate();
-            this.textBwdCursorHoldRepeatHelper.reset();
-
-            playFocusChangeSound();
-
-            this.clearChatCursorHint(controller);
-        }
-
-        if (this.textBwdCursorHoldRepeatHelper.shouldAction(ControlifyBindings.GUI_PREV_TAB.on(controller))) {
-            this.inputSupplier.get().moveCursor(-1, false);
-
-            this.textBwdCursorHoldRepeatHelper.onNavigate();
-            this.textFwdCursorHoldRepeatHelper.reset();
-
-            playFocusChangeSound();
-
-            this.clearChatCursorHint(controller);
-        }
 
         CmdSuggestionsController suggestionsController = this.suggestionsController.get();
         if (suggestionsController != null) {
@@ -118,7 +96,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
         if (this.keyboardSupplier.get() != null) {
             var config = controller.genericConfig().config();
 
-            if (config.hintChatCursorMovement) {
+            if (config.hintKeyboardCursor) {
                 LazyComponentDims hint = this.cursorNavigateHint;
 
                 int x = this.inputSupplier.get().getRight() - hint.getWidth() - 2;
@@ -127,7 +105,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
                 graphics.drawString(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
             }
 
-            if (config.hintCommandSuggester) {
+            if (config.hintKeyboardCommandSuggester) {
                 CmdSuggestionsController suggestionsController = this.suggestionsController.get();
 
                 if (suggestionsController != null && suggestionsController.controlify$hasAvailableSuggestions()) {
@@ -142,18 +120,21 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
         }
     }
 
-    private void clearChatCursorHint(ControllerEntity controller) {
-        if (controller.genericConfig().config().hintChatCursorMovement) {
-            if (!this.inputSupplier.get().getValue().isEmpty()) {
-                controller.genericConfig().config().hintChatCursorMovement = false;
-                Controlify.instance().config().save();
-            }
+    @Override
+    public void onWidgetRebuild() {
+        super.onWidgetRebuild();
+
+        // ensure that the default edit box keyboard behaviour is disabled
+        EditBox input = this.inputSupplier.get();
+        if (input != null) {
+            var processor = (EditBoxComponentProcessor) ComponentProcessorProvider.provide(input);
+            processor.setKeyboardBehaviour(new ComponentKeyboardBehaviour.DoNothing());
         }
     }
 
     private void clearCommandSuggesterHint(ControllerEntity controller) {
-        if (controller.genericConfig().config().hintCommandSuggester) {
-            controller.genericConfig().config().hintCommandSuggester = false;
+        if (controller.genericConfig().config().hintKeyboardCommandSuggester) {
+            controller.genericConfig().config().hintKeyboardCommandSuggester = false;
             Controlify.instance().config().save();
         }
     }

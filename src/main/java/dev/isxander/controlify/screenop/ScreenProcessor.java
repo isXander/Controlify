@@ -10,7 +10,8 @@ import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
-import dev.isxander.controlify.mixins.feature.screenop.vanilla.TabNavigationBarAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.TabNavigationBarAccessor;
+import dev.isxander.controlify.screenop.keyboard.*;
 import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
@@ -19,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
@@ -28,6 +30,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
@@ -179,7 +182,9 @@ public class ScreenProcessor<T extends Screen> {
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
 
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
-            screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+            if (!this.tryOpenKeyboard(controller)) {
+                screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+            }
         }
         if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
             playClackSound();
@@ -273,6 +278,30 @@ public class ScreenProcessor<T extends Screen> {
 
     public void addEventListener(ScreenControllerEventListener listener) {
         eventListeners.add(listener);
+    }
+
+    protected boolean tryOpenKeyboard(ControllerEntity controller) {
+        @Nullable GuiEventListener focused = screen.getFocused();
+        var componentProcessor = ComponentProcessorProvider.provide(focused);
+        ComponentKeyboardBehaviour behaviour = componentProcessor.getKeyboardBehaviour(this, controller);
+
+        switch (behaviour) {
+            case ComponentKeyboardBehaviour.DoNothing() -> {
+                // prevent pressing enter on select when handled
+                return true;
+            }
+            case ComponentKeyboardBehaviour.Undefined() -> {
+                return false;
+            }
+            case ComponentKeyboardBehaviour.Handled(
+                    KeyboardLayoutWithId layout,
+                    InputTarget inputTarget,
+                    KeyboardOverlayScreen.KeyboardPositioner positioner
+            ) -> {
+                minecraft.setScreen(new KeyboardOverlayScreen(screen, layout, inputTarget, positioner));
+                return true;
+            }
+        }
     }
 
     protected HoldRepeatHelper createHoldRepeatHelper() {

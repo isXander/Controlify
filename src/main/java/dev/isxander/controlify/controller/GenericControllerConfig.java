@@ -26,6 +26,7 @@ public class GenericControllerConfig implements ConfigClass {
 
     public boolean dontShowControllerSubmission = false;
 
-    public boolean hintChatCursorMovement = true;
-    public boolean hintCommandSuggester = true;
+    public boolean hintKeyboardCursor = true;
+    public boolean hintKeyboardCommandSuggester = true;
+    public boolean hintKeyboardSignLine = true;
 }
