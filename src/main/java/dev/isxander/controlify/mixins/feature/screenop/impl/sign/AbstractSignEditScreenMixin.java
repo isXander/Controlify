@@ -14,6 +14,7 @@ import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,19 +31,21 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
     @Shadow @Final private String[] messages;
     @Shadow private int line;
     @Shadow protected abstract void onDone();
+    @Shadow @Final protected SignBlockEntity sign;
 
-
+    @Unique
+    private KeyboardWidget keyboard;
     @Unique
     private final AbstractSignEditScreenProcessor screenProcessor = new AbstractSignEditScreenProcessor(
             (AbstractSignEditScreen) (Object) this,
             direction -> {
                 this.line = this.line + direction & 3;
                 this.signField.setCursorToEnd();
-            }
+            },
+            () -> this.sign,
+            () -> keyboard
     );
 
-    @Unique
-    private KeyboardWidget keyboard;
 
     protected AbstractSignEditScreenMixin(Component title) {
         super(title);

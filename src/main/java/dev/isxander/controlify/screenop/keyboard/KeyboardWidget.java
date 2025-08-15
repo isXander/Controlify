@@ -1,6 +1,7 @@
 package dev.isxander.controlify.screenop.keyboard;
 
 import com.google.common.collect.ImmutableList;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -149,6 +150,12 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                     ScreenProcessor.playFocusChangeSound();
                     this.fwdCursorHelper.onNavigate();
                     this.bwdCursorHelper.reset();
+
+                    if (!controller.genericConfig().config().hintKeyboardCursor) {
+                        controller.genericConfig().config().hintKeyboardCursor = false;
+                        Controlify.instance().config().save();
+                    }
+
                     return true;
                 }
             }
@@ -157,6 +164,12 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                     ScreenProcessor.playFocusChangeSound();
                     this.bwdCursorHelper.onNavigate();
                     this.fwdCursorHelper.reset();
+
+                    if (!controller.genericConfig().config().hintKeyboardCursor) {
+                        controller.genericConfig().config().hintKeyboardCursor = false;
+                        Controlify.instance().config().save();
+                    }
+
                     return true;
                 }
             }

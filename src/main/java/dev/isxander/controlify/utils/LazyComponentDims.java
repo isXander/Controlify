@@ -1,5 +1,7 @@
 package dev.isxander.controlify.utils;
 
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -46,12 +48,16 @@ public class LazyComponentDims {
         return this.height;
     }
 
+    // all things that can affect the dimensions of the component
     private int getCacheKey() {
         var minecraft = Minecraft.getInstance();
         return Objects.hash(
                 minecraft.getWindow().getGuiScaledWidth(),
                 minecraft.getWindow().getGuiScaledHeight(),
-                minecraft.font
+                minecraft.font,
+                Controlify.instance().getCurrentController()
+                        .map(c -> c.info().type().namespace())
+                        .orElse(ControllerType.DEFAULT.namespace())
         );
     }
 }

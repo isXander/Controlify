@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
+import dev.isxander.controlify.screenop.keyboard.CommonKeyboardHints;
 import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
@@ -28,11 +29,6 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
     private final Supplier<@Nullable KeyboardWidget> keyboardSupplier;
     private final Supplier<@Nullable CmdSuggestionsController> suggestionsController;
 
-    private final LazyComponentDims cursorNavigateHint = new LazyComponentDims(
-            Component.translatable("controlify.hint.chat_cursor_movement",
-                    BindingFontHelper.binding(ControlifyBindings.GUI_PREV_TAB),
-                    BindingFontHelper.binding(ControlifyBindings.GUI_NEXT_TAB))
-    );
     private final LazyComponentDims commandSuggesterHint = new LazyComponentDims(
             Component.translatable("controlify.hint.command_suggester",
                     BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_DOWN),
@@ -97,7 +93,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
             var config = controller.genericConfig().config();
 
             if (config.hintKeyboardCursor) {
-                LazyComponentDims hint = this.cursorNavigateHint;
+                LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
 
                 int x = this.inputSupplier.get().getRight() - hint.getWidth() - 2;
                 int y = this.inputSupplier.get().getY() - hint.getHeight();

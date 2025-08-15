@@ -600,7 +600,8 @@
 
   "controlify.tutorial.look.description": "Use your mouse or controller to turn",
 
-  "controlify.hint.chat_cursor_movement": "Use %s and %s to move the chat cursor",
+  "controlify.hint.keyboard_cursor_movement": "Use %s and %s to move the text cursor",
   "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them",
-  "controlify.hint.edit_box_keyboard": "Press %s to open keyboard"
+  "controlify.hint.edit_box_keyboard": "Press %s to open keyboard",
+  "controlify.hint.sign_line_change": "Use %s and %s to change lines"
 }

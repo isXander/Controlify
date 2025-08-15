@@ -13,6 +13,7 @@ import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.EditBoxComponentProcessor;
 import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
+import dev.isxander.controlify.screenop.keyboard.CommonKeyboardHints;
 import dev.isxander.controlify.screenop.keyboard.KeyboardOverlayScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -41,10 +42,6 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
             Minecraft.getInstance().getWindow().getGuiScaledWidth(),
             Minecraft.getInstance().getWindow().getGuiScaledHeight()
     );
-    @Unique private static final Component HINT_TEXT = Component.translatable(
-            "controlify.hint.edit_box_keyboard",
-            BindingFontHelper.binding(ControlifyBindings.GUI_PRESS)
-    );
 
     public EditBoxMixin(int x, int y, int width, int height, Component message) {
         super(x, y, width, height, message);
@@ -62,6 +59,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
         ControlifyApi.get().getCurrentController().ifPresent(controller -> {
             if (this.isFocused()
                 && controller.genericConfig().config().showOnScreenKeyboard
+                && controller.genericConfig().config().showScreenGuides
                 && ControlifyApi.get().currentInputMode().isController()
                 && !(Minecraft.getInstance().screen instanceof KeyboardOverlayScreen)
                 && processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
@@ -71,7 +69,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                     && this.suggestion == null
                 ) {
                     renderHint.set(true);
-                    graphics.drawString(font, HINT_TEXT, this.textX, this.textY, 0xFFAAAAAA);
+                    graphics.drawString(font, CommonKeyboardHints.OPEN_KEYBOARD.getComponent(), this.textX, this.textY, 0xFFAAAAAA);
                 } else {
                     var component = BindingFontHelper.binding(ControlifyBindings.GUI_PRESS);
                     int width = font.width(component);
