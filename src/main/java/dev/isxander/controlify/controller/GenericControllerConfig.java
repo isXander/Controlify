@@ -25,4 +25,8 @@ public class GenericControllerConfig implements ConfigClass {
     public boolean showOnScreenKeyboard = true;
 
     public boolean dontShowControllerSubmission = false;
+
+    public boolean hintKeyboardCursor = true;
+    public boolean hintKeyboardCommandSuggester = true;
+    public boolean hintKeyboardSignLine = true;
 }

@@ -18,7 +18,7 @@ public class TickBoxControlProcessor implements ComponentProcessor {
             toggleMethod.run();
             return true;
         }
-        if (ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).justPressed() || ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).justPressed()) {
+        if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed() || ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed()) {
             toggleMethod.run();
             return true;
         }

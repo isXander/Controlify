@@ -5,7 +5,6 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
-import dev.isxander.controlify.gui.controllers.FormattableStringController;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.server.ServerPolicy;
@@ -129,7 +128,7 @@ public class GlobalSettingsScreenFactory {
                                         .description(OptionDescription.createBuilder()
                                                 .text(Component.translatable("controlify.gui.ui_sounds.tooltip"))
                                                 .build())
-                                        .binding(GlobalSettings.DEFAULT.uiSounds, () -> globalSettings.uiSounds, v -> globalSettings.uiSounds = v)
+                                        .binding(GlobalSettings.DEFAULT.extraUiSounds, () -> globalSettings.extraUiSounds, v -> globalSettings.extraUiSounds = v)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()

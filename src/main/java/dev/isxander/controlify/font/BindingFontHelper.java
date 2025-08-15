@@ -3,6 +3,7 @@ package dev.isxander.controlify.font;
 import com.mojang.blaze3d.font.GlyphInfo;
 import com.mojang.blaze3d.font.SheetGlyphInfo;
 import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.mixins.feature.font.FontAccessor;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.gui.Font;
@@ -51,6 +52,10 @@ public final class BindingFontHelper {
 
     public static Component binding(InputBinding binding) {
         return binding(binding.id());
+    }
+
+    public static Component binding(InputBindingSupplier bindingSupplier) {
+        return binding(bindingSupplier.bindId());
     }
 
     public static int getComponentHeight(Font font, FormattedCharSequence text) {

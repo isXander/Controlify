@@ -12,7 +12,6 @@ import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
-import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
@@ -42,7 +41,6 @@ public class SteamDeckDriver implements Driver {
     private GyroComponent gyroComponent;
     private BatteryLevelComponent batteryLevelComponent;
     private TouchpadComponent touchpadComponent;
-    private NativeKeyboardComponent keyboardComponent;
 
     private ControlifyLogger logger;
 
@@ -86,10 +84,6 @@ public class SteamDeckDriver implements Driver {
                                 }
                         )
                 ) // there are two touchpads, one for each thumb
-        );
-
-        controller.setComponent(
-                this.keyboardComponent = new NativeKeyboardComponent(this::openKeyboard, 0.5f)
         );
 
         controller.setComponent(new SteamDeckComponent());
@@ -215,10 +209,6 @@ public class SteamDeckDriver implements Driver {
         } else {
             touchpad.pushFingers(List.of());
         }
-    }
-
-    private void openKeyboard() {
-        deck.openModalKeyboard(true);
     }
 
     @Override

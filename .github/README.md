@@ -160,4 +160,4 @@ A few features in various points in the horizon are:
 ## Backports?
 
 This mod is only and will only be available for **1.19.4** and above, this is because in 1.19.4, Mojang
-introduced arrow key navigation which was easily ported to controller, below 1.19.4, this is not possible.
+introduced arrow keyFunction navigation which was easily ported to controller, below 1.19.4, this is not possible.

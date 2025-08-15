@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://controlify.dev/schemas/keyboard-layout.json",
+  "title": "Controlify Keyboard Layout",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["width", "keys"],
+  "properties": {
+    "width": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Unit width of the layout; each row's key widths must sum to this value."
+    },
+    "keys": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 1,
+        "items": { "$ref": "#/$defs/keyEntry" },
+        "description": "Row of keys, left-to-right."
+      },
+      "description": "Rows, rendered top-to-bottom."
+    }
+  },
+  "$defs": {
+    "resourceLocation": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.-]+:[a-z0-9/._-]+$",
+      "description": "Minecraft resource location (namespace:path)."
+    },
+    "component": {
+      "oneOf": [
+        {
+          "type": "object",
+          "description": "Minecraft text component (e.g. {\"text\":\"...\"} or {\"translate\":\"...\"}).",
+          "additionalProperties": true,
+          "minProperties": 1
+        },
+        {
+          "type": "string",
+          "description": "Short literal form of a text component, e.g. \"Hello World\"."
+        }
+      ]
+    },
+    "keyCode": {
+      "oneOf": [
+        { "type": "integer", "description": "Keycode (GLFW/Minecraft logical key)." },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["keycode"],
+          "properties": {
+            "keycode": { "type": "integer" },
+            "scancode": { "type": "integer", "default": 0 },
+            "modifier": { "type": "integer", "default": 0 }
+          }
+        }
+      ]
+    },
+    "keyFunction": {
+      "oneOf": [
+        { "type": "string", "description": "String insertion (short form)." },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["chars"],
+          "properties": {
+            "chars": { "type": "string" },
+            "display_name": { "$ref": "#/$defs/component" }
+          },
+          "description": "String insertion (object form)."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["codes", "display_name"],
+          "properties": {
+            "codes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/keyCode" } },
+            "display_name": { "$ref": "#/$defs/component" }
+          },
+          "description": "Key code sequence."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["action"],
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "shift", "shift_lock",
+                "enter", "backspace", "tab",
+                "left_arrow", "right_arrow", "up_arrow", "down_arrow",
+                "copy_all", "paste",
+                "previous_layout"
+              ]
+            }
+          },
+          "description": "Special action key."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["layout", "display_name"],
+          "properties": {
+            "layout": { "$ref": "#/$defs/resourceLocation" },
+            "display_name": { "$ref": "#/$defs/component" }
+          },
+          "description": "Change layout key."
+        }
+      ]
+    },
+    "keyObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["regular"],
+      "properties": {
+        "regular": { "$ref": "#/$defs/keyFunction" },
+        "shifted": { "$ref": "#/$defs/keyFunction" },
+        "width": { "type": "number", "minimum": 0.1, "default": 1 },
+        "shortcut": { "$ref": "#/$defs/resourceLocation" },
+        "identifier": { "type": "string" }
+      },
+      "description": "Full key definition with optional shifted function, width, shortcut glyph binding, and focus identifier."
+    },
+    "keyEntry": {
+      "oneOf": [
+        { "$ref": "#/$defs/keyFunction" },
+        {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": [ { "$ref": "#/$defs/keyFunction" }, { "$ref": "#/$defs/keyFunction" } ],
+          "description": "[regular, shifted] pair"
+        },
+        { "$ref": "#/$defs/keyObject" }
+      ]
+    }
+  }
+}
