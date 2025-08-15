@@ -134,8 +134,8 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
         SignBlockEntity sign = this.signSupplier.get();
         int signRight = (screen.width / 2) + (sign.getMaxTextLineWidth() / 2);
         int maxLineWidth = screen.width - signRight;
-        this.signLineHintLines = screen.getFont().split(signLineHint, maxLineWidth).stream()
-                .map(cs -> PrecomputedComponentDims.of(cs, screen.getFont()))
+        this.signLineHintLines = minecraft.font.split(signLineHint, maxLineWidth).stream()
+                .map(cs -> PrecomputedComponentDims.of(cs, minecraft.font))
                 .toList();
     }
 }
