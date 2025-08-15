@@ -71,7 +71,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, renderWidth - 2, renderHeight - 2);
 
             if (isHoveredOrFocused()) {
-                graphics.renderOutline(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
+                graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
             } else if (!shortcutPressed) {
                 this.holdRepeatHelper.reset();
             }

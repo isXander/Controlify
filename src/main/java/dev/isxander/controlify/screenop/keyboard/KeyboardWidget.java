@@ -125,7 +125,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         // everything within here is rendered in a single draw call
         Blit.batchDraw(guiGraphics, () -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-            guiGraphics.renderOutline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
+            guiGraphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
             for (KeyWidget key : keys) {
                 // every key background is rendered into the same vertex buffer to upload at once
