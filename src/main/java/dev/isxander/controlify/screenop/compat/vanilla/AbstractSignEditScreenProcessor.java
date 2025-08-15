@@ -60,7 +60,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
         if (ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed()) {
             this.moveCursorFunc.accept(1);
 
-            if (config.hintKeyboardSignLine) {
+            if (config.hintKeyboardSignLine && config.showScreenGuides) {
                 config.hintKeyboardSignLine = false;
                 Controlify.instance().config().save();
             }
@@ -72,7 +72,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
         if (ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed()) {
             this.moveCursorFunc.accept(-1);
 
-            if (config.hintKeyboardSignLine) {
+            if (config.hintKeyboardSignLine && config.showScreenGuides) {
                 config.hintKeyboardSignLine = false;
                 Controlify.instance().config().save();
             }
@@ -83,10 +83,9 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
 
     @Override
     protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+        var config = controller.genericConfig().config();
         KeyboardWidget keyboardWidget = this.keyboardWidgetSupplier.get();
-        if (keyboardWidget != null) {
-            var config = controller.genericConfig().config();
-
+        if (keyboardWidget != null && config.showScreenGuides) {
             if (config.hintKeyboardCursor) {
                 LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
 

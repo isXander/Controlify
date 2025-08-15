@@ -89,9 +89,9 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
 
     @Override
     protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
-        if (this.keyboardSupplier.get() != null) {
-            var config = controller.genericConfig().config();
+        var config = controller.genericConfig().config();
 
+        if (this.keyboardSupplier.get() != null && config.showScreenGuides) {
             if (config.hintKeyboardCursor) {
                 LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
 
@@ -129,8 +129,9 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
     }
 
     private void clearCommandSuggesterHint(ControllerEntity controller) {
-        if (controller.genericConfig().config().hintKeyboardCommandSuggester) {
-            controller.genericConfig().config().hintKeyboardCommandSuggester = false;
+        var config = controller.genericConfig().config();
+        if (config.hintKeyboardCommandSuggester && config.showScreenGuides) {
+            config.hintKeyboardCommandSuggester = false;
             Controlify.instance().config().save();
         }
     }
