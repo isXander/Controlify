@@ -298,7 +298,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
-            graphics.renderOutline(x, y, width, height, 0x5AFFFFFF);
+            graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(x, y, width, height, 0x5AFFFFFF);
             useButton.render(graphics, mouseX, mouseY, delta);
             if (this.hasSettingsButton()) {
                 settingsButton.render(graphics, mouseX, mouseY, delta);

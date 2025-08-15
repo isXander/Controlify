@@ -115,7 +115,11 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         else if (calibrated) label = completeLabel;
         else label = infoLabel;
 
-        label.renderCentered(graphics, width / 2, 55);
+        //? if >=1.21.9 {
+        label.render(graphics, MultiLineLabel.Align.CENTER, width / 2, 55, font.lineHeight, false, -1);
+        //?} else {
+        /*label.renderCentered(graphics, width / 2, 55);
+        *///?}
 
         pose.push();
         float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
