@@ -13,11 +13,22 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
     private final int screenWidth, screenHeight;
     private ComponentKeyboardBehaviour keyboardBehaviour;
 
+    private KeyboardLayoutWithId keyboardLayout;
+    private InputTarget inputTarget;
+    private KeyboardOverlayScreen.KeyboardPositioner positioner;
+
     public EditBoxComponentProcessor(EditBox editBox, int screenWidth, int screenHeight) {
         this.editBox = editBox;
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-        this.keyboardBehaviour = createBehaviourWithLayout(editBox, KeyboardLayouts.simple(), screenWidth, screenHeight);
+        this.keyboardLayout = KeyboardLayouts.simple();
+        this.inputTarget = new EditBoxInputTarget(editBox);
+        this.positioner = KeyboardOverlayScreen.aboveOrBelowWidgetPositioner(
+                (int) (screenWidth * 0.8f), (int) (screenHeight * 0.4f),
+                1,
+                editBox::getRectangle
+        );
+        this.keyboardBehaviour = createBehaviourWithLayout();
     }
 
     @Override
@@ -34,7 +45,18 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
     }
 
     public void setKeyboardLayout(KeyboardLayoutWithId layout) {
-        this.setKeyboardBehaviour(createBehaviourWithLayout(this.editBox, layout, this.screenWidth, this.screenHeight));
+        this.keyboardLayout = layout;
+        this.keyboardBehaviour = createBehaviourWithLayout();
+    }
+
+    public void setInputTarget(InputTarget inputTarget) {
+        this.inputTarget = inputTarget;
+        this.keyboardBehaviour = createBehaviourWithLayout();
+    }
+
+    public void setPositioner(KeyboardOverlayScreen.KeyboardPositioner positioner) {
+        this.positioner = positioner;
+        this.keyboardBehaviour = createBehaviourWithLayout();
     }
 
     @Override
@@ -42,15 +64,11 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
         return true;
     }
 
-    private static ComponentKeyboardBehaviour createBehaviourWithLayout(EditBox editBox, KeyboardLayoutWithId layout, int screenWidth, int screenHeight) {
+    private ComponentKeyboardBehaviour createBehaviourWithLayout() {
         return new ComponentKeyboardBehaviour.Handled(
-                layout,
-                new EditBoxInputTarget(editBox),
-                KeyboardOverlayScreen.aboveOrBelowWidgetPositioner(
-                        (int) (screenWidth * 0.8f), (int) (screenHeight * 0.4f),
-                        1,
-                        editBox::getRectangle
-                )
+                this.keyboardLayout,
+                this.inputTarget,
+                this.positioner
         );
     }
 

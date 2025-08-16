@@ -115,32 +115,17 @@ public class KeyboardOverlayScreen extends Screen {
         // restore the previous screen without calling minecraft.setScreen
         // so the screen is not reinitialised
         this.minecraft.screen = this.backgroundScreen;
+
+        Controlify.instance().virtualMouseHandler().onScreenChanged();
     }
 
     /**
      * An input target that captures {@link InputConstants#KEY_RETURN} and {@link InputConstants#KEY_ESCAPE}
      * key presses to close the keyboard overlay screen.
      */
-    private class WrappedInputTarget implements InputTarget {
-        private final InputTarget target;
-
+    private class WrappedInputTarget extends InputTarget.Delegated {
         public WrappedInputTarget(InputTarget target) {
-            this.target = target;
-        }
-
-        @Override
-        public boolean supportsCharInput() {
-            return target.supportsCharInput();
-        }
-
-        @Override
-        public boolean acceptChar(char ch, int modifiers) {
-            return target.acceptChar(ch, modifiers);
-        }
-
-        @Override
-        public boolean supportsKeyCodeInput() {
-            return target.supportsKeyCodeInput();
+            super(target);
         }
 
         @Override
@@ -151,27 +136,7 @@ public class KeyboardOverlayScreen extends Screen {
                 return true;
             }
 
-            return target.acceptKeyCode(keycode, scancode, modifiers);
-        }
-
-        @Override
-        public boolean supportsCopying() {
-            return target.supportsCopying();
-        }
-
-        @Override
-        public boolean copy() {
-            return target.copy();
-        }
-
-        @Override
-        public boolean supportsCursorMovement() {
-            return target.supportsCursorMovement();
-        }
-
-        @Override
-        public boolean moveCursor(int amount) {
-            return target.moveCursor(amount);
+            return super.acceptKeyCode(keycode, scancode, modifiers);
         }
     }
 

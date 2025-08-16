@@ -80,6 +80,7 @@
     "feature.screenop.impl.elements.AbstractContainerEventHandlerMixin",
     "feature.screenop.impl.elements.AbstractSelectionListMixin",
     "feature.screenop.impl.elements.AbstractSliderButtonMixin",
+    "feature.screenop.impl.elements.AbstractWidgetMixin",
     "feature.screenop.impl.elements.ContainerObjectSelectionListEntryMixin",
     "feature.screenop.impl.elements.EditBoxMixin",
     "feature.screenop.impl.outofgame.CreateWorldScreenMixin",

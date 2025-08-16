@@ -37,7 +37,8 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
     @Shadow private int textY;
     @Shadow @Final private Font font;
 
-    @Unique private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
+    @Unique
+    private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
             (EditBox) (Object) this,
             Minecraft.getInstance().getWindow().getGuiScaledWidth(),
             Minecraft.getInstance().getWindow().getGuiScaledHeight()

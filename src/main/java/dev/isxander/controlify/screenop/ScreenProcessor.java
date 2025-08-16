@@ -182,7 +182,7 @@ public class ScreenProcessor<T extends Screen> {
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
 
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
-            if (!this.tryOpenKeyboard(controller)) {
+            if (!this.tryOpenKeyboard(controller, screen.getFocused())) {
                 screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
             }
         }
@@ -280,9 +280,8 @@ public class ScreenProcessor<T extends Screen> {
         eventListeners.add(listener);
     }
 
-    protected boolean tryOpenKeyboard(ControllerEntity controller) {
-        @Nullable GuiEventListener focused = screen.getFocused();
-        var componentProcessor = ComponentProcessorProvider.provide(focused);
+    public boolean tryOpenKeyboard(ControllerEntity controller, @Nullable GuiEventListener element) {
+        var componentProcessor = ComponentProcessorProvider.provide(element);
         ComponentKeyboardBehaviour behaviour = componentProcessor.getKeyboardBehaviour(this, controller);
 
         switch (behaviour) {
