@@ -15,6 +15,7 @@ import dev.isxander.controlify.screenop.compat.vanilla.EditBoxComponentProcessor
 import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
 import dev.isxander.controlify.screenop.keyboard.CommonKeyboardHints;
 import dev.isxander.controlify.screenop.keyboard.KeyboardOverlayScreen;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,6 +37,9 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
     @Shadow private int textX;
     @Shadow private int textY;
     @Shadow @Final private Font font;
+
+    @Shadow
+    public abstract boolean isBordered();
 
     @Unique
     private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
@@ -69,15 +73,27 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                     && this.hint == null
                     && this.suggestion == null
                 ) {
+                    var component = CommonKeyboardHints.OPEN_KEYBOARD;
+                    int width = component.getWidth();
+
+                    var pose = CGuiPose.ofPush(graphics);
+                    if (width > this.getWidth() + (this.isBordered() ? 4 : 0)) {
+                        pose.translate(this.textX, this.textY + 3);
+                        pose.scale(0.5f, 0.5f);
+                        pose.translate(-this.textX, -this.textY - 3);
+                    }
+
                     renderHint.set(true);
-                    graphics.drawString(font, CommonKeyboardHints.OPEN_KEYBOARD.getComponent(), this.textX, this.textY, 0xFFAAAAAA);
+                    graphics.drawString(font, component.getComponent(), this.textX, this.textY, 0xFFAAAAAA);
+
+                    pose.pop();
                 } else {
                     var component = ControlifyBindings.GUI_PRESS.inputGlyph();
                     int width = font.width(component);
 
                     graphics.drawString(
                             font, component,
-                            this.getX() - 2 - width,
+                            this.getRight() - 2 - width,
                             this.textY,
                             -1
                     );
