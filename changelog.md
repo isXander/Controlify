@@ -7,24 +7,16 @@ This version has the following targets:
 
 **By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support and snapshot versions**
 
-## Data-driven button guides
+## On-screen keyboard v2
 
-Controlify's button guide system (found in-game and in container screens) has been completely rewritten to be data-driven.
-This means that resource packs can now add or overwrite button guides.
+Controlify now has a new on-screen keyboard. Although it may look the same at first glance due to the same design, it's completely new under-the-hood.
 
-If you would like to make a resource pack to add or change button guides, consider reading the newly
-written documentation on the [Controlify wiki](https://moddedmc.wiki/en/project/controlify/docs/resource-packs/guides).
+The keyboard is now accessible everywhere. Any text box within Minecraft, a keyboard will now appear when you interact with it. This includes chat, signs, search boxes, and more.
 
-Although this feature has not been highly requested, people have expressed discontent with the current set of
-button guides. Although the guides present in 2.3.0 are the same as before, this new system allows for
-players to make their own guides, or mod developers to add guides for their mods.
+Keyboard layouts are both contextualised and localised. This means that depending on what you're doing that being the chat or editing signs, the layout will change to suit the context. The layout is able to be changed based on your current language setting too. Although this version does not provide any localised layouts, PRs are welcome and resource packs can provide them.
 
-## Other changes
-
-- New `LEDComponent` for controllers, to allow mods to control the LED on controllers that support it.
-- Rewrote the dualsense trigger effect API, to allow mods to use the DualSense's adaptive triggers more easily.
+Take a look at the [documentation](https://moddedmc.wiki/en/project/controlify/docs/resource-packs/keyboard-layouts) to make a resource pack or PR for better/localised keyboard layouts!
 
 ## Bug fixes
 
-- Fixed the crash on startup for some users, with the log `Argument value 0x200000001 exceeds native capacity`
-- Fix Switch 1 Joy-Cons having incorrect button glyphs ([by rinOfTheStars](https://github.com/isXander/Controlify/pull/643))
+- Fix crash when editing the radial menu on 1.21.5+ targets
