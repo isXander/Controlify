@@ -59,7 +59,7 @@ When the _rule_ applies, it shows the text "Jump" and the glyph for the `control
 
 As well as literal text such as `"Jump"`, Controlify supports the Minecraft
 [text component format](https://minecraft.wiki/w/Text_component_format) which allows you to use translations and styling.
-For example, you can use `"then": {"translate": "mypack.jump"}` to use a translation keyFunction sourced from your pack's language files.
+For example, you can use `"then": {"translate": "mypack.jump"}` to use a translation key sourced from your pack's language files.
 
 A rule can be displayed either on the `left` or `right` side of the screen, this is defined by the `"where"` field.
 
@@ -134,10 +134,10 @@ These facts are available in all domains.
 | `controlify:in_water`                   | When the player is touching water.                                                                                            |
 | `controlify:under_water`                | When the player has their eyes underwater.                                                                                    |
 | `controlify:in_lava`                    | When the player is touching lava.                                                                                             |
-| `controlify:sneaking`                   | When the player is attempting to sneak (pressing the sneak keyFunction, or it is toggled on).                                         |
+| `controlify:sneaking`                   | When the player is attempting to sneak (pressing the sneak key, or it is toggled on).                                         |
 | `controlify:is_toggle_sneak`            | When the player is using toggle sneak (does not mean it is currently toggled on).                                             |
 | `controlify:is_toggle_sprint`           | When the player is using toggle sprint (does not mean it is currently toggled on).                                            |
-| `controlify:sprinting`                  | When the player is attempting to sprint (pressing the sprint keyFunction, or it is toggled on).                                       |
+| `controlify:sprinting`                  | When the player is attempting to sprint (pressing the sprint key, or it is toggled on).                                       |
 | `controlify:input_moving`               | When the player is applying movement input—even if the player is not physically moving, if they're trying to, this fact goes. |
 | `controlify:is_spectator`               | When the player is in spectator mode.                                                                                         |
 | `controlify:is_creative`                | When the player is in creative mode.                                                                                          |

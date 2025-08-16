@@ -1,14 +1,22 @@
 {
+  "users": {
+    "name": "Users",
+    "icon": "User"
+  },
   "resource-packs": {
     "name": "Resource Packs",
-    "icon": null
+    "icon": "Folder"
+  },
+  "developers": {
+    "name": "Developers",
+    "icon": "CodeXml"
   },
   "reference": {
     "name": "Reference",
-    "icon": null
+    "icon": "BookMarked"
   },
   "architecture": {
     "name": "Architecture",
-    "icon": null
+    "icon": "Cog"
   }
 }

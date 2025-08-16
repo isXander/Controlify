@@ -1,0 +1,294 @@
+---
+title: Screen Operation API
+---
+
+_Add controller compatibility to GUIs._
+
+You can add explicit controller support to your UI if necessary with the various APIs in Controlify.
+
+To make sure that your GUI classes don't _depend_ on Controlify to load, all controller handling is done in a separate class, namely the `ScreenProcessor`, that is registered in [Controlify's pre-init entrypoint](../controlify-entrypoint#pre-init-method).
+
+## Making a screen
+
+Before we get to handling a Screen, first we need to make an example screen:
+
+```java
+public class MyAmazingScreen extends Screen {
+    public Button button1, button2;
+
+    public MyAmazingScreen() {
+        super(Component.literal("My Amazing Screen"));
+    }
+
+    @Override
+    protected void init() {
+        this.addDrawableWidget(button1 = Button.builder(Component.literal("Button 1"), this::doButton1Action).build());
+        this.addDrawableWidget(button2 = Button.builder(Component.literal("Button 2"), this::doButton2Action).build());
+    }
+
+    public void doButton1Action(Button btn) {
+        System.out.println("This is a really cool button!");
+    }
+
+    public void doButton2Action(Button btm) {
+        System.out.println("This is also a really cool button!");
+    }
+}
+```
+
+In this basic example, there is a screen with two buttons that execute a function upon pressed. Even without a custom `ScreenProcessor`, this screen will work well out of the box.
+
+However, we can enhance the experience using shortcuts using the GUI Abstract Actions 1 and 2 provided in the Controlify bindings.
+
+To do this, we need to add create a `ScreenProcessor`.
+
+## Creating a `ScreenProcessor`
+
+```java
+public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
+    public MyAmazingScreenProcessor(MyAmazingScreen screen) {
+        super(screen);
+    }
+
+    @Override
+    protected void handleButtons(Controller<?, ?> controller) {
+        super.handleButtons(controller);
+        // handle binds and other button actions here.
+        // THIS IS ONLY CALLED WHEN VMOUSE IS OFF
+    }
+
+    @Override
+    protected void handleVMouse(Controller<?, ?> controller, VMouseHandler vmouse) {
+        // do what you want here, called every tick only if vmouse is enabled
+    }
+
+    @Override
+    protected void handleTabNavigation(Controller<?, ?> controller) {
+        super.handleTabNavigation(controller);
+        // handles the vanilla tab widget found in the create new world screen
+        // called regardless of vmouse state
+    }
+
+    @Override
+    public void onWidgetRebuild() {
+        super.onWidgetRebuild();
+        // called after the Screen#init() method
+    }
+
+    @Override
+    protected void render(Controller<?, ?> controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+        // called after the screen has rendered.
+    }
+
+    @Override
+    public VirtualMouseBehaviour virtualMouseBehaviour() {
+        // specifies how the vmouse should be used in this screen.
+        // options are: DEFAULT, DISABLED, ENABLED, CURSOR_ONLY
+        // DEFAULT allows the user to turn on/off, and is off by default.
+        return VirtualMouseBehaviour.DEFAULT;
+    }
+}
+```
+
+If a custom processor is not provided for a screen, the parent class `ScreenProcessor` is just used. This provides the basic functionality for controller operation for screens. You can choose to completely override this functionality, or extend from it using `super` calls.
+
+The above screen processor doesn't actually do anything, so let's add some functionality:
+
+```java
+public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
+    public MyAmazingScreenProcessor(MyAmazingScreen screen) {
+        super(screen);
+    }
+
+    @Override
+    protected void handleButtons(Controller<?, ?> controller) {
+        super.handleButtons(controller);
+
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).guiPressed().get()) {
+            this.screen.button1.onPress();
+        }
+
+        if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).guiPressed().get()) {
+            this.screen.button2.onPress();
+        }
+    }
+}
+```
+
+In the above example, I removed most of the methods and just left `handleButtons`, then added a simple if statement to check if the bindings were pressed, then told the button to press. You could even use your own bindings using `BindingSupplier` that you learnt about in [the other wiki page](bindings-api).
+
+## Attaching the `ScreenProcessor`
+
+There are two ways to attach a processor; you can do it through a mixin, or the registry.
+
+### Using the registry
+
+Inside the pre-init entrypoint, add the following code...
+
+```java
+@Override
+public void onControlifyPreInit(PreInitContext ctx) {
+    // ...
+    ScreenProcessorProvider.REGISTRY.register(
+        MyAmazingScreen.class,
+        MyAmazingScreenProcessor::new
+    );
+}
+```
+
+### Using Mixin
+
+You can make your screen implement the `ScreenProcessorProvider` interface which does as it says on the tin.
+
+```java
+@Mixin(MyAmazingScreen.class)
+public class MyAmazingScreenMixin implements ScreenProcessorProvider {
+    @Unique private final ScreenProcessor<?> processor =
+            new MyAmazingScreenProcessor((MyAmazingScreen) (Object) this);
+
+    @Override
+    public ScreenProcessor<?> screenProcessor() {
+        return this.processor;
+    }
+}
+```
+
+<Callout variant="warning">
+    Make sure to store a reference to the processor in a field, and not initialise it inside the getter function.
+</Callout>
+
+It is not inherently bad to mixin into your own classes, so don't feel that this in an 'improper' way. However using the registry is probably better. This method is useful when adding processors to vanilla screens, where you have easier access to fields and functions with `@Shadow` that you can pass into your processor.
+
+## Using `ComponentProcessor`
+
+The screen processors work great for handling global actions within the screen, but don't provide any way to control the interaction behaviour of individual GUI components. This is where component processors come in.&#x20;
+
+For the example, we will create a processor for the vanilla button widget. For all intensive purposes, all we need to know about `AbstractButton` is that it has an abstract `onPress()` method:
+
+```java
+public abstract class AbstractButton implements GuiEventListener {
+    public abstract void onPress();
+}
+```
+
+Now we create our component processor:
+
+```java
+public class AbstractButtonProcessor implements ComponentProcessor {
+    @Override
+    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
+        return false;
+    }
+
+    @Override
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+        return false;
+    }
+
+    @Override
+    public void onFocusGained(ScreenProcessor<?> screen, ControllerEntity controller) {
+
+    }
+}
+```
+
+Notice how both the 'override' methods return boolean. The return value dictates whether the corresponding screen processor methods are ran. This processor doesn't do much, so let's add the functionality to run the `onPress()` method.
+
+```java
+public record AbstractButtonProcessor(AbstractButton button) implements ComponentProcessor {
+    @Override
+    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+        if (controller.bindings().GUI_PRESS.justReleased()) {
+            this.button.onPress();
+            return true; // override - now ScreenProcessor#handleButtons will not run
+        }
+
+        return false; // nothing happens! screen processor runs as usual
+    }
+}
+```
+
+Here we added a constructor so we have access to the button, removed the unneeded overrides and added yet another quick binding check to press the button. Again, this can be switched out for your own binding that you created in [the other wiki page](bindings-api).
+
+<Callout variant="info">
+    The use case of a component processor shown above will actually not behave any differently to if it wasn't there. This is because if there is no component processor, `GUI_PRESS` will just emulate the enter key, which buttons already handle for. However, it is always best to have explicit compatibility to not rely on emulation.
+</Callout>
+
+## Attaching a `ComponentProcessor`
+
+You attach a component processor no differently from [how you attach a screen processor](#attaching-the-screenprocessor). You have two options: the registry, or a mixin.
+
+### Using the registry
+
+Inside of the pre-init entrypoint, add the following code...
+
+```java
+@Override
+public void onControlifyPreInit(PreInitContext ctx) {
+    // ...
+    ComponentProcessorProvider.REGISTRY.register(
+        AbstractButtton.class,
+        AbstractButtonProcessor::new
+    );
+    // ...
+}
+```
+
+### Using Mixin
+
+You can make your component implement the `ComponentProcessorProvider` interface which does as it says on the tin.
+
+```java
+@Mixin(AbstractButton.class)
+public class AbstractButtonMixin implements ComponentProcessorProvider {
+    @Unique private final ComponentProcessor processor =
+            new AbstractButtonProcessor((AbstractButton) (Object) this);
+
+    @Override
+    public ComponentProcessor componentProcessor() {
+        return this.processor;
+    }
+}
+```
+
+<Callout variant="warning">
+    Make sure to store a reference to the processor in a field, and not initialise it inside the getter function.
+</Callout>
+
+## Using button guides
+
+The screen now fully works with a controller, but it is not clear what buttons press what on your screen. This is where the button guide API comes in; you can easily add binding previews to buttons.
+
+To add a button guide, we need to modify our screen processor and add an override for the `onWidgetRebuild` method. Since this runs after our buttons have initialised.
+
+```java
+public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
+    // ...
+
+    @Override
+    public void onWidgetRebuild() {
+        super.onWidgetRebuild();
+
+        ButtonGuideApi.addGuideToButton(
+                this.screen.button1,
+                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+                ButtonRenderPredicate.ALWAYS
+        );
+        ButtonGuideApi.addGuideToButton(
+                screen.button2,
+                ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+                ButtonRenderPredicate.ALWAYS
+        );
+    }
+}
+```
+
+If you want to use a custom binding, replace `ControlifyBindings.GUI_ABSTRACT_ACTION_1` with your own binding supplier, like `MyModControlifyEntrypoint.action1Binding`.
+
+## More examples
+
+If you want to see some more advanced examples, have a look at the Controlify source in your IDE. The following packages will be very helpful:
+
+* `dev.isxander.controlify.screenop.compat`
+* `dev.isxander.controlify.mixins.feature.screenop.impl`
+* `dev.isxander.controlify.compatibility`
