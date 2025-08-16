@@ -34,8 +34,6 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 
     @Shadow private @Nullable Component hint;
     @Shadow private @Nullable String suggestion;
-    @Shadow private int textX;
-    @Shadow private int textY;
     @Shadow @Final private Font font;
 
     @Shadow
@@ -69,6 +67,9 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                 && !(Minecraft.getInstance().screen instanceof KeyboardOverlayScreen)
                 && processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
             ) {
+                int textX = this.getX() + (this.isBordered() ? 2 : 0) + 2;
+                int textY = this.getY() + (this.isBordered() ? 2 : 0) + 4;
+
                 if (renderedValue.isEmpty()
                     && this.hint == null
                     && this.suggestion == null
@@ -78,13 +79,13 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 
                     var pose = CGuiPose.ofPush(graphics);
                     if (width > this.getWidth() + (this.isBordered() ? 4 : 0)) {
-                        pose.translate(this.textX, this.textY + 3);
+                        pose.translate(textX, textY + 3);
                         pose.scale(0.5f, 0.5f);
-                        pose.translate(-this.textX, -this.textY - 3);
+                        pose.translate(-textX, -textY - 3);
                     }
 
                     renderHint.set(true);
-                    graphics.drawString(font, component.getComponent(), this.textX, this.textY, 0xFFAAAAAA);
+                    graphics.drawString(font, component.getComponent(), textX, textY, 0xFFAAAAAA);
 
                     pose.pop();
                 } else {
@@ -94,7 +95,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                     graphics.drawString(
                             font, component,
                             this.getRight() - 2 - width,
-                            this.textY,
+                            textY,
                             -1
                     );
                 }
