@@ -78,6 +78,8 @@ public class KeyboardOverlayScreen extends Screen {
 
     @Override
     public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        // above render(..) call called renderBackground pre 1.21.6 which renders background twice
+        //? if >=1.21.6
         this.backgroundScreen.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
     }
 
