@@ -25,7 +25,7 @@ pluginManagement {
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.7.6"
+    id("dev.kikugie.stonecutter") version "0.7.7"
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
 }
 
@@ -35,7 +35,7 @@ stonecutter {
     if (ciSingleBuild != null) {
         val split = ciSingleBuild.split(":")
         create(rootProject) {
-            vers(split[0], split[1])
+            version(split[0], split[1])
         }
     } else {
         create(rootProject, file("versions/versions.json"))
