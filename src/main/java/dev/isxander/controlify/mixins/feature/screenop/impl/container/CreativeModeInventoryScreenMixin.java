@@ -38,11 +38,14 @@ public abstract class CreativeModeInventoryScreenMixin extends AbstractContainer
             processor.setInputTarget(new InputTarget.Delegated(new EditBoxComponentProcessor.EditBoxInputTarget(this.searchBox)) {
                 @Override
                 public boolean acceptChar(char ch, int modifiers) {
-                    if (super.acceptChar(ch, modifiers)) {
-                        CreativeModeInventoryScreenMixin.this.refreshSearchResults();
-                        return true;
-                    }
-                    return false;
+                    CreativeModeInventoryScreenMixin.this.refreshSearchResults();
+                    return super.acceptChar(ch, modifiers);
+                }
+
+                @Override
+                public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
+                    CreativeModeInventoryScreenMixin.this.refreshSearchResults();
+                    return super.acceptKeyCode(keycode, scancode, modifiers);
                 }
             });
         }
