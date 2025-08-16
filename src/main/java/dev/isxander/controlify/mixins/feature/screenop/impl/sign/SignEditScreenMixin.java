@@ -23,7 +23,14 @@ public abstract class SignEditScreenMixin extends AbstractSignEditScreen {
         return original - calculateOverlap();
     }
 
-    @Definition(id = "submitSignRenderState", method = "Lnet/minecraft/client/gui/GuiGraphics;submitSignRenderState(Lnet/minecraft/client/model/Model$Simple;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V")
+    @Definition(
+            id = "submitSignRenderState",
+            //? if >=1.21.9 {
+            method = "Lnet/minecraft/client/gui/GuiGraphics;submitSignRenderState(Lnet/minecraft/client/model/Model$Simple;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V"
+            //?} else {
+            /*method = "Lnet/minecraft/client/gui/GuiGraphics;submitSignRenderState(Lnet/minecraft/client/model/Model;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V"
+            *///?}
+    )
     @Expression("?.submitSignRenderState(?, ?, ?, ?, @(66), ?, @(168))")
     @ModifyExpressionValue(method = "renderSignBackground", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifySignRenderY(int original) {
