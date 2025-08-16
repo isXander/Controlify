@@ -9,13 +9,13 @@ public final class CommonKeyboardHints {
 
     public static final LazyComponentDims TEXT_CURSOR = new LazyComponentDims(
             Component.translatable("controlify.hint.keyboard_cursor_movement",
-                    BindingFontHelper.binding(ControlifyBindings.GUI_PREV_TAB),
-                    BindingFontHelper.binding(ControlifyBindings.GUI_NEXT_TAB))
+                    ControlifyBindings.GUI_PREV_TAB.inputGlyph(),
+                    ControlifyBindings.GUI_NEXT_TAB.inputGlyph())
     );
 
     public static final LazyComponentDims OPEN_KEYBOARD = new LazyComponentDims(
             Component.translatable("controlify.hint.edit_box_keyboard",
-                    BindingFontHelper.binding(ControlifyBindings.GUI_PRESS))
+                    ControlifyBindings.GUI_PRESS.inputGlyph())
     );
 
     private CommonKeyboardHints() {}

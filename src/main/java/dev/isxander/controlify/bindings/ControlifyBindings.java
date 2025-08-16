@@ -19,15 +19,15 @@ import java.util.Map;
 public final class ControlifyBindings {
     private static final Options options = Minecraft.getInstance().options;
 
-    private static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
-    private static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
-    private static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
-    private static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
-    private static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
-    private static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
-    private static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
-    private static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
-    private static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
+    public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
+    public static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
+    public static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
+    public static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
+    public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
+    public static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
+    public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
+    public static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
+    public static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
 
     public static final InputBindingSupplier WALK_FORWARD = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "walk_forward")

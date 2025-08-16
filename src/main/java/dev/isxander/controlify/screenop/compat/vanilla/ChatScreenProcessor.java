@@ -31,9 +31,9 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
 
     private final LazyComponentDims commandSuggesterHint = new LazyComponentDims(
             Component.translatable("controlify.hint.command_suggester",
-                    BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_DOWN),
-                    BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_UP),
-                    BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT))
+                    ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.inputGlyph(),
+                    ControlifyBindings.GUI_SECONDARY_NAVI_UP.inputGlyph(),
+                    ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.inputGlyph())
     );
 
     public ChatScreenProcessor(

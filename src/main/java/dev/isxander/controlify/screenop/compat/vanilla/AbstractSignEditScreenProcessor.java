@@ -29,8 +29,8 @@ import java.util.function.Supplier;
 public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSignEditScreen> {
 
     private static final Component signLineHint = Component.translatable("controlify.hint.sign_line_change",
-            BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_UP),
-            BindingFontHelper.binding(ControlifyBindings.GUI_SECONDARY_NAVI_DOWN));
+            ControlifyBindings.GUI_SECONDARY_NAVI_UP.inputGlyph(),
+            ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.inputGlyph());
 
     private final Consumer<Integer> moveCursorFunc;
     private final Supplier<SignBlockEntity> signSupplier;

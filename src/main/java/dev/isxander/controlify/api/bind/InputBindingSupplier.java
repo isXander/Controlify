@@ -3,6 +3,7 @@ package dev.isxander.controlify.api.bind;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +40,18 @@ public interface InputBindingSupplier {
      * @return id of the binding.
      */
     ResourceLocation bindId();
+
+    /**
+     * Returns a text component with the currently bound input glyph
+     * for the currently selected controller.
+     * <p>
+     * Be careful, as this component will be rendered differently
+     * depending on the active controller, so make sure to deal with
+     * width caching and other issues that may arise.
+     * @see InputBinding#inputGlyph() for a deterministic version on a specific controller
+     * @return a component representing the input glyph
+     */
+    Component inputGlyph();
 
     Codec<InputBindingSupplier> CODEC = ResourceLocation.CODEC.xmap(
             bindId -> ControlifyBindApi.get().createSupplier(bindId),

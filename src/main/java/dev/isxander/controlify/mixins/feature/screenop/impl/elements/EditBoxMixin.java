@@ -71,7 +71,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                     renderHint.set(true);
                     graphics.drawString(font, CommonKeyboardHints.OPEN_KEYBOARD.getComponent(), this.textX, this.textY, 0xFFAAAAAA);
                 } else {
-                    var component = BindingFontHelper.binding(ControlifyBindings.GUI_PRESS);
+                    var component = ControlifyBindings.GUI_PRESS.inputGlyph();
                     int width = font.width(component);
 
                     graphics.drawString(

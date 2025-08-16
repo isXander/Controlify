@@ -54,10 +54,6 @@ public final class BindingFontHelper {
         return binding(binding.id());
     }
 
-    public static Component binding(InputBindingSupplier bindingSupplier) {
-        return binding(bindingSupplier.bindId());
-    }
-
     public static int getComponentHeight(Font font, FormattedCharSequence text) {
         MutableInt mutableInt = new MutableInt();
         text.accept((index, style, codePoint) -> {
