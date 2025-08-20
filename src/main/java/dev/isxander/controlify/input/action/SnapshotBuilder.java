@@ -1,7 +1,5 @@
 package dev.isxander.controlify.input.action;
 
-import dev.isxander.controlify.input.action.gesture.Accumulator;
-
 import java.util.IdentityHashMap;
 import java.util.Map;
 

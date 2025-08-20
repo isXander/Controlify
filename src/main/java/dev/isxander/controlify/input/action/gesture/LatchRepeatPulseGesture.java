@@ -1,5 +1,9 @@
 package dev.isxander.controlify.input.action.gesture;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
 import dev.isxander.controlify.input.signal.Signal;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +15,7 @@ import java.util.Set;
  * <p>
  * This gesture supports {@link ChannelKind#PULSE}.
  */
-public class LatchRepeatPulseGesture implements Gesture {
+public class LatchRepeatPulseGesture implements SerializableGesture<LatchRepeatPulseGesture> {
     private final Gesture latchGesture;
     private final long initialDelayNs, repeatDelayNs;
     private final HoldRepeatAccumulator holdRepeatAccumulator;
@@ -59,6 +63,18 @@ public class LatchRepeatPulseGesture implements Gesture {
         return latchGesture.monitoredInputs();
     }
 
+    public Gesture latchGesture() {
+        return this.latchGesture;
+    }
+
+    public long initialDelayNs() {
+        return this.initialDelayNs;
+    }
+
+    public long repeatDelayNs() {
+        return this.repeatDelayNs;
+    }
+
     public static LatchRepeatPulseGesture ofHoldNs(ResourceLocation input, long initialDelayNs, long repeatDelayNs) {
         return new LatchRepeatPulseGesture(new HoldGesture(input), initialDelayNs, repeatDelayNs);
     }
@@ -88,4 +104,18 @@ public class LatchRepeatPulseGesture implements Gesture {
             this.setLatch(!down);
         }
     }
+
+    public static final String GESTURE_ID = "latch_repeat_pulse";
+    public static final MapCodec<LatchRepeatPulseGesture> MAP_CODEC = RecordCodecBuilder.<LatchRepeatPulseGesture>create(instance -> instance.group(
+            Gesture.CODEC.fieldOf("latch").forGetter(LatchRepeatPulseGesture::latchGesture),
+            Codec.LONG.fieldOf("initial_delay_ns").forGetter(LatchRepeatPulseGesture::initialDelayNs),
+            Codec.LONG.fieldOf("repeat_delay_ns").forGetter(LatchRepeatPulseGesture::repeatDelayNs)
+    ).apply(instance, LatchRepeatPulseGesture::new))
+            .fieldOf(GESTURE_ID);
+
+    @Override
+    public GestureType<LatchRepeatPulseGesture> type() {
+        return GestureType.LATCH_REPEAT_PULSE;
+    }
 }
+

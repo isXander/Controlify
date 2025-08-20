@@ -1,5 +1,7 @@
 package dev.isxander.controlify.input.action.gesture;
 
+import com.mojang.serialization.MapCodec;
+import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
 import dev.isxander.controlify.input.signal.Signal;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +20,7 @@ import java.util.Set;
  * @see Signal.ButtonUp
  * @see Signal.Held
  */
-public record HoldGesture(ResourceLocation input) implements Gesture {
+public record HoldGesture(ResourceLocation input) implements SerializableGesture<HoldGesture> {
 
     @Override
     public boolean supports(ChannelKind channel) {
@@ -57,4 +59,14 @@ public record HoldGesture(ResourceLocation input) implements Gesture {
     public Set<ResourceLocation> monitoredInputs() {
         return Set.of(input);
     }
+
+    public static final String GESTURE_ID = "hold";
+    public static final MapCodec<HoldGesture> MAP_CODEC =
+            ResourceLocation.CODEC.fieldOf(GESTURE_ID).xmap(HoldGesture::new, HoldGesture::input);
+
+    @Override
+    public GestureType<HoldGesture> type() {
+        return GestureType.HOLD;
+    }
 }
+

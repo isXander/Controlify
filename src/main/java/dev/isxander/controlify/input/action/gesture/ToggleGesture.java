@@ -1,5 +1,7 @@
 package dev.isxander.controlify.input.action.gesture;
 
+import com.mojang.serialization.MapCodec;
+import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
 import dev.isxander.controlify.input.signal.Signal;
 import net.minecraft.resources.ResourceLocation;
@@ -12,7 +14,7 @@ import java.util.Set;
  * <p>
  * This gesture supports {@link ChannelKind#LATCH}.
  */
-public final class ToggleGesture implements Gesture {
+public final class ToggleGesture implements SerializableGesture<ToggleGesture> {
     private final Gesture pulseGesture;
     private final PulseToToggleAcc pulseToToggleAcc;
 
@@ -45,6 +47,10 @@ public final class ToggleGesture implements Gesture {
         return this.pulseGesture.monitoredInputs();
     }
 
+    public Gesture pulseGesture() {
+        return this.pulseGesture;
+    }
+
     public static ToggleGesture ofTap(ResourceLocation input) {
         return new ToggleGesture(new TapGesture(input));
     }
@@ -61,4 +67,15 @@ public final class ToggleGesture implements Gesture {
             target.toggleLatch();
         }
     }
+
+    public static final String GESTURE_ID = "toggle";
+    public static final MapCodec<ToggleGesture> MAP_CODEC =
+            Gesture.CODEC.fieldOf(GESTURE_ID).xmap(ToggleGesture::new, ToggleGesture::pulseGesture);
+
+    @Override
+    public GestureType<ToggleGesture> type() {
+        return GestureType.TOGGLE;
+    }
 }
+
+

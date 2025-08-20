@@ -1,5 +1,7 @@
 package dev.isxander.controlify.input.action.gesture;
 
+import com.mojang.serialization.MapCodec;
+import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
 import dev.isxander.controlify.input.signal.Signal;
 import net.minecraft.resources.ResourceLocation;
@@ -11,7 +13,7 @@ import java.util.Set;
  * <p>
  * This gesture supports {@link ChannelKind#CONTINUOUS}.
  */
-public record ContinuousGesture(ResourceLocation input) implements Gesture {
+public record ContinuousGesture(ResourceLocation input) implements SerializableGesture<ContinuousGesture> {
     @Override
     public boolean supports(ChannelKind channel) {
         return channel.isContinuous();
@@ -33,4 +35,14 @@ public record ContinuousGesture(ResourceLocation input) implements Gesture {
     public Set<ResourceLocation> monitoredInputs() {
         return Set.of(input);
     }
+
+    public static final String GESTURE_ID = "continuous";
+    public static final MapCodec<ContinuousGesture> MAP_CODEC =
+            ResourceLocation.CODEC.fieldOf(GESTURE_ID).xmap(ContinuousGesture::new, ContinuousGesture::input);
+
+    @Override
+    public GestureType<ContinuousGesture> type() {
+        return GestureType.CONTINUOUS;
+    }
 }
+
