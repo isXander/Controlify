@@ -2,6 +2,7 @@ package dev.isxander.controlify.screenop.keyboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
@@ -72,7 +73,9 @@ public class KeyboardOverlayScreen extends Screen {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        var pose = CGuiPose.ofPush(guiGraphics);
         this.backgroundScreen.render(guiGraphics, mouseX, mouseY, partialTick);
+        pose.nextLayer(1000f);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 

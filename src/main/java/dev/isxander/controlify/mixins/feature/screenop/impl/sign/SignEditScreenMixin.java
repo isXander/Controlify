@@ -18,11 +18,14 @@ public abstract class SignEditScreenMixin extends AbstractSignEditScreen {
         super(sign, isFrontText, isFiltered);
     }
 
+    //? if >=1.21.6 {
     @ModifyReturnValue(method = "getSignYOffset", at = @At("RETURN"))
     private float modifySignY(float original) {
         return original - calculateOverlap();
     }
+    //?}
 
+    //? if >=1.21.6 {
     @Definition(
             id = "submitSignRenderState",
             //? if >=1.21.9 {
@@ -36,6 +39,7 @@ public abstract class SignEditScreenMixin extends AbstractSignEditScreen {
     private int modifySignRenderY(int original) {
         return (int) (original - calculateOverlap());
     }
+    //?}
 
     @Unique
     private float calculateOverlap() {

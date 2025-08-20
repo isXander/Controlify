@@ -99,6 +99,7 @@
     "feature.screenop.impl.outofgame.TitleScreenMixin",
     "feature.screenop.impl.outofgame.WorldSelectionListEntryMixin",
     "feature.screenop.impl.sign.AbstractSignEditScreenMixin",
+    "feature.screenop.impl.sign.HangingSignEditScreenMixin",
     "feature.screenop.impl.sign.SignEditScreenMixin",
     "feature.settingsbutton.ControlsScreenMixin",
     "feature.steamdeck.ScreenshotAccessor",
