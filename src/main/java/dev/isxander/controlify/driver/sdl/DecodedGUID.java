@@ -90,11 +90,11 @@ public record DecodedGUID(
     }
 
     public static String getDriverHint(byte driverSignature) {
-        return driverSigToName.getOrDefault(driverSignature, "Unknown");
+        return driverSigToName.getOrDefault(driverSignature, "Unrecognised: '" + (char) driverSignature + "'");
     }
 
     public String getDriverHint() {
-        return driverSignature == null ? "Unknown" : getDriverHint(driverSignature);
+        return driverSignature == null ? "None" : getDriverHint(driverSignature);
     }
 
     private static short readShortLE(byte[] data, int offset) {
