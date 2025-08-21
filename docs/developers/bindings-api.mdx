@@ -1,0 +1,85 @@
+---
+title: Bindings API
+---
+
+_Learn how to register new controller bindings._
+
+## Registering a custom input binding
+
+<Callout variant="info">
+    You should register bindings inside of the Controlify init entrypoint. Read more in [Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
+</Callout>
+
+Controlify allows users to configure different buttons on their controllers to actions in-game. You may want your own mod's actions to be able to be invoked from the controller too.
+
+To register a controller binding, you must use the `ControllerBindingsApi.`
+
+```java
+private BindingSupplier action1Binding;
+
+@Override
+public void onControlifyInit(InitContext ctx) {
+    action1Binding = ctx.bindings().registerBinding(
+            builder -> builder
+                    .id("mymod", "action1") // the id of the binding, this should be unique to your mod
+                    .category(Component.translatable("mymod.binding.category")) // the category of the binding, this is used to group bindings together in the settings
+                    .allowedContexts(BindContext.IN_GAME) // a context is where the binding can be used, you can use multiple contexts
+                    .radialCandiate(RadialIcons.getEffect/getIcon(...)) // if you want to allow your binding to be used in the radial menu
+    );
+}
+```
+
+To add a name and description to the binding, you need to define the language keys `controlify.binding.<namespace>.<path>` and `controlify.binding.<namespace>.<path>.desc` respectively, alternatively, you can set `.name(Component)` and `.description(Component)`
+
+Registering the binding provides you with a `BindingSupplier`, where you can then access the binding with `action1Binding.on(controller);`
+
+Controlify automatically converts your existed modded `KeyMapping`s to controller bindings, but relying on this behaviour if you are going to explicitly support Controlify is not recommended. You can stop this conversion with the following...
+
+```java
+@Override
+public void onControlifyInit(InitContext ctx) {
+    ctx.bindings().exclude(MyMod.myKeyMapping);
+}
+```
+
+## Defining a default binding
+
+You may have noticed that in the above code, we did not define a default binding, such as the A button. This is because default bindings are data-driven and defined by resource packs. If you want to define a default binding, you can do so by creating a JSON file in your mod's resources.
+
+```json
+{
+  "defaults": {
+    "mymod:action1": {
+      "button": "controlify:button/south"
+    }
+  }
+}
+```
+
+This will set the default binding for `mymod:action1` to the south face button on all controllers. You can also define defaults for specific controller namespaces by creating a file in `assets/<namespace>/controllers/default_bind/<path>.json`.
+
+For more information on how to define default bindings, see the [Default Binds](../resource-packs/default-binds) page.
+
+## Using the binding
+
+Once you have access to a binding through `bindingSupplier.on(controller)`, you can access many properties of the binding:
+
+| Property             | Description                                                                                                                                 |
+|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `inputGlyph()`       | Returns the input glyph for the binding, which can be used in text.                                                                         |
+| `digitalNow()`       | Returns true if the binding is pressed this tick.                                                                                           |
+| `digitalPrev()`      | Returns true if the binding was pressed in the previous tick.                                                                               |
+| `analogueNow()`      | Gets a float value between 0 - 1 which describes its analogue state.                                                                        |
+| `analoguePrev()`     | Gets a float value between 0 - 1 which describes its analogue state in the previous tick.                                                   |
+| `justPressed()`      | Returns if the binding is pressed this tick, if it returns true, the state is consumed and will return false for the remaining tick.        |
+| `justReleased()`     | Returns if the binding was just released this tick, if it returns true, the state is consumed and will return false for the remaining tick. |
+| `justTapped()`       | Returns if the binding was just tapped this tick, if it returns true, the state is consumed and will return false for the remaining tick.   |
+| `guiPressed().get()` | Returns true if the binding is pressed this tick in the GUI context.                                                                        |
+
+There are more properties available inside of `InputBinding` which you can look at in the sources, but the above are the most notable that you will use the most.
+
+## Rendering binding glyphs
+
+There is nothing special about rendering glyphs for controller bindings, as Controlify utilises custom fonts.
+
+This means you can use the glyphs within localised text, or just render it with `graphics.drawString(myBinding.inputGlyph(), x, y, -1);`

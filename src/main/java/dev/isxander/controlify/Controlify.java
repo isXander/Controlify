@@ -4,7 +4,6 @@ import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.entrypoint.InitContext;
-import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.guide.ContainerCtx;
 import dev.isxander.controlify.api.guide.GuideDomainRegistries;
 import dev.isxander.controlify.api.guide.GuideDomainRegistry;
@@ -36,6 +35,7 @@ import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
 import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.screenop.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.config.ControlifyConfig;
@@ -81,6 +81,7 @@ public class Controlify implements ControlifyApi {
     private InputFontMapper inputFontMapper;
     private DefaultBindManager defaultBindManager;
     private ControllerTypeManager controllerTypeManager;
+    private KeyboardLayoutManager keyboardLayoutManager;
     private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
@@ -116,9 +117,11 @@ public class Controlify implements ControlifyApi {
         this.inputFontMapper = new InputFontMapper();
         this.defaultBindManager = new DefaultBindManager();
         this.controllerTypeManager = new ControllerTypeManager();
+        this.keyboardLayoutManager = new KeyboardLayoutManager();
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
         PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
         PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
+        PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
@@ -680,6 +683,10 @@ public class Controlify implements ControlifyApi {
 
     public ControllerTypeManager controllerTypeManager() {
         return controllerTypeManager;
+    }
+
+    public KeyboardLayoutManager keyboardLayoutManager() {
+        return keyboardLayoutManager;
     }
 
     public Set<BindContext> thisTickBindContexts() {

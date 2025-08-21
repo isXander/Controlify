@@ -19,15 +19,15 @@ import java.util.Map;
 public final class ControlifyBindings {
     private static final Options options = Minecraft.getInstance().options;
 
-    private static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
-    private static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
-    private static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
-    private static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
-    private static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
-    private static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
-    private static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
-    private static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
-    private static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
+    public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
+    public static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
+    public static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
+    public static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
+    public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
+    public static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
+    public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
+    public static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
+    public static final Component VMOUSE_CATEGORY = Component.translatable("controlify.binding_category.vmouse");
 
     public static final InputBindingSupplier WALK_FORWARD = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "walk_forward")
@@ -110,7 +110,7 @@ public final class ControlifyBindings {
     public static final InputBindingSupplier PAUSE = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "pause")
             .category(GAMEPLAY_CATEGORY)
-            .allowedContexts(BindContext.IN_GAME)
+            .allowedContexts(BindContext.IN_GAME, BindContext.REGULAR_SCREEN)
             .radialCandidate(RadialIcons.getItem(Items.STRUCTURE_VOID)));
     public static final InputBindingSupplier CHANGE_PERSPECTIVE = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "change_perspective")
@@ -159,23 +159,7 @@ public final class ControlifyBindings {
     public static final InputBindingSupplier DROP_INVENTORY = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "drop_inventory")
             .category(INVENTORY_CATEGORY)
-            .allowedContexts(BindContext.CONTAINER));
-    public static final InputBindingSupplier BUNDLE_NAVI_UP = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "bundle_navi_up")
-            .category(INVENTORY_CATEGORY)
-            .allowedContexts(BindContext.CONTAINER));
-    public static final InputBindingSupplier BUNDLE_NAVI_DOWN = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "bundle_navi_down")
-            .category(INVENTORY_CATEGORY)
-            .allowedContexts(BindContext.CONTAINER));
-    public static final InputBindingSupplier BUNDLE_NAVI_LEFT = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "bundle_navi_left")
-            .category(INVENTORY_CATEGORY)
-            .allowedContexts(BindContext.CONTAINER));
-    public static final InputBindingSupplier BUNDLE_NAVI_RIGHT = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "bundle_navi_right")
-            .category(INVENTORY_CATEGORY)
-            .allowedContexts(BindContext.CONTAINER));
+            .allowedContexts(BindContext.CONTAINER, BindContext.REGULAR_SCREEN));
 
     public static final InputBindingSupplier PICK_BLOCK = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "pick_block")
@@ -286,14 +270,26 @@ public final class ControlifyBindings {
             .id("controlify", "gui_navi_right")
             .category(GUI_CATEGORY)
             .allowedContexts(BindContext.REGULAR_SCREEN));
-    public static final InputBindingSupplier CYCLE_OPT_FORWARD = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "cycle_opt_forward")
+    public static final InputBindingSupplier GUI_SECONDARY_NAVI_UP = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_secondary_navi_up")
             .category(GUI_CATEGORY)
-            .allowedContexts(BindContext.REGULAR_SCREEN));
-    public static final InputBindingSupplier CYCLE_OPT_BACKWARD = ControlifyBindApi.get().registerBinding(builder -> builder
-            .id("controlify", "cycle_opt_backward")
+            .allowedContexts(BindContext.CONTAINER, BindContext.REGULAR_SCREEN));
+    public static final InputBindingSupplier GUI_SECONDARY_NAVI_DOWN = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_secondary_navi_down")
             .category(GUI_CATEGORY)
-            .allowedContexts(BindContext.REGULAR_SCREEN));
+            .allowedContexts(BindContext.CONTAINER, BindContext.REGULAR_SCREEN));
+    public static final InputBindingSupplier GUI_SECONDARY_NAVI_LEFT = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_secondary_navi_left")
+            .category(GUI_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER, BindContext.REGULAR_SCREEN));
+    public static final InputBindingSupplier GUI_SECONDARY_NAVI_RIGHT = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "gui_secondary_navi_right")
+            .category(GUI_CATEGORY)
+            .allowedContexts(BindContext.CONTAINER, BindContext.REGULAR_SCREEN));
+    @Deprecated
+    public static final InputBindingSupplier CYCLE_OPT_FORWARD = GUI_SECONDARY_NAVI_RIGHT;
+    @Deprecated
+    public static final InputBindingSupplier CYCLE_OPT_BACKWARD = GUI_SECONDARY_NAVI_LEFT;
 
     public static final InputBindingSupplier RADIAL_MENU = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "radial_menu")

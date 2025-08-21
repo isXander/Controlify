@@ -198,11 +198,17 @@
     "controlify:gui_navi_right": {
       "axis": "controlify:axis/left_stick_right"
     },
-    "controlify:cycle_opt_forward": {
-      "axis": "controlify:axis/right_stick_right"
+    "controlify:gui_secondary_navi_up": {
+      "axis": "controlify:axis/right_stick_up"
     },
-    "controlify:cycle_opt_backward": {
+    "controlify:gui_secondary_navi_down": {
+      "axis": "controlify:axis/right_stick_down"
+    },
+    "controlify:gui_secondary_navi_left": {
       "axis": "controlify:axis/right_stick_left"
+    },
+    "controlify:gui_secondary_navi_right": {
+      "axis": "controlify:axis/right_stick_right"
     }
   }
 }

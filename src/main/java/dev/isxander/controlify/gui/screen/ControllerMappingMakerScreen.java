@@ -227,13 +227,13 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     public void render(GuiGraphics guiGraphics, int i, int j, float f) {
         super.render(guiGraphics, i, j, f);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFF);
+        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
 
         guiGraphics.drawCenteredString(
                 font,
                 currentStage == null ? Component.translatable("controlify.gui.mapping_maker.please_wait") : currentStage.name(),
                 width / 2, height - 20,
-                0xFFFFFF
+                0xFFFFFFFF
         );
 
         int safeZone = Math.min(width, height) - 30;

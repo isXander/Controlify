@@ -1,6 +1,7 @@
 package dev.isxander.controlify.screenop;
 
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
 
 public interface ComponentProcessor extends ComponentProcessorProvider {
     ComponentProcessor EMPTY = new ComponentProcessor(){};
@@ -18,6 +19,10 @@ public interface ComponentProcessor extends ComponentProcessorProvider {
 
     default boolean shouldKeepFocusOnKeyboardMode(ScreenProcessor<?> screen) {
         return false;
+    }
+
+    default ComponentKeyboardBehaviour getKeyboardBehaviour(ScreenProcessor<?> screen, ControllerEntity controller) {
+        return ComponentKeyboardBehaviour.UNDEFINED;
     }
 
     @Override

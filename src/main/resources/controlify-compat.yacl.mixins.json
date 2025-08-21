@@ -18,6 +18,8 @@
     "YACLScreenMixin"
   ],
   "mixins": [
-    "ControllerWidgetAccessor"
+    "ControllerWidgetAccessor",
+    "StringControllerElementAccessor",
+    "StringControllerElementMixin"
   ]
 }

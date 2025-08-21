@@ -68,7 +68,7 @@ public class BindController implements Controller<Input> {
         @Override
         protected void drawValueText(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             if (awaitingControllerInput) {
-                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
+                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
                 if (EmptyInput.equals(bind)) return;

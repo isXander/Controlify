@@ -2,105 +2,125 @@
 title: Built-in Bindings
 ---
 
-This is a list of all Controlify's built-in bindings.
+This is a list of all Controlify's built-in bindings with brief descriptions and availability.
 These are the entries on the 'Controls' page of controller settings.
 
 ### Movement
-- `controlify:walk_forward`
-- `controlify:walk_backward`
-- `controlify:strafe_left`
-- `controlify:strafe_right`
-- `controlify:look_up`
-- `controlify:look_down`
-- `controlify:look_left`
-- `controlify:look_right`
-- `controlify:gyro_button`
-- `controlify:jump`
-- `controlify:sprint`
-- `controlify:sneak`
+
+| ID                         | Description                | Availability                     |
+|----------------------------|----------------------------|----------------------------------|
+| `controlify:walk_forward`  | Move forward               |                                  |
+| `controlify:walk_backward` | Move backward              |                                  |
+| `controlify:strafe_left`   | Strafe left                |                                  |
+| `controlify:strafe_right`  | Strafe right               |                                  |
+| `controlify:look_up`       | Look up                    |                                  |
+| `controlify:look_down`     | Look down                  |                                  |
+| `controlify:look_left`     | Look left                  |                                  |
+| `controlify:look_right`    | Look right                 |                                  |
+| `controlify:gyro_button`   | Hold to enable gyro aiming | Requires gyro-capable controller |
+| `controlify:jump`          | Jump                       |                                  |
+| `controlify:sprint`        | Sprint                     |                                  |
+| `controlify:sneak`         | Sneak / crouch             |                                  |
 
 ### Gameplay
-- `controlify:attack` (equivalent to left-click)
-- `controlify:use` (equivalent to right-click)
-- `controlify:drop`
-- `controlify:drop_stack`
-- `controlify:pause`
-- `controlify:change_perspective`
-- `controlify:swap_hands`
-- `controlify:next_slot` (hotbar)
-- `controlify:prev_slot` (hotbar)
-- `controlify:hotbar_item_select_radial`
-- `controlify:game_mode_switcher`
+
+| ID                                     | Description                    | Availability |
+|----------------------------------------|--------------------------------|--------------|
+| `controlify:attack`                    | Primary action (left-click)    |              |
+| `controlify:use`                       | Secondary action (right-click) |              |
+| `controlify:drop`                      | Drop selected item             |              |
+| `controlify:drop_stack`                | Drop entire stack              |              |
+| `controlify:pause`                     | Pause / open menu              |              |
+| `controlify:change_perspective`        | Cycle camera perspective       |              |
+| `controlify:swap_hands`                | Swap main/off-hand items       |              |
+| `controlify:next_slot`                 | Select next hotbar slot        |              |
+| `controlify:prev_slot`                 | Select previous hotbar slot    |              |
+| `controlify:hotbar_item_select_radial` | Open hotbar selection radial   |              |
+| `controlify:game_mode_switcher`        | Open game mode switcher        |              |
 
 ### Inventory
-- `controlify:inventory`
-- `controlify:inv_select`
-- `controlify:inv_quick_move`
-- `controlify:inv_take_half`
-- `controlify:drop_inventory`
-- `controlify:bundle_navi_up`
-- `controlify:bundle_navi_down`
-- `controlify:bundle_navi_left`
-- `controlify:bundle_navi_right`
+
+| ID                          | Description                | Availability |
+|-----------------------------|----------------------------|--------------|
+| `controlify:inventory`      | Open inventory             |              |
+| `controlify:inv_select`     | Select slot / pick up item |              |
+| `controlify:inv_quick_move` | Quick-move (shift-click)   |              |
+| `controlify:inv_take_half`  | Take half from stack       |              |
+| `controlify:drop_inventory` | Drop from inventory        |              |
 
 ### Creative
-- `controlify:pick_block`
-- `controlify:pick_block_nbt`
-- `controlify:hotbar_load_radial`
-- `controlify:hotbar_save_radial`
+
+| ID                              | Description                | Availability  |
+|---------------------------------|----------------------------|---------------|
+| `controlify:pick_block`         | Pick block under crosshair |               |
+| `controlify:pick_block_nbt`     | Pick block with NBT        | Creative only |
+| `controlify:hotbar_load_radial` | Load saved hotbar radial   | Creative only |
+| `controlify:hotbar_save_radial` | Save hotbar radial         | Creative only |
 
 ### Misc
-- `controlify:open_chat`
-- `controlify:toggle_hud_visibility`
-- `controlify:show_player_list`
-- `controlify:take_screenshot`
-- `controlify:debug_radial`
-- `controlify:toggle_debug_menu`
-- `controlify:toggle_debug_menu_fps`
-- `controlify:toggle_debug_menu_net` (>= 1.20.3 targets only)
-- `controlify:toggle_debug_menu_prof` (>= 1.20.3 targets only)
-- `controlify:toggle_debug_menu_charts` (< 1.20.3 targets only)
+
+| ID                                  | Description                   | Availability         |
+|-------------------------------------|-------------------------------|----------------------|
+| `controlify:open_chat`              | Open chat                     |                      |
+| `controlify:toggle_hud_visibility`  | Toggle HUD visibility         |                      |
+| `controlify:show_player_list`       | Show player list              |                      |
+| `controlify:take_screenshot`        | Take screenshot               |                      |
+| `controlify:debug_radial`           | Open debug radial             |                      |
+| `controlify:toggle_debug_menu`      | Toggle debug screen           |                      |
+| `controlify:toggle_debug_menu_fps`  | Toggle debug (FPS) panel      |                      |
+| `controlify:toggle_debug_menu_net`  | Toggle debug (Network) panel  | 1.20.3+ targets only |
+| `controlify:toggle_debug_menu_prof` | Toggle debug (Profiler) panel | 1.20.3+ targets only |
 
 ### GUI
-- `controlify:gui_press`
-- `controlify:gui_back`
-- `controlify:gui_next_tab`
-- `controlify:gui_prev_tab`
-- `controlify:gui_abstract_action_1`
-- `controlify:gui_abstract_action_2`
-- `controlify:gui_abstract_action_3`
-- `controlify:gui_navi_up`
-- `controlify:gui_navi_down`
-- `controlify:gui_navi_left`
-- `controlify:gui_navi_right`
-- `controlify:cycle_opt_forward`
-- `controlify:cycle_opt_backward`
+
+| ID                                    | Description                      | Availability |
+|---------------------------------------|----------------------------------|--------------|
+| `controlify:gui_press`                | Activate / press focused control |              |
+| `controlify:gui_back`                 | Go back / close                  |              |
+| `controlify:gui_next_tab`             | Next tab / page                  |              |
+| `controlify:gui_prev_tab`             | Previous tab / page              |              |
+| `controlify:gui_abstract_action_1`    | Context action 1                 |              |
+| `controlify:gui_abstract_action_2`    | Context action 2                 |              |
+| `controlify:gui_abstract_action_3`    | Context action 3                 |              |
+| `controlify:gui_navi_up`              | Navigate focus up                |              |
+| `controlify:gui_navi_down`            | Navigate focus down              |              |
+| `controlify:gui_navi_left`            | Navigate focus left              |              |
+| `controlify:gui_navi_right`           | Navigate focus right             |              |
+| `controlify:gui_secondary_navi_up`    | Navigate secondary area up       |              |
+| `controlify:gui_secondary_navi_down`  | Navigate secondary area down     |              |
+| `controlify:gui_secondary_navi_left`  | Navigate secondary area left     |              |
+| `controlify:gui_secondary_navi_right` | Navigate secondary area right    |              |
 
 ### Radial Menu
-- `controlify:radial_menu`
-- `controlify:radial_axis_up`
-- `controlify:radial_axis_down`
-- `controlify:radial_axis_left`
-- `controlify:radial_axis_right`
+
+| ID                             | Description                 | Availability |
+|--------------------------------|-----------------------------|--------------|
+| `controlify:radial_menu`       | Open the radial menu        |              |
+| `controlify:radial_axis_up`    | Select radial segment up    |              |
+| `controlify:radial_axis_down`  | Select radial segment down  |              |
+| `controlify:radial_axis_left`  | Select radial segment left  |              |
+| `controlify:radial_axis_right` | Select radial segment right |              |
 
 ### Virtual Mouse
-- `controlify:vmouse_move_up`
-- `controlify:vmouse_move_down`
-- `controlify:vmouse_move_left`
-- `controlify:vmouse_move_right`
-- `controlify:vmouse_snap_up`
-- `controlify:vmouse_snap_down`
-- `controlify:vmouse_snap_left`
-- `controlify:vmouse_snap_right`
-- `controlify:vmouse_lclick`
-- `controlify:vmouse_rclick`
-- `controlify:vmouse_shift_click`
-- `controlify:vmouse_scroll_down`
-- `controlify:vmouse_scroll_up`
-- `controlify:vmouse_shift`
-- `controlify:vmouse_page_next`
-- `controlify:vmouse_page_prev`
-- `controlify:vmouse_page_down`
-- `controlify:vmouse_page_up`
-- `controlify:vmouse_toggle`
 
+| ID                              | Description                   | Availability |
+|---------------------------------|-------------------------------|--------------|
+| `controlify:vmouse_move_up`     | Move cursor up                |              |
+| `controlify:vmouse_move_down`   | Move cursor down              |              |
+| `controlify:vmouse_move_left`   | Move cursor left              |              |
+| `controlify:vmouse_move_right`  | Move cursor right             |              |
+| `controlify:vmouse_snap_up`     | Snap to nearest element up    |              |
+| `controlify:vmouse_snap_down`   | Snap to nearest element down  |              |
+| `controlify:vmouse_snap_left`   | Snap to nearest element left  |              |
+| `controlify:vmouse_snap_right`  | Snap to nearest element right |              |
+| `controlify:vmouse_lclick`      | Left-click                    |              |
+| `controlify:vmouse_rclick`      | Right-click                   |              |
+| `controlify:vmouse_shift_click` | Shift-click                   |              |
+| `controlify:vmouse_scroll_down` | Scroll down                   |              |
+| `controlify:vmouse_scroll_up`   | Scroll up                     |              |
+| `controlify:vmouse_shift`       | Hold Shift modifier           |              |
+| `controlify:vmouse_page_next`   | Page next                     |              |
+| `controlify:vmouse_page_prev`   | Page previous                 |              |
+| `controlify:vmouse_page_down`   | Page down                     |              |
+| `controlify:vmouse_page_up`     | Page up                       |              |
+| `controlify:vmouse_toggle`      | Toggle virtual mouse          |              |

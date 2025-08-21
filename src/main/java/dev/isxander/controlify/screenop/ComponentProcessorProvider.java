@@ -6,6 +6,10 @@ public interface ComponentProcessorProvider {
     ComponentProcessor componentProcessor();
 
     static ComponentProcessor provide(GuiEventListener component) {
+        if (component == null) {
+            return ComponentProcessor.EMPTY;
+        }
+
         if (component instanceof ComponentProcessorProvider provider)
             return provider.componentProcessor();
 

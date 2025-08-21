@@ -255,7 +255,6 @@
   "controlify.bluetooth_warning.desc": "Some controllers may be missing features when connected via Bluetooth. For example, HD haptics on DualSense. If you think you are missing a feature, try using USB before reporting.",
   "controlify.bluetooth_warning.dont_show": "Don't show again",
 
-  "controlify.binding.controlify.gamepad_gyro_button": "Activate Gyroscope",
   "controlify.binding.controlify.walk_forward": "Walk Forward",
   "controlify.binding.controlify.walk_backward": "Walk Backward",
   "controlify.binding.controlify.strafe_left": "Strafe Left",
@@ -337,8 +336,10 @@
   "controlify.binding.controlify.gui_navi_up": "GUI Navi Up",
   "controlify.binding.controlify.gui_navi_left": "GUI Navi Left",
   "controlify.binding.controlify.gui_navi_right": "GUI Navi Right",
-  "controlify.binding.controlify.cycle_opt_forward": "Cycle Option Forward",
-  "controlify.binding.controlify.cycle_opt_backward": "Cycle Option Backward",
+  "controlify.binding.controlify.gui_secondary_navi_down": "GUI Secondary Navi Down",
+  "controlify.binding.controlify.gui_secondary_navi_up": "GUI Secondary Navi Up",
+  "controlify.binding.controlify.gui_secondary_navi_left": "GUI Secondary Navi Left",
+  "controlify.binding.controlify.gui_secondary_navi_right": "GUI Secondary Navi Right",
   "controlify.binding.controlify.clear_binding": "Clear Binding",
 
   "controlify.binding.voicechat.ptt_hold": "Push-To-Talk (Hold)",
@@ -433,6 +434,7 @@
 
   "controlify.binding_category.gui": "GUI",
   "controlify.binding_category.vmouse": "Virtual Mouse",
+  "controlify.binding_category.debug": "Debug",
 
   "controlify.custom_binding.vanilla_description": "Automatically generated key binding from Fabric API.",
 
@@ -585,5 +587,23 @@
   "controlify.extra_pack.legacy_console.name": "Legacy Console",
   "controlify.extra_pack.legacy_console.desc": "Controlify - sets bind defaults/glyphs.",
 
-  "controlify.tutorial.look.description": "Use your mouse or controller to turn"
+  "controlify.keyboard.special.shift": "Shift",
+  "controlify.keyboard.special.shift_lock": "Shift Lock",
+  "controlify.keyboard.special.enter": "Enter",
+  "controlify.keyboard.special.backspace": "Del",
+  "controlify.keyboard.special.tab": "Tab",
+  "controlify.keyboard.special.left_arrow": "←",
+  "controlify.keyboard.special.right_arrow": "→",
+  "controlify.keyboard.special.up_arrow": "↑",
+  "controlify.keyboard.special.down_arrow": "↓",
+  "controlify.keyboard.special.copy_all": "Copy All",
+  "controlify.keyboard.special.paste": "Paste",
+  "controlify.keyboard.special.previous_layout": "Previous Layout",
+
+  "controlify.tutorial.look.description": "Use your mouse or controller to turn",
+
+  "controlify.hint.keyboard_cursor_movement": "Use %s and %s to move the text cursor",
+  "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them",
+  "controlify.hint.edit_box_keyboard": "Press %s to open keyboard",
+  "controlify.hint.sign_line_change": "Use %s and %s to change lines"
 }

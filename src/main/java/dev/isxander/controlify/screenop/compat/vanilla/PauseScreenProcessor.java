@@ -4,7 +4,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.mixins.feature.screenop.vanilla.PauseScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.PauseScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
