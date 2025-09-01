@@ -45,14 +45,14 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             new MappingStage(GamepadInputs.DPAD_LEFT_BUTTON, MapType.BUTTON, button("dpad_left"), "dpad_left", "faceview"),
             new MappingStage(GamepadInputs.DPAD_DOWN_BUTTON, MapType.BUTTON, button("dpad_down"), "dpad_down", "faceview"),
             new MappingStage(GamepadInputs.DPAD_RIGHT_BUTTON, MapType.BUTTON, button("dpad_right"), "dpad_right", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, MapType.AXIS, axis("left_stick", true), "left_stick_left", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_DOWN, MapType.AXIS, axis("left_stick", false), "left_stick_down", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_RIGHT, MapType.AXIS, axis("left_stick", true), "left_stick_right", "faceview"),
-            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, MapType.AXIS, axis("left_stick", false), "left_stick_up", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, MapType.AXIS, axis("right_stick", true), "right_stick_left", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_DOWN, MapType.AXIS, axis("right_stick", false), "right_stick_down", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, MapType.AXIS, axis("right_stick", true), "right_stick_right", "faceview"),
-            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, MapType.AXIS, axis("right_stick", false), "right_stick_up", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_LEFT, MapType.AXIS, axis("left_stick", "left"), "left_stick_left", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_DOWN, MapType.AXIS, axis("left_stick", "down"), "left_stick_down", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_RIGHT, MapType.AXIS, axis("left_stick", "right"), "left_stick_right", "faceview"),
+            new MappingStage(GamepadInputs.LEFT_STICK_AXIS_UP, MapType.AXIS, axis("left_stick", "up"), "left_stick_up", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_LEFT, MapType.AXIS, axis("right_stick", "left"), "right_stick_left", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_DOWN, MapType.AXIS, axis("right_stick", "down"), "right_stick_down", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, MapType.AXIS, axis("right_stick", "right"), "right_stick_right", "faceview"),
+            new MappingStage(GamepadInputs.RIGHT_STICK_AXIS_UP, MapType.AXIS, axis("right_stick", "up"), "right_stick_up", "faceview"),
             new MappingStage(GamepadInputs.LEFT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.mapping_maker.instruction.left_trigger"), "left_trigger", "triggerview"),
             new MappingStage(GamepadInputs.RIGHT_TRIGGER_AXIS, MapType.AXIS, Component.translatable("controlify.gui.mapping_maker.instruction.right_trigger"), "right_trigger", "triggerview")
     );
@@ -281,11 +281,10 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         return Component.translatable("controlify.gui.mapping_maker.instruction.button", Component.translatable("controlify.gui.mapping_maker.instruction." + buttonName));
     }
 
-    private static Component axis(String axisName, boolean horizontal) {
-        Component axis = Component.translatable("controlify.gui.mapping_maker.instruction." + axisName);
-        return horizontal
-                ? Component.translatable("controlify.gui.mapping_maker.instruction.axis_x", axis)
-                : Component.translatable("controlify.gui.mapping_maker.instruction.axis_y", axis);
+    private static Component axis(String axisName, String direction) {
+        var axisText = Component.translatable("controlify.gui.mapping_maker.instruction." + axisName);
+        var directionText = Component.translatable("controlify.gui.mapping_maker.instruction.axis_" + direction);
+        return Component.translatable("controlify.gui.mapping_maker.instruction.axis", axisText, directionText);
     }
 
     @Override
