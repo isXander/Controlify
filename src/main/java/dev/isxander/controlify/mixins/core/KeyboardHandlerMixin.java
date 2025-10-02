@@ -23,11 +23,15 @@ public class KeyboardHandlerMixin {
             method = "setup",
             at = @At(
                     value = "INVOKE",
+                    //? if >=1.21.9 {
                     target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
+                    //?} else {
+                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(JLorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
+                    *///?}
             )
     )
     private void wrapKeyboardEvents(
-            Window window,
+            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
             GLFWKeyCallbackI keyCallback,
             GLFWCharModsCallbackI charCallback,
             Operation<Void> original

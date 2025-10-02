@@ -32,11 +32,15 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
             method = "setup",
             at = @At(
                     value = "INVOKE",
+                    //? if >=1.21.9 {
                     target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
+                    //?} else {
+                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(JLorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
+                    *///?}
             )
     )
     private void wrapMouseEvents(
-            Window window,
+            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
             GLFWCursorPosCallbackI moveCallback,
             GLFWMouseButtonCallbackI buttonCallback,
             GLFWScrollCallbackI scrollCallback,
