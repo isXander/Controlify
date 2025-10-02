@@ -183,7 +183,11 @@ public class ScreenProcessor<T extends Screen> {
 
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             if (!this.tryOpenKeyboard(controller, screen.getFocused())) {
-                screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+                //? if >=1.21.9 {
+                screen.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0));
+                //?} else {
+                /*screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
+                *///?}
             }
         }
         if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {

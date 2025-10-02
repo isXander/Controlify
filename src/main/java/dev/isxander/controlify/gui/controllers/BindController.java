@@ -82,7 +82,12 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        //? if >=1.21.9 {
+        public boolean keyPressed(net.minecraft.client.input.KeyEvent keyEvent) {
+            int keyCode = keyEvent.key();
+        //?} else {
+        /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        *///?}
             if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER) {
                 openConsumerScreen();
                 return true;
@@ -92,7 +97,13 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        //? if >=1.21.9 {
+        public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+            double mouseX = mouseButtonEvent.x();
+            double mouseY = mouseButtonEvent.y();
+        //?} else {
+        /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        *///?}
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
                 openConsumerScreen();
                 return true;

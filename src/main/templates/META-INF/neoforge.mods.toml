@@ -23,5 +23,6 @@ side = "BOTH"
 [[dependencies."${mod_id}"]]
 modId = "yet_another_config_lib_v3"
 mandatory = true
+versionRange = "[3.8,4)"
 ordering = "NONE"
 side = "BOTH"

@@ -39,7 +39,11 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptChar(char ch, int modifiers) {
-            return element.charTyped(ch, modifiers);
+            //? if >=1.21.9 {
+            return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+            //?} else {
+            /*return element.charTyped(ch, modifiers);
+            *///?}
         }
 
         @Override
@@ -49,7 +53,11 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            return element.keyPressed(keycode, scancode, modifiers);
+            //? if >=1.21.9 {
+            return element.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
+            //?} else {
+            /*return element.keyPressed(keycode, scancode, modifiers);
+            *///?}
         }
 
         @Override
@@ -61,7 +69,11 @@ public class StringControllerElementComponentProcessor implements ComponentProce
         public boolean moveCursor(int amount) {
             int keycode = amount > 0 ? InputConstants.KEY_RIGHT : InputConstants.KEY_LEFT;
             for (int i = 0; i < amount; i++) {
-                element.keyPressed(keycode, 0, 0);
+                //? if >=1.21.9 {
+                element.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, 0, 0));
+                //?} else {
+                /*element.keyPressed(keycode, 0, 0);
+                *///?}
             }
             return true;
         }

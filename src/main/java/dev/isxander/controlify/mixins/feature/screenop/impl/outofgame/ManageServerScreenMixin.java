@@ -8,14 +8,19 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.AddServerLikeScreenProcessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.EditServerScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(EditServerScreen.class)
-public class EditServerScreenMixin implements ScreenProcessorProvider {
+//? if >=1.21.9 {
+import net.minecraft.client.gui.screens.ManageServerScreen;
+//?} else {
+/*import net.minecraft.client.gui.screens.EditServerScreen;
+*///?}
+
+@Mixin(/*? if >=1.21.9 {*/ ManageServerScreen.class /*?} else {*/ /*EditServerScreen.class *//*?}*/)
+public class ManageServerScreenMixin implements ScreenProcessorProvider {
 
     @Shadow
     private EditBox ipEdit;
@@ -26,7 +31,7 @@ public class EditServerScreenMixin implements ScreenProcessorProvider {
 
     @Unique
     private final AddServerLikeScreenProcessor screenProcessor = new AddServerLikeScreenProcessor(
-            (EditServerScreen) (Object) this,
+            (/*? if >=1.21.9 {*/ ManageServerScreen /*?} else {*/ /*EditServerScreen *//*?}*/) (Object) this,
             () -> this.ipEdit,
             () -> this.addButton,
             () -> this.cancelButton

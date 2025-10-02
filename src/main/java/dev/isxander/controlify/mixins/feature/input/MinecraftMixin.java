@@ -28,7 +28,17 @@ public abstract class MinecraftMixin implements PickBlockAccessor {
         pickBlock();
     }
 
-    @ModifyExpressionValue(method = "pickBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"))
+    @ModifyExpressionValue(
+            method = "pickBlock",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.9 {
+                    target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"
+                    //?} else {
+                    /*target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"
+                    *///?}
+            )
+    )
     private boolean shouldUseNbtPick(boolean hasControlDown) {
         if (useNbtPick) {
             useNbtPick = false;

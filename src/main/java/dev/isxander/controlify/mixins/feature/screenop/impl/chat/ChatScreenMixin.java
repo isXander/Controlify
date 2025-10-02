@@ -23,13 +23,13 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 @Mixin(ChatScreen.class)
 public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
 
     @Shadow protected EditBox input;
     @Shadow CommandSuggestions commandSuggestions;
-    @Shadow public abstract boolean keyPressed(int keyCode, int scanCode, int modifiers);
 
     @Unique private KeyboardWidget keyboard;
     @Unique private float shiftChatAmt = 0f;
@@ -111,7 +111,11 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 
     @Override
     public boolean controlify$acceptChar(char ch, int modifiers) {
-        this.input.charTyped(ch, modifiers);
+        //? if >=1.21.9 {
+        this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+        //?} else {
+        /*this.input.charTyped(ch, modifiers);
+        *///?}
         return true;
     }
 
@@ -127,10 +131,16 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
                 InputConstants.KEY_ESCAPE
         ).contains(keycode);
 
+        //? if >=1.21.9 {
+        Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
+        //?} else {
+        /*Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(keycode, scancode, modifiers);
+        *///?}
+
         if (bypassInput) {
-            return ((ChatScreen) (Object) this).keyPressed(keycode, scancode, modifiers);
+            return keyPress.test((ChatScreen) (Object) this);
         }
-        return this.input.keyPressed(keycode, scancode, modifiers);
+        return keyPress.test(this.input);
     }
 
     @Override

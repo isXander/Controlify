@@ -60,12 +60,16 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
 
     @Override
     public boolean isDevEnv() {
-        return !FMLEnvironment.production;
+        //? if >=1.21.9 {
+        return !FMLEnvironment.isProduction();
+        //?} else {
+        /^return !FMLEnvironment.production;
+        ^///?}
     }
 
     @Override
     public Environment getEnv() {
-        return switch (FMLEnvironment.dist) {
+        return switch (/^? if >=1.21.9 {^/FMLEnvironment.getDist() /^?} else {^/ /^FMLEnvironment.dist ^//^?}^/) {
             case CLIENT -> Environment.CLIENT;
             case DEDICATED_SERVER -> Environment.SERVER;
         };

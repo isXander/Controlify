@@ -33,14 +33,22 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
         if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).digitalNow()) {
             if (canSliderChange) {
-                component.keyPressed(GLFW.GLFW_KEY_RIGHT, 0, 0);
+                //? if >=1.21.9 {
+                component.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_RIGHT, 0, 0));
+                //?} else {
+                /*component.keyPressed(GLFW.GLFW_KEY_RIGHT, 0, 0);
+                *///?}
                 lastSliderChange = 0;
             }
 
             return true;
         } else if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).digitalNow()) {
             if (canSliderChange) {
-                component.keyPressed(GLFW.GLFW_KEY_LEFT, 0, 0);
+                //? if >=1.21.9 {
+                component.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_LEFT, 0, 0));
+                //?} else {
+                /*component.keyPressed(GLFW.GLFW_KEY_LEFT, 0, 0);
+                *///?}
                 lastSliderChange = 0;
             }
 
