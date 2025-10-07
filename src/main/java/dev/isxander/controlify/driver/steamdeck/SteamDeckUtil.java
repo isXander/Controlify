@@ -34,6 +34,11 @@ public final class SteamDeckUtil {
         }
         triedToLoad = true;
 
+        if (true) {
+            logger.warn("Steam Deck driver has been disabled for this build due to SteamOS updates.");
+            return Optional.empty();
+        }
+
         if (!DECK_MODE.isGamingMode() && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
             logger.warn("Device is not a Steam Deck or not in gaming mode, skipping Steam Deck driver initialization.");
             return Optional.empty();
