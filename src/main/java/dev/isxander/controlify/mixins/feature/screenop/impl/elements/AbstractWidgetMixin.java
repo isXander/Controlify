@@ -17,8 +17,10 @@ public class AbstractWidgetMixin {
                     value = "INVOKE",
                     //? if >=1.21.9 {
                     target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(Lnet/minecraft/client/input/MouseButtonEvent;Z)V"
-                    //?} else {
+                    //?} elif fabric {
                     /*target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(DD)V"
+                    *///?} else {
+                    /*target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(DDI)V"
                     *///?}
             )
     )
@@ -26,8 +28,10 @@ public class AbstractWidgetMixin {
             AbstractWidget instance,
             //? if >=1.21.9 {
             net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick
-            //?} else {
+            //?} elif fabric {
             /*double x, double y
+            *///?} else {
+            /*double x, double y, int button
             *///?}
     ) {
         Controlify controlify = Controlify.instance();
