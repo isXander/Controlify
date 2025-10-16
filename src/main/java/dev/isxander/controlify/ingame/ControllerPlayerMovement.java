@@ -20,6 +20,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
     private final ControllerEntity controller;
     private final LocalPlayer player;
     private boolean wasFlying, wasPassenger;
+    private boolean wasInScreen;
 
     public ControllerPlayerMovement(ControllerEntity controller, LocalPlayer player) {
         this.controller = controller;
@@ -32,7 +33,9 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
     //?} else {
     /*public void tick(boolean slowDown, float movementMultiplier) {
     *///?}
-        if (Minecraft.getInstance().screen != null || player == null) {
+        boolean inScreen = Minecraft.getInstance().screen != null;
+        
+        if (inScreen || player == null) {
             this.setMoveVec(0, 0);
 
             //? if >=1.21.2 {
@@ -46,6 +49,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
             this.shiftKeyDown = false;
             *///?}
 
+            this.wasInScreen = true;
             return;
         }
 
@@ -95,13 +99,16 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
             if (!sneak.digitalNow())
                 shiftKeyDown = false;
         } else {
-            if (sneak.justPressed()) {
+            // Only toggle if we're not just coming out of a screen
+            if (sneak.justPressed() && !this.wasInScreen) {
                 shiftKeyDown = !shiftKeyDown;
             }
         }
         if ((!player.getAbilities().flying && wasFlying && player.onGround()) || (!player.isPassenger() && wasPassenger)) {
             shiftKeyDown = false;
         }
+
+        this.wasInScreen = false;
 
         //? if >=1.21.2 {
         boolean sprinting = ControlifyBindings.SPRINT.on(controller).digitalNow();
