@@ -6,8 +6,8 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.layout.AnchorPoint;
-import dev.isxander.controlify.gui.layout.PositionedComponent;
+//import dev.isxander.controlify.gui.layout.AnchorPoint;
+//import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -32,7 +32,7 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.CommonComponents;
+//import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -57,7 +57,7 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = CUtil.rl("empty_action");
@@ -427,8 +427,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public class ActionSelectList implements Renderable, ContainerEventHandler, NarratableEntry, ComponentProcessor {
         private final int radialIndex;
 
-        private int x, y;
-        private int width, height;
+        private final int x, y;
+        private final int width, height;
         private final int itemHeight = 10;
         private int scrollOffset;
 
