@@ -309,6 +309,7 @@
   "controlify.binding.controlify.radial_axis_down": "Radial Menu Down",
   "controlify.binding.controlify.radial_axis_left": "Radial Menu Left",
   "controlify.binding.controlify.radial_axis_right": "Radial Menu Right",
+  "controlify.binding.controlify.radial_send_key": "Radial Menu Send Key",
   "controlify.binding.controlify.game_mode_switcher": "Game Mode Switcher",
   "controlify.binding.controlify.vmouse_move_up": "VMouse Move Up",
   "controlify.binding.controlify.vmouse_move_down": "VMouse Move Down",
