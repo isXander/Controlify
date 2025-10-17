@@ -19,7 +19,6 @@ import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -32,9 +31,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
-//? if >= 1.21.9 && neoforge {
-//import net.minecraft.client.input.KeyEvent;
-//?}
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -42,11 +38,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 //? if neoforge {
-/*import net.neoforged.neoforge.client.event.InputEvent;
+/*import net.minecraft.client.KeyMapping;
+import org.lwjgl.glfw.GLFW;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
+
+//? if >= 1.21.9 {
+//import net.minecraft.client.input.KeyEvent;
+//?}
+
+//? if < 1.21.4 {
+//import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
+//?}
+
 *///?}
 
 import java.util.ArrayList;
@@ -149,25 +155,30 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 onClose();
 
                 if (selectedButton != -1) {
-                    NeoForge.EVENT_BUS.post(
-                        new InputEvent.Key(
-                                //? if >= 1.21.9 {
-                                new KeyEvent(KeyMapping.ALL.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(), 0, 0),
-                                GLFW.GLFW_PRESS
-                                //?} elif >= 1.21.4 {
-                                //KeyMapping.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(),
-                                //0,
-                                //GLFW.GLFW_PRESS,
-                                //0
-                                //?} else {
-                                //KeyMapping.ALL.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(),
-                                //0,
-                                //GLFW.GLFW_PRESS,
-                                //0
-                                //?}
-                        )
-                    );
-                    playClickSound();
+                    @Nullable KeyMapping km =
+                        //? if >= 1.21.4 {
+                        KeyMapping
+                        //?} else {
+                        //KeyMappingAccessor.getAll()
+                        //?}
+                            .get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath());
+
+                    if (km != null) {
+                        NeoForge.EVENT_BUS.post(
+                            new InputEvent.Key(
+                                    //? if >= 1.21.9 {
+                                    new KeyEvent(km.getKey().getValue(), 0, 0),
+                                    GLFW.GLFW_PRESS
+                                    //?} else {
+                                    //km.getKey().getValue(),
+                                    //0,
+                                    //GLFW.GLFW_PRESS,
+                                    //0
+                                    //?}
+                            )
+                        );
+                        playClickSound();
+                    }
                 }
             }
             *///?}
