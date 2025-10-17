@@ -2,3 +2,5 @@ accessWidener v1 named
 
 accessible class net/minecraft/client/gui/GuiGraphics$ScissorStack
 accessible method net/minecraft/client/gui/GuiGraphics$ScissorStack peek ()Lnet/minecraft/client/gui/navigation/ScreenRectangle;
+
+accessible field net/minecraft/client/KeyMapping ALL Ljava/util/Map;

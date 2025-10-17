@@ -19,6 +19,7 @@ import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -31,6 +32,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+//? if >= 1.21.9 && neoforge {
+//import net.minecraft.client.input.KeyEvent;
+//?}
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -38,6 +42,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
+
+//? if neoforge {
+/*import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.common.NeoForge;
+*///?}
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +119,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
         animation.play();
 
-        if (editMode != null) {
+//        if (editMode != null) {
 //            var exitGuide = addRenderableWidget(new PositionedComponent<>(
 //                    new GuideActionRenderer(
 //                            new GuideAction(
@@ -126,19 +136,49 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 //
 //            exitGuide.getComponent().updateName(null);
 //            exitGuide.updatePosition(width, height);
-        }
+//        }
     }
 
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
 
-        if (editMode == null && !openBind.digitalNow()) {
-            if (selectedButton != -1 && buttons[selectedButton].invoke()) {
-                playClickSound();
-            }
+        if (editMode == null) {
+            //? if neoforge {
+            /*if (ControlifyBindings.RADIAL_SEND_KEY.on(controller).justPressed()) {
+                onClose();
 
-            onClose();
+                if (selectedButton != -1) {
+                    NeoForge.EVENT_BUS.post(
+                        new InputEvent.Key(
+                                //? if >= 1.21.9 {
+                                new KeyEvent(KeyMapping.ALL.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(), 0, 0),
+                                GLFW.GLFW_PRESS
+                                //?} elif >= 1.21.4 {
+                                //KeyMapping.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(),
+                                //0,
+                                //GLFW.GLFW_PRESS,
+                                //0
+                                //?} else {
+                                //KeyMapping.ALL.get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath()).getKey().getValue(),
+                                //0,
+                                //GLFW.GLFW_PRESS,
+                                //0
+                                //?}
+                        )
+                    );
+                    playClickSound();
+                }
+            }
+            *///?}
+
+            if (!openBind.digitalNow()) {
+                if (selectedButton != -1 && buttons[selectedButton].invoke()) {
+                    playClickSound();
+                }
+
+                onClose();
+            }
         }
 
         if (editMode != null && ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
