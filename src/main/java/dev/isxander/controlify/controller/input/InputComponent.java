@@ -228,6 +228,10 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
         public boolean mixedInput = false;
 
+        //? if neoforge {
+        public boolean setKeysDownWithRadialEvent = true;
+        //?}
+
         public boolean keepDefaultBindings = false;
 
         public ResourceLocation[] radialActions = new ResourceLocation[8];

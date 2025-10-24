@@ -44,6 +44,10 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.api.distmarker.Dist;
 
 //? if >= 1.21.9 {
 //import net.minecraft.client.input.KeyEvent;
@@ -59,6 +63,9 @@ import java.util.ArrayList;
 import java.util.List;
 //import java.util.Optional;
 
+//? if neoforge {
+//@EventBusSubscriber(modid = "controlify",  bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+//?}
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = CUtil.rl("empty_action");
 
@@ -145,6 +152,25 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 //        }
     }
 
+    //? if neoforge {
+    /*private static KeyMapping keyToPress = null;
+    private static boolean setKeysDownWithRadialEvent = true;
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onKeyInputBefore(InputEvent.Key event) {
+        if (setKeysDownWithRadialEvent && keyToPress != null)
+            keyToPress.setDown(true);
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onKeyInputAfter(InputEvent.Key event) {
+        if (setKeysDownWithRadialEvent && keyToPress != null) {
+            keyToPress.setDown(false);
+            keyToPress = null;
+        }
+    }
+    *///?}
+
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
@@ -162,6 +188,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                         //KeyMappingAccessor.getAll()
                         //?}
                             .get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath());
+
+                    keyToPress = km;
+                    setKeysDownWithRadialEvent = controller.input().orElseThrow().confObj().setKeysDownWithRadialEvent;
 
                     if (km != null) {
                         NeoForge.EVENT_BUS.post(
