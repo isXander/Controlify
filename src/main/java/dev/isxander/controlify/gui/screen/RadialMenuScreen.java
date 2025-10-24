@@ -64,8 +64,12 @@ import java.util.List;
 //import java.util.Optional;
 
 //? if neoforge {
-//@EventBusSubscriber(modid = "controlify",  bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+/*//? if < 1.21.8 {
+@EventBusSubscriber(modid = "controlify", bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+//?} else {
+//@EventBusSubscriber(modid = "controlify", value = Dist.CLIENT)
 //?}
+*///?}
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final ResourceLocation EMPTY_ACTION = CUtil.rl("empty_action");
 

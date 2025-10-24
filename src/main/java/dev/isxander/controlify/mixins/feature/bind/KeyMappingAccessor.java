@@ -9,8 +9,10 @@ import java.util.Map;
 
 @Mixin(KeyMapping.class)
 public interface KeyMappingAccessor {
+    //? < 1.21.4 && neoforge {
     @Accessor("ALL")
     static Map<String, KeyMapping> getAll() {
         throw new NotImplementedException("Should be overwritten by Accessor");
     }
+    //?}
 }
