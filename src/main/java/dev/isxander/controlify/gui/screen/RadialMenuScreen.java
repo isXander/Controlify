@@ -162,15 +162,37 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onKeyInputBefore(InputEvent.Key event) {
-        if (setKeysDownWithRadialEvent && keyToPress != null)
-            keyToPress.setDown(true);
+        if (keyToPress != null) {
+            switch (event.getAction()) {
+                case GLFW.GLFW_PRESS:
+                    if (setKeysDownWithRadialEvent)
+                        keyToPress.setDown(true);
+                    break;
+                case GLFW.GLFW_RELEASE:
+                    if (setKeysDownWithRadialEvent)
+                        keyToPress.setDown(false);
+                    keyToPress = null;
+                    break;
+            }
+        }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onKeyInputAfter(InputEvent.Key event) {
-        if (setKeysDownWithRadialEvent && keyToPress != null) {
-            keyToPress.setDown(false);
-            keyToPress = null;
+        if (keyToPress != null) {
+            NeoForge.EVENT_BUS.post(
+                new InputEvent.Key(
+                        //? if >= 1.21.9 {
+                        new KeyEvent(keyToPress.getKey().getValue(), 0, 0),
+                        GLFW.GLFW_RELEASE
+                        //?} else {
+                        //keyToPress.getKey().getValue(),
+                        //0,
+                        //GLFW.GLFW_RELEASE,
+                        //0
+                        //?}
+                )
+            );
         }
     }
     *///?}
