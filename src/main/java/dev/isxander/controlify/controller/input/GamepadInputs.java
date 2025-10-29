@@ -79,22 +79,10 @@ public final class GamepadInputs {
             ))
     ));
 
-    public static Input getBind(ResourceLocation id) {
-        return switch (id.getPath().split("/")[0]) {
-            case "button" -> new ButtonInput(id);
-            case "axis" -> new AxisInput(id);
-            case "hat" -> throw new IllegalArgumentException("Gamepad does not have hat inputs.");
-            default -> throw new IllegalArgumentException("Unknown bind type: " + id);
-        };
-    }
-
     private static ResourceLocation button(String id) {
         return CUtil.rl("button/" + id);
     }
     private static ResourceLocation axis(String id) {
         return CUtil.rl("axis/" + id);
-    }
-    private static ResourceLocation hat(String id) {
-        return CUtil.rl("hat/" + id);
     }
 }

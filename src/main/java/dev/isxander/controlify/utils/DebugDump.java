@@ -4,7 +4,7 @@ import com.sun.jna.Platform;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
+import dev.isxander.controlify.driver.sdl.SdlNativesLoader;
 import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import net.minecraft.SharedConstants;
@@ -35,7 +35,7 @@ public class DebugDump {
     }
 
     private static void dumpClientDebug(IndentedStringBuilder dump) {
-        dump.line("SDL3 loaded: ", SDLNativesLoader.isLoaded());
+        dump.line("SDL3 loaded: ", SdlNativesLoader.isLoaded());
         dump.line("Platform: ", Platform.RESOURCE_PREFIX);
         dump.line();
 

@@ -19,4 +19,10 @@ public interface EventBuffer<T> {
         }
         return result;
     }
+
+    default void drainTo(EventSink<? super T> sink) {
+        for (T e; (e = poll()) != null; ) {
+            sink.accept(e);
+        }
+    }
 }

@@ -1,11 +1,13 @@
 package dev.isxander.controlify.input.action.gesture;
 
-import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.ToggleGestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -14,7 +16,7 @@ import java.util.Set;
  * <p>
  * This gesture supports {@link ChannelKind#LATCH}.
  */
-public final class ToggleGesture implements SerializableGesture<ToggleGesture> {
+public final class ToggleGesture implements GestureModifier {
     private final Gesture pulseGesture;
     private final PulseToToggleAcc pulseToToggleAcc;
 
@@ -32,6 +34,16 @@ public final class ToggleGesture implements SerializableGesture<ToggleGesture> {
     }
 
     @Override
+    public ChannelKind inputChannelKind() {
+        return ChannelKind.PULSE;
+    }
+
+    @Override
+    public Gesture baseGesture() {
+        return this.pulseGesture;
+    }
+
+    @Override
     public void onSignal(Signal signal, Accumulator acc) {
         this.pulseToToggleAcc.target = acc;
         this.pulseGesture.onSignal(signal, this.pulseToToggleAcc);
@@ -43,12 +55,10 @@ public final class ToggleGesture implements SerializableGesture<ToggleGesture> {
     }
 
     @Override
-    public Set<ResourceLocation> monitoredInputs() {
-        return this.pulseGesture.monitoredInputs();
-    }
-
-    public Gesture pulseGesture() {
-        return this.pulseGesture;
+    public GestureBuilder<?, ?> toBuilder() {
+        return new ToggleGestureBuilder(
+                Optional.of(this.baseGesture().toBuilder())
+        );
     }
 
     public static ToggleGesture ofTap(ResourceLocation input) {
@@ -66,15 +76,6 @@ public final class ToggleGesture implements SerializableGesture<ToggleGesture> {
         public void firePulse() {
             target.toggleLatch();
         }
-    }
-
-    public static final String GESTURE_ID = "toggle";
-    public static final MapCodec<ToggleGesture> MAP_CODEC =
-            Gesture.CODEC.fieldOf(GESTURE_ID).xmap(ToggleGesture::new, ToggleGesture::pulseGesture);
-
-    @Override
-    public GestureType<ToggleGesture> type() {
-        return GestureType.TOGGLE;
     }
 }
 

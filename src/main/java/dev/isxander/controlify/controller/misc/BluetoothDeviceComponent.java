@@ -1,5 +1,8 @@
 package dev.isxander.controlify.controller.misc;
 
+import dev.isxander.controlify.config.ValueInput;
+import dev.isxander.controlify.config.ValueOutput;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
@@ -24,6 +27,16 @@ public class BluetoothDeviceComponent implements ECSComponent, ConfigHolder<Blue
     }
 
     public static class Config implements ConfigClass {
-        public boolean dontShowWarningAgain = false;
+        public boolean dontShowWarningAgain;
+
+        @Override
+        public void load(ValueInput input, ControllerEntity controller) {
+            this.dontShowWarningAgain = input.readBooleanOr("dont_show_warning_again", false);
+        }
+
+        @Override
+        public void save(ValueOutput output, ControllerEntity controller) {
+            output.putBoolean("dont_show_warning_again", this.dontShowWarningAgain);
+        }
     }
 }

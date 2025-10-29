@@ -48,7 +48,10 @@ public class ControllerEntity extends ECSEntityImpl {
         this.setComponent(new ConfigImpl<>(GenericControllerConfig::new, GenericControllerConfig.class));
 
         driver.addComponents(this);
-        this.getAllComponents().values().forEach(ECSComponent::finalise);
+        this.getAllComponents().values().forEach(c -> {
+            c.finalise();
+
+        });
 
         logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(ResourceLocation::toString).collect(Collectors.joining(", ")));
     }

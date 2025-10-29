@@ -8,11 +8,14 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.function.Function;
 
 /**
- * An event stage in the input pipeline that applies a deadzone to axis movements.
- * The deadzone is determined by a supplier function that takes the axis as input.
+ * Applies deadzones to axis movements in the input pipeline.
  */
 public class DeadzoneStage implements UnaryEventStage<InputEvent> {
-    private final Function<ResourceLocation, Float> deadzoneSupplier;
+    private Function<ResourceLocation, Float> deadzoneSupplier;
+
+    public DeadzoneStage() {
+        this.deadzoneSupplier = axis -> 0.0f; // Default to no deadzone
+    }
 
     public DeadzoneStage(Function<ResourceLocation, Float> deadzoneSupplier) {
         this.deadzoneSupplier = deadzoneSupplier;
@@ -34,5 +37,9 @@ public class DeadzoneStage implements UnaryEventStage<InputEvent> {
         }
 
         downstream.accept(event);
+    }
+
+    public void setDeadzoneSupplier(Function<ResourceLocation, Float> deadzoneSupplier) {
+        this.deadzoneSupplier = deadzoneSupplier;
     }
 }

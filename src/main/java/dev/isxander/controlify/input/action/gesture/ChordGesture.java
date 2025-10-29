@@ -1,19 +1,16 @@
 package dev.isxander.controlify.input.action.gesture;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.ChordGestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -26,12 +23,12 @@ import java.util.stream.Collectors;
  * And enables the latch channel when all members are down,
  * and disables it when any member is released.
  */
-public class ChordGesture implements SerializableGesture<ChordGesture> {
+public class ChordGesture implements Gesture {
     private final List<Gesture> members;
-    private final Map<Gesture, MemberAccumulator> accumulators;
     private final long allLatchWindowNs;
     private final PulsePolicy pulsePolicy;
 
+    private final Map<Gesture, MemberAccumulator> accumulators;
     private long lastSignalTime, firstDown;
     private int downCount;
     private boolean hasAllBeenDown, ranOutOfTime;
@@ -78,16 +75,13 @@ public class ChordGesture implements SerializableGesture<ChordGesture> {
                 .collect(Collectors.toSet());
     }
 
-    private List<Gesture> members() {
-        return this.members;
-    }
-
-    private long allLatchWindowNs() {
-        return this.allLatchWindowNs;
-    }
-
-    private PulsePolicy pulsePolicy() {
-        return this.pulsePolicy;
+    @Override
+    public ChordGestureBuilder toBuilder() {
+        return new ChordGestureBuilder(
+                Optional.of(this.members.stream().<GestureBuilder<?, ?>>map(Gesture::toBuilder).toList()),
+                Optional.of(this.allLatchWindowNs),
+                Optional.of(this.pulsePolicy)
+        );
     }
 
     private class MemberAccumulator implements Accumulator {
@@ -160,19 +154,6 @@ public class ChordGesture implements SerializableGesture<ChordGesture> {
         }
 
         public static final Codec<PulsePolicy> CODEC = StringRepresentable.fromEnum(PulsePolicy::values);
-    }
-
-    public static final String GESTURE_ID = "chord";
-    public static final MapCodec<ChordGesture> MAP_CODEC = RecordCodecBuilder.<ChordGesture>create(instance -> instance.group(
-            Gesture.CODEC.listOf().fieldOf("members").forGetter(ChordGesture::members),
-            Codec.LONG.optionalFieldOf("all_latch_window_ns", 320L * 1_000L).forGetter(ChordGesture::allLatchWindowNs),
-            PulsePolicy.CODEC.optionalFieldOf("pulse_policy", PulsePolicy.ON_DOWN).forGetter(ChordGesture::pulsePolicy)
-    ).apply(instance, ChordGesture::new))
-            .fieldOf(GESTURE_ID);
-
-    @Override
-    public GestureType<ChordGesture> type() {
-        return GestureType.CHORD;
     }
 }
 

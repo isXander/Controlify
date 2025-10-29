@@ -1,11 +1,14 @@
 package dev.isxander.controlify.input.action.gesture;
 
-import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.TapGestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,7 +18,7 @@ import java.util.Set;
  *
  * @see Signal.Tapped
  */
-public record TapGesture(ResourceLocation input) implements SerializableGesture<TapGesture> {
+public record TapGesture(@NotNull ResourceLocation input) implements Gesture {
 
     @Override
     public boolean supports(ChannelKind channel) {
@@ -39,12 +42,10 @@ public record TapGesture(ResourceLocation input) implements SerializableGesture<
         return Set.of(input);
     }
 
-    public static final String GESTURE_ID = "tap";
-    public static final MapCodec<TapGesture> MAP_CODEC =
-            ResourceLocation.CODEC.fieldOf(GESTURE_ID).xmap(TapGesture::new, TapGesture::input);
-
     @Override
-    public GestureType<TapGesture> type() {
-        return GestureType.TAP;
+    public GestureBuilder<?, ?> toBuilder() {
+        return new TapGestureBuilder(
+                Optional.of(this.input())
+        );
     }
 }

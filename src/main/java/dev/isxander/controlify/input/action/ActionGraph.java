@@ -1,22 +1,30 @@
 package dev.isxander.controlify.input.action;
 
+import com.mojang.logging.LogUtils;
 import dev.isxander.controlify.input.pipeline.EventBuffer;
 import dev.isxander.controlify.input.pipeline.EventSink;
 import dev.isxander.controlify.input.pipeline.SimpleEventBuffer;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.*;
 
+/**
+ * The action graph is responsible for managing and updating the state of all actions.
+ * It processes incoming signals and updates the state of actions based on their gestures
+ * and the current context stack.
+ */
 public class ActionGraph implements EventSink<Signal> {
+    static final Logger LOGGER = LogUtils.getLogger();
 
     // Context ID -> Input ID -> Set of ActionImpl
     // the same compiled binding can be registered for multiple contexts and inputs
     // this allows for more efficient lookup when processing signals
     // and avoids the need to iterate over all bindings for each signal
     private final Map<ResourceLocation, Map<ResourceLocation, Set<ActionImpl>>> byCtxByInput = new HashMap<>();
-    private final Set<ActionImpl> allActions = new TreeSet<>(Comparator.comparingInt(a -> a.spec().priority()));
+    private final Set<ActionImpl> allActions = new TreeSet<>();
 
     private final SimpleEventBuffer<Signal> signalBuffer = new SimpleEventBuffer<>();
 
@@ -29,7 +37,7 @@ public class ActionGraph implements EventSink<Signal> {
                     .computeIfAbsent(contextId, k -> new HashMap<>());
             for (ResourceLocation inputId : action.gesture().monitoredInputs()) {
                 byInputMap
-                        .computeIfAbsent(inputId, k -> new TreeSet<>(Comparator.comparingInt(a -> a.spec().priority())))
+                        .computeIfAbsent(inputId, k -> new TreeSet<>())
                         .add(action);
             }
         }
@@ -37,14 +45,40 @@ public class ActionGraph implements EventSink<Signal> {
 
     @Override
     public void accept(Signal event) {
-        this.signalBuffer.accept(event);
+        if (event instanceof Signal.AxisMoved axisMoved) {
+            this.routeContinuous(axisMoved);
+        } else {
+            this.signalBuffer.accept(event);
+        }
 
         if (event instanceof Signal.Tick(long timeNanos)) {
             this.updateActionState(this.signalBuffer, timeNanos);
         }
     }
 
-    private void updateActionState(EventBuffer<Signal> signalDrain, long timeNanos) {
+    private void routeContinuous(Signal.AxisMoved event) {
+        ResourceLocation inputId = event.input();
+
+        // Gather candidate actions by current context precedence
+        for (Context context : this.contextStack.ordered()) {
+            Map<ResourceLocation, Set<ActionImpl>> byInputMap = this.byCtxByInput.get(context.id());
+            if (byInputMap == null) continue;
+
+            Set<ActionImpl> actions = byInputMap.get(inputId);
+            if (actions == null) continue;
+
+            for (ActionImpl action : actions) {
+                if (!action.spec().channelKind().isContinuous()) continue;
+
+                // Allow the gesture to process, but we only care about continuous writes here.
+                action.gesture().onSignal(event, action.state().continuousOnlyAccumulator());
+                // ^ expose an Accumulator variant that ignores pulse/latch calls, but accepts setContinuous.
+            }
+            // For continuous, do NOT consume globally; multiple actions may legitimately read the same axis.
+        }
+    }
+
+    private void updateActionState(EventBuffer<Signal> signalBuffer, long timeNanos) {
         var wrappedAcc = new GateProbeAcc();
 
         // first, reset the state of actions, such as signal firing,
@@ -52,7 +86,7 @@ public class ActionGraph implements EventSink<Signal> {
         this.allActions.forEach(a -> a.state().next());
 
         Signal signal;
-        while ((signal = signalDrain.poll()) != null) {
+        while ((signal = signalBuffer.poll()) != null) {
             boolean consumed = false;
 
             switch (signal) {
@@ -76,7 +110,7 @@ public class ActionGraph implements EventSink<Signal> {
 
                 case Signal.InputSignal inputSig -> {
                     ResourceLocation inputId = inputSig.input();
-                    Set<ResourceLocation> seenBindings = Collections.newSetFromMap(new IdentityHashMap<>());
+                    Set<ResourceLocation> seenBindings = new HashSet<>();
 
                     // loop through each priority-ordered context so we consume the signals
                     // as according to which context is most important
@@ -111,6 +145,8 @@ public class ActionGraph implements EventSink<Signal> {
                         }
                     }
                 }
+
+                case Signal.SensorData ignored -> {}
             }
         }
         this.allActions.forEach(s -> s.state().commit());
@@ -149,15 +185,16 @@ public class ActionGraph implements EventSink<Signal> {
         }
 
         @Override
-        public void setAxis(float value) {
+        public void setContinuous(float value) {
             if (this.target != null) {
-                this.target.setAxis(value);
+                this.target.setContinuous(value);
                 this.wrote = true;
             }
         }
 
         public void retarget(@Nullable Accumulator target) {
             this.target = target;
+            this.wrote = false;
         }
 
         public boolean wrote() {

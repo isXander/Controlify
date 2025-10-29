@@ -11,7 +11,6 @@ import dev.isxander.controlify.api.guide.InGameCtx;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
@@ -23,7 +22,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
+import dev.isxander.controlify.driver.sdl.SdlNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
@@ -31,6 +30,7 @@ import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.input.action.gesture.DefaultGestureManager;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
@@ -79,7 +79,7 @@ public class Controlify implements ControlifyApi {
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
     private InputFontMapper inputFontMapper;
-    private DefaultBindManager defaultBindManager;
+    private DefaultGestureManager defaultGestureManager;
     private ControllerTypeManager controllerTypeManager;
     private KeyboardLayoutManager keyboardLayoutManager;
     private Set<BindContext> thisTickContexts;
@@ -115,11 +115,11 @@ public class Controlify implements ControlifyApi {
         }
 
         this.inputFontMapper = new InputFontMapper();
-        this.defaultBindManager = new DefaultBindManager();
+        this.defaultGestureManager = new DefaultGestureManager();
         this.controllerTypeManager = new ControllerTypeManager();
         this.keyboardLayoutManager = new KeyboardLayoutManager();
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
-        PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
+        PlatformClientUtil.registerAssetReloadListener(defaultGestureManager);
         PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
         PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
@@ -220,7 +220,7 @@ public class Controlify implements ControlifyApi {
                     ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
                 }));
 
-        boolean loadedSDL = SDLNativesLoader.tryLoad();
+        boolean loadedSDL = SdlNativesLoader.tryLoad();
         try {
             controllerManager = loadedSDL ? new SDLControllerManager(CUtil.LOGGER) : new GLFWControllerManager(CUtil.LOGGER);
         } catch (Throwable throwable) {
@@ -677,8 +677,8 @@ public class Controlify implements ControlifyApi {
         return inputFontMapper;
     }
 
-    public DefaultBindManager defaultBindManager() {
-        return defaultBindManager;
+    public DefaultGestureManager defaultGestureManager() {
+        return defaultGestureManager;
     }
 
     public ControllerTypeManager controllerTypeManager() {

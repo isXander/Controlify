@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.input.action.ActionHandle;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
@@ -49,10 +50,10 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
             return;
         }
 
-        float forwardImpulse = ControlifyBindings.WALK_FORWARD.on(controller).analogueNow()
-                - ControlifyBindings.WALK_BACKWARD.on(controller).analogueNow();
-        float leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).analogueNow()
-                - ControlifyBindings.WALK_RIGHT.on(controller).analogueNow();
+        float forwardImpulse = ControlifyBindings.WALK_FORWARD.on(controller).getContinuous()
+                - ControlifyBindings.WALK_BACKWARD.on(controller).getContinuous();
+        float leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).getContinuous()
+                - ControlifyBindings.WALK_RIGHT.on(controller).getContinuous();
 
         if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
             float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
@@ -81,21 +82,15 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
         *///?}
         this.setMoveVec(forwardImpulse, leftImpulse);
 
-        // this over-complication is so exiting a GUI with the button still held doesn't trigger a jump.
-        InputBinding jump = ControlifyBindings.JUMP.on(controller);
-        if (jump.justPressed())
-            jumping = true;
-        if (!jump.digitalNow())
-            jumping = false;
+        jumping = ControlifyBindings.JUMP.on(controller).isLatchActive();
 
-        InputBinding sneak = ControlifyBindings.SNEAK.on(controller);
-        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.genericConfig().config().toggleSneak) {
-            if (sneak.justPressed())
-                shiftKeyDown = true;
-            if (!sneak.digitalNow())
-                shiftKeyDown = false;
+        boolean sneakActionLatch = ControlifyBindings.SNEAK.on(controller).isLatchActive();
+        boolean toggleSneak = controller.genericConfig().config().toggleSneak;
+        boolean canSneak = player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null;
+        if (canSneak || !toggleSneak) {
+            shiftKeyDown = sneakActionLatch;
         } else {
-            if (sneak.justPressed()) {
+            if (sneakActionLatch) {  // TODO: this won't work - need to check for just pressed on a latch which doesn't make sense
                 shiftKeyDown = !shiftKeyDown;
             }
         }

@@ -1,14 +1,17 @@
 package dev.isxander.controlify.input.action;
 
-public final class ActionState implements Accumulator, Channel.Continuous, Channel.Pulse, Channel.Latch {
-    private boolean pulseFiring = false;
+/**
+ * The mutable state of an action.
+ */
+final class ActionState implements Accumulator, Channel.Continuous, Channel.Pulse, Channel.Latch {
+    private int pulses = 0;
     private boolean latchActive = false;
     private float axisValue = Float.NaN;
 
     private boolean frozen = false;
 
     @Override
-    public float value() {
+    public float getContinuous() {
         return this.axisValue;
     }
 
@@ -18,14 +21,18 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
     }
 
     @Override
-    public boolean isPulseFiring() {
-        return this.pulseFiring;
+    public boolean consumePulse() {
+        if (this.pulses > 0) {
+            this.pulses--;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void firePulse() {
         this.checkFrozen();
-        this.pulseFiring = true;
+        this.pulses++;
     }
 
     @Override
@@ -41,20 +48,41 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
     }
 
     @Override
-    public void setAxis(float value) {
-        this.checkFrozen();
+    public void setContinuous(float value) {
+        // Do not check frozen for continuous values; they can be updated every frame
         this.axisValue = value;
     }
 
     void next() {
         this.frozen = false;
-        // intentionally don't reset latch state since it is persistent
-        this.pulseFiring = false;
-        this.axisValue = Float.NaN;
     }
 
     void commit() {
         this.frozen = true;
+    }
+
+    Accumulator continuousOnlyAccumulator() {
+        return new Accumulator() {
+            @Override
+            public void setContinuous(float value) {
+                ActionState.this.setContinuous(value);
+            }
+
+            @Override
+            public void firePulse() {
+                ActionGraph.LOGGER.error("Attempted to fire pulse on continuous-only accumulator");
+            }
+
+            @Override
+            public void setLatch(boolean active) {
+                ActionGraph.LOGGER.error("Attempted to set latch on continuous accumulator");
+            }
+
+            @Override
+            public void toggleLatch() {
+                ActionGraph.LOGGER.error("Attempted to toggle latch on continuous accumulator");
+            }
+        };
     }
 
     private void checkFrozen() {

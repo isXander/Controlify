@@ -11,6 +11,8 @@ public interface Action {
     Channel.Continuous continuousChannel();
 
     boolean isUnbound();
+    boolean isDefaultBound();
+    void resetToDefaultBinding();
 
     Component gestureGlyph();
 

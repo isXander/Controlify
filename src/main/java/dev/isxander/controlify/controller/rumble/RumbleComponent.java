@@ -1,5 +1,10 @@
 package dev.isxander.controlify.controller.rumble;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Keyable;
+import dev.isxander.controlify.config.ValueInput;
+import dev.isxander.controlify.config.ValueOutput;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
@@ -53,9 +58,26 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
     }
 
     public static class Config implements ConfigClass {
-        public boolean enabled = true;
+        public boolean enabled;
+        public Map<ResourceLocation, Float> vibrationStrengths;
 
-        public Map<ResourceLocation, Float> vibrationStrengths = RumbleSource.getDefaultMap();
+        private static final Codec<Map<ResourceLocation, Float>> vibrationStrengthsCodec = Codec.simpleMap(
+                ResourceLocation.CODEC,
+                Codec.FLOAT,
+                Keyable.forStrings(() -> RumbleSource.values().stream().map(s -> s.id().toString()))
+        ).codec();
+
+        @Override
+        public void save(ValueOutput output, ControllerEntity controller) {
+            output.putBoolean("enabled", enabled);
+            output.put("strengths", vibrationStrengthsCodec, vibrationStrengths);
+        }
+
+        @Override
+        public void load(ValueInput input, ControllerEntity controller) {
+            this.enabled = input.readBooleanOr("enabled", true);
+            this.vibrationStrengths = input.readOr("strengths", vibrationStrengthsCodec, RumbleSource.getDefaultMap());
+        }
 
         public RumbleState applyRumbleStrength(RumbleState state, RumbleSource source) {
             float strength = this.getStrength(source);

@@ -1,6 +1,9 @@
 package dev.isxander.controlify.controller.haptic;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
+import dev.isxander.controlify.config.ValueInput;
+import dev.isxander.controlify.config.ValueOutput;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
@@ -108,5 +111,15 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
 
     public static class Config implements ConfigClass {
         public boolean enabled = true;
+
+        @Override
+        public void load(ValueInput input, ControllerEntity controller) {
+            this.enabled = input.readBooleanOr("enabled", true);
+        }
+
+        @Override
+        public void save(ValueOutput output, ControllerEntity controller) {
+            output.putBoolean("enabled", this.enabled);
+        }
     }
 }

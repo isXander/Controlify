@@ -1,12 +1,13 @@
 package dev.isxander.controlify.input.action.gesture;
 
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.DoubleTapGestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Set;
  *
  * @see Signal.DoubleTapped
  */
-public record DoubleTapGesture(ResourceLocation input) implements SerializableGesture<DoubleTapGesture> {
+public record DoubleTapGesture(ResourceLocation input) implements Gesture {
     @Override
     public boolean supports(ChannelKind channel) {
         return channel.isPulse();
@@ -37,12 +38,10 @@ public record DoubleTapGesture(ResourceLocation input) implements SerializableGe
         return Set.of(input);
     }
 
-    public static final String GESTURE_ID = "double_tap";
-    public static final MapCodec<DoubleTapGesture> MAP_CODEC =
-            ResourceLocation.CODEC.fieldOf(GESTURE_ID).xmap(DoubleTapGesture::new, DoubleTapGesture::input);
-
     @Override
-    public GestureType<DoubleTapGesture> type() {
-        return GestureType.DOUBLE_TAP;
+    public GestureBuilder<?, ?> toBuilder() {
+        return new DoubleTapGestureBuilder(
+                Optional.of(this.input())
+        );
     }
 }

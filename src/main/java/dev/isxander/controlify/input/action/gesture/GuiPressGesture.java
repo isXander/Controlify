@@ -1,11 +1,13 @@
 package dev.isxander.controlify.input.action.gesture;
 
-import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.GuiPressGestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,7 +17,7 @@ import java.util.Set;
  *
  * @see Signal.GuiPress
  */
-public record GuiPressGesture(ResourceLocation input) implements SerializableGesture<GuiPressGesture> {
+public record GuiPressGesture(ResourceLocation input) implements Gesture {
 
     @Override
     public boolean supports(ChannelKind channel) {
@@ -39,13 +41,11 @@ public record GuiPressGesture(ResourceLocation input) implements SerializableGes
         return Set.of(input);
     }
 
-    public static final String GESTURE_ID = "gui_press";
-    public static final MapCodec<GuiPressGesture> MAP_CODEC =
-            ResourceLocation.CODEC.fieldOf(GESTURE_ID).xmap(GuiPressGesture::new, GuiPressGesture::input);
-
     @Override
-    public GestureType<GuiPressGesture> type() {
-        return GestureType.GUI_PRESS;
+    public GestureBuilder<?, ?> toBuilder() {
+        return new GuiPressGestureBuilder(
+                Optional.of(this.input())
+        );
     }
 }
 

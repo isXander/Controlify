@@ -2,7 +2,6 @@ package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.id.ControllerType;
@@ -10,20 +9,19 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.CompoundDriver;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.driver.sdl.SDL3GamepadDriver;
-import dev.isxander.controlify.driver.sdl.SDL3JoystickDriver;
-import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
-import dev.isxander.controlify.driver.sdl.SDLUtil;
+import dev.isxander.controlify.driver.sdl.*;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.input.pipeline.EventBus;
+import dev.isxander.controlify.input.pipeline.EventSource;
+import dev.isxander.controlify.input.pipeline.SynchronousEventBus;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
-import dev.isxander.sdl3java.api.events.SDL_EventFilter;
-import dev.isxander.sdl3java.api.events.events.SDL_Event;
+import dev.isxander.sdl3java.api.events.SdlEventTypes;
 import dev.isxander.sdl3java.api.gamepad.SDL_Gamepad;
 import dev.isxander.sdl3java.api.iostream.SDL_IOStream;
 import dev.isxander.sdl3java.api.joystick.SDL_Joystick;
@@ -47,22 +45,23 @@ import static dev.isxander.sdl3java.api.joystick.SdlJoystick.*;
 
 public class SDLControllerManager extends AbstractControllerManager {
 
-    private SDL_Event event = new SDL_Event();
-
-    // must keep a reference to prevent GC from collecting it and the callback failing
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final EventFilter eventFilter;
+    private SdlEventTypes.SDL_Event event;
+    private final EventBus<SdlEventTypes.SDL_Event> eventBus;
+    private final EventSource<SdlControllerEvent> controllerEventSource;
 
     private boolean steamDeckConsumed = false;
 
     public SDLControllerManager(ControlifyLogger logger) {
         super(logger);
         logger.debugLog("Controller manager using SDL3");
-        logger.validateIsTrue(SDLNativesLoader.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
-
-        SDL_SetEventFilter(eventFilter = new EventFilter(), Pointer.NULL);
+        logger.validateIsTrue(SdlNativesLoader.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
+        this.event = new SdlEventTypes.SDL_Event();
+        this.eventBus = SynchronousEventBus.createForFirstThread();
+        this.controllerEventSource = this.eventBus.via(new SdlControllerEvent.AbstractionStage());
+        this.controllerEventSource.subscribe(this::onSDLEvent);
     }
 
+    // call this instead on RenderSystem#pollEvents to get frame-synced controller events
     @Override
     public void tick(boolean outOfFocus) {
         super.tick(outOfFocus);
@@ -71,48 +70,50 @@ public class SDLControllerManager extends AbstractControllerManager {
 
         if (event == null) {
             logger.error("SDL_Event has somehow been set to null. Recreating...");
-            event = new SDL_Event();
+            event = new SdlEventTypes.SDL_Event();
         }
 
-        while (SDL_PollEvent(event)) {
-            switch (event.type) {
-                // On added, `which` refers to the device index
-                case SDL_EVENT_JOYSTICK_ADDED -> {
-                    SDL_JoystickID jid = event.jdevice.which;
-                    logger.validateIsTrue(jid != null, "event.jdevice.which was null during SDL_EVENT_JOYSTICK_ADDED event");
-
-                    logger.debugLog("SDL event: Joystick added: {}", jid.intValue());
-
-                    UniqueControllerID ucid = new SDLUniqueControllerID(jid);
-
-                    Optional<ControllerEntity> controllerOpt = tryCreate(
-                            ucid,
-                            fetchTypeFromSDL(jid)
-                                    .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty()))
-                    );
-                    controllerOpt.ifPresent(controller -> {
-                        ControllerUtils.wrapControllerError(() -> onControllerConnected(controller, true), "Connecting controller", controller);
-                    });
-                }
-
-                // On removed, `which` refers to the device instance ID
-                case SDL_EVENT_JOYSTICK_REMOVED -> {
-                    SDL_JoystickID jid = event.jdevice.which;
-                    logger.validateIsTrue(jid != null, "event.jdevice.which was null during SDL_EVENT_JOYSTICK_REMOVED event");
-
-                    logger.debugLog("SDL event: Joystick removed: {}", jid.intValue());
-
-                    getController(new SDLUniqueControllerID(jid))
-                            .ifPresentOrElse(
-                                    this::onControllerRemoved,
-                                    () -> CUtil.LOGGER.warn("Controller removed but not found: {}", jid.intValue())
-                            );
-                }
-            }
+        while (SDL_PollEvent(this.event)) {
+            this.event.read(); // ensure the event structure is up to date
+            // this bus must be synchronous
+            this.eventBus.accept(this.event);
         }
 
         SDL_UpdateGamepads();
         SDL_UpdateJoysticks();
+    }
+
+    protected void onSDLEvent(SdlControllerEvent event) {
+        switch (event) {
+            case SdlControllerEvent.JoyDevice d when d.type() == SdlControllerEvent.JoyDevice.Type.ADDED -> {
+                logger.debugLog("SDL event: Joystick added: {}", d.which());
+
+                UniqueControllerID ucid = new SDLUniqueControllerID(d.which());
+
+                Optional<ControllerEntity> controllerOpt = tryCreate(
+                        ucid,
+                        fetchTypeFromSDL(d.which())
+                                .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty()))
+                );
+                controllerOpt.ifPresent(controller -> {
+                    ControllerUtils.wrapControllerError(() -> onControllerConnected(controller, true), "Connecting controller", controller);
+                });
+            }
+
+            case SdlControllerEvent.JoyDevice d when d.type() == SdlControllerEvent.DeviceEvent.Type.REMOVED -> {
+                logger.debugLog("SDL event: Joystick removed: {}", d.which());
+
+                UniqueControllerID ucid = new SDLUniqueControllerID(d.which());
+
+                getController(ucid)
+                        .ifPresentOrElse(
+                                this::onControllerRemoved,
+                                () -> logger.warn("Controller removed but not found: {}", d.which())
+                        );
+            }
+
+            default -> {}
+        }
     }
 
     @Override
@@ -152,12 +153,16 @@ public class SDLControllerManager extends AbstractControllerManager {
             }
         }
 
+        // filter the event source
+        EventSource<SdlControllerEvent> eventSource = this.controllerEventSource
+                .filter(e -> e.which().equals(jid));
+
         if (isGamepad) {
-            SDL_Gamepad ptrGamepad = SDLUtil.openGamepad(jid);
-            drivers.add(new SDL3GamepadDriver(ptrGamepad, jid, hidInfo.type(), controllerLogger));
+            SDL_Gamepad ptrGamepad = SdlUtil.openGamepad(jid);
+            drivers.add(new SdlGamepadDriver(ptrGamepad, jid, hidInfo.type(), eventSource, controllerLogger));
         } else {
-            SDL_Joystick ptrJoystick = SDLUtil.openJoystick(jid);
-            drivers.add(new SDL3JoystickDriver(ptrJoystick, jid, hidInfo.type(), controllerLogger));
+            SDL_Joystick ptrJoystick = SdlUtil.openJoystick(jid);
+            drivers.add(new SdlJoystickDriver(ptrJoystick, jid, hidInfo.type(), eventSource, controllerLogger));
         }
 
         controllerLogger.debugLog("Drivers: {}", drivers.stream().map(driver -> driver.getClass().getSimpleName()).collect(Collectors.joining(", ")));
@@ -259,19 +264,6 @@ public class SDLControllerManager extends AbstractControllerManager {
         @Override
         public int hashCode() {
             return Objects.hash(jid.longValue());
-        }
-    }
-
-    private static class EventFilter implements SDL_EventFilter {
-        @Override
-        public boolean filterEvent(Pointer userdata, SDL_Event event) {
-            switch (event.type) {
-                case SDL_EVENT_JOYSTICK_ADDED:
-                case SDL_EVENT_JOYSTICK_REMOVED:
-                    return true;
-                default:
-                    return false;
-            }
         }
     }
 }

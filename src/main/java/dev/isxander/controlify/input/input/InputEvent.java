@@ -7,13 +7,35 @@ import net.minecraft.resources.ResourceLocation;
  * Input events are the raw events that come from a controller.
  */
 public sealed interface InputEvent {
-    long timeNanos();
+    /**
+     * The time of the event in nanoseconds.
+     */
+    long timestamp();
 
-    /** Called once per frame */
-    record Tick(long timeNanos) implements InputEvent {}
+    /**
+     * The input identifier, represented as a ResourceLocation.
+     * @return the input identifier
+     */
+    ResourceLocation input();
 
-    record ButtonPress(long timeNanos, ResourceLocation input) implements InputEvent {}
-    record ButtonRelease(long timeNanos, ResourceLocation input) implements InputEvent {}
+    /**
+     * Represents a button press/release event.
+     * @param timestamp the time of the event in nanoseconds.
+     * @param input the input identifier, represented as a ResourceLocation.
+     * @param state the state of the button, where true indicates pressed and false indicates released.
+     * @see dev.isxander.controlify.controller.input.GamepadInputs
+     * @see dev.isxander.controlify.controller.input.JoystickInputs
+     */
+    record ButtonChanged(long timestamp, ResourceLocation input, boolean state) implements InputEvent {}
 
-    record AxisMoved(long timeNanos, ResourceLocation input, float value) implements InputEvent {}
+    /**
+     * Represents an axis movement event.
+     * @param timestamp the time of the event in nanoseconds.
+     * @param input the input identifier, represented as a ResourceLocation.
+     * @param value the value of the axis, *always* in the range [0.0, 1.0].
+     * @see dev.isxander.controlify.controller.input.GamepadInputs
+     * @see dev.isxander.controlify.controller.input.JoystickInputs
+     */
+    record AxisMoved(long timestamp, ResourceLocation input, float value) implements InputEvent {}
+
 }

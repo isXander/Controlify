@@ -3,46 +3,36 @@ package dev.isxander.controlify.controller.input;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.stream.IntStream;
+
 public final class JoystickInputs {
-    private static final ResourceLocation[] BUTTONS = new ResourceLocation[256];
-    private static final ResourceLocation[] AXES = new ResourceLocation[512];
-    private static final ResourceLocation[] HATS = new ResourceLocation[256];
+    private static final ResourceLocation[] BUTTONS = IntStream.range(0, 64)
+            .mapToObj(i -> CUtil.rl("button/" + i))
+            .toArray(ResourceLocation[]::new);
+    private static final ResourceLocation[] AXES = IntStream.range(0, 128)
+            .mapToObj(i -> {
+                // least significant bit is sign bit
+                boolean isPositive = (i & 1) == 0;
+                int axisIndex = i >> 1;
+                return CUtil.rl("axis/" + axisIndex + "/" + (isPositive ? "positive" : "negative"));
+            })
+            .toArray(ResourceLocation[]::new);
+    private static final ResourceLocation[] HATS = IntStream.range(0, 64)
+            .mapToObj(i -> CUtil.rl("hat/" + i))
+            .toArray(ResourceLocation[]::new);
 
     private JoystickInputs() {
     }
 
     public static ResourceLocation button(int index) {
-        ResourceLocation cache = BUTTONS[index];
-
-        if (cache == null) {
-            BUTTONS[index] = cache = CUtil.rl("button/" + index);
-        }
-
-        return cache;
+        return BUTTONS[index];
     }
 
     public static ResourceLocation axis(int index, boolean positive) {
-        int cacheIndex = index;
-        if (!positive) {
-            cacheIndex += 256;
-        }
-
-        ResourceLocation cache = AXES[cacheIndex];
-
-        if (cache == null) {
-            AXES[cacheIndex] = cache = CUtil.rl("axis/" + index + "/" + (positive ? "positive" : "negative"));
-        }
-
-        return cache;
+        return AXES[(index << 1) | (positive ? 0 : 1)];
     }
 
     public static ResourceLocation hat(int index) {
-        ResourceLocation cache = HATS[index];
-
-        if (cache == null) {
-            HATS[index] = cache = CUtil.rl("hat/" + index);
-        }
-
-        return cache;
+        return HATS[index];
     }
 }

@@ -1,13 +1,13 @@
 package dev.isxander.controlify.input.action.gesture;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.input.action.Accumulator;
 import dev.isxander.controlify.input.action.ChannelKind;
-import dev.isxander.controlify.input.signal.Signal;
+import dev.isxander.controlify.input.action.gesture.builder.GestureBuilder;
+import dev.isxander.controlify.input.action.gesture.builder.LatchRepeatPulseGestureBuilder;
+import dev.isxander.controlify.input.input.Signal;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -15,7 +15,7 @@ import java.util.Set;
  * <p>
  * This gesture supports {@link ChannelKind#PULSE}.
  */
-public class LatchRepeatPulseGesture implements SerializableGesture<LatchRepeatPulseGesture> {
+public class LatchRepeatPulseGesture implements GestureModifier {
     private final Gesture latchGesture;
     private final long initialDelayNs, repeatDelayNs;
     private final HoldRepeatAccumulator holdRepeatAccumulator;
@@ -39,6 +39,16 @@ public class LatchRepeatPulseGesture implements SerializableGesture<LatchRepeatP
     }
 
     @Override
+    public Gesture baseGesture() {
+        return this.latchGesture;
+    }
+
+    @Override
+    public ChannelKind inputChannelKind() {
+        return ChannelKind.LATCH;
+    }
+
+    @Override
     public void onSignal(Signal signal, Accumulator acc) {
         this.holdRepeatAccumulator.target = acc;
         this.holdRepeatAccumulator.time = signal.timeNanos();
@@ -59,12 +69,12 @@ public class LatchRepeatPulseGesture implements SerializableGesture<LatchRepeatP
     }
 
     @Override
-    public Set<ResourceLocation> monitoredInputs() {
-        return latchGesture.monitoredInputs();
-    }
-
-    public Gesture latchGesture() {
-        return this.latchGesture;
+    public GestureBuilder<?, ?> toBuilder() {
+        return new LatchRepeatPulseGestureBuilder(
+                Optional.of(this.baseGesture().toBuilder()),
+                Optional.of(this.initialDelayNs()),
+                Optional.of(this.repeatDelayNs())
+        );
     }
 
     public long initialDelayNs() {
@@ -103,19 +113,6 @@ public class LatchRepeatPulseGesture implements SerializableGesture<LatchRepeatP
         public void toggleLatch() {
             this.setLatch(!down);
         }
-    }
-
-    public static final String GESTURE_ID = "latch_repeat_pulse";
-    public static final MapCodec<LatchRepeatPulseGesture> MAP_CODEC = RecordCodecBuilder.<LatchRepeatPulseGesture>create(instance -> instance.group(
-            Gesture.CODEC.fieldOf("latch").forGetter(LatchRepeatPulseGesture::latchGesture),
-            Codec.LONG.fieldOf("initial_delay_ns").forGetter(LatchRepeatPulseGesture::initialDelayNs),
-            Codec.LONG.fieldOf("repeat_delay_ns").forGetter(LatchRepeatPulseGesture::repeatDelayNs)
-    ).apply(instance, LatchRepeatPulseGesture::new))
-            .fieldOf(GESTURE_ID);
-
-    @Override
-    public GestureType<LatchRepeatPulseGesture> type() {
-        return GestureType.LATCH_REPEAT_PULSE;
     }
 }
 
