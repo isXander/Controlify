@@ -409,7 +409,7 @@ public final class ControlifyBindings {
                         .name(Component.translatable(keyMapping.getName()))
                         .description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
                         .category(/*? if >=1.21.9 {*/ keyMapping.getCategory().label() /*?} else {*/ /*Component.translatable(keyMapping.getCategory()) *//*?}*/)
-                        .radialCandidate(RadialIcons.FABRIC_ICON)
+                        .radialCandidate(RadialIcons.getModLoaderIcon())
                         .allowedContexts(BindContext.IN_GAME)
                         .keyEmulation(keyMapping));
 
