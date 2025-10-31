@@ -11,3 +11,4 @@ This version has the following targets:
 
 - Fix the temporarily disabling of the enhanced steam deck driver causing a Decky popup
 - Fix crash on some NeoForge targets due to NeoForge patching vanilla methods like a good mod loader
+- Fix missing texture on custom radial menu icons on NeoForge
