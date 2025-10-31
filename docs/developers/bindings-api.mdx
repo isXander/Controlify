@@ -7,40 +7,46 @@ _Learn how to register new controller bindings._
 ## Registering a custom input binding
 
 <Callout variant="info">
-    You should register bindings inside of the Controlify init entrypoint. Read more in [Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
+    The custom input bindings must be registered inside the Controlify pre-init entrypoint. Read more in [Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
 </Callout>
 
 Controlify allows users to configure different buttons on their controllers to actions in-game. You may want your own mod's actions to be able to be invoked from the controller too.
 
-To register a controller binding, you must use the `ControllerBindingsApi.`
+To register a controller binding, use the `ControllerBindingsApi.get()` method:
 
 ```java
-private BindingSupplier action1Binding;
+private InputBindingSupplier actionBinding;
 
 @Override
 public void onControlifyInit(InitContext ctx) {
-    action1Binding = ctx.bindings().registerBinding(
+    final ControlifyBindApi registrar = ControlifyBindApi.get();
+    registerInputBindings(registrar);
+}
+
+private void registerInputBindings(ControlifyBindApi registrar) {
+    actionBinding = registrar.registerBinding(
             builder -> builder
-                    .id("mymod", "action1") // the id of the binding, this should be unique to your mod
-                    .category(Component.translatable("mymod.binding.category")) // the category of the binding, this is used to group bindings together in the settings
-                    .allowedContexts(BindContext.IN_GAME) // a context is where the binding can be used, you can use multiple contexts
-                    .radialCandiate(RadialIcons.getEffect/getIcon(...)) // if you want to allow your binding to be used in the radial menu
+                    .id(ResourceLocation.fromNamespaceAndPath(MyMod.MODID, path))
+                    // The category of the binding, this is used to group bindings together in the settings.
+                    .category(Component.translatable("mymod.binding.category"))
+                    // A context is where the binding can be used. Multiple contexts can be used.
+                    .allowedContexts(BindContext.IN_GAME)
+                    // Allow using the binding in the radial menu.
+                    // You can't use a custom modded item directly in here, since it's not registered yet
+                    // and a runtime error will be thrown. Continue reading for a better alternative.
+                    .radialCandidate(RadialIcons.getItem(Items.BARRIER)))
+                    // Prevents Controlify from auto-registering controller bindings for Epic Fight's
+                    // vanilla key mappings due explicit native support.
+                    // You could also use ".keyEmulation(MyModKeyMappings.ACTION) to emulates
+                    // the vanilla KeyMapping behavior, which may not always work well.
+                    .addKeyCorrelation(MyModKeyMappings.ACTION)
     );
 }
 ```
 
 To add a name and description to the binding, you need to define the language keys `controlify.binding.<namespace>.<path>` and `controlify.binding.<namespace>.<path>.desc` respectively, alternatively, you can set `.name(Component)` and `.description(Component)`
 
-Registering the binding provides you with a `BindingSupplier`, where you can then access the binding with `action1Binding.on(controller);`
-
-Controlify automatically converts your existed modded `KeyMapping`s to controller bindings, but relying on this behaviour if you are going to explicitly support Controlify is not recommended. You can stop this conversion with the following...
-
-```java
-@Override
-public void onControlifyInit(InitContext ctx) {
-    ctx.bindings().exclude(MyMod.myKeyMapping);
-}
-```
+Registering the binding provides you with a `InputBindingSupplier`, where you can then access the binding with `actionBinding.on(controller);`
 
 ## Defining a default binding
 
