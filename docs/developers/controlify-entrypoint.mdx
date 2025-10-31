@@ -6,6 +6,47 @@ _Learn how to hook into Controlify._
 
 Controlify provides a Fabric entrypoint to hook into important lifecycle stages of Controlify. You do this just like `ClientModInitializer`.
 
+## Adding Controlify dependency
+
+In your `build.gradle` (or `build.gradle.kts`), you need to add the maven
+repository and the Controlify mod dependency.
+
+<details>
+<summary>Maven repository</summary>
+
+```kotlin
+repositories {
+    exclusiveContent {
+        forRepository { maven { url "https://maven.isxander.dev/releases" } }
+        filter { includeGroup "dev.isxander" }
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Dependency</summary>
+
+Add the version to your `gradle.properties`:
+
+```properties
+# You can find the versions in here: https://maven.isxander.dev/#/releases/dev/isxander/controlify
+controlify_version=2.4.3+1.21.1-neoforge
+```
+
+```kotlin
+dependencies {
+    // You can change "compileOnly" to "implementation" for testing in-game.
+    compileOnly("dev.isxander:controlify:${project.controlify_version}") {
+        // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
+        transitive = false
+    }
+}
+```
+
+</details>
+
 ## Registering the entrypoint
 
 - On Fabric, you register an entrypoint like any other, by adding an entry to your `fabric.mod.json` file under the `entrypoints` section.
