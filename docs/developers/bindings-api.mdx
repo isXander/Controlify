@@ -12,7 +12,7 @@ _Learn how to register new controller bindings._
 
 Controlify allows users to configure different buttons on their controllers to actions in-game. You may want your own mod's actions to be able to be invoked from the controller too.
 
-To register a controller binding, use the `ControllerBindingsApi.get()` method:
+To register a controller binding, use the `ControlifyBindApi.get()` method:
 
 ```java
 private InputBindingSupplier actionBinding;
@@ -89,3 +89,63 @@ There are more properties available inside of `InputBinding` which you can look 
 There is nothing special about rendering glyphs for controller bindings, as Controlify utilises custom fonts.
 
 This means you can use the glyphs within localised text, or just render it with `graphics.drawString(myBinding.inputGlyph(), x, y, -1);`
+
+## Registering Custom Radial Icons
+
+When registering a radial menu candidate, you must provide an icon to render it in the GUI.
+You can use `RadialIcons.getEffect(...)` or `RadialIcons.getItem(...)` (for example, `RadialIcons.getItem(Items.REDSTONE)`).
+
+However, **do not reference modded items directly** (e.g., `RadialIcons.getItem(ModItems.CUSTOM.get())`),
+as item registration is deferred — meaning those items are not yet registered at this stage.
+
+What you can do instead, is to reference the texture image file in the bundled resource-pack of your mod,
+using the following approach:
+
+```java
+private enum MyRadialIcons {
+    CUSTOM(MyMod.rl("textures/item/custom.png")),;
+
+    private final @NotNull ResourceLocation id;
+
+    MyRadialIcons(@NotNull ResourceLocation id) {
+        this.id = id;
+    }
+
+    public @NotNull ResourceLocation getId() {
+        return id;
+    }
+}
+
+@Override
+public void onControlifyPreInit(PreInitContext context) {
+    final ControlifyBindApi registrar = ControlifyBindApi.get();
+    registerCustomRadialIcons();
+
+    // Must be called after registerCustomRadialIcons
+    registerInputBindings(registrar);
+}
+
+private void registerCustomRadialIcons() {
+    for (MyRadialIcons icon : MyRadialIcons.values()) {
+        final ResourceLocation location = icon.getId();
+
+        // For consistency with the current Controlify radial icons,
+        // this code is equivalent to:
+        // https://github.com/isXander/Controlify/blob/f5c94c57d5e0d4954e413624a0d7ead937b6e8ab/src/main/java/dev/isxander/controlify/bindings/RadialIcons.java#L106-L112
+        RadialIcons.registerIcon(location, (graphics, x, y, tickDelta) -> {
+            var pose = CGuiPose.ofPush(graphics);
+            pose.translate(x, y);
+            pose.scale(0.5f, 0.5f);
+            Blit.tex(graphics, location, 0, 0, 0, 0, 32, 32, 32, 32);
+            pose.pop();
+        });
+    }
+}
+
+private void registerInputBindings(ControlifyBindApi registrar) {
+    actionBinding = registrar.registerBinding(
+            builder -> builder
+                    .radialCandidate(MyRadialIcons.CUSTOM.getId())
+    );
+}
+```
