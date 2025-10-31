@@ -9,4 +9,5 @@ This version has the following targets:
 
 ## Bug fixes
 
-- Fix startup crash on Steam Deck when using the enhanced driver - enhanced driver has been disabled on Steam Deck for now
+- Fix the temporarily disabling of the enhanced steam deck driver causing a Decky popup
+- Fix crash on some NeoForge targets due to NeoForge patching vanilla methods like a good mod loader
