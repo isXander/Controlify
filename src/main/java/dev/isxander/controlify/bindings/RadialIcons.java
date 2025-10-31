@@ -25,13 +25,7 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = CUtil.rl("empty");
-    private static final ResourceLocation _FABRIC_ICON = ResourceLocation.fromNamespaceAndPath("fabric-resource-loader-v0", "icon.png");
-    /**
-     * @deprecated  This icon is not available on NeoForge.
-     *             Use {@link RadialIcons#getModLoaderIcon()} instead.
-     */
-    @Deprecated(forRemoval = true)
-    public static final ResourceLocation FABRIC_ICON = _FABRIC_ICON;
+    private static final ResourceLocation FABRIC_ICON = ResourceLocation.fromNamespaceAndPath("fabric-resource-loader-v0", "icon.png");
 
     private static Map<ResourceLocation, RadialIcon> icons = null;
     private static Queue<Runnable> deferredRegistrations = new ArrayDeque<>();
@@ -126,7 +120,7 @@ public final class RadialIcons {
     
     public static @NotNull ResourceLocation getModLoaderIcon() {
         //? if fabric {
-        return _FABRIC_ICON;
+        return FABRIC_ICON;
         //?} else {
         /*return getItem(net.minecraft.world.item.Items.BOOK);
         *///?}
