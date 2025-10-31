@@ -15,13 +15,17 @@ public interface ControlifyEntrypoint {
      * Called once Controlify has initialised some systems but controllers
      * have not yet been discovered and constructed. This is the ideal
      * time to register events in preparation for controller discovery.
+     * Input bindings cannot be registered here; use {@link #onControlifyPreInit} instead.
      */
     void onControlifyInit(InitContext context);
 
 
     /**
      * Called at the end of Controlify's client-side entrypoint.
-     * You can register guides here.
+     * Use this to register guides, input bindings, radial icons, or screen processors,
+     * and to subscribe to events from {@link dev.isxander.controlify.api.event.ControlifyEvents}.
+     * Avoid referencing objects that are registered later (e.g. custom mod items),
+     * as they may not be initialized yet and could cause errors due to deferred registration.
      */
     void onControlifyPreInit(PreInitContext context);
 
