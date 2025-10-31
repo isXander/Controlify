@@ -15,14 +15,14 @@ logoFile = "icon.png"
 
 [[dependencies."${mod_id}"]]
 modId = "minecraft"
-mandatory = true
+type = "required"
 versionRange = "${mc}"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies."${mod_id}"]]
 modId = "yet_another_config_lib_v3"
-mandatory = true
+type = "required"
 versionRange = "[3.8,4)"
 ordering = "NONE"
 side = "BOTH"
