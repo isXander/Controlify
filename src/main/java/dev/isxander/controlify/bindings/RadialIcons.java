@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayDeque;
 import java.util.Map;
@@ -24,7 +25,7 @@ public final class RadialIcons {
     private static final Minecraft minecraft = Minecraft.getInstance();
 
     public static final ResourceLocation EMPTY = CUtil.rl("empty");
-    public static final ResourceLocation FABRIC_ICON = ResourceLocation.fromNamespaceAndPath("fabric-resource-loader-v0", "icon.png");
+    private static final ResourceLocation FABRIC_ICON = ResourceLocation.fromNamespaceAndPath("fabric-resource-loader-v0", "icon.png");
 
     private static Map<ResourceLocation, RadialIcon> icons = null;
     private static Queue<Runnable> deferredRegistrations = new ArrayDeque<>();
@@ -101,18 +102,27 @@ public final class RadialIcons {
 
     private static Map<ResourceLocation, RadialIcon> registerIcons() {
         Map<ResourceLocation, RadialIcon> map = new Object2ObjectOpenHashMap<>();
+        final ResourceLocation modLoaderIcon = getModLoaderIcon();
 
         map.put(EMPTY, (graphics, x, y, tickDelta) -> {});
-        map.put(FABRIC_ICON, (graphics, x, y, tickDelta) -> {
+        map.put(modLoaderIcon, (graphics, x, y, tickDelta) -> {
             var pose = CGuiPose.ofPush(graphics);
             pose.translate(x, y);
             pose.scale(0.5f, 0.5f);
-            Blit.tex(graphics, FABRIC_ICON, 0, 0, 0, 0, 32, 32, 32, 32);
+            Blit.tex(graphics, modLoaderIcon, 0, 0, 0, 0, 32, 32, 32, 32);
             pose.pop();
         });
         addItems(map);
         addPotionEffects(map);
 
         return map;
+    }
+    
+    public static @NotNull ResourceLocation getModLoaderIcon() {
+        //? if fabric {
+        return FABRIC_ICON;
+        //?} else {
+        /*return getItem(net.minecraft.world.item.Items.BOOK);
+        *///?}
     }
 }

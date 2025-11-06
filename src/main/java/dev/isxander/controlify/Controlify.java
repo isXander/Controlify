@@ -646,8 +646,14 @@ public class Controlify implements ControlifyApi {
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {
+        //? if >=1.21.9 {
+        long handle = minecraft.getWindow().handle();
+        //?} else {
+        /*long handle = minecraft.getWindow().getWindow();
+        *///?}
+
         GLFW.glfwSetInputMode(
-                minecraft.getWindow().getWindow(),
+                handle,
                 GLFW.GLFW_CURSOR,
                 hide
                         ? GLFW.GLFW_CURSOR_HIDDEN
@@ -658,7 +664,7 @@ public class Controlify implements ControlifyApi {
             if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
                 // stop mouse hovering over last element before hiding cursor but don't actually move it
                 // so when the user switches back to mouse it will be in the same place
-                mouseHandlerAccessor.invokeOnMove(minecraft.getWindow().getWindow(), -50, -50);
+                mouseHandlerAccessor.invokeOnMove(handle, -50, -50);
             }
         }
     }

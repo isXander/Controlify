@@ -1,7 +1,6 @@
 package dev.isxander.controlify.font;
 
 import com.mojang.blaze3d.font.GlyphInfo;
-import com.mojang.blaze3d.font.SheetGlyphInfo;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.mixins.feature.font.FontAccessor;
@@ -22,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 //? if >=1.21.9 {
 import net.minecraft.client.gui.font.GlyphStitcher;
-import net.minecraft.client.gui.font.glyphs.BakeableGlyph;
+import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 //?}
 
 public final class BindingFontHelper {
@@ -74,15 +73,8 @@ public final class BindingFontHelper {
 
     private static int getHeight(Font font, int codepoint, Style style) {
         //? if >=1.21.9 {
-        BakeableGlyph glyph = ((FontAccessor) font).invokeGetGlyph(codepoint, style);
-
-        var heightCapture = GlyphStitcherHeightCapture.INSTANCE;
-        heightCapture.resetHeight(font.lineHeight);
-        if (glyph.info() instanceof GlyphInfo.Stitched stitchedGlyph) {
-            stitchedGlyph.bake(heightCapture);
-        }
-
-        return heightCapture.height.get();
+        // i can't figure out how to get the height here
+        return 15;
         //?} else {
         /*FontSet fontSet = ((FontAccessor) font).invokeGetFontSet(style.getFont());
         GlyphInfo glyphInfo = fontSet.getGlyphInfo(codepoint, false);
@@ -95,34 +87,4 @@ public final class BindingFontHelper {
         return f.intValue();
         *///?}
     }
-
-    //? if >=1.21.9 {
-    private static class GlyphStitcherHeightCapture extends GlyphStitcher {
-        public static final GlyphStitcherHeightCapture INSTANCE = new GlyphStitcherHeightCapture();
-
-        public final ThreadLocal<Integer> height;
-
-        public GlyphStitcherHeightCapture() {
-            super(null, null);
-            this.height = new ThreadLocal<>();
-            this.height.set(0);
-        }
-
-        public void resetHeight(int height) {
-            this.height.set(height);
-        }
-
-        @Override
-        public @Nullable BakedGlyph stitch(SheetGlyphInfo sheetGlyphInfo) {
-            height.set(Mth.ceil(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample()));
-            return null;
-        }
-
-        @Override
-        public void close() {}
-
-        @Override
-        public void reset() {}
-    }
-    //?}
 }

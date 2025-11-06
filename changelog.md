@@ -9,7 +9,6 @@ This version has the following targets:
 
 ## Bug fixes
 
-- Fix startup crashes
-- Fix crash when joining a world
-- Fix keyboard not working with creative mode search
-- Fix keyboard hint text not fitting in creative mode search
+- Fix the temporarily disabling of the enhanced steam deck driver causing a Decky popup
+- Fix crash on some NeoForge targets due to NeoForge patching vanilla methods like a good mod loader
+- Fix missing texture on custom radial menu icons on NeoForge

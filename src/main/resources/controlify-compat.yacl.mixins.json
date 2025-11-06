@@ -5,11 +5,12 @@
   "mixinextras": {
     "minVersion": "0.5.0-beta.4"
   },
+  "minMixinExtrasVersion": "0.5.0-beta.4",
   "injectors": {
     "defaultRequire": 1
   },
   "plugin": "dev.isxander.controlify.compatibility.yacl.YACLMixinPlugin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "client": [
     "CyclingControllerElementMixin",
     "SliderControllerElementMixin",

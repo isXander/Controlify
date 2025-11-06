@@ -81,7 +81,11 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
 
         @Override
         public boolean acceptChar(char ch, int modifiers) {
-            this.editBox.charTyped(ch, modifiers);
+            //? if >=1.21.9 {
+            this.editBox.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+            //?} else {
+            /*this.editBox.charTyped(ch, modifiers);
+            *///?}
             return true;
         }
 
@@ -92,7 +96,11 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
 
         @Override
         public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            this.editBox.keyPressed(keycode, scancode, modifiers);
+            //? if >=1.21.9 {
+            this.editBox.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
+            //?} else {
+            /*this.editBox.keyPressed(keycode, scancode, modifiers);
+            *///?}
             return true;
         }
 

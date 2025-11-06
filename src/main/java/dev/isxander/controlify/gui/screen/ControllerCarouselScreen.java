@@ -231,7 +231,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            globalSettingsButton.onPress();
+            globalSettingsButton.onPress(/*? if >=1.21.9 >>*/ null );
         }
     }
 
@@ -351,7 +351,13 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        //? if >=1.21.9 {
+        public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+            double mouseX = mouseButtonEvent.x();
+            double mouseY = mouseButtonEvent.y();
+        //?} else {
+        /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        *///?}
             if (isMouseOver(mouseX, mouseY)) {
                 int index = carouselEntries.indexOf(this);
                 if (index != carouselIndex) {
@@ -362,7 +368,11 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
                 }
             }
 
-            return super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
+            //? if >=1.21.9 {
+            return super.mouseClicked(mouseButtonEvent, doubleClick);
+            //?} else {
+            /*return super.mouseClicked(mouseX, mouseY, button);
+            *///?}
         }
 
         private void onUseButtonPressed(Button button) {

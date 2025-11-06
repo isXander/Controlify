@@ -53,7 +53,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         var accessor = (AbstractContainerScreenAccessor) screen;
 
-        var ctx = new ContainerCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos(), 0), controller, controller.genericConfig().config().guideVerbosity);
+        var ctx = new ContainerCtx(hoveredSlot.get(), screen.getMenu().getCarried(), accessor.invokeHasClickedOutside(vmouse.getCurrentX(1f), vmouse.getCurrentY(1f), accessor.getLeftPos(), accessor.getTopPos() /*? if <1.21.9 >>*/ /*,0*/ ), controller, controller.genericConfig().config().guideVerbosity);
         GuideDomains.CONTAINER.updateGuides(ctx, minecraft.font);
 
         Slot hoveredSlot = this.hoveredSlot.get();

@@ -53,6 +53,10 @@ public final class SteamDeckUtil {
     }
 
     private static boolean isHardwareSteamDeck() {
+        if (true) {
+            logger.error("Skipping Steam Deck checks as steamOS has temporarily broken the enhaned driver.");
+        }
+
         logger.debugLog("Checking if hardware is Steam Deck.");
 
         // even if "Linux" isn't a defacto way to check for all linux distros, it's the value returned on a steam deck

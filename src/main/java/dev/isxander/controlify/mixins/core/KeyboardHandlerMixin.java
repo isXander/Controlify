@@ -1,39 +1,60 @@
 package dev.isxander.controlify.mixins.core;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
+import org.lwjgl.glfw.GLFWCharModsCallbackI;
+import org.lwjgl.glfw.GLFWKeyCallbackI;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerMixin {
     @Shadow @Final private Minecraft minecraft;
 
-    // method_22678 is lambda for GLFW keypress hook - do it outside of the `keyPress` method due to fake inputs
-    @SuppressWarnings({"MixinAnnotationTarget", "InvalidInjectorMethodSignature", "UnresolvedMixinReference"})
-    @Inject(
-            method = {"method_22678", "/lambda\\$setup\\$\\d+/"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;keyPress(JIIII)V")
+    @WrapOperation(
+            method = "setup",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.9 {
+                    target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
+                    //?} else {
+                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(JLorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
+                    *///?}
+            )
     )
-    private void onKeyboardInput(long window, int i, int j, int k, int m, CallbackInfo ci) {
-        if (window == minecraft.getWindow().getWindow() && Controlify.instance().currentInputMode() != InputMode.MIXED)
-            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
+    private void wrapKeyboardEvents(
+            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
+            GLFWKeyCallbackI keyCallback,
+            GLFWCharModsCallbackI charCallback,
+            Operation<Void> original
+    ) {
+        original.call(
+                window,
+                (GLFWKeyCallbackI) (w, k, s, a, m) -> {
+                    onKeyboardInput();
+                    keyCallback.invoke(w, k, s, a, m);
+                },
+                (GLFWCharModsCallbackI) (w, c, m) -> {
+                    onKeyboardInput();
+                    charCallback.invoke(w, c, m);
+                }
+        );
     }
 
-    // method_22677 is lambda for GLFW char input hook - do it outside of the `charTyped` method due to fake inputs
-    @SuppressWarnings({"MixinAnnotationTarget", "InvalidInjectorMethodSignature", "UnresolvedMixinReference"})
-    @Inject(
-            method = {"method_22677", "/lambda\\$setup\\$\\d+/"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyboardHandler;charTyped(JII)V")
-    )
-    private void onCharInput(long window, int codePoint, int modifiers, CallbackInfo ci) {
-        if (window == minecraft.getWindow().getWindow() && Controlify.instance().currentInputMode() != InputMode.MIXED)
-            Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
+    @Unique
+    private void onKeyboardInput() {
+        minecraft.execute(() -> {
+            if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
+                Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
+            }
+        });
     }
 }

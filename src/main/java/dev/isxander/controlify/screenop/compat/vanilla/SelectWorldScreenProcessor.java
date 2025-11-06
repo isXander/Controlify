@@ -18,7 +18,8 @@ public class SelectWorldScreenProcessor extends ScreenProcessor<SelectWorldScree
     protected void handleButtons(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             playClackSound();
-            CreateWorldScreen.openFresh(Minecraft.getInstance(), screen);
+            var minecraft = Minecraft.getInstance();
+            CreateWorldScreen.openFresh(minecraft, /*? if >=1.21.9 {*/() -> minecraft.setScreen(screen) /*?} else {*/ /*screen *//*?}*/);
             return;
         }
 

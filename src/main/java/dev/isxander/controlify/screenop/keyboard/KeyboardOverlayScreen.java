@@ -95,12 +95,26 @@ public class KeyboardOverlayScreen extends Screen {
         }
     }
 
+    //? if >=1.21.9 {
     @Override
-    public boolean mouseClicked(double x, double y, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
-        if (super.mouseClicked(x, y, button /*? if >=1.21.9 {*/,doubleClick/*?}*/)) {
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+        if (super.mouseClicked(mouseButtonEvent, doubleClick)) {
             return true;
         } else {
-            if (this.backgroundScreen.mouseClicked(x, y, button /*? if >=1.21.9 {*/,doubleClick/*?}*/)) {
+            if (this.backgroundScreen.mouseClicked(mouseButtonEvent, doubleClick)) {
+                onClose();
+                return true;
+            }
+        }
+        return false;
+    }
+    //?} else {
+    /*@Override
+    public boolean mouseClicked(double x, double y, int button) {
+        if (super.mouseClicked(x, y, button)) {
+            return true;
+        } else {
+            if (this.backgroundScreen.mouseClicked(x, y, button)) {
                 onClose();
                 return true;
             }
@@ -108,6 +122,7 @@ public class KeyboardOverlayScreen extends Screen {
 
         return false;
     }
+    *///?}
 
     @Override
     public void tick() {

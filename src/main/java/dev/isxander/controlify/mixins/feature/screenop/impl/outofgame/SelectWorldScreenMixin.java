@@ -25,11 +25,19 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
         return processor;
     }
 
+    private static final String footButtonMethods = /*? if >=1.21.9 {*/ "createFooterButtons" /*?} else {*/ /*"init()V" *//*?}*/;
+
     @Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
     @Definition(id = "GUI_BACK", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_BACK:Lnet/minecraft/network/chat/Component;")
     @Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
-    @Expression("builder(GUI_BACK, ?).?(?, ?, ?, ?).build()")
-    @ModifyExpressionValue(method = "init()V", at = @At("MIXINEXTRAS:EXPRESSION"))
+    @Expression(
+            //? if >=1.21.9 {
+            "builder(GUI_BACK, ?).?(?).build()"
+            //?} else {
+            /*"builder(GUI_BACK, ?).?(?, ?, ?, ?).build()"
+            *///?}
+    )
+    @ModifyExpressionValue(method = footButtonMethods, at = @At("MIXINEXTRAS:EXPRESSION"))
     private Button modifyCancelButton(Button button) {
         ButtonGuideApi.addGuideToButton(
                 button,
@@ -42,8 +50,14 @@ public class SelectWorldScreenMixin implements ScreenProcessorProvider {
     @Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
     @Definition(id = "translatable", method = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")
     @Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
-    @Expression("builder(translatable('selectWorld.create'), ?).?(?, ?, ?, ?).build()")
-    @ModifyExpressionValue(method = "init()V", at = @At("MIXINEXTRAS:EXPRESSION"))
+    @Expression(
+            //? if >=1.21.9 {
+            "builder(translatable('selectWorld.create'), ?).build()"
+            //?} else {
+            /*"builder(translatable('selectWorld.create'), ?).?(?, ?, ?, ?).build()"
+            *///?}
+    )
+    @ModifyExpressionValue(method = footButtonMethods, at = @At("MIXINEXTRAS:EXPRESSION"))
     private Button modifyCreateButton(Button button) {
         ButtonGuideApi.addGuideToButton(
                 button,

@@ -117,7 +117,12 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 
     @Override
     public boolean controlify$acceptChar(char ch, int modifiers) {
-        return this.signField != null && this.signField.charTyped(ch);
+        if (this.signField == null) return false;
+        //? if >=1.21.9 {
+        return this.signField.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+        //?} else {
+        /*return this.signField.charTyped(ch);
+        *///?}
     }
 
     @Override
@@ -131,8 +136,13 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
             this.onDone();
             return true;
         }
+        if (this.signField == null) return false;
 
-        return this.signField != null && this.signField.keyPressed(keycode);
+        //? if >=1.21.9 {
+        return this.signField.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
+        //?} else {
+        /*return this.signField.keyPressed(keycode);
+        *///?}
     }
 
     @Override

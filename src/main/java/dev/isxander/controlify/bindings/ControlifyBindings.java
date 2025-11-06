@@ -408,8 +408,8 @@ public final class ControlifyBindings {
                         .id(identifier)
                         .name(Component.translatable(keyMapping.getName()))
                         .description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
-                        .category(Component.translatable(keyMapping.getCategory()))
-                        .radialCandidate(RadialIcons.FABRIC_ICON)
+                        .category(/*? if >=1.21.9 {*/ keyMapping.getCategory().label() /*?} else {*/ /*Component.translatable(keyMapping.getCategory()) *//*?}*/)
+                        .radialCandidate(RadialIcons.getModLoaderIcon())
                         .allowedContexts(BindContext.IN_GAME)
                         .keyEmulation(keyMapping));
 

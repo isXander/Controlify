@@ -282,20 +282,33 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         return ContainerEventHandler.super.nextFocusPath(event);
     }
 
+    //? if >=1.21.9 {
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
-        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+        return ContainerEventHandler.super.mouseClicked(mouseButtonEvent, doubleClick);
     }
-
+    @Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent) {
+        return ContainerEventHandler.super.mouseReleased(mouseButtonEvent);
+    }
+    @Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, double dx, double dy) {
+        return ContainerEventHandler.super.mouseDragged(mouseButtonEvent, dx, dy);
+    }
+    //?} else {
+    /*@Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return ContainerEventHandler.super.mouseClicked(mouseX, mouseY, button);
+    }
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         return ContainerEventHandler.super.mouseReleased(mouseX, mouseY, button);
     }
-
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         return ContainerEventHandler.super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
+    *///?}
 
     @Override
     public boolean isFocused() {

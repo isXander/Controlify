@@ -1,5 +1,7 @@
 package dev.isxander.controlify;
 
+import dev.isxander.controlify.platform.Environment;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.ControlifyServer;
 
 //? if fabric {
@@ -45,10 +47,10 @@ public class ControlifyBootstrap {
                 () -> (client, parent) -> new ModConfigOpenerScreen(parent)
         );
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
             Controlify.instance().preInitialiseControlify();
         }
-        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+        if (PlatformMainUtil.getEnv() == Environment.SERVER) {
             ControlifyServer.getInstance().onInitializeServer();
         }
     }

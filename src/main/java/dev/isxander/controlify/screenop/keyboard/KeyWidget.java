@@ -138,7 +138,13 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/, boolean doubleClick /*?}*/) {
+    //? if >=1.21.9 {
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean bl) {
+        double mouseX = mouseButtonEvent.x();
+        double mouseY = mouseButtonEvent.y();
+    //?} else {
+    /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    *///?}
         if (isMouseOver(mouseX, mouseY)) {
             this.mousePressed = true;
             onPress();
@@ -147,11 +153,19 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         return false;
     }
 
+    //? if >=1.21.9 {
     @Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent) {
+        this.mousePressed = false;
+        return super.mouseReleased(mouseButtonEvent);
+    }
+    //?} else {
+    /*@Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.mousePressed = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    *///?}
 
     private void onPress() {
         KeyboardLayout.KeyFunction keyFunction = this.getKeyFunction();
