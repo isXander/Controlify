@@ -19,9 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -58,7 +56,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     // initialised yet in Screen#init. Causing NPEs and many strange issues.
     @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;releaseMouse()V"))
     private void notifyInjectionToNotRun(Screen screen, CallbackInfo ci) {
-        ((MouseMinecraftCallNotifier) mouseHandler).imFromMinecraftSetScreen();
+        ((MouseMinecraftCallNotifier) mouseHandler).controlify$imFromMinecraftSetScreen();
     }
 
     /**
