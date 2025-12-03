@@ -24,7 +24,7 @@ public class AbstractButtonComponentProcessor implements ComponentProcessor {
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
             controller.hdHaptics().ifPresent(hh -> hh.playHaptic(HapticEffects.NAVIGATE));
             button.playDownSound(Minecraft.getInstance().getSoundManager());
-            button.onPress(/*? if >=1.21.9 >>*/ new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+            button.onPress(/*? if >=1.21.9 {*/ new KeyEvent(InputConstants.KEY_RETURN, 0, 0) /*?}*/);
             return true;
         }
 
