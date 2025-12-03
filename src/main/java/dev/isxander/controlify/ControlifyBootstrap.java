@@ -42,12 +42,12 @@ public class ControlifyBootstrap {
     public ControlifyBootstrap(IEventBus modBus) {
         ControlifyServer.getInstance().onInitialize();
 
-        ModLoadingContext.get().registerExtensionPoint(
-                net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-                () -> (client, parent) -> new ModConfigOpenerScreen(parent)
-        );
-
         if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
+            ModLoadingContext.get().registerExtensionPoint(
+                    net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+                    () -> (client, parent) -> new ModConfigOpenerScreen(parent)
+            );
+
             Controlify.instance().preInitialiseControlify();
         }
         if (PlatformMainUtil.getEnv() == Environment.SERVER) {
