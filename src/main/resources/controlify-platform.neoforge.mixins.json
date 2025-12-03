@@ -12,6 +12,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "CreativeModeInventoryScreenAccessor",
-    "OptionsMixin"
+    "OptionsMixin",
+    "ModListScreenAccessor",
+    "ModListScreenMixin"
   ]
 }

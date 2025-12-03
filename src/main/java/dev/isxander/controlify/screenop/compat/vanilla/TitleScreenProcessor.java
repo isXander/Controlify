@@ -6,12 +6,24 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
+//? if neoforge {
+/*import dev.isxander.controlify.screenop.compat.neoforge.NeoForgeTitleScreenProcessorCompat;*/
+//?}
 
 public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
+    //? if neoforge {
+    /*private final NeoForgeTitleScreenProcessorCompat neoForgeCompat;*/
+    //?}
     public TitleScreenProcessor(TitleScreen screen) {
         super(screen);
+        //? if neoforge {
+        /*this.neoForgeCompat = new NeoForgeTitleScreenProcessorCompat(
+                key -> (AbstractButton) getWidget(key).orElseThrow(),
+                this
+        );*/
+        //?}
     }
 
     @Override
@@ -27,6 +39,9 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
             minecraft.setScreen(new OptionsScreen(screen, minecraft.options));
             playClackSound();
         }
+        //? if neoforge {
+        /*neoForgeCompat.onHandleButtons(controller);*/
+        //?}
     }
 
     @Override
@@ -44,5 +59,8 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
                 ControlifyBindings.GUI_ABSTRACT_ACTION_1,
                 ButtonGuidePredicate.always()
         );
+        //? if neoforge {
+        /*neoForgeCompat.onAddGuides();*/
+        //?}
     }
 }
