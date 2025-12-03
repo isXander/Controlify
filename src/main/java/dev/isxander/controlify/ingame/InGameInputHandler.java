@@ -311,16 +311,17 @@ public class InGameInputHandler {
             regularImpulse.y *= -1;
         }
 
+        InputCurve curve = config.lookInputCurve;
         if (!config.isLCE) {
             // apply the easing on its length to preserve circularity
-            ControllerUtils.applyEasingToLength(
+            regularImpulse = ControllerUtils.applyEasingToLength(
                     regularImpulse,
-                    d -> d * Math.abs(d)
+                    curve::apply
             );
         } else {
             // LCE doesn't preserve circularity
-            regularImpulse.x *= Math.abs(regularImpulse.x);
-            regularImpulse.y *= Math.abs(regularImpulse.y);
+            regularImpulse.x = curve.apply(regularImpulse.x);
+            regularImpulse.y = curve.apply(regularImpulse.y);
         }
 
         if (config.reduceAimingSensitivity && player.isUsingItem()) {

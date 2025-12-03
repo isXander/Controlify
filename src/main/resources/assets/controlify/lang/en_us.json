@@ -73,6 +73,8 @@
   "controlify.gui.invert_vertical_look.tooltip": "Inverts the look y-axis. e.g. up becomes down and vice versa.",
   "controlify.gui.reduce_aiming_sensitivity": "Reduce Aiming Sensitivity",
   "controlify.gui.reduce_aiming_sensitivity.tooltip": "Reduce the sensitivity when aiming.",
+  "controlify.gui.look_input_curve": "Look Input Curve",
+  "controlify.gui.look_input_curve.tooltip": "Adjusts how the look input from the joystick is interpreted. A linear curve means the look speed is directly proportional to how far the joystick is pushed. A more exponential curve means small movements of the joystick result in smaller look speeds, and larger movements result in much larger look speeds.",
   "controlify.gui.config.group.controls": "Controls",
   "controlify.gui.toggle_sneak": "Sneak",
   "controlify.gui.toggle_sneak.tooltip": "How the state of the sneak button behaves.",
@@ -606,5 +608,12 @@
   "controlify.hint.keyboard_cursor_movement": "Use %s and %s to move the text cursor",
   "controlify.hint.command_suggester": "Use %s and %s to navigate through command suggestions, and %s to select them",
   "controlify.hint.edit_box_keyboard": "Press %s to open keyboard",
-  "controlify.hint.sign_line_change": "Use %s and %s to change lines"
+  "controlify.hint.sign_line_change": "Use %s and %s to change lines",
+
+  "controlify.input_curves.linear": "Linear",
+  "controlify.input_curves.gentle": "Gentle (exp 1.5)",
+  "controlify.input_curves.standard": "Standard (exp 2.0)",
+  "controlify.input_curves.strong": "Strong (exp 2.5)",
+  "controlify.input_curves.precision_cubic": "Cubic (blend 0.5)",
+  "controlify.input_curves.s_curve": "S-Curve"
 }

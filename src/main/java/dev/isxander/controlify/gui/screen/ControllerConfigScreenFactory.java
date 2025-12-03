@@ -19,6 +19,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
+import dev.isxander.controlify.ingame.InputCurves;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -155,6 +156,15 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .binding(def.reduceAimingSensitivity, () -> config.reduceAimingSensitivity, v -> config.reduceAimingSensitivity = v)
                         .controller(TickBoxControllerBuilder::create)
+                        .build())
+                .option(Option.<InputCurves>createBuilder()
+                        .name(Component.translatable("controlify.gui.look_input_curve"))
+                        .description(OptionDescription.createBuilder()
+                                .text(Component.translatable("controlify.gui.look_input_curve.tooltip"))
+                                .build())
+                        .binding(def.lookInputCurve, () -> config.lookInputCurve, v -> config.lookInputCurve = v)
+                        .controller(opt -> EnumControllerBuilder.create(opt)
+                                .enumClass(InputCurves.class))
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.is_lce"))

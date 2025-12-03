@@ -17,6 +17,7 @@ import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.controller.input.mapping.ControllerMappingStorage;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.ingame.InputCurves;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.ResourceLocation;
@@ -220,6 +221,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
         public float buttonActivationThreshold = 0.5f;
 
+        public InputCurves lookInputCurve = InputCurves.STANDARD;
         public boolean isLCE = false;
 
         public Map<ResourceLocation, Float> deadzones = new Object2ObjectOpenHashMap<>();
