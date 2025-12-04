@@ -17,15 +17,19 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
     @Override
     protected void handleButtons(ControllerEntity controller) {
         if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
-            screen.setFocused(getWidget("menu.quit").orElseThrow());
-            playClackSound();
+            getWidget("menu.quit").ifPresent(widget -> {
+                screen.setFocused(widget);
+                playClackSound();
+            });
         }
 
         super.handleButtons(controller);
 
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            minecraft.setScreen(new OptionsScreen(screen, minecraft.options));
-            playClackSound();
+            if (getWidget("menu.options").isPresent()) {
+                minecraft.setScreen(new OptionsScreen(screen, minecraft.options));
+                playClackSound();
+            }
         }
     }
 
@@ -33,16 +37,23 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
 
-        AbstractButton quitButton = (AbstractButton) getWidget("menu.quit").orElseThrow();
-        ButtonGuideApi.addGuideToButton(
-                quitButton,
-                () -> quitButton.isFocused() ? ControlifyBindings.GUI_PRESS : ControlifyBindings.GUI_BACK,
-                ButtonGuidePredicate.always()
-        );
-        ButtonGuideApi.addGuideToButton(
-                (AbstractButton) getWidget("menu.options").orElseThrow(),
-                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonGuidePredicate.always()
-        );
+        getWidget("menu.quit").ifPresent(widget -> {
+            var button = (AbstractButton) widget;
+            ButtonGuideApi.addGuideToButton(
+                    button,
+                    () -> button.isFocused() ? ControlifyBindings.GUI_PRESS : ControlifyBindings.GUI_BACK,
+                    ButtonGuidePredicate.always()
+            );
+        });
+
+        getWidget("menu.options").ifPresent(widget -> {
+            var button = (AbstractButton) widget;
+            ButtonGuideApi.addGuideToButton(
+                    button,
+                    ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+                    ButtonGuidePredicate.always()
+            );
+        });
+
     }
 }

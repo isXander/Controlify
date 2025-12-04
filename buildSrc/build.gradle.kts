@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.21"
 }
 
 repositories {
@@ -31,7 +31,7 @@ dependencies {
     fun plugin(id: String, version: String) = "$id:$id.gradle.plugin:$version"
 
     implementation(plugin("dev.isxander.modstitch.base", "0.7.1-unstable"))
-    implementation(plugin("dev.kikugie.stonecutter", "0.7.7"))
-    implementation(plugin("fabric-loom", "1.11.4"))
-    implementation(plugin("net.neoforged.moddev", "2.0.103"))
+    implementation(plugin("dev.kikugie.stonecutter", "0.7.9"))
+    implementation(plugin("fabric-loom", "1.13.4"))
+    implementation(plugin("net.neoforged.moddev", "2.0.119"))
 }

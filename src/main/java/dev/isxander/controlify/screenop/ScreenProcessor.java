@@ -301,7 +301,9 @@ public class ScreenProcessor<T extends Screen> {
                     InputTarget inputTarget,
                     KeyboardOverlayScreen.KeyboardPositioner positioner
             ) -> {
-                minecraft.setScreen(new KeyboardOverlayScreen(screen, layout, inputTarget, positioner));
+                if (controller.genericConfig().config().showOnScreenKeyboard) {
+                    minecraft.setScreen(new KeyboardOverlayScreen(screen, layout, inputTarget, positioner));
+                }
                 return true;
             }
         }

@@ -115,7 +115,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
     }
 
     @Override
-    public void imFromMinecraftSetScreen() {
+    public void controlify$imFromMinecraftSetScreen() {
         controlify$calledFromMinecraftSetScreen = true;
     }
 }
