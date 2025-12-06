@@ -13,6 +13,8 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "CyclingControllerElementMixin",
+    "GroupSeparatorEntryAccessor",
+    "OptionListWidgetMixin",
     "SliderControllerElementMixin",
     "YACLScreenCategoryTabAccessor",
     "YACLScreenCategoryTabMixin",
