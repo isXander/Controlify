@@ -16,6 +16,7 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -197,7 +198,7 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
-
+        Minecraft.getInstance().setLastInputType(InputType.MOUSE);
     }
 
     protected boolean handleComponentButtonOverride(ControllerEntity controller) {
@@ -251,6 +252,14 @@ public class ScreenProcessor<T extends Screen> {
 
     public void onWidgetRebuild() {
         setInitialFocus();
+        updateLastInputTypeOnRebild();
+    }
+
+    private void updateLastInputTypeOnRebild() {
+        final VirtualMouseHandler virtualMouseBehaviour = Controlify.instance().virtualMouseHandler();
+        if (virtualMouseBehaviour != null && !virtualMouseBehaviour.isVirtualMouseEnabled()) {
+            Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
+        }
     }
 
     public void onVirtualMouseToggled(boolean enabled) {
