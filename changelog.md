@@ -23,3 +23,5 @@ Find this new option in the "Sensitivity" section of your controller's settings.
 - Fix crash when attempting to run Controlify with Title Screen mods that remove vanilla buttons
 - Enhanced sodium compatibility is temporarily disabled on 1.21.10-neoforge target due to issues.
 - Fix on-screen keyboard opening in the chat menu regardless of settings
+- Updated Controlify's screen processor to sets the last vanilla input type,
+  for compatibility with modded screens (e.g., render the tooltips).
