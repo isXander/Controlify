@@ -10,7 +10,7 @@ import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
@@ -315,14 +315,14 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
          * @param layout the layout id to switch to when the key is pressed.
          * @param displayName the display name of the key function, used to display the key in the UI
          */
-        record ChangeLayoutFunc(ResourceLocation layout, Component displayName) implements KeyFunction {
+        record ChangeLayoutFunc(Identifier layout, Component displayName) implements KeyFunction {
 
             public static final Codec<ChangeLayoutFunc> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    ResourceLocation.CODEC.fieldOf("layout").forGetter(ChangeLayoutFunc::layout),
+                    Identifier.CODEC.fieldOf("layout").forGetter(ChangeLayoutFunc::layout),
                     ComponentSerialization.CODEC.fieldOf("display_name").forGetter(ChangeLayoutFunc::displayName)
             ).apply(instance, ChangeLayoutFunc::fromCodec));
 
-            private static ChangeLayoutFunc fromCodec(ResourceLocation layout, Component displayName) {
+            private static ChangeLayoutFunc fromCodec(Identifier layout, Component displayName) {
                 return new ChangeLayoutFunc(layout, displayName);
             }
         }

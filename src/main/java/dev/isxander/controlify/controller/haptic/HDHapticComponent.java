@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.client.sounds.SoundEngine;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
-    public static final ResourceLocation ID = CUtil.rl("hd_haptics");
+    public static final Identifier ID = CUtil.rl("hd_haptics");
 
     private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
     private Consumer<CompleteSoundData> playHapticConsumer;
@@ -35,13 +35,13 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     // the existing sound buffer library in the sound engine works on a ResourceProvider for registered sounds only
     // haptics are not sounds.
     private static final SoundBufferLibrary hapticBufferLibrary = new SoundBufferLibrary(Minecraft.getInstance().getResourceManager());
-    private static final Map<ResourceLocation, CompleteSoundData> hapticData = new HashMap<>();
+    private static final Map<Identifier, CompleteSoundData> hapticData = new HashMap<>();
 
     public HDHapticComponent() {
         this.randomSource = RandomSource.create();
     }
 
-    public void playHaptic(ResourceLocation haptic) {
+    public void playHaptic(Identifier haptic) {
         if (!confObj().enabled || playHapticConsumer == null) return;
 
         getSoundData(haptic,  hapticBufferLibrary.getCompleteBuffer(haptic))
@@ -53,7 +53,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     }
 
     public void playHaptic(SoundEvent sound) {
-        ResourceLocation location = Minecraft.getInstance().getSoundManager()
+        Identifier location = Minecraft.getInstance().getSoundManager()
                 .getSoundEvent(/*? if >=1.21.2 {*/ sound.location() /*?} else {*/ /*sound.getLocation() *//*?}*/)
                 .getSound(randomSource).getLocation();
 
@@ -61,7 +61,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).getSoundEngine();
         SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).getSoundBuffers();
 
-        ResourceLocation soundId = location.withPrefix("sounds/").withSuffix(".ogg");
+        Identifier soundId = location.withPrefix("sounds/").withSuffix(".ogg");
 
         getSoundData(soundId, bufferLibrary.getCompleteBuffer(soundId))
                 .thenAccept(playHapticConsumer)
@@ -75,7 +75,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
         this.playHapticConsumer = consumer;
     }
 
-    private CompletableFuture<CompleteSoundData> getSoundData(ResourceLocation id, CompletableFuture<SoundBuffer> sound) {
+    private CompletableFuture<CompleteSoundData> getSoundData(Identifier id, CompletableFuture<SoundBuffer> sound) {
         return sound
                 .thenApply(soundBuffer -> hapticData.computeIfAbsent(id, key -> {
                     var accessor = (SoundBufferAccessor) soundBuffer;
@@ -102,7 +102,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 

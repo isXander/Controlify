@@ -21,7 +21,7 @@ import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
@@ -40,7 +40,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -50,8 +50,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class ControllerCarouselScreen extends Screen implements ScreenControllerEventListener {
-    public static final ResourceLocation CHECKMARK = ResourceLocation.withDefaultNamespace("icon/checkmark");
-    public static final ResourceLocation DANGER = ResourceLocation.withDefaultNamespace("icon/unseen_notification");
+    public static final Identifier CHECKMARK = Identifier.withDefaultNamespace("icon/checkmark");
+    public static final Identifier DANGER = Identifier.withDefaultNamespace("icon/unseen_notification");
 
     private final Screen parent;
     private int footerY;
@@ -274,7 +274,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         protected abstract Component getName();
         protected abstract Optional<Component> getNickname();
 
-        protected abstract ResourceLocation getIconSprite();
+        protected abstract Identifier getIconSprite();
 
         protected abstract boolean hasSettingsButton();
         protected abstract void onSettingsButtonPressed(Button button);
@@ -298,7 +298,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
             //graphics.blit(CreateWorldScreen.LIGHT_DIRT_BACKGROUND, x, y, 0, 0f, 0f, width, height, 32, 32);
 
-            graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(x, y, width, height, 0x5AFFFFFF);
+            graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(x, y, width, height, 0x5AFFFFFF);
             useButton.render(graphics, mouseX, mouseY, delta);
             if (this.hasSettingsButton()) {
                 settingsButton.render(graphics, mouseX, mouseY, delta);
@@ -498,7 +498,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         @Override
-        protected ResourceLocation getIconSprite() {
+        protected Identifier getIconSprite() {
             return controller.info().type().getIconSprite();
         }
 
@@ -548,7 +548,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         }
 
         @Override
-        protected ResourceLocation getIconSprite() {
+        protected Identifier getIconSprite() {
             return CUtil.rl("keyboard_mouse");
         }
 

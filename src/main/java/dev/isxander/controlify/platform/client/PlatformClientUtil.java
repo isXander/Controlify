@@ -10,7 +10,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -42,7 +42,7 @@ public final class PlatformClientUtil {
         IMPL.registerAssetReloadListener(reloadListener);
     }
 
-    public static void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
+    public static void registerBuiltinResourcePack(Identifier id, Component displayName) {
         IMPL.registerBuiltinResourcePack(id, displayName);
     }
 
@@ -50,7 +50,7 @@ public final class PlatformClientUtil {
         IMPL.registerPostScreenRender(event);
     }
 
-    public static void addHudLayer(ResourceLocation id, HudRenderLayer layer) {
+    public static void addHudLayer(Identifier id, HudRenderLayer layer) {
         IMPL.addHudLayer(id, layer);
     }
 
@@ -59,7 +59,7 @@ public final class PlatformClientUtil {
     }
 
     public static <I, O> void setupClientsideHandshake(
-            ResourceLocation handshakeId,
+            Identifier handshakeId,
             StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
             StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
             Function<I, O> handshakeHandler

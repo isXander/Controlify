@@ -44,10 +44,13 @@ public abstract class AbstractWidgetMixin implements ButtonGuideRenderer<Abstrac
         controllerMessages.clear();
     }
 
-    @ModifyExpressionValue(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;getMessage()Lnet/minecraft/network/chat/Component;"))
+    // TODO: fix for port!
+    //? if <1.21.11 {
+    /*@ModifyExpressionValue(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;getMessage()Lnet/minecraft/network/chat/Component;"))
     protected Component modifyRenderedMessage(Component actualMessage) {
         return getControllerMessage(actualMessage);
     }
+    *///?}
 
     @Override
     public void controlify$setButtonGuide(RenderData<AbstractWidget> renderData) {

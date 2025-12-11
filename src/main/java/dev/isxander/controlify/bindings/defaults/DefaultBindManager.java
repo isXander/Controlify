@@ -15,7 +15,7 @@ import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
@@ -34,16 +34,16 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final Map<ResourceLocation, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
+    private final Map<Identifier, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
 
     @Override
     public CompletableFuture<@Nullable Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
-            Map<ResourceLocation, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
+            Map<Identifier, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
 
-            Map<ResourceLocation, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
+            Map<Identifier, DefaultBindProvider> defaultsByNamespace = new HashMap<>();
 
-            ResourceLocation defaultNamespaceFile = converter.idToFile(ControllerType.DEFAULT.namespace());
+            Identifier defaultNamespaceFile = converter.idToFile(ControllerType.DEFAULT.namespace());
             if (!defaultFiles.containsKey(defaultNamespaceFile)) {
                 LOGGER.error("No default binds found! Everything will be unbound!");
                 return null;
@@ -56,14 +56,14 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
             ); // default namespace for the defaults!
             defaultsByNamespace.put(ControllerType.DEFAULT.namespace(), defaultNamespaceDefaults);
 
-            for (Map.Entry<ResourceLocation, List<Resource>> stack : defaultFiles.entrySet()) {
-                ResourceLocation id = stack.getKey();
+            for (Map.Entry<Identifier, List<Resource>> stack : defaultFiles.entrySet()) {
+                Identifier id = stack.getKey();
                 List<Resource> files = stack.getValue();
 
                 if (id.equals(defaultNamespaceFile))
                     continue; // already processed
 
-                Pair<ResourceLocation, List<LayeredDefaultBindProvider.Layer>> defaults = this.readDefaults(id, files);
+                Pair<Identifier, List<LayeredDefaultBindProvider.Layer>> defaults = this.readDefaults(id, files);
                 // add the default namespace to the bottom
                 defaults.getSecond().add(
                         new LayeredDefaultBindProvider.Layer(defaultNamespaceDefaults, false)
@@ -77,7 +77,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
         }, executor);
     }
 
-    private Pair<ResourceLocation, List<LayeredDefaultBindProvider.Layer>> readDefaults(ResourceLocation id, List<Resource> files) {
+    private Pair<Identifier, List<LayeredDefaultBindProvider.Layer>> readDefaults(Identifier id, List<Resource> files) {
         List<LayeredDefaultBindProvider.Layer> defaults = new ArrayList<>();
 
         for (Resource resource : files) {
@@ -92,7 +92,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
             }
         }
 
-        ResourceLocation namespace = converter.fileToId(id);
+        Identifier namespace = converter.fileToId(id);
 
         return Pair.of(namespace, defaults);
     }
@@ -124,7 +124,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
         }, executor);
     }
 
-    public DefaultBindProvider getDefaultBindProvider(ResourceLocation namespace) {
+    public DefaultBindProvider getDefaultBindProvider(Identifier namespace) {
         DefaultBindProvider provider = this.defaultsByNamespace.get(namespace);
         if (provider == null)
             provider = this.defaultsByNamespace.get(ControllerType.DEFAULT.namespace());
@@ -134,7 +134,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     }
 
     @Override
-    public ResourceLocation getReloadId() {
+    public Identifier getReloadId() {
         return CUtil.rl("default_binds");
     }
 
@@ -145,6 +145,6 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
         ).apply(instance, ControllerDefault::new));
     }
 
-    public record Preparations(Map<ResourceLocation, DefaultBindProvider> map) {
+    public record Preparations(Map<Identifier, DefaultBindProvider> map) {
     }
 }

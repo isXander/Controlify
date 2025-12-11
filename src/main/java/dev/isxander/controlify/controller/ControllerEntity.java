@@ -25,7 +25,7 @@ import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -50,7 +50,7 @@ public class ControllerEntity extends ECSEntityImpl {
         driver.addComponents(this);
         this.getAllComponents().values().forEach(ECSComponent::finalise);
 
-        logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(ResourceLocation::toString).collect(Collectors.joining(", ")));
+        logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(Identifier::toString).collect(Collectors.joining(", ")));
     }
 
     public String uid() {
@@ -162,8 +162,8 @@ public class ControllerEntity extends ECSEntityImpl {
         this.driver.update(this, outOfFocus);
     }
 
-    public Map<ResourceLocation, IConfig<?>> getAllConfigs() {
-        Map<ResourceLocation, IConfig<?>> configs = new HashMap<>();
+    public Map<Identifier, IConfig<?>> getAllConfigs() {
+        Map<Identifier, IConfig<?>> configs = new HashMap<>();
 
         this.getAllComponents().forEach((id, component) -> {
             if (component instanceof IConfig<?> config) {
@@ -179,7 +179,7 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public void serializeToObject(JsonObject object, Gson gson) throws SerializationException {
         for (var entry : this.getAllConfigs().entrySet()) {
-            ResourceLocation key = entry.getKey();
+            Identifier key = entry.getKey();
             IConfig<?> config = entry.getValue();
 
             object.add(key.toString(), config.serialize(gson, this));
@@ -188,7 +188,7 @@ public class ControllerEntity extends ECSEntityImpl {
 
     public void deserializeFromObject(JsonObject object, Gson gson) throws SerializationException {
         for (var entry : this.getAllConfigs().entrySet()) {
-            ResourceLocation key = entry.getKey();
+            Identifier key = entry.getKey();
             IConfig<?> config = entry.getValue();
 
             JsonElement element = object.remove(key.toString()); // remove the used element

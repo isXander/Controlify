@@ -10,7 +10,7 @@ import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.KeybindContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,7 +30,7 @@ public class KeybindContentsMixin {
     @WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
     private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true) Style style) {
         //? if >=1.21.9 {
-        boolean wrapperFont = style.getFont() instanceof FontDescription.Resource(ResourceLocation font)
+        boolean wrapperFont = style.getFont() instanceof FontDescription.Resource(Identifier font)
                 && BindingFontHelper.WRAPPER_FONT.equals(font);
         //?} else {
         /*boolean wrapperFont = BindingFontHelper.WRAPPER_FONT.equals(style.getFont());
@@ -42,7 +42,7 @@ public class KeybindContentsMixin {
                     .map(c -> Controlify.instance().inputFontMapper()
                             .getComponentFromBinding(
                                     c.info().type().namespace(),
-                                    c.input().get().getBinding(ResourceLocation.tryParse(this.name))
+                                    c.input().get().getBinding(Identifier.tryParse(this.name))
                             )
                     );
             if (inputText.isPresent()) {

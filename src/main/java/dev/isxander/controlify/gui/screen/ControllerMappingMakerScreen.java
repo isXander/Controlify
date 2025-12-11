@@ -19,7 +19,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -136,7 +136,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     }
 
     private void processStage(MappingStage stage, ControllerStateView stateNow, ControllerStateView stateThen) {
-        for (ResourceLocation button : stateNow.getButtons()) {
+        for (Identifier button : stateNow.getButtons()) {
             boolean now = stateNow.isButtonDown(button);
             boolean prev = stateThen.isButtonDown(button);
 
@@ -156,7 +156,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             }
         }
 
-        for (ResourceLocation axis : stateNow.getAxes()) {
+        for (Identifier axis : stateNow.getAxes()) {
             float now = stateNow.getAxisState(axis);
             float prev = stateThen.getAxisState(axis);
             float diff = prev - now;
@@ -173,7 +173,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             }
         }
 
-        for (ResourceLocation hat : stateNow.getHats()) {
+        for (Identifier hat : stateNow.getHats()) {
             HatState now = stateNow.getHatState(hat);
             HatState prev = stateThen.getHatState(hat);
             if (now != prev) {
@@ -259,7 +259,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         }
 
         if (currentStage == null || !currentStage.isSatisfied()) {
-            ResourceLocation texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
+            Identifier texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
             Blit.tex(
                     guiGraphics,
                     texture,
@@ -293,14 +293,14 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     }
 
     public static class MappingStage {
-        private final ResourceLocation originInput;
+        private final Identifier originInput;
         private final MapType outputType;
         private final Component name;
-        private final ResourceLocation foreground;
-        private final ResourceLocation background;
+        private final Identifier foreground;
+        private final Identifier background;
         private boolean satisfied;
 
-        public MappingStage(ResourceLocation originInput, MapType outputType, Component name, String foreground, String background) {
+        public MappingStage(Identifier originInput, MapType outputType, Component name, String foreground, String background) {
             this.originInput = originInput;
             this.outputType = outputType;
             this.name = name;
@@ -308,7 +308,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             this.background = CUtil.rl("textures/gui/controllerdiagram/" + foreground + ".png");;
         }
 
-        public ResourceLocation originInput() {
+        public Identifier originInput() {
             return originInput;
         }
 
@@ -320,11 +320,11 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             return name;
         }
 
-        public ResourceLocation foreground() {
+        public Identifier foreground() {
             return foreground;
         }
 
-        public ResourceLocation background() {
+        public Identifier background() {
             return background;
         }
 

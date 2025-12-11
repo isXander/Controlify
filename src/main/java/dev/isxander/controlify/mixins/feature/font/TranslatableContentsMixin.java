@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -13,7 +14,8 @@ public class TranslatableContentsMixin {
             method = "decompose",
             at = @At(
                     value = "FIELD",
-                    target = "Lnet/minecraft/network/chat/contents/TranslatableContents;key:Ljava/lang/String;"
+                    target = "Lnet/minecraft/network/chat/contents/TranslatableContents;key:Ljava/lang/String;",
+                    opcode = Opcodes.GETFIELD
             )
     )
     private String replaceControllerActiveKey(String originalKey) {

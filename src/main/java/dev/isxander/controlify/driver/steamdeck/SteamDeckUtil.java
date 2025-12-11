@@ -5,7 +5,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.deckapi.api.SteamDeck;
 import dev.isxander.deckapi.api.SteamDeckException;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public final class SteamDeckUtil {
     // https://stackoverflow.com/a/75284996
     public static final boolean IS_SANDBOXED = "1".equals(System.getenv("container"));
 
-    public static final ResourceLocation STEAM_DECK_NAMESPACE = CUtil.rl("steam_deck");
+    public static final Identifier STEAM_DECK_NAMESPACE = CUtil.rl("steam_deck");
 
     public static Optional<SteamDeck> getDeckInstance() {
         if (triedToLoad) {

@@ -3,7 +3,7 @@ package dev.isxander.controlify.bindings.input;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.controller.input.ControllerStateView;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public interface Input {
 
     float state(ControllerStateView state);
 
-    List<ResourceLocation> getRelevantInputs();
+    List<Identifier> getRelevantInputs();
 
     InputType<?> type();
 }

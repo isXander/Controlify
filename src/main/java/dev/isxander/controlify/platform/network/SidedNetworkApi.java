@@ -2,7 +2,7 @@ package dev.isxander.controlify.platform.network;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface SidedNetworkApi {
     static C2SNetworkApi C2S() {
@@ -19,5 +19,5 @@ public interface SidedNetworkApi {
         /*return dev.isxander.controlify.platform.network.neoforge.S2CNetworkApiNeoforge.INSTANCE;*/
     }
 
-    <T> void registerPacket(ResourceLocation channel, StreamCodec<FriendlyByteBuf, T> handler);
+    <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> handler);
 }

@@ -10,7 +10,7 @@ import dev.isxander.controlify.bindings.output.GuiPressOutput;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
@@ -25,10 +25,10 @@ import java.util.function.Consumer;
  */
 public interface InputBinding {
     /**
-     * The ID of the binding, set from {@link InputBindingBuilder#id(ResourceLocation)}.
+     * The ID of the binding, set from {@link InputBindingBuilder#id(Identifier)}.
      * @return the ID
      */
-    ResourceLocation id();
+    Identifier id();
 
     /**
      * The name of the binding.
@@ -145,7 +145,7 @@ public interface InputBinding {
      * If empty, consider this binding as not being a radial candidate. It can never be added to the radial menu.
      * @return the radial icon's ID or an empty optional
      */
-    Optional<ResourceLocation> radialIcon();
+    Optional<Identifier> radialIcon();
 
     /**
      * Equivalent to calling
@@ -225,19 +225,19 @@ public interface InputBinding {
      */
     GuiPressOutput guiPressed();
 
-    ResourceLocation ANALOGUE_NOW = CUtil.rl("analogue_now");
-    ResourceLocation ANALOGUE_PREV = CUtil.rl("analogue_prev");
-    ResourceLocation DIGITAL_NOW = CUtil.rl("digital_now");
-    ResourceLocation DIGITAL_PREV = CUtil.rl("digital_prev");
-    ResourceLocation JUST_PRESSED = CUtil.rl("just_pressed");
-    ResourceLocation JUST_RELEASED = CUtil.rl("just_released");
-    ResourceLocation JUST_TAPPED = CUtil.rl("just_tapped");
-    ResourceLocation GUI_PRESSED = CUtil.rl("gui_pressed");
-    ResourceLocation KEY_EMULATION = CUtil.rl("key_emulation");
+    Identifier ANALOGUE_NOW = CUtil.rl("analogue_now");
+    Identifier ANALOGUE_PREV = CUtil.rl("analogue_prev");
+    Identifier DIGITAL_NOW = CUtil.rl("digital_now");
+    Identifier DIGITAL_PREV = CUtil.rl("digital_prev");
+    Identifier JUST_PRESSED = CUtil.rl("just_pressed");
+    Identifier JUST_RELEASED = CUtil.rl("just_released");
+    Identifier JUST_TAPPED = CUtil.rl("just_tapped");
+    Identifier GUI_PRESSED = CUtil.rl("gui_pressed");
+    Identifier KEY_EMULATION = CUtil.rl("key_emulation");
 
-    <T extends DigitalOutput> T getDigitalOutput(ResourceLocation id);
-    <T extends DigitalOutput> T addDigitalOutput(ResourceLocation id, T output);
+    <T extends DigitalOutput> T getDigitalOutput(Identifier id);
+    <T extends DigitalOutput> T addDigitalOutput(Identifier id, T output);
 
-    <T extends AnalogueOutput> T getAnalogueOutput(ResourceLocation id);
-    <T extends AnalogueOutput> T addAnalogueOutput(ResourceLocation id, T output);
+    <T extends AnalogueOutput> T getAnalogueOutput(Identifier id);
+    <T extends AnalogueOutput> T addAnalogueOutput(Identifier id, T output);
 }

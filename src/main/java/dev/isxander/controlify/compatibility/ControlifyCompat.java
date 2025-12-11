@@ -2,7 +2,7 @@ package dev.isxander.controlify.compatibility;
 
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 import java.util.HashSet;
 import java.util.Set;

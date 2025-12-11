@@ -10,7 +10,7 @@ import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
@@ -86,12 +86,12 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
+    public <I, O> void setupServersideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
         // TODO
     }
 
     @Override
-    public <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant) {
+    public <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant) {
         return DeferredRegister.create(registry, id.getNamespace()).register(id.getPath(), registrant);
     }
 

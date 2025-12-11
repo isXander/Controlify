@@ -8,7 +8,7 @@ import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.serialization.CustomSaveLoadConfig;
 import dev.isxander.controlify.controller.serialization.IConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,7 +80,7 @@ public class ConfigImpl<T extends ConfigClass> implements IConfig<T> {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return GenericControllerConfig.ID;
     }
 }

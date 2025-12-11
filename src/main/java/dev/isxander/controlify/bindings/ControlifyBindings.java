@@ -9,7 +9,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 
@@ -402,7 +402,7 @@ public final class ControlifyBindings {
                         .replaceAll("[^a-z0-9/._-]", "_")
                         .trim();
 
-                var identifier = ResourceLocation.fromNamespaceAndPath("fabric-key-binding-api-v1", idPath);
+                var identifier = Identifier.fromNamespaceAndPath("fabric-key-binding-api-v1", idPath);
 
                 InputBindingSupplier binding = ControlifyBindApi.get().registerBinding(builder -> builder
                         .id(identifier)

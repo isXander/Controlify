@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +39,7 @@ public interface InputBindingSupplier {
     /**
      * @return id of the binding.
      */
-    ResourceLocation bindId();
+    Identifier bindId();
 
     /**
      * Returns a text component with the currently bound input glyph
@@ -53,7 +53,7 @@ public interface InputBindingSupplier {
      */
     Component inputGlyph();
 
-    Codec<InputBindingSupplier> CODEC = ResourceLocation.CODEC.xmap(
+    Codec<InputBindingSupplier> CODEC = Identifier.CODEC.xmap(
             bindId -> ControlifyBindApi.get().createSupplier(bindId),
             InputBindingSupplier::bindId
     );

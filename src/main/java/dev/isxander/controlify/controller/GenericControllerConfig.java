@@ -3,11 +3,11 @@ package dev.isxander.controlify.controller;
 import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class GenericControllerConfig implements ConfigClass {
-    public static final ResourceLocation ID = CUtil.rl("config/generic");
+    public static final Identifier ID = CUtil.rl("config/generic");
 
     @Nullable
     public String nickname = null;

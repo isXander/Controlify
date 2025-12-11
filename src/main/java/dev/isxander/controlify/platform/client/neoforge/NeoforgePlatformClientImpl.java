@@ -17,7 +17,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
@@ -79,8 +79,8 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
-        ResourceLocation packLocation = id.withPrefix("resourcepacks/");
+    public void registerBuiltinResourcePack(Identifier id, Component displayName) {
+        Identifier packLocation = id.withPrefix("resourcepacks/");
 
         getModEventBus().<AddPackFindersEvent>addListener(e -> {
             e.addPackFinders(
@@ -95,7 +95,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer) {
+    public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
         getModEventBus().addListener(
                 RegisterGuiLayersEvent.class,
                 e -> e.registerAboveAll(id, renderLayer::render)
@@ -127,7 +127,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
+    public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
         // TODO
     }
 

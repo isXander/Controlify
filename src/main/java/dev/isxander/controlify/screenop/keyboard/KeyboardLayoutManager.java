@@ -6,9 +6,9 @@ import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -48,7 +48,7 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
     }
 
     private CompletableFuture<Map.Entry<KeyboardLayoutKey, KeyboardLayout>> loadLayout(
-            ResourceLocation file, Resource resource, Executor executor
+            Identifier file, Resource resource, Executor executor
     ) {
         return CompletableFuture.supplyAsync(() -> {
             KeyboardLayoutKey key = fileToKey(file);
@@ -73,7 +73,7 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
         }, executor);
     }
 
-    public KeyboardLayoutWithId getLayout(ResourceLocation layoutId, String languageCode) {
+    public KeyboardLayoutWithId getLayout(Identifier layoutId, String languageCode) {
         var key = new KeyboardLayoutKey(languageCode, layoutId);
 
         return Optional.ofNullable(this.layouts.get(key))
@@ -82,21 +82,21 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
                 .orElse(KeyboardLayouts.fallback());
     }
 
-    public KeyboardLayoutWithId getLayout(ResourceLocation layout) {
+    public KeyboardLayoutWithId getLayout(Identifier layout) {
         String currentLanguage = Minecraft.getInstance().getLanguageManager().getSelected();
         return getLayout(layout, currentLanguage);
     }
 
     @Override
-    public ResourceLocation getReloadId() {
+    public Identifier getReloadId() {
         return CUtil.rl("keyboard_layout");
     }
 
-    private static ResourceLocation keyToFile(KeyboardLayoutKey key) {
+    private static Identifier keyToFile(KeyboardLayoutKey key) {
         return key.layoutId().withPath(PREFIX + "/" + key.layoutId().getPath() + "/" + key.languageCode() + ".json");
     }
 
-    private static KeyboardLayoutKey fileToKey(ResourceLocation file) {
+    private static KeyboardLayoutKey fileToKey(Identifier file) {
         try {
             var components = file.getPath().split("/");
             var layoutPath = components[1];
@@ -111,13 +111,13 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
 
     }
 
-    private static Map<ResourceLocation, Resource> listMatchingResources(ResourceManager resourceManager) {
+    private static Map<Identifier, Resource> listMatchingResources(ResourceManager resourceManager) {
         return resourceManager.listResources(PREFIX, path -> path.getPath().endsWith(".json"));
     }
 
     public record Preparations(Map<KeyboardLayoutKey, KeyboardLayout> layouts) {}
 
-    private record KeyboardLayoutKey(String languageCode, ResourceLocation layoutId) {
+    private record KeyboardLayoutKey(String languageCode, Identifier layoutId) {
         public static final String DEFAULT_LANGUAGE = "en_us";
 
         public KeyboardLayoutKey withLanguage(String languageCode) {

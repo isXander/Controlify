@@ -3,7 +3,6 @@ package dev.isxander.controlify.virtualmouse;
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
-import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import org.joml.Vector2i;
 
@@ -23,7 +22,7 @@ public final class SnapUtils {
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 20));
             });
 
-            StateSwitchingButton filterButton = componentAccessor.getFilterButton();
+            var filterButton = componentAccessor.getFilterButton();
             if (filterButton.visible) {
                 int x = filterButton.getX() + filterButton.getWidth() / 2;
                 int y = filterButton.getY() + filterButton.getHeight() / 2;
@@ -37,14 +36,14 @@ public final class SnapUtils {
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 21));
             });
 
-            StateSwitchingButton forwardButton = pageAccessor.getForwardButton();
+            var forwardButton = pageAccessor.getForwardButton();
             if (forwardButton.visible) {
                 int x = forwardButton.getX() + forwardButton.getWidth() / 2 - 2;
                 int y = forwardButton.getY() + forwardButton.getHeight() / 2;
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 10));
             }
 
-            StateSwitchingButton backButton = pageAccessor.getBackButton();
+            var backButton = pageAccessor.getBackButton();
             if (backButton.visible) {
                 int x = backButton.getX() + backButton.getWidth() / 2 + 2;
                 int y = backButton.getY() + backButton.getHeight() / 2;

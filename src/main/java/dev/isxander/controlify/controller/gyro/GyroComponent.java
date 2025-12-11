@@ -6,10 +6,10 @@ import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.Config> {
-    public static final ResourceLocation ID = CUtil.rl("gyro");
+    public static final Identifier ID = CUtil.rl("gyro");
 
     private GyroStateC gyroState = GyroStateC.ZERO;
     private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
@@ -28,7 +28,7 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 

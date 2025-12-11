@@ -16,7 +16,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,8 +32,8 @@ import java.util.function.Predicate;
  * state between keys.
  */
 public class KeyboardWidget extends AbstractWidget implements ContainerEventHandler, ComponentProcessor {
-    private ResourceLocation currentLayout;
-    private @Nullable ResourceLocation previousLayout;
+    private Identifier currentLayout;
+    private @Nullable Identifier previousLayout;
 
     private InputTarget inputConsumer;
 
@@ -54,7 +54,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
     }
 
     public void updateLayout(KeyboardLayoutWithId layout) {
-        ResourceLocation oldLayoutId = this.getCurrentLayoutId();
+        Identifier oldLayoutId = this.getCurrentLayoutId();
         @Nullable String oldIdentifier = Optional.ofNullable(getFocused())
                 .map(k -> k.getKey().identifier())
                 .orElse(null);
@@ -62,7 +62,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         this.updateLayout(layout, oldIdentifier, oldLayoutId);
     }
 
-    public void updateLayout(KeyboardLayoutWithId layout, @Nullable String identifierToFocus, @Nullable ResourceLocation oldLayoutChangerToFocus) {
+    public void updateLayout(KeyboardLayoutWithId layout, @Nullable String identifierToFocus, @Nullable Identifier oldLayoutChangerToFocus) {
         this.previousLayout = this.currentLayout;
         this.currentLayout = layout.id();
 
@@ -126,7 +126,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         // everything within here is rendered in a single draw call
         Blit.batchDraw(guiGraphics, () -> {
             guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-            guiGraphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
+            guiGraphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
             for (KeyWidget key : keys) {
                 // every key background is rendered into the same vertex buffer to upload at once
@@ -207,11 +207,11 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
         return inputConsumer;
     }
 
-    public ResourceLocation getCurrentLayoutId() {
+    public Identifier getCurrentLayoutId() {
         return this.currentLayout;
     }
 
-    public Optional<ResourceLocation> getPreviousLayoutId() {
+    public Optional<Identifier> getPreviousLayoutId() {
         return Optional.ofNullable(this.previousLayout);
     }
 

@@ -6,10 +6,10 @@ import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SimpleHapticComponent implements ECSComponent, ConfigHolder<SimpleHapticComponent.Config> {
-    public static final ResourceLocation ID = CUtil.rl("hd_haptics");
+    public static final Identifier ID = CUtil.rl("hd_haptics");
 
     private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
     private Runnable onHaptic;
@@ -30,7 +30,7 @@ public class SimpleHapticComponent implements ECSComponent, ConfigHolder<SimpleH
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 

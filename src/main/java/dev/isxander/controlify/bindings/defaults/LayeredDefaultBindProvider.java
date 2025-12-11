@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.bindings.input.Input;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -20,7 +20,7 @@ public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultB
 
     @Override
     @Nullable
-    public Input getDefaultBind(ResourceLocation bindId) {
+    public Input getDefaultBind(Identifier bindId) {
         for (var layer : layers()) {
             Input input = layer.provider().getDefaultBind(bindId);
             if (input != null) return input;

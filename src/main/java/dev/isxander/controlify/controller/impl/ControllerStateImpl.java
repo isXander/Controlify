@@ -6,16 +6,16 @@ import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2FloatArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Set;
 
 public class ControllerStateImpl implements ModifiableControllerState {
-    private final Map<ResourceLocation, Boolean> buttons;
-    private final Map<ResourceLocation, Float> axes;
-    private final Map<ResourceLocation, Float> restingAxes;
-    private final Map<ResourceLocation, HatState> hats;
+    private final Map<Identifier, Boolean> buttons;
+    private final Map<Identifier, Float> axes;
+    private final Map<Identifier, Float> restingAxes;
+    private final Map<Identifier, HatState> hats;
 
     public ControllerStateImpl() {
         this.buttons = new Object2BooleanArrayMap<>();
@@ -25,51 +25,51 @@ public class ControllerStateImpl implements ModifiableControllerState {
     }
 
     @Override
-    public boolean isButtonDown(ResourceLocation button) {
+    public boolean isButtonDown(Identifier button) {
         return buttons.getOrDefault(button, false);
     }
 
     @Override
-    public Set<ResourceLocation> getButtons() {
+    public Set<Identifier> getButtons() {
         return buttons.keySet();
     }
 
     @Override
-    public float getAxisState(ResourceLocation axis) {
+    public float getAxisState(Identifier axis) {
         return axes.getOrDefault(axis, 0f);
     }
 
     @Override
-    public Set<ResourceLocation> getAxes() {
+    public Set<Identifier> getAxes() {
         return axes.keySet();
     }
 
     @Override
-    public float getAxisResting(ResourceLocation axis) {
+    public float getAxisResting(Identifier axis) {
         return restingAxes.getOrDefault(axis, 0f);
     }
 
     @Override
-    public HatState getHatState(ResourceLocation hat) {
+    public HatState getHatState(Identifier hat) {
         return hats.getOrDefault(hat, HatState.CENTERED);
     }
 
     @Override
-    public Set<ResourceLocation> getHats() {
+    public Set<Identifier> getHats() {
         return hats.keySet();
     }
 
     @Override
-    public void setButton(ResourceLocation button, boolean value) {
+    public void setButton(Identifier button, boolean value) {
         buttons.put(button, value);
     }
 
     @Override
-    public void setAxis(ResourceLocation axis, float value) {
+    public void setAxis(Identifier axis, float value) {
         axes.put(axis, value);
     }
 
-    public void setRestingAxis(ResourceLocation axis, float value) {
+    public void setRestingAxis(Identifier axis, float value) {
         if (!axes.containsKey(axis))
             throw new IllegalArgumentException("Cannot set resting axis for axis that doesn't exist");
 
@@ -77,7 +77,7 @@ public class ControllerStateImpl implements ModifiableControllerState {
     }
 
     @Override
-    public void setHat(ResourceLocation hat, HatState value) {
+    public void setHat(Identifier hat, HatState value) {
         hats.put(hat, value);
     }
 

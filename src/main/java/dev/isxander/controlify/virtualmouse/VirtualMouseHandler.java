@@ -25,7 +25,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
@@ -34,7 +34,7 @@ import java.lang.Math;
 import java.util.*;
 
 public class VirtualMouseHandler {
-    private static final ResourceLocation CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
+    private static final Identifier CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
 
     private double targetX, targetY;
     private double currentX, currentY;

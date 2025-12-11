@@ -1,12 +1,12 @@
 package dev.isxander.controlify.controller;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SingleValueComponent<T> implements ECSComponent {
     private final T value;
-    private final ResourceLocation id;
+    private final Identifier id;
 
-    public SingleValueComponent(T value, ResourceLocation id) {
+    public SingleValueComponent(T value, Identifier id) {
         this.value = value;
         this.id = id;
     }
@@ -16,7 +16,7 @@ public class SingleValueComponent<T> implements ECSComponent {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return this.id;
     }
 }

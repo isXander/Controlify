@@ -7,12 +7,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 public final class ClientUtils {
-    private static final ResourceLocation GREEN_BACK_BAR = ResourceLocation.withDefaultNamespace("boss_bar/green_background");
-    private static final ResourceLocation GREEN_FRONT_BAR = ResourceLocation.withDefaultNamespace("boss_bar/green_progress");
+    private static final Identifier GREEN_BACK_BAR = Identifier.withDefaultNamespace("boss_bar/green_background");
+    private static final Identifier GREEN_FRONT_BAR = Identifier.withDefaultNamespace("boss_bar/green_progress");
 
     private ClientUtils() {
     }
@@ -25,7 +25,7 @@ public final class ClientUtils {
         return new PlainTextButton(x, y, font.width(text.getVisualOrderText()), font.lineHeight, text, onPress, font);
     }
 
-    public static void drawSprite(GuiGraphics graphics, ResourceLocation location, int x, int y, int width, int height) {
+    public static void drawSprite(GuiGraphics graphics, Identifier location, int x, int y, int width, int height) {
         Blit.sprite(graphics, location, x, y, width, height);
     }
 

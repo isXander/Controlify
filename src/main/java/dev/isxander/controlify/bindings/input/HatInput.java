@@ -4,15 +4,15 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.HatState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
-public record HatInput(ResourceLocation hat, HatState targetState) implements Input {
+public record HatInput(Identifier hat, HatState targetState) implements Input {
     public static final String INPUT_ID = "hat";
 
     public static final MapCodec<HatInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ResourceLocation.CODEC.fieldOf(INPUT_ID).forGetter(HatInput::hat),
+            Identifier.CODEC.fieldOf(INPUT_ID).forGetter(HatInput::hat),
             HatState.CODEC.fieldOf("target_state").forGetter(HatInput::targetState)
     ).apply(instance, HatInput::new));
 
@@ -22,7 +22,7 @@ public record HatInput(ResourceLocation hat, HatState targetState) implements In
     }
 
     @Override
-    public List<ResourceLocation> getRelevantInputs() {
+    public List<Identifier> getRelevantInputs() {
         return List.of(hat);
     }
 

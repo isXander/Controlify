@@ -1,5 +1,5 @@
 /*? if sodium {*/
-package dev.isxander.controlify.compatibility.sodium.mixins;
+/*package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumScreenOperations;
@@ -89,4 +89,4 @@ public abstract class SodiumOptionsGUIMixin extends Screen implements ScreenProc
         return undoButton;
     }
 }
-/*?}*/
+*//*?}*/

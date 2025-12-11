@@ -20,7 +20,7 @@ import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.ingame.InputCurves;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -28,7 +28,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config>, CustomSaveLoadConfig {
-    public static final ResourceLocation ID = CUtil.rl("input");
+    public static final Identifier ID = CUtil.rl("input");
 
     private final ControllerEntity controller;
 
@@ -38,10 +38,10 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     private DeadzoneControllerStateView deadzoneStateNow, deadzoneStateThen;
 
     private final int buttonCount, axisCount, hatCount;
-    private final Map<ResourceLocation, DeadzoneGroup> deadzoneAxes;
+    private final Map<Identifier, DeadzoneGroup> deadzoneAxes;
     private final boolean definitelyGamepad;
 
-    private final Map<ResourceLocation, InputBinding> inputBindings;
+    private final Map<Identifier, InputBinding> inputBindings;
 
     private final IConfig<Config> config;
 
@@ -89,7 +89,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         }
     }
 
-    public @Nullable InputBinding getBinding(ResourceLocation id) {
+    public @Nullable InputBinding getBinding(Identifier id) {
         return this.inputBindings.get(id);
     }
 
@@ -125,7 +125,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         return this.definitelyGamepad;
     }
 
-    public Map<ResourceLocation, DeadzoneGroup> getDeadzoneGroups() {
+    public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
         ControllerMapping mapping = confObj().mapping;
         if (mapping != null) {
             return mapping.deadzones();
@@ -140,7 +140,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 
@@ -149,7 +149,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this);
     }
 
-    Optional<ResourceLocation> getDeadzoneForAxis(ResourceLocation axis) {
+    Optional<Identifier> getDeadzoneForAxis(Identifier axis) {
         for (DeadzoneGroup group : this.getDeadzoneGroups().values()) {
             if (group.axes().contains(axis)) {
                 return Optional.of(group.name());
@@ -224,7 +224,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         public InputCurves lookInputCurve = InputCurves.STANDARD;
         public boolean isLCE = false;
 
-        public Map<ResourceLocation, Float> deadzones = new Object2ObjectOpenHashMap<>();
+        public Map<Identifier, Float> deadzones = new Object2ObjectOpenHashMap<>();
         public boolean deadzonesCalibrated = false;
         public boolean delayedCalibration = false;
 
@@ -232,7 +232,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
         public boolean keepDefaultBindings = false;
 
-        public ResourceLocation[] radialActions = new ResourceLocation[8];
+        public Identifier[] radialActions = new Identifier[8];
         public int radialButtonFocusTimeoutTicks = 20;
 
         @Nullable
@@ -246,7 +246,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         private void validateRadialActions(ControllerEntity controller) {
             boolean changed = false;
             for (int i = 0; i < radialActions.length; i++) {
-                ResourceLocation action = radialActions[i];
+                Identifier action = radialActions[i];
                 InputBinding radialBinding = action != null ? controller.input().orElseThrow().getBinding(action) : null;
 
                 if (!RadialMenuScreen.EMPTY_ACTION.equals(action) && (radialBinding == null || radialBinding.radialIcon().isEmpty())) {

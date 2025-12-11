@@ -14,8 +14,8 @@ import dev.isxander.controlify.hid.HIDIdentifier;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.JsonTreeParser;
-import net.minecraft.Util;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Util;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.quiltmc.parsers.json.JsonReader;
@@ -30,7 +30,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 
     private Map<HIDIdentifier, ControllerType> typeMap = new HashMap<>();
 
-    public static final ResourceLocation ID = CUtil.rl("controller_type");
+    public static final Identifier ID = CUtil.rl("controller_type");
 
     private static final Codec<ControllerTypeEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.list(HIDIdentifier.CODEC)
@@ -130,7 +130,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     }
 
     @Override
-    public ResourceLocation getReloadId() {
+    public Identifier getReloadId() {
         return ID;
     }
 

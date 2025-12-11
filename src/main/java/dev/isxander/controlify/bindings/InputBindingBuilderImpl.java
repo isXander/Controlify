@@ -10,7 +10,7 @@ import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,12 +20,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class InputBindingBuilderImpl implements InputBindingBuilder {
-    private @Nullable ResourceLocation id;
+    private @Nullable Identifier id;
     private @Nullable Component category;
     private @Nullable Component customName, customDescription;
     private @Nullable Input defaultInput;
     private final Set<BindContext> allowedContexts = new HashSet<>();
-    private @Nullable ResourceLocation radialCandidate;
+    private @Nullable Identifier radialCandidate;
 
     private final Set<KeyMapping> keyCorrelations = new HashSet<>();
     private KeyMapping keyEmulation = null;
@@ -34,7 +34,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     private boolean locked;
 
     @Override
-    public InputBindingBuilder id(@NotNull ResourceLocation rl) {
+    public InputBindingBuilder id(@NotNull Identifier rl) {
         checkLocked();
 
         this.id = rl;
@@ -43,7 +43,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 
     @Override
     public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
-        return this.id(ResourceLocation.fromNamespaceAndPath(namespace, path));
+        return this.id(Identifier.fromNamespaceAndPath(namespace, path));
     }
 
     @Override
@@ -88,7 +88,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder radialCandidate(@Nullable ResourceLocation icon) {
+    public InputBindingBuilder radialCandidate(@Nullable Identifier icon) {
         checkLocked();
 
         this.radialCandidate = icon;
@@ -145,11 +145,11 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @NotNull
-    public ResourceLocation getIdAndLock() {
+    public Identifier getIdAndLock() {
         checkLocked();
 
         locked = true;
-        Validate.notNull(this.id, "Must call `.id(ResourceLocation)` on builder!");
+        Validate.notNull(this.id, "Must call `.id(Identifier)` on builder!");
         Validate.notNull(this.category, "Must call `.category(Component)` on builder %s!".formatted(this.id));
 
         return this.id;
@@ -174,7 +174,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     private Component createDefaultString(ControllerEntity controller, @Nullable String suffix, boolean notExistToNull) {
         Objects.requireNonNull(id);
 
-        ResourceLocation type = controller.info().type().namespace();
+        Identifier type = controller.info().type().namespace();
 
         String typeSpecificKey = type.toLanguageKey("controlify.binding", id.toLanguageKey());
         if (suffix != null) typeSpecificKey += "." + suffix;

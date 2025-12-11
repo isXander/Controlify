@@ -2,10 +2,10 @@ package dev.isxander.controlify.controller.battery;
 
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class BatteryLevelComponent implements ECSComponent {
-    public static final ResourceLocation ID = CUtil.rl("battery_level");
+    public static final Identifier ID = CUtil.rl("battery_level");
 
     private PowerState batteryLevel = new PowerState.Unknown();
 
@@ -18,7 +18,7 @@ public class BatteryLevelComponent implements ECSComponent {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 }

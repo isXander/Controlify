@@ -19,7 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
@@ -154,19 +154,19 @@ public class BindController implements Controller<Input> {
             ControllerStateView state = input.stateNow();
             ControllerStateView prevState = input.stateThen();
 
-            for (ResourceLocation button : state.getButtons()) {
+            for (Identifier button : state.getButtons()) {
                 if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
                     return Optional.of(new ButtonInput(button));
                 }
             }
 
-            for (ResourceLocation axis : state.getAxes()) {
+            for (Identifier axis : state.getAxes()) {
                 if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
                     return Optional.of(new AxisInput(axis));
                 }
             }
 
-            for (ResourceLocation hat : state.getHats()) {
+            for (Identifier hat : state.getHats()) {
                 HatState hatState = state.getHatState(hat);
                 if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
                     return Optional.of(new HatInput(hat, hatState));

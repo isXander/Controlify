@@ -119,6 +119,17 @@ stonecutter.apply {
     dependencies {
         put("fapi", prop("deps.fabricApi") ?: "0.0.0")
     }
+
+    replacements {
+        string {
+            direction = eval(current.version, ">=1.21.11")
+            replace("ResourceLocation", "Identifier")
+        }
+        string {
+            direction = eval(current.version, ">=1.21.11")
+            replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
+        }
+    }
 }
 
 tasks.named<ProcessResources>("generateModMetadata") {

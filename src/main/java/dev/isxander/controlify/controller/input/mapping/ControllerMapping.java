@@ -4,13 +4,13 @@ import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import dev.isxander.controlify.controller.impl.ControllerStateImpl;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.*;
 
 public record ControllerMapping(
         List<MappingEntry> mappings,
-        LinkedHashMap<ResourceLocation, DeadzoneGroup> deadzones
+        LinkedHashMap<Identifier, DeadzoneGroup> deadzones
 ) implements StateMapper {
     @Override
     public ControllerState mapState(ControllerState state) {
@@ -31,7 +31,7 @@ public record ControllerMapping(
 
     public static class Builder {
         private final List<MappingEntry> mappings = new ArrayList<>();
-        private final LinkedHashMap<ResourceLocation, DeadzoneGroup> deadzones = new LinkedHashMap<>();
+        private final LinkedHashMap<Identifier, DeadzoneGroup> deadzones = new LinkedHashMap<>();
 
         public Builder putMapping(MappingEntry mapping) {
             if (mapping == null)

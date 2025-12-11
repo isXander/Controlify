@@ -15,13 +15,23 @@ public class GameRendererMixin {
     @Shadow @Final
     private Minecraft minecraft;
 
+    //? if >=1.21.11 {
     @ModifyExpressionValue(
+            method = "pick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/player/LocalPlayer;raycastHitResult(FLnet/minecraft/world/entity/Entity;)Lnet/minecraft/world/phys/HitResult;"
+            )
+    )
+    //?} else {
+    /*@ModifyExpressionValue(
             method = "pick(Lnet/minecraft/world/entity/Entity;DDF)Lnet/minecraft/world/phys/HitResult;",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;pick(DFZ)Lnet/minecraft/world/phys/HitResult;"
             )
     )
+    *///?}
     private HitResult modifyPick(HitResult hitResult) {
         return ReachAroundHandler.getReachAroundHitResult(minecraft.getCameraEntity(), hitResult);
     }

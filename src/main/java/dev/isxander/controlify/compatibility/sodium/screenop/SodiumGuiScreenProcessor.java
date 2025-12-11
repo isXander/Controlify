@@ -1,5 +1,5 @@
 //? if sodium {
-package dev.isxander.controlify.compatibility.sodium.screenop;
+/*package dev.isxander.controlify.compatibility.sodium.screenop;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
@@ -68,4 +68,4 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
         super.onWidgetRebuild();
     }
 }
-//?}
+*///?}

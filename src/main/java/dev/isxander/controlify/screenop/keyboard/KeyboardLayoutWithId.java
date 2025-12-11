@@ -1,6 +1,6 @@
 package dev.isxander.controlify.screenop.keyboard;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Represents a keyboard layout with an associated ID.
@@ -9,5 +9,5 @@ import net.minecraft.resources.ResourceLocation;
  * @param layout the keyboard layout
  * @param id the resource location ID of the layout
  */
-public record KeyboardLayoutWithId(KeyboardLayout layout, ResourceLocation id) {
+public record KeyboardLayoutWithId(KeyboardLayout layout, Identifier id) {
 }

@@ -12,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(
-        //? if >=1.21.2 {
-        net.minecraft.world.entity.vehicle.AbstractBoat.class
-        //?} else {
+        //? if >=1.21.11 {
+        net.minecraft.world.entity.vehicle.boat.AbstractBoat.class
+        //?} elif >=1.21.2 {
+        /*net.minecraft.world.entity.vehicle.AbstractBoat.class
+        *///?} else {
         /*net.minecraft.world.entity.vehicle.Boat.class
         *///?}
 )
@@ -31,9 +33,11 @@ public abstract class BoatMixin implements AnalogBoatInput {
 
     @Unique
     private static final String TARGET_CLASS =
-            //? if >=1.21.2 {
-            "Lnet/minecraft/world/entity/vehicle/AbstractBoat";
-            //?} else {
+            //? if >=1.21.11 {
+            "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat";
+            //?} elif >=1.21.2 {
+            /*"Lnet/minecraft/world/entity/vehicle/AbstractBoat";
+            *///?} else {
             /*"Lnet/minecraft/world/entity/vehicle/Boat";
             *///?}
 

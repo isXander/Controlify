@@ -6,7 +6,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
 import dev.isxander.controlify.utils.codec.FuzzyMapCodec;
 import dev.isxander.controlify.utils.codec.StrictEitherMapCodec;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;

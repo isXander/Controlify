@@ -9,11 +9,11 @@ import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 
 public record EntityVibrationPacket(int entityId, float range, int duration, RumbleState state, RumbleSource source) {
-    public static final ResourceLocation CHANNEL = CUtil.rl("vibrate_from_entity");
+    public static final Identifier CHANNEL = CUtil.rl("vibrate_from_entity");
 
     public static final StreamCodec<FriendlyByteBuf, EntityVibrationPacket> CODEC = StreamCodec.of(
         (buf, packet) -> {
@@ -21,14 +21,14 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
             buf.writeFloat(packet.range());
             buf.writeInt(packet.duration());
             buf.writeInt(RumbleState.packToInt(packet.state()));
-            buf.writeResourceLocation(packet.source().id());
+            buf.writeIdentifier(packet.source().id());
         },
         buf -> new EntityVibrationPacket(
             buf.readInt(),
             buf.readFloat(),
             buf.readInt(),
             RumbleState.unpackFromInt(buf.readInt()),
-            RumbleSource.get(buf.readResourceLocation())
+            RumbleSource.get(buf.readIdentifier())
         )
     );
 

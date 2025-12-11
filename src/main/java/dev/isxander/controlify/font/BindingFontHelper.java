@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringDecomposer;
@@ -25,11 +25,11 @@ import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 //?}
 
 public final class BindingFontHelper {
-    public static final ResourceLocation WRAPPER_FONT = CUtil.rl("inputs");
+    public static final Identifier WRAPPER_FONT = CUtil.rl("inputs");
     public static final String PLACEHOLDER_KEY = "controlify.placeholder";
     public static final String PLACEHOLDER_CONTROLLER_ACTIVE_KEY = "controlify.placeholder.controller_active";
 
-    public static Component bindingWithActiveFallback(ResourceLocation binding, Component fallback) {
+    public static Component bindingWithActiveFallback(Identifier binding, Component fallback) {
         return Component.translatableWithFallback(PLACEHOLDER_CONTROLLER_ACTIVE_KEY, "%2$s", binding(binding), fallback);
     }
 
@@ -37,7 +37,7 @@ public final class BindingFontHelper {
         return bindingWithActiveFallback(binding.id(), fallback);
     }
 
-    public static Component bindingWithFallback(ResourceLocation binding, Component fallback) {
+    public static Component bindingWithFallback(Identifier binding, Component fallback) {
         return Component.translatableWithFallback("controlify.placeholder", "%2$s", binding(binding), fallback);
     }
 
@@ -45,7 +45,7 @@ public final class BindingFontHelper {
         return bindingWithFallback(binding.id(), fallback);
     }
 
-    public static Component binding(ResourceLocation binding) {
+    public static Component binding(Identifier binding) {
         return Component.keybind(binding.toString()).withStyle(style -> style.withFont(CUtil.createResourceFont(WRAPPER_FONT)));
     }
 

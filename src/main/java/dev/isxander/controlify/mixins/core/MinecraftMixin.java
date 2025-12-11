@@ -64,7 +64,18 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
      * screen, hovering over whatever is there which would look wrong
      * as there is a focus as well.
      */
-    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V", shift = At.Shift.AFTER))
+    @Inject(
+            method = "setScreen",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.11 {
+                    target = "Lnet/minecraft/client/gui/screens/Screen;init(II)V",
+                    //?} else {
+                    /*target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V",
+                    *///?}
+                    shift = At.Shift.AFTER
+            )
+    )
     private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
         if (ControlifyApi.get().currentInputMode().isController()) {
             Controlify.instance().hideMouse(true, true);

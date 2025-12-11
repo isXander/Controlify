@@ -34,7 +34,7 @@ import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
 import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.api.power.SDL_PowerState;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Nullable;
 

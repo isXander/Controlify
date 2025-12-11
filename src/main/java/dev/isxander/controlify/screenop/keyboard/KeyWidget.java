@@ -18,7 +18,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -26,8 +26,8 @@ import org.lwjgl.glfw.GLFW;
  * It handles rendering, input processing, and interaction with the keyboard layout.
  */
 public class KeyWidget extends AbstractWidget implements ComponentProcessor, ScreenControllerEventListener {
-    public static final ResourceLocation SPRITE = CUtil.rl("keyboard/key");
-    public static final ResourceLocation SPRITE_PRESSED = CUtil.rl("keyboard/key_pressed");
+    public static final Identifier SPRITE = CUtil.rl("keyboard/key");
+    public static final Identifier SPRITE_PRESSED = CUtil.rl("keyboard/key_pressed");
 
     private final KeyboardWidget keyboard;
     private final KeyboardLayout.Key key;
@@ -71,7 +71,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, renderWidth - 2, renderHeight - 2);
 
             if (isHoveredOrFocused()) {
-                graphics./*? if >=1.21.9 {*/submitOutline/*?} else {*//*renderOutline*//*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
+                graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
             } else if (!shortcutPressed) {
                 this.holdRepeatHelper.reset();
             }
@@ -297,7 +297,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         return this.keyboard.isShifted() ? this.supportsShifted : this.supportsRegular;
     }
 
-    private void changeLayout(ResourceLocation layoutId) {
+    private void changeLayout(Identifier layoutId) {
         KeyboardLayoutWithId layoutWithId = Controlify.instance().keyboardLayoutManager().getLayout(layoutId);
         this.keyboard.updateLayout(layoutWithId);
     }

@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -28,7 +28,7 @@ public final class RadialItems {
         RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[8];
 
         for (int i = 0; i < 8; i++) {
-            ResourceLocation bindingId = controller.input().orElseThrow().confObj().radialActions[i];
+            Identifier bindingId = controller.input().orElseThrow().confObj().radialActions[i];
 
             items[i] = getItemForBinding(bindingId, controller);
         }
@@ -267,7 +267,7 @@ public final class RadialItems {
         };
     }
 
-    private static RadialMenuScreen.RadialItem getItemForBinding(ResourceLocation id, ControllerEntity controller) {
+    private static RadialMenuScreen.RadialItem getItemForBinding(Identifier id, ControllerEntity controller) {
         InputBinding binding = controller.input().orElseThrow().getBinding(id);
 
         if (binding == null || binding.radialIcon().isEmpty()) {
@@ -287,7 +287,7 @@ public final class RadialItems {
         );
     }
 
-    private record RadialItemRecord(Component name, RadialIcon icon, Supplier<Boolean> action, ResourceLocation id) implements RadialMenuScreen.RadialItem {
+    private record RadialItemRecord(Component name, RadialIcon icon, Supplier<Boolean> action, Identifier id) implements RadialMenuScreen.RadialItem {
         @Override
         public boolean playAction() {
             return action.get();
@@ -312,7 +312,7 @@ public final class RadialItems {
         public GameModeItem(GameType gameType) {
             this.gameType = gameType;
             this.name = gameType.getShortDisplayName();
-            ResourceLocation iconId = switch (gameType) {
+            Identifier iconId = switch (gameType) {
                 case CREATIVE -> RadialIcons.getItem(Items.GRASS_BLOCK);
                 case SURVIVAL -> RadialIcons.getItem(Items.IRON_SWORD);
                 case ADVENTURE -> RadialIcons.getItem(Items.MAP);
@@ -341,7 +341,8 @@ public final class RadialItems {
         public boolean playAction() {
             Minecraft client = Minecraft.getInstance();
             if (client.gameMode != null && client.player != null) {
-                if (client.player.hasPermissions(2) && client.gameMode.getPlayerMode() != gameType) {
+                if (client.player./*? if >=1.21.11 {*/permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER)/*?} else {*//*hasPermissions(2)*//*?}*/
+                    && client.gameMode.getPlayerMode() != gameType) {
                     client.player.connection.sendCommand(command);
                     return true;
                 }

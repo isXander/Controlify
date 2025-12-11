@@ -65,11 +65,19 @@ public class KeyboardOverlayScreen extends Screen {
         );
     }
 
+    //? if >=1.21.11 {
     @Override
+    protected void repositionElements() {
+        super.repositionElements();
+        this.backgroundScreen.init(width, height);
+    }
+    //?} else {
+    /*@Override
     public void resize(Minecraft minecraft, int width, int height) {
         this.backgroundScreen.resize(minecraft, width, height);
         super.resize(minecraft, width, height);
     }
+    *///?}
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {

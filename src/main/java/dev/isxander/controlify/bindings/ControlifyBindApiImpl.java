@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
         Function<ControllerEntity, InputBindingImpl> finaliser = builder::build;
 
-        ResourceLocation bindId = builder.getIdAndLock();
+        Identifier bindId = builder.getIdAndLock();
 
         this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation(), builder.getKeyEmulationToggle(), bindId));
 
@@ -59,7 +59,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public void registerRadialIcon(ResourceLocation id, RadialIcon icon) {
+    public void registerRadialIcon(Identifier id, RadialIcon icon) {
         checkLocked();
 
         RadialIcons.registerIcon(id, icon);
@@ -103,7 +103,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public InputBindingSupplier createSupplier(ResourceLocation bindingId) {
+    public InputBindingSupplier createSupplier(Identifier bindingId) {
         return new InputBindingSupplierImpl(bindingId);
     }
 
@@ -112,7 +112,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public Stream<ResourceLocation> getAllBindIds() {
+    public Stream<Identifier> getAllBindIds() {
         return this.bindEntries.stream().map(RegistryEntry::id);
     }
 
@@ -121,6 +121,6 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             Function<ControllerEntity, InputBindingImpl> builder,
             KeyMapping emulation,
             Function<ControllerEntity, Boolean> emulationToggle,
-            ResourceLocation id
+            Identifier id
     ) {}
 }

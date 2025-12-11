@@ -13,17 +13,21 @@ public final class DebugOverlayHelper {
     private static final Minecraft mc = Minecraft.getInstance();
 
     public static boolean isOverlayEnabled() {
-        //? if >=1.21.9 {
-        return mc.debugEntries.isF3Visible();
-        //?} else {
+        //? if >=1.21.11 {
+        return mc.debugEntries.isOverlayVisible();
+        //?} elif >=1.21.9 {
+        /*return mc.debugEntries.isF3Visible();
+        *///?} else {
         /*return ((DebugScreenOverlayAccessor) mc.getDebugOverlay()).isRenderDebug();
         *///?}
     }
 
     public static void toggleOverlay() {
-        //? if >=1.21.9 {
-        mc.debugEntries.toggleF3Visible();
-        //?} else {
+        //? if >=1.21.11 {
+        mc.debugEntries.toggleDebugOverlay();
+        //?} elif >=1.21.9 {
+        /*mc.debugEntries.toggleF3Visible();
+        *///?} else {
         /*mc.getDebugOverlay().toggleOverlay();
         *///?}
     }

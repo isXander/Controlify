@@ -10,11 +10,20 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.MthExt;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.phys.Vec2;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+
+//? if >=1.21.11 {
+import net.minecraft.world.entity.vehicle.boat.Boat;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
+//?} else {
+/*import net.minecraft.world.entity.vehicle.Boat;
+//? if >=1.21.2 {
+import net.minecraft.world.entity.vehicle.AbstractBoat;
+//?}
+*///?}
 
 @Mixin(LocalPlayer.class)
 public class LocalPlayerMixin {
@@ -28,16 +37,18 @@ public class LocalPlayerMixin {
             method = "rideTick",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.2 {
-                    target = "Lnet/minecraft/world/entity/vehicle/AbstractBoat;setInput(ZZZZ)V"
-                    //?} else {
+                    //? if >=1.21.11 {
+                    target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat;setInput(ZZZZ)V"
+                    //?} elif >=1.21.2 {
+                    /*target = "Lnet/minecraft/world/entity/vehicle/AbstractBoat;setInput(ZZZZ)V"
+                    *///?} else {
                     /*target = "Lnet/minecraft/world/entity/vehicle/Boat;setInput(ZZZZ)V"
                     *///?}
             )
     )
     private void useAnalogInput(
             //? if >=1.21.2 {
-            net.minecraft.world.entity.vehicle.AbstractBoat boat,
+            AbstractBoat boat,
             //?} else {
             /*Boat boat,
             *///?}

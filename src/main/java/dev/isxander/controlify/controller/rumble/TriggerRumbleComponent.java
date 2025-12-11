@@ -3,13 +3,13 @@ package dev.isxander.controlify.controller.rumble;
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class TriggerRumbleComponent implements ECSComponent {
-    public static final ResourceLocation ID = CUtil.rl("trigger_rumble");
+    public static final Identifier ID = CUtil.rl("trigger_rumble");
 
     private TriggerRumbleState state = null;
 
@@ -24,7 +24,7 @@ public class TriggerRumbleComponent implements ECSComponent {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 }

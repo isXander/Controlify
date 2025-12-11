@@ -13,13 +13,13 @@ import dev.isxander.controlify.utils.DebugDump;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -178,7 +178,7 @@ public class GlobalSettingsScreenFactory {
                 .build().generateScreen(parent);
     }
 
-    private static ResourceLocation screenshot(String filename) {
+    private static Identifier screenshot(String filename) {
         return CUtil.rl("textures/screenshots/" + filename);
     }
 }

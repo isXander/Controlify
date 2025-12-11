@@ -8,7 +8,7 @@ import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -39,7 +39,7 @@ public final class PlatformMainUtil {
     }
 
     public static <I, O> void setupServersideHandshake(
-            ResourceLocation handshakeId,
+            Identifier handshakeId,
             StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
             StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
             Supplier<O> packetCreator,
@@ -48,7 +48,7 @@ public final class PlatformMainUtil {
         IMPL.setupServersideHandshake(handshakeId, serverBoundCodec, clientBoundCodec, packetCreator, completionEvent);
     }
 
-    public static <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant) {
+    public static <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant) {
         return IMPL.deferredRegister(registry, id, registrant);
     }
 

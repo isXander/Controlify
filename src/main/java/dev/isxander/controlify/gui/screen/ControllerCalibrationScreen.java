@@ -16,7 +16,7 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -48,7 +48,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
     protected int calibrationTicks = 0;
 
     @Nullable
-    private final Map<ResourceLocation, float[]> axisData;
+    private final Map<Identifier, float[]> axisData;
     private GyroState accumulatedGyroVelocity = new GyroState();
 
     public ControllerCalibrationScreen(ControllerEntity controller, Screen parent) {
@@ -63,7 +63,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         this.parent = parent;
 
         Optional<InputComponent> inputOpt = controller.input();
-        this.axisData = inputOpt.map(inputComponent -> new HashMap<ResourceLocation, float[]>(inputComponent.axisCount())).orElse(null);
+        this.axisData = inputOpt.map(inputComponent -> new HashMap<Identifier, float[]>(inputComponent.axisCount())).orElse(null);
     }
 
     @Override
@@ -115,11 +115,26 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
         else if (calibrated) label = completeLabel;
         else label = infoLabel;
 
-        //? if >=1.21.9 {
-        label.render(graphics, MultiLineLabel.Align.CENTER, width / 2, 55, font.lineHeight, false, -1);
-        //?} else {
-        /*label.renderCentered(graphics, width / 2, 55);
-        *///?}
+        {
+            int anchorX = width / 2;
+            int topY = 55;
+            //? if >=1.21.11 {
+            label.visitLines(
+                    net.minecraft.client.gui.TextAlignment.CENTER,
+                    anchorX, topY, font.lineHeight,
+                    graphics.textRenderer()
+            );
+            //?} elif >=1.21.9 {
+            /*label.render(
+                    graphics,
+                    MultiLineLabel.Align.CENTER,
+                    anchorX, topY, font.lineHeight,
+                    false, -1
+            );
+            *///?} else {
+            /*label.renderCentered(graphics, anchorX, topY);
+            *///?}
+        }
 
         pose.push();
         float scale = Math.min(3f, (readyButton.getY() - (55 + font.lineHeight * label.getLineCount()) - 2) / 64f);
@@ -183,7 +198,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
             float[] axisData = this.axisData.computeIfAbsent(group.name(), k -> new float[CALIBRATION_TIME]);
 
             float max = 0;
-            for (ResourceLocation axis : group.axes()) {
+            for (Identifier axis : group.axes()) {
                 max = Math.max(max, Math.abs(state.getAxisState(axis)));
             }
 
@@ -231,7 +246,7 @@ public class ControllerCalibrationScreen extends Screen implements DontInteruptS
 
         var amt = 0.4f;
 
-        for (ResourceLocation axis : input.rawStateNow().getAxes()) {
+        for (Identifier axis : input.rawStateNow().getAxes()) {
             float[] axisData = this.axisData.get(axis);
             if (axisData == null)
                 continue;

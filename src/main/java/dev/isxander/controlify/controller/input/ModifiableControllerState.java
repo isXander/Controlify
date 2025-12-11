@@ -1,11 +1,11 @@
 package dev.isxander.controlify.controller.input;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface ModifiableControllerState extends ControllerState {
-    void setButton(ResourceLocation button, boolean pressed);
+    void setButton(Identifier button, boolean pressed);
 
-    void setAxis(ResourceLocation axis, float value);
+    void setAxis(Identifier axis, float value);
 
-    void setHat(ResourceLocation hat, HatState state);
+    void setHat(Identifier hat, HatState state);
 }

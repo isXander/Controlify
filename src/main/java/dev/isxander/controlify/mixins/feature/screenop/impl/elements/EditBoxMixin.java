@@ -106,9 +106,8 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
     }
 
     @Definition(id = "isFocused", method = "Lnet/minecraft/client/gui/components/EditBox;isFocused()Z")
-    @Definition(id = "getMillis", method = "Lnet/minecraft/Util;getMillis()J")
     @Definition(id = "focusedTime", field = "Lnet/minecraft/client/gui/components/EditBox;focusedTime:J")
-    @Expression("(getMillis() - this.focusedTime) / 300 % 2 == 0")
+    @Expression("(?() - this.focusedTime) / 300 % 2 == 0")
     @ModifyExpressionValue(method = "renderWidget", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean preventShowingCursor(boolean showCursor, @Share("renderHint") LocalBooleanRef renderHint) {
         return showCursor && !renderHint.get();

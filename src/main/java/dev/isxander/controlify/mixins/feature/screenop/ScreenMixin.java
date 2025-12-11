@@ -21,8 +21,19 @@ public class ScreenMixin implements ScreenProcessorProvider {
         return controlify$processor;
     }
 
-    @Inject(method = "init(Lnet/minecraft/client/Minecraft;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init()V", shift = At.Shift.AFTER))
-    private void onScreenInitialInit(Minecraft client, int width, int height, CallbackInfo ci) {
+    @Inject(
+            //? if >=1.21.11 {
+            method = "init(II)V",
+            //?} else {
+            /*method = "init(Lnet/minecraft/client/Minecraft;II)V"
+            *///?}
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/gui/screens/Screen;init()V",
+                    shift = At.Shift.AFTER
+            )
+    )
+    private void onScreenInitialInit(CallbackInfo ci) {
         // cannot use screenProcessor() because it may be overriden by registry
         ScreenProcessorProvider.provide((Screen) (Object) this).onWidgetRebuild();
     }

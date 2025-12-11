@@ -3,7 +3,7 @@ package dev.isxander.controlify.screenop.keyboard;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import static dev.isxander.controlify.screenop.keyboard.KeyboardLayout.KeyFuncti
  * are not available or the layout required is not defined.
  */
 public final class FallbackKeyboardLayout {
-    public static final ResourceLocation ID = CUtil.rl("fallback");
+    public static final Identifier ID = CUtil.rl("fallback");
 
     public static final KeyboardLayout QWERTY = KeyboardLayout.of(13.0f,
             List.of(

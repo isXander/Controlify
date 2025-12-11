@@ -8,7 +8,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.utils.ResizableRingBuffer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -17,12 +17,12 @@ import java.util.function.Supplier;
 
 public class InputBindingImpl implements InputBinding {
     private final ControllerEntity controller;
-    private final ResourceLocation id;
+    private final Identifier id;
     private final Component name, description, category;
     private Input boundInput;
     private final Supplier<Input> defaultBindSupplier;
     private final Set<BindContext> contexts;
-    private final @Nullable ResourceLocation radialIcon;
+    private final @Nullable Identifier radialIcon;
 
     private final ResizableRingBuffer<Float> stateHistory;
     private final Set<StateAccessImpl> borrowedAccesses;
@@ -38,20 +38,20 @@ public class InputBindingImpl implements InputBinding {
     private final DigitalOutput justTapped;
     private final GuiPressOutput guiPressOutput;
 
-    private final Map<ResourceLocation, DigitalOutput> digitalOutputs;
-    private final Map<ResourceLocation, AnalogueOutput> analogueOutputs;
+    private final Map<Identifier, DigitalOutput> digitalOutputs;
+    private final Map<Identifier, AnalogueOutput> analogueOutputs;
 
     private int fakePressState = -1;
 
     public InputBindingImpl(
             ControllerEntity controller,
-            ResourceLocation id,
+            Identifier id,
             Component name,
             Component description,
             Component category,
             Supplier<Input> defaultBindSupplier,
             Set<BindContext> contexts,
-            @Nullable ResourceLocation radialIcon
+            @Nullable Identifier radialIcon
     ) {
         this.controller = controller;
         this.id = id;
@@ -79,7 +79,7 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return this.id;
     }
 
@@ -192,7 +192,7 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public Optional<ResourceLocation> radialIcon() {
+    public Optional<Identifier> radialIcon() {
         return Optional.ofNullable(this.radialIcon);
     }
 
@@ -237,24 +237,24 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
-    public <T extends DigitalOutput> T addDigitalOutput(ResourceLocation id, T output) {
+    public <T extends DigitalOutput> T addDigitalOutput(Identifier id, T output) {
         this.digitalOutputs.put(id, output);
         return output;
     }
 
     @Override
-    public <T extends DigitalOutput> T getDigitalOutput(ResourceLocation id) {
+    public <T extends DigitalOutput> T getDigitalOutput(Identifier id) {
         return (T) this.digitalOutputs.get(id);
     }
 
     @Override
-    public <T extends AnalogueOutput> T addAnalogueOutput(ResourceLocation id, T output) {
+    public <T extends AnalogueOutput> T addAnalogueOutput(Identifier id, T output) {
         this.analogueOutputs.put(id, output);
         return output;
     }
 
     @Override
-    public <T extends AnalogueOutput> T getAnalogueOutput(ResourceLocation id) {
+    public <T extends AnalogueOutput> T getAnalogueOutput(Identifier id) {
         return (T) this.analogueOutputs.get(id);
     }
 

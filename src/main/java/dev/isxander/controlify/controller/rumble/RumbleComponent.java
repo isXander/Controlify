@@ -9,13 +9,13 @@ import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.Optional;
 
 public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleComponent.Config> {
-    public static final ResourceLocation ID = CUtil.rl("rumble");
+    public static final Identifier ID = CUtil.rl("rumble");
 
     private RumbleState state = null;
     private final IConfig<Config> config;
@@ -48,14 +48,14 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 
     public static class Config implements ConfigClass {
         public boolean enabled = true;
 
-        public Map<ResourceLocation, Float> vibrationStrengths = RumbleSource.getDefaultMap();
+        public Map<Identifier, Float> vibrationStrengths = RumbleSource.getDefaultMap();
 
         public RumbleState applyRumbleStrength(RumbleState state, RumbleSource source) {
             float strength = this.getStrength(source);

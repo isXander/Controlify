@@ -2,13 +2,13 @@ package dev.isxander.controlify.controller.led;
 
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
 
 public class LEDComponent implements ECSComponent {
-    public static final ResourceLocation ID = CUtil.rl("led");
+    public static final Identifier ID = CUtil.rl("led");
 
     private final int[] ledColors;
     private boolean dirty = false;
@@ -79,7 +79,7 @@ public class LEDComponent implements ECSComponent {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 }

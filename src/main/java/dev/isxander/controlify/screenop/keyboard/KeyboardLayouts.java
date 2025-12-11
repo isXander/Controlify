@@ -2,7 +2,7 @@ package dev.isxander.controlify.screenop.keyboard;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * A collection of predefined keyboard layouts.
@@ -12,9 +12,9 @@ import net.minecraft.resources.ResourceLocation;
  */
 public final class KeyboardLayouts {
 
-    public static final ResourceLocation FULL = CUtil.rl("full");
-    public static final ResourceLocation SIMPLE = CUtil.rl("simple");
-    public static final ResourceLocation SERVER_IP = CUtil.rl("server_ip");
+    public static final Identifier FULL = CUtil.rl("full");
+    public static final Identifier SIMPLE = CUtil.rl("simple");
+    public static final Identifier SERVER_IP = CUtil.rl("server_ip");
 
     public static KeyboardLayoutWithId full() {
         return Controlify.instance().keyboardLayoutManager().getLayout(FULL);
