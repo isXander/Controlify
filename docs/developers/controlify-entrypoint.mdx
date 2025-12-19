@@ -37,7 +37,8 @@ controlify_version=2.4.3+1.21.1-neoforge
 
 ```kotlin
 dependencies {
-    // You can change "compileOnly" to "implementation" for testing in-game.
+    // Note: "compileOnly" must be replaced with "modCompileOnly" if Fabric Loom is used while targeting an obfuscated Minecraft version.
+    //  This is not needed for deobfuscated Minecraft versions.
     compileOnly("dev.isxander:controlify:${project.controlify_version}") {
         // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
         transitive = false
