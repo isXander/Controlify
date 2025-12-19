@@ -362,7 +362,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             if (editMode != null && controller == RadialMenuScreen.this.controller && ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
-                actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
+                actionSelectList = new ActionSelectList(selectedButton, x, button.y, 250, 80);
                 addRenderableWidget(actionSelectList);
                 RadialMenuScreen.this.setFocused(actionSelectList);
                 isEditing = true;
