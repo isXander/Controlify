@@ -4,6 +4,7 @@ import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.entrypoint.InitContext;
+import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.guide.ContainerCtx;
 import dev.isxander.controlify.api.guide.GuideDomainRegistries;
 import dev.isxander.controlify.api.guide.GuideDomainRegistry;
@@ -167,15 +168,25 @@ public class Controlify implements ControlifyApi {
 
         PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
-                entrypoint.onControlifyPreInit(() -> new GuideDomainRegistries() {
+                entrypoint.onControlifyPreInit(new PreInitContext() {
                     @Override
-                    public GuideDomainRegistry<InGameCtx> inGame() {
-                        return GuideDomains.IN_GAME;
+                    public ControlifyBindApi bindings() {
+                        return ControlifyBindApiImpl.INSTANCE;
                     }
 
                     @Override
-                    public GuideDomainRegistry<ContainerCtx> container() {
-                        return GuideDomains.CONTAINER;
+                    public GuideDomainRegistries guideRegistries() {
+                        return new GuideDomainRegistries() {
+                            @Override
+                            public GuideDomainRegistry<InGameCtx> inGame() {
+                                return GuideDomains.IN_GAME;
+                            }
+
+                            @Override
+                            public GuideDomainRegistry<ContainerCtx> container() {
+                                return GuideDomains.CONTAINER;
+                            }
+                        };
                     }
                 });
             } catch (Throwable e) {
@@ -253,11 +264,6 @@ public class Controlify implements ControlifyApi {
         PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
                 entrypoint.onControlifyInit(new InitContext() {
-                    @Override
-                    public ControlifyBindApi bindings() {
-                        return ControlifyBindApiImpl.INSTANCE;
-                    }
-
                     @Override
                     public ControlifyApi controlify() {
                         return Controlify.this;
