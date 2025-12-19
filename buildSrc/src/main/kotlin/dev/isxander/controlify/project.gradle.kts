@@ -107,13 +107,16 @@ stonecutter.apply {
     constants {
         put("fabric", modstitch.isLoom)
         put("neoforge", modstitch.isModDevGradleRegular)
-        put("immediately-fast", isPropDefined("deps.immediatelyFast"))
+        put("immediately_fast", isPropDefined("deps.immediatelyFast"))
         put("iris", isPropDefined("deps.iris"))
-        put("mod-menu", isPropDefined("deps.modMenu"))
+        put("mod_menu", isPropDefined("deps.modMenu"))
         put("sodium", isPropDefined("deps.sodium"))
-        put("simple-voice-chat", isPropDefined("deps.simpleVoiceChat"))
-        put("reeses-sodium-options", isPropDefined("deps.reesesSodiumOptions"))
-        put("fancy-menu", isPropDefined("deps.fancyMenu"))
+        put("simple_voice_chat", isPropDefined("deps.simpleVoiceChat"))
+        put("reeses_sodium_options", isPropDefined("deps.reesesSodiumOptions"))
+        put("fancy_menu", isPropDefined("deps.fancyMenu"))
+
+        put("unobf", eval(current.version, ">=26"))
+        put("intermediary_lambdas", !eval(current.version, ">=26") && !modstitch.isModDevGradle)
     }
 
     dependencies {

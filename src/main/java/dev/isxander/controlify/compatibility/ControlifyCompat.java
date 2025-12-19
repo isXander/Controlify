@@ -18,7 +18,7 @@ public class ControlifyCompat {
     public static final String FANCY_MENU = "fancymenu";
 
     public static void init() {
-        //? if simple-voice-chat {
+        //? if simple_voice_chat {
         try {
             wrapCompatCall(
                     SIMPLE_VOICE_CHAT,
@@ -29,7 +29,7 @@ public class ControlifyCompat {
         }
         //?}
 
-        //? if fancy-menu {
+        //? if fancy_menu {
         try {
             wrapCompatCall(
                     FANCY_MENU,

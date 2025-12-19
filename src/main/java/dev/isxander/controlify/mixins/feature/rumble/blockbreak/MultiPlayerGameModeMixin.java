@@ -25,7 +25,7 @@ public class MultiPlayerGameModeMixin {
     @Unique private ContinuousRumbleEffect blockBreakRumble = null;
 
     @Inject(
-            //? if fabric {
+            //? if intermediary_lambdas {
             method = "method_41930",
             //?} else {
             /*method = "lambda$startDestroyBlock$1",
@@ -37,7 +37,7 @@ public class MultiPlayerGameModeMixin {
     }
 
     @Inject(
-            //? if fabric {
+            //? if intermediary_lambdas {
             method = "method_41930",
             //?} else {
             /*method = "lambda$startDestroyBlock$1",

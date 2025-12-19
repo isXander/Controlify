@@ -1,4 +1,4 @@
-//? if fancy-menu {
+//? if fancy_menu {
 package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.ActionRegistry;

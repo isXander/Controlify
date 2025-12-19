@@ -1,4 +1,4 @@
-//? if reeses-sodium-options {
+//? if reeses_sodium_options {
 /*package dev.isxander.controlify.compatibility.rso.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;

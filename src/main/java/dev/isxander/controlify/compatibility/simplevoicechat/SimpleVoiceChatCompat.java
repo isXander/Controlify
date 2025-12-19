@@ -1,4 +1,4 @@
-//? if simple-voice-chat {
+//? if simple_voice_chat {
 package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
