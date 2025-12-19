@@ -20,7 +20,7 @@ public class ControllerHIDService {
     private final HidServicesSpecification specification;
     private HidServices services;
 
-    private final Queue<Pair<HidDevice, HIDIdentifier>> unconsumedControllerHIDs;
+    private final Queue<Pair<HidDevice, HIDID>> unconsumedControllerHIDs;
     private final Map<String, HidDevice> attachedDevices = new HashMap<>();
     private boolean disabled = false;
     private boolean firstFetch = true;
@@ -92,7 +92,7 @@ public class ControllerHIDService {
 
         doScanOnThisThread();
 
-        Pair<HidDevice, HIDIdentifier> hid = unconsumedControllerHIDs.poll();
+        Pair<HidDevice, HIDID> hid = unconsumedControllerHIDs.poll();
         if (hid == null) {
             CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
 
@@ -123,7 +123,7 @@ public class ControllerHIDService {
                 attachedDevices.put(attachedDevice.getId(), attachedDevice);
 
                 // add an unconsumed identifier that can be removed if not disconnected
-                HIDIdentifier identifier = new HIDIdentifier(attachedDevice.getVendorId(), attachedDevice.getProductId());
+                HIDID identifier = new HIDID(attachedDevice.getVendorId(), attachedDevice.getProductId());
                 if (isController(attachedDevice))
                     unconsumedControllerHIDs.add(new Pair<>(attachedDevice, identifier));
             }
@@ -156,7 +156,7 @@ public class ControllerHIDService {
 
     private boolean isController(HidDevice device) {
         boolean isControllerType = Controlify.instance().controllerTypeManager().getTypeMap()
-                .containsKey(new HIDIdentifier(device.getVendorId(), device.getProductId()));
+                .containsKey(new HIDID(device.getVendorId(), device.getProductId()));
         boolean isGenericDesktopControlOrGameControl = device.getUsagePage() == 0x1 || device.getUsagePage() == 0x5;
         boolean isSelfIdentifiedController = CONTROLLER_USAGE_IDS.contains(device.getUsage());
 

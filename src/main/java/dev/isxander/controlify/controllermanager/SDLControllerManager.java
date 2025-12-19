@@ -18,7 +18,7 @@ import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
@@ -237,7 +237,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         if (vid != 0 && pid != 0) {
             CUtil.LOGGER.log("Using SDL to identify controller type.");
             return Optional.of(new ControllerHIDService.ControllerHIDInfo(
-                    Controlify.instance().controllerTypeManager().getControllerType(new HIDIdentifier(vid, pid)),
+                    Controlify.instance().controllerTypeManager().getControllerType(new HIDID(vid, pid)),
                     Optional.of(new HIDDevice.SDLHidApi(vid, pid, guidStr))
             ));
         }

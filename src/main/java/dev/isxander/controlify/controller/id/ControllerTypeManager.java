@@ -10,7 +10,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.JsonTreeParser;
@@ -28,23 +28,23 @@ import java.util.stream.Collectors;
 
 public class ControllerTypeManager implements SimpleControlifyReloadListener<ControllerTypeManager.Preparations> {
 
-    private Map<HIDIdentifier, ControllerType> typeMap = new HashMap<>();
+    private Map<HIDID, ControllerType> typeMap = new HashMap<>();
 
     public static final Identifier ID = CUtil.rl("controller_type");
 
     private static final Codec<ControllerTypeEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.list(HIDIdentifier.CODEC)
+            Codec.list(HIDID.CODEC)
                     .comapFlatMap(list -> list.isEmpty() ? DataResult.error(() -> "At least one HID must be present") : DataResult.success(list), list -> list)
                     .fieldOf("hids")
                     .forGetter(ControllerTypeEntry::hid),
             ControllerType.CODEC.forGetter(ControllerTypeEntry::type)
     ).apply(instance, ControllerTypeEntry::new));
 
-    public ControllerType getControllerType(HIDIdentifier hid) {
+    public ControllerType getControllerType(HIDID hid) {
         return typeMap.getOrDefault(hid, ControllerType.DEFAULT);
     }
 
-    public Map<HIDIdentifier, ControllerType> getTypeMap() {
+    public Map<HIDID, ControllerType> getTypeMap() {
         return typeMap;
     }
 
@@ -52,7 +52,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> manager.getResourceStack(CUtil.rl("controllers/controller_identification.json5")), executor)
                 .thenCompose(resources -> {
-                    List<CompletableFuture<List<Map.Entry<HIDIdentifier, ControllerType>>>> futures = new ArrayList<>();
+                    List<CompletableFuture<List<Map.Entry<HIDID, ControllerType>>>> futures = new ArrayList<>();
                     for (Resource resource : resources) {
                         futures.add(CompletableFuture.supplyAsync(() -> readIdentificationResource(resource), executor));
                     }
@@ -66,8 +66,8 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
                 .thenApply(Preparations::new);
     }
 
-    private List<Map.Entry<HIDIdentifier, ControllerType>> readIdentificationResource(Resource resource) {
-        Map<HIDIdentifier, ControllerType> typeMap = new HashMap<>();
+    private List<Map.Entry<HIDID, ControllerType>> readIdentificationResource(Resource resource) {
+        Map<HIDID, ControllerType> typeMap = new HashMap<>();
 
         try (BufferedReader resourceReader = resource.openAsReader()) {
             var reader = JsonReader.json5(resourceReader);
@@ -135,7 +135,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
     }
 
 
-    public record Preparations(Map<HIDIdentifier, ControllerType> typeMap) {}
+    public record Preparations(Map<HIDID, ControllerType> typeMap) {}
 
-    private record ControllerTypeEntry(List<HIDIdentifier> hid, ControllerType type) {}
+    private record ControllerTypeEntry(List<HIDID> hid, ControllerType type) {}
 }

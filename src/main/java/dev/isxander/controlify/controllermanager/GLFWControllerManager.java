@@ -14,7 +14,7 @@ import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.server.packs.resources.Resource;
@@ -90,7 +90,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
             drivers.add(new GLFWJoystickDriver(jid));
         }
 
-        Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
+        Optional<HIDID> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
         String uid = hidInfo.createControllerUID(
                 this.getControllerCountWithMatchingHID(hid.orElse(null))
         ).orElse("unknown-uid-" + ucid);

@@ -6,11 +6,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HexFormat;
 
-public record HIDIdentifier(int vendorId, int productId) {
-    public static final Codec<HIDIdentifier> CODEC = CExtraCodecs.arrayPair(
+public record HIDID(int vendorId, int productId) {
+    public static final Codec<HIDID> CODEC = CExtraCodecs.arrayPair(
             Codec.INT,
-            HIDIdentifier::vendorId, HIDIdentifier::productId,
-            HIDIdentifier::new
+            HIDID::vendorId, HIDID::productId,
+            HIDID::new
     );
 
     @Override

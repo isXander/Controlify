@@ -19,8 +19,8 @@ public sealed interface HIDDevice {
     int read(byte[] buffer);
     int write(byte[] buffer, int packetLength, byte reportId);
 
-    default HIDIdentifier asIdentifier() {
-        return new HIDIdentifier(this.vendorId(), this.productId());
+    default HIDID asIdentifier() {
+        return new HIDID(this.vendorId(), this.productId());
     }
 
     final class Hid4Java implements HIDDevice {
