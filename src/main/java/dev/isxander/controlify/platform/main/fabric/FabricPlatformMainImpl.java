@@ -20,6 +20,7 @@ import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,8 +42,9 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
 
     @Override
     public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class)
-                .forEach(entrypointConsumer);
+        // Use both Fabric's entrypoint system and ServiceLoader to maximize compatibility
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypointConsumer);
+        ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
     }
 
     @Override
