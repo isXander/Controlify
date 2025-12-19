@@ -49,24 +49,26 @@ dependencies {
 
 ## Registering the entrypoint
 
-- On Fabric, you register an entrypoint like any other, by adding an entry to your `fabric.mod.json` file under the `entrypoints` section.
-- On NeoForge, you register an entrypoint using a Java service provider interface (SPI) in **`META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint`**.
+The entrypoint can be registered using a
+Java service provider interface (SPI) in **`META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint`**
 
-<CodeTabs>
-    ```json !!tabs (Fabric) fabric.mod.json
-    {
-        "entrypoints": {
-            "controlify": [
-                "com.example.mymod.ControlifyEntrypoint"
-            ]
-        }
+```txt
+com.example.mymod.ControlifyEntrypoint
+```
+
+### Fabric Entrypoint
+
+On Fabric, the same entrypoint may **also** be registered via `fabric.mod.json`.
+
+```json
+{
+    "entrypoints": {
+        "controlify": [
+            "com.example.mymod.ControlifyEntrypoint"
+        ]
     }
-    ```
-
-    ```txt !!tabs (NeoForge) META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint
-    com.example.mymod.ControlifyEntrypoint
-    ```
-</CodeTabs>
+}
+```
 
 Then simply create the class and implement the interface:
 
