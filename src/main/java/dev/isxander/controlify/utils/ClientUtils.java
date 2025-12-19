@@ -30,7 +30,7 @@ public final class ClientUtils {
     }
 
     public static void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
-        int width = (int) Mth.clampedLerp(0, 182, progress);
+        int width = Mth.lerpDiscrete(progress, 0, 182);
 
         int x = centerX - 182 / 2;
 

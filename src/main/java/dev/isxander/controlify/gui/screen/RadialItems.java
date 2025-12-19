@@ -251,7 +251,6 @@ public final class RadialItems {
                     graphics.renderItem(stack, x, y);
 
                     if (showNumbers) {
-                        // TODO: Old code had Z=1000 for translate
                         var pose = CGuiPose.ofPush(graphics);
                         graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
                         pose.pop();
