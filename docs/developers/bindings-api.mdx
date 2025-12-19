@@ -30,16 +30,24 @@ private void registerInputBindings(ControlifyBindApi registrar) {
                     // The category of the binding, this is used to group bindings together in the settings.
                     .category(Component.translatable("mymod.binding.category"))
                     // A context is where the binding can be used. Multiple contexts can be used.
+                    // For example, using `BindContext.IN_GAME` will cause the binding to always return
+                    // `false` inside a screen, even if it's pressed.
                     .allowedContexts(BindContext.IN_GAME)
                     // Allow using the binding in the radial menu.
                     // You can't use a custom modded item directly in here, since it's not registered yet
                     // and a runtime error will be thrown. Continue reading for a better alternative.
                     .radialCandidate(RadialIcons.getItem(Items.BARRIER)))
-                    // Prevents Controlify from auto-registering controller bindings for Epic Fight's
-                    // vanilla key mappings due explicit native support.
-                    // You could also use ".keyEmulation(MyModKeyMappings.ACTION) to emulates
-                    // the vanilla KeyMapping behavior, which may not always work well.
+                    // Prevents Controlify from auto-registering controller bindings for the
+                    // vanilla key mappings due to explicit native support.
                     .addKeyCorrelation(MyModKeyMappings.ACTION)
+                    // Emulates the vanilla KeyMapping behavior.
+                    // Note: "keyEmulation" calls "addKeyCorrelation" internally, so no need to call both.
+                    //
+                    // It will not work with key mappings that are handled using NeoForge `InputEvent`s.
+                    // It such cases, you can fix the problem either by:
+                    // 1. Patch the mod to migrate to vanilla `KeyMapping` handling (example: https://github.com/iron431/irons-spells-n-spellbooks/pull/989).
+                    // 2. Provide explicit Controlify support.
+                    .keyEmulation(MyModKeyMappings.ACTION)
     );
 }
 ```
