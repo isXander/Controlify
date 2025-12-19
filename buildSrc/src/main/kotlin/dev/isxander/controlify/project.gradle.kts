@@ -144,20 +144,23 @@ tasks.named<ProcessResources>("generateModMetadata") {
     }
 }
 
+val publishUsername = providers
+    .gradleProperty("XANDER_MAVEN_USER")
+    .orElse(providers.environmentVariable("XANDER_MAVEN_USER"))
+
+val publishPassword = providers
+    .gradleProperty("XANDER_MAVEN_PASS")
+    .orElse(providers.environmentVariable("XANDER_MAVEN_PASS"))
+
+
 publishing {
     repositories {
-        val username = prop("XANDER_MAVEN_USER")
-        val password = prop("XANDER_MAVEN_PASS")
-        if (username != null && password != null) {
-            maven(url = "https://maven.isxander.dev/releases") {
-                name = "XanderReleases"
-                credentials {
-                    this.username = username
-                    this.password = password
-                }
+        maven(url = "https://maven.isxander.dev/releases") {
+            name = "XanderReleases"
+            credentials(PasswordCredentials::class) {
+                username = publishUsername.orNull
+                password = publishPassword.orNull
             }
-        } else {
-            logger.warn("Xander Maven credentials not satisfied.")
         }
     }
 }
