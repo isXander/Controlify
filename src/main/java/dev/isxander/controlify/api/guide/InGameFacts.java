@@ -40,8 +40,9 @@ public final class InGameFacts {
     /** When the currently ridden vehicle is a Happy Ghast */
     public static final Fact<InGameCtx> RIDING_HAPPY_GHAST = register(
             CUtil.rl("riding_happy_ghast")
-            //? if >=1.21.6
+            //? if >=1.21.6 {
             ,ctx -> ctx.player().getVehicle() instanceof net.minecraft.world.entity.animal/*? if >=1.21.11 >>*/.happyghast .HappyGhast
+            //?}
     );
     /** When the player is currently in creative flight */
     public static final Fact<InGameCtx> FLYING = register(
