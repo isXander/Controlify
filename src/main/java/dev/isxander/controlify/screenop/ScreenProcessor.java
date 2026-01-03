@@ -21,7 +21,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.components.tabs.TabNavigationBar;
@@ -35,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public class ScreenProcessor<T extends Screen> {
     public final T screen;
@@ -111,54 +111,51 @@ public class ScreenProcessor<T extends Screen> {
         InputBinding guiNaviUp = ControlifyBindings.GUI_NAVI_UP.on(controller);
         InputBinding guiNaviDown = ControlifyBindings.GUI_NAVI_DOWN.on(controller);
 
-        FocusNavigationEvent.ArrowNavigation event = null;
+        Supplier<Boolean> navigationFunc = null;
         if (guiNaviRight.digitalNow() && (repeatEventAvailable || !guiNaviRight.digitalPrev())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.RIGHT);
 
             if (!guiNaviRight.digitalPrev())
                 holdRepeatHelper.reset();
         } else if (guiNaviLeft.digitalNow() && (repeatEventAvailable || !guiNaviLeft.digitalPrev())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.LEFT);
 
             if (!guiNaviLeft.digitalPrev())
                 holdRepeatHelper.reset();
         } else if (guiNaviUp.digitalNow() && (repeatEventAvailable || !guiNaviUp.digitalPrev())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.UP);
 
             if (!guiNaviUp.digitalPrev())
                 holdRepeatHelper.reset();
         } else if (guiNaviDown.digitalNow() && (repeatEventAvailable || !guiNaviDown.digitalPrev())) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.DOWN);
 
             if (!guiNaviDown.digitalPrev())
                 holdRepeatHelper.reset();
         } else if (state.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON))) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.RIGHT);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.RIGHT);
 
             if (!prevState.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON))
                 holdRepeatHelper.reset();
         } else if (state.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON))) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.LEFT);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.LEFT);
 
             if (!prevState.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON))
                 holdRepeatHelper.reset();
         } else if (state.isButtonDown(GamepadInputs.DPAD_UP_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_UP_BUTTON))) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.UP);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.UP);
 
             if (!prevState.isButtonDown(GamepadInputs.DPAD_UP_BUTTON))
                 holdRepeatHelper.reset();
         } else if (state.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON))) {
-            event = accessor.invokeCreateArrowEvent(ScreenDirection.DOWN);
+            navigationFunc = this.createScreenNavigationFunc(ScreenDirection.DOWN);
 
             if (!prevState.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON))
                 holdRepeatHelper.reset();
         }
 
-        if (event != null) {
-            ComponentPath path = screen.nextFocusPath(event);
-            if (path != null) {
-                accessor.invokeChangeFocus(path);
-
+        if (navigationFunc != null) {
+            if (navigationFunc.get()) {
                 holdRepeatHelper.onNavigate();
 
                 controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
@@ -174,6 +171,19 @@ public class ScreenProcessor<T extends Screen> {
                 }
             }
         }
+    }
+
+    protected @Nullable Supplier<Boolean> createScreenNavigationFunc(ScreenDirection direction) {
+        var event = new FocusNavigationEvent.ArrowNavigation(direction);
+        var path = screen.nextFocusPath(event);
+        if (path == null) {
+            return null;
+        }
+
+        return () -> {
+            ((ScreenAccessor) screen).invokeChangeFocus(path);
+            return true;
+        };
     }
 
     protected void handleButtons(ControllerEntity controller) {
@@ -252,14 +262,6 @@ public class ScreenProcessor<T extends Screen> {
 
     public void onWidgetRebuild() {
         setInitialFocus();
-        updateLastInputTypeOnRebild();
-    }
-
-    private void updateLastInputTypeOnRebild() {
-        final VirtualMouseHandler virtualMouseBehaviour = Controlify.instance().virtualMouseHandler();
-        if (virtualMouseBehaviour != null && !virtualMouseBehaviour.isVirtualMouseEnabled()) {
-            Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
-        }
     }
 
     public void onVirtualMouseToggled(boolean enabled) {
@@ -276,12 +278,14 @@ public class ScreenProcessor<T extends Screen> {
 
     protected void setInitialFocus() {
         if (screen.getFocused() == null && Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-            var accessor = (ScreenAccessor) screen;
-            ComponentPath path = screen.nextFocusPath(accessor.invokeCreateArrowEvent(ScreenDirection.DOWN));
+            FocusNavigationEvent.TabNavigation tabNavigation = new FocusNavigationEvent.TabNavigation(true);
+            var path = screen.nextFocusPath(tabNavigation);
             if (path != null) {
-                accessor.invokeChangeFocus(path);
+                ((ScreenAccessor) screen).invokeChangeFocus(path);
                 holdRepeatHelper.clearDelay();
             }
+
+            minecraft.setLastInputType(InputType.KEYBOARD_ARROW);
         }
     }
 
