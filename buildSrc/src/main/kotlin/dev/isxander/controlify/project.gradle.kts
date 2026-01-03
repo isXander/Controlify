@@ -10,7 +10,6 @@ plugins {
 
 modstitch.apply {
     minecraftVersion = mcVersion
-    javaVersion = 21
 
     parchment {
         propMap("parchment.version") { mappingsVersion = it }

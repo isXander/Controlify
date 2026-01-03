@@ -30,7 +30,7 @@
   },
   "icon": "icon.png",
   "depends": {
-    "fabricloader": ">=0.17.0",
+    "fabricloader": ">=0.18.0",
     "minecraft": "${mc}",
     "java": ">=21",
     "yet_another_config_lib_v3": ">=3.8.0"

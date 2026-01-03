@@ -231,7 +231,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            globalSettingsButton.onPress(/*? if >=1.21.9 >>*/ null );
+            globalSettingsButton.onPress(/*? if >=1.21.9 >>*/null );
         }
     }
 

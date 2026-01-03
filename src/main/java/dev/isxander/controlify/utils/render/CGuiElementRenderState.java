@@ -65,7 +65,7 @@ public interface CGuiElementRenderState /*? if >=1.21.6 {*/extends GuiElementRen
             float x, float y, float z
     ) {
         //? if >=1.21.6 {
-        return vertexConsumer.addVertexWith2DPose(pose, x, y /*? if <1.21.9 >>*/ /*,z*/ );
+        return vertexConsumer.addVertexWith2DPose(pose, x, y /*? if <1.21.9 >>*//*,z*/ );
         //?} else {
         /*return vertexConsumer.addVertex(pose, x, y, z);
          *///?}
