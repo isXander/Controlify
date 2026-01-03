@@ -5,9 +5,9 @@ import dev.isxander.controlify.controller.serialization.ConfigHolder;
 import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import dev.isxander.controlify.controller.impl.ConfigImpl;
-import dev.isxander.controlify.rumble.RumbleManager;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.RumbleManager;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
@@ -55,18 +55,18 @@ public class RumbleComponent implements ECSComponent, ConfigHolder<RumbleCompone
     public static class Config implements ConfigClass {
         public boolean enabled = true;
 
-        public Map<Identifier, Float> vibrationStrengths = RumbleSource.getDefaultMap();
+        public Map<Identifier, Float> vibrationStrengths = HapticSource.getDefaultMap();
 
-        public RumbleState applyRumbleStrength(RumbleState state, RumbleSource source) {
+        public RumbleState applyRumbleStrength(RumbleState state, HapticSource source) {
             float strength = this.getStrength(source);
-            if (source != RumbleSource.MASTER) { // don't apply master twice
-                strength *= this.getStrength(RumbleSource.MASTER);
+            if (source != HapticSource.MASTER) { // don't apply master twice
+                strength *= this.getStrength(HapticSource.MASTER);
             }
 
             return state.mul(strength);
         }
 
-        private float getStrength(RumbleSource source) {
+        private float getStrength(HapticSource source) {
             return this.vibrationStrengths.getOrDefault(source.id(), 1f);
         }
     }

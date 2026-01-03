@@ -35,7 +35,7 @@ import dev.isxander.controlify.ingame.ControllerPlayerMovement;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.rumble.RumbleManager;
+import dev.isxander.controlify.haptics.rumble.RumbleManager;
 import dev.isxander.controlify.screenop.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;

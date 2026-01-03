@@ -1,4 +1,4 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,14 +9,17 @@ import java.util.Objects;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
-public final class BasicRumbleEffect implements RumbleEffect {
+/**
+ * Runs a fixed pre-determined pattern of rumble keyframes.
+ */
+public final class PatternedRumbleEffect implements RumbleEffect {
     private final RumbleState[] keyframes;
     private int tick = 0;
     private boolean finished;
     private int priority = 0;
     private BooleanSupplier earlyFinishCondition = () -> false;
 
-    public BasicRumbleEffect(RumbleState[] keyframes) {
+    public PatternedRumbleEffect(RumbleState[] keyframes) {
         this.keyframes = keyframes;
     }
 
@@ -50,7 +53,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
         return priority;
     }
 
-    public BasicRumbleEffect prioritised(int priority) {
+    public PatternedRumbleEffect prioritised(int priority) {
         this.priority = priority;
         return this;
     }
@@ -59,7 +62,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
         return keyframes;
     }
 
-    public BasicRumbleEffect earlyFinish(BooleanSupplier condition) {
+    public PatternedRumbleEffect earlyFinish(BooleanSupplier condition) {
         var current = earlyFinishCondition;
         this.earlyFinishCondition = () -> current.getAsBoolean() || condition.getAsBoolean();
         return this;
@@ -69,7 +72,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
     public boolean equals(Object obj) {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
-        var that = (BasicRumbleEffect) obj;
+        var that = (PatternedRumbleEffect) obj;
         return Arrays.equals(this.states(), that.states())
                 && this.priority() == that.priority();
     }
@@ -86,18 +89,18 @@ public final class BasicRumbleEffect implements RumbleEffect {
                 "priority=" + this.priority() + ']';
     }
 
-    public BasicRumbleEffect join(BasicRumbleEffect other) {
-        return BasicRumbleEffect.join(this, other);
+    public PatternedRumbleEffect join(PatternedRumbleEffect other) {
+        return PatternedRumbleEffect.join(this, other);
     }
 
-    public BasicRumbleEffect repeat(int count) {
+    public PatternedRumbleEffect repeat(int count) {
         Validate.isTrue(count > 0, "count must be greater than 0");
 
         if (count == 1) return this;
 
-        BasicRumbleEffect effect = this;
+        PatternedRumbleEffect effect = this;
         for (int i = 0; i < count - 1; i++) {
-            effect = BasicRumbleEffect.join(effect, this);
+            effect = PatternedRumbleEffect.join(effect, this);
         }
         return effect;
     }
@@ -108,12 +111,12 @@ public final class BasicRumbleEffect implements RumbleEffect {
      * @param stateFunction the function that takes a tick and returns the state for that tick.
      * @param durationTicks how many ticks the effect should last for.
      */
-    public static BasicRumbleEffect byTick(Function<Integer, RumbleState> stateFunction, int durationTicks) {
+    public static PatternedRumbleEffect byTick(Function<Integer, RumbleState> stateFunction, int durationTicks) {
         RumbleState[] states = new RumbleState[durationTicks];
         for (int i = 0; i < durationTicks; i++) {
             states[i] = stateFunction.apply(i);
         }
-        return new BasicRumbleEffect(states);
+        return new PatternedRumbleEffect(states);
     }
 
     /**
@@ -122,8 +125,8 @@ public final class BasicRumbleEffect implements RumbleEffect {
      * @param stateFunction the function that takes the time value and returns the state for that tick.
      * @param durationTicks how many ticks the effect should last for.
      */
-    public static BasicRumbleEffect byTime(Function<Float, RumbleState> stateFunction, int durationTicks) {
-        return BasicRumbleEffect.byTick(tick -> stateFunction.apply((float) tick / (float) durationTicks), durationTicks);
+    public static PatternedRumbleEffect byTime(Function<Float, RumbleState> stateFunction, int durationTicks) {
+        return PatternedRumbleEffect.byTick(tick -> stateFunction.apply((float) tick / (float) durationTicks), durationTicks);
     }
 
     /**
@@ -133,20 +136,20 @@ public final class BasicRumbleEffect implements RumbleEffect {
      * @param weak          the weak motor magnitude
      * @param durationTicks how many ticks the effect should last for.
      */
-    public static BasicRumbleEffect constant(float strong, float weak, int durationTicks) {
-        return BasicRumbleEffect.byTick(tick -> new RumbleState(strong, weak), durationTicks);
+    public static PatternedRumbleEffect constant(float strong, float weak, int durationTicks) {
+        return PatternedRumbleEffect.byTick(tick -> new RumbleState(strong, weak), durationTicks);
     }
 
-    public static BasicRumbleEffect empty(int durationTicks) {
-        return BasicRumbleEffect.byTick(tick -> new RumbleState(0f, 0f), durationTicks);
+    public static PatternedRumbleEffect empty(int durationTicks) {
+        return PatternedRumbleEffect.byTick(tick -> new RumbleState(0f, 0f), durationTicks);
     }
 
-    public static BasicRumbleEffect join(BasicRumbleEffect... effects) {
+    public static PatternedRumbleEffect join(PatternedRumbleEffect... effects) {
         RumbleState[] states = Arrays.stream(effects)
                 .flatMap(effect -> Arrays.stream(effect.states()))
                 .toArray(RumbleState[]::new);
 
-        return new BasicRumbleEffect(states);
+        return new PatternedRumbleEffect(states);
     }
 
     public static BooleanSupplier finishOnScreenChange() {

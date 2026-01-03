@@ -1,6 +1,12 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 public interface RumbleEffect extends Comparable<RumbleEffect> {
+    /**
+     * Ran once per tick,
+     * it updates the {@link #currentState()}
+     * and can potentially finish with {@link #isFinished()}.
+     * Increments {@link #age()} by 1.
+     */
     void tick();
     RumbleState currentState();
 

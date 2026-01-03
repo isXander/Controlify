@@ -2,10 +2,9 @@ package dev.isxander.controlify.mixins.feature.rumble.slowblock;
 
 import com.mojang.authlib.GameProfile;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.DynamicRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,7 +26,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     /*@Shadow public net.minecraft.client.player.Input input;
     *///?}
 
-    @Unique private ContinuousRumbleEffect slowBlockRumble = null;
+    @Unique private DynamicRumbleEffect slowBlockRumble = null;
 
     public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
         super(world, profile);
@@ -59,14 +58,14 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Unique
     private void ensureRumbleStarted() {
         if (slowBlockRumble == null || slowBlockRumble.isFinished()) {
-            slowBlockRumble = ContinuousRumbleEffect.builder()
+            slowBlockRumble = DynamicRumbleEffect.builder()
                     .byTick(i -> {
                         float movementAmount = input.getMoveVector().length();
                         return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
                     })
                     .timeout(100)
                     .build();
-            ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, slowBlockRumble);
+            ControlifyApi.get().playRumbleEffect(HapticSource.PLAYER, slowBlockRumble);
         } else {
             slowBlockRumble.heartbeat();
         }

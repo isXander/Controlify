@@ -3,10 +3,9 @@ package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.DynamicRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
@@ -22,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {
-    @Unique private ContinuousRumbleEffect blockBreakRumble = null;
+    @Unique private DynamicRumbleEffect blockBreakRumble = null;
 
     @Inject(
             //? if intermediary_lambdas {
@@ -72,7 +71,7 @@ public class MultiPlayerGameModeMixin {
     private void startRumble(BlockState state) {
         stopRumble();
 
-        var effect = ContinuousRumbleEffect.builder()
+        var effect = DynamicRumbleEffect.builder()
                 .byTick(tick -> new RumbleState(
                         0.02f + (float)Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
                         0.01f
@@ -81,7 +80,7 @@ public class MultiPlayerGameModeMixin {
                 .build();
 
         blockBreakRumble = effect;
-        ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
+        ControlifyApi.get().playRumbleEffect(HapticSource.INTERACTION, effect);
     }
 
     @Unique

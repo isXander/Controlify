@@ -1,4 +1,4 @@
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.controller.dualsense;
 
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
@@ -64,7 +64,7 @@ public class DS5EffectsState extends Structure {
 
     @FieldOrder({"effectType", "p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"})
     public static class TriggerEffect extends Structure {
-        public static final TriggerEffect OFF = new TriggerEffect(DualsenseTriggerEffectTypes.OFF, new byte[0]);
+        public static final TriggerEffect OFF = new TriggerEffect(DS5TriggerEffectTypes.OFF, new byte[0]);
 
         public byte effectType;
         public byte p0;

@@ -1,9 +1,10 @@
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.*;
-import dev.isxander.controlify.rumble.effects.UseItemEffectHolder;
+import dev.isxander.controlify.haptics.rumble.DynamicRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.effects.UseItemEffectHolder;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BowItem;
@@ -16,12 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseItemEffectHolder {
-    @Unique private ContinuousRumbleEffect useItemRumble;
+    @Unique private DynamicRumbleEffect useItemRumble;
 
     @Override
     protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, ItemStack stack) {
         switch (stack.getUseAnimation()) {
-            case BOW -> startRumble(ContinuousRumbleEffect.builder()
+            case BOW -> startRumble(DynamicRumbleEffect.builder()
                     .byTick(tick -> new RumbleState(
                             tick % 7 <= 3 && tick > BowItem.MAX_DRAW_DURATION ? 0.1f : 0f,
                             BowItem.getPowerForTime(tick)
@@ -32,7 +33,7 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
                         stack,
                         (LocalPlayer) (Object) this
                 );
-                startRumble(ContinuousRumbleEffect.builder()
+                startRumble(DynamicRumbleEffect.builder()
                         .byTick(tick -> new RumbleState(
                                 0f,
                                 (float) tick / chargeDuration
@@ -40,22 +41,22 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
                         .timeout(chargeDuration)
                         .build());
             }
-            case BLOCK, SPYGLASS -> startRumble(ContinuousRumbleEffect.builder()
+            case BLOCK, SPYGLASS -> startRumble(DynamicRumbleEffect.builder()
                     .byTick(tick -> new RumbleState(
                             0f,
                             tick % 4 / 4f * 0.12f + 0.05f
                     ))
                     .build());
-            case EAT, DRINK -> startRumble(ContinuousRumbleEffect.builder()
+            case EAT, DRINK -> startRumble(DynamicRumbleEffect.builder()
                     .constant(0.1f, 0.2f)
                     .build());
-            case TOOT_HORN -> startRumble(ContinuousRumbleEffect.builder()
+            case TOOT_HORN -> startRumble(DynamicRumbleEffect.builder()
                     .byTick(tick -> new RumbleState(
                             Math.min(1f, tick / 10f),
                             0.25f
                     ))
                     .build());
-            case SPEAR -> startRumble(ContinuousRumbleEffect.builder()
+            case SPEAR -> startRumble(DynamicRumbleEffect.builder()
                     .constant(0.3f, 0.3f)
                     .build());
         }
@@ -75,13 +76,13 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
     }
 
     @Unique
-    private void startRumble(ContinuousRumbleEffect effect) {
-        ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
+    private void startRumble(DynamicRumbleEffect effect) {
+        ControlifyApi.get().playRumbleEffect(HapticSource.INTERACTION, effect);
         this.useItemRumble = effect;
     }
 
     @Override
-    public @Nullable ContinuousRumbleEffect controlify$getUseItemEffect() {
+    public @Nullable DynamicRumbleEffect controlify$getUseItemEffect() {
         return useItemRumble;
     }
 }

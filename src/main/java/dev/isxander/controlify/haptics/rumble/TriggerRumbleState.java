@@ -1,4 +1,4 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 public record TriggerRumbleState(float left, float right) {
     public static final TriggerRumbleState NONE = new TriggerRumbleState(0.0F, 0.0F);

@@ -1,7 +1,7 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
-import org.jetbrains.annotations.NotNull;
+import dev.isxander.controlify.haptics.HapticSource;import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -20,10 +20,10 @@ public class RumbleManager {
 
     @Deprecated
     public void play(RumbleEffect effect) {
-        play(RumbleSource.MASTER, effect);
+        play(HapticSource.MASTER, effect);
     }
 
-    public void play(RumbleSource source, RumbleEffect effect) {
+    public void play(HapticSource source, RumbleEffect effect) {
         effectQueue.add(new RumbleEffectInstance(source, effect));
     }
 
@@ -77,7 +77,7 @@ public class RumbleManager {
         return !effectQueue.isEmpty();
     }
 
-    private record RumbleEffectInstance(RumbleSource source, RumbleEffect effect) implements Comparable<RumbleEffectInstance> {
+    private record RumbleEffectInstance(HapticSource source, RumbleEffect effect) implements Comparable<RumbleEffectInstance> {
         @Override
         public int compareTo(@NotNull RumbleManager.RumbleEffectInstance o) {
             return effect.compareTo(o.effect);

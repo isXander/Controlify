@@ -1,10 +1,9 @@
 package dev.isxander.controlify.mixins.feature.rumble.explosion;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.PatternedRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -22,10 +21,10 @@ public class ClientPacketListenerMixin {
         float initialMagnitude = calculateMagnitude(packet);
 
         ControlifyApi.get().playRumbleEffect(
-                RumbleSource.WORLD,
-                BasicRumbleEffect.join(
-                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
-                        BasicRumbleEffect.byTime(t -> {
+                HapticSource.WORLD,
+                PatternedRumbleEffect.join(
+                        PatternedRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+                        PatternedRumbleEffect.byTime(t -> {
                             float magnitude = calculateMagnitude(packet);
                             return new RumbleState(0f, magnitude - t * magnitude);
                         }, 20) // explosion

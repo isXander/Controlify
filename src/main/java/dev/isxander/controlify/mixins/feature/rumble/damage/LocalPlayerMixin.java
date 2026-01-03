@@ -1,9 +1,8 @@
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.haptics.rumble.PatternedRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,6 +37,6 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 
     @Unique
     private void doDamageRumble() {
-        ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, BasicRumbleEffect.constant(0.8f, 0.5f, 5));
+        ControlifyApi.get().playRumbleEffect(HapticSource.PLAYER, PatternedRumbleEffect.constant(0.8f, 0.5f, 5));
     }
 }

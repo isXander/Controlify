@@ -1,9 +1,9 @@
 package dev.isxander.controlify.server.packets;
 
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.DynamicRumbleEffect;
+import dev.isxander.controlify.haptics.rumble.RumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.network.FriendlyByteBuf;
@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, RumbleSource source) {
+public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, HapticSource source) {
     public static final Identifier CHANNEL = CUtil.rl("vibrate_from_origin");
 
     public static final StreamCodec<FriendlyByteBuf, OriginVibrationPacket> CODEC = StreamCodec.of(
@@ -28,13 +28,13 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
             buf.readFloat(),
             buf.readVarInt(),
             RumbleState.unpackFromInt(buf.readInt()),
-            RumbleSource.get(buf.readIdentifier())
+            HapticSource.get(buf.readIdentifier())
         )
     );
 
     public RumbleEffect createEffect() {
         var originVec3 = new Vec3(origin);
-        return ContinuousRumbleEffect.builder()
+        return DynamicRumbleEffect.builder()
                 .constant(state)
                 .inWorld(() -> originVec3, 0, 1, effectRange, Easings.toFloat(Easings::easeInSine))
                 .timeout(duration)

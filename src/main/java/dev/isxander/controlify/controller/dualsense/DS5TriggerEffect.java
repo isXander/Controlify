@@ -1,17 +1,18 @@
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.controller.dualsense;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public interface DualsenseTriggerEffect {
+public interface DS5TriggerEffect {
     DS5EffectsState.TriggerEffect createState();
 
     /**
      * Turn the trigger effect off and return the trigger stop to the neutral position.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      */
-    record Off() implements DualsenseTriggerEffect {
+    record Off() implements DS5TriggerEffect {
         @Override
         public DS5EffectsState.TriggerEffect createState() {
             return DS5EffectsState.TriggerEffect.OFF;
@@ -21,6 +22,7 @@ public interface DualsenseTriggerEffect {
     /**
      * Trigger will resist movement beyond the start position.
      * The trigger status nybble will report 0 before the effect and 1 when in the effect.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @param position The starting zone of the trigger effect. Must be between 0 and 9 inclusive.
@@ -29,7 +31,7 @@ public interface DualsenseTriggerEffect {
     record Feedback(
             @Range(from = 0, to = 9) byte position,
             @Range(from = 0, to = 8) byte strength
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public Feedback {
             Validate.inclusiveBetween(0, 9, position, "Position must be between 0 and 9 inclusive");
             Validate.inclusiveBetween(0, 8, strength, "Strength must be between 0 and 8 inclusive");
@@ -46,7 +48,7 @@ public interface DualsenseTriggerEffect {
                     activeZones |= (char) (1 << i);
                 }
 
-                return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
+                return new DS5EffectsState.TriggerEffect(DS5TriggerEffectTypes.FEEDBACK, new byte[]{
                         (byte) (activeZones & 0xff),
                         (byte) ((activeZones >> 8) & 0xff),
                         (byte) (forceZones & 0xff),
@@ -64,6 +66,7 @@ public interface DualsenseTriggerEffect {
      * Trigger will resist movement beyond the start position until the end position.
      * The trigger status nybble will report 0 before the effect and 1 when in the effect,
      * and 2 after until again before the start position.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @param startPosition The starting zone of the trigger effect. Must be between 2 and 7 inclusive.
@@ -74,7 +77,7 @@ public interface DualsenseTriggerEffect {
             @Range(from = 2, to = 7) byte startPosition,
             @Range(from = 2+1, to = 8) byte endPosition,
             @Range(from = 0, to = 8) byte strength
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public Weapon {
             Validate.inclusiveBetween(2, 7, startPosition, "Start position must be between 2 and 7 inclusive");
             Validate.inclusiveBetween(startPosition+1, 8, endPosition, "End position must be between start+1 and 8 inclusive");
@@ -87,7 +90,7 @@ public interface DualsenseTriggerEffect {
             if (strength > 0) {
                 char startAndStopZones = (char) ((1 << startPosition) | (1 << endPosition));
 
-                return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.WEAPON, new byte[]{
+                return new DS5EffectsState.TriggerEffect(DS5TriggerEffectTypes.WEAPON, new byte[]{
                         (byte) (startAndStopZones & 0xff),
                         (byte) ((startAndStopZones >> 8) & 0xff),
                         (byte) (strength - 1), // this is actually packed into 3 bits, but since it's only one why bother with the fancy code?
@@ -101,6 +104,7 @@ public interface DualsenseTriggerEffect {
     /**
      * Trigger will vibrate with the input amplitude and frequency beyond the start position.
      * The trigger status nybble will report 0 before the effect and 1 when in the effect.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @see VibrationMultiplePosition
@@ -113,7 +117,7 @@ public interface DualsenseTriggerEffect {
             @Range(from = 0, to = 9) byte position,
             @Range(from = 0, to = 8) byte amplitude,
             byte frequency
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public Vibration {
             Validate.inclusiveBetween(0, 9, position, "Position must be between 0 and 9 inclusive");
             Validate.inclusiveBetween(0, 8, amplitude, "Amplitude must be between 0 and 8 inclusive");
@@ -131,7 +135,7 @@ public interface DualsenseTriggerEffect {
                     activeZones |= (char) (1 << i);
                 }
 
-                return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
+                return new DS5EffectsState.TriggerEffect(DS5TriggerEffectTypes.VIBRATION, new byte[]{
                         (byte) (activeZones & 0xff),
                         (byte) ((activeZones >> 8) & 0xff),
                         (byte) (amplitudeZones & 0xff),
@@ -149,6 +153,7 @@ public interface DualsenseTriggerEffect {
 
     /**
      * Trigger will resist movement at varying strengths in 10 regions.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @see Feedback
@@ -158,7 +163,7 @@ public interface DualsenseTriggerEffect {
      */
     record FeedbackMultiplePosition(
             @Range(from = 0, to = 9) byte @NotNull [] strength
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public FeedbackMultiplePosition {
             Validate.notNull(strength, "Strength array must not be null");
             Validate.isTrue(strength.length == 10, "Strength array must have 10 elements");
@@ -185,7 +190,7 @@ public interface DualsenseTriggerEffect {
                     }
                 }
 
-                return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
+                return new DS5EffectsState.TriggerEffect(DS5TriggerEffectTypes.FEEDBACK, new byte[]{
                         (byte) (activeZones & 0xff),
                         (byte) ((activeZones >> 8) & 0xff),
                         (byte) (forceZones & 0xff),
@@ -201,6 +206,7 @@ public interface DualsenseTriggerEffect {
 
     /**
      * Trigger will resist movement at a linear range of strengths.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @see Feedback
@@ -216,7 +222,7 @@ public interface DualsenseTriggerEffect {
             @Range(from = 1, to = 9) byte endPosition,
             @Range(from = 1, to = 8) byte startStrength,
             @Range(from = 1, to = 8) byte endStrength
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public FeedbackSlope {
             Validate.inclusiveBetween(0, 8, startPosition, "Start position must be between 0 and 8 inclusive");
             Validate.inclusiveBetween(startPosition+1, 9, endPosition, "End position must be between start+1 and 9 inclusive");
@@ -241,6 +247,7 @@ public interface DualsenseTriggerEffect {
 
     /**
      * Trigger will vibrate movement at varying amplitudes and one frequency in 10 regions.
+     * <p>
      * This is an official effect and is expected to be present in future DualSense firmware versions.
      *
      * @see Vibration
@@ -251,7 +258,7 @@ public interface DualsenseTriggerEffect {
     record VibrationMultiplePosition(
             byte frequency,
             @Range(from = 0, to = 8) byte @NotNull [] amplitude
-    ) implements DualsenseTriggerEffect {
+    ) implements DS5TriggerEffect {
         public VibrationMultiplePosition {
             Validate.notNull(amplitude, "Amplitude array must not be null");
             Validate.isTrue(amplitude.length == 10, "Amplitude array must have 10 elements");
@@ -280,7 +287,7 @@ public interface DualsenseTriggerEffect {
                         }
                     }
 
-                    return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
+                    return new DS5EffectsState.TriggerEffect(DS5TriggerEffectTypes.VIBRATION, new byte[]{
                             (byte) (activeZones & 0xff),
                             (byte) ((activeZones >> 8) & 0xff),
                             (byte) (strengthZones & 0xff),

@@ -18,13 +18,11 @@ import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
-import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InputCurves;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.PatternedRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.server.ServerPolicies;
-import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
@@ -430,7 +428,7 @@ public class ControllerConfigScreenFactory {
                     .build());
         });
 
-        for (RumbleSource source : RumbleSource.values()) {
+        for (HapticSource source : HapticSource.values()) {
             var option = Option.<Float>createBuilder()
                     .name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
                     .description(OptionDescription.createBuilder()
@@ -455,15 +453,15 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
                 .action((screen, btn) -> {
                     rumble.rumbleManager().play(
-                            RumbleSource.MASTER,
-                            BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-                                    .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+                            HapticSource.MASTER,
+                            PatternedRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
+                                    .join(PatternedRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
                                     .repeat(3)
-                                    .join(BasicRumbleEffect.constant(1f, 0f, 5)
-                                            .join(BasicRumbleEffect.constant(0f, 1f, 5))
+                                    .join(PatternedRumbleEffect.constant(1f, 0f, 5)
+                                            .join(PatternedRumbleEffect.constant(0f, 1f, 5))
                                             .repeat(10)
                                     )
-                                    .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
+                                    .earlyFinish(PatternedRumbleEffect.finishOnScreenChange())
                     );
                 })
                 .build());

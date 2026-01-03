@@ -2,9 +2,8 @@ package dev.isxander.controlify.mixins.feature.rumble.fishing;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.haptics.rumble.DynamicRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.FishingHook;
@@ -21,18 +20,18 @@ public class FishingHookMixin {
     @Shadow private boolean biting;
 
     @Unique private boolean isLocalPlayerHook;
-    @Unique private ContinuousRumbleEffect bitingRumble;
+    @Unique private DynamicRumbleEffect bitingRumble;
 
     @ModifyExpressionValue(method = "onSyncedDataUpdated", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/syncher/SynchedEntityData;get(Lnet/minecraft/network/syncher/EntityDataAccessor;)Ljava/lang/Object;", ordinal = 1))
     private Object onBitingStateUpdated(Object bitingObj) {
         var biting = (boolean) bitingObj;
         if (isLocalPlayerHook) {
             if (biting && !this.biting) {
-                this.bitingRumble = ContinuousRumbleEffect.builder()
+                this.bitingRumble = DynamicRumbleEffect.builder()
                         .constant(0f, 0.05f)
                         .build();
 
-                ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, this.bitingRumble);
+                ControlifyApi.get().playRumbleEffect(HapticSource.INTERACTION, this.bitingRumble);
             } else if (!biting && this.biting) {
                 stopBitingRumble();
             }

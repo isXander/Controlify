@@ -1,16 +1,16 @@
 package dev.isxander.controlify.server.packets;
 
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.PatternedRumbleEffect;
+import dev.isxander.controlify.haptics.rumble.RumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
-public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
+public record VibrationPacket(HapticSource source, RumbleState[] frames) {
     public static final Identifier CHANNEL = CUtil.rl("vibration");
 
     public static final StreamCodec<FriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.of(
@@ -22,7 +22,7 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
             }
         },
         buf -> {
-            RumbleSource source = RumbleSource.get(buf.readIdentifier());
+            HapticSource source = HapticSource.get(buf.readIdentifier());
             RumbleState[] frames = new RumbleState[buf.readInt()];
             for (int i = 0; i < frames.length; i++) {
                 frames[i] = RumbleState.unpackFromInt(buf.readInt());
@@ -32,6 +32,6 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
     );
 
     public RumbleEffect createEffect() {
-        return new BasicRumbleEffect(frames).earlyFinish(() -> Minecraft.getInstance().level == null);
+        return new PatternedRumbleEffect(frames).earlyFinish(() -> Minecraft.getInstance().level == null);
     }
 }

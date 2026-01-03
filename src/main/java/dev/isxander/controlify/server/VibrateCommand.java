@@ -5,8 +5,8 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import dev.isxander.controlify.server.packets.EntityVibrationPacket;
 import dev.isxander.controlify.server.packets.OriginVibrationPacket;
 import dev.isxander.controlify.server.packets.VibrationPacket;
@@ -30,8 +30,8 @@ public class VibrateCommand {
     private static final SuggestionProvider<CommandSourceStack> SOURCES_SUGGESTION = SuggestionProviders.register(
             CUtil.rl("vibration_sources"),
             (context, builder) -> SharedSuggestionProvider.suggestResource(
-                    RumbleSource.values().stream()
-                            .map(RumbleSource::id)
+                    HapticSource.values().stream()
+                            .map(HapticSource::id)
                             .toList(),
                     builder
             )
@@ -61,7 +61,7 @@ public class VibrateCommand {
                                                                                                                 FloatArgumentType.getFloat(context, "low_freq_vibration"),
                                                                                                                 FloatArgumentType.getFloat(context, "high_freq_vibration"),
                                                                                                                 IntegerArgumentType.getInteger(context, "duration"),
-                                                                                                                RumbleSource.MASTER
+                                                                                                                HapticSource.MASTER
                                                                                                         ))
                                                                                         )
                                                                                         .then(
@@ -78,7 +78,7 @@ public class VibrateCommand {
                                                                                                                                                 IntegerArgumentType.getInteger(context, "duration"),
                                                                                                                                                 FloatArgumentType.getFloat(context, "low_freq_vibration"),
                                                                                                                                                 FloatArgumentType.getFloat(context, "high_freq_vibration"),
-                                                                                                                                                RumbleSource.MASTER
+                                                                                                                                                HapticSource.MASTER
                                                                                                                                         ))
                                                                                                                         )
                                                                                                                         .then(
@@ -91,7 +91,7 @@ public class VibrateCommand {
                                                                                                                                                 IntegerArgumentType.getInteger(context, "duration"),
                                                                                                                                                 FloatArgumentType.getFloat(context, "low_freq_vibration"),
                                                                                                                                                 FloatArgumentType.getFloat(context, "high_freq_vibration"),
-                                                                                                                                                RumbleSource.MASTER
+                                                                                                                                                HapticSource.MASTER
                                                                                                                                         ))
                                                                                                                         )
                                                                                                         )
@@ -109,12 +109,12 @@ public class VibrateCommand {
             Collection<ServerPlayer> targets,
             float lowFreqMagnitude, float highFreqMagnitude,
             int durationTicks,
-            RumbleSource rumbleSource
+            HapticSource hapticSource
     ) {
         RumbleState[] frames = new RumbleState[durationTicks];
         Arrays.fill(frames, new RumbleState(lowFreqMagnitude, highFreqMagnitude));
 
-        VibrationPacket packet = new VibrationPacket(rumbleSource, frames);
+        VibrationPacket packet = new VibrationPacket(hapticSource, frames);
         for (var player : targets) {
             SidedNetworkApi.S2C().sendPacket(player, VibrationPacket.CHANNEL, packet);
         }
@@ -135,11 +135,11 @@ public class VibrateCommand {
             Vec3 origin,
             float effectRange, int duration,
             float lowFreqMagnitude, float highFreqMagnitude,
-            RumbleSource rumbleSource
+            HapticSource hapticSource
     ) {
         RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
-        OriginVibrationPacket packet = new OriginVibrationPacket(origin.toVector3f(), effectRange, duration, state, rumbleSource);
+        OriginVibrationPacket packet = new OriginVibrationPacket(origin.toVector3f(), effectRange, duration, state, hapticSource);
         for (var player : targets) {
             SidedNetworkApi.S2C().sendPacket(player, OriginVibrationPacket.CHANNEL, packet);
         }
@@ -160,11 +160,11 @@ public class VibrateCommand {
             Entity origin,
             float effectRange, int duration,
             float lowFreqMagnitude, float highFreqMagnitude,
-            RumbleSource rumbleSource
+            HapticSource hapticSource
     ) {
         RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
-        EntityVibrationPacket packet = new EntityVibrationPacket(origin.getId(), effectRange, duration, state, rumbleSource);
+        EntityVibrationPacket packet = new EntityVibrationPacket(origin.getId(), effectRange, duration, state, hapticSource);
         for (var player : targets) {
             SidedNetworkApi.S2C().sendPacket(player, EntityVibrationPacket.CHANNEL, packet);
         }

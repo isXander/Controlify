@@ -1,4 +1,4 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 import com.mojang.serialization.Codec;
 

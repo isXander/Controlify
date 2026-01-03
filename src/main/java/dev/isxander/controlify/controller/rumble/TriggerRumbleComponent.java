@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.rumble;
 
 import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.rumble.TriggerRumbleState;
+import dev.isxander.controlify.haptics.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;

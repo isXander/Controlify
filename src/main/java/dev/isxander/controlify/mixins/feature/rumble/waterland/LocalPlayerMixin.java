@@ -2,9 +2,9 @@ package dev.isxander.controlify.mixins.feature.rumble.waterland;
 
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.haptics.rumble.PatternedRumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
+import dev.isxander.controlify.haptics.rumble.RumbleState;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -37,8 +37,8 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
             if (impactForce >= 0.05f) {
                 float multiplier = Math.min(1, impactForce / 0.5f);
                 rumble.rumbleManager().play(
-                        RumbleSource.PLAYER,
-                        BasicRumbleEffect.byTime(
+                        HapticSource.PLAYER,
+                        PatternedRumbleEffect.byTime(
                                 t -> new RumbleState(multiplier * (1 - t), multiplier * 0.5f),
                                 impactForce < 0.25f ? 10 : 20
                         )

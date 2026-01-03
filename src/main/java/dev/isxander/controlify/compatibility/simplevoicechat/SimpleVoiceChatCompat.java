@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.dualsense.DS5Effect;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
@@ -84,7 +85,7 @@ public class SimpleVoiceChatCompat {
             }
 
             controller.dualSense().ifPresent(ds -> {
-                ds.setMuteLight(ClientManager.getPlayerStateManager().isMuted());
+                ds.submitEffect(new DS5Effect.MuteLight(ClientManager.getPlayerStateManager().isMuted()));
             });
         });
     }

@@ -1,8 +1,8 @@
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.controller.dualsense;
 
-public final class DualsenseTriggerEffectTypes {
+public final class DS5TriggerEffectTypes {
 
-    private DualsenseTriggerEffectTypes() {
+    private DS5TriggerEffectTypes() {
     }
 
     public static final byte

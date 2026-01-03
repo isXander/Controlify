@@ -1,4 +1,4 @@
-package dev.isxander.controlify.rumble;
+package dev.isxander.controlify.haptics.rumble;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -9,7 +9,10 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class ContinuousRumbleEffect implements RumbleEffect {
+/**
+ * Runs continuously until the stop condition is met, or is stopped manually.
+ */
+public class DynamicRumbleEffect implements RumbleEffect {
     private final Function<Integer, RumbleState> stateFunction;
     private final int priority;
     private final int timeout;
@@ -19,7 +22,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
     private boolean stopped;
     private BooleanSupplier stopCondition;
 
-    public ContinuousRumbleEffect(Function<Integer, RumbleState> stateFunction, int priority, int timeout, int minTime, BooleanSupplier stopCondition) {
+    public DynamicRumbleEffect(Function<Integer, RumbleState> stateFunction, int priority, int timeout, int minTime, BooleanSupplier stopCondition) {
         this.stateFunction = stateFunction;
         this.priority = priority;
         this.timeout = timeout;
@@ -126,7 +129,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
             return this;
         }
 
-        public ContinuousRumbleEffect build() {
+        public DynamicRumbleEffect build() {
             Validate.notNull(stateFunction, "stateFunction cannot be null!");
             Validate.isTrue(minTime <= timeout || timeout == -1, "the minimum time cannot be greater than the timeout!");
 
@@ -134,7 +137,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
             if (inWorldProperties != null)
                 stateFunction = inWorldProperties.modify(stateFunction);
 
-            return new ContinuousRumbleEffect(stateFunction, priority, timeout, minTime, stopCondition);
+            return new DynamicRumbleEffect(stateFunction, priority, timeout, minTime, stopCondition);
         }
 
         private record InWorldProperties(Supplier<Vec3> sourceLocation, float minMagnitude, float maxMagnitude, float effectRange, Function<Float, Float> fallofFunction) {

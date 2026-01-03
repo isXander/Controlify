@@ -3,8 +3,8 @@ package dev.isxander.controlify.api;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.RumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.haptics.rumble.RumbleEffect;
+import dev.isxander.controlify.haptics.HapticSource;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -32,10 +32,10 @@ public interface ControlifyApi {
     @NotNull InputMode currentInputMode();
     boolean setInputMode(@NotNull InputMode mode);
 
-    default void playRumbleEffect(@NotNull RumbleSource rumbleSource, @NotNull RumbleEffect rumbleEffect) {
+    default void playRumbleEffect(@NotNull HapticSource hapticSource, @NotNull RumbleEffect rumbleEffect) {
         getCurrentController()
                 .flatMap(ControllerEntity::rumble)
-                .ifPresent(r -> r.rumbleManager().play(rumbleSource, rumbleEffect));
+                .ifPresent(r -> r.rumbleManager().play(hapticSource, rumbleEffect));
     }
 
     static ControlifyApi get() {
