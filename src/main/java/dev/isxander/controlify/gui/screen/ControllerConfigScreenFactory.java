@@ -516,6 +516,18 @@ public class ControllerConfigScreenFactory {
                         .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
                 .build();
         gyroGroup.option(relativeModeOpt);
+	var flickAnimationTicks = Option.<Integer>createBuilder()
+	    .name(Component.translatable("controlify.gui.flick_animation_ticks"))
+	    .description(OptionDescription.createBuilder()
+	        .text(Component.translatable("controlify.gui.flick_animation_ticks.tooltip"))
+		.build())
+	    .binding(def.flickAnimationTicks, () -> config.flickAnimationTicks, v -> config.flickAnimationTicks = v)
+	    .controller(opt -> IntegerSliderControllerBuilder.create(opt)
+	        .range(0, 32)
+		.step(1)
+		.formatValue(v -> v == 0 ? CommonComponents.OPTION_OFF : ticksToMillisFormatter.format(v)))
+	    .build();
+	gyroGroup.option(flickAnimationTicks);
         gyroGroup.option(Util.make(() -> {
             var option = Option.<GyroYawMode>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_yaw_mode"))
@@ -581,6 +593,7 @@ public class ControllerConfigScreenFactory {
             gyroOptions.add(opt);
             return opt;
         }));
+
 
         return Optional.of(gyroGroup.build());
     }

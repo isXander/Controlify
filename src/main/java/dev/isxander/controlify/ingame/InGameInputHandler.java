@@ -19,8 +19,10 @@ import dev.isxander.controlify.utils.DebugOverlayHelper;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
+import net.minecraft.client.Camera;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -43,12 +45,14 @@ public class InGameInputHandler {
     private final ControllerEntity controller;
     private final Controlify controlify;
     private final Minecraft minecraft;
+    private final Camera camera;
 
     private double lookInputX, lookInputY; // in degrees per tick
     private final GyroState gyroInput = new GyroState();
     private boolean gyroToggledOn;
     private boolean wasAiming;
     private Animation flickAnimation;
+    private float yawOrigin;
 
     private boolean shouldShowPlayerList;
 
@@ -61,6 +65,7 @@ public class InGameInputHandler {
     public InGameInputHandler(ControllerEntity controller) {
         this.controller = controller;
         this.minecraft = Minecraft.getInstance();
+	this.camera = minecraft.gameRenderer.getMainCamera();
         this.controlify = Controlify.instance();
         this.dropRepeatHelper = new HoldRepeatHelper(20, 1);
         this.hotbarNextRepeatHelper = new HoldRepeatHelper(10, 4);
@@ -282,7 +287,7 @@ public class InGameInputHandler {
         controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
 
         if (controller.gyro().map(gyro -> gyro.confObj().lookSensitivity > 0 && gyro.confObj().flickStick).orElse(false)) {
-            handleFlickStick(player);
+            controller.gyro().ifPresent(gyro -> handleFlickStick(gyro, player));
         } else {
             controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
         }
@@ -380,30 +385,39 @@ public class InGameInputHandler {
         } * (config.invertX ? -1 : 1);
     }
 
-    protected void handleFlickStick(LocalPlayer player) {
+    protected void handleFlickStick(GyroComponent gyro, LocalPlayer player) {
+	GyroComponent.Config config = gyro.confObj();
+
         float y = ControlifyBindings.LOOK_DOWN.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_UP.on(controller).analogueNow();
         float x = ControlifyBindings.LOOK_RIGHT.on(controller).analogueNow()
                 - ControlifyBindings.LOOK_LEFT.on(controller).analogueNow();
 
+	if (y == 0f && x == 0f) {
+		yawOrigin = camera.getYRot();
+	} else {
+	
+		float yawCurrent = camera.getYRot();
+
         float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
-        if (!ControlifyBindings.LOOK_DOWN.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_UP.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_LEFT.on(controller).justPressed()
-                && !ControlifyBindings.LOOK_RIGHT.on(controller).justPressed()
-        ) {
-            return;
-        }
+	float yawTurn = Mth.wrapDegrees((float) (yawOrigin + flickAngle) - yawCurrent);
 
         if (flickAnimation != null && flickAnimation.isPlaying()) {
             flickAnimation.skipToEnd();
         }
 
-        flickAnimation = Animation.of(8)
-                .easing(EasingFunction.EASE_OUT_EXPO)
-                .deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
-                .play();
+	if (config.flickAnimationTicks != 0) {
+        	flickAnimation = Animation.of(config.flickAnimationTicks)
+                	.easing(EasingFunction.EASE_OUT_EXPO)
+                	.deltaConsumerD(angle -> player.turn(angle, 0), 0, yawTurn / 0.15)
+                	.play();
+	} else {
+		player.turn(yawTurn / 0.15, 0);
+	}
+
+	}
+
     }
 
     public void processPlayerLook(float deltaTime) {

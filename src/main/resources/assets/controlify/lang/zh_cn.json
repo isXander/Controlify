@@ -153,6 +153,8 @@
   "controlify.gui.gyro_requires_button.tooltip.off": "Always use the gyroscope.",
   "controlify.gui.flick_stick": "快速转向",
   "controlify.gui.flick_stick.tooltip": "改变向上/向下/向左/向右看的绑定行为，按下时将视线方向沿相应方向旋转90度。这应该与陀螺仪结合使用，以获得最准确和最快速的瞄准。",
+  "controlify.gui.flick_animation_ticks": "Flick Duration",
+  "controlify.gui.flick_animation_ticks.tooltip": "Changes the amount of time (in Milliseconds) of the animation when using the Flick Stick.",
   "controlify.gui.group.advanced": "高级",
   "controlify.gui.group.advanced.tooltip": "你可能不应该碰的设置！",
   "controlify.gui.screen_repeat_navi_delay": "屏幕重复导航延迟",

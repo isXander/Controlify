@@ -45,6 +45,7 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
         public GyroYawMode yawMode = GyroYawMode.YAW;
 
         public boolean flickStick = false;
+	public int flickAnimationTicks = 8;
 
         public boolean invertX = false;
         public boolean invertY = false;
