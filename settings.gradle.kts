@@ -44,3 +44,5 @@ stonecutter {
 
 rootProject.name = "Controlify"
 
+include("api")
+
