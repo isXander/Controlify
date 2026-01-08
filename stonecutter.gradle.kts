@@ -1,7 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    base
     id("me.modmuss50.mod-publish-plugin")
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
@@ -42,7 +41,7 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     filter { it.replace("Mac OS X", "macOS") }
 }
 
-tasks.clean {
+tasks.register("clean") {
     delete(layout.buildDirectory.dir("finalJars"))
 }
 
