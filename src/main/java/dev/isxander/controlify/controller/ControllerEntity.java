@@ -28,7 +28,7 @@ import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.SerializationException;
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,12 +57,12 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.<UIDComponent>getComponent(UIDComponent.ID).orElseThrow().value();
     }
 
-    @NotNull
+    @NonNull
     public String driverName() {
         return this.<DriverNameComponent>getComponent(DriverNameComponent.ID).orElseThrow().value();
     }
 
-    @NotNull
+    @NonNull
     public String guid() {
         return this.<GUIDComponent>getComponent(GUIDComponent.ID).orElseThrow().value();
     }
@@ -71,7 +71,7 @@ public class ControllerEntity extends ECSEntityImpl {
         return this.info;
     }
 
-    @NotNull
+    @NonNull
     public String name() {
         String nickname = this.genericConfig().config().nickname;
         if (nickname != null)

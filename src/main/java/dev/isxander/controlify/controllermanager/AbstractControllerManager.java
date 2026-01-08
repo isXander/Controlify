@@ -43,28 +43,28 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         try {
             if (controllersByJid.containsKey(ucid)) {
-                controllerLogger.warn("Tried to create controller that already is initialised: {}.", ucid);
+                controllerLogger.warn("Tried to create impl that already is initialised: {}.", ucid);
                 return Optional.empty();
             }
 
             if (hidInfo.type().dontLoad()) {
-                controllerLogger.debugLog("Preventing load of controller #" + ucid + " because its type prevents loading.");
+                controllerLogger.debugLog("Preventing load of impl #" + ucid + " because its type prevents loading.");
                 return Optional.empty();
             }
 
             if (hidInfo.type().isSteamDeck()
                 && SteamDeckUtil.DECK_MODE.isDesktopMode()
             ) {
-                controllerLogger.log("Preventing load of controller #{} because Steam Deck is in desktop mode.", ucid);
+                controllerLogger.log("Preventing load of impl #{} because Steam Deck is in desktop mode.", ucid);
                 return Optional.empty();
             }
 
             return createController(ucid, hidInfo, controllerLogger);
         } catch (Throwable e) {
-            controllerLogger.error("Failed to create controller #{}!", e, ucid);
-            CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
+            controllerLogger.error("Failed to create impl #{}!", e, ucid);
+            CrashReport crashReport = CrashReport.forThrowable(e, "Creating impl #" + ucid);
             CrashReportCategory category = crashReport.addCategory("Controller Info");
-            category.setDetail("Unique controller ID", ucid);
+            category.setDetail("Unique impl ID", ucid);
             category.setDetail("Controller identification", hidInfo.type());
             category.setDetail("HID path", hidInfo.hidDevice().map(HIDDevice::path).orElse("N/A"));
             category.setDetail("HID service status", Controlify.instance().controllerHIDService().isDisabled() ? "Disabled" : "Enabled");
@@ -107,7 +107,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
         Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
         newController.ifPresent(c -> {
-            ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting controller", c);
+            ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting impl", c);
         });
         return newController;
     }

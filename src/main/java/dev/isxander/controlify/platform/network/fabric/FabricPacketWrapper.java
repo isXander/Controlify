@@ -6,7 +6,7 @@ import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class FabricPacketWrapper<T> {
     public final CustomPacketPayload.Type<FabricPacketPayloadWrapper> type;
@@ -33,7 +33,7 @@ public class FabricPacketWrapper<T> {
         }
 
         @Override
-        public @NotNull Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return type;
         }
     }

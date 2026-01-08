@@ -83,7 +83,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
                         }
                     });
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to read controller identification database!", e);
+            CUtil.LOGGER.error("Failed to read impl identification database!", e);
         }
 
         return typeMap.entrySet().stream().toList();
@@ -117,7 +117,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
         ControllerType newType = this.getControllerType(hid.asIdentifier());
         ControllerType oldType = controller.info().type();
 
-        // re-initialise the controller if its type has changed
+        // re-initialise the impl if its type has changed
         if (!newType.equals(oldType)) {
             controllerManager.reinitController(
                     controller,

@@ -2,7 +2,7 @@ package dev.isxander.controlify.bindings.defaults;
 
 import dev.isxander.controlify.bindings.input.Input;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public interface DefaultBindProvider {
     @Nullable

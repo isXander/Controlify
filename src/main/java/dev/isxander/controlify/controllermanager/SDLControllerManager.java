@@ -32,7 +32,7 @@ import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
 import dev.isxander.sdl3java.jna.size_t;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceProvider;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.InputStream;
 import java.util.*;
@@ -91,7 +91,7 @@ public class SDLControllerManager extends AbstractControllerManager {
                                     .orElse(new ControllerHIDService.ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty()))
                     );
                     controllerOpt.ifPresent(controller -> {
-                        ControllerUtils.wrapControllerError(() -> onControllerConnected(controller, true), "Connecting controller", controller);
+                        ControllerUtils.wrapControllerError(() -> onControllerConnected(controller, true), "Connecting impl", controller);
                     });
                 }
 
@@ -133,7 +133,7 @@ public class SDLControllerManager extends AbstractControllerManager {
     @Override
     protected Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo, ControlifyLogger controllerLogger) {
         SDL_JoystickID jid = ((SDLUniqueControllerID) ucid).jid();
-        controllerLogger.debugLog("Creating controller: {}", jid.intValue());
+        controllerLogger.debugLog("Creating impl: {}", jid.intValue());
 
         boolean isGamepad = isControllerGamepad(ucid) && !DebugProperties.FORCE_JOYSTICK;
         controllerLogger.debugLog("Controller is gamepad: {}", isGamepad);
@@ -148,7 +148,7 @@ public class SDLControllerManager extends AbstractControllerManager {
             if (steamDeckDriver.isPresent()) {
                 drivers.add(steamDeckDriver.get());
                 steamDeckConsumed = true;
-                controllerLogger.debugLog("Adding SteamDeckDriver - this controller has been reserved for Steam Deck");
+                controllerLogger.debugLog("Adding SteamDeckDriver - this impl has been reserved for Steam Deck");
             }
         }
 
@@ -201,7 +201,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         Optional<Resource> resourceOpt = resourceProvider
                 .getResource(CUtil.rl("controllers/gamecontrollerdb-sdl3.txt"));
         if (resourceOpt.isEmpty()) {
-            CUtil.LOGGER.error("Failed to find game controller database.");
+            CUtil.LOGGER.error("Failed to find game impl database.");
             return;
         }
 
@@ -235,7 +235,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         String guidStr = guid.toString();
 
         if (vid != 0 && pid != 0) {
-            CUtil.LOGGER.log("Using SDL to identify controller type.");
+            CUtil.LOGGER.log("Using SDL to identify impl type.");
             return Optional.of(new ControllerHIDService.ControllerHIDInfo(
                     Controlify.instance().controllerTypeManager().getControllerType(new HIDID(vid, pid)),
                     Optional.of(new HIDDevice.SDLHidApi(vid, pid, guidStr))
@@ -245,7 +245,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         return Optional.empty();
     }
 
-    public record SDLUniqueControllerID(@NotNull SDL_JoystickID jid) implements UniqueControllerID {
+    public record SDLUniqueControllerID(@NonNull SDL_JoystickID jid) implements UniqueControllerID {
         @Override
         public boolean equals(Object obj) {
             return obj instanceof SDLUniqueControllerID && ((SDLUniqueControllerID) obj).jid.equals(jid);

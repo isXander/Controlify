@@ -17,7 +17,7 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.util.List;
@@ -118,7 +118,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
                 .collect(Collectors.joining("+"));
 
         return Component.literal(literal).withStyle(style -> style
-                .withFont(CUtil.createResourceFont(fontMap.namespace().withPrefix("controller/")))
+                .withFont(CUtil.createResourceFont(fontMap.namespace().withPrefix("impl/")))
                 //? if >=1.21.4
                 .withShadowColor(0x00000000) // remove shadow
                 .withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly

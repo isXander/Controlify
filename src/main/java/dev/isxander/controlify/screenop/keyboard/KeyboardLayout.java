@@ -13,8 +13,8 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -293,7 +293,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
                 }
 
                 @Override
-                public @NotNull String getSerializedName() {
+                public @NonNull String getSerializedName() {
                     return this.serialName;
                 }
 

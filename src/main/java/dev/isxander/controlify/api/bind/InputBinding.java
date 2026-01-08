@@ -19,8 +19,8 @@ import java.util.function.Consumer;
 
 /**
  * An input binding is a single action that can be performed in Minecraft, e.g. punching.
- * It is bound to a controller {@link Input}, e.g. the A button.
- * Every tick, the input binding will update its state based on the controller input and then propagate to its outputs,
+ * It is bound to a impl {@link Input}, e.g. the A button.
+ * Every tick, the input binding will update its state based on the impl input and then propagate to its outputs,
  * e.g. {@link #justTapped()}. The outputs are then used to perform the action in the game.
  */
 public interface InputBinding {

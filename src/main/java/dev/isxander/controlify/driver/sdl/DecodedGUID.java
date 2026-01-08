@@ -2,7 +2,7 @@ package dev.isxander.controlify.driver.sdl;
 
 import dev.isxander.sdl3java.api.guid.SDL_GUID;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;

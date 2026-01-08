@@ -2,7 +2,7 @@ package dev.isxander.controlify.api.guide;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Whether the action should be on the left or right list.
@@ -18,7 +18,7 @@ public enum ActionLocation implements StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public @NonNull String getSerializedName() {
         return this.serialName;
     }
 

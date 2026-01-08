@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public enum HatState implements NameableEnum, StringRepresentable {
     CENTERED,
@@ -45,7 +45,7 @@ public enum HatState implements NameableEnum, StringRepresentable {
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public @NonNull String getSerializedName() {
         return this.name();
     }
 }

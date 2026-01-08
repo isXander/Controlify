@@ -1,6 +1,6 @@
 package dev.isxander.controlify.api.v1.bindings;
 
-import dev.isxander.controlify.api.CIdentifier;
+import dev.isxander.controlify.api.CID;
 import org.jspecify.annotations.NonNull;
 
 public interface InputBindingBuilder {
@@ -18,7 +18,7 @@ public interface InputBindingBuilder {
      * @param rl the binding's id
      * @return this builder
      */
-    InputBindingBuilder id(@NonNull CIdentifier rl);
+    InputBindingBuilder id(@NonNull CID rl);
 
     /**
      * Sets the unique identifier for the binding.
@@ -31,12 +31,12 @@ public interface InputBindingBuilder {
      * </ul>
      * This is the ID referred to in {@link InputBindingSupplier#bindId()}.
      *
-     * @param namespace namespace of {@link CIdentifier}
-     * @param path path of {@link CIdentifier}
+     * @param namespace namespace of {@link CID}
+     * @param path path of {@link CID}
      * @return this builder
      */
     default InputBindingBuilder id(@NonNull String namespace, @NonNull String path) {
-        return this.id(new CIdentifier(namespace, path));
+        return this.id(new CID(namespace, path));
     }
 
     /**

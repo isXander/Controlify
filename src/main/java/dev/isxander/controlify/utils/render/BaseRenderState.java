@@ -4,7 +4,7 @@ import dev.isxander.yacl3.gui.utils.GuiUtils;
 import net.minecraft.client.gui.GuiGraphics;
 
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 //? if >=1.21.6 {
 import com.mojang.blaze3d.pipeline.RenderPipeline;

@@ -31,7 +31,7 @@ public interface ControlifyBindApi {
      * Registers a new binding that will be created on only the controllers that pass the filter.
      *
      * @param callback the callback that populates the binding builder. will only be called once
-     * @param filter the filter that determines if the binding should be created for the controller
+     * @param filter the filter that determines if the binding should be created for the impl
      * @return the supplier for the binding
      */
     InputBindingSupplier registerBinding(RegistryCallback callback, Predicate<ControllerEntity> filter);
@@ -48,7 +48,7 @@ public interface ControlifyBindApi {
     InputBindingSupplier createSupplier(Identifier bindId);
 
     /**
-     * Get all the controller bindings for a vanilla key mapping.
+     * Get all the impl bindings for a vanilla key mapping.
      * This is populated using {@link InputBindingBuilder#addKeyCorrelation(KeyMapping)}
      * or {@link InputBindingBuilder#keyEmulation(KeyMapping)}.
      *

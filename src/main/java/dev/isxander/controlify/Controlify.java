@@ -56,8 +56,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
@@ -214,7 +214,7 @@ public class Controlify implements ControlifyApi {
         CUtil.LOGGER.log("Initializing Controlify...");
         this.minecraft = Minecraft.getInstance();
 
-        this.inGameInputHandler = null; // set when the current controller changes
+        this.inGameInputHandler = null; // set when the current impl changes
         this.virtualMouseHandler = new VirtualMouseHandler();
 
         config().load();
@@ -235,7 +235,7 @@ public class Controlify implements ControlifyApi {
         try {
             controllerManager = loadedSDL ? new SDLControllerManager(CUtil.LOGGER) : new GLFWControllerManager(CUtil.LOGGER);
         } catch (Throwable throwable) {
-            CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
+            CUtil.LOGGER.error("Failed to initialize impl manager", throwable);
             return;
         }
 
@@ -300,7 +300,7 @@ public class Controlify implements ControlifyApi {
     }
 
     /**
-     * Loops through every controller slot and initialises it if it is connected.
+     * Loops through every impl slot and initialises it if it is connected.
      * This is guaranteed to be called at most once. If no controllers are connected
      * in the whole game lifecycle, this is never ran.
      */
@@ -319,10 +319,10 @@ public class Controlify implements ControlifyApi {
             CUtil.LOGGER.log("No controllers found.");
         }
 
-        // if no controller is currently selected, pick one
+        // if no impl is currently selected, pick one
         if (getCurrentController().isEmpty()) {
             if(config().currentControllerUid() == null) {
-                // The user hasn't selected a controller yet.
+                // The user hasn't selected a impl yet.
                 // We'll pick one automatically.
                 Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
@@ -331,7 +331,7 @@ public class Controlify implements ControlifyApi {
                 this.setCurrentController(preferredController.orElse(null), false);
             }
             else {
-                // The user has selected a preferred controller, or wants to use mouse+kbd (i.e. empty string in currentControllerUid()).
+                // The user has selected a preferred impl, or wants to use mouse+kbd (i.e. empty string in currentControllerUid()).
                 // Respect their choice.
                 Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
@@ -354,22 +354,22 @@ public class Controlify implements ControlifyApi {
     }
 
     /**
-     * Called when a controller is connected. Either from controller
+     * Called when a impl is connected. Either from impl
      * discovery or hotplugging.
      *
-     * @param controller the new controller
+     * @param controller the new impl
      * @param hotplugged if this was a result of hotplugging
-     * @param newController if this controller has never been seen before
+     * @param newController if this impl has never been seen before
      */
     private void onControllerAdded(ControllerEntity controller, boolean hotplugged, boolean newController) {
         ControllerSetupWizard wizard = new ControllerSetupWizard();
 
-        // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
+        // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(impl), nextScreen -> new SubmitUnknownControllerScreen(impl, nextScreen));
 
         boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
                 || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
 
-        // Only auto-select a newly plugged-in controller if it's the preferred one, or if the user hasn't set one yet.
+        // Only auto-select a newly plugged-in impl if it's the preferred one, or if the user hasn't set one yet.
         if (hotplugged && getCurrentController().isEmpty() && (config().currentControllerUid() == null || controller.uid().equals(config().currentControllerUid()))) {
             this.setCurrentController(controller, true);
         }
@@ -415,12 +415,12 @@ public class Controlify implements ControlifyApi {
     }
 
     /**
-     * Called when a controller is disconnected.
-     * @param controller controller that has been disconnected
+     * Called when a impl is disconnected.
+     * @param controller impl that has been disconnected
      */
     private void onControllerRemoved(ControllerEntity controller) {
         if(getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
-            // Don't autoselect another controller.
+            // Don't autoselect another impl.
             this.setCurrentController(null, true);
 
             this.setInputMode(InputMode.KEYBOARD_MOUSE);
@@ -435,7 +435,7 @@ public class Controlify implements ControlifyApi {
 
     /**
      * The main loop of Controlify.
-     * Only the current controller ticks.
+     * Only the current impl ticks.
      */
     public void tick(Minecraft client) {
         if (minecraft.getOverlay() == null) {
@@ -476,16 +476,16 @@ public class Controlify implements ControlifyApi {
         getCurrentController().ifPresent(currentController -> {
             wrapControllerError(
                     () -> tickController(currentController, outOfFocus),
-                    "Ticking current controller",
+                    "Ticking current impl",
                     currentController
             );
         });
     }
 
     /**
-     * Ticks a specific controller.
+     * Ticks a specific impl.
      *
-     * @param controller controller to tick
+     * @param controller impl to tick
      * @param outOfFocus if the window is out of focus
      */
     private void tickController(ControllerEntity controller, boolean outOfFocus) {
@@ -518,7 +518,7 @@ public class Controlify implements ControlifyApi {
         }
 
         if (consecutiveInputSwitches > 100) {
-            CUtil.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
+            CUtil.LOGGER.warn("Controlify detected current impl to be constantly giving input and has been disabled.");
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
                     Component.translatable("controlify.toast.faulty_input.description"),
@@ -547,7 +547,7 @@ public class Controlify implements ControlifyApi {
     }
 
     @Override
-    public @NotNull Optional<ControllerEntity> getCurrentController() {
+    public @NonNull Optional<ControllerEntity> getCurrentController() {
         return Optional.ofNullable(currentController);
     }
 
@@ -560,12 +560,12 @@ public class Controlify implements ControlifyApi {
             this.setInputMode(InputMode.KEYBOARD_MOUSE);
             this.inGameInputHandler = null;
             this.inGameButtonGuide = null;
-            DebugLog.log("Updated current controller to null");
+            DebugLog.log("Updated current impl to null");
             config().save();
             return;
         }
 
-        DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
+        DebugLog.log("Updated current impl to {}({})", controller.name(), controller.uid());
 
         if (!controller.uid().equals(config().currentControllerUid())) {
             // Reflect the changes in the config file.
@@ -604,12 +604,12 @@ public class Controlify implements ControlifyApi {
         return controllerHIDService;
     }
 
-    public @NotNull InputMode currentInputMode() {
+    public @NonNull InputMode currentInputMode() {
         return currentInputMode;
     }
 
     @Override
-    public boolean setInputMode(@NotNull InputMode currentInputMode) {
+    public boolean setInputMode(@NonNull InputMode currentInputMode) {
         if (this.currentInputMode == currentInputMode) return false;
         this.currentInputMode = currentInputMode;
 

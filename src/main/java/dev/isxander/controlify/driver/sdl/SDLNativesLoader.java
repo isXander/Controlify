@@ -4,7 +4,7 @@ import com.sun.jna.Platform;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl3java.jna.SdlNativeLibraryLoader;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.file.Path;
 import java.util.Optional;

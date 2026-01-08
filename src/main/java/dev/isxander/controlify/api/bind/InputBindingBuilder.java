@@ -6,8 +6,8 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -33,7 +33,7 @@ public interface InputBindingBuilder {
      * @param rl the binding's id
      * @return this builder
      */
-    InputBindingBuilder id(@NotNull Identifier rl);
+    InputBindingBuilder id(@NonNull Identifier rl);
 
     /**
      * Sets the unique identifier for the binding.
@@ -50,7 +50,7 @@ public interface InputBindingBuilder {
      * @param path path of {@link Identifier}
      * @return this builder
      */
-    InputBindingBuilder id(@NotNull String namespace, @NotNull String path);
+    InputBindingBuilder id(@NonNull String namespace, @NonNull String path);
 
     /**
      * Sets a custom name component for the binding. Optional field.
@@ -62,7 +62,7 @@ public interface InputBindingBuilder {
      * @param text the name component
      * @return this builder
      */
-    InputBindingBuilder name(@NotNull Component text);
+    InputBindingBuilder name(@NonNull Component text);
 
     /**
      * Sets a custom description component for the binding. Optional field.
@@ -75,7 +75,7 @@ public interface InputBindingBuilder {
      * @param text the name component
      * @return this builder
      */
-    InputBindingBuilder description(@NotNull Component text);
+    InputBindingBuilder description(@NonNull Component text);
 
     /**
      * Sets the category for the binding. <strong>Required field.</strong>
@@ -85,7 +85,7 @@ public interface InputBindingBuilder {
      * @param text the category component
      * @return this builder
      */
-    InputBindingBuilder category(@NotNull Component text);
+    InputBindingBuilder category(@NonNull Component text);
 
     /**
      * Sets the default input for the binding.
@@ -114,7 +114,7 @@ public interface InputBindingBuilder {
      * @param contexts all applicable contexts
      * @return this builder
      */
-    InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable... contexts);
+    InputBindingBuilder allowedContexts(@NonNull BindContext @Nullable... contexts);
 
     /**
      * Specifies an icon that can be used in the radial menu.
@@ -132,7 +132,7 @@ public interface InputBindingBuilder {
      * @param keyMapping the key mapping to correlate with
      * @return this builder
      */
-    InputBindingBuilder addKeyCorrelation(@NotNull KeyMapping keyMapping);
+    InputBindingBuilder addKeyCorrelation(@NonNull KeyMapping keyMapping);
 
     /**
      * Makes the binding emulate a vanilla key mapping.
@@ -141,7 +141,7 @@ public interface InputBindingBuilder {
      * @param keyMapping the key mapping to emulate
      * @return this builder
      */
-    InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping);
+    InputBindingBuilder keyEmulation(@NonNull KeyMapping keyMapping);
 
-    InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition);
+    InputBindingBuilder keyEmulation(@NonNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition);
 }

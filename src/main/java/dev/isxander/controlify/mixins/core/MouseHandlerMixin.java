@@ -84,7 +84,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
     }
 
     /**
-     * Without this, mouse is left in the center of the screen that conflicts with controller focus.
+     * Without this, mouse is left in the center of the screen that conflicts with impl focus.
      */
     @Inject(
             method = "releaseMouse",

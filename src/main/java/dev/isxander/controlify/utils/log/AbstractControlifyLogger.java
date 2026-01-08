@@ -2,7 +2,7 @@ package dev.isxander.controlify.utils.log;
 
 import net.minecraft.CrashReport;
 import net.minecraft.ReportType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

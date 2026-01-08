@@ -6,7 +6,7 @@ import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.deckapi.api.SteamDeck;
 import dev.isxander.deckapi.api.SteamDeckException;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;

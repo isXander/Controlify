@@ -3,7 +3,7 @@ package dev.isxander.controlify.utils.codec;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.*;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -48,7 +48,7 @@ public record SetCodec<E>(Codec<E> elementCodec, int minSize, int maxSize) imple
     }
 
     @Override
-    public @NotNull String toString() {
+    public @NonNull String toString() {
         return "SetCodec[" + elementCodec + ']';
     }
 

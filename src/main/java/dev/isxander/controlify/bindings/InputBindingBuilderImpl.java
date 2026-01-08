@@ -12,8 +12,8 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -34,7 +34,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     private boolean locked;
 
     @Override
-    public InputBindingBuilder id(@NotNull Identifier rl) {
+    public InputBindingBuilder id(@NonNull Identifier rl) {
         checkLocked();
 
         this.id = rl;
@@ -42,12 +42,12 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
+    public InputBindingBuilder id(@NonNull String namespace, @NonNull String path) {
         return this.id(Identifier.fromNamespaceAndPath(namespace, path));
     }
 
     @Override
-    public InputBindingBuilder category(@NotNull Component text) {
+    public InputBindingBuilder category(@NonNull Component text) {
         checkLocked();
 
         this.category = text;
@@ -55,7 +55,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder name(@NotNull Component text) {
+    public InputBindingBuilder name(@NonNull Component text) {
         checkLocked();
 
         this.customName = text;
@@ -63,7 +63,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder description(@NotNull Component text) {
+    public InputBindingBuilder description(@NonNull Component text) {
         checkLocked();
 
         this.customDescription = text;
@@ -79,7 +79,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable ... contexts) {
+    public InputBindingBuilder allowedContexts(@NonNull BindContext @Nullable ... contexts) {
         checkLocked();
 
         if (contexts != null)
@@ -96,7 +96,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder addKeyCorrelation(@NotNull KeyMapping keyMapping) {
+    public InputBindingBuilder addKeyCorrelation(@NonNull KeyMapping keyMapping) {
         checkLocked();
 
         this.keyCorrelations.add(keyMapping);
@@ -104,7 +104,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition) {
+    public InputBindingBuilder keyEmulation(@NonNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition) {
         checkLocked();
 
         this.keyEmulation = keyMapping;
@@ -114,7 +114,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
     }
 
     @Override
-    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
+    public InputBindingBuilder keyEmulation(@NonNull KeyMapping keyMapping) {
         return keyEmulation(keyMapping, null);
     }
 
@@ -144,7 +144,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         return new InputBindingImpl(controller, id, name, description, category, defaultSupplier, allowedContexts, radialCandidate);
     }
 
-    @NotNull
+    @NonNull
     public Identifier getIdAndLock() {
         checkLocked();
 

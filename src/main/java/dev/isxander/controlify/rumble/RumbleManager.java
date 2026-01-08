@@ -1,7 +1,7 @@
 package dev.isxander.controlify.rumble;
 
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -79,7 +79,7 @@ public class RumbleManager {
 
     private record RumbleEffectInstance(RumbleSource source, RumbleEffect effect) implements Comparable<RumbleEffectInstance> {
         @Override
-        public int compareTo(@NotNull RumbleManager.RumbleEffectInstance o) {
+        public int compareTo(RumbleManager.@NonNull RumbleEffectInstance o) {
             return effect.compareTo(o.effect);
         }
     }

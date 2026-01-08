@@ -4,7 +4,7 @@ import dev.isxander.controlify.controller.ECSComponent;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -13,7 +13,7 @@ public class TriggerRumbleComponent implements ECSComponent {
 
     private TriggerRumbleState state = null;
 
-    public void queueTriggerRumble(@NotNull TriggerRumbleState state) {
+    public void queueTriggerRumble(@NonNull TriggerRumbleState state) {
         this.state = state;
     }
 

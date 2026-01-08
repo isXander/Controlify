@@ -8,7 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec2;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 //? if >=1.21.2 {
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.world.entity.player.Input;

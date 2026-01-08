@@ -3,7 +3,7 @@ package dev.isxander.controlify.platform.client.resource;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.profiling.ProfilerFiller;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -11,7 +11,7 @@ import java.util.concurrent.Executor;
 public interface SimpleControlifyReloadListener<T> extends ControlifyReloadListener {
     //? if >=1.21.9 {
     @Override
-    default @NotNull CompletableFuture<Void> reload(
+    default @NonNull CompletableFuture<Void> reload(
             SharedState sharedState,
             Executor loadExecutor,
             PreparationBarrier preparationBarrier,
@@ -21,7 +21,7 @@ public interface SimpleControlifyReloadListener<T> extends ControlifyReloadListe
     }
     //?} else {
     /*@Override
-    default @NotNull CompletableFuture<Void> reload(
+    default @NonNull CompletableFuture<Void> reload(
             PreparableReloadListener.PreparationBarrier helper,
             ResourceManager manager,
             //? if <1.21.2
@@ -32,7 +32,7 @@ public interface SimpleControlifyReloadListener<T> extends ControlifyReloadListe
     }
     *///?}
 
-    default @NotNull CompletableFuture<Void> reload0(
+    default @NonNull CompletableFuture<Void> reload0(
             PreparationBarrier preparationBarrier,
             ResourceManager resourceManager,
             Executor loadExecutor,

@@ -5,7 +5,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 public class FakePositionPlainTextButton extends PlainTextButton {
     private ScreenRectangle fakePosition;
@@ -23,7 +23,7 @@ public class FakePositionPlainTextButton extends PlainTextButton {
     }
 
     @Override
-    public @NotNull ScreenRectangle getRectangle() {
+    public @NonNull ScreenRectangle getRectangle() {
         return isFocused() ? super.getRectangle() : fakePosition;
     }
 }

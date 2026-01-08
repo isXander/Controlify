@@ -9,7 +9,7 @@ import dev.isxander.controlify.utils.codec.StrictEitherMapCodec;
 import net.minecraft.util.Util;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.StringRepresentable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 import java.util.function.Function;
@@ -53,7 +53,7 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
     }
 
     @Override
-    public @NotNull String getSerializedName() {
+    public @NonNull String getSerializedName() {
         return this.id();
     }
 }

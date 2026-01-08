@@ -1,10 +1,10 @@
 package dev.isxander.controlify.api.v1.bindings;
 
-import dev.isxander.controlify.api.CIdentifier;
+import dev.isxander.controlify.api.CID;
 import dev.isxander.controlify.api.MinecraftComponent;
 
 public interface InputBinding {
-    CIdentifier id();
+    CID id();
 
     @MinecraftComponent Object glyphIcon();
 

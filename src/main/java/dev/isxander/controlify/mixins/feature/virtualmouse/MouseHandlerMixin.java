@@ -28,7 +28,7 @@ public class MouseHandlerMixin {
             /*long window, int cursor, double x, double y
             *///?}
     ) {
-        // mouse cursor appears for a split second when going into guis on controller input
+        // mouse cursor appears for a split second when going into guis on impl input
         return Controlify.instance().currentInputMode() != InputMode.CONTROLLER;
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayDeque;
 import java.util.Map;
@@ -118,7 +118,7 @@ public final class RadialIcons {
         return map;
     }
     
-    public static @NotNull Identifier getModLoaderIcon() {
+    public static @NonNull Identifier getModLoaderIcon() {
         //? if fabric {
         return FABRIC_ICON;
         //?} else {

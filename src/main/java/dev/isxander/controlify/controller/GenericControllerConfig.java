@@ -4,7 +4,7 @@ import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.controller.serialization.ConfigClass;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class GenericControllerConfig implements ConfigClass {
     public static final Identifier ID = CUtil.rl("config/generic");

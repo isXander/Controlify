@@ -8,7 +8,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.yacl3.gui.OptionListWidget;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

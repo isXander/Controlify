@@ -11,8 +11,8 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugLog;
 import dev.isxander.controlify.utils.GsonCodecAdapter;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,11 +38,11 @@ public class ControlifyConfig {
     private boolean firstLaunch;
 
     private String currentControllerUid = null;
-    // used so saving the config doesn't lose controller config that isn't currently connected
-    // null means no preference, empty string means I don't want to use a controller.
-    // key: controller uid
+    // used so saving the config doesn't lose impl config that isn't currently connected
+    // null means no preference, empty string means I don't want to use a impl.
+    // key: impl uid
     private final Map<String, JsonObject> storedControllerConfig = new HashMap<>();
-    private @NotNull GlobalSettings globalSettings = new GlobalSettings();
+    private @NonNull GlobalSettings globalSettings = new GlobalSettings();
 
     public ControlifyConfig(Controlify controlify) {
         this.controlify = controlify;
@@ -103,7 +103,7 @@ public class ControlifyConfig {
     private JsonObject createSerialObject() {
         JsonObject obj = new JsonObject();
 
-        { // Current controller
+        { // Current impl
             obj.addProperty(
                     "current_controller",
                     this.currentControllerUid()
@@ -139,7 +139,7 @@ public class ControlifyConfig {
             }
 
             // now the serialization will not remove objects that it doesn't need
-            // this is useful because hd haptics only applies if controller is wired,
+            // this is useful because hd haptics only applies if impl is wired,
             // so if the user interchanges between BT+W it won't lose the HD haptic config
             controller.serializeToObject(configObject, GSON);
 
@@ -153,11 +153,11 @@ public class ControlifyConfig {
             if (primitive != null) {
                 currentControllerUid = primitive.isJsonNull() ? null : primitive.getAsString();
             } else {
-                CUtil.LOGGER.warn("Current controller is not defined in config!");
+                CUtil.LOGGER.warn("Current impl is not defined in config!");
                 setDirty();
             }
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to apply current controller from config file!", e);
+            CUtil.LOGGER.error("Failed to apply current impl from config file!", e);
             setDirty();
         }
 
@@ -168,7 +168,7 @@ public class ControlifyConfig {
             });
             controlify.getControllerManager().ifPresent(this::applyControllerConfig);
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to apply controller config from config file!", e);
+            CUtil.LOGGER.error("Failed to apply impl config from config file!", e);
             setDirty();
         }
 
@@ -201,7 +201,7 @@ public class ControlifyConfig {
         try {
             controller.deserializeFromObject(innerJson.deepCopy(), GSON);
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to load controller {} config!", controller.uid(), e);
+            CUtil.LOGGER.error("Failed to load impl {} config!", controller.uid(), e);
             setDirty();
         }
 
@@ -216,7 +216,7 @@ public class ControlifyConfig {
         this.currentControllerUid = uid;
     }
 
-    public @NotNull GlobalSettings globalSettings() {
+    public @NonNull GlobalSettings globalSettings() {
         return this.globalSettings;
     }
 

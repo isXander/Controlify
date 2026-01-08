@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(AbstractSelectionList.class)
 public class AbstractSelectionListMixin {
     // Ensures that when changing focus within a list, the focused entry is made visible.
-    // Usually this is gated for keyboard input only, but we want it for controller input too.
+    // Usually this is gated for keyboard input only, but we want it for impl input too.
     // In 1.21.9, this call was completely removed.
     //? if <1.21.9 {
     /*@ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/InputType;isKeyboard()Z"))

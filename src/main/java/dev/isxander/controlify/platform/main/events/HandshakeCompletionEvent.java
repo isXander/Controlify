@@ -1,7 +1,7 @@
 package dev.isxander.controlify.platform.main.events;
 
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 @FunctionalInterface
 public interface HandshakeCompletionEvent<I> {

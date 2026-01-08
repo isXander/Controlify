@@ -83,7 +83,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
             }
         }
 
-        // tick runs after all controller input ticks
+        // tick runs after all impl input ticks
 
         Optional<Input> pressedBind = bindConsumer.getPressedBind();
         if (pressedBind.isPresent()) {
@@ -167,7 +167,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
 
         @Override
         public void onControllerUpdate(ControllerEntity controller) {
-            // prevent all other controller input logic
+            // prevent all other impl input logic
         }
     }
 }

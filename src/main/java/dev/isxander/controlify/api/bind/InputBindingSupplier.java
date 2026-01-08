@@ -5,33 +5,33 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 
 /**
- * A supplier that retrieves an {@link InputBinding} for a controller.
+ * A supplier that retrieves an {@link InputBinding} for a impl.
  */
 public interface InputBindingSupplier {
     /**
-     * Retrieves the input binding for the controller, throwing an exception if it does not exist.
+     * Retrieves the input binding for the impl, throwing an exception if it does not exist.
      *
-     * @param controller the controller to fetch the binding from
+     * @param controller the impl to fetch the binding from
      * @throws NullPointerException if the binding does not exist
      * @return the input binding
      */
-    default InputBinding on(@NotNull ControllerEntity controller) {
+    default InputBinding on(@NonNull ControllerEntity controller) {
         return Objects.requireNonNull(
                 onOrNull(controller),
-                () -> "Attempted to fetch " + bindId() + " for controller " + controller.uid() + " but it did not exist." +
-                        "The binding registry callback may have a filter that did not pass for this controller.");
+                () -> "Attempted to fetch " + bindId() + " for impl " + controller.uid() + " but it did not exist." +
+                        "The binding registry callback may have a filter that did not pass for this impl.");
     }
 
     /**
-     * Retrieves the input binding for the controller, or null if it does not exist.
+     * Retrieves the input binding for the impl, or null if it does not exist.
      *
-     * @param controller controller to fetch binding from
+     * @param controller impl to fetch binding from
      * @return the input binding, or null if it does not exist
      */
     @Nullable InputBinding onOrNull(ControllerEntity controller);
@@ -43,12 +43,12 @@ public interface InputBindingSupplier {
 
     /**
      * Returns a text component with the currently bound input glyph
-     * for the currently selected controller.
+     * for the currently selected impl.
      * <p>
      * Be careful, as this component will be rendered differently
-     * depending on the active controller, so make sure to deal with
+     * depending on the active impl, so make sure to deal with
      * width caching and other issues that may arise.
-     * @see InputBinding#inputGlyph() for a deterministic version on a specific controller
+     * @see InputBinding#inputGlyph() for a deterministic version on a specific impl
      * @return a component representing the input glyph
      */
     Component inputGlyph();

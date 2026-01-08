@@ -1,7 +1,7 @@
 package dev.isxander.controlify.mixins.feature.hdhaptics;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 

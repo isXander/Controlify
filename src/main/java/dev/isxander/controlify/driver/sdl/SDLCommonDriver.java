@@ -36,7 +36,7 @@ import dev.isxander.sdl3java.api.power.SDL_PowerState;
 import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
 import net.minecraft.util.Util;
 import org.intellij.lang.annotations.MagicConstant;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import javax.sound.sampled.AudioFormat;
 import java.util.ArrayList;
@@ -118,7 +118,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
         if (CUtil.rl("dualsense").equals(type.namespace())) {
             this.isDualsense = true;
-            logger.debugLog("DualSense controller detected.");
+            logger.debugLog("DualSense impl detected.");
 
             // macOS HD haptics are broken
             if (Util.getPlatform() != Util.OS.OSX && SDLNativesLoader.get().orElseThrow().hasAudio()) {
@@ -127,7 +127,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
                 for (SDL_AudioDeviceID dev : SDL_GetAudioPlaybackDevices()) {
                     String name = SDL_GetAudioDeviceName(dev).toLowerCase();
-                    if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
+                    if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless impl")) {
                         SDL_GetAudioDeviceFormat(dev, devSpec, null);
                         if (devSpec.channels == 4) {
                             dualsenseAudioDev = dev;
@@ -181,7 +181,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     @Override
     public void update(ControllerEntity controller, boolean outOfFocus) {
         if (ptrController == null) {
-            throw new IllegalStateException("Tried to update controller when it's closed.");
+            throw new IllegalStateException("Tried to update impl when it's closed.");
         }
 
         updateRumble();
@@ -194,7 +194,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     @Override
     public void close() {
         if (ptrController == null) {
-            throw new IllegalStateException("Tried to close controller when it's already closed.");
+            throw new IllegalStateException("Tried to close impl when it's already closed.");
         }
         
         SDL_CloseController(ptrController);
@@ -258,9 +258,9 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             byte blue = (byte) (color & 0xFF);
 
             if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
-                logger.error("Could not set controller LED: {}", SDL_GetError());
+                logger.error("Could not set impl LED: {}", SDL_GetError());
             } else {
-                logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
+                logger.debugLog("Set impl LED to color: R={}, G={}, B={}", red, green, blue);
             }
         }
     }

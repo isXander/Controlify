@@ -1,6 +1,6 @@
 package dev.isxander.controlify.utils.log;
 
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ControlifySubLoggerImpl extends AbstractControlifyLogger implements ControlifySubLogger {
     private final AbstractControlifyLogger parent;

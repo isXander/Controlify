@@ -10,7 +10,7 @@ import dev.isxander.controlify.controller.serialization.CustomSaveLoadConfig;
 import dev.isxander.controlify.controller.serialization.IConfig;
 import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.SerializationException;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 

@@ -17,7 +17,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
     private int tick;
     private int age;
     private boolean stopped;
-    private BooleanSupplier stopCondition;
+    private final BooleanSupplier stopCondition;
 
     public ContinuousRumbleEffect(Function<Integer, RumbleState> stateFunction, int priority, int timeout, int minTime, BooleanSupplier stopCondition) {
         this.stateFunction = stateFunction;

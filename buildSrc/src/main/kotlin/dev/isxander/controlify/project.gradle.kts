@@ -3,6 +3,7 @@ package dev.isxander.controlify
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
+    id("dev.isxander.controlify.maven")
     id("dev.isxander.modstitch.base")
     `maven-publish`
     `java-library`
@@ -143,26 +144,7 @@ tasks.named<ProcessResources>("generateModMetadata") {
     }
 }
 
-val publishUsername = providers
-    .gradleProperty("XANDER_MAVEN_USER")
-    .orElse(providers.environmentVariable("XANDER_MAVEN_USER"))
 
-val publishPassword = providers
-    .gradleProperty("XANDER_MAVEN_PASS")
-    .orElse(providers.environmentVariable("XANDER_MAVEN_PASS"))
-
-
-publishing {
-    repositories {
-        maven(url = "https://maven.isxander.dev/releases") {
-            name = "XanderReleases"
-            credentials(PasswordCredentials::class) {
-                username = publishUsername.orNull
-                password = publishPassword.orNull
-            }
-        }
-    }
-}
 
 // fix stonecutterGenerate task dependencies
 tasks.named<ProcessResources>("generateModMetadata") {

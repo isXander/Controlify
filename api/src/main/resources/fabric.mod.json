@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "controlify_api_v1",
+  "version": "${version}",
+  "name": "Controlify API v1",
+  "description": "Slim API for mods supporting Controlify.",
+  "authors": [
+    "isXander"
+  ],
+  "depends": {
+    "java": ">=21"
+  },
+  "license": "LGPL-3.0-or-later",
+  "icon": "icon.png",
+  "suggests": {
+    "controlify": "*"
+  }
+}

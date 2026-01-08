@@ -11,12 +11,12 @@ public final class ControlifyEvents {
     public static final EventHandler<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventHandler.createPlatformBackedEvent();
 
     /**
-     * Triggers when the input mode is changed from keyboard to controller or vice versa.
+     * Triggers when the input mode is changed from keyboard to impl or vice versa.
      */
     public static final EventHandler<InputModeChanged> INPUT_MODE_CHANGED = EventHandler.createPlatformBackedEvent();
 
     /**
-     * Triggers every tick when the current controller state has been updated.
+     * Triggers every tick when the current impl state has been updated.
      */
     public static final EventHandler<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = EventHandler.createPlatformBackedEvent();
 
@@ -27,7 +27,7 @@ public final class ControlifyEvents {
     public static final EventHandler<ControllerStateUpdate> CONTROLLER_STATE_UPDATED = ACTIVE_CONTROLLER_TICKED;
 
     /**
-     * Triggers every tick when any connected controller's state has been updated before the active controller is ticked.
+     * Triggers every tick when any connected impl's state has been updated before the active impl is ticked.
      */
     public static final EventHandler<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = EventHandler.createPlatformBackedEvent();
 

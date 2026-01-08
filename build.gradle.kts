@@ -74,6 +74,12 @@ dependencies {
         }
     }
 
+    project(":api").let {
+        modstitchApi(it)
+        modstitchJiJ(it)
+    }
+    implementation("org.jspecify:jspecify:1.0.0")
+
     if (modstitch.isLoom) {
         modDependency("fabricApi", { "net.fabricmc.fabric-api:fabric-api:$it" }, api = true)
 

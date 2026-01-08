@@ -9,7 +9,7 @@ public class FormattableStringController extends StringController {
     private final ValueFormatter<String> formatter;
 
     /**
-     * Constructs a string controller
+     * Constructs a string impl
      *
      * @param option bound option
      * @param formatter the formatter to use

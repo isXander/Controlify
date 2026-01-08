@@ -5,8 +5,8 @@ import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public class OpenControllerCarouselAction extends Action {
     public OpenControllerCarouselAction() {
@@ -24,12 +24,12 @@ public class OpenControllerCarouselAction extends Action {
     }
 
     @Override
-    public @NotNull Component getActionDisplayName() {
+    public @NonNull Component getActionDisplayName() {
         return Component.translatable("controlify.gui.button");
     }
 
     @Override
-    public @NotNull Component[] getActionDescription() {
+    public @NonNull Component[] getActionDescription() {
         return new Component[0];
     }
 

@@ -5,6 +5,11 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
+/**
+ * API for registering visual guides for widgets.
+ * Because widgets have a lifetime until {@link net.minecraft.client.gui.screen.Screen#init() the screen is re-initialized},
+ * guides must be re-registered each time the screen is initialized.
+ */
 public interface WidgetGuideApi {
     /**
      * Register a visual guide for a widget for the binding.

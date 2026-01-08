@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.function.Supplier;
 
 /**
- * Collection of screens that are in a specific order to set up various aspects of a controller.
+ * Collection of screens that are in a specific order to set up various aspects of a impl.
  */
 public class ControllerSetupWizard {
     private final Deque<Stage> stages = new ArrayDeque<>();

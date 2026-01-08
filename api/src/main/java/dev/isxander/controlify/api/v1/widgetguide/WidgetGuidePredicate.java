@@ -1,6 +1,5 @@
 package dev.isxander.controlify.api.v1.widgetguide;
 
-
 @FunctionalInterface
 public interface WidgetGuidePredicate<T> {
     boolean shouldDisplay(T button);

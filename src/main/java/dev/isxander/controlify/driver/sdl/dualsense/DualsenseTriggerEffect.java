@@ -1,7 +1,7 @@
 package dev.isxander.controlify.driver.sdl.dualsense;
 
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jetbrains.annotations.Range;
 
 public interface DualsenseTriggerEffect {
@@ -157,7 +157,7 @@ public interface DualsenseTriggerEffect {
      * @param strength Array of 10 resistance values for zones 0 through 9. Must be between 0 and 8 inclusive.
      */
     record FeedbackMultiplePosition(
-            @Range(from = 0, to = 9) byte @NotNull [] strength
+            @Range(from = 0, to = 9) byte @NonNull [] strength
     ) implements DualsenseTriggerEffect {
         public FeedbackMultiplePosition {
             Validate.notNull(strength, "Strength array must not be null");
@@ -250,7 +250,7 @@ public interface DualsenseTriggerEffect {
      */
     record VibrationMultiplePosition(
             byte frequency,
-            @Range(from = 0, to = 8) byte @NotNull [] amplitude
+            @Range(from = 0, to = 8) byte @NonNull [] amplitude
     ) implements DualsenseTriggerEffect {
         public VibrationMultiplePosition {
             Validate.notNull(amplitude, "Amplitude array must not be null");

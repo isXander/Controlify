@@ -6,7 +6,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record InputBindingSupplierImpl(Identifier bindId) implements InputBindingSupplier {
     @Override

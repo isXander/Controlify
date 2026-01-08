@@ -4,7 +4,7 @@ import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
@@ -23,16 +23,16 @@ public final class ButtonGuideApi {
      * @param renderPredicate whether the guide should be rendered
      */
     public static <T> void addGuideToButton(
-            @NotNull T button,
-            @NotNull InputBindingSupplier binding,
-            @NotNull ButtonGuidePredicate<T> renderPredicate) {
+            @NonNull T button,
+            @NonNull InputBindingSupplier binding,
+            @NonNull ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, () -> binding, renderPredicate);
     }
 
     public static <T> void addGuideToButton(
-            @NotNull T button,
-            @NotNull Supplier<InputBindingSupplier> binding,
-            @NotNull ButtonGuidePredicate<T> renderPredicate) {
+            @NonNull T button,
+            @NonNull Supplier<InputBindingSupplier> binding,
+            @NonNull ButtonGuidePredicate<T> renderPredicate) {
         ButtonGuideRenderer.registerBindingForButton(button, binding, renderPredicate);
     }
 }

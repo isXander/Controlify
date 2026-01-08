@@ -28,7 +28,7 @@ public class ControllerUtils {
             runnable.run();
         } catch (Throwable e) {
             CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
-            CrashReportCategory category = crashReport.addCategory("Affected controller");
+            CrashReportCategory category = crashReport.addCategory("Affected impl");
             category.setDetail("Controller name", controller.name());
             category.setDetail("Controller identification", controller.info().type().friendlyName());
             category.setDetail("Controller type", controller.getClass().getCanonicalName());

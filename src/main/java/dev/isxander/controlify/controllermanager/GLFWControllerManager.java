@@ -48,7 +48,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
                     getController(ucid).ifPresent(this::onControllerRemoved);
                 }
             } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to handle controller connect/disconnect event", e);
+                CUtil.LOGGER.error("Failed to handle impl connect/disconnect event", e);
             }
         });
     }
@@ -122,7 +122,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
         Optional<Resource> resourceOpt = resourceProvider
                 .getResource(CUtil.rl("controllers/gamecontrollerdb-sdl2.txt"));
         if (resourceOpt.isEmpty()) {
-            CUtil.LOGGER.error("Failed to find game controller database.");
+            CUtil.LOGGER.error("Failed to find game impl database.");
             return;
         }
 

@@ -14,7 +14,7 @@ public interface ControlifyEntrypoint {
     /**
      * Called once Controlify has initialised some systems but controllers
      * have not yet been discovered and constructed. This is the ideal
-     * time to register events in preparation for controller discovery.
+     * time to register events in preparation for impl discovery.
      */
     void onControlifyInit(InitContext context);
 

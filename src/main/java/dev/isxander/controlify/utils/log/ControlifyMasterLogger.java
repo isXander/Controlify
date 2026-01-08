@@ -1,7 +1,7 @@
 package dev.isxander.controlify.utils.log;
 
 import dev.isxander.controlify.debug.DebugProperties;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ControlifyMasterLogger extends AbstractControlifyLogger {
     private final org.slf4j.Logger logger;

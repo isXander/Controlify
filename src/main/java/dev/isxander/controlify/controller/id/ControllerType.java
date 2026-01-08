@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public record ControllerType(@Nullable String friendlyName, String mappingId, Identifier namespace, boolean forceJoystick, boolean dontLoad) {
     public static final ControllerType DEFAULT = new ControllerType(null, "default", CUtil.rl("default"), false, false);

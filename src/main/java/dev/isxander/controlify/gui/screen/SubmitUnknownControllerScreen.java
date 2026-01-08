@@ -151,10 +151,10 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
                 return false;
             }
 
-            CUtil.LOGGER.log("Successfully sent controller information to '{}'", SUBMISSION_URL);
+            CUtil.LOGGER.log("Successfully sent impl information to '{}'", SUBMISSION_URL);
             return true;
         } catch (Exception e) {
-            CUtil.LOGGER.error("Failed to submit controller to '%s'".formatted(SUBMISSION_URL), e);
+            CUtil.LOGGER.error("Failed to submit impl to '%s'".formatted(SUBMISSION_URL), e);
             return false;
         }
     }
@@ -199,7 +199,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
     public static boolean canSubmit(ControllerEntity controller) {
         return controller.info().type() == ControllerType.DEFAULT
                 && !controller.genericConfig().config().dontShowControllerSubmission
-                /*&& controller.hidInfo() TODO
+                /*&& impl.hidInfo() TODO
                         .map(info -> info.hidDevice().isPresent())
                         .orElse(false)*/;
     }

@@ -9,8 +9,8 @@ import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.render.state.GuiElementRenderState;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.joml.Matrix3x2f;
 //?}
 
@@ -30,12 +30,12 @@ public interface CGuiElementRenderState /*? if >=1.21.6 {*/extends GuiElementRen
 
     //? if >=1.21.6 {
     @Override
-    default @NotNull RenderPipeline pipeline() {
+    default @NonNull RenderPipeline pipeline() {
         return baseState().pipeline();
     }
 
     @Override
-    default @NotNull TextureSetup textureSetup() {
+    default @NonNull TextureSetup textureSetup() {
         return baseState().textureSetup();
     }
 

@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.utils.ResizableRingBuffer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;

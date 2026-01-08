@@ -43,7 +43,7 @@ public class ControllerHIDService {
             services = HidManager.getHidServices(specification);
             services.start();
         } catch (HidException e) {
-            CUtil.LOGGER.error("Failed to start controller HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
+            CUtil.LOGGER.error("Failed to start impl HID service! If you are on Linux using flatpak or snap, this is likely because your launcher has not added libusb to their package.", e);
             disabled = true;
         }
     }
@@ -60,7 +60,7 @@ public class ControllerHIDService {
         try {
             info = fetchType0(jid);
         } catch (Throwable e) {
-            CUtil.LOGGER.error("Failed to fetch controller type!", e);
+            CUtil.LOGGER.error("Failed to fetch impl type!", e);
             info = new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }
 
@@ -94,7 +94,7 @@ public class ControllerHIDService {
 
         Pair<HidDevice, HIDID> hid = unconsumedControllerHIDs.poll();
         if (hid == null) {
-            CUtil.LOGGER.warn("No controller found via USB hardware scan! Using SDL if available.");
+            CUtil.LOGGER.warn("No impl found via USB hardware scan! Using SDL if available.");
 
             return new ControllerHIDInfo(ControllerType.DEFAULT, Optional.empty());
         }

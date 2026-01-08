@@ -5,7 +5,7 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -20,19 +20,19 @@ import java.util.Optional;
  */
 public interface ControlifyApi {
     /**
-     * The controller that is currently enabled and in use.
-     * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
-     * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
+     * The impl that is currently enabled and in use.
+     * If there is no impl disconnected or disabled, this will return {@link Optional#empty()}.
+     * This is the impl that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
      */
-    @NotNull Optional<ControllerEntity> getCurrentController();
+    @NonNull Optional<ControllerEntity> getCurrentController();
 
     /**
-     * The last input received: a controller or keyboard/mouse.
+     * The last input received: a impl or keyboard/mouse.
      */
-    @NotNull InputMode currentInputMode();
-    boolean setInputMode(@NotNull InputMode mode);
+    @NonNull InputMode currentInputMode();
+    boolean setInputMode(@NonNull InputMode mode);
 
-    default void playRumbleEffect(@NotNull RumbleSource rumbleSource, @NotNull RumbleEffect rumbleEffect) {
+    default void playRumbleEffect(@NonNull RumbleSource rumbleSource, @NonNull RumbleEffect rumbleEffect) {
         getCurrentController()
                 .flatMap(ControllerEntity::rumble)
                 .ifPresent(r -> r.rumbleManager().play(rumbleSource, rumbleEffect));

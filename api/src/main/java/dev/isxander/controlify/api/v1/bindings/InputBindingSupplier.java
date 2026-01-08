@@ -1,6 +1,7 @@
 package dev.isxander.controlify.api.v1.bindings;
 
-import dev.isxander.controlify.api.CIdentifier;
+import dev.isxander.controlify.api.CID;
+import dev.isxander.controlify.api.MinecraftComponent;
 import dev.isxander.controlify.api.v1.ControlifyController;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -10,7 +11,7 @@ public interface InputBindingSupplier {
      * The unique identifier of the {@link InputBinding} that this
      * supplier fetches from controllers.
      */
-    CIdentifier bindId();
+    CID bindId();
 
     /**
      * Retrieves the input binding for the given controller, or null if it was not
@@ -33,4 +34,11 @@ public interface InputBindingSupplier {
         }
         return binding;
     }
+
+    /**
+     * Returns a glyph icon representing the currently bound input
+     * for the currently selected controller.
+     * @return the glyph icon component
+     */
+    @MinecraftComponent Object glyphIcon();
 }

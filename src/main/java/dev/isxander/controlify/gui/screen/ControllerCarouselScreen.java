@@ -42,8 +42,8 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -177,7 +177,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void render(@NonNull GuiGraphics graphics, int mouseX, int mouseY, float delta) {
         super.render(graphics, mouseX, mouseY, delta);
 
         Blit.tex(
@@ -322,7 +322,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
             pose.pop();
 
             int iconWidth = width - 6;
-            //                      buttons   4px padding top  currently in use       controller name                                   image padding
+            //                      buttons   4px padding top  currently in use       impl name                                   image padding
             int iconHeight = height - 22       - 4             - font.lineHeight - 8  - (font.lineHeight * (hasNickname ? 2 : 1) + 1) - 6;
             int iconSize = Mth.roundToward(Math.min(iconHeight, iconWidth), 2);
 
@@ -458,7 +458,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         @Override
         public void updateNarration(NarrationElementOutput builder) {
             builder.add(NarratedElementType.TITLE, getName());
-            builder.add(NarratedElementType.USAGE, Component.literal("Left arrow to go to previous controller, right arrow to go to next controller."));
+            builder.add(NarratedElementType.USAGE, Component.literal("Left arrow to go to previous impl, right arrow to go to next impl."));
         }
     }
 

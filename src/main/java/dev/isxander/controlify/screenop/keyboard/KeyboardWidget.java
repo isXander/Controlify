@@ -18,8 +18,8 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -226,7 +226,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
     }
 
     @Override
-    public @NotNull List<KeyWidget> children() {
+    public @NonNull List<KeyWidget> children() {
         return Collections.unmodifiableList(keys);
     }
 

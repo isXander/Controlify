@@ -79,7 +79,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                 hapticNavigate();
             }
 
-//            if (ControlifyBindings.SWAP_HANDS.on(controller).justPressed()) {
+//            if (ControlifyBindings.SWAP_HANDS.on(impl).justPressed()) {
 //                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ClickType.SWAP);
 //                hapticNavigate();
 //            }

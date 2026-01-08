@@ -175,7 +175,7 @@ public class VirtualMouseHandler {
         /*var windowHandle = minecraft.getWindow().getWindow();
         *///?}
 
-//        Optional<TouchpadComponent> touchpad = controller.touchpad();
+//        Optional<TouchpadComponent> touchpad = impl.touchpad();
 //        List<TouchpadState.Finger> touchpadState = touchpad.map(TouchpadComponent::fingersNow).orElse(List.of());
 //        List<TouchpadState.Finger> prevTouchpadState = touchpad.map(TouchpadComponent::fingersThen).orElse(List.of());
 

@@ -6,7 +6,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class ControllerMappingStorage {
         try (BufferedReader reader = resource.openAsReader()) {
             return ControlifyConfig.GSON.fromJson(reader, ControllerMapping.class);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to load controller mapping!", e);
+            throw new IllegalStateException("Failed to load impl mapping!", e);
         }
     }
 }
