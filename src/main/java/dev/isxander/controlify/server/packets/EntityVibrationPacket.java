@@ -4,6 +4,7 @@ import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.server.CSUtil;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.client.Minecraft;
@@ -21,14 +22,14 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
             buf.writeFloat(packet.range());
             buf.writeInt(packet.duration());
             buf.writeInt(RumbleState.packToInt(packet.state()));
-            buf.writeIdentifier(packet.source().id());
+            CSUtil.writeIdentifier(buf, packet.source().id());
         },
         buf -> new EntityVibrationPacket(
             buf.readInt(),
             buf.readFloat(),
             buf.readInt(),
             RumbleState.unpackFromInt(buf.readInt()),
-            RumbleSource.get(buf.readIdentifier())
+            RumbleSource.get(CSUtil.readIdentifier(buf))
         )
     );
 
