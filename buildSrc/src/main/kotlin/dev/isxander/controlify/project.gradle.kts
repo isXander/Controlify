@@ -4,9 +4,11 @@ import dev.kikugie.stonecutter.build.config.ReplacementContainer
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
+    `java-library`
     id("dev.isxander.modstitch.base")
     `maven-publish`
-    `java-library`
+    signing
+    id("dev.isxander.secrets")
 }
 
 modstitch.apply {
@@ -93,6 +95,10 @@ if (modstitch.isLoom) {
 
 java {
     withSourcesJar()
+    withJavadocJar()
+}
+tasks.javadoc {
+    isFailOnError = false
 }
 
 /*
@@ -173,22 +179,22 @@ tasks.named<ProcessResources>("generateModMetadata") {
     }
 }
 
-val publishUsername = providers
-    .gradleProperty("XANDER_MAVEN_USER")
-    .orElse(providers.environmentVariable("XANDER_MAVEN_USER"))
+val signingKeyProvider = secrets.gradleProperty("signing.secretKey")
+val signingPasswordProvider = secrets.gradleProperty("signing.password")
+// not configuration cache friendly, but neither is the whole of signing plugin
+// this plugin does not support lazy configuration of signing keys
+gradle.taskGraph.whenReady {
+    val willSign = allTasks.any { it.name.startsWith("sign") }
+    if (willSign) {
+        signing {
+            val signingKey = signingKeyProvider.orNull
+            val signingPassword = signingPasswordProvider.orNull
 
-val publishPassword = providers
-    .gradleProperty("XANDER_MAVEN_PASS")
-    .orElse(providers.environmentVariable("XANDER_MAVEN_PASS"))
-
-
-publishing {
-    repositories {
-        maven(url = "https://maven.isxander.dev/releases") {
-            name = "XanderReleases"
-            credentials(PasswordCredentials::class) {
-                username = publishUsername.orNull
-                password = publishPassword.orNull
+            isRequired = signingKey != null && signingPassword != null
+            if (isRequired) {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+            } else {
+                logger.error("Signing keys not found; skipping signing!")
             }
         }
     }
