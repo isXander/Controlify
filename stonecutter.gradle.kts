@@ -13,6 +13,10 @@ plugins {
 
 stonecutter active file("versions/current")
 
+repositories {
+    mavenCentral()
+}
+
 // download the most up to date controller database for SDL2
 val downloadHidDb by tasks.registering(Download::class) {
     finalizedBy("convertHidDBToSDL3")
