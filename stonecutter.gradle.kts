@@ -5,6 +5,8 @@ plugins {
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
     id("org.moddedmc.wiki.toolkit") version "0.2.5"
+    id("com.gradleup.nmcp.aggregation") version "1.4.3"
+    id("dev.isxander.secrets")
 
     id("dev.isxander.modstitch.base") apply false
 }
@@ -66,6 +68,20 @@ publishMods {
             else -> STABLE
         }
     )
+}
+
+nmcpAggregation {
+    centralPortal {
+        username = secrets.gradleProperty("mcentral.username")
+        password = secrets.gradleProperty("mcentral.password")
+
+        publicationName = "controlify:$version"
+    }
+}
+dependencies {
+    allprojects {
+        nmcpAggregation(project(path))
+    }
 }
 
 wiki {
