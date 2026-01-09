@@ -13,11 +13,6 @@ plugins {
 
 stonecutter active file("versions/current")
 
-// subprojects depend themselves on this task
-val releaseModVersions by tasks.registering {
-    group = "controlify"
-}
-
 // download the most up to date controller database for SDL2
 val downloadHidDb by tasks.registering(Download::class) {
     finalizedBy("convertHidDBToSDL3")
@@ -51,6 +46,8 @@ val modVersion: String by project
 version = modVersion
 
 publishMods {
+    dryRun = false
+
     val modChangelog = provider {
         rootProject.file("changelog.md")
             .takeIf { it.exists() }
@@ -68,6 +65,15 @@ publishMods {
             else -> STABLE
         }
     )
+}
+
+// subprojects depend themselves on this task
+val releaseModVersions by tasks.registering {
+    group = "controlify"
+
+    if (!publishMods.dryRun.get()) {
+        dependsOn("publishAggregationToCentralPortal")
+    }
 }
 
 nmcpAggregation {

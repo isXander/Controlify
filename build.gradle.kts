@@ -194,12 +194,7 @@ Include native libraries for SDL3 in the jar.
 
 val releaseModVersion by tasks.registering {
     group = "controlify/versioned"
-
     dependsOn("publishMods")
-
-    if (!project.publishMods.dryRun.get()) {
-        dependsOn("publish")
-    }
 }
 createActiveTask(releaseModVersion)
 
