@@ -26,10 +26,10 @@ public class MultiPlayerGameModeMixin {
 
     @Inject(
             //? if intermediary_lambdas {
-            method = "method_41930",
-            //?} else {
-            /*method = "lambda$startDestroyBlock$1",
-            *///?}
+            /*method = "method_41930",
+            *///?} else {
+            method = "lambda$startDestroyBlock$1",
+            //?}
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
     )
     private void onStartBreakingBlock(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
@@ -38,10 +38,10 @@ public class MultiPlayerGameModeMixin {
 
     @Inject(
             //? if intermediary_lambdas {
-            method = "method_41930",
-            //?} else {
-            /*method = "lambda$startDestroyBlock$1",
-            *///?}
+            /*method = "method_41930",
+            *///?} else {
+            method = "lambda$startDestroyBlock$1",
+            //?}
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z")
     )
     private void onInstabreakBlockSurvival(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {

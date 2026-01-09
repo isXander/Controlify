@@ -96,7 +96,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     }
 
     @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-    private void doPlayerLook(boolean tick, CallbackInfo ci) {
+    private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
         Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
     }
 
@@ -112,13 +112,17 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     }
 
     @Inject(
-            method = "runTick",
+            //? if >=26.1 {
+            method = "renderFrame",
+            //?} else {
+            /*method = "runTick",
+            *///?}
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
             )
     )
-    private void tickAnimator(boolean tick, CallbackInfo ci) {
+    private void tickAnimator(CallbackInfo ci) {
         Animator.INSTANCE.tick(getTickDelta());
     }
 

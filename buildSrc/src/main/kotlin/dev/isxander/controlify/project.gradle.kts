@@ -1,5 +1,6 @@
 package dev.isxander.controlify
 
+import dev.kikugie.stonecutter.build.config.ReplacementContainer
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
@@ -39,7 +40,7 @@ modstitch.apply {
 
         configureLoom {
             runConfigs.all {
-                ideConfigGenerated(false)
+                ideConfigGenerated(true)
                 vmArg("-Dsodium.checks.issue2561=false")
             }
 
@@ -52,11 +53,6 @@ modstitch.apply {
         propMap("deps.forge") { forgeVersion = it }
 
         defaultRuns()
-        configureNeoForge {
-            runs.all {
-                disableIdeRun()
-            }
-        }
     }
 }
 
@@ -114,8 +110,8 @@ stonecutter.apply {
         put("reeses_sodium_options", isPropDefined("deps.reesesSodiumOptions"))
         put("fancy_menu", isPropDefined("deps.fancyMenu"))
 
-        put("unobf", eval(current.version, ">=26"))
-        put("intermediary_lambdas", !eval(current.version, ">=26") && !modstitch.isModDevGradle)
+        put("unobf", modstitch.isUnobfuscated)
+        put("intermediary_lambdas", modstitch.isUnobfuscated.map { !it && !modstitch.isModDevGradle })
     }
 
     dependencies {
@@ -123,14 +119,48 @@ stonecutter.apply {
     }
 
     replacements {
-        string {
-            direction = eval(current.version, ">=1.21.11")
-            replace("ResourceLocation", "Identifier")
+        fun ReplacementContainer.replaceClass(direction: Boolean, from: String, to: String) {
+            val fromPackage = from.substringBeforeLast('.')
+            val toPackage = to.substringBeforeLast('.')
+
+            if (fromPackage != toPackage) {
+                string(direction) {
+                    replace(from, to)
+                }
+            }
+
+            val fromName = from.substringAfterLast('.')
+            val toName = to.substringAfterLast('.')
+            if (fromName != toName) {
+                regex(direction) {
+                    replace(
+                        "(?<![a-zA-Z0-9\$_])$fromName(?![a-zA-Z0-9\$_])" to toName,
+                        "(?<![a-zA-Z0-9\$_])$toName(?![a-zA-Z0-9\$_])" to fromName
+                    )
+                }
+            }
         }
-        string {
-            direction = eval(current.version, ">=1.21.11")
-            replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
-        }
+
+        replaceClass(
+            current.parsed >= "1.21.11",
+            "net.minecraft.Util",
+            "net.minecraft.util.Util"
+        )
+        replaceClass(
+            current.parsed >= "1.21.11",
+            "net.minecraft.resources.ResourceLocation",
+            "net.minecraft.resources.Identifier"
+        )
+        replaceClass(
+            current.parsed >= "26.1",
+            "net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl",
+            "net.fabricmc.fabric.impl.client.keymapping.KeyMappingRegistryImpl"
+        )
+        replaceClass(
+            current.parsed >= "26.1",
+            "net.fabricmc.fabric.api.networking.v1.PacketByteBufs",
+            "net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs"
+        )
     }
 }
 

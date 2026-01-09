@@ -1,5 +1,5 @@
 //? if simple_voice_chat {
-package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
+/*package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
@@ -40,4 +40,4 @@ public class PTTKeyHandlerMixin {
         return keyDown || SimpleVoiceChatCompat.isWhisperDown();
     }
 }
-//?}
+*///?}

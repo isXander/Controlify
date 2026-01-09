@@ -8,7 +8,7 @@ import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackE
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -52,7 +52,7 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
             O decodedPacket = packetCreator.get();
 
-            FriendlyByteBuf encodedPacket = PacketByteBufs.create();
+            FriendlyByteBuf encodedPacket = FriendlyByteBufs.create();
             clientBoundCodec.encode(encodedPacket, decodedPacket);
 
             sender.sendPacket(handshakeId, encodedPacket);

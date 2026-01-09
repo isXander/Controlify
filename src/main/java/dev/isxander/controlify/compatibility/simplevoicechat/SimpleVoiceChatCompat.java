@@ -1,5 +1,5 @@
 //? if simple_voice_chat {
-package dev.isxander.controlify.compatibility.simplevoicechat;
+/*package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
@@ -109,4 +109,4 @@ public class SimpleVoiceChatCompat {
         return location;
     }
 }
-//?}
+*///?}

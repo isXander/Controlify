@@ -15,7 +15,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -112,7 +112,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
             I decodedInput = clientBoundCodec.decode(buf);
             O decodedOutput = handshakeHandler.apply(decodedInput);
 
-            FriendlyByteBuf encodedOutput = PacketByteBufs.create();
+            FriendlyByteBuf encodedOutput = FriendlyByteBufs.create();
             serverBoundCodec.encode(encodedOutput, decodedOutput);
 
             return CompletableFuture.completedFuture(encodedOutput);

@@ -23,7 +23,7 @@ public final class C2SNetworkApiFabric implements C2SNetworkApi {
 
     @Override
     public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry.playC2S()));
+        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry./*? if >=26.1 {*/serverboundPlay/*?} else {*//*playC2S*//*?}*/()));
     }
 
     @Override
