@@ -197,7 +197,6 @@ public class VirtualMouseHandler {
 
         if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
             this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
-        } else if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justReleased()) {
             this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
         }
     }
