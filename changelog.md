@@ -9,6 +9,7 @@ This version has the following targets:
 
 ## Changes
 
-- Fix various issues relating to focusing widgets in GUI screens
-  - Sign "Done" button no longer gains initial focus preventing typing enter
-- JAR is now signed with a GPG key
+- Fix controller vibrations causing input to freeze
+- Fix being stuck sneaking if GUI_BACK matches VMOUSE_SHIFT_CLICK
+- Add debug option to specify SDL natives path explicitly
+- Update translations
