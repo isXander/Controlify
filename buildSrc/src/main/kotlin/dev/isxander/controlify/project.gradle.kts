@@ -4,7 +4,6 @@ import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
     `java-library`
-    id("dev.isxander.controlify.maven")
     id("dev.isxander.modstitch.base")
     `maven-publish`
     signing

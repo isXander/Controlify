@@ -1,6 +1,7 @@
 plugins {
     `java-library`
-    id("dev.isxander.controlify.maven")
+    id("com.gradleup.nmcp")
+    `maven-publish`
 }
 
 group = "dev.isxander"
