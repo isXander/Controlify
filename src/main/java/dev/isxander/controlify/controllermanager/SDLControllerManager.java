@@ -65,10 +65,6 @@ public class SDLControllerManager extends AbstractControllerManager {
 
     @Override
     public void tick(boolean outOfFocus) {
-        super.tick(outOfFocus);
-
-        SDL_PumpEvents();
-
         if (event == null) {
             logger.error("SDL_Event has somehow been set to null. Recreating...");
             event = new SDL_Event();
@@ -111,8 +107,7 @@ public class SDLControllerManager extends AbstractControllerManager {
             }
         }
 
-        SDL_UpdateGamepads();
-        SDL_UpdateJoysticks();
+        super.tick(outOfFocus);
     }
 
     @Override

@@ -19,6 +19,9 @@ public class OptionListWidgetComponentProcessor implements ComponentProcessor {
         this.optionListWidget = optionListWidget;
     }
 
+    /**
+     * Allows navigating between groups using secondary navigation up/down.
+     */
     @Override
     public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
         boolean up = ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed();

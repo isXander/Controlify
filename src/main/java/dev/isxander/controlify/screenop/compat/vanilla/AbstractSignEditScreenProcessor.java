@@ -111,17 +111,12 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
     }
 
     @Override
-    protected void setInitialFocus() {
-        if (Controlify.instance().currentInputMode() == InputMode.MIXED) {
-            holdRepeatHelper.clearDelay();
-        } else {
-            super.setInitialFocus();
-        }
-    }
-
-    @Override
     public void onWidgetRebuild() {
         super.onWidgetRebuild();
+
+        if (Controlify.instance().currentInputMode() == InputMode.MIXED) {
+            holdRepeatHelper.clearDelay();
+        }
 
         getWidget(CommonComponents.GUI_DONE).ifPresent(doneButton ->
                 ButtonGuideApi.addGuideToButton(

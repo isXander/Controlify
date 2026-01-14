@@ -86,19 +86,18 @@ public class ScreenProcessor<T extends Screen> {
             }
             case CONTROLLER, MIXED -> {
                 if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-                    setInitialFocus();
+                    ((ScreenAccessor) screen).invokeSetInitialFocus();
                 }
             }
         }
     }
 
     protected void handleComponentNavigation(ControllerEntity controller) {
-        if (screen.getFocused() == null)
-            setInitialFocus();
+        if (screen.getFocused() == null) {
+            ((ScreenAccessor) screen).invokeSetInitialFocus();
+        }
 
         var focuses = List.copyOf(getFocusTree());
-
-        var accessor = (ScreenAccessor) screen;
 
         boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
 
@@ -261,32 +260,23 @@ public class ScreenProcessor<T extends Screen> {
     }
 
     public void onWidgetRebuild() {
-        setInitialFocus();
+        if (Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+            // setting this input type causes the vanilla screen to call setInitialFocus
+            // doing it again would cause the second widget to be focused instead of the first
+            minecraft.setLastInputType(InputType.KEYBOARD_ARROW);
+        }
     }
 
     public void onVirtualMouseToggled(boolean enabled) {
         if (enabled) {
             ((ScreenAccessor) screen).invokeClearFocus();
         } else {
-            setInitialFocus();
+            ((ScreenAccessor) screen).invokeSetInitialFocus();
         }
     }
 
     protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
 
-    }
-
-    protected void setInitialFocus() {
-        if (screen.getFocused() == null && Controlify.instance().currentInputMode().isController() && !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-            FocusNavigationEvent.TabNavigation tabNavigation = new FocusNavigationEvent.TabNavigation(true);
-            var path = screen.nextFocusPath(tabNavigation);
-            if (path != null) {
-                ((ScreenAccessor) screen).invokeChangeFocus(path);
-                holdRepeatHelper.clearDelay();
-            }
-
-            minecraft.setLastInputType(InputType.KEYBOARD_ARROW);
-        }
     }
 
     public VirtualMouseBehaviour virtualMouseBehaviour() {

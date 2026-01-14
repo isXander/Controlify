@@ -42,11 +42,6 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
         super.handleButtons(controller);
     }
 
-    @Override
-    protected void setInitialFocus() {
-
-    }
-
     public void onRebuildGUI() {
         ButtonGuideApi.addGuideToButton(
                 operations.controlify$getApplyButton(),

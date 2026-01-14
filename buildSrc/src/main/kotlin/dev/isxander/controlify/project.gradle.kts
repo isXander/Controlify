@@ -3,10 +3,12 @@ package dev.isxander.controlify
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
+    `java-library`
     id("dev.isxander.controlify.maven")
     id("dev.isxander.modstitch.base")
     `maven-publish`
-    `java-library`
+    signing
+    id("dev.isxander.secrets")
 }
 
 modstitch.apply {
@@ -40,7 +42,7 @@ modstitch.apply {
 
         configureLoom {
             runConfigs.all {
-                ideConfigGenerated(false)
+                ideConfigGenerated(true)
                 vmArg("-Dsodium.checks.issue2561=false")
             }
 
@@ -53,11 +55,6 @@ modstitch.apply {
         propMap("deps.forge") { forgeVersion = it }
 
         defaultRuns()
-        configureNeoForge {
-            runs.all {
-                disableIdeRun()
-            }
-        }
     }
 }
 
@@ -98,6 +95,10 @@ if (modstitch.isLoom) {
 
 java {
     withSourcesJar()
+    withJavadocJar()
+}
+tasks.javadoc {
+    isFailOnError = false
 }
 
 /*
@@ -144,7 +145,26 @@ tasks.named<ProcessResources>("generateModMetadata") {
     }
 }
 
+val signingKeyProvider = secrets.gradleProperty("signing.secretKey")
+val signingPasswordProvider = secrets.gradleProperty("signing.password")
+// not configuration cache friendly, but neither is the whole of signing plugin
+// this plugin does not support lazy configuration of signing keys
+gradle.taskGraph.whenReady {
+    val willSign = allTasks.any { it.name.startsWith("sign") }
+    if (willSign) {
+        signing {
+            val signingKey = signingKeyProvider.orNull
+            val signingPassword = signingPasswordProvider.orNull
 
+            isRequired = signingKey != null && signingPassword != null
+            if (isRequired) {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+            } else {
+                logger.error("Signing keys not found; skipping signing!")
+            }
+        }
+    }
+}
 
 // fix stonecutterGenerate task dependencies
 tasks.named<ProcessResources>("generateModMetadata") {
