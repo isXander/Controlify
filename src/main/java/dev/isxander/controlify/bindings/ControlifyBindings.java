@@ -311,6 +311,12 @@ public final class ControlifyBindings {
             .id("controlify", "radial_axis_right")
             .category(RADIAL_CATEGORY)
             .allowedContexts(BindContext.RADIAL_MENU));
+    //? if neoforge {
+    public static final InputBindingSupplier RADIAL_SEND_KEY = ControlifyBindApi.get().registerBinding(builder -> builder
+            .id("controlify", "radial_send_key")
+            .category(RADIAL_CATEGORY)
+            .allowedContexts(BindContext.RADIAL_MENU));
+    //?}
 
     public static final InputBindingSupplier VMOUSE_MOVE_UP = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "vmouse_move_up")

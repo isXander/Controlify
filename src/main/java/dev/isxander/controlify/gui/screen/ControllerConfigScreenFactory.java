@@ -357,6 +357,15 @@ public class ControllerConfigScreenFactory {
                 .controller(TickBoxControllerBuilder::create)
                 .build()));
 
+        //? if neoforge {
+        input.ifPresent(inputComponent -> builder.option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("controlify.gui.set_keys_down_with_radial_event"))
+                .description(OptionDescription.of(Component.translatable("controlify.gui.set_keys_down_with_radial_event.tooltip")))
+                .binding(inputComponent.defObj().setKeysDownWithRadialEvent, () -> inputComponent.confObj().setKeysDownWithRadialEvent, v -> inputComponent.confObj().setKeysDownWithRadialEvent = v)
+                .controller(TickBoxControllerBuilder::create)
+                .build()));
+        //?}
+
         makeVibrationGroup(controller).ifPresent(builder::group);
         makeGyroGroup(controller).ifPresent(builder::group);
         makeControllerMappingGroup(controller).ifPresent(builder::group);

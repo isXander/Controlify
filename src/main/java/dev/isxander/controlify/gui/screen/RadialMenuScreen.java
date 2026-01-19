@@ -6,8 +6,8 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.layout.AnchorPoint;
-import dev.isxander.controlify.gui.layout.PositionedComponent;
+//import dev.isxander.controlify.gui.layout.AnchorPoint;
+//import dev.isxander.controlify.gui.layout.PositionedComponent;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -32,17 +32,44 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.network.chat.CommonComponents;
+//import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
+//? if neoforge {
+/*import net.minecraft.client.KeyMapping;
+import org.lwjgl.glfw.GLFW;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.api.distmarker.Dist;
+
+//? if >= 1.21.9 {
+//import net.minecraft.client.input.KeyEvent;
+//?}
+
+//? if < 1.21.4 {
+//import dev.isxander.controlify.mixins.feature.bind.KeyMappingAccessor;
+//?}
+
+*///?}
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+//import java.util.Optional;
 
+//? if neoforge {
+/*//? if < 1.21.8 {
+@EventBusSubscriber(modid = "controlify", bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+//?} else {
+//@EventBusSubscriber(modid = "controlify", value = Dist.CLIENT)
+//?}
+*///?}
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
     public static final Identifier EMPTY_ACTION = CUtil.rl("empty_action");
 
@@ -109,7 +136,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
         animation.play();
 
-        if (editMode != null) {
+//        if (editMode != null) {
 //            var exitGuide = addRenderableWidget(new PositionedComponent<>(
 //                    new GuideActionRenderer(
 //                            new GuideAction(
@@ -126,19 +153,98 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 //
 //            exitGuide.getComponent().updateName(null);
 //            exitGuide.updatePosition(width, height);
+//        }
+    }
+
+    //? if neoforge {
+    /*private static KeyMapping keyToPress = null;
+    private static boolean setKeysDownWithRadialEvent = true;
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onKeyInputBefore(InputEvent.Key event) {
+        if (keyToPress != null) {
+            switch (event.getAction()) {
+                case GLFW.GLFW_PRESS:
+                    if (setKeysDownWithRadialEvent)
+                        keyToPress.setDown(true);
+                    break;
+                case GLFW.GLFW_RELEASE:
+                    if (setKeysDownWithRadialEvent)
+                        keyToPress.setDown(false);
+                    keyToPress = null;
+                    break;
+            }
         }
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onKeyInputAfter(InputEvent.Key event) {
+        if (keyToPress != null) {
+            NeoForge.EVENT_BUS.post(
+                new InputEvent.Key(
+                        //? if >= 1.21.9 {
+                        new KeyEvent(keyToPress.getKey().getValue(), 0, 0),
+                        GLFW.GLFW_RELEASE
+                        //?} else {
+                        //keyToPress.getKey().getValue(),
+                        //0,
+                        //GLFW.GLFW_RELEASE,
+                        //0
+                        //?}
+                )
+            );
+        }
+    }
+    *///?}
 
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (this.controller != controller) return;
 
-        if (editMode == null && !openBind.digitalNow()) {
-            if (selectedButton != -1 && buttons[selectedButton].invoke()) {
-                playClickSound();
-            }
+        if (editMode == null) {
+            //? if neoforge {
+            /*if (ControlifyBindings.RADIAL_SEND_KEY.on(controller).justPressed()) {
+                onClose();
 
-            onClose();
+                if (selectedButton != -1) {
+                    @Nullable KeyMapping km =
+                        //? if >= 1.21.4 {
+                        KeyMapping
+                        //?} else {
+                        //KeyMappingAccessor.getAll()
+                        //?}
+                            .get(controller.input().orElseThrow().confObj().radialActions[selectedButton].getPath());
+
+                    keyToPress = km;
+                    setKeysDownWithRadialEvent = controller.input().orElseThrow().confObj().setKeysDownWithRadialEvent;
+
+                    if (km != null) {
+                        NeoForge.EVENT_BUS.post(
+                            new InputEvent.Key(
+                                    //? if >= 1.21.9 {
+                                    new KeyEvent(km.getKey().getValue(), 0, 0),
+                                    GLFW.GLFW_PRESS
+                                    //?} else {
+                                    //km.getKey().getValue(),
+                                    //0,
+                                    //GLFW.GLFW_PRESS,
+                                    //0
+                                    //?}
+                            )
+                        );
+                        playClickSound();
+                    }
+                }
+            }
+            *///?}
+
+            if (!openBind.digitalNow()) {
+                if (selectedButton != -1 && buttons[selectedButton].invoke()) {
+                    playClickSound();
+                }
+
+                onClose();
+            }
         }
 
         if (editMode != null && ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
@@ -390,8 +496,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     public class ActionSelectList implements Renderable, ContainerEventHandler, NarratableEntry, ComponentProcessor {
         private final int radialIndex;
 
-        private int x, y;
-        private int width, height;
+        private final int x, y;
+        private final int width, height;
         private final int itemHeight = 10;
         private int scrollOffset;
 

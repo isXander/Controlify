@@ -20,6 +20,7 @@
     "core.MouseHandlerMixin",
     "feature.accessibility.LocalPlayerMixin",
     "feature.bind.GuiMixin",
+    "feature.bind.KeyMappingAccessor",
     "feature.bind.KeyMappingMixin",
     "feature.bind.MinecraftMixin",
     "feature.bind.ToggleKeyMappingMixin",
