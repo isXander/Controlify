@@ -8,7 +8,7 @@
   "controlify.gui.carousel.entry.keyboard_mouse": "Teclado y ratón",
   "controlify.gui.carousel.controller_not_detected_btn": "¿El mando no es detectado?",
   "controlify.gui.carousel.controller_not_detected_btn.tooltip": "Abre la wiki para solucionar problemas de por qué no funciona tu mando.",
-  "controlify.gui.carousel.donate": "¡Donar!",
+  "controlify.gui.carousel.donate": "",
   "controlify.gui.carousel.art_credit": "Arte de mandos por %s.",
   "controlify.gui.global_settings.title": "Ajustes globales",
   "controlify.gui.natives": "Nativos",
