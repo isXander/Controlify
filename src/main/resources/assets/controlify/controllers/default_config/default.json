@@ -1,0 +1,50 @@
+{
+  "input": {
+    "sensitivity": {
+      "horizontal": 1.0,
+      "vertical": 0.9,
+      "vertical_invert": false,
+      "virtual_mouse": 1.0,
+      "reduce_aiming": true,
+      "look_curve": "standard",
+      "is_lce": false
+    },
+    "radial_menu": {
+      "actions": [
+        "controlify:toggle_hud_visibility",
+        "controlify:change_perspective",
+        "controlify:drop_stack",
+        "controlify:open_chat",
+        "controlify:swap_hands",
+        "controlify:pick_block",
+        "controlify:take_screenshot",
+        "controlify:show_player_list"
+      ],
+      "button_focus_timeout_ticks": 20
+    },
+    "button_activation_threshold": 0.5,
+    "mixed_input": false,
+    "keep_default_bindings": false
+  },
+  "rumble": {
+    "enabled": true
+  },
+  "hd_haptic": {
+    "enabled": true
+  },
+  "gyro": {
+    "calibration": {
+      "calibrated": false,
+      "delayed_calibration": false
+    },
+    "look_sensitivity": 0.0,
+    "relative_mode": false,
+    "invert_pitch": false,
+    "invert_yaw": false,
+    "button_mode": "on",
+    "yaw_mode": "yaw"
+  },
+  "bluetooth_device": {
+    "dont_show_warning": false
+  }
+}

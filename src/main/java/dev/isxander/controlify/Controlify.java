@@ -14,6 +14,7 @@ import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
+import dev.isxander.controlify.config3.dto.controller.defaults.DefaultConfigManager;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
@@ -79,10 +80,14 @@ public class Controlify implements ControlifyApi {
     private InGameInputHandler inGameInputHandler;
     public InGameButtonGuide inGameButtonGuide;
     private VirtualMouseHandler virtualMouseHandler;
+
+    // Asset reloaders / managers
     private InputFontMapper inputFontMapper;
     private DefaultBindManager defaultBindManager;
+    private DefaultConfigManager defaultConfigManager;
     private ControllerTypeManager controllerTypeManager;
     private KeyboardLayoutManager keyboardLayoutManager;
+
     private Set<BindContext> thisTickContexts;
 
     private ControllerHIDService controllerHIDService;
@@ -117,10 +122,12 @@ public class Controlify implements ControlifyApi {
 
         this.inputFontMapper = new InputFontMapper();
         this.defaultBindManager = new DefaultBindManager();
+        this.defaultConfigManager = new DefaultConfigManager();
         this.controllerTypeManager = new ControllerTypeManager();
         this.keyboardLayoutManager = new KeyboardLayoutManager();
         PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
         PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
+        PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
         PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
         PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
@@ -691,6 +698,10 @@ public class Controlify implements ControlifyApi {
 
     public DefaultBindManager defaultBindManager() {
         return defaultBindManager;
+    }
+
+    public DefaultConfigManager defaultConfigManager() {
+        return defaultConfigManager;
     }
 
     public ControllerTypeManager controllerTypeManager() {

@@ -1,0 +1,33 @@
+package dev.isxander.controlify.config3.dto;
+
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.reacharound.ReachAroundMode;
+
+import java.util.List;
+
+public record GlobalConfig(
+        List<String> virtualMouseScreens,
+        boolean outOfFocusInput,
+        ReachAroundMode reachAround,
+        boolean allowServerRumble,
+        boolean extraUiSounds,
+        boolean notifyLowBattery,
+        float ingameButtonGuideScale,
+        boolean useEnhancedSteamDeckDriver,
+        List<String> keyboardMovementWhitelist,
+        List<String> seenServers
+) {
+    public static final Codec<GlobalConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Codec.list(Codec.STRING).fieldOf("virtual_mouse_screens").forGetter(GlobalConfig::virtualMouseScreens),
+            Codec.BOOL.fieldOf("out_of_focus_input").forGetter(GlobalConfig::outOfFocusInput),
+            ReachAroundMode.CODEC.fieldOf("reach_around").forGetter(GlobalConfig::reachAround),
+            Codec.BOOL.fieldOf("allow_server_rumble").forGetter(GlobalConfig::allowServerRumble),
+            Codec.BOOL.fieldOf("extra_ui_sounds").forGetter(GlobalConfig::extraUiSounds),
+            Codec.BOOL.fieldOf("notify_low_battery").forGetter(GlobalConfig::notifyLowBattery),
+            Codec.FLOAT.fieldOf("ingame_button_guide_scale").forGetter(GlobalConfig::ingameButtonGuideScale),
+            Codec.BOOL.fieldOf("use_enhanced_steam_deck_driver").forGetter(GlobalConfig::useEnhancedSteamDeckDriver),
+            Codec.list(Codec.STRING).fieldOf("keyboard_movement_whitelist").forGetter(GlobalConfig::keyboardMovementWhitelist),
+            Codec.list(Codec.STRING).fieldOf("seen_servers").forGetter(GlobalConfig::seenServers)
+    ).apply(instance, GlobalConfig::new));
+}

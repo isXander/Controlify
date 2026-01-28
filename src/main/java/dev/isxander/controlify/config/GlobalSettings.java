@@ -23,7 +23,6 @@ public class GlobalSettings {
     @SerializedName("keyboardMovement") public boolean alwaysKeyboardMovement = false;
     public List<String> keyboardMovementWhitelist = new ArrayList<>();
     public boolean outOfFocusInput = false;
-    public boolean vibrationOnboarded = false;
     public ReachAroundMode reachAround = ReachAroundMode.OFF;
     public boolean allowServerRumble = true;
     public boolean extraUiSounds = true;
