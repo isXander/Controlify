@@ -14,7 +14,8 @@ import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
-import dev.isxander.controlify.config3.dto.controller.defaults.DefaultConfigManager;
+import dev.isxander.controlify.config.ConfigManager;
+import dev.isxander.controlify.config.dto.controller.defaults.DefaultConfigManager;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
@@ -40,7 +41,6 @@ import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.screenop.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.config.ControlifyConfig;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
@@ -62,6 +62,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,7 +93,7 @@ public class Controlify implements ControlifyApi {
 
     private ControllerHIDService controllerHIDService;
 
-    private final ControlifyConfig config = new ControlifyConfig(this);
+    private ConfigManager config;
 
     private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
     private ControllerSetupWizard currentSetupWizard = null;
@@ -120,6 +121,10 @@ public class Controlify implements ControlifyApi {
             MixinEnvironment.getCurrentEnvironment().audit();
         }
 
+        this.config = new ConfigManager(
+                PlatformMainUtil.getConfigDir().resolve("controlify.json")
+        );
+
         this.inputFontMapper = new InputFontMapper();
         this.defaultBindManager = new DefaultBindManager();
         this.defaultConfigManager = new DefaultConfigManager();
@@ -143,19 +148,19 @@ public class Controlify implements ControlifyApi {
         ControlifyHandshake.setupOnClient();
 
         SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
-            if (config().globalSettings().allowServerRumble) {
+            if (config().getSettings().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
         SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
-            if (config().globalSettings().allowServerRumble) {
+            if (config().getSettings().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
         });
         SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
-            if (config().globalSettings().allowServerRumble) {
+            if (config().getSettings().globalSettings().allowServerRumble) {
                 getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
                         rumble.rumbleManager().play(packet.source(), packet.createEffect()));
             }
@@ -224,7 +229,7 @@ public class Controlify implements ControlifyApi {
         this.inGameInputHandler = null; // set when the current controller changes
         this.virtualMouseHandler = new VirtualMouseHandler();
 
-        config().load();
+        config().loadOrDefault();
 
         ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
                 event.controller(), event.hotplugged(), event.newController()));
@@ -264,7 +269,7 @@ public class Controlify implements ControlifyApi {
         // register events
         PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
 
-        if (this.config().globalSettings().useEnhancedSteamDeckDriver) {
+        if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
             doSteamDeckChecks();
         }
 
@@ -328,7 +333,7 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick one
         if (getCurrentController().isEmpty()) {
-            if(config().currentControllerUid() == null) {
+            if(config().getSettings().currentControllerUid() == null) {
                 // The user hasn't selected a controller yet.
                 // We'll pick one automatically.
                 Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
@@ -342,7 +347,7 @@ public class Controlify implements ControlifyApi {
                 // Respect their choice.
                 Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
                         .stream()
-                        .filter(c -> c.uid().equals(config().currentControllerUid()))
+                        .filter(c -> c.uid().equals(config().getSettings().currentControllerUid()))
                         .findAny();
 
                 this.setCurrentController(preferredController.orElse(null), false);
@@ -377,7 +382,7 @@ public class Controlify implements ControlifyApi {
                 || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
 
         // Only auto-select a newly plugged-in controller if it's the preferred one, or if the user hasn't set one yet.
-        if (hotplugged && getCurrentController().isEmpty() && (config().currentControllerUid() == null || controller.uid().equals(config().currentControllerUid()))) {
+        if (hotplugged && getCurrentController().isEmpty() && (config().getSettings().currentControllerUid() == null || controller.uid().equals(config().getSettings().currentControllerUid()))) {
             this.setCurrentController(controller, true);
         }
 
@@ -456,7 +461,7 @@ public class Controlify implements ControlifyApi {
             }
         }
 
-        boolean outOfFocus = !config().globalSettings().outOfFocusInput && !client.isWindowActive();
+        boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput && !client.isWindowActive();
 
         this.thisTickContexts = BindContext.CONTEXTS.values().stream()
                 .filter(ctx -> ctx.isApplicable().apply(minecraft))
@@ -549,7 +554,7 @@ public class Controlify implements ControlifyApi {
         }
     }
 
-    public ControlifyConfig config() {
+    public ConfigManager config() {
         return config;
     }
 
@@ -568,16 +573,16 @@ public class Controlify implements ControlifyApi {
             this.inGameInputHandler = null;
             this.inGameButtonGuide = null;
             DebugLog.log("Updated current controller to null");
-            config().save();
+            config().saveSafely();
             return;
         }
 
         DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 
-        if (!controller.uid().equals(config().currentControllerUid())) {
+        if (!controller.uid().equals(config().getSettings().currentControllerUid())) {
             // Reflect the changes in the config file.
-            config().setCurrentControllerUid(controller.uid());
-            config().setDirty();
+            config().getSettings().setCurrentControllerUID(controller.uid());
+            config().markDirty();
         }
 
         this.inGameInputHandler = new InGameInputHandler(controller);
@@ -720,13 +725,13 @@ public class Controlify implements ControlifyApi {
         if (!currentInputMode().isController())
             return;
 
-        if (config().globalSettings().seenServers.add(data.ip)) {
+        if (config().getSettings().globalSettings().seenServers.add(data.ip)) {
             ToastUtils.sendToast(
                     Component.translatable("controlify.toast.new_server.title"),
                     Component.translatable("controlify.toast.new_server.description", data.name),
                     true
             );
-            config().save();
+            config().saveSafely();
         }
     }
 

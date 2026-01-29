@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.input.mapping;
 
+import com.mojang.serialization.Codec;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
@@ -12,6 +13,10 @@ public sealed interface MappingEntry {
     MapType inputType();
 
     MapType outputType();
+
+    static Codec<MappingEntry> codec() {
+        return MappingEntryCodecs.CODEC;
+    }
 
     sealed interface FromButton extends MappingEntry {
         record ToButton(Identifier from, Identifier to, boolean invert, MapType inputType, MapType outputType) implements FromButton {
