@@ -570,7 +570,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
         @Override
         protected void onUseButtonPressed() {
             Controlify.instance().setCurrentController(null, true);
-            Controlify.instance().config().setCurrentControllerUid(null);
+            Controlify.instance().config().getSettings().setCurrentControllerUID(null);
         }
     }
 }

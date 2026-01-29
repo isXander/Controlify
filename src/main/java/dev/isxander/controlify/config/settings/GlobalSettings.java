@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ServerData;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,9 +25,11 @@ public class GlobalSettings {
     public boolean notifyLowBattery = true;
     public float ingameButtonGuideScale = 1f;
     public boolean useEnhancedSteamDeckDriver = true;
-    public boolean alwaysAllowKeyboardMovement = false;
-    public Set<String> keyboardMovementWhitelist;
+    public boolean alwaysKeyboardMovement = false;
+    public List<String> keyboardMovementWhitelist;
     public Set<String> seenServers;
+
+    private static final GlobalSettings DEFAULT = new GlobalSettings();
 
     private GlobalSettings() {
     }
@@ -40,8 +43,8 @@ public class GlobalSettings {
             boolean notifyLowBattery,
             float ingameButtonGuideScale,
             boolean useEnhancedSteamDeckDriver,
-            boolean alwaysAllowKeyboardMovement,
-            Set<String> keyboardMovementWhitelist,
+            boolean alwaysKeyboardMovement,
+            List<String> keyboardMovementWhitelist,
             Set<String> seenServers
     ) {
         this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
@@ -52,20 +55,20 @@ public class GlobalSettings {
         this.notifyLowBattery = notifyLowBattery;
         this.ingameButtonGuideScale = ingameButtonGuideScale;
         this.useEnhancedSteamDeckDriver = useEnhancedSteamDeckDriver;
-        this.alwaysAllowKeyboardMovement = alwaysAllowKeyboardMovement;
-        this.keyboardMovementWhitelist = new HashSet<>(keyboardMovementWhitelist);
+        this.alwaysKeyboardMovement = alwaysKeyboardMovement;
+        this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
         this.seenServers = new HashSet<>(seenServers);
     }
 
     public boolean shouldUseKeyboardMovement() {
         ServerData server = Minecraft.getInstance().getCurrentServer();
-        return alwaysAllowKeyboardMovement
+        return alwaysKeyboardMovement
                || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith))
                || ServerPolicies.KEYBOARD_LIKE_MOVEMENT.get();
     }
 
     public static GlobalSettings defaults() {
-        return new GlobalSettings();
+        return DEFAULT;
     }
 
     public static GlobalSettings fromDTO(GlobalConfig dto) {
@@ -88,7 +91,7 @@ public class GlobalSettings {
                 dto.ingameButtonGuideScale(),
                 dto.useEnhancedSteamDeckDriver(),
                 dto.alwaysAllowKeyboardMovement(),
-                Set.copyOf(dto.keyboardMovementWhitelist()),
+                List.copyOf(dto.keyboardMovementWhitelist()),
                 Set.copyOf(dto.seenServers())
         );
     }
@@ -106,7 +109,7 @@ public class GlobalSettings {
                 notifyLowBattery,
                 ingameButtonGuideScale,
                 useEnhancedSteamDeckDriver,
-                alwaysAllowKeyboardMovement,
+                alwaysKeyboardMovement,
                 List.copyOf(keyboardMovementWhitelist),
                 List.copyOf(seenServers)
         );

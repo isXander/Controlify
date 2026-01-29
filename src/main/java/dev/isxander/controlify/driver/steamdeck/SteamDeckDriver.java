@@ -223,7 +223,7 @@ public class SteamDeckDriver implements Driver {
     }
 
     public static Optional<SteamDeckDriver> create(ControlifyLogger logger) {
-        if (triedToLoad || !Controlify.instance().config().globalSettings().useEnhancedSteamDeckDriver)
+        if (triedToLoad || !Controlify.instance().config().getSettings().globalSettings().useEnhancedSteamDeckDriver)
             return Optional.empty();
 
         triedToLoad = true;

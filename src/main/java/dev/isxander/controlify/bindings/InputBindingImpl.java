@@ -173,7 +173,7 @@ public class InputBindingImpl implements InputBinding {
     @Override
     public void setBoundInput(Input input) {
         this.boundInput = input;
-        Controlify.instance().config().setDirty();
+        Controlify.instance().config().markDirty();
     }
 
     @Override

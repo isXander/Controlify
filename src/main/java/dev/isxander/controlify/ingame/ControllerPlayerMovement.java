@@ -54,7 +54,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
         float leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).analogueNow()
                 - ControlifyBindings.WALK_RIGHT.on(controller).analogueNow();
 
-        if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
+        if (Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
             float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
 
             forwardImpulse = Math.abs(forwardImpulse) >= threshold ? Math.copySign(1, forwardImpulse) : 0;

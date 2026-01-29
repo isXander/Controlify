@@ -159,7 +159,7 @@ public class ScreenProcessor<T extends Screen> {
 
                 controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
 
-                if (Controlify.instance().config().globalSettings().extraUiSounds) {
+                if (Controlify.instance().config().getSettings().globalSettings().extraUiSounds) {
                     playFocusChangeSound();
                 }
                 controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));

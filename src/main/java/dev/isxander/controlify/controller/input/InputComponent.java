@@ -255,7 +255,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
                 }
             }
             if (changed)
-                Controlify.instance().config().setDirty();
+                Controlify.instance().config().markDirty();
         }
 
         private void setDefaultRadialAction(int index) {

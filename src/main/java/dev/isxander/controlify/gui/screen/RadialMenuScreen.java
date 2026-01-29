@@ -549,7 +549,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 if (controller == RadialMenuScreen.this.controller) {
                     if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                         editMode.setRadialItem(radialIndex, item);
-                        Controlify.instance().config().setDirty();
+                        Controlify.instance().config().markDirty();
 
                         buttons[radialIndex].setAction(item);
 

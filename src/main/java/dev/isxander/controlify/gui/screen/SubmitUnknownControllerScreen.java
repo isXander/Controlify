@@ -180,7 +180,7 @@ public class SubmitUnknownControllerScreen extends Screen implements DontInterup
 
     private void dontShowAgain() {
         controller.genericConfig().config().dontShowControllerSubmission = true;
-        Controlify.instance().config().setDirty();
+        Controlify.instance().config().markDirty();
     }
 
     @Override

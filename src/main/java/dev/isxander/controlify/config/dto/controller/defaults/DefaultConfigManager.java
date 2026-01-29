@@ -39,6 +39,11 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
     }
 
     @Override
+    public boolean isReady() {
+        return !defaultsByNamespace.isEmpty();
+    }
+
+    @Override
     public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             Map<Identifier, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
