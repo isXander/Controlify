@@ -1,29 +1,23 @@
 package dev.isxander.controlify.controller.misc;
 
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.config.settings.controller.BluetoothDeviceSettings;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-public class BluetoothDeviceComponent implements ECSComponent, ConfigHolder<BluetoothDeviceComponent.Config> {
+public class BluetoothDeviceComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("bluetooth");
 
-    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
+    public BluetoothDeviceSettings settings() {
+        return this.controller().settings().bluetoothDevice;
+    }
 
-    @Override
-    public IConfig<Config> config() {
-        return config;
+    public BluetoothDeviceSettings defaultSettings() {
+        return this.controller().defaultSettings().bluetoothDevice;
     }
 
     @Override
     public Identifier id() {
         return ID;
-    }
-
-    public static class Config implements ConfigClass {
-        public boolean dontShowWarningAgain = false;
     }
 }

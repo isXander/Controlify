@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller.rumble;
 
-import dev.isxander.controlify.controller.ECSComponent;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class TriggerRumbleComponent implements ECSComponent {
+public class TriggerRumbleComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("trigger_rumble");
 
     private TriggerRumbleState state = null;

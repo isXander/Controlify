@@ -3,14 +3,17 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.bindings.BindContext;
+import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.config.settings.controller.ControllerSettings;
+import dev.isxander.controlify.config.settings.controller.GenericControllerSettings;
+import dev.isxander.controlify.config.settings.controller.InputSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.gyro.GyroButtonMode;
-import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.gyro.GyroYawMode;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
@@ -18,13 +21,11 @@ import dev.isxander.controlify.controller.input.Inputs;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.gui.controllers.Deadzone2DImageRenderer;
-import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InputCurves;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.ServerPolicies;
-import dev.isxander.controlify.server.ServerPolicy;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
@@ -35,6 +36,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -51,40 +53,54 @@ public class ControllerConfigScreenFactory {
     private final List<Option<?>> newOptions = new ArrayList<>();
 
     public static Screen generateConfigScreen(Screen parent, ControllerEntity controller) {
-        return new ControllerConfigScreenFactory().generateConfigScreen0(parent, controller);
+        return new ControllerConfigScreenFactory().generateConfigScreen0(
+                parent,
+                controller.settings(),
+                controller.defaultSettings(),
+                Optional.of(controller)
+        );
     }
 
-    private Screen generateConfigScreen0(Screen parent, ControllerEntity controller) {
-        var advancedCategory = createAdvancedCategory(controller);
+    private Screen generateConfigScreen0(
+            Screen parent,
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        var advancedCategory = createAdvancedCategory(settings, defaults, controller);
         var bindsCategory = makeBindsCategory(controller);
-        var basicCategory = createBasicCategory(controller); // must be last for new options
+        var basicCategory = createBasicCategory(settings, defaults, controller); // must be last for new options
 
         var yacl = YetAnotherConfigLib.createBuilder()
                 .title(Component.literal("Controlify"))
                 .category(basicCategory)
                 .category(advancedCategory)
-                .save(() -> Controlify.instance().config().save());
+                .save(() -> Controlify.instance().config().saveSafely());
 
         bindsCategory.ifPresent(yacl::category);
 
         return yacl.build().generateScreen(parent);
     }
 
-    private ConfigCategory createBasicCategory(ControllerEntity controller) {
-        var sensitivityGroup = makeSensitivityGroup(controller);
-        var controlsGroup = makeControlsGroup(controller);
-        var accessibilityGroup = makeAccessibilityGroup(controller);
-        var deadzoneGroup = makeDeadzoneGroup(controller);
+    private ConfigCategory createBasicCategory(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        var sensitivityGroup = makeSensitivityGroup(settings, defaults, controller);
+        var controlsGroup = makeControlsGroup(settings, defaults, controller);
+        var accessibilityGroup = makeAccessibilityGroup(settings, defaults, controller);
+        var deadzoneGroup = makeDeadzoneGroup(settings, defaults, controller);
 
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        GenericControllerSettings genSettings = settings.generic;
+        GenericControllerSettings genDefaults = defaults.generic;
 
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.config.category.basic"))
                 .option(Option.<String>createBuilder()
                         .name(Component.translatable("controlify.gui.custom_name"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.custom_name.tooltip")))
-                        .binding(def.nickname == null ? "" : def.nickname, () -> config.nickname == null ? "" : config.nickname, v -> config.nickname = (v.isEmpty() ? null : v))
+                        .binding(genDefaults.nickname == null ? "" : genDefaults.nickname, () -> genSettings.nickname == null ? "" : genSettings.nickname, v -> genSettings.nickname = (v.isEmpty() ? null : v))
                         .controller(StringControllerBuilder::create)
                         .build());
         if (!newOptions.isEmpty()) {
@@ -103,13 +119,13 @@ public class ControllerConfigScreenFactory {
         return builder.build();
     }
 
-    private Optional<OptionGroup> makeSensitivityGroup(ControllerEntity controller) {
-        Optional<InputComponent> inputOpt = controller.input();
-        if (inputOpt.isEmpty())
-            return Optional.empty();
-
-        InputComponent.Config config = inputOpt.get().confObj();
-        InputComponent.Config def = inputOpt.get().defObj();
+    private Optional<OptionGroup> makeSensitivityGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        InputSettings.SensitivitySettings sens = settings.input.sensitivity;
+        InputSettings.SensitivitySettings def = defaults.input.sensitivity;
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.sensitivity"))
@@ -118,7 +134,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.horizontal_look_sensitivity.tooltip"))
                                 .build())
-                        .binding(def.hLookSensitivity, () -> config.hLookSensitivity, v -> config.hLookSensitivity = v)
+                        .binding(def.hLookSensitivity, () -> sens.hLookSensitivity, v -> sens.hLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
@@ -127,7 +143,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.vertical_look_sensitivity.tooltip"))
                                 .build())
-                        .binding(def.vLookSensitivity, () -> config.vLookSensitivity, v -> config.vLookSensitivity = v)
+                        .binding(def.vLookSensitivity, () -> sens.vLookSensitivity, v -> sens.vLookSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
@@ -136,7 +152,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.invert_vertical_look.tooltip"))
                                 .build())
-                        .binding(def.vLookInvert, () -> config.vLookInvert, v -> config.vLookInvert = v)
+                        .binding(def.vLookInvert, () -> sens.vLookInvert, v -> sens.vLookInvert = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<Float>createBuilder()
@@ -144,7 +160,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
                                 .build())
-                        .binding(def.virtualMouseSensitivity, () -> config.virtualMouseSensitivity, v -> config.virtualMouseSensitivity = v)
+                        .binding(def.virtualMouseSensitivity, () -> sens.virtualMouseSensitivity, v -> sens.virtualMouseSensitivity = v)
                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                 .range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
                         .build())
@@ -154,7 +170,7 @@ public class ControllerConfigScreenFactory {
                                 .text(Component.translatable("controlify.gui.reduce_aiming_sensitivity.tooltip"))
                                 .webpImage(screenshot("reduce-aim-sensitivity.webp"))
                                 .build())
-                        .binding(def.reduceAimingSensitivity, () -> config.reduceAimingSensitivity, v -> config.reduceAimingSensitivity = v)
+                        .binding(def.reduceAimingSensitivity, () -> sens.reduceAimingSensitivity, v -> sens.reduceAimingSensitivity = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<InputCurves>createBuilder()
@@ -162,7 +178,7 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.look_input_curve.tooltip"))
                                 .build())
-                        .binding(def.lookInputCurve, () -> config.lookInputCurve, v -> config.lookInputCurve = v)
+                        .binding(def.lookInputCurve, () -> sens.lookInputCurve, v -> sens.lookInputCurve = v)
                         .controller(opt -> EnumControllerBuilder.create(opt)
                                 .enumClass(InputCurves.class))
                         .build())
@@ -171,18 +187,25 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.is_lce.tooltip"))
                                 .build())
-                        .binding(def.isLCE, () -> config.isLCE, v -> config.isLCE = v)
+                        .binding(def.isLCE, () -> sens.isLCE, v -> sens.isLCE = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .onOffFormatter())
                         .build())
                 .build());
     }
 
-    private Optional<OptionGroup> makeControlsGroup(ControllerEntity controller) {
+    private Optional<OptionGroup> makeControlsGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        if (controller.isEmpty())
+            return Optional.empty();
+
         ValueFormatter<Boolean> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+        GenericControllerSettings config = settings.generic;
+        GenericControllerSettings def = defaults.generic;
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.config.group.controls"))
@@ -228,9 +251,18 @@ public class ControllerConfigScreenFactory {
                 .build());
     }
 
-    private Optional<OptionGroup> makeAccessibilityGroup(ControllerEntity controller) {
-        GenericControllerConfig config = controller.genericConfig().config();
-        GenericControllerConfig def = controller.genericConfig().defaultConfig();
+    private Optional<OptionGroup> makeAccessibilityGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        if (controller.isEmpty())
+            return Optional.empty();
+
+        GenericControllerSettings.GuideSettings guideSettings = settings.generic.guide;
+        GenericControllerSettings.GuideSettings guideDef = defaults.generic.guide;
+        GenericControllerSettings.KeyboardSettings keyboardSettings = settings.generic.keyboard;
+        GenericControllerSettings.KeyboardSettings keyboardDef = defaults.generic.keyboard;
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.config.group.accessibility"))
@@ -240,20 +272,20 @@ public class ControllerConfigScreenFactory {
                                 .text(Component.translatable("controlify.gui.show_ingame_guide.tooltip"))
                                 .image(screenshot("ingame-button-guide.png"), 961, 306)
                                 .build())
-                        .binding(def.showIngameGuide, () -> config.showIngameGuide, v -> config.showIngameGuide = v)
+                        .binding(guideDef.showIngameGuide, () -> guideSettings.showIngameGuide, v -> guideSettings.showIngameGuide = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.ingame_button_guide_position"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.ingame_button_guide_position.tooltip")))
-                        .binding(def.ingameGuideBottom, () -> config.ingameGuideBottom, v -> config.ingameGuideBottom = v)
+                        .binding(guideDef.ingameGuideButtom, () -> guideSettings.ingameGuideButtom, v -> guideSettings.ingameGuideButtom = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .formatValue(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
                         .build())
                 .option(Option.<GuideVerbosity>createBuilder()
                         .name(Component.translatable("controlify.gui.guide_verbosity"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.guide_verbosity.tooltip")))
-                        .binding(def.guideVerbosity, () -> config.guideVerbosity, v -> config.guideVerbosity = v)
+                        .binding(guideDef.verbosity, () -> guideSettings.verbosity, v -> guideSettings.verbosity = v)
                         .controller(opt -> CyclingListControllerBuilder.create(opt)
                                 .values(GuideVerbosity.values())
                                 .formatValue(NameableEnum::getDisplayName))
@@ -264,7 +296,7 @@ public class ControllerConfigScreenFactory {
                                 .text(Component.translatable("controlify.gui.show_screen_guide.tooltip"))
                                 .webpImage(screenshot("screen-button-guide.webp"))
                                 .build())
-                        .binding(def.showScreenGuides, () -> config.showScreenGuides, v -> config.showScreenGuides = v)
+                        .binding(guideDef.showScreenGuides, () -> guideSettings.showScreenGuides, v -> guideSettings.showScreenGuides = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .option(Option.<Boolean>createBuilder()
@@ -272,20 +304,24 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.show_keyboard.tooltip"))
                                 .build())
-                        .binding(def.showOnScreenKeyboard, () -> config.showOnScreenKeyboard, v -> config.showOnScreenKeyboard = v)
+                        .binding(keyboardDef.showOnScreenKeyboard, () -> keyboardSettings.showOnScreenKeyboard, v -> keyboardSettings.showOnScreenKeyboard = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
                 .build());
     }
 
-    private Optional<OptionGroup> makeDeadzoneGroup(ControllerEntity controller) {
-        Optional<InputComponent> inputOpt = controller.input();
+    private Optional<OptionGroup> makeDeadzoneGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        Optional<InputComponent> inputOpt = controller.flatMap(ControllerEntity::input);
         if (inputOpt.isEmpty())
             return Optional.empty();
 
         InputComponent input = inputOpt.get();
-        InputComponent.Config config = input.confObj();
-        InputComponent.Config def = input.defObj();
+        InputSettings config = settings.input;
+        InputSettings def = defaults.input;
 
         var deadzoneOpts = new ArrayList<Option<Float>>();
 
@@ -335,7 +371,7 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.auto_calibration.tooltip"))
                         .build())
-                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerCalibrationScreen(controller, () -> {
+                .action((screen, button) -> Minecraft.getInstance().setScreen(new ControllerCalibrationScreen(controller.get(), () -> {
                     deadzoneOpts.forEach(Option::forgetPendingValue);
                     return screen;
                 })))
@@ -344,33 +380,39 @@ public class ControllerConfigScreenFactory {
         return Optional.of(group.build());
     }
 
-    private ConfigCategory createAdvancedCategory(ControllerEntity controller) {
-        Optional<InputComponent> input = controller.input();
-
+    private ConfigCategory createAdvancedCategory(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
         ConfigCategory.Builder builder = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.config.category.advanced"));
 
-        input.ifPresent(inputComponent -> builder.option(Option.<Boolean>createBuilder()
+        builder.option(Option.<Boolean>createBuilder()
                 .name(Component.translatable("controlify.gui.mixed_input"))
                 .description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
-                .binding(inputComponent.defObj().mixedInput, () -> inputComponent.confObj().mixedInput, v -> inputComponent.confObj().mixedInput = v)
+                .binding(defaults.input.mixedInput, () -> settings.input.mixedInput, v -> settings.input.mixedInput = v)
                 .controller(TickBoxControllerBuilder::create)
-                .build()));
+                .build());
 
-        makeVibrationGroup(controller).ifPresent(builder::group);
-        makeGyroGroup(controller).ifPresent(builder::group);
-        makeControllerMappingGroup(controller).ifPresent(builder::group);
+        makeVibrationGroup(settings, defaults, controller).ifPresent(builder::group);
+        makeGyroGroup(settings, defaults, controller).ifPresent(builder::group);
+        makeControllerMappingGroup(settings, defaults, controller).ifPresent(builder::group);
 
         return builder.build();
     }
 
-    private Optional<OptionGroup> makeControllerMappingGroup(ControllerEntity controller) {
-        Optional<InputComponent> inputOpt = controller.input();
+    private Optional<OptionGroup> makeControllerMappingGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
+        Optional<InputComponent> inputOpt = controller.flatMap(ControllerEntity::input);
         if (inputOpt.isEmpty())
             return Optional.empty();
         InputComponent input = inputOpt.get();
-        InputComponent.Config config = input.confObj();
-        InputComponent.Config def = input.defObj();
+        InputSettings config = settings.input;
+        InputSettings def = defaults.input;
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controller_mapping"))
@@ -389,23 +431,20 @@ public class ControllerConfigScreenFactory {
                 .build());
     }
 
-    private Optional<OptionGroup> makeVibrationGroup(ControllerEntity controller) {
+    private Optional<OptionGroup> makeVibrationGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
         var vibrationGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.vibration"))
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.group.vibration.tooltip"))
                         .build());
 
-        Optional<RumbleComponent> rumbleOpt = controller.rumble();
-        if (rumbleOpt.isEmpty()) {
+        if (controller.isPresent() && controller.get().rumble().isEmpty()) {
             vibrationGroup.option(LabelOption.create(Component.translatable("controlify.gui.allow_vibrations.not_available").withStyle(ChatFormatting.RED)));
-            return Optional.of(vibrationGroup.build());
         }
-
-        RumbleComponent rumble = rumbleOpt.get();
-
-        RumbleComponent.Config config = rumble.confObj();
-        RumbleComponent.Config def = rumble.defObj();
 
         List<Option<Float>> strengthOptions = new ArrayList<>();
         Option<Boolean> allowVibrationOption;
@@ -414,21 +453,22 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
                         .build())
-                .binding(def.enabled, () -> config.enabled, v -> config.enabled = v)
+                .binding(defaults.rumble.enabled, () -> settings.rumble.enabled, v -> settings.rumble.enabled = v)
                 .addListener((opt, event) -> strengthOptions.forEach(so -> so.setAvailable(opt.pendingValue())))
                 .controller(TickBoxControllerBuilder::create)
                 .build());
 
-        controller.hdHaptics().ifPresent(haptics -> {
-            vibrationGroup.option(Option.<Boolean>createBuilder()
-                    .name(Component.translatable("controlify.gui.hd_haptics"))
-                    .description(OptionDescription.createBuilder()
-                            .text(Component.translatable("controlify.gui.hd_haptics.tooltip"))
-                            .build())
-                    .binding(haptics.defObj().enabled, () -> haptics.confObj().enabled, v -> haptics.confObj().enabled = v)
-                    .controller(TickBoxControllerBuilder::create)
-                    .build());
-        });
+        if (controller.isPresent() && controller.get().hdHaptics().isEmpty()) {
+            // TODO: Add label about HD haptics not being available
+        }
+        vibrationGroup.option(Option.<Boolean>createBuilder()
+                .name(Component.translatable("controlify.gui.hd_haptics"))
+                .description(OptionDescription.createBuilder()
+                        .text(Component.translatable("controlify.gui.hd_haptics.tooltip"))
+                        .build())
+                .binding(defaults.hdHaptic.enabled, () -> settings.hdHaptic.enabled, v -> settings.hdHaptic.enabled = v)
+                .controller(TickBoxControllerBuilder::create)
+                .build());
 
         for (RumbleSource source : RumbleSource.values()) {
             var option = Option.<Float>createBuilder()
@@ -437,9 +477,9 @@ public class ControllerConfigScreenFactory {
                             .text(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
                             .build())
                     .binding(
-                            def.vibrationStrengths.getOrDefault(source.id(), 1f),
-                            () -> config.vibrationStrengths.getOrDefault(source.id(), 1f),
-                            v -> config.vibrationStrengths.put(source.id(), v)
+                            defaults.rumble.vibrationStrengths.getOrDefault(source.id(), 1f),
+                            () -> settings.rumble.vibrationStrengths.getOrDefault(source.id(), 1f),
+                            v -> settings.rumble.vibrationStrengths.put(source.id(), v)
                     )
                     .controller(opt -> FloatSliderControllerBuilder.create(opt)
                             .range(0f, 2f)
@@ -450,43 +490,45 @@ public class ControllerConfigScreenFactory {
             strengthOptions.add(option);
             vibrationGroup.option(option);
         }
-        vibrationGroup.option(ButtonOption.createBuilder()
-                .name(Component.translatable("controlify.gui.test_vibration"))
-                .description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
-                .action((screen, btn) -> {
-                    rumble.rumbleManager().play(
-                            RumbleSource.MASTER,
-                            BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-                                    .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
-                                    .repeat(3)
-                                    .join(BasicRumbleEffect.constant(1f, 0f, 5)
-                                            .join(BasicRumbleEffect.constant(0f, 1f, 5))
-                                            .repeat(10)
-                                    )
-                                    .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
-                    );
-                })
-                .build());
+        if (controller.isPresent() && controller.get().rumble().isPresent()) {
+            RumbleComponent rumble = controller.get().rumble().get();
+            vibrationGroup.option(ButtonOption.createBuilder()
+                    .name(Component.translatable("controlify.gui.test_vibration"))
+                    .description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
+                    .action((screen, btn) -> {
+                        rumble.rumbleManager().play(
+                                RumbleSource.MASTER,
+                                BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
+                                        .join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+                                        .repeat(3)
+                                        .join(BasicRumbleEffect.constant(1f, 0f, 5)
+                                                .join(BasicRumbleEffect.constant(0f, 1f, 5))
+                                                .repeat(10)
+                                        )
+                                        .earlyFinish(BasicRumbleEffect.finishOnScreenChange())
+                        );
+                    })
+                    .build());
+        }
 
         return Optional.of(vibrationGroup.build());
     }
 
-    private Optional<OptionGroup> makeGyroGroup(ControllerEntity controller) {
+    private Optional<OptionGroup> makeGyroGroup(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
         var gyroGroup = OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.gyro"))
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.group.gyro.tooltip"))
                         .build());
 
-        Optional<GyroComponent> gyroOpt = controller.gyro();
-        if (gyroOpt.isEmpty()) {
+        if (controller.isPresent() && controller.get().gyro().isEmpty()) {
             gyroGroup.collapsed(true);
             gyroGroup.option(LabelOption.create(Component.translatable("controlify.gui.group.gyro.no_gyro.tooltip").withStyle(ChatFormatting.RED)));
-            return Optional.of(gyroGroup.build());
         }
-
-        GyroComponent.Config config = gyroOpt.get().confObj();
-        GyroComponent.Config def = gyroOpt.get().defObj();
 
         Option<Float> gyroSensitivity;
         List<Option<?>> gyroOptions = new ArrayList<>();
@@ -495,7 +537,7 @@ public class ControllerConfigScreenFactory {
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
                         .build())
-                .binding(def.lookSensitivity, () -> config.lookSensitivity, v -> config.lookSensitivity = v)
+                .binding(defaults.gyro.lookSensitivity, () -> settings.gyro.lookSensitivity, v -> settings.gyro.lookSensitivity = v)
                 .controller(opt -> FloatSliderControllerBuilder.create(opt)
                         .range(0f, 3f)
                         .step(0.1f)
@@ -511,7 +553,7 @@ public class ControllerConfigScreenFactory {
                         .text(Component.translatable("controlify.gui.gyro_behaviour.tooltip"))
                         .text(val ? Component.translatable("controlify.gui.gyro_behaviour.relative.tooltip") : Component.translatable("controlify.gui.gyro_behaviour.absolute.tooltip"))
                         .build())
-                .binding(def.relativeGyroMode, () -> config.relativeGyroMode, v -> config.relativeGyroMode = v)
+                .binding(defaults.gyro.relativeMode, () -> settings.gyro.relativeMode, v -> settings.gyro.relativeMode = v)
                 .controller(opt -> BooleanControllerBuilder.create(opt)
                         .formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
                 .build();
@@ -525,7 +567,7 @@ public class ControllerConfigScreenFactory {
                             .text(val == GyroYawMode.ROLL ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.roll_only") : Component.empty())
                             .text(val == GyroYawMode.BOTH ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.both") : Component.empty())
                             .build())
-                    .binding(def.yawMode, () -> config.yawMode, v -> config.yawMode = v)
+                    .binding(defaults.gyro.yawMode, () -> settings.gyro.yawMode, v -> settings.gyro.yawMode = v)
                     .controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroYawMode.class))
                     .build();
             gyroOptions.add(option);
@@ -535,7 +577,7 @@ public class ControllerConfigScreenFactory {
             var opt = Option.<Boolean>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_invert_x"))
                     .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
-                    .binding(def.invertX, () -> config.invertX, v -> config.invertX = v)
+                    .binding(defaults.gyro.invertYaw, () -> settings.gyro.invertYaw, v -> settings.gyro.invertYaw = v)
                     .controller(TickBoxControllerBuilder::create)
                     .build();
             gyroOptions.add(opt);
@@ -545,7 +587,7 @@ public class ControllerConfigScreenFactory {
             var opt = Option.<Boolean>createBuilder()
                     .name(Component.translatable("controlify.gui.gyro_invert_y"))
                     .description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
-                    .binding(def.invertY, () -> config.invertY, v -> config.invertY = v)
+                    .binding(defaults.gyro.invertPitch, () -> settings.gyro.invertPitch, v -> settings.gyro.invertPitch = v)
                     .controller(TickBoxControllerBuilder::create)
                     .build();
             gyroOptions.add(opt);
@@ -561,7 +603,7 @@ public class ControllerConfigScreenFactory {
                             .text(val == GyroButtonMode.TOGGLE ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.toggle") : Component.empty())
                             .text(val == GyroButtonMode.OFF ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.off") : Component.empty())
                             .build())
-                    .binding(def.requiresButton, () -> config.requiresButton, v -> config.requiresButton = v)
+                    .binding(defaults.gyro.buttonMode, () -> settings.gyro.buttonMode, v -> settings.gyro.buttonMode = v)
                     .controller(controllerOpt -> EnumControllerBuilder.create(controllerOpt).enumClass(GyroButtonMode.class))
                     .available(gyroSensitivity.pendingValue() > 0)
                     .build();
@@ -574,7 +616,7 @@ public class ControllerConfigScreenFactory {
                     .description(OptionDescription.createBuilder()
                             .text(Component.translatable("controlify.gui.flick_stick.tooltip"))
                             .build())
-                    .binding(def.flickStick, () -> config.flickStick, v -> config.flickStick = v)
+                    .binding(defaults.gyro.flickStick, () -> settings.gyro.flickStick, v -> settings.gyro.flickStick = v)
                     .controller(TickBoxControllerBuilder::create)
                     .available(gyroSensitivity.pendingValue() > 0)
                     .build();
@@ -585,17 +627,19 @@ public class ControllerConfigScreenFactory {
         return Optional.of(gyroGroup.build());
     }
 
-    private Optional<ConfigCategory> makeBindsCategory(ControllerEntity controller) {
-        Optional<InputComponent> inputOpt = controller.input();
-        if (inputOpt.isEmpty())
-            return Optional.empty();
-        InputComponent input = inputOpt.get();
+    private Optional<ConfigCategory> makeBindsCategory(
+            ControllerSettings settings,
+            ControllerSettings defaults,
+            Optional<ControllerEntity> controller
+    ) {
 
         var category = ConfigCategory.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controls"));
 
-        InputComponent.Config config = input.confObj();
-        InputComponent.Config def = input.defObj();
+        ControllerSettings settings = ctrl.settings();
+        ControllerSettings defaults = ctrl.defaultSettings();
+        InputSettings.RadialMenuSettings radialConfig = settings.input.radialMenu;
+        InputSettings.RadialMenuSettings radialDef = defaults.input.radialMenu;
 
         List<OptionBindPair> optionBinds = new ArrayList<>();
 
@@ -606,19 +650,19 @@ public class ControllerConfigScreenFactory {
                         .text(newOptionLabel)
                         .build())
                 .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(
-                        controller,
+                        ctrl,
                         null,
-                        RadialItems.createBindings(controller),
+                        RadialItems.createBindings(ctrl),
                         Component.empty(),
-                        new RadialItems.BindingEditMode(controller),
+                        new RadialItems.BindingEditMode(ctrl),
                         screen
                 )))
                 .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                 .build();
-        Option<?> radialBind = createBindingOpt(ControlifyBindings.RADIAL_MENU, controller)
+        Option<?> radialBind = createBindingOpt(ControlifyBindings.RADIAL_MENU, ctrl)
                 .addListener((opt, val) -> updateConflictingBinds(optionBinds))
                 .build();
-        optionBinds.add(new OptionBindPair(radialBind, ControlifyBindings.RADIAL_MENU.on(controller)));
+        optionBinds.add(new OptionBindPair(radialBind, ControlifyBindings.RADIAL_MENU.on(ctrl)));
         category.option(editRadialButton);
         category.option(radialBind);
         category.option(Option.<Integer>createBuilder()
@@ -626,27 +670,28 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.radial_menu.btn_focus_timeout.tooltip"))
                                 .build())
-                        .binding(def.radialButtonFocusTimeoutTicks,
-                                () -> config.radialButtonFocusTimeoutTicks,
-                                v -> config.radialButtonFocusTimeoutTicks = v)
+                        .binding(radialDef.radialButtonFocusTimeoutTicks,
+                                () -> radialConfig.radialButtonFocusTimeoutTicks,
+                                v -> radialConfig.radialButtonFocusTimeoutTicks = v)
                         .controller(opt -> IntegerSliderControllerBuilder.create(opt)
                                 .range(2, 40).step(1).formatValue(ticksToMillisFormatter))
                         .build());
 
-        groupBindings(input.getAllBindings()).forEach((categoryName, bindGroup) -> {
+        var allBindings = controller.isPresent()
+                ? controller.get().input().map(InputComponent::getAllBindings).orElse(List.of())
+                : ControlifyBindApiImpl.INSTANCE.provideBindsForController(null);
+
+        groupBindings(allBindings).forEach((categoryName, bindGroup) -> {
             var controlsGroup = OptionGroup.createBuilder()
                     .name(categoryName);
 
-            controlsGroup.options(bindGroup.stream().flatMap(binding -> {
-                if (binding != ControlifyBindings.RADIAL_MENU.on(controller)) {
-                    Option.Builder<?> option = createBindingOpt(binding, controller)
-                            .addListener((opt, val) -> updateConflictingBinds(optionBinds));
+            controlsGroup.options(bindGroup.stream().map(binding -> {
+                Option.Builder<?> option = createBindingOpt(binding, controller.orElse(null))
+                        .addListener((opt, val) -> updateConflictingBinds(optionBinds));
 
-                    Option<?> built = option.build();
-                    optionBinds.add(new OptionBindPair(built, binding));
-                    return Stream.of(built);
-                }
-                return Stream.empty();
+                Option<?> built = option.build();
+                optionBinds.add(new OptionBindPair(built, binding));
+                return built;
             }).toList());
 
             category.group(controlsGroup.build());
@@ -700,7 +745,7 @@ public class ControllerConfigScreenFactory {
         return createBindingOpt(bindingSupplier.on(controller), controller);
     }
 
-    private static Option.Builder<Input> createBindingOpt(InputBinding binding, ControllerEntity controller) {
+    private static Option.Builder<Input> createBindingOpt(InputBinding binding, @Nullable ControllerEntity controller) {
         return Option.<Input>createBuilder()
                 .name(binding.name())
                 .description(v -> OptionDescription.createBuilder()

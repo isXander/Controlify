@@ -54,15 +54,15 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
     protected void handleButtons(ControllerEntity controller) {
         super.handleButtons(controller);
 
-        var config = controller.genericConfig().config();
+        var config = controller.settings().generic;
 
         // move cursor down a line
         if (ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed()) {
             this.moveCursorFunc.accept(1);
 
-            if (config.hintKeyboardSignLine && config.showScreenGuides) {
-                config.hintKeyboardSignLine = false;
-                Controlify.instance().config().save();
+            if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
+                config.keyboard.hintSignLine = false;
+                Controlify.instance().config().saveSafely();
             }
 
             playFocusChangeSound();
@@ -72,9 +72,9 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
         if (ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed()) {
             this.moveCursorFunc.accept(-1);
 
-            if (config.hintKeyboardSignLine && config.showScreenGuides) {
-                config.hintKeyboardSignLine = false;
-                Controlify.instance().config().save();
+            if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
+                config.keyboard.hintSignLine = false;
+                Controlify.instance().config().saveSafely();
             }
 
             playFocusChangeSound();
@@ -83,10 +83,10 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
 
     @Override
     protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
-        var config = controller.genericConfig().config();
+        var config = controller.settings().generic;
         KeyboardWidget keyboardWidget = this.keyboardWidgetSupplier.get();
-        if (keyboardWidget != null && config.showScreenGuides) {
-            if (config.hintKeyboardCursor) {
+        if (keyboardWidget != null && config.guide.showScreenGuides) {
+            if (config.keyboard.hintCursor) {
                 LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
 
                 int x = keyboardWidget.getRight() - hint.getWidth() - 2;
@@ -95,7 +95,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
                 graphics.drawString(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
             }
 
-            if (config.hintKeyboardSignLine && this.signLineHintLines != null) {
+            if (config.keyboard.hintSignLine && this.signLineHintLines != null) {
                 int y = 4;
                 for (PrecomputedComponentDims<FormattedCharSequence> line : this.signLineHintLines) {
                     int lineWidth = line.width();

@@ -1,18 +1,14 @@
 package dev.isxander.controlify.controller.gyro;
 
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.config.settings.controller.GyroSettings;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.Config> {
+public class GyroComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("gyro");
 
     private GyroStateC gyroState = GyroStateC.ZERO;
-    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
 
     public GyroStateC getState() {
         return this.gyroState;
@@ -22,9 +18,12 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
         this.gyroState = state;
     }
 
-    @Override
-    public IConfig<Config> config() {
-        return this.config;
+    public GyroSettings settings() {
+        return this.controller().settings().gyro;
+    }
+
+    public GyroSettings defaultSettings() {
+        return this.controller().defaultSettings().gyro;
     }
 
     @Override
@@ -32,23 +31,4 @@ public class GyroComponent implements ECSComponent, ConfigHolder<GyroComponent.C
         return ID;
     }
 
-    public static class Config implements ConfigClass {
-        public boolean calibrated = false;
-        public boolean delayedCalibration = false;
-
-        public float lookSensitivity = 0f;
-
-        public boolean relativeGyroMode = false;
-
-        public GyroButtonMode requiresButton = GyroButtonMode.ON;
-
-        public GyroYawMode yawMode = GyroYawMode.YAW;
-
-        public boolean flickStick = false;
-
-        public boolean invertX = false;
-        public boolean invertY = false;
-
-        public GyroState calibration = new GyroState();
-    }
 }

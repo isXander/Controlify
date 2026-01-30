@@ -75,7 +75,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             throw new IllegalStateException("Registry is locked. Cannot add bind now.");
     }
 
-    public List<InputBinding> provideBindsForController(ControllerEntity controller) {
+    public List<InputBinding> provideBindsForController(@Nullable ControllerEntity controller) {
         List<InputBinding> bindings = new ArrayList<>();
 
         for (RegistryEntry entry : bindEntries) {
@@ -84,7 +84,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
             InputBindingImpl binding = entry.builder().apply(controller);
 
-            if (entry.emulation() != null) {
+            if (controller != null && entry.emulation() != null) {
                 BooleanSupplier emulationToggle = null;
                 if (entry.emulationToggle() != null) {
                     emulationToggle = () -> entry.emulationToggle().apply(controller);
@@ -118,7 +118,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
     private record RegistryEntry(
             Predicate<ControllerEntity> filter,
-            Function<ControllerEntity, InputBindingImpl> builder,
+            Function<@Nullable ControllerEntity, InputBindingImpl> builder,
             KeyMapping emulation,
             Function<ControllerEntity, Boolean> emulationToggle,
             Identifier id

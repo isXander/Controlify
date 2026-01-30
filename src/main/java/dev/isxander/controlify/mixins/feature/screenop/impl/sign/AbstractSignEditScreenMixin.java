@@ -70,7 +70,7 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
             // if the keyboard is already present, re-add it even if we're in kb/m mode since
             // setting fullscreen will turn it to that mode
             if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
-            if (!c.genericConfig().config().showOnScreenKeyboard) return;
+            if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
             int keyboardHeight = (int) (this.height * 0.5f);
             this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.simple(), this));

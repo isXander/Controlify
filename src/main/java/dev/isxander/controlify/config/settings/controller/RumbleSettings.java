@@ -1,6 +1,8 @@
 package dev.isxander.controlify.config.settings.controller;
 
 import dev.isxander.controlify.config.dto.controller.RumbleConfig;
+import dev.isxander.controlify.rumble.RumbleSource;
+import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
@@ -26,5 +28,16 @@ public class RumbleSettings {
 
     public float getStrengthForSource(Identifier sourceId) {
         return this.vibrationStrengths.getOrDefault(sourceId, 1.0f);
+    }
+
+    public RumbleState applyRumbleStrength(RumbleState baseStrength, RumbleSource source) {
+        Identifier masterSourceId = RumbleSource.MASTER.id();
+        float masterStrength = this.getStrengthForSource(masterSourceId);
+        if (masterSourceId.equals(source.id())) {
+            return baseStrength.mul(masterStrength);
+        }
+
+        float strengthMultiplier = masterStrength * getStrengthForSource(source.id());
+        return baseStrength.mul(strengthMultiplier);
     }
 }

@@ -378,8 +378,8 @@ public class Controlify implements ControlifyApi {
 
         // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
-        boolean calibrated = controller.input().map(input -> input.config().config().deadzonesCalibrated).orElse(false)
-                || controller.gyro().map(gyro -> gyro.config().config().calibrated).orElse(false);
+        boolean calibrated = controller.input().map(input -> input.settings().calibration.deadzonesCalibrated).orElse(false)
+                || controller.gyro().map(gyro -> gyro.settings().calibration.calibrated).orElse(false);
 
         // Only auto-select a newly plugged-in controller if it's the preferred one, or if the user hasn't set one yet.
         if (hotplugged && getCurrentController().isEmpty() && (config().getSettings().currentControllerUid() == null || controller.uid().equals(config().getSettings().currentControllerUid()))) {
@@ -391,7 +391,7 @@ public class Controlify implements ControlifyApi {
                     Optional<InputComponent> inputOpt = controller.input();
                     if (inputOpt.isPresent()) {
                         InputComponent input = inputOpt.get();
-                        return !input.isDefinitelyGamepad() && input.confObj().mapping == null;
+                        return !input.isDefinitelyGamepad() && input.settings().mapping == null;
                     }
                     return false;
                 },
@@ -402,7 +402,7 @@ public class Controlify implements ControlifyApi {
                 nextScreen -> new ControllerCalibrationScreen(controller, nextScreen)
         );
         wizard.addStage(
-                () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.confObj().dontShowWarningAgain).orElse(false),
+                () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.settings().dontShowWarning).orElse(false),
                 nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
         );
 
@@ -523,7 +523,7 @@ public class Controlify implements ControlifyApi {
             minecraft.getFramerateLimitTracker().onInputReceived();
 
             if (!this.currentInputMode().isController()) {
-                this.setInputMode(input.confObj().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+                this.setInputMode(input.settings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
 
                 return; // don't process input if this is changing mode.
             }
@@ -588,7 +588,7 @@ public class Controlify implements ControlifyApi {
         this.inGameInputHandler = new InGameInputHandler(controller);
         ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
 
-        if (controller.input().map(input -> input.config().config().mixedInput).orElse(false))
+        if (controller.input().map(input -> input.settings().mixedInput).orElse(false))
             setInputMode(InputMode.MIXED);
         else if (changeInputMode)
             setInputMode(InputMode.CONTROLLER);

@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.bindings.output.*;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.ControllerStateView;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.ResizableRingBuffer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,13 +17,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class InputBindingImpl implements InputBinding {
-    private final ControllerEntity controller;
     private final Identifier id;
     private final Component name, description, category;
     private Input boundInput;
     private final Supplier<Input> defaultBindSupplier;
     private final Set<BindContext> contexts;
     private final @Nullable Identifier radialIcon;
+
+    private final @Nullable InputComponent inputComponent;
+    private final Identifier controllerType;
 
     private final ResizableRingBuffer<Float> stateHistory;
     private final Set<StateAccessImpl> borrowedAccesses;
@@ -44,7 +47,8 @@ public class InputBindingImpl implements InputBinding {
     private int fakePressState = -1;
 
     public InputBindingImpl(
-            ControllerEntity controller,
+            @Nullable InputComponent inputComponent,
+            Identifier controllerType,
             Identifier id,
             Component name,
             Component description,
@@ -53,7 +57,8 @@ public class InputBindingImpl implements InputBinding {
             Set<BindContext> contexts,
             @Nullable Identifier radialIcon
     ) {
-        this.controller = controller;
+        this.inputComponent = inputComponent;
+        this.controllerType = controllerType;
         this.id = id;
         this.name = name;
         this.description = description;
@@ -101,7 +106,7 @@ public class InputBindingImpl implements InputBinding {
     @Override
     public Component inputGlyph() {
         return Controlify.instance().inputFontMapper().getComponentFromInputs(
-                controller.info().type().namespace(),
+                controllerType,
                 boundInput.getRelevantInputs()
         );
     }
@@ -279,7 +284,10 @@ public class InputBindingImpl implements InputBinding {
 
         @Override
         public boolean digital(int history) {
-            return analogue(history) > controller.input().orElseThrow().confObj().buttonActivationThreshold;
+            float threshold = inputComponent != null
+                    ? inputComponent.settings().buttonActivationThreshold
+                    : 0.5f;
+            return analogue(history) > threshold;
         }
 
         @Override

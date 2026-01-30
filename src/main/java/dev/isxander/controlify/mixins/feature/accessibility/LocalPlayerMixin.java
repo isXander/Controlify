@@ -13,7 +13,7 @@ public class LocalPlayerMixin {
     private Object shouldUseAutoJump(Object keyboardAutoJump) {
         if (ControlifyApi.get().currentInputMode().isController()) {
             return ControlifyApi.get().getCurrentController()
-                    .map(controller -> controller.genericConfig().config().autoJump)
+                    .map(controller -> controller.settings().generic.autoJump)
                     .orElse(false);
         }
         return keyboardAutoJump;

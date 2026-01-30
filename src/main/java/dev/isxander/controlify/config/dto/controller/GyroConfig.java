@@ -13,7 +13,8 @@ public record GyroConfig(
         boolean invertPitch,
         boolean invertYaw,
         GyroButtonMode buttonMode,
-        GyroYawMode yawMode
+        GyroYawMode yawMode,
+        boolean flickStick
 ) {
     public static final Codec<GyroConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CalibrationConfig.CODEC.fieldOf("calibration").forGetter(GyroConfig::calibration),
@@ -22,7 +23,8 @@ public record GyroConfig(
             Codec.BOOL.fieldOf("invert_pitch").forGetter(GyroConfig::invertPitch),
             Codec.BOOL.fieldOf("invert_yaw").forGetter(GyroConfig::invertYaw),
             GyroButtonMode.CODEC.fieldOf("button_mode").forGetter(GyroConfig::buttonMode),
-            GyroYawMode.CODEC.fieldOf("yaw_mode").forGetter(GyroConfig::yawMode)
+            GyroYawMode.CODEC.fieldOf("yaw_mode").forGetter(GyroConfig::yawMode),
+            Codec.BOOL.fieldOf("flick_stick").forGetter(GyroConfig::flickStick)
     ).apply(instance, GyroConfig::new));
 
     public record CalibrationConfig(

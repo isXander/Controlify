@@ -123,10 +123,10 @@ public class VirtualMouseHandler {
                 snapToClosestPoint();
         }
 
-        var sensitivity = input.config().config().virtualMouseSensitivity;
+        var sensitivity = input.settings().sensitivity.virtualMouseSensitivity;
 
 
-        if (!input.confObj().isLCE) {
+        if (!input.settings().sensitivity.isLCE) {
             float windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
             targetX += impulse.x * 20f * sensitivity * windowSizeModifier;

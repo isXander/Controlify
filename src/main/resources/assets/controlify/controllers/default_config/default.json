@@ -1,4 +1,23 @@
 {
+  "generic": {
+    "nickname": null,
+    "auto_jump": false,
+    "toggle_sprint": true,
+    "toggle_sneak": true,
+    "disable_fly_drifting": false,
+    "guide": {
+      "verbosity": "full",
+      "show_ingame_guide": true,
+      "ingame_guide_bottom": false,
+      "show_screen_guides": true
+    },
+    "keyboard": {
+      "show_on_screen_keyboard": true,
+      "hint_cursor": true,
+      "hint_command_suggester": true,
+      "hint_sign_line": true
+    }
+  },
   "input": {
     "sensitivity": {
       "horizontal": 1.0,
@@ -42,7 +61,8 @@
     "invert_pitch": false,
     "invert_yaw": false,
     "button_mode": "on",
-    "yaw_mode": "yaw"
+    "yaw_mode": "yaw",
+    "flick_stick": false
   },
   "bluetooth_device": {
     "dont_show_warning": false

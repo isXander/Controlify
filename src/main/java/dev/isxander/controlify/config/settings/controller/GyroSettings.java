@@ -13,6 +13,7 @@ public class GyroSettings {
     public boolean invertYaw;
     public GyroButtonMode buttonMode;
     public GyroYawMode yawMode;
+    public boolean flickStick;
 
     public GyroSettings(
             CalibrationSettings calibration,
@@ -21,7 +22,8 @@ public class GyroSettings {
             boolean invertPitch,
             boolean invertYaw,
             GyroButtonMode buttonMode,
-            GyroYawMode yawMode
+            GyroYawMode yawMode,
+            boolean flickStick
     ) {
         this.calibration = calibration;
         this.lookSensitivity = lookSensitivity;
@@ -30,6 +32,7 @@ public class GyroSettings {
         this.invertYaw = invertYaw;
         this.buttonMode = buttonMode;
         this.yawMode = yawMode;
+        this.flickStick = flickStick;
     }
 
     public static GyroSettings fromDTO(GyroConfig dto) {
@@ -40,7 +43,8 @@ public class GyroSettings {
                 dto.invertPitch(),
                 dto.invertYaw(),
                 dto.buttonMode(),
-                dto.yawMode()
+                dto.yawMode(),
+                dto.flickStick()
         );
     }
 
@@ -52,7 +56,8 @@ public class GyroSettings {
                 invertPitch,
                 invertYaw,
                 buttonMode,
-                yawMode
+                yawMode,
+                flickStick
         );
     }
 

@@ -71,7 +71,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         mappingBuilder.putDeadzoneGroups(deadzoneGroups);
 
         // otherwise we will be mapping something that is already mapped
-        inputComponent.confObj().mapping = null;
+        inputComponent.settings().mapping = null;
     }
 
     public static ControllerMappingMakerScreen createGamepadMapping(InputComponent inputComponent, Screen lastScreen) {
@@ -209,7 +209,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     @Override
     public void onClose() {
         minecraft.setScreen(lastScreen);
-        inputComponent.confObj().mapping = mappingBuilder.build();
+        inputComponent.settings().mapping = mappingBuilder.build();
         Controlify.instance().config().saveSafely();
     }
 

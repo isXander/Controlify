@@ -1,25 +1,12 @@
 package dev.isxander.controlify.controller.input;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
-import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.config.settings.controller.InputSettings;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.serialization.CustomSaveLoadConfig;
-import dev.isxander.controlify.controller.serialization.IConfig;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
-import dev.isxander.controlify.controller.input.mapping.ControllerMappingStorage;
-import dev.isxander.controlify.gui.screen.RadialMenuScreen;
-import dev.isxander.controlify.ingame.InputCurves;
 import dev.isxander.controlify.utils.CUtil;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +14,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class InputComponent implements ECSComponent, ConfigHolder<InputComponent.Config>, CustomSaveLoadConfig {
+public class InputComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("input");
 
     private final ControllerEntity controller;
@@ -35,7 +22,9 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     private ControllerState
             stateNow = ControllerState.EMPTY,
             stateThen = ControllerState.EMPTY;
-    private DeadzoneControllerStateView deadzoneStateNow, deadzoneStateThen;
+    private DeadzoneControllerStateView
+            deadzoneStateNow,
+            deadzoneStateThen;
 
     private final int buttonCount, axisCount, hatCount;
     private final Map<Identifier, DeadzoneGroup> deadzoneAxes;
@@ -43,17 +32,25 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
 
     private final Map<Identifier, InputBinding> inputBindings;
 
-    private final IConfig<Config> config;
-
-    public InputComponent(ControllerEntity controller, int buttonCount, int axisCount, int hatCount, boolean definitelyGamepad, Set<DeadzoneGroup> deadzoneAxes, String mappingId) {
+    public InputComponent(
+            ControllerEntity controller,
+            int buttonCount, int axisCount, int hatCount,
+            boolean definitelyGamepad,
+            Set<DeadzoneGroup> deadzoneAxes,
+            String mappingId
+    ) {
         this.controller = controller;
         this.buttonCount = buttonCount;
         this.axisCount = axisCount;
         this.hatCount = hatCount;
-        this.config = new ConfigImpl<>(() -> new Config(ControllerMappingStorage.get(mappingId)), Config.class, this);
         this.definitelyGamepad = definitelyGamepad;
         this.deadzoneAxes = deadzoneAxes.stream()
-                .collect(Collectors.toMap(DeadzoneGroup::name, Function.identity(), (x, y) -> y, LinkedHashMap::new));
+                .collect(Collectors.toMap(
+                        DeadzoneGroup::name,
+                        Function.identity(),
+                        (x, y) -> y,
+                        LinkedHashMap::new
+                ));
         this.inputBindings = new LinkedHashMap<>();
 
         this.updateDeadzoneView();
@@ -75,7 +72,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public void pushState(ControllerState state) {
-        ControllerMapping mapping = confObj().mapping;
+        ControllerMapping mapping = settings().mapping;
         if (mapping != null) {
             state = mapping.mapState(state);
         }
@@ -104,16 +101,27 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     @Override
-    public void finalise() {
+    public void attach(ControllerEntity controller) {
+        super.attach(controller);
+
+        // Populate bindings
         for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
             this.inputBindings.put(binding.id(), binding);
         }
+
+        // Set bound inputs for bindings using config
+        // We only need to do this on attach, since we never reload from disk. We only ever load at launch.
+        settings().bindings.bindings.forEach((bindingId, input) -> {
+            InputBinding binding = this.inputBindings.get(bindingId);
+            if (binding != null) {
+                binding.setBoundInput(input);
+            }
+        });
     }
 
     public int buttonCount() {
         return this.buttonCount;
     }
-
     public int axisCount() {
         return this.axisCount;
     }
@@ -126,7 +134,7 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
     }
 
     public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
-        ControllerMapping mapping = confObj().mapping;
+        ControllerMapping mapping = settings().mapping;
         if (mapping != null) {
             return mapping.deadzones();
         } else {
@@ -134,9 +142,12 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         }
     }
 
-    @Override
-    public IConfig<Config> config() {
-        return this.config;
+    public InputSettings settings() {
+        return this.controller().settings().input;
+    }
+
+    public InputSettings defaultSettings() {
+        return this.controller().defaultSettings().input;
     }
 
     @Override
@@ -157,120 +168,4 @@ public class InputComponent implements ECSComponent, ConfigHolder<InputComponent
         }
         return Optional.empty();
     }
-
-    @Override
-    public void toJson(JsonObject json) {
-        JsonObject innerJson = new JsonObject();
-
-        for (InputBinding binding : this.inputBindings.values()) {
-            if (!confObj().keepDefaultBindings && binding.boundInput().equals(binding.defaultInput()))
-                continue;
-
-            try {
-                innerJson.add(
-                        binding.id().toString(),
-                        Input.CODEC.encodeStart(JsonOps.INSTANCE, binding.boundInput()).result().orElseThrow()
-                );
-            } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to serialize input binding {}", binding.id(), e);
-            }
-        }
-
-        json.add("bindings", innerJson);
-    }
-
-    @Override
-    public void fromJson(JsonObject json) {
-        if (!json.has("bindings")) {
-            CUtil.LOGGER.warn("Could not find bindings in json, upgrading from older version?");
-            return;
-        }
-
-        JsonObject innerJson = json.getAsJsonObject("bindings");
-
-        for (InputBinding binding : this.inputBindings.values()) {
-            JsonElement element = innerJson.get(binding.id().toString());
-            if (element == null) {
-                // Could not find entry. Assuming defaults.
-                continue;
-            }
-
-            try {
-                Input input = Input.CODEC.parse(JsonOps.INSTANCE, element).result().orElseThrow();
-                binding.setBoundInput(input);
-            } catch (Exception e) {
-                CUtil.LOGGER.error("Failed to deserialize input binding {}. Using default.", binding.id(), e);
-            }
-        }
-    }
-
-    public static class Config implements ConfigClass {
-        public Config() {
-            // for gson
-        }
-
-        public Config(@Nullable ControllerMapping typeProvidedMapping) {
-            this.mapping = typeProvidedMapping;
-        }
-
-        public float hLookSensitivity = 1f;
-        public float vLookSensitivity = 0.9f;
-        public boolean vLookInvert = false;
-        public float virtualMouseSensitivity = 1f;
-        public boolean reduceAimingSensitivity = true;
-
-        public float buttonActivationThreshold = 0.5f;
-
-        public InputCurves lookInputCurve = InputCurves.STANDARD;
-        public boolean isLCE = false;
-
-        public Map<Identifier, Float> deadzones = new Object2ObjectOpenHashMap<>();
-        public boolean deadzonesCalibrated = false;
-        public boolean delayedCalibration = false;
-
-        public boolean mixedInput = false;
-
-        public boolean keepDefaultBindings = false;
-
-        public Identifier[] radialActions = new Identifier[8];
-        public int radialButtonFocusTimeoutTicks = 20;
-
-        @Nullable
-        public ControllerMapping mapping = null;
-
-        @Override
-        public void onConfigSaveLoad(ControllerEntity controller) {
-            this.validateRadialActions(controller);
-        }
-
-        private void validateRadialActions(ControllerEntity controller) {
-            boolean changed = false;
-            for (int i = 0; i < radialActions.length; i++) {
-                Identifier action = radialActions[i];
-                InputBinding radialBinding = action != null ? controller.input().orElseThrow().getBinding(action) : null;
-
-                if (!RadialMenuScreen.EMPTY_ACTION.equals(action) && (radialBinding == null || radialBinding.radialIcon().isEmpty())) {
-                    setDefaultRadialAction(i);
-                    changed = true;
-                }
-            }
-            if (changed)
-                Controlify.instance().config().markDirty();
-        }
-
-        private void setDefaultRadialAction(int index) {
-            radialActions[index] = switch (index) {
-                case 0 -> ControlifyBindings.TOGGLE_HUD_VISIBILITY.bindId();
-                case 1 -> ControlifyBindings.CHANGE_PERSPECTIVE.bindId();
-                case 2 -> ControlifyBindings.DROP_STACK.bindId();
-                case 3 -> ControlifyBindings.OPEN_CHAT.bindId();
-                case 4 -> ControlifyBindings.SWAP_HANDS.bindId();
-                case 5 -> ControlifyBindings.PICK_BLOCK.bindId();
-                case 6 -> ControlifyBindings.TAKE_SCREENSHOT.bindId();
-                case 7 -> ControlifyBindings.SHOW_PLAYER_LIST.bindId();
-                default -> RadialMenuScreen.EMPTY_ACTION;
-            };
-        }
-    }
-
 }

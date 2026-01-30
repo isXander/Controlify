@@ -3,6 +3,7 @@ package dev.isxander.controlify.config.settings.controller;
 import dev.isxander.controlify.config.dto.controller.ControllerConfig;
 
 public class ControllerSettings {
+    public GenericControllerSettings generic;
     public InputSettings input;
     public RumbleSettings rumble;
     public HDHapticSettings hdHaptic;
@@ -10,12 +11,14 @@ public class ControllerSettings {
     public BluetoothDeviceSettings bluetoothDevice;
 
     public ControllerSettings(
+            GenericControllerSettings generic,
             InputSettings input,
             RumbleSettings rumble,
             HDHapticSettings hdHaptic,
             GyroSettings gyro,
             BluetoothDeviceSettings bluetoothDevice
     ) {
+        this.generic = generic;
         this.input = input;
         this.rumble = rumble;
         this.hdHaptic = hdHaptic;
@@ -25,6 +28,7 @@ public class ControllerSettings {
 
     public static ControllerSettings fromDTO(ControllerConfig dto) {
         return new ControllerSettings(
+                GenericControllerSettings.fromDTO(dto.generic()),
                 InputSettings.fromDTO(dto.input()),
                 RumbleSettings.fromDTO(dto.rumble()),
                 HDHapticSettings.fromDTO(dto.hdHaptic()),
@@ -35,6 +39,7 @@ public class ControllerSettings {
 
     public ControllerConfig toDTO() {
         return new ControllerConfig(
+                generic.toDTO(),
                 input.toDTO(),
                 rumble.toDTO(),
                 hdHaptic.toDTO(),

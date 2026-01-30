@@ -5,8 +5,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.config.settings.controller.GenericControllerSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.GenericControllerConfig;
 import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gui.components.FakePositionPlainTextButton;
@@ -483,7 +483,7 @@ public class ControllerCarouselScreen extends Screen implements ScreenController
 
         @Override
         protected Optional<Component> getNickname() {
-            GenericControllerConfig config = this.controller.genericConfig().config();
+            GenericControllerSettings config = this.controller.settings().generic;
             @Nullable String nickname = config.nickname;
 
             Component ogName = null;
