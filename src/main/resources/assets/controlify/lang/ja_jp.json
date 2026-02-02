@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "有効にすると、Conrolify は Steam デッキの拡張ドライバーを使用して互換性とパフォーマンスを向上させます。 これは実験的な機能であり、バグがある可能性があります。このドライバーはデッキにDeckyLoaderをインストールする必要があります",
   "controlify.gui.copy_debug_dump": "デバッグダンプをクリップボードにコピー",
   "controlify.gui.copy_debug_dump.tooltip": "クリップボードにControlifyデバッグダンプをコピーします。サポートを求める場合は、これを使用するよう求められることがあります",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "新着情報",
   "controlify.gui.new_options.tooltip": "最新アップデートの新オプションの紹介",
   "controlify.gui.new_options.label": "新しいオプション!",
