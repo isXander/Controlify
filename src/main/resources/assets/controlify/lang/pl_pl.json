@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Jeśli ta opcja jest włączona, Controlify użyje ulepszonego sterownika dla Steam Deck, aby poprawić kompatybilność i wydajność. To jest eksperymentalne i może mieć błędy. Ten sterownik wymaga zainstalowania Decky Loader na twoim Decku.",
   "controlify.gui.copy_debug_dump": "Skopiuj zrzut debugowania do schowka",
   "controlify.gui.copy_debug_dump.tooltip": "Kopiuje zrzut debugowania Controlify do schowka. Możesz zostać poproszony o użycie tego, jeśli szukasz wsparcia.",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Nowości w tej aktualizacji",
   "controlify.gui.new_options.tooltip": "Prezentacja nowych opcji w najnowszych aktualizacjach.",
   "controlify.gui.new_options.label": "Ta opcja jest nowa!",
