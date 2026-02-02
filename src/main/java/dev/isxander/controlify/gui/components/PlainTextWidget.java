@@ -27,7 +27,11 @@ public class PlainTextWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        //? if >=1.21.11 {
         guiGraphics.textRenderer().accept(getX(), getY() + 1, getMessage());
+        //?} else {
+        /*guiGraphics.drawString(Minecraft.getInstance().font, getMessage(), getX(), getY() + 1, 0xFFFFFFFF);
+        *///?}
     }
 
     @Override

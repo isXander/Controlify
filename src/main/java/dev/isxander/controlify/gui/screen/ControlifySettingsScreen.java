@@ -242,7 +242,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
         private final Button settingsButton;
         private final PlainTextWidget controllerNameText;
-        private final ImageWidget controllerIcon;
+        private /*? if >=1.21.8>>*/final ImageWidget controllerIcon;
         private final GridLayout gridLayout;
 
         private final ImmutableList<? extends GuiEventListener> children;
@@ -307,14 +307,22 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             this.controller = currentController;
             if (this.controller != null) {
                 this.controllerNameText.setMessage(Component.literal(this.controller.name()));
-                this.controllerIcon.updateResource(this.controller.info().type().getIconSprite());
+                this.updateIcon(this.controller.info().type().getIconSprite());
             } else {
                 this.controllerNameText.setMessage(Component.translatable("controlify.gui.carousel.entry.keyboard_mouse"));
-                this.controllerIcon.updateResource(KEYBOARD_MOUSE_SPRITE);
+                this.updateIcon(KEYBOARD_MOUSE_SPRITE);
             }
 
             this.gridLayout.arrangeElements();
             FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
+        }
+
+        private void updateIcon(Identifier iconSprite) {
+            //? if >=1.21.8 {
+            this.controllerIcon.updateResource(iconSprite);
+            //?} else {
+            /*this.controllerIcon = ImageWidget.sprite(64, 64, iconSprite);
+            *///?}
         }
 
         private @Nullable ControllerEntity getController() {
