@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Jika didayakan, Controlify akan menggunakan pemacu yang dipertingkatkan untuk Steam Deck untuk meningkatkan keserasian dan prestasi. Ini adalah dalam fasa uji kaji dan mungkin mempunyai pepijat. Pemacu ini memerlukan Decky Loader dipasang pada Deck anda.",
   "controlify.gui.copy_debug_dump": "Salin Buangan Nyahpepijat ke Papan Keratan",
   "controlify.gui.copy_debug_dump.tooltip": "Menyalin sebuah buangan nyahpepijat Controlify ke papan keratan anda. Anda mungkin diminta untuk menggunakan ini jika anda mencari sokongan.",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Baharu dalam Kemas Kini Ini",
   "controlify.gui.new_options.tooltip": "Sebuah pameran tetapan baharu dalam kemas kini terkini.",
   "controlify.gui.new_options.label": "Tetapan ini adalah baharu!",
