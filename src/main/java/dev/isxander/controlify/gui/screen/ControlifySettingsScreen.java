@@ -116,24 +116,31 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
         // Main Pane
         if (!this.controllerNotDetectedButton.visible) {
-            int playerSlotHeight = mainPaneHeight - 30;
-            int playerSlotWidth = this.width - 20;
+            int mainPaneX = 0;
+            int mainPaneY = 11;
+            int mainPaneHeight = this.mainPaneHeight - mainPaneY;
+
+            int slotPaddingX = 10;
+            int slotPaddingY = 10;
+
+            int playerSlotHeight = mainPaneHeight - (2 * slotPaddingY);
+            int playerSlotWidth = this.width - (2 * slotPaddingX);
             if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
                 ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
                         0,
-                        10, 15,
-                        playerSlotWidth / 2 - 5, playerSlotHeight
+                        mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+                        playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
                 );
                 this.addRenderableWidget(profileSlotEntry);
                 SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-                        10 + playerSlotWidth / 2 + 5, 15,
-                        playerSlotWidth / 2 - 5, playerSlotHeight
+                        mainPaneX + slotPaddingX + playerSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
+                        playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
                 );
                 this.addRenderableWidget(splitscreenAdEntry);
             } else {
                 ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
                         0,
-                        10, 15,
+                        mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
                         playerSlotWidth, playerSlotHeight
                 );
                 this.addRenderableWidget(profileSlotEntry);

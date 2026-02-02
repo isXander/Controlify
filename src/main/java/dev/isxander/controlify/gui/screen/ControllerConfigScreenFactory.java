@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.config.settings.profile.GenericControllerSettings;
 import dev.isxander.controlify.config.settings.profile.InputSettings;
@@ -29,6 +30,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -396,8 +398,10 @@ public class ControllerConfigScreenFactory {
         if (inputOpt.isEmpty())
             return Optional.empty();
         InputComponent input = inputOpt.get();
-        InputSettings config = settings.input;
-        InputSettings def = defaults.input;
+
+        DeviceSettings config = Controlify.instance().config().getSettings()
+                .getOrCreateDeviceSettings(controller.get().uid());
+        DeviceSettings def = DeviceSettings.defaults();
 
         return Optional.of(OptionGroup.createBuilder()
                 .name(Component.translatable("controlify.gui.group.controller_mapping"))
@@ -407,11 +411,11 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.of(Component.translatable("controlify.gui.create_gamepad_mapping.tooltip")))
                         .action((screen, button) -> Minecraft.getInstance().setScreen(ControllerMappingMakerScreen.createGamepadMapping(input, screen)))
                         .build())
-//                .option(ButtonOption.createBuilder()
-//                        .name(Component.translatable("controlify.gui.clear_mapping"))
-//                        .description(OptionDescription.of(Component.translatable("controlify.gui.clear_mapping.tooltip")))
-//                        .action((screen, button) -> config.mapping = def.mapping)
-//                        .build())
+                .option(ButtonOption.createBuilder()
+                        .name(Component.translatable("controlify.gui.clear_mapping"))
+                        .description(OptionDescription.of(Component.translatable("controlify.gui.clear_mapping.tooltip")))
+                        .action((screen, button) -> config.mapping = def.mapping)
+                        .build())
                 .collapsed(true)
                 .build());
     }
@@ -428,7 +432,7 @@ public class ControllerConfigScreenFactory {
                         .build());
 
         if (controller.isPresent() && controller.get().rumble().isEmpty()) {
-            vibrationGroup.option(LabelOption.create(Component.translatable("controlify.gui.allow_vibrations.not_available").withStyle(ChatFormatting.RED)));
+            vibrationGroup.option(LabelOption.create(notSupportedText(Component.translatable("controlify.gui.group.vibration"))));
         }
 
         List<Option<Float>> strengthOptions = new ArrayList<>();
@@ -443,13 +447,12 @@ public class ControllerConfigScreenFactory {
                 .controller(TickBoxControllerBuilder::create)
                 .build());
 
-        if (controller.isPresent() && controller.get().hdHaptics().isEmpty()) {
-            // TODO: Add label about HD haptics not being available
-        }
+        boolean hdHapticsNotSupported = controller.isPresent() && controller.get().hdHaptics().isEmpty();
         vibrationGroup.option(Option.<Boolean>createBuilder()
                 .name(Component.translatable("controlify.gui.hd_haptics"))
                 .description(OptionDescription.createBuilder()
                         .text(Component.translatable("controlify.gui.hd_haptics.tooltip"))
+                        .text(hdHapticsNotSupported ? notSupportedText(Component.translatable("controlify.gui.hd_haptics")) : Component.empty())
                         .build())
                 .binding(defaults.hdHaptic.enabled, () -> settings.hdHaptic.enabled, v -> settings.hdHaptic.enabled = v)
                 .controller(TickBoxControllerBuilder::create)
@@ -754,6 +757,10 @@ public class ControllerConfigScreenFactory {
 
     private static Identifier screenshot(String filename) {
         return CUtil.rl("textures/screenshots/" + filename);
+    }
+
+    private static MutableComponent notSupportedText(Component featureName) {
+        return Component.translatable("controlify.gui.not_supported", featureName).withStyle(ChatFormatting.RED);
     }
 
     private record OptionBindPair(Option<?> option, InputBinding binding) {
