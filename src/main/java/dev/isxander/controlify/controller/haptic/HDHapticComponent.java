@@ -1,11 +1,8 @@
 package dev.isxander.controlify.controller.haptic;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
-import dev.isxander.controlify.controller.serialization.ConfigClass;
-import dev.isxander.controlify.controller.serialization.ConfigHolder;
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.controller.serialization.IConfig;
-import dev.isxander.controlify.controller.impl.ConfigImpl;
+import dev.isxander.controlify.config.settings.profile.HDHapticSettings;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.mixins.feature.hdhaptics.SoundBufferAccessor;
 import dev.isxander.controlify.mixins.feature.hdhaptics.SoundEngineAccessor;
 import dev.isxander.controlify.mixins.feature.hdhaptics.SoundManagerAccessor;
@@ -25,10 +22,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticComponent.Config> {
+public class HDHapticComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("hd_haptics");
 
-    private final IConfig<Config> config = new ConfigImpl<>(Config::new, Config.class);
     private Consumer<CompleteSoundData> playHapticConsumer;
     private final RandomSource randomSource;
 
@@ -42,7 +38,7 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
     }
 
     public void playHaptic(Identifier haptic) {
-        if (!confObj().enabled || playHapticConsumer == null) return;
+        if (!settings().enabled || playHapticConsumer == null) return;
 
         getSoundData(haptic,  hapticBufferLibrary.getCompleteBuffer(haptic))
                 .thenAccept(playHapticConsumer)
@@ -96,17 +92,16 @@ public class HDHapticComponent implements ECSComponent, ConfigHolder<HDHapticCom
                 }));
     }
 
-    @Override
-    public IConfig<Config> config() {
-        return config;
+    public HDHapticSettings settings() {
+        return this.controller().settings().hdHaptic;
+    }
+
+    public HDHapticSettings defaultSettings() {
+        return this.controller().defaultSettings().hdHaptic;
     }
 
     @Override
     public Identifier id() {
         return ID;
-    }
-
-    public static class Config implements ConfigClass {
-        public boolean enabled = true;
     }
 }

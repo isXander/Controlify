@@ -52,7 +52,7 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
             // if the keyboard is already present, re-add it even if we're in kb/m mode since
             // setting fullscreen will turn it to that mode
             if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
-            if (!c.genericConfig().config().showOnScreenKeyboard) return;
+            if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
             this.shiftChatAmt = 0.5f;
             int keyboardHeight = (int) (this.height * this.shiftChatAmt);

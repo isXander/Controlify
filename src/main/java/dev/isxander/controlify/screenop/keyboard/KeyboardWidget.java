@@ -144,7 +144,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
         InputTarget inputTarget = this.getInputTarget();
-        var config = controller.genericConfig().config();
+        var settings = controller.settings().generic;
 
         if (inputTarget.supportsCursorMovement()) {
             if (this.fwdCursorHelper.shouldAction(ControlifyBindings.GUI_NEXT_TAB.on(controller))) {
@@ -153,9 +153,9 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                     this.fwdCursorHelper.onNavigate();
                     this.bwdCursorHelper.reset();
 
-                    if (config.hintKeyboardCursor && config.showScreenGuides) {
-                        config.hintKeyboardCursor = false;
-                        Controlify.instance().config().save();
+                    if (settings.keyboard.hintCursor && settings.guide.showScreenGuides) {
+                        settings.keyboard.hintCursor = false;
+                        Controlify.instance().config().saveSafely();
                     }
 
                     return true;
@@ -167,9 +167,9 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
                     this.bwdCursorHelper.onNavigate();
                     this.fwdCursorHelper.reset();
 
-                    if (config.hintKeyboardCursor && config.showScreenGuides) {
-                        config.hintKeyboardCursor = false;
-                        Controlify.instance().config().save();
+                    if (settings.keyboard.hintCursor && settings.guide.showScreenGuides) {
+                        settings.keyboard.hintCursor = false;
+                        Controlify.instance().config().saveSafely();
                     }
 
                     return true;

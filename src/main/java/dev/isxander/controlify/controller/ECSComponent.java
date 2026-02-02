@@ -5,7 +5,7 @@ import net.minecraft.resources.Identifier;
 public interface ECSComponent {
     Identifier id();
 
-    default void finalise() {
+    default void attach(ControllerEntity controller) {
 
     }
 }

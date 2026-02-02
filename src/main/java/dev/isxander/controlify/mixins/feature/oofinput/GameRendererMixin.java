@@ -11,6 +11,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class GameRendererMixin {
     @ModifyExpressionValue(method = "render", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Options;pauseOnLostFocus:Z", opcode = Opcodes.GETFIELD))
     private boolean shouldPauseOnLossFocus(boolean original) {
-        return original && !(Controlify.instance().config().globalSettings().outOfFocusInput && Controlify.instance().getCurrentController().isPresent());
+        return original && !(Controlify.instance().config().getSettings().globalSettings().outOfFocusInput && Controlify.instance().getCurrentController().isPresent());
     }
 }

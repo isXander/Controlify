@@ -35,9 +35,9 @@ public class ReachAroundHandler {
             // straight no, not allowed
             case DISALLOWED -> false;
             // if unset, respect the global setting
-            case UNSET -> Controlify.instance().config().globalSettings().reachAround.canReachAround();
+            case UNSET -> Controlify.instance().config().getSettings().globalSettings().reachAround.canReachAround();
             // if allowed, global setting is used but even if it singleplayer only it's still enabled.
-            case ALLOWED -> Controlify.instance().config().globalSettings().reachAround != ReachAroundMode.OFF;
+            case ALLOWED -> Controlify.instance().config().getSettings().globalSettings().reachAround != ReachAroundMode.OFF;
         };
 
         return serverAllowed

@@ -123,10 +123,10 @@ public class VirtualMouseHandler {
                 snapToClosestPoint();
         }
 
-        var sensitivity = input.config().config().virtualMouseSensitivity;
+        var sensitivity = input.settings().sensitivity.virtualMouseSensitivity;
 
 
-        if (!input.confObj().isLCE) {
+        if (!input.settings().sensitivity.isLCE) {
             float windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
             targetX += impulse.x * 20f * sensitivity * windowSizeModifier;
@@ -469,7 +469,7 @@ public class VirtualMouseHandler {
 
         if (isController && hasScreen) {
             return switch (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour()) {
-                case DEFAULT -> Controlify.instance().config().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
+                case DEFAULT -> Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
                 case ENABLED, CURSOR_ONLY -> true;
                 case DISABLED -> false;
             };
@@ -490,7 +490,7 @@ public class VirtualMouseHandler {
             return;
         }
 
-        var screens = Controlify.instance().config().globalSettings().virtualMouseScreens;
+        var screens = Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens;
         var screenClass = minecraft.screen.getClass();
         if (screens.contains(screenClass)) {
             screens.remove(screenClass);
@@ -513,7 +513,7 @@ public class VirtualMouseHandler {
             );
         }
 
-        Controlify.instance().config().save();
+        Controlify.instance().config().saveSafely();
     }
 
     public boolean isVirtualMouseEnabled() {

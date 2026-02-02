@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -160,7 +161,13 @@ public class SDLControllerManager extends AbstractControllerManager {
         CompoundDriver compoundDriver = new CompoundDriver(drivers);
 
         ControllerInfo info = new ControllerInfo(ucid, hidInfo.type(), hidInfo.hidDevice());
-        ControllerEntity controller = new ControllerEntity(info, compoundDriver, controllerLogger);
+        ControllerEntity controller = new ControllerEntity(
+                info,
+                compoundDriver,
+                this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
+                ProfileSettings.createDefault(info.type().namespace()),
+                controllerLogger
+        );
 
         controllerLogger.debugLog("Unique Controller ID: {}", info.ucid());
 

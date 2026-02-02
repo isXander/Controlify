@@ -55,6 +55,7 @@
   "controlify.gui.copy_debug_dump": "Copy Debug Dump To Clipboard",
   "controlify.gui.copy_debug_dump.tooltip": "Copies a Controlify debug dump to your clipboard. You may be asked to use this if you are seeking support.",
 
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "New This Update",
   "controlify.gui.new_options.tooltip": "A showcase of the new options in the latest updates.",
   "controlify.gui.new_options.label": "This option is new!",
