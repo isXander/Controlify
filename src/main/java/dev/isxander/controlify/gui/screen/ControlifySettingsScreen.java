@@ -118,7 +118,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         if (!this.controllerNotDetectedButton.visible) {
             int playerSlotHeight = mainPaneHeight - 30;
             int playerSlotWidth = this.width - 20;
-            if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd) {
+            if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
                 ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
                         0,
                         10, 15,
