@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Etkinleştirilirse, Controlify uyumluluğu ve performansı artırmak için Steam Deck için geliştirilmiş bir sürücü kullanacaktır. Bu deneyseldir ve hatalar içerebilir. Bu sürücü Decky Loader'ın Deck'inize yüklenmesini gerektirir.",
   "controlify.gui.copy_debug_dump": "Hata Ayıklama Dökümünü Panoya Kopyala",
   "controlify.gui.copy_debug_dump.tooltip": "Bir Controlify hata ayıklama dökümünü panonuza kopyalar. Destek arıyorsanız bunu kullanmanız istenebilir.",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Bu Güncellemede Yeni",
   "controlify.gui.new_options.tooltip": "Son güncellemelerdeki yeni seçeneklerin bir vitrini.",
   "controlify.gui.new_options.label": "Bu seçenek yeni!",
