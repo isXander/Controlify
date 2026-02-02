@@ -116,14 +116,8 @@ public class InputComponent extends ECSComponentImpl {
             this.inputBindings.put(binding.id(), binding);
         }
 
-        // Set bound inputs for bindings using config
-        // We only need to do this on attach, since we never reload from disk. We only ever load at launch.
-        settings().bindings.bindings.forEach((bindingId, input) -> {
-            InputBinding binding = this.inputBindings.get(bindingId);
-            if (binding != null) {
-                binding.setBoundInput(input);
-            }
-        });
+        // Note: No need to copy bound inputs from config here since InputBindingImpl.boundInput()
+        // now reads directly from the config (via inputComponent.settings().bindings.bindings)
     }
 
     public int buttonCount() {

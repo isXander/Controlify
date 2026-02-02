@@ -100,27 +100,13 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
     @Override
     public CompletableFuture<Void> apply(@Nullable Preparations data, ResourceManager manager, Executor executor) {
         return CompletableFuture.runAsync(() -> {
-            List<InputBinding> defaultedBindings = new ArrayList<>();
-            for (ControllerEntity controller : Controlify.instance().getControllerManager().map(ControllerManager::getConnectedControllers).orElse(List.of())) {
-                controller.input().ifPresent(input -> {
-                    if (!input.settings().keepDefaultBindings) {
-                        for (InputBinding binding : input.getAllBindings()) {
-                            if (binding.boundInput().equals(binding.defaultInput())) {
-                                defaultedBindings.add(binding);
-                            }
-                        }
-                    }
-                });
-            }
-
+            // Update the default providers
             this.defaultsByNamespace.clear();
             if (data != null) {
                 this.defaultsByNamespace.putAll(data.map());
             }
-
-            for (InputBinding binding : defaultedBindings) {
-                binding.setBoundInput(binding.defaultInput());
-            }
+            // No binding updates here: when keepDefaultBindings is true, defaults are serialized
+            // and must not be changed by default provider reloads.
         }, executor);
     }
 
