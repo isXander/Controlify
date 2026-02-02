@@ -332,10 +332,10 @@ public class Controlify implements ControlifyApi {
 
         // if no controller is currently selected, pick the first one
         if (this.getCurrentController().isEmpty()) {
-            Optional<ControllerEntity> preferredController = controllerManager.getConnectedControllers()
+            Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
                     .stream()
                     .findAny();
-            this.setCurrentController(preferredController.orElse(null), false);
+            this.setCurrentController(firstController.orElse(null), false);
         }
 
         config().saveIfDirty();
