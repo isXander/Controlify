@@ -1,6 +1,6 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.config.dto.controller.RumbleConfig;
+import dev.isxander.controlify.config.dto.profile.RumbleConfig;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.resources.Identifier;

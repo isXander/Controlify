@@ -28,7 +28,7 @@ public final class RadialItems {
         RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[8];
 
         for (int i = 0; i < 8; i++) {
-            Identifier bindingId = controller.input().orElseThrow().confObj().radialActions[i];
+            Identifier bindingId = controller.settings().input.radialMenu.radialActions.get(i);
 
             items[i] = getItemForBinding(bindingId, controller);
         }
@@ -361,7 +361,7 @@ public final class RadialItems {
 
         @Override
         public void setRadialItem(int index, RadialMenuScreen.RadialItem item) {
-            controller.input().orElseThrow().confObj().radialActions[index] = ((RadialItemRecord) item).id();
+            controller.settings().input.radialMenu.radialActions.set(index, ((RadialItemRecord) item).id());
         }
 
         @Override

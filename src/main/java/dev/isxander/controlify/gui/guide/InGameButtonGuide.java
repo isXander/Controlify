@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.guide;
 
-import dev.isxander.controlify.config.settings.controller.GenericControllerSettings;
+import dev.isxander.controlify.config.settings.profile.GenericControllerSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.api.guide.InGameCtx;
 import net.minecraft.client.Minecraft;

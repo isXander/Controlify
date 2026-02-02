@@ -4,8 +4,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.config.settings.controller.GyroSettings;
-import dev.isxander.controlify.config.settings.controller.InputSettings;
+import dev.isxander.controlify.config.settings.profile.GyroSettings;
+import dev.isxander.controlify.config.settings.profile.InputSettings;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.gyro.GyroButtonMode;
@@ -423,7 +423,7 @@ public class InGameInputHandler {
     }
 
     public void preventFlyDrifting() {
-        if (!controller.settings().generic.disableFlyDrifting || !ServerPolicies.DISABLE_FLY_DRIFTING.get()) {
+        if (!controller.settings().generic.disableFlyDrifting || ServerPolicies.DISABLE_FLY_DRIFTING.get()) {
             return;
         }
 

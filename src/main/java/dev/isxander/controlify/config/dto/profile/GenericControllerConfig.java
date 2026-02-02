@@ -1,13 +1,10 @@
-package dev.isxander.controlify.config.dto.controller;
+package dev.isxander.controlify.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.guide.GuideVerbosity;
 
-import java.util.Optional;
-
 public record GenericControllerConfig(
-        Optional<String> nickname,
         boolean autoJump,
         boolean toggleSprint,
         boolean toggleSneak,
@@ -16,7 +13,6 @@ public record GenericControllerConfig(
         KeyboardConfig keyboard
 ) {
     public static final Codec<GenericControllerConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.optionalFieldOf("nickname").forGetter(GenericControllerConfig::nickname),
             Codec.BOOL.fieldOf("auto_jump").forGetter(GenericControllerConfig::autoJump),
             Codec.BOOL.fieldOf("toggle_sprint").forGetter(GenericControllerConfig::toggleSprint),
             Codec.BOOL.fieldOf("toggle_sneak").forGetter(GenericControllerConfig::toggleSneak),
@@ -34,7 +30,7 @@ public record GenericControllerConfig(
         public static final Codec<GuideConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 GuideVerbosity.CODEC.fieldOf("verbosity").forGetter(GuideConfig::verbosity),
                 Codec.BOOL.fieldOf("show_ingame_guide").forGetter(GuideConfig::showIngameGuide),
-                Codec.BOOL.fieldOf("ingame_guide_buttom").forGetter(GuideConfig::ingameGuideButtom),
+                Codec.BOOL.fieldOf("ingame_guide_bottom").forGetter(GuideConfig::ingameGuideButtom),
                 Codec.BOOL.fieldOf("show_screen_guides").forGetter(GuideConfig::showScreenGuides)
         ).apply(instance, GuideConfig::new));
     }

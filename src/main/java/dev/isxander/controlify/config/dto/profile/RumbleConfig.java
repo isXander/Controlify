@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.dto.controller;
+package dev.isxander.controlify.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

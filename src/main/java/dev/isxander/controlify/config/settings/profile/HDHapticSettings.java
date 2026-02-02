@@ -1,6 +1,6 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.config.dto.controller.HDHapticConfig;
+import dev.isxander.controlify.config.dto.profile.HDHapticConfig;
 
 public class HDHapticSettings {
     public boolean enabled;

@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.dto.controller;
+package dev.isxander.controlify.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,23 +15,15 @@ public record InputConfig(
         BindingsConfig bindings,
         SensitivityConfig sensitivity,
         RadialMenuConfig radialMenu,
-        CalibrationConfig calibration,
         float buttonActivationThreshold,
-        Map<Identifier, Float> deadzones,
-        boolean mixedInput,
-        boolean keepDefaultBindings,
-        Optional<ControllerMapping> mapping
+        boolean keepDefaultBindings
 ) {
     public static final Codec<InputConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BindingsConfig.CODEC.optionalFieldOf("bindings", BindingsConfig.EMPTY).forGetter(InputConfig::bindings),
             SensitivityConfig.CODEC.fieldOf("sensitivity").forGetter(InputConfig::sensitivity),
             RadialMenuConfig.CODEC.fieldOf("radial_menu").forGetter(InputConfig::radialMenu),
-            CalibrationConfig.CODEC.fieldOf("calibration").forGetter(InputConfig::calibration),
             Codec.floatRange(0.01f, 1f).fieldOf("button_activation_threshold").forGetter(InputConfig::buttonActivationThreshold),
-            Codec.unboundedMap(Identifier.CODEC, Codec.FLOAT).optionalFieldOf("deadzones", Map.of()).forGetter(InputConfig::deadzones),
-            Codec.BOOL.fieldOf("mixed_input").forGetter(InputConfig::mixedInput),
-            Codec.BOOL.fieldOf("keep_default_bindings").forGetter(InputConfig::keepDefaultBindings),
-            ControllerMapping.CODEC.optionalFieldOf("mapping").forGetter(InputConfig::mapping)
+            Codec.BOOL.fieldOf("keep_default_bindings").forGetter(InputConfig::keepDefaultBindings)
     ).apply(instance, InputConfig::new));
 
     public record BindingsConfig(
@@ -55,7 +47,9 @@ public record InputConfig(
         float virtualMouseSensitivity,
         boolean reduceAimingSensitivity,
         InputCurves lookInputCurve,
-        boolean isLCE
+        boolean isLCE,
+        float defaultDeadzone,
+        Map<Identifier, Float> deadzones
     ) {
         public static final Codec<SensitivityConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.FLOAT.fieldOf("horizontal").forGetter(SensitivityConfig::hLookSensitivity),
@@ -64,18 +58,10 @@ public record InputConfig(
                 Codec.FLOAT.fieldOf("virtual_mouse").forGetter(SensitivityConfig::virtualMouseSensitivity),
                 Codec.BOOL.fieldOf("reduce_aiming").forGetter(SensitivityConfig::reduceAimingSensitivity),
                 InputCurves.CODEC.fieldOf("look_curve").forGetter(SensitivityConfig::lookInputCurve),
-                Codec.BOOL.fieldOf("is_lce").forGetter(SensitivityConfig::isLCE)
+                Codec.BOOL.fieldOf("is_lce").forGetter(SensitivityConfig::isLCE),
+                Codec.floatRange(0f, 1f).fieldOf("default_deadzone").forGetter(SensitivityConfig::defaultDeadzone),
+                Codec.unboundedMap(Identifier.CODEC, Codec.FLOAT).optionalFieldOf("deadzones", Map.of()).forGetter(SensitivityConfig::deadzones)
         ).apply(instance, SensitivityConfig::new));
-    }
-
-    public record CalibrationConfig(
-            boolean deadzonesCalibrated,
-            boolean delayedCalibration
-    ) {
-        public static final Codec<CalibrationConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.BOOL.fieldOf("deadzones_calibrated").forGetter(CalibrationConfig::deadzonesCalibrated),
-                Codec.BOOL.fieldOf("delayed_calibration").forGetter(CalibrationConfig::delayedCalibration)
-        ).apply(instance, CalibrationConfig::new));
     }
 
     public record RadialMenuConfig(

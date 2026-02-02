@@ -12,8 +12,8 @@ public class BluetoothWarningScreen extends ConfirmScreen {
     public BluetoothWarningScreen(BluetoothDeviceComponent bt, Screen nextScreen) {
         super(showAgain -> {
             if (!showAgain) {
-                bt.confObj().dontShowWarningAgain = true;
-                Controlify.instance().config().save();
+                bt.settings().dontShowWarning = true;
+                Controlify.instance().config().saveSafely();
             }
 
             Minecraft.getInstance().setScreen(nextScreen);

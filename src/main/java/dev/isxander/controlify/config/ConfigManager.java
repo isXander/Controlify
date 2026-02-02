@@ -1,9 +1,6 @@
 package dev.isxander.controlify.config;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
@@ -11,6 +8,7 @@ import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.config.dto.ControlifyConfig;
 import dev.isxander.controlify.config.dto.dfu.ControlifyDataFixer;
 import dev.isxander.controlify.config.dto.dfu.ControlifyTypeReferences;
+import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.ControlifySettings;
 import org.slf4j.Logger;
 
@@ -40,7 +38,8 @@ public class ConfigManager {
         try {
             loadResult = load();
         } catch (IOException e) {
-            LOGGER.error("Failed to load config, re-saving and using defaults.", e);
+            LOGGER.error("Failed to load config, making backup, re-saving, and using defaults.", e);
+            this.makeBackup();
         }
 
         if (!loadResult) {
@@ -58,6 +57,8 @@ public class ConfigManager {
             return false;
         }
 
+        boolean requiresSaving = false;
+
         String jsonString = Files.readString(this.path);
         JsonElement json;
         try {
@@ -68,10 +69,8 @@ public class ConfigManager {
 
         Dynamic<?> dynamic = new Dynamic<>(JsonOps.INSTANCE, json);
 
-        int schemaVersion = dynamic.get("schema_version").asInt(-1);
-        if (schemaVersion == -1) {
-            throw new IOException("Config is missing schema_version field");
-        }
+        // Files without a schema_version are considered version 0 since that was before we started versioning
+        int schemaVersion = dynamic.get("schema_version").asInt(0);
 
         Dynamic<?> fixed = ControlifyDataFixer.getFixer().update(
                 ControlifyTypeReferences.USER_STATE,
@@ -82,16 +81,38 @@ public class ConfigManager {
 
         DataResult<ControlifyConfig> dtoResult = ControlifyConfig.CODEC.parse(fixed);
         if (dtoResult.isError()) {
-            throw new IOException("Failed to decode config DTO: " + dtoResult.error().map(DataResult.Error::message).orElse(""));
+            String errorMessage = dtoResult.error().map(DataResult.Error::message).orElse("");
+            LOGGER.warn("Failed to decode config DTO as-read, attempting to complete missing values with defaults: {}", errorMessage);
+
+            JsonObject fixedJson = (JsonObject) fixed.getValue();
+            JsonObject completedJson = this.tryCompleteConfig(fixedJson);
+
+            DataResult<ControlifyConfig> retryResult = ControlifyConfig.CODEC.parse(JsonOps.INSTANCE, completedJson);
+            if (retryResult.isError()) {
+                String retryErrorMessage = retryResult.error().map(DataResult.Error::message).orElse("");
+                throw new IOException("Failed to decode config DTO after attempting to complete missing values.\nOriginal error: " + errorMessage + "\nRetry error: " + retryErrorMessage);
+            }
+            dtoResult = retryResult;
+            requiresSaving = true;
+            LOGGER.warn("Successfully decoded config DTO after completing missing values with defaults.");
         }
         ControlifyConfig dto = dtoResult.result().orElseThrow(() -> new IOException("Failed to decode config DTO"));
 
         this.settings = ControlifySettings.fromDTO(dto);
 
+        if (requiresSaving) {
+            LOGGER.info("Config required completion of missing values, saving updated config.");
+            this.saveSafely();
+        } else {
+            LOGGER.info("Config loaded successfully from {}", this.path.toAbsolutePath());
+        }
+
         return true;
     }
 
     public boolean save() throws IOException {
+        LOGGER.info("Saving Controlify config to {}", this.path.toAbsolutePath());
+
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("schema_version", ControlifyDataFixer.CURRENT_VERSION);
 
@@ -105,9 +126,14 @@ public class ConfigManager {
             jsonObject.add(key, configObject.get(key));
         }
 
-        String jsonString = jsonObject.toString();
+        String jsonString = new GsonBuilder()
+                .setPrettyPrinting()
+                .serializeNulls()
+                .create()
+                .toJson(jsonObject);
 
         Files.writeString(this.path, jsonString);
+        LOGGER.info("Config saved successfully");
         return true;
     }
 
@@ -120,6 +146,38 @@ public class ConfigManager {
             LOGGER.error("Failed to save config", e);
         }
         return false;
+    }
+
+    private void makeBackup() {
+        try {
+            int backupIndex = 0;
+            Path backupPath;
+            do {
+                backupPath = this.path.resolveSibling(this.path.getFileName() + ".backup" + (backupIndex == 0 ? "" : backupIndex));
+                backupIndex++;
+            } while (Files.exists(backupPath));
+
+            Files.copy(this.path, backupPath);
+            LOGGER.info("Created config backup at {}", backupPath.toAbsolutePath());
+        } catch (IOException e) {
+            LOGGER.error("Failed to create config backup", e);
+        }
+    }
+
+    // Attempts to complete any missing config values with defaults
+    // In the case of a modpack providing a partial config file
+    private JsonObject tryCompleteConfig(JsonObject jsonObject) {
+        ControlifySettings defaultSettings = ControlifySettings.defaults();
+        JsonObject defaultJson = ControlifyConfig.CODEC
+                .encodeStart(JsonOps.INSTANCE, defaultSettings.toDTO())
+                .result()
+                .orElseThrow(() -> new IllegalStateException("Failed to encode default config DTO"))
+                .getAsJsonObject();
+
+        JsonObject mergedJson = defaultJson.deepCopy();
+        DefaultConfigManager.mergeJsonObjects(mergedJson, jsonObject);
+
+        return mergedJson;
     }
 
     public void markDirty() {

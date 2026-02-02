@@ -7,6 +7,8 @@ import com.mojang.datafixers.schemas.Schema;
 import com.mojang.serialization.Dynamic;
 import dev.isxander.controlify.config.dto.dfu.ControlifyTypeReferences;
 
+import java.util.stream.Stream;
+
 public final class FixControllersMapToSingleController extends DataFix {
     public FixControllersMapToSingleController(Schema outputSchema) {
         super(outputSchema, true);
@@ -46,8 +48,9 @@ public final class FixControllersMapToSingleController extends DataFix {
 
         // Remove old controllers map
         root = root.remove("controllers");
-        // Insert new controller object
-        root = root.set("controller", controller);
+        // Insert new controller list
+        var controllersList = root.createList(Stream.of(controller));
+        root = root.set("controllers", controllersList);
 
         return root;
     }

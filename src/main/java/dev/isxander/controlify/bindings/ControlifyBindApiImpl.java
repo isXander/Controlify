@@ -75,11 +75,16 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             throw new IllegalStateException("Registry is locked. Cannot add bind now.");
     }
 
+    /**
+     * Provides all bindings for a given controller.
+     * @param controller The controller to provide bindings for. Can be null to get a list of all bindings.
+     * @return A list of input bindings.
+     */
     public List<InputBinding> provideBindsForController(@Nullable ControllerEntity controller) {
         List<InputBinding> bindings = new ArrayList<>();
 
         for (RegistryEntry entry : bindEntries) {
-            if (!entry.filter().test(controller))
+            if (controller != null && !entry.filter().test(controller))
                 continue;
 
             InputBindingImpl binding = entry.builder().apply(controller);

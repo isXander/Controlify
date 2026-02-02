@@ -3,6 +3,10 @@ package dev.isxander.controlify.config.dto.dfu;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import dev.isxander.controlify.config.dto.dfu.fixes.FixControllersMapToSingleController;
+import dev.isxander.controlify.config.dto.dfu.fixes.TheHolyMigrationFix;
+import dev.isxander.controlify.config.settings.GlobalSettings;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.utils.CUtil;
 
 public final class ControlifyDataFixer {
     public static final int CURRENT_VERSION = 1;
@@ -20,6 +24,11 @@ public final class ControlifyDataFixer {
         var v1 = builder.addSchema(1, ControlifySchemas.SchemaV1::new);
 
         builder.addFixer(new FixControllersMapToSingleController(v1));
+        builder.addFixer(new TheHolyMigrationFix(
+                v1,
+                GlobalSettings.defaults(),
+                ProfileSettings.createDefault(CUtil.rl("generic"))
+        ));
 
         return builder.build().fixer();
     }

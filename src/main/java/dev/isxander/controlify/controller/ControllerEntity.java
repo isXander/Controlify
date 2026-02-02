@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller;
 
-import dev.isxander.controlify.config.settings.controller.ControllerSettings;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
 import dev.isxander.controlify.controller.haptic.HDHapticComponent;
@@ -28,15 +28,15 @@ import java.util.stream.Collectors;
 public class ControllerEntity extends ECSEntityImpl {
     private final ControllerInfo info;
     private final Driver driver;
-    private final ControllerSettings settings;
-    private final ControllerSettings defaultSettings;
+    private final ProfileSettings settings;
+    private final ProfileSettings defaultSettings;
     private final ControlifyLogger logger;
 
     public ControllerEntity(
             ControllerInfo info,
             Driver driver,
-            ControllerSettings settings,
-            ControllerSettings defaultSettings,
+            ProfileSettings settings,
+            ProfileSettings defaultSettings,
             ControlifyLogger logger
     ) {
         this.info = info;
@@ -71,10 +71,6 @@ public class ControllerEntity extends ECSEntityImpl {
 
     @NotNull
     public String name() {
-        String nickname = this.settings().generic.nickname;
-        if (nickname != null)
-            return nickname;
-
         String friendlyName = info().type().friendlyName();
         if (friendlyName != null)
             return friendlyName;
@@ -86,11 +82,11 @@ public class ControllerEntity extends ECSEntityImpl {
         return driver;
     }
 
-    public ControllerSettings settings() {
+    public ProfileSettings settings() {
         return settings;
     }
 
-    public ControllerSettings defaultSettings() {
+    public ProfileSettings defaultSettings() {
         return defaultSettings;
     }
 

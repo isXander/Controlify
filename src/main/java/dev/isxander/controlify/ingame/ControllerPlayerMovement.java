@@ -159,6 +159,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
     }
 
     public static boolean shouldBeControllerInput() {
-        return Controlify.instance().getCurrentController().isPresent() && Controlify.instance().currentInputMode().isController();
+        return Controlify.instance().getCurrentController().isPresent()
+                && Controlify.instance().currentInputMode().isController();
     }
 }

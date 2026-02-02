@@ -1,88 +1,99 @@
 package dev.isxander.controlify.config.settings;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.dto.ControlifyConfig;
-import dev.isxander.controlify.config.settings.controller.ControllerSettings;
-import dev.isxander.controlify.controller.ControllerEntity;
-import org.jspecify.annotations.Nullable;
+import dev.isxander.controlify.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 
 public class ControlifySettings {
-    public @Nullable String currentControllerUID;
-    private List<ControllerSettings> controllerSettings;
-    private GlobalSettings globalSettings;
+    private final List<ProfileSettings> profileSettings;
+    private final GlobalSettings globalSettings;
+    private final Map<String, DeviceSettings> deviceSettings;
 
     private ControlifySettings() {
+        this.profileSettings = new ArrayList<>();
         this.globalSettings = GlobalSettings.defaults();
+        this.deviceSettings = new HashMap<>();
     }
 
     public ControlifySettings(
-            @Nullable String currentControllerUID,
-            List<ControllerSettings> controllerSettings,
-            GlobalSettings globalSettings
+            List<ProfileSettings> controllerSettings,
+            GlobalSettings globalSettings,
+            Map<String, DeviceSettings> deviceSettings
     ) {
-        this.currentControllerUID = currentControllerUID;
-        this.controllerSettings = controllerSettings;
+        this.profileSettings = new ArrayList<>(controllerSettings);
         this.globalSettings = globalSettings;
+        this.deviceSettings = new HashMap<>(deviceSettings);
     }
 
     public static ControlifySettings defaults() {
         return new ControlifySettings();
     }
 
-    public void setCurrentControllerUID(@Nullable String uid) {
-        this.currentControllerUID = uid;
-    }
-
-    public @Nullable String currentControllerUid() {
-        return this.currentControllerUID;
-    }
-
     public GlobalSettings globalSettings() {
         return this.globalSettings;
     }
 
-    public ControllerSettings getControllerSettings(int playerIndex) {
-        return controllerSettings.get(playerIndex);
+    public ProfileSettings getProfileSettings(int profileIndex) {
+        if (profileIndex < 0 || profileIndex >= profileSettings.size()) {
+            return null;
+        }
+        return profileSettings.get(profileIndex);
     }
 
-    public ControllerSettings getControllerSettings() {
-        return getControllerSettings(0);
+    public ProfileSettings getProfileSettings() {
+        return getProfileSettings(0);
     }
 
-    public ControllerSettings getControllerSettings(ControllerEntity controller) {
-        var settings = this.getControllerSettings();
+    public ProfileSettings getOrCreateProfileSettings(Identifier controllerType) {
+        var settings = this.getProfileSettings(0);
         if (settings == null) {
-            var dto = Controlify.instance()
-                    .defaultConfigManager()
-                    .getDefaultForNamespace(controller.info().type().namespace());
-            settings = ControllerSettings.fromDTO(dto);
-            this.controllerSettings.add(settings);
+            settings = ProfileSettings.createDefault(controllerType);
+            this.profileSettings.add(settings);
         }
         return settings;
     }
 
+    public DeviceSettings getOrCreateDeviceSettings(String uid) {
+        return deviceSettings.computeIfAbsent(uid, id -> DeviceSettings.defaults());
+    }
+
     public static ControlifySettings fromDTO(ControlifyConfig dto) {
         return new ControlifySettings(
-                dto.currentControllerUID().orElse(null),
-                dto.controllerConfig()
+                dto.profileConfig()
                         .stream()
-                        .map(ControllerSettings::fromDTO)
+                        .map(ProfileSettings::fromDTO)
                         .toList(),
-                GlobalSettings.fromDTO(dto.globalConfig())
+                GlobalSettings.fromDTO(dto.globalConfig()),
+                dto.deviceConfig().entrySet()
+                        .stream()
+                        .collect(
+                                HashMap::new,
+                                (map, entry) -> map.put(entry.getKey(), DeviceSettings.fromDTO(entry.getValue())),
+                                HashMap::putAll
+                        )
         );
     }
 
     public ControlifyConfig toDTO() {
         return new ControlifyConfig(
-                Optional.ofNullable(currentControllerUID),
-                controllerSettings
+                profileSettings
                         .stream()
-                        .map(ControllerSettings::toDTO)
+                        .map(ProfileSettings::toDTO)
                         .toList(),
-                globalSettings.toDTO()
+                globalSettings.toDTO(),
+                deviceSettings.entrySet()
+                        .stream()
+                        .collect(
+                                HashMap::new,
+                                (map, entry) -> map.put(entry.getKey(), entry.getValue().toDTO()),
+                                HashMap::putAll
+                        )
         );
     }
 }

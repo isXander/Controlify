@@ -29,7 +29,7 @@ public class DeadzoneControllerStateView implements ControllerStateView {
     public float getAxisState(Identifier axis) {
         float rawAxis = view.getAxisState(axis);
         Optional<Identifier> deadzoneId = input.getDeadzoneForAxis(axis);
-        float deadzone = deadzoneId.map(id -> input.settings().deadzones.get(id)).orElse(0f);
+        float deadzone = deadzoneId.map(id -> input.settings().sensitivity.getDeadzone(id)).orElse(0f);
 
         return ControllerUtils.deadzone(rawAxis, deadzone);
     }

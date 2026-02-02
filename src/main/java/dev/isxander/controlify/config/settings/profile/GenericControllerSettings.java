@@ -1,11 +1,9 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
 import dev.isxander.controlify.api.guide.GuideVerbosity;
-import dev.isxander.controlify.config.dto.controller.GenericControllerConfig;
-import org.jspecify.annotations.Nullable;
+import dev.isxander.controlify.config.dto.profile.GenericControllerConfig;
 
 public class GenericControllerSettings {
-    public @Nullable String nickname;
     public boolean autoJump;
     public boolean toggleSprint;
     public boolean toggleSneak;
@@ -14,7 +12,6 @@ public class GenericControllerSettings {
     public KeyboardSettings keyboard;
 
     public GenericControllerSettings(
-            @Nullable String nickname,
             boolean autoJump,
             boolean toggleSprint,
             boolean toggleSneak,
@@ -22,7 +19,6 @@ public class GenericControllerSettings {
             GuideSettings guide,
             KeyboardSettings keyboard
     ) {
-        this.nickname = nickname;
         this.autoJump = autoJump;
         this.toggleSprint = toggleSprint;
         this.toggleSneak = toggleSneak;
@@ -33,7 +29,6 @@ public class GenericControllerSettings {
 
     public static GenericControllerSettings fromDTO(GenericControllerConfig dto) {
         return new GenericControllerSettings(
-                dto.nickname().orElse(null),
                 dto.autoJump(),
                 dto.toggleSprint(),
                 dto.toggleSneak(),
@@ -45,7 +40,6 @@ public class GenericControllerSettings {
 
     public GenericControllerConfig toDTO() {
         return new GenericControllerConfig(
-                java.util.Optional.ofNullable(nickname),
                 autoJump,
                 toggleSprint,
                 toggleSneak,

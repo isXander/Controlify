@@ -1,16 +1,19 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.config.dto.controller.ControllerConfig;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.config.dto.profile.ProfileConfig;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 
-public class ControllerSettings {
-    public GenericControllerSettings generic;
-    public InputSettings input;
-    public RumbleSettings rumble;
-    public HDHapticSettings hdHaptic;
-    public GyroSettings gyro;
-    public BluetoothDeviceSettings bluetoothDevice;
+public class ProfileSettings {
+    public final GenericControllerSettings generic;
+    public final InputSettings input;
+    public final RumbleSettings rumble;
+    public final HDHapticSettings hdHaptic;
+    public final GyroSettings gyro;
+    public final BluetoothDeviceSettings bluetoothDevice;
 
-    public ControllerSettings(
+    public ProfileSettings(
             GenericControllerSettings generic,
             InputSettings input,
             RumbleSettings rumble,
@@ -26,8 +29,8 @@ public class ControllerSettings {
         this.bluetoothDevice = bluetoothDevice;
     }
 
-    public static ControllerSettings fromDTO(ControllerConfig dto) {
-        return new ControllerSettings(
+    public static ProfileSettings fromDTO(ProfileConfig dto) {
+        return new ProfileSettings(
                 GenericControllerSettings.fromDTO(dto.generic()),
                 InputSettings.fromDTO(dto.input()),
                 RumbleSettings.fromDTO(dto.rumble()),
@@ -37,8 +40,8 @@ public class ControllerSettings {
         );
     }
 
-    public ControllerConfig toDTO() {
-        return new ControllerConfig(
+    public ProfileConfig toDTO() {
+        return new ProfileConfig(
                 generic.toDTO(),
                 input.toDTO(),
                 rumble.toDTO(),
@@ -46,5 +49,12 @@ public class ControllerSettings {
                 gyro.toDTO(),
                 bluetoothDevice.toDTO()
         );
+    }
+
+    public static ProfileSettings createDefault(@Nullable Identifier controllerType) {
+        var dto = Controlify.instance()
+                .defaultConfigManager()
+                .getDefaultForNamespace(controllerType);
+        return ProfileSettings.fromDTO(dto);
     }
 }

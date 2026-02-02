@@ -1,7 +1,7 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
 import dev.isxander.controlify.bindings.input.Input;
-import dev.isxander.controlify.config.dto.controller.InputConfig;
+import dev.isxander.controlify.config.dto.profile.InputConfig;
 import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.ingame.InputCurves;
 import net.minecraft.resources.Identifier;
@@ -13,36 +13,24 @@ import java.util.Map;
 import java.util.Optional;
 
 public class InputSettings {
-    public BindingsSettings bindings;
-    public SensitivitySettings sensitivity;
-    public RadialMenuSettings radialMenu;
-    public CalibrationSettings calibration;
+    public final BindingsSettings bindings;
+    public final SensitivitySettings sensitivity;
+    public final RadialMenuSettings radialMenu;
     public float buttonActivationThreshold;
-    public Map<Identifier, Float> deadzones;
-    public boolean mixedInput;
     public boolean keepDefaultBindings;
-    public @Nullable ControllerMapping mapping;
 
     public InputSettings(
             BindingsSettings bindings,
             SensitivitySettings sensitivity,
             RadialMenuSettings radialMenu,
-            CalibrationSettings calibration,
             float buttonActivationThreshold,
-            Map<Identifier, Float> deadzones,
-            boolean mixedInput,
-            boolean keepDefaultBindings,
-            @Nullable ControllerMapping mapping
+            boolean keepDefaultBindings
     ) {
         this.bindings = bindings;
         this.sensitivity = sensitivity;
         this.radialMenu = radialMenu;
-        this.calibration = calibration;
         this.buttonActivationThreshold = buttonActivationThreshold;
-        this.deadzones = new HashMap<>(deadzones);
-        this.mixedInput = mixedInput;
         this.keepDefaultBindings = keepDefaultBindings;
-        this.mapping = mapping;
     }
 
     public static InputSettings fromDTO(InputConfig dto) {
@@ -50,12 +38,8 @@ public class InputSettings {
                 BindingsSettings.fromDTO(dto.bindings()),
                 SensitivitySettings.fromDTO(dto.sensitivity()),
                 RadialMenuSettings.fromDTO(dto.radialMenu()),
-                CalibrationSettings.fromDTO(dto.calibration()),
                 dto.buttonActivationThreshold(),
-                new HashMap<>(dto.deadzones()),
-                dto.mixedInput(),
-                dto.keepDefaultBindings(),
-                dto.mapping().orElse(null)
+                dto.keepDefaultBindings()
         );
     }
 
@@ -64,12 +48,8 @@ public class InputSettings {
                 bindings.toDTO(),
                 sensitivity.toDTO(),
                 radialMenu.toDTO(),
-                calibration.toDTO(),
                 buttonActivationThreshold,
-                Map.copyOf(deadzones),
-                mixedInput,
-                keepDefaultBindings,
-                Optional.ofNullable(mapping)
+                keepDefaultBindings
         );
     }
 
@@ -97,6 +77,8 @@ public class InputSettings {
         public boolean reduceAimingSensitivity;
         public InputCurves lookInputCurve;
         public boolean isLCE;
+        public float defaultDeadzone;
+        private final Map<Identifier, Float> deadzones;
 
         public SensitivitySettings(
                 float hLookSensitivity,
@@ -105,7 +87,9 @@ public class InputSettings {
                 float virtualMouseSensitivity,
                 boolean reduceAimingSensitivity,
                 InputCurves lookInputCurve,
-                boolean isLCE
+                boolean isLCE,
+                float defaultDeadzone,
+                Map<Identifier, Float> deadzones
         ) {
             this.hLookSensitivity = hLookSensitivity;
             this.vLookSensitivity = vLookSensitivity;
@@ -114,6 +98,16 @@ public class InputSettings {
             this.reduceAimingSensitivity = reduceAimingSensitivity;
             this.lookInputCurve = lookInputCurve;
             this.isLCE = isLCE;
+            this.defaultDeadzone = defaultDeadzone;
+            this.deadzones = new HashMap<>(deadzones);
+        }
+
+        public float getDeadzone(Identifier deadzoneGroupId) {
+            return deadzones.getOrDefault(deadzoneGroupId, defaultDeadzone);
+        }
+
+        public void putDeadzone(Identifier deadzoneGroupId, float deadzone) {
+            deadzones.put(deadzoneGroupId, deadzone);
         }
 
         public static SensitivitySettings fromDTO(InputConfig.SensitivityConfig dto) {
@@ -124,7 +118,9 @@ public class InputSettings {
                     dto.virtualMouseSensitivity(),
                     dto.reduceAimingSensitivity(),
                     dto.lookInputCurve(),
-                    dto.isLCE()
+                    dto.isLCE(),
+                    dto.defaultDeadzone(),
+                    dto.deadzones()
             );
         }
 
@@ -136,26 +132,10 @@ public class InputSettings {
                     virtualMouseSensitivity,
                     reduceAimingSensitivity,
                     lookInputCurve,
-                    isLCE
+                    isLCE,
+                    defaultDeadzone,
+                    Map.copyOf(deadzones)
             );
-        }
-    }
-
-    public static class CalibrationSettings {
-        public boolean deadzonesCalibrated;
-        public boolean delayedCalibration;
-
-        public CalibrationSettings(boolean deadzonesCalibrated, boolean delayedCalibration) {
-            this.deadzonesCalibrated = deadzonesCalibrated;
-            this.delayedCalibration = delayedCalibration;
-        }
-
-        public static CalibrationSettings fromDTO(InputConfig.CalibrationConfig dto) {
-            return new CalibrationSettings(dto.deadzonesCalibrated(), dto.delayedCalibration());
-        }
-
-        public InputConfig.CalibrationConfig toDTO() {
-            return new InputConfig.CalibrationConfig(deadzonesCalibrated, delayedCalibration);
         }
     }
 

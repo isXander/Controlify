@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.info.UIDComponent;
@@ -103,7 +104,13 @@ public class GLFWControllerManager extends AbstractControllerManager {
         CompoundDriver compoundDriver = new CompoundDriver(drivers);
 
         ControllerInfo info = new ControllerInfo(ucid, hidInfo.type(), hidInfo.hidDevice());
-        ControllerEntity controller = new ControllerEntity(info, compoundDriver, controllerLogger);
+        ControllerEntity controller = new ControllerEntity(
+                info,
+                compoundDriver,
+                this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
+                ProfileSettings.createDefault(info.type().namespace()),
+                controllerLogger
+        );
 
         addController(ucid, controller);
         return Optional.of(controller);

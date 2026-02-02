@@ -1,6 +1,6 @@
-package dev.isxander.controlify.config.settings.controller;
+package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.config.dto.controller.BluetoothDeviceConfig;
+import dev.isxander.controlify.config.dto.profile.BluetoothDeviceConfig;
 
 public class BluetoothDeviceSettings {
     public boolean dontShowWarning;

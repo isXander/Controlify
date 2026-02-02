@@ -1,5 +1,6 @@
 package dev.isxander.controlify.config.settings;
 
+import com.google.common.collect.Sets;
 import dev.isxander.controlify.config.dto.GlobalConfig;
 import dev.isxander.controlify.reacharound.ReachAroundMode;
 import dev.isxander.controlify.server.ServerPolicies;
@@ -15,27 +16,43 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GlobalSettings {
-    public Set<Class<?>> virtualMouseScreens = Set.of(
-            AbstractContainerScreen.class
-    );
-    public boolean outOfFocusInput = false;
-    public ReachAroundMode reachAround = ReachAroundMode.OFF;
-    public boolean allowServerRumble = true;
-    public boolean extraUiSounds = true;
-    public boolean notifyLowBattery = true;
-    public float ingameButtonGuideScale = 1f;
-    public boolean useEnhancedSteamDeckDriver = true;
-    public boolean alwaysKeyboardMovement = false;
+    public final Set<Class<?>> virtualMouseScreens;
+    public boolean mixedInput;
+    public boolean outOfFocusInput;
+    public ReachAroundMode reachAround;
+    public boolean allowServerRumble;
+    public boolean extraUiSounds;
+    public boolean notifyLowBattery;
+    public float ingameButtonGuideScale;
+    public boolean useEnhancedSteamDeckDriver;
+    public boolean alwaysKeyboardMovement;
     public List<String> keyboardMovementWhitelist;
-    public Set<String> seenServers;
+    public final Set<String> seenServers;
+    public boolean showSplitscreenAd;
 
     private static final GlobalSettings DEFAULT = new GlobalSettings();
 
     private GlobalSettings() {
+        this.virtualMouseScreens = Sets.newHashSet(
+                AbstractContainerScreen.class
+        );
+        this.mixedInput = false;
+        this.outOfFocusInput = false;
+        this.reachAround = ReachAroundMode.OFF;
+        this.allowServerRumble = true;
+        this.extraUiSounds = true;
+        this.notifyLowBattery = true;
+        this.ingameButtonGuideScale = 1f;
+        this.useEnhancedSteamDeckDriver = true;
+        this.alwaysKeyboardMovement = false;
+        this.keyboardMovementWhitelist = new ArrayList<>();
+        this.seenServers = new HashSet<>();
+        this.showSplitscreenAd = true;
     }
 
     public GlobalSettings(
             Set<Class<?>> virtualMouseScreens,
+            boolean mixedInput,
             boolean outOfFocusInput,
             ReachAroundMode reachAround,
             boolean allowServerRumble,
@@ -45,9 +62,11 @@ public class GlobalSettings {
             boolean useEnhancedSteamDeckDriver,
             boolean alwaysKeyboardMovement,
             List<String> keyboardMovementWhitelist,
-            Set<String> seenServers
+            Set<String> seenServers,
+            boolean showSplitscreenAd
     ) {
         this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
+        this.mixedInput = mixedInput;
         this.outOfFocusInput = outOfFocusInput;
         this.reachAround = reachAround;
         this.allowServerRumble = allowServerRumble;
@@ -58,6 +77,7 @@ public class GlobalSettings {
         this.alwaysKeyboardMovement = alwaysKeyboardMovement;
         this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
         this.seenServers = new HashSet<>(seenServers);
+        this.showSplitscreenAd = showSplitscreenAd;
     }
 
     public boolean shouldUseKeyboardMovement() {
@@ -83,6 +103,7 @@ public class GlobalSettings {
                             }
                         })
                         .collect(Collectors.toSet()),
+                dto.mixedInput(),
                 dto.outOfFocusInput(),
                 dto.reachAround(),
                 dto.allowServerRumble(),
@@ -92,7 +113,8 @@ public class GlobalSettings {
                 dto.useEnhancedSteamDeckDriver(),
                 dto.alwaysAllowKeyboardMovement(),
                 List.copyOf(dto.keyboardMovementWhitelist()),
-                Set.copyOf(dto.seenServers())
+                Set.copyOf(dto.seenServers()),
+                dto.showSplitscreenAd()
         );
     }
 
@@ -102,6 +124,7 @@ public class GlobalSettings {
                         .stream()
                         .map(Class::getName)
                         .toList(),
+                mixedInput,
                 outOfFocusInput,
                 reachAround,
                 allowServerRumble,
@@ -111,7 +134,8 @@ public class GlobalSettings {
                 useEnhancedSteamDeckDriver,
                 alwaysKeyboardMovement,
                 List.copyOf(keyboardMovementWhitelist),
-                List.copyOf(seenServers)
+                List.copyOf(seenServers),
+                showSplitscreenAd
         );
     }
 }

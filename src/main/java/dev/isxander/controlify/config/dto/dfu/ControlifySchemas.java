@@ -11,8 +11,8 @@ public final class ControlifySchemas {
     private ControlifySchemas() {
     }
 
-    public static class SchemaV0 extends Schema {
-        public SchemaV0(int versionKey, Schema parent) {
+    private static class ControlifySchema extends Schema {
+        public ControlifySchema(int versionKey, Schema parent) {
             super(versionKey, parent);
         }
 
@@ -26,7 +26,23 @@ public final class ControlifySchemas {
         }
     }
 
-    public static class SchemaV1 extends SchemaV0 {
+    public static class SchemaV0 extends ControlifySchema {
+        public SchemaV0(int versionKey, Schema parent) {
+            super(versionKey, parent);
+        }
+
+        @Override
+        public Map<String, Supplier<TypeTemplate>> registerEntities(Schema schema) {
+            return Map.of();
+        }
+
+        @Override
+        public Map<String, Supplier<TypeTemplate>> registerBlockEntities(Schema schema) {
+            return Map.of();
+        }
+    }
+
+    public static class SchemaV1 extends ControlifySchema {
         public SchemaV1(int versionKey, Schema parent) {
             super(versionKey, parent);
         }

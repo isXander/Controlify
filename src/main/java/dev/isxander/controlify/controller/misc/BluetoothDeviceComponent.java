@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller.misc;
 
-import dev.isxander.controlify.config.settings.controller.BluetoothDeviceSettings;
+import dev.isxander.controlify.config.settings.profile.BluetoothDeviceSettings;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;

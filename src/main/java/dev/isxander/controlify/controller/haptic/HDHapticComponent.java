@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.haptic;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
-import dev.isxander.controlify.config.settings.controller.HDHapticSettings;
+import dev.isxander.controlify.config.settings.profile.HDHapticSettings;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.mixins.feature.hdhaptics.SoundBufferAccessor;
 import dev.isxander.controlify.mixins.feature.hdhaptics.SoundEngineAccessor;

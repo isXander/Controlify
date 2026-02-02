@@ -1,8 +1,10 @@
 package dev.isxander.controlify.controller.input;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.config.settings.controller.InputSettings;
+import dev.isxander.controlify.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.config.settings.profile.InputSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
@@ -18,6 +20,7 @@ public class InputComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("input");
 
     private final ControllerEntity controller;
+    private DeviceSettings deviceSettings; // Cached reference
 
     private ControllerState
             stateNow = ControllerState.EMPTY,
@@ -72,7 +75,7 @@ public class InputComponent extends ECSComponentImpl {
     }
 
     public void pushState(ControllerState state) {
-        ControllerMapping mapping = settings().mapping;
+        ControllerMapping mapping = getDeviceMapping();
         if (mapping != null) {
             state = mapping.mapState(state);
         }
@@ -104,6 +107,10 @@ public class InputComponent extends ECSComponentImpl {
     public void attach(ControllerEntity controller) {
         super.attach(controller);
 
+        // Cache device settings reference
+        this.deviceSettings = Controlify.instance().config().getSettings()
+                .getOrCreateDeviceSettings(controller.uid());
+
         // Populate bindings
         for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
             this.inputBindings.put(binding.id(), binding);
@@ -134,12 +141,21 @@ public class InputComponent extends ECSComponentImpl {
     }
 
     public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
-        ControllerMapping mapping = settings().mapping;
+        ControllerMapping mapping = getDeviceMapping();
         if (mapping != null) {
             return mapping.deadzones();
         } else {
             return this.deadzoneAxes;
         }
+    }
+
+    private @Nullable ControllerMapping getDeviceMapping() {
+        // Use cached device settings to avoid repeated lookups
+        return deviceSettings.mapping;
+    }
+
+    public ControllerEntity getController() {
+        return controller();
     }
 
     public InputSettings settings() {

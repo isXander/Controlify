@@ -1,6 +1,6 @@
 package dev.isxander.controlify.controller.rumble;
 
-import dev.isxander.controlify.config.settings.controller.RumbleSettings;
+import dev.isxander.controlify.config.settings.profile.RumbleSettings;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.rumble.RumbleState;

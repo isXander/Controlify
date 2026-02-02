@@ -42,7 +42,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         //? if <1.21.6
         /*guiGraphics.pose().translate(0, 0, -20);*/
 
-        backgroundScreen.render(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        backgroundScreen.renderWithTooltipAndSubtitles(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
 
         pose.pop();
 

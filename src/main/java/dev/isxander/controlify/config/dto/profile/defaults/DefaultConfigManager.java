@@ -1,4 +1,4 @@
-package dev.isxander.controlify.config.dto.controller.defaults;
+package dev.isxander.controlify.config.dto.profile.defaults;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -6,7 +6,7 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.config.dto.controller.ControllerConfig;
+import dev.isxander.controlify.config.dto.profile.ProfileConfig;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
@@ -16,6 +16,7 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -31,10 +32,13 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
 
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private final Map<Identifier, ControllerConfig> defaultsByNamespace = new HashMap<>();
+    private final Map<Identifier, ProfileConfig> defaultsByNamespace = new HashMap<>();
 
     @Override
-    public ControllerConfig getDefaultForNamespace(Identifier namespace) {
+    public ProfileConfig getDefaultForNamespace(@Nullable Identifier namespace) {
+        if (namespace == null) {
+            namespace = ControllerType.DEFAULT.namespace();
+        }
         return defaultsByNamespace.getOrDefault(namespace, defaultsByNamespace.get(ControllerType.DEFAULT.namespace()));
     }
 
@@ -48,7 +52,7 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
         return CompletableFuture.supplyAsync(() -> {
             Map<Identifier, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
 
-            Map<Identifier, ControllerConfig> defaultsByNamespace = new HashMap<>();
+            Map<Identifier, ProfileConfig> defaultsByNamespace = new HashMap<>();
 
             Identifier defaultNamespaceFile = converter.idToFile(ControllerType.DEFAULT.namespace());
             if (!defaultFiles.containsKey(defaultNamespaceFile)) {
@@ -94,8 +98,8 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
         return combined;
     }
 
-    private ControllerConfig jsonToConfig(JsonObject json) {
-        DataResult<ControllerConfig> result = ControllerConfig.CODEC.parse(JsonOps.INSTANCE, json);
+    private ProfileConfig jsonToConfig(JsonObject json) {
+        DataResult<ProfileConfig> result = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, json);
         return result.result().orElseThrow(() -> new IllegalStateException("Failed to parse ControlifyConfig from JSON: " + result.error().orElse(null)));
     }
 
@@ -114,9 +118,9 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
         return CUtil.rl("default_config");
     }
 
-    public record Preparations(Map<Identifier, ControllerConfig> map) {}
+    public record Preparations(Map<Identifier, ProfileConfig> map) {}
 
-    private static void mergeJsonObjects(JsonObject target, JsonObject source) {
+    public static void mergeJsonObjects(JsonObject target, JsonObject source) {
         for (String key : source.keySet()) {
             JsonElement sourceElement = source.get(key);
             if (target.has(key)) {

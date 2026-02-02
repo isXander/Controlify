@@ -1,6 +1,5 @@
 {
   "generic": {
-    "nickname": null,
     "auto_jump": false,
     "toggle_sprint": true,
     "toggle_sneak": true,
@@ -26,7 +25,8 @@
       "virtual_mouse": 1.0,
       "reduce_aiming": true,
       "look_curve": "standard",
-      "is_lce": false
+      "is_lce": false,
+      "default_deadzone": 0.12
     },
     "radial_menu": {
       "actions": [
