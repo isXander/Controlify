@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "If enabled, Controlify will use an enhanced driver for the Steam Deck to improve compatibility and performance. This is experimental and may have bugs. This driver requires Decky Loader to be installed on your Deck.",
   "controlify.gui.copy_debug_dump": "Copiar Depuração Para Área de Transferência",
   "controlify.gui.copy_debug_dump.tooltip": "Copia um despejo de depuração do Controle sua área de transferência. Você pode ser solicitado a usar isso se estiver buscando suporte.",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Nova atualização",
   "controlify.gui.new_options.tooltip": "Uma exposição das novas opções nas últimas atualizações.",
   "controlify.gui.new_options.label": "Esta opção é nova!",
