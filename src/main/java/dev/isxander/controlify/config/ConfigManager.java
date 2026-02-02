@@ -79,6 +79,11 @@ public class ConfigManager {
                 ControlifyDataFixer.CURRENT_VERSION
         );
 
+        if (schemaVersion != ControlifyDataFixer.CURRENT_VERSION) {
+            requiresSaving = true;
+            LOGGER.info("Config schema version {} is outdated, updated to version {} via data fixer.", schemaVersion, ControlifyDataFixer.CURRENT_VERSION);
+        }
+
         DataResult<ControlifyConfig> dtoResult = ControlifyConfig.CODEC.parse(fixed);
         if (dtoResult.isError()) {
             String errorMessage = dtoResult.error().map(DataResult.Error::message).orElse("");
