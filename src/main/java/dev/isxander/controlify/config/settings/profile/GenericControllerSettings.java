@@ -52,18 +52,18 @@ public class GenericControllerSettings {
     public static class GuideSettings {
         public GuideVerbosity verbosity;
         public boolean showIngameGuide;
-        public boolean ingameGuideButtom;
+        public boolean ingameGuideBottom;
         public boolean showScreenGuides;
 
         public GuideSettings(
                 GuideVerbosity verbosity,
                 boolean showIngameGuide,
-                boolean ingameGuideButtom,
+                boolean ingameGuideBottom,
                 boolean showScreenGuides
         ) {
             this.verbosity = verbosity;
             this.showIngameGuide = showIngameGuide;
-            this.ingameGuideButtom = ingameGuideButtom;
+            this.ingameGuideBottom = ingameGuideBottom;
             this.showScreenGuides = showScreenGuides;
         }
 
@@ -80,7 +80,7 @@ public class GenericControllerSettings {
             return new GenericControllerConfig.GuideConfig(
                     verbosity,
                     showIngameGuide,
-                    ingameGuideButtom,
+                    ingameGuideBottom,
                     showScreenGuides
             );
         }

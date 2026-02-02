@@ -22,7 +22,7 @@ public class InGameButtonGuide {
         GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 
         if (!debugOpen && !hideGui && !screenOpen && settings.showIngameGuide) {
-            GuideRenderer.render(graphics, GuideDomains.IN_GAME, minecraft, settings.ingameGuideButtom, true);
+            GuideRenderer.render(graphics, GuideDomains.IN_GAME, minecraft, settings.ingameGuideBottom, true);
         }
     }
 

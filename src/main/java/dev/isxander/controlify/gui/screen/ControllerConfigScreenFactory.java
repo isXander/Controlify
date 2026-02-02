@@ -283,7 +283,7 @@ public class ControllerConfigScreenFactory {
                 .option(Option.<Boolean>createBuilder()
                         .name(Component.translatable("controlify.gui.ingame_button_guide_position"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.ingame_button_guide_position.tooltip")))
-                        .binding(gDefaults.guide.ingameGuideButtom, () -> gSettings.guide.ingameGuideButtom, v -> gSettings.guide.ingameGuideButtom = v)
+                        .binding(gDefaults.guide.ingameGuideBottom, () -> gSettings.guide.ingameGuideBottom, v -> gSettings.guide.ingameGuideBottom = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .formatValue(v -> Component.translatable(v ? "controlify.gui.format.bottom" : "controlify.gui.format.top")))
                         .build())

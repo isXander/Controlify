@@ -126,7 +126,7 @@ public final class TheHolyMigrationFix extends DataFix {
                 root.createString("show_ingame_guide"), old.get("show_ingame_guide")
                         .result().orElse(root.createBoolean(defaults.guide.showIngameGuide)),
                 root.createString("ingame_guide_bottom"), old.get("ingame_guide_bottom")
-                        .result().orElse(root.createBoolean(defaults.guide.ingameGuideButtom)),
+                        .result().orElse(root.createBoolean(defaults.guide.ingameGuideBottom)),
                 root.createString("show_screen_guides"), old.get("show_screen_guides")
                         .result().orElse(root.createBoolean(defaults.guide.showScreenGuides))
         ));
