@@ -52,10 +52,6 @@
     "enabled": true
   },
   "gyro": {
-    "calibration": {
-      "calibrated": false,
-      "delayed_calibration": false
-    },
     "look_sensitivity": 0.0,
     "relative_mode": false,
     "invert_pitch": false,
