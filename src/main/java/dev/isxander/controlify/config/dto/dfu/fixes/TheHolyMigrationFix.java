@@ -160,6 +160,10 @@ public final class TheHolyMigrationFix extends DataFix {
     private <T> Dynamic<T> rewriteInputConfig(Dynamic<T> old, Dynamic<T> root) {
         var defaults = controllerDefaults.input;
 
+        // Build bindings sub-object - structure stays the same, just moved
+        Dynamic<T> bindings = old.get("bindings")
+                .result().orElse(root.createMap(Map.of()));
+
         // Build sensitivity sub-object
         Dynamic<T> sensitivity = root.createMap(Map.of(
                 root.createString("horizontal"), old.get("h_look_sensitivity")
@@ -190,6 +194,7 @@ public final class TheHolyMigrationFix extends DataFix {
         ));
 
         return root.createMap(Map.of(
+                root.createString("bindings"), bindings,
                 root.createString("sensitivity"), sensitivity,
                 root.createString("radial_menu"), radialMenu,
                 root.createString("button_activation_threshold"), old.get("button_activation_threshold")

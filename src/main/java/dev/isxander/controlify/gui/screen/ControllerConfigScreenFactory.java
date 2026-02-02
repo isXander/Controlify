@@ -666,7 +666,7 @@ public class ControllerConfigScreenFactory {
                     .name(categoryName);
 
             controlsGroup.options(bindGroup.stream().map(binding -> {
-                Option.Builder<?> option = createBindingOpt(binding, controller.orElse(null))
+                Option.Builder<?> option = createBindingOpt(settings.input, binding, controller.orElse(null))
                         .addListener((opt, val) -> updateConflictingBinds(optionBinds));
 
                 Option<?> built = option.build();
@@ -721,11 +721,11 @@ public class ControllerConfigScreenFactory {
                 .collect(Collectors.groupingBy(InputBinding::category, LinkedHashMap::new, Collectors.toList()));
     }
 
-    private static Option.Builder<Input> createBindingOpt(InputBindingSupplier bindingSupplier, ControllerEntity controller) {
-        return createBindingOpt(bindingSupplier.on(controller), controller);
+    private static Option.Builder<Input> createBindingOpt(InputSettings settings, InputBindingSupplier bindingSupplier, ControllerEntity controller) {
+        return createBindingOpt(settings, bindingSupplier.on(controller), controller);
     }
 
-    private static Option.Builder<Input> createBindingOpt(InputBinding binding, @Nullable ControllerEntity controller) {
+    private static Option.Builder<Input> createBindingOpt(InputSettings settings, InputBinding binding, @Nullable ControllerEntity controller) {
         return Option.<Input>createBuilder()
                 .name(binding.name())
                 .description(v -> OptionDescription.createBuilder()
@@ -751,7 +751,10 @@ public class ControllerConfigScreenFactory {
                                         ))
                         ))
                         .build())
-                .binding(EmptyInput.INSTANCE, binding::boundInput, binding::setBoundInput)
+                .binding(EmptyInput.INSTANCE, binding::boundInput, input -> {
+                    binding.setBoundInput(input);
+                    settings.bindings.bindings.put(binding.id(), input);
+                })
                 .customController(opt -> new BindController(opt, controller));
     }
 

@@ -31,8 +31,7 @@ public record InputConfig(
     ) {
         public static final BindingsConfig EMPTY = new BindingsConfig(Map.of());
 
-        public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, Input.CODEC).fieldOf("bindings")
-                .codec()
+        public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, Input.CODEC)
                 .xmap(BindingsConfig::new, BindingsConfig::bindings);
 
         public BindingsConfig {
