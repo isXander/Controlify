@@ -52,6 +52,7 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "如果啟用此選項，Controlify 將會使用增強型 Steam Deck 驅動程式來提升相容性和效能。此功能目前仍處於實驗階段，可能會有錯誤。此驅動程式需要在您的 Steam Deck 上安裝 Decky Loader。",
   "controlify.gui.copy_debug_dump": "將除錯傾印複製到剪貼簿",
   "controlify.gui.copy_debug_dump.tooltip": "將 Controlify 除錯傾印複製到你的剪貼簿。如果你需要支援，可能會被要求使用它。",
+  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "本次更新的新功能",
   "controlify.gui.new_options.tooltip": "展示最新更新的新功能",
   "controlify.gui.new_options.label": "這個選項是新的！",
