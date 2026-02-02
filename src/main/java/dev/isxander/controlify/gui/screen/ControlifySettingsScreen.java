@@ -43,7 +43,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     private int mainPaneHeight, footerY, footerHeight;
 
     public ControlifySettingsScreen(@Nullable Screen parent) {
-        super(Component.literal("Controlify Settings"));
+        super(Component.translatable("controlify.gui.carousel.title"));
         this.parent = parent;
     }
 
@@ -87,7 +87,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
                         .tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
                         .build()
         );
-        controllerNotDetectedButton.visible = false;
+        controllerNotDetectedButton.visible = !hasController();
         FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, 0, this.width, this.mainPaneHeight);
 
 
@@ -115,29 +115,30 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 
         // Main Pane
-        int playerSlotHeight = mainPaneHeight - 30;
-        int playerSlotWidth = this.width - 20;
-        if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd) {
-            ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-                    0,
-                    10, 15,
-                    playerSlotWidth / 2 - 5, playerSlotHeight
-            );
-            this.addRenderableWidget(profileSlotEntry);
-            SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-                    10 + playerSlotWidth / 2 + 5, 15,
-                    playerSlotWidth / 2 - 5, playerSlotHeight
-            );
-            this.addRenderableWidget(splitscreenAdEntry);
-        } else {
-            ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-                    0,
-                    10, 15,
-                    playerSlotWidth, playerSlotHeight
-            );
-            this.addRenderableWidget(profileSlotEntry);
+        if (!this.controllerNotDetectedButton.visible) {
+            int playerSlotHeight = mainPaneHeight - 30;
+            int playerSlotWidth = this.width - 20;
+            if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd) {
+                ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+                        0,
+                        10, 15,
+                        playerSlotWidth / 2 - 5, playerSlotHeight
+                );
+                this.addRenderableWidget(profileSlotEntry);
+                SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
+                        10 + playerSlotWidth / 2 + 5, 15,
+                        playerSlotWidth / 2 - 5, playerSlotHeight
+                );
+                this.addRenderableWidget(splitscreenAdEntry);
+            } else {
+                ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+                        0,
+                        10, 15,
+                        playerSlotWidth, playerSlotHeight
+                );
+                this.addRenderableWidget(profileSlotEntry);
+            }
         }
-
 
         ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
         ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
@@ -145,6 +146,10 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        if (this.controllerNotDetectedButton.visible == hasController()) {
+            this.repositionElements();
+        }
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
 
         Blit.tex(
@@ -181,6 +186,12 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     @Override
     public void onClose() {
         minecraft.setScreen(parent);
+    }
+
+    private boolean hasController() {
+        return Controlify.instance().getControllerManager()
+                .map(c -> !c.getConnectedControllers().isEmpty())
+                .orElse(false);
     }
 
     private abstract static class SlotEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
@@ -238,7 +249,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> onSettingsButtonPressed()).build();
             this.controllerNameText = new PlainTextWidget(Component.empty());
-            this.controllerIcon = ImageWidget.sprite(64, 64, CUtil.rl("none"));
+            this.controllerIcon = ImageWidget.sprite(64, 64, KEYBOARD_MOUSE_SPRITE);
             this.children = ImmutableList.of(this.settingsButton, this.controllerNameText, this.controllerIcon);
 
             this.gridLayout = new GridLayout().spacing(10);
@@ -248,7 +259,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             rowHelper.addChild(this.controllerNameText);
             rowHelper.addChild(this.settingsButton);
 
-            updateControllerInfo();
+            updateControllerInfo(true);
 
             this.gridLayout.arrangeElements();
             FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
@@ -258,7 +269,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
             super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-            updateControllerInfo();
+            updateControllerInfo(false);
 
             this.settingsButton.render(guiGraphics, mouseX, mouseY, partialTick);
             this.controllerNameText.render(guiGraphics, mouseX, mouseY, partialTick);
@@ -280,9 +291,9 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             minecraft.setScreen(screen);
         }
 
-        private void updateControllerInfo() {
+        private void updateControllerInfo(boolean force) {
             var currentController = getController();
-            if (this.controller == currentController) {
+            if (this.controller == currentController && !force) {
                 return;
             }
 
@@ -348,7 +359,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
                     btn -> {
                         Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd = false;
                         Controlify.instance().config().saveSafely();
-                        ControlifySettingsScreen.openScreen(parent);
+                        ControlifySettingsScreen.this.rebuildWidgets();
                     },
                     font
             );
