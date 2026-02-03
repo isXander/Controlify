@@ -30,7 +30,6 @@ modstitch.apply {
         modAuthor = "isXander"
         prop("modDescription") { modDescription = it }
 
-        prop("packFormat") { replacementProperties.put("pack_format", it) }
         prop("githubProject") { replacementProperties.put("github", it) }
         prop("meta.mcDep") { replacementProperties.put("mc", it) }
         prop("meta.loaderDep") { replacementProperties.put("loaderVersion", it) }

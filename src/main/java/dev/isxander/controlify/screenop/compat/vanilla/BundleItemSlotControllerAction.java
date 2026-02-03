@@ -32,7 +32,11 @@ public class BundleItemSlotControllerAction {
             if (right) offsetX++;
 
             if (offsetX != 0 || offsetY != 0) {
-                int currentIndex = BundleItem.getSelectedItem(stack);
+                //? if >=26.1 {
+                int currentIndex = BundleItem.getSelectedItemIndex(stack);
+                //?} else {
+                /*int currentIndex = BundleItem.getSelectedItem(stack);
+                *///?}
 
                 if (currentIndex == -1) {
                     consumer.accept(stack, hoveredSlotIndex, 0);

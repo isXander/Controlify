@@ -53,8 +53,11 @@ public final class ContainerFacts {
     /** When the user is currently selecting an item from within the bundle they're hovering */
     public static final Fact<ContainerCtx> SELECTED_BUNDLE_SLOT = register(
             CUtil.rl("selected_bundle_slot")
-            //? if >=1.21.2
-            ,ctx -> ctx.hoveredSlot() != null && BundleItem.hasSelectedItem(ctx.hoveredSlot().getItem())
+            //? if >=26.1 {
+            ,ctx -> ctx.hoveredSlot() != null && BundleItem.getSelectedItem(ctx.hoveredSlot().getItem()) != null
+            //?} elif >=1.21.2 {
+            /*,ctx -> ctx.hoveredSlot() != null && BundleItem.hasSelectedItem(ctx.hoveredSlot().getItem())
+            *///?}
     );
 
     private static Fact<ContainerCtx> register(Identifier id, FactProvider<ContainerCtx> provider) {
