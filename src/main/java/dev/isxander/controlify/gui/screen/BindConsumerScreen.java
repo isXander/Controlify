@@ -42,7 +42,11 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         //? if <1.21.6
         /*guiGraphics.pose().translate(0, 0, -20);*/
 
-        backgroundScreen.render(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        //? if >=1.21.10 {
+        backgroundScreen.renderWithTooltipAndSubtitles(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        //?} else {
+        /*backgroundScreen.renderWithTooltip(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        *///?}
 
         pose.pop();
 
@@ -93,8 +97,13 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //? if >=1.21.9 {
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent keyEvent) {
+        boolean consumed = super.keyPressed(keyEvent);
+    //?} else {
+    /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         boolean consumed = super.keyPressed(keyCode, scanCode, modifiers);
+    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;
@@ -103,8 +112,13 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
-        boolean consumed = super.mouseClicked(mouseX, mouseY, button /*? if >=1.21.9 >>*/ ,doubleClick );
+    //? if >=1.21.9 {
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+        boolean consumed = super.mouseClicked(mouseButtonEvent, doubleClick);
+    //?} else {
+    /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        boolean consumed = super.mouseClicked(mouseX, mouseY, button);
+    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;
@@ -113,8 +127,13 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+    //? if >=1.21.9 {
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, double dx, double dy) {
+        boolean consumed = super.mouseDragged(mouseButtonEvent, dx, dy);
+    //?} else {
+    /*public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         boolean consumed = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;

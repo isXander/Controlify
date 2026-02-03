@@ -4,6 +4,8 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.config.settings.profile.GyroSettings;
+import dev.isxander.controlify.config.settings.profile.InputSettings;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.gyro.GyroButtonMode;
@@ -281,7 +283,7 @@ public class InGameInputHandler {
         Vector2d lookImpulse = new Vector2d();
         controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
 
-        if (controller.gyro().map(gyro -> gyro.confObj().lookSensitivity > 0 && gyro.confObj().flickStick).orElse(false)) {
+        if (controller.gyro().map(gyro -> gyro.settings().lookSensitivity > 0 && gyro.settings().flickStick).orElse(false)) {
             handleFlickStick(player);
         } else {
             controller.input().ifPresent(input -> handleRegularLook(input, lookImpulse, aiming, player));
@@ -298,7 +300,7 @@ public class InGameInputHandler {
     }
 
     protected void handleRegularLook(InputComponent input, Vector2d impulse, boolean aiming, LocalPlayer player) {
-        InputComponent.Config config = input.confObj();
+        InputSettings settings = input.settings();
 
         // normal look input
         Vector2d regularImpulse = new Vector2d(
@@ -307,24 +309,25 @@ public class InGameInputHandler {
                 ControlifyBindings.LOOK_DOWN.on(controller).analogueNow()
                         - ControlifyBindings.LOOK_UP.on(controller).analogueNow()
         );
-        if (config.vLookInvert) {
+        if (settings.sensitivity.vLookInvert) {
             regularImpulse.y *= -1;
         }
 
-        if (!config.isLCE) {
+        InputCurve curve = settings.sensitivity.lookInputCurve;
+        if (!settings.sensitivity.isLCE) {
             // apply the easing on its length to preserve circularity
-            ControllerUtils.applyEasingToLength(
+            regularImpulse = ControllerUtils.applyEasingToLength(
                     regularImpulse,
-                    d -> d * Math.abs(d)
+                    curve::apply
             );
         } else {
             // LCE doesn't preserve circularity
-            regularImpulse.x *= Math.abs(regularImpulse.x);
-            regularImpulse.y *= Math.abs(regularImpulse.y);
+            regularImpulse.x = curve.apply(regularImpulse.x);
+            regularImpulse.y = curve.apply(regularImpulse.y);
         }
 
-        if (config.reduceAimingSensitivity && player.isUsingItem()) {
-            float aimMultiplier = config.isLCE
+        if (settings.sensitivity.reduceAimingSensitivity && player.isUsingItem()) {
+            float aimMultiplier = settings.sensitivity.isLCE
                     ? switch (player.getUseItem().getUseAnimation()) {
                         case BOW, CROSSBOW, SPEAR, SPYGLASS -> 0.15f;
                         default -> 1f;
@@ -338,30 +341,30 @@ public class InGameInputHandler {
         }
 
         // 10 degrees per second at 100% sensitivity
-        regularImpulse.x *= config.hLookSensitivity * 10f;
-        regularImpulse.y *= config.vLookSensitivity * 10f;
+        regularImpulse.x *= settings.sensitivity.hLookSensitivity * 10f;
+        regularImpulse.y *= settings.sensitivity.vLookSensitivity * 10f;
 
         impulse.add(regularImpulse);
     }
 
     protected void handleGyroLook(GyroComponent gyro, Vector2d impulse, boolean aiming) {
-        GyroComponent.Config config = gyro.confObj();
+        GyroSettings settings = gyro.settings();
         var gyroButton = ControlifyBindings.GYRO_BUTTON.on(controller);
 
-        if (config.requiresButton.equals(GyroButtonMode.ON) && (!gyroButton.digitalNow() && !aiming)) {
+        if (settings.buttonMode.equals(GyroButtonMode.ON) && (!gyroButton.digitalNow() && !aiming)) {
             gyroInput.set(0);
-        } else if(config.requiresButton.equals(GyroButtonMode.INVERT) && (gyroButton.digitalNow() && !aiming)) {
+        } else if(settings.buttonMode.equals(GyroButtonMode.INVERT) && (gyroButton.digitalNow() && !aiming)) {
             gyroInput.set(0);
-        } else if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
+        } else if(settings.buttonMode.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
             gyroInput.set(0);
         } else {
-            if (config.relativeGyroMode)
+            if (settings.relativeMode)
                 gyroInput.add(new GyroState(gyro.getState()).mul(0.1f));
             else
                 gyroInput.set(gyro.getState());
         }
 
-        if(config.requiresButton.equals(GyroButtonMode.TOGGLE) && gyroButton.justPressed()) {
+        if(settings.buttonMode.equals(GyroButtonMode.TOGGLE) && gyroButton.justPressed()) {
            gyroToggledOn = !gyroToggledOn;
         }
 
@@ -369,14 +372,14 @@ public class InGameInputHandler {
         GyroState thisInput = new GyroState(gyroInput)
                 .mul(Mth.RAD_TO_DEG)
                 .div(20)
-                .mul(config.lookSensitivity);
+                .mul(settings.lookSensitivity);
 
-        impulse.y += -thisInput.pitch() * (config.invertY ? -1 : 1);
-        impulse.x += switch (config.yawMode) {
+        impulse.y += -thisInput.pitch() * (settings.invertPitch ? -1 : 1);
+        impulse.x += switch (settings.yawMode) {
             case YAW -> -thisInput.yaw();
             case ROLL -> -thisInput.roll();
             case BOTH -> -thisInput.yaw() - thisInput.roll();
-        } * (config.invertX ? -1 : 1);
+        } * (settings.invertYaw ? -1 : 1);
     }
 
     protected void handleFlickStick(LocalPlayer player) {
@@ -420,7 +423,7 @@ public class InGameInputHandler {
     }
 
     public void preventFlyDrifting() {
-        if (!controller.genericConfig().config().disableFlyDrifting || !ServerPolicies.DISABLE_FLY_DRIFTING.get()) {
+        if (!controller.settings().generic.disableFlyDrifting || ServerPolicies.DISABLE_FLY_DRIFTING.get()) {
             return;
         }
 
@@ -462,8 +465,8 @@ public class InGameInputHandler {
     }
 
     private boolean canProcessLookInput() {
-        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().globalSettings().outOfFocusInput;
-        boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().globalSettings().outOfFocusInput;
+        boolean mouseNotGrabbed = !minecraft.mouseHandler.isMouseGrabbed() && !controlify.config().getSettings().globalSettings().outOfFocusInput;
+        boolean outOfFocus = !minecraft.isWindowActive() && !controlify.config().getSettings().globalSettings().outOfFocusInput;
         boolean screenVisible = minecraft.screen != null;
         boolean playerExists = minecraft.player != null;
 

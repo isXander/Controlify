@@ -1,5 +1,5 @@
 //? if sodium {
-package dev.isxander.controlify.compatibility.sodium.screenop;
+/*package dev.isxander.controlify.compatibility.sodium.screenop;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
@@ -42,11 +42,6 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
         super.handleButtons(controller);
     }
 
-    @Override
-    protected void setInitialFocus() {
-
-    }
-
     public void onRebuildGUI() {
         ButtonGuideApi.addGuideToButton(
                 operations.controlify$getApplyButton(),
@@ -68,4 +63,4 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
         super.onWidgetRebuild();
     }
 }
-//?}
+*///?}

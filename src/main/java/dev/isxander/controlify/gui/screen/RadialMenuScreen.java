@@ -34,7 +34,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
-    public static final ResourceLocation EMPTY_ACTION = CUtil.rl("empty_action");
+    public static final Identifier EMPTY_ACTION = CUtil.rl("empty_action");
 
     private final ControllerEntity controller;
     private final @Nullable EditMode editMode;
@@ -74,7 +74,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         this.buttons = new RadialButton[items.length];
         this.editMode = editMode;
         this.parent = parent;
-        this.idleTicksTimeout = controller.input().orElseThrow().confObj().radialButtonFocusTimeoutTicks;
+        this.idleTicksTimeout = controller.input().orElseThrow().settings().radialMenu.radialButtonFocusTimeoutTicks;
         this.openBind = openBind;
     }
 
@@ -151,7 +151,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     - ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
             float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
                     - ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
-            float threshold = controller.input().orElseThrow().config().config().buttonActivationThreshold;
+            float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
                 float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;
@@ -250,7 +250,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
-        public static final ResourceLocation TEXTURE = CUtil.rl("textures/gui/radial-buttons.png");
+        public static final Identifier TEXTURE = CUtil.rl("textures/gui/radial-buttons.png");
 
         private int x, y;
         private float translateX, translateY;
@@ -297,8 +297,27 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
             pose.pop();
 
-            if (focused)
-                name.renderCentered(graphics, width / 2, height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight / 2));
+            if (focused) {
+                int anchorX = width / 2;
+                int topY = height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight);
+
+                //? if >=1.21.11 {
+                name.visitLines(
+                        net.minecraft.client.gui.TextAlignment.CENTER,
+                        anchorX, topY, font.lineHeight,
+                        graphics.textRenderer()
+                );
+                //?} elif >=1.21.9 {
+                /*name.render(
+                        graphics,
+                        MultiLineLabel.Align.CENTER,
+                        anchorX, topY, font.lineHeight,
+                        false, -1
+                );
+                *///?} else {
+                /*name.renderCentered(graphics, anchorX, topY);
+                *///?}
+            }
         }
 
         public boolean invoke() {
@@ -343,7 +362,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             if (editMode != null && controller == RadialMenuScreen.this.controller && ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                 RadialButton button = buttons[selectedButton];
                 int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
-                actionSelectList = new ActionSelectList(selectedButton, x, button.y, 100, 80);
+                actionSelectList = new ActionSelectList(selectedButton, x, button.y, 250, 80);
                 addRenderableWidget(actionSelectList);
                 RadialMenuScreen.this.setFocused(actionSelectList);
                 isEditing = true;
@@ -411,7 +430,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
             graphics.disableScissor();
 
-            graphics.renderOutline(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
+            graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
         }
 
         @Override
@@ -530,7 +549,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 if (controller == RadialMenuScreen.this.controller) {
                     if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                         editMode.setRadialItem(radialIndex, item);
-                        Controlify.instance().config().setDirty();
+                        Controlify.instance().config().markDirty();
 
                         buttons[radialIndex].setAction(item);
 

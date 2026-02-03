@@ -16,10 +16,11 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -41,12 +42,13 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
 
     @Override
     public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class)
-                .forEach(entrypointConsumer);
+        // Use both Fabric's entrypoint system and ServiceLoader to maximize compatibility
+        FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypointConsumer);
+        ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
     }
 
     @Override
-    public <I, O> void setupServersideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
+    public <I, O> void setupServersideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
         ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, synchronizer) -> {
             O decodedPacket = packetCreator.get();
 
@@ -64,7 +66,7 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
     }
 
     @Override
-    public <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant) {
+    public <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant) {
         T registered = Registry.register(registry, id, registrant.get());
         return () -> registered;
     }

@@ -1,4 +1,4 @@
-/*? if mod-menu {*/
+/*? if mod_menu {*/
 package dev.isxander.controlify.config;
 
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;

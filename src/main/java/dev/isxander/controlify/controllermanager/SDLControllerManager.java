@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -18,7 +19,7 @@ import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
@@ -65,10 +66,6 @@ public class SDLControllerManager extends AbstractControllerManager {
 
     @Override
     public void tick(boolean outOfFocus) {
-        super.tick(outOfFocus);
-
-        SDL_PumpEvents();
-
         if (event == null) {
             logger.error("SDL_Event has somehow been set to null. Recreating...");
             event = new SDL_Event();
@@ -111,8 +108,7 @@ public class SDLControllerManager extends AbstractControllerManager {
             }
         }
 
-        SDL_UpdateGamepads();
-        SDL_UpdateJoysticks();
+        super.tick(outOfFocus);
     }
 
     @Override
@@ -165,7 +161,13 @@ public class SDLControllerManager extends AbstractControllerManager {
         CompoundDriver compoundDriver = new CompoundDriver(drivers);
 
         ControllerInfo info = new ControllerInfo(ucid, hidInfo.type(), hidInfo.hidDevice());
-        ControllerEntity controller = new ControllerEntity(info, compoundDriver, controllerLogger);
+        ControllerEntity controller = new ControllerEntity(
+                info,
+                compoundDriver,
+                this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
+                ProfileSettings.createDefault(info.type().namespace()),
+                controllerLogger
+        );
 
         controllerLogger.debugLog("Unique Controller ID: {}", info.ucid());
 
@@ -237,7 +239,7 @@ public class SDLControllerManager extends AbstractControllerManager {
         if (vid != 0 && pid != 0) {
             CUtil.LOGGER.log("Using SDL to identify controller type.");
             return Optional.of(new ControllerHIDService.ControllerHIDInfo(
-                    Controlify.instance().controllerTypeManager().getControllerType(new HIDIdentifier(vid, pid)),
+                    Controlify.instance().controllerTypeManager().getControllerType(new HIDID(vid, pid)),
                     Optional.of(new HIDDevice.SDLHidApi(vid, pid, guidStr))
             ));
         }

@@ -5,21 +5,21 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
-public record ControllerType(@Nullable String friendlyName, String mappingId, ResourceLocation namespace, boolean forceJoystick, boolean dontLoad) {
+public record ControllerType(@Nullable String friendlyName, String mappingId, Identifier namespace, boolean forceJoystick, boolean dontLoad) {
     public static final ControllerType DEFAULT = new ControllerType(null, "default", CUtil.rl("default"), false, false);
 
     public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.STRING.optionalFieldOf("name", null).forGetter(ControllerType::friendlyName),
             Codec.STRING.optionalFieldOf("mapping", DEFAULT.mappingId()).forGetter(ControllerType::mappingId),
-            ResourceLocation.CODEC.optionalFieldOf("namespace", DEFAULT.namespace()).forGetter(ControllerType::namespace),
+            Identifier.CODEC.optionalFieldOf("namespace", DEFAULT.namespace()).forGetter(ControllerType::namespace),
             Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
             Codec.BOOL.optionalFieldOf("dont_load", false).forGetter(ControllerType::dontLoad)
     ).apply(instance, ControllerType::new));
 
-    public ResourceLocation getIconSprite() {
+    public Identifier getIconSprite() {
         return namespace.withPrefix("controllers/");
     }
 

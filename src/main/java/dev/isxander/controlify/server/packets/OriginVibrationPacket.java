@@ -8,12 +8,12 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, RumbleSource source) {
-    public static final ResourceLocation CHANNEL = CUtil.rl("vibrate_from_origin");
+    public static final Identifier CHANNEL = CUtil.rl("vibrate_from_origin");
 
     public static final StreamCodec<FriendlyByteBuf, OriginVibrationPacket> CODEC = StreamCodec.of(
         (buf, packet) -> {
@@ -21,14 +21,14 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
             buf.writeFloat(packet.effectRange());
             buf.writeVarInt(packet.duration());
             buf.writeInt(RumbleState.packToInt(packet.state()));
-            buf.writeResourceLocation(packet.source().id());
+            buf.writeIdentifier(packet.source().id());
         },
         buf -> new OriginVibrationPacket(
             buf.readVector3f(),
             buf.readFloat(),
             buf.readVarInt(),
             RumbleState.unpackFromInt(buf.readInt()),
-            RumbleSource.get(buf.readResourceLocation())
+            RumbleSource.get(buf.readIdentifier())
         )
     );
 

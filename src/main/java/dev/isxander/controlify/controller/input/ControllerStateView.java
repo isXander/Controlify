@@ -1,19 +1,25 @@
 package dev.isxander.controlify.controller.input;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Set;
 
 public interface ControllerStateView {
-    boolean isButtonDown(ResourceLocation button);
+    boolean isButtonDown(Identifier button);
 
-    Set<ResourceLocation> getButtons();
+    Set<Identifier> getButtons();
 
-    float getAxisState(ResourceLocation axis);
-    Set<ResourceLocation> getAxes();
+    float getAxisState(Identifier axis);
+    Set<Identifier> getAxes();
 
-    float getAxisResting(ResourceLocation axis);
+    float getAxisResting(Identifier axis);
 
-    HatState getHatState(ResourceLocation hat);
-    Set<ResourceLocation> getHats();
+    HatState getHatState(Identifier hat);
+    Set<Identifier> getHats();
+
+    default boolean isGivingInput() {
+        return getButtons().stream().anyMatch(this::isButtonDown)
+                || getAxes().stream().map(this::getAxisState).anyMatch(axis -> Math.abs(axis) > 0.5f)
+                || getHats().stream().map(this::getHatState).anyMatch(hat -> hat != HatState.CENTERED);
+    }
 }

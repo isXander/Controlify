@@ -2,7 +2,7 @@ package dev.isxander.controlify.api.guide;
 
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -48,7 +48,7 @@ public final class CommonFacts {
             ctx -> ctx.verbosity() == GuideVerbosity.MINIMAL
     );
 
-    private static Fact<FactCtx> register(ResourceLocation id, FactProvider<FactCtx> provider) {
+    private static Fact<FactCtx> register(Identifier id, FactProvider<FactCtx> provider) {
         var fact = Fact.of(id, provider);
 
         GuideDomains.IN_GAME.registerFact(fact);
@@ -56,7 +56,7 @@ public final class CommonFacts {
 
         return fact;
     }
-    private static Fact<FactCtx> register(ResourceLocation id) {
+    private static Fact<FactCtx> register(Identifier id) {
         return register(id, FactProvider.staticProvider(false));
     }
 

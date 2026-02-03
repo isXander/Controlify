@@ -8,7 +8,7 @@ import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -34,12 +34,12 @@ public interface PlatformMainUtilImpl {
     void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer);
 
     <I, O> void setupServersideHandshake(
-            ResourceLocation handshakeId,
+            Identifier handshakeId,
             StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
             StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
             Supplier<O> packetCreator,
             HandshakeCompletionEvent<I> completionEvent
     );
 
-    <T> Supplier<T> deferredRegister(Registry<T> registry, ResourceLocation id, Supplier<? extends T> registrant);
+    <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant);
 }

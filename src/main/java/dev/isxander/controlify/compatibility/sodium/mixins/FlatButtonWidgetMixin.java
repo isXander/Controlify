@@ -1,5 +1,5 @@
 //? if sodium {
-package dev.isxander.controlify.compatibility.sodium.mixins;
+/*package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.bind.InputBinding;
@@ -78,4 +78,4 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
         this.controllerMessages.clear();
     }
 }
-//?}
+*///?}

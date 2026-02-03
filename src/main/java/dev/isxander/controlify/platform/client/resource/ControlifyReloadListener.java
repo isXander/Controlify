@@ -1,6 +1,6 @@
 package dev.isxander.controlify.platform.client.resource;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 
 import java.util.Collection;
@@ -11,20 +11,20 @@ public interface ControlifyReloadListener
         //? if fabric
         ,net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 {
-    ResourceLocation getReloadId();
+    Identifier getReloadId();
 
-    default Collection<ResourceLocation> getDependencies() {
+    default Collection<Identifier> getDependencies() {
         return Collections.emptyList();
     }
 
     //? if fabric {
     @Override
-    default ResourceLocation getFabricId() {
+    default Identifier getFabricId() {
         return this.getReloadId();
     }
 
     @Override
-    default Collection<ResourceLocation> getFabricDependencies() {
+    default Collection<Identifier> getFabricDependencies() {
         return this.getDependencies();
     }
     //?}

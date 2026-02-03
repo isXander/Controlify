@@ -30,7 +30,7 @@ public class ControllerUtils {
             CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
             CrashReportCategory category = crashReport.addCategory("Affected controller");
             category.setDetail("Controller name", controller.name());
-            category.setDetail("Controller identification", controller.info().type().friendlyName());
+            category.setDetail("Controller identification", controller.driverName());
             category.setDetail("Controller type", controller.getClass().getCanonicalName());
             throw new ReportedException(crashReport);
         }

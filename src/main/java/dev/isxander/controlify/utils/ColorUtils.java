@@ -13,9 +13,11 @@ import net.minecraft.util.ARGB;
 public final class ColorUtils {
 
     public static int lerpARGB(float delta, int start, int end) {
-        //? if >=1.21.2 {
-        return ARGB.lerp(delta, start, end);
-        //?} else {
+        //? if >=1.21.11 {
+        return ARGB.linearLerp(delta, start, end);
+        //?} elif >=1.21.2 {
+        /*return ARGB.lerp(delta, start, end);
+        *///?} else {
         /*return FastColor.ARGB32.lerp(delta, start, end);
         *///?}
     }

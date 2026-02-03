@@ -7,14 +7,14 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-public record BindContext(ResourceLocation id, Function<Minecraft, Boolean> isApplicable) {
-    public static final Map<ResourceLocation, BindContext> CONTEXTS = new HashMap<>();
+public record BindContext(Identifier id, Function<Minecraft, Boolean> isApplicable) {
+    public static final Map<Identifier, BindContext> CONTEXTS = new HashMap<>();
 
     public static final BindContext UNKNOWN = register(
             "unknown",

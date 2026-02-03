@@ -3,10 +3,11 @@ package dev.isxander.controlify.api.guide;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.utils.SetCodec;
+import dev.isxander.controlify.utils.codec.CExtraCodecs;
+import dev.isxander.controlify.utils.codec.SetCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Set;
 
@@ -27,16 +28,16 @@ import java.util.Set;
 public record Rule(
         InputBindingSupplier binding,
         ActionLocation where,
-        Set<ResourceLocation> when,
-        Set<ResourceLocation> forbid,
+        Set<Identifier> when,
+        Set<Identifier> forbid,
         Component then
 ) {
     public static final Codec<Rule> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
                     InputBindingSupplier.CODEC.fieldOf("for").forGetter(Rule::binding),
                     ActionLocation.CODEC.fieldOf("where").forGetter(Rule::where),
-                    new SetCodec<>(ResourceLocation.CODEC).optionalFieldOf("when", Set.of()).forGetter(Rule::when),
-                    new SetCodec<>(ResourceLocation.CODEC).optionalFieldOf("forbid", Set.of()).forGetter(Rule::forbid),
+                    CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("when", Set.of()).forGetter(Rule::when),
+                    CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("forbid", Set.of()).forGetter(Rule::forbid),
                     ComponentSerialization.CODEC.fieldOf("then").forGetter(Rule::then)
             ).apply(instance, Rule::new)
     );

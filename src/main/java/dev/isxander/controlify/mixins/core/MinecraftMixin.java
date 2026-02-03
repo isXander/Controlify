@@ -19,9 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -58,7 +56,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     // initialised yet in Screen#init. Causing NPEs and many strange issues.
     @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;releaseMouse()V"))
     private void notifyInjectionToNotRun(Screen screen, CallbackInfo ci) {
-        ((MouseMinecraftCallNotifier) mouseHandler).imFromMinecraftSetScreen();
+        ((MouseMinecraftCallNotifier) mouseHandler).controlify$imFromMinecraftSetScreen();
     }
 
     /**
@@ -66,7 +64,18 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
      * screen, hovering over whatever is there which would look wrong
      * as there is a focus as well.
      */
-    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V", shift = At.Shift.AFTER))
+    @Inject(
+            method = "setScreen",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.11 {
+                    target = "Lnet/minecraft/client/gui/screens/Screen;init(II)V",
+                    //?} else {
+                    /*target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V",
+                    *///?}
+                    shift = At.Shift.AFTER
+            )
+    )
     private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
         if (ControlifyApi.get().currentInputMode().isController()) {
             Controlify.instance().hideMouse(true, true);

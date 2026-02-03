@@ -1,6 +1,9 @@
 package dev.isxander.controlify.controller.input.mapping;
 
-import dev.isxander.controlify.config.ControlifyConfig;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
@@ -28,7 +31,9 @@ public class ControllerMappingStorage {
             return null;
 
         try (BufferedReader reader = resource.openAsReader()) {
-            return ControlifyConfig.GSON.fromJson(reader, ControllerMapping.class);
+            JsonElement jsonElement = JsonParser.parseReader(reader);
+            DataResult<ControllerMapping> result = ControllerMapping.CODEC.parse(JsonOps.INSTANCE, jsonElement);
+            return result.getOrThrow();
         } catch (IOException e) {
             throw new IllegalStateException("Failed to load controller mapping!", e);
         }

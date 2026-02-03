@@ -3,14 +3,15 @@ package dev.isxander.controlify
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 plugins {
+    `java-library`
     id("dev.isxander.modstitch.base")
     `maven-publish`
-    `java-library`
+    signing
+    id("dev.isxander.secrets")
 }
 
 modstitch.apply {
     minecraftVersion = mcVersion
-    javaVersion = 21
 
     parchment {
         propMap("parchment.version") { mappingsVersion = it }
@@ -92,6 +93,10 @@ if (modstitch.isLoom) {
 
 java {
     withSourcesJar()
+    withJavadocJar()
+}
+tasks.javadoc {
+    isFailOnError = false
 }
 
 /*
@@ -101,17 +106,31 @@ stonecutter.apply {
     constants {
         put("fabric", modstitch.isLoom)
         put("neoforge", modstitch.isModDevGradleRegular)
-        put("immediately-fast", isPropDefined("deps.immediatelyFast"))
+        put("immediately_fast", isPropDefined("deps.immediatelyFast"))
         put("iris", isPropDefined("deps.iris"))
-        put("mod-menu", isPropDefined("deps.modMenu"))
+        put("mod_menu", isPropDefined("deps.modMenu"))
         put("sodium", isPropDefined("deps.sodium"))
-        put("simple-voice-chat", isPropDefined("deps.simpleVoiceChat"))
-        put("reeses-sodium-options", isPropDefined("deps.reesesSodiumOptions"))
-        put("fancy-menu", isPropDefined("deps.fancyMenu"))
+        put("simple_voice_chat", isPropDefined("deps.simpleVoiceChat"))
+        put("reeses_sodium_options", isPropDefined("deps.reesesSodiumOptions"))
+        put("fancy_menu", isPropDefined("deps.fancyMenu"))
+
+        put("unobf", eval(current.version, ">=26"))
+        put("intermediary_lambdas", !eval(current.version, ">=26") && !modstitch.isModDevGradle)
     }
 
     dependencies {
         put("fapi", prop("deps.fabricApi") ?: "0.0.0")
+    }
+
+    replacements {
+        string {
+            direction = eval(current.version, ">=1.21.11")
+            replace("ResourceLocation", "Identifier")
+        }
+        string {
+            direction = eval(current.version, ">=1.21.11")
+            replace("import net.minecraft.Util;", "import net.minecraft.util.Util;")
+        }
     }
 }
 
@@ -124,20 +143,23 @@ tasks.named<ProcessResources>("generateModMetadata") {
     }
 }
 
-publishing {
-    repositories {
-        val username = prop("XANDER_MAVEN_USER")
-        val password = prop("XANDER_MAVEN_PASS")
-        if (username != null && password != null) {
-            maven(url = "https://maven.isxander.dev/releases") {
-                name = "XanderReleases"
-                credentials {
-                    this.username = username
-                    this.password = password
-                }
+val signingKeyProvider = secrets.gradleProperty("signing.secretKey")
+val signingPasswordProvider = secrets.gradleProperty("signing.password")
+// not configuration cache friendly, but neither is the whole of signing plugin
+// this plugin does not support lazy configuration of signing keys
+gradle.taskGraph.whenReady {
+    val willSign = allTasks.any { it.name.startsWith("sign") }
+    if (willSign) {
+        signing {
+            val signingKey = signingKeyProvider.orNull
+            val signingPassword = signingPasswordProvider.orNull
+
+            isRequired = signingKey != null && signingPassword != null
+            if (isRequired) {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+            } else {
+                logger.error("Signing keys not found; skipping signing!")
             }
-        } else {
-            logger.warn("Xander Maven credentials not satisfied.")
         }
     }
 }

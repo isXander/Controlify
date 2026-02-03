@@ -3,7 +3,7 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlainTextButton;

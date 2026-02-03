@@ -8,7 +8,7 @@ import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import net.minecraft.SharedConstants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -58,13 +58,13 @@ public class DebugDump {
 
                     dump.line("Definitely gamepad: ", input.isDefinitelyGamepad());
                     dump.line("Available inputs:").pushIndent();
-                    for (ResourceLocation button : input.stateNow().getButtons()) {
+                    for (Identifier button : input.stateNow().getButtons()) {
                         dump.line("BTN ", button);
                     }
-                    for (ResourceLocation axis : input.stateNow().getAxes()) {
+                    for (Identifier axis : input.stateNow().getAxes()) {
                         dump.line("AXS ", axis);
                     }
-                    for (ResourceLocation hat : input.stateNow().getHats()) {
+                    for (Identifier hat : input.stateNow().getHats()) {
                         dump.line("HAT ", hat);
                     }
                     dump.popIndent(); // available inputs

@@ -1,5 +1,5 @@
-//? if reeses-sodium-options {
-package dev.isxander.controlify.compatibility.rso.mixins;
+//? if reeses_sodium_options {
+/*package dev.isxander.controlify.compatibility.rso.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
@@ -74,7 +74,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         return () -> {
             onSetTab.run();
             Minecraft.getInstance().
-                    /*? if >=1.21.2 {*/ schedule /*?} else {*/ /*tell *//*?}*/(this::focusOnFirstControl);
+                    /^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
         };
     }
 
@@ -139,4 +139,4 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
         return accessor.getSelectedTab();
     }
 }
-//?}
+*///?}

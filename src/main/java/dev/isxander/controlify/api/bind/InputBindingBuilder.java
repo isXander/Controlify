@@ -5,7 +5,7 @@ import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,7 +33,7 @@ public interface InputBindingBuilder {
      * @param rl the binding's id
      * @return this builder
      */
-    InputBindingBuilder id(@NotNull ResourceLocation rl);
+    InputBindingBuilder id(@NotNull Identifier rl);
 
     /**
      * Sets the unique identifier for the binding.
@@ -46,15 +46,15 @@ public interface InputBindingBuilder {
      * </ul>
      * This is the ID referred to in {@link InputBindingSupplier#bindId()}.
      *
-     * @param namespace namespace of {@link ResourceLocation}
-     * @param path path of {@link ResourceLocation}
+     * @param namespace namespace of {@link Identifier}
+     * @param path path of {@link Identifier}
      * @return this builder
      */
     InputBindingBuilder id(@NotNull String namespace, @NotNull String path);
 
     /**
      * Sets a custom name component for the binding. Optional field.
-     * If not set, the name will be automatically generated from {@link #id(ResourceLocation)},
+     * If not set, the name will be automatically generated from {@link #id(Identifier)},
      * <code>controlify.binding.(namespace).(path)</code>
      * <p>
      * Useful for re-using language keys from regular key mappings.
@@ -66,7 +66,7 @@ public interface InputBindingBuilder {
 
     /**
      * Sets a custom description component for the binding. Optional field.
-     * If not set, the description will be automatically generated from {@link #id(ResourceLocation)},
+     * If not set, the description will be automatically generated from {@link #id(Identifier)},
      * <code>controlify.binding.(namespace).(path).desc</code>
      * The description will be empty if the translation key does not exist.
      * <p>
@@ -123,7 +123,7 @@ public interface InputBindingBuilder {
      * @param icon the ID of the icon
      * @return this builder
      */
-    InputBindingBuilder radialCandidate(@Nullable ResourceLocation icon);
+    InputBindingBuilder radialCandidate(@Nullable Identifier icon);
 
     /**
      * Adds a correlation between a vanilla key mapping and this binding.

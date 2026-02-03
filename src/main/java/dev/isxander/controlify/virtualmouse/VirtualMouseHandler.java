@@ -1,5 +1,6 @@
 package dev.isxander.controlify.virtualmouse;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.datafixers.util.Pair;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
@@ -15,7 +16,6 @@ import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
-import dev.isxander.controlify.mixins.feature.virtualmouse.KeyboardHandlerAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.utils.render.Blit;
@@ -25,7 +25,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
@@ -34,7 +34,7 @@ import java.lang.Math;
 import java.util.*;
 
 public class VirtualMouseHandler {
-    private static final ResourceLocation CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
+    private static final Identifier CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
 
     private double targetX, targetY;
     private double currentX, currentY;
@@ -123,10 +123,10 @@ public class VirtualMouseHandler {
                 snapToClosestPoint();
         }
 
-        var sensitivity = input.config().config().virtualMouseSensitivity;
+        var sensitivity = input.settings().sensitivity.virtualMouseSensitivity;
 
 
-        if (!input.confObj().isLCE) {
+        if (!input.settings().sensitivity.isLCE) {
             float windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
             targetX += impulse.x * 20f * sensitivity * windowSizeModifier;
@@ -169,8 +169,11 @@ public class VirtualMouseHandler {
     }
 
     public void handleCompatibilityBinds(ControllerEntity controller) {
-        var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
-        var keyboardHandler = (KeyboardHandlerAccessor) minecraft.keyboardHandler;
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+        *///?}
 
 //        Optional<TouchpadComponent> touchpad = controller.touchpad();
 //        List<TouchpadState.Finger> touchpadState = touchpad.map(TouchpadComponent::fingersNow).orElse(List.of());
@@ -181,39 +184,52 @@ public class VirtualMouseHandler {
         boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
 
         if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 1*/)) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, 0);
         } else if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, 0);
         }
 
         if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 2*/)) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_PRESS, 0);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.PRESS, 0);
         } else if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_RIGHT, GLFW.GLFW_RELEASE, 0);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.RELEASE, 0);
         }
 
         if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_PRESS, 0);
-        } else if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justReleased()) {
-            mouseHandler.invokeOnPress(minecraft.getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_LEFT, GLFW.GLFW_RELEASE, 0);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
+            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
         }
+    }
+
+    private void simulateMousePress(int button, int action, int modifiers) {
+        var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        mouseHandler.invokeOnButton(windowHandle, new net.minecraft.client.input.MouseButtonInfo(button, modifiers), action);
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+        mouseHandler.invokeOnPress(windowHandle, button, action, modifiers);
+        *///?}
     }
 
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
         //? if >=1.21.2 {
         float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
-        //?} elif >1.20.6 {
+        //?} else {
         /*float delta = minecraft.getTimer().getRealtimeDeltaTicks();
-        *///?} else {
-        /*float delta = minecraft.getDeltaFrameTime();
         *///?}
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+         *///?}
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
             currentX = Mth.lerp(delta, currentX, targetX);
             currentY = Mth.lerp(delta, currentY, targetY);
 
-            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(windowHandle, currentX, currentY);
         } else {
             currentX = targetX;
             currentY = targetY;
@@ -225,7 +241,7 @@ public class VirtualMouseHandler {
             var currentScrollX = scrollX * delta;
             scrollX -= currentScrollX;
 
-            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnScroll(minecraft.getWindow().getWindow(), currentScrollX, currentScrollY);
+            ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnScroll(windowHandle, currentScrollX, currentScrollY);
         } else {
             scrollX = scrollY = 0;
         }
@@ -319,10 +335,22 @@ public class VirtualMouseHandler {
 
         targetX = currentX = snapPoint.position().x() / scaleFactor.x();
         targetY = currentY = snapPoint.position().y() / scaleFactor.y();
-        ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(minecraft.getWindow().getWindow(), currentX, currentY);
+
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+         *///?}
+        ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(windowHandle, currentX, currentY);
     }
 
     public void onScreenChanged() {
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+         *///?}
+
         if (minecraft.screen != null) {
             if (requiresVirtualMouse()) {
                 enableVirtualMouse();
@@ -330,7 +358,7 @@ public class VirtualMouseHandler {
                 disableVirtualMouse();
             }
             if (Controlify.instance().currentInputMode().isController())
-                GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+                GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
         } else if (virtualMouseEnabled) {
             disableVirtualMouse();
 
@@ -374,7 +402,13 @@ public class VirtualMouseHandler {
     public void enableVirtualMouse() {
         if (virtualMouseEnabled) return;
 
-        GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+         *///?}
+
+        GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         virtualMouseEnabled = true;
 
         if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
@@ -395,11 +429,17 @@ public class VirtualMouseHandler {
     public void disableVirtualMouse() {
         if (!virtualMouseEnabled) return;
 
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+         *///?}
+
         // make sure minecraft doesn't think the mouse is grabbed when it isn't
         ((MouseHandlerAccessor) minecraft.mouseHandler).setMouseGrabbed(false);
 
         Controlify.instance().hideMouse(true, true);
-        GLFW.glfwSetInputMode(minecraft.getWindow().getWindow(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+        GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
         setMousePosition();
         virtualMouseEnabled = false;
         targetX = currentX = minecraft.mouseHandler.xpos();
@@ -413,7 +453,11 @@ public class VirtualMouseHandler {
 
     private void setMousePosition() {
         GLFW.glfwSetCursorPos(
-                minecraft.getWindow().getWindow(),
+                //? if >=1.21.9 {
+                minecraft.getWindow().handle(),
+                //?} else {
+                /*minecraft.getWindow().getWindow(),
+                *///?}
                 targetX,
                 targetY
         );
@@ -425,7 +469,7 @@ public class VirtualMouseHandler {
 
         if (isController && hasScreen) {
             return switch (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour()) {
-                case DEFAULT -> Controlify.instance().config().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
+                case DEFAULT -> Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
                 case ENABLED, CURSOR_ONLY -> true;
                 case DISABLED -> false;
             };
@@ -446,7 +490,7 @@ public class VirtualMouseHandler {
             return;
         }
 
-        var screens = Controlify.instance().config().globalSettings().virtualMouseScreens;
+        var screens = Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens;
         var screenClass = minecraft.screen.getClass();
         if (screens.contains(screenClass)) {
             screens.remove(screenClass);
@@ -469,7 +513,7 @@ public class VirtualMouseHandler {
             );
         }
 
-        Controlify.instance().config().save();
+        Controlify.instance().config().saveSafely();
     }
 
     public boolean isVirtualMouseEnabled() {

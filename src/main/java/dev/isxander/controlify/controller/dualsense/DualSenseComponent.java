@@ -1,13 +1,12 @@
 package dev.isxander.controlify.controller.dualsense;
 
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.driver.sdl.dualsense.DS5EffectsState;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.driver.sdl.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
-public class DualSenseComponent implements ECSComponent {
-    public static final ResourceLocation ID = CUtil.rl("dualsense");
+public class DualSenseComponent extends ECSComponentImpl {
+    public static final Identifier ID = CUtil.rl("dualsense");
 
     private boolean muteLight;
 
@@ -56,7 +55,7 @@ public class DualSenseComponent implements ECSComponent {
     }
 
     @Override
-    public ResourceLocation id() {
+    public Identifier id() {
         return ID;
     }
 }

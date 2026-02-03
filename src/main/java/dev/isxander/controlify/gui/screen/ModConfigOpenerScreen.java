@@ -18,9 +18,9 @@ public class ModConfigOpenerScreen extends Screen {
         // because calling setScreen before this will cause fapi to freak
         // out that it has no remove event and crash the whole game lol
         Minecraft minecraft = Minecraft.getInstance();
-        this.init(minecraft, minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
+        this.init(/*? if <1.21.11 >>*//*minecraft,*/ minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
 
-        ControllerCarouselScreen.openConfigScreen(lastScreen);
+        ControlifySettingsScreen.openScreen(lastScreen);
     }
 
     @Override

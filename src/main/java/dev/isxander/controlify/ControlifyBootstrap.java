@@ -1,5 +1,7 @@
 package dev.isxander.controlify;
 
+import dev.isxander.controlify.platform.Environment;
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.ControlifyServer;
 
 //? if fabric {
@@ -40,15 +42,15 @@ public class ControlifyBootstrap {
     public ControlifyBootstrap(IEventBus modBus) {
         ControlifyServer.getInstance().onInitialize();
 
-        ModLoadingContext.get().registerExtensionPoint(
-                net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-                () -> (client, parent) -> new ModConfigOpenerScreen(parent)
-        );
+        if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
+            ModLoadingContext.get().registerExtensionPoint(
+                    net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+                    () -> (client, parent) -> new ModConfigOpenerScreen(parent)
+            );
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
             Controlify.instance().preInitialiseControlify();
         }
-        if (FMLEnvironment.dist == Dist.DEDICATED_SERVER) {
+        if (PlatformMainUtil.getEnv() == Environment.SERVER) {
             ControlifyServer.getInstance().onInitializeServer();
         }
     }

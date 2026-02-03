@@ -25,54 +25,48 @@ Controlify Splitscreen is a **separate mod in development** that adds splitscree
 
 ![splitscreen demo](https://cdn.modrinth.com/data/cached_images/23ac6e3fc051e7aaa473ef3af2c510399d9448cc.png)
 
+## [Wiki](https://moddedmc.wiki/project/controlify)
+
+Read up on the [Controlify Wiki](https://moddedmc.wiki/project/controlify) for more information on how to use Controlify, how to configure it, and how to develop for it.
+
 ## What is Controlify?
 
-Controlify is a mod that adds the best controller support to Minecraft: Java Edition. It aims to meet (or exceed) a console-like experience with support for as many controllers as possible, including their advanced features, such as vibration (rumble), gyro, HD haptics and vendor-specific buttons (like mute).
+Controlify is the best controller support mod for Minecraft: Java Edition. It exceeds the first-party Bedrock Edition controller support in every way possible. It is feature-complete, with support for vibration, gyroscope, HD haptics, and more.
 
-## Why Controlify?
+Controlify supports *all* controllers, thanks to its usage of the [SDL3](https://libsdl.org/) library, which is the most advanced cross-platform input library available. 
 
-### User friendly
+Controlify is designed to be both user-friendly and feature-rich. It has sensible defaults, with default sensitivity matched to Bedrock Edition for easy transition, and a simple yet informative settings screen that allows you to tweak your experience to your liking.
 
-Despite advanced settings available for power users, Controlify is beginner-friendly. It comes by default with
-button guides that appear across the whole game, helping you learn the controller layout. It also automatically detects
-your controller's make and model, displaying relevant Minecraft-style button textures for a more intuitive experience.
-Controlify "just works" out of the box, no need to spend tens of minutes getting your controller feeling like any other
-game, thanks to the sane defaults I have created.
+## Feature overview
 
-### Feature-rich
+- **Vibration support**; Controlify vibrates your controller upon events such as taking damage, breaking blocks, lightning strikes.
+- **Gyroscope support**; Controlify can use the gyroscope in your controller for precise aiming.
+- **Vendor-specific input support**; Controlify supports reading paddles, mute buttons (and their LEDs), touchpads, and more, on some controllers including Xbox, DualSense and Steam Deck.
+- **GUI operation**: Controlify allows you to navigate all Minecraft GUIs with your controller, without needing a mouse or keyboard. This includes the inventory, out-of-game menus, and modded GUIs. It features cursor snapping in inventory screens, allowing you to use your controller without needing to be precise with your cursor movements.
+- **DualSense/DualShock support**; Controlify does not require any additional software for PlayStation controllers, even on Windows.
+- **Controller identification**; Controlify has bespoke button glyphs for many controller models, including Xbox, Playstation, Nintendo Switch, Steam Deck, and more.
+- **On-screen keyboard**; Controlify includes a fully functional on-screen keyboard that allows you to type with your controller - truly no keyboard needed!
+- **Radial menu**; Controlify features a configurable menu that allows you to bind less-used actions to a radial menu, saving up buttons.
+- **DualSense HD haptics** support; Controlify allows for advanced vibration effects on DualSense controllers.
+- **DualSense adaptive triggers support**; Controlify allows for advanced trigger effects on DualSense controllers.
+- **Data-driven design**; Controlify allows resource packs to change default bindings, theme button glyphs, on-screen button guides, on-screen keyboard layouts, add more controller models, and more.
+- **Steam Deck support**
+- **Mod compatibility**; Controlify has led the efforts to make controller support work seamlessly with mods like Sodium, Iris, Simple Voice Chat, Do A Barrel Roll, and more.
+- **Cross-platform and multi-version**; Controlify works on Fabric and NeoForge, and actively supports and updates for Minecraft versions 1.21.1 and above.
+- **Quick to update**; Controlify is updated even for Minecraft snapshots, although snapshot builds are only available to patreon members.
+- **Joystick support**; Controlify supports flight sticks, racing wheels, and other non-standard joysticks. Users of such devices have the option between mapping the joystick to a standard gamepad, or creating their own custom bindings and defaults and glyphs for the joystick, allowing for a fully-featured experience.
 
-Controlify strives to support all the added features that may come with your controller.
+## Who uses Controlify?
 
-- It supports gyroscopes natively, allowing for precise movements.
-- It comes with vibration/rumble support, making your gameplay more immersive (this is even missing on Bedrock Edition!)
-- Soon, HD haptics support for DualSense controllers, something never seen outside a Playstation game.
-- Support for non-standard joysticks such as flight sticks, given a small amount of setup.
+The following is actual feedback I have received from users of Controlify, and I'm very proud to have been able to help them enjoy Minecraft in a way they couldn't before:
 
-### Compatibility focus
-
-I, the developer have actively collaborated with fellow mod creators of performance mods like Sodium and Iris to
-ensure seamless controller functionality throughout these custom GUIs. This will mean a more friction-free environment
-that lets you focus on playing the game, instead of battling through the menus.
-
-## Q&A
-
-### Does it support Steam Deck?
-
-**Yes!** Controlify has been tested and is fully working on the Steam Deck, and works great.
-However, due to limitations with SteamOS, only Steam games can currently interface with the gyroscope and the
-back buttons directly, though [this is set to change in the coming months](https://github.com/libsdl-org/SDL/issues/9148)!
-For now, you can use Steam Input to convert the gyro into a mouse input, and map the back buttons to other, more common
-buttons.
-
-### Does it support my controller?
-
-Controlify supports most controllers out of the box, any generic gamepad-like controller is bound to work fine, at
-least in a basic state, giving inputs. Though, more strange and uncommon controllers such as handhelds like the ROG
-Ally may be missing features such as gyroscope.
-
-If you are having trouble getting your controller working correctly, you can
-[join my discord server](https://short.isxander.dev/discord) or consult
-[the wiki](https://docs.isxander.dev/controlify/users/controller-compatibility-guide) for assistance.
+- Couch gamers who want to sit back and relax playing their favourite edition of Minecraft.
+- First-time modded players who have previously played Minecraft on a console and don't want to learn how to use a keyboard and mouse.
+- People with accessibility requirements who cannot use a keyboard and mouse and/or requires an adaptive controller.
+- Parents who want to expose their kids to modded Minecraft in an accessible manner.
+- People who just prefer using a controller over a keyboard and mouse.
+- People who want to play local multiplayer with their friends and family using the companion [Splitscreen Mod](https://patreon.com/isxander)
+- Hopefully you!
 
 ## Features
 
@@ -92,7 +86,7 @@ To save up some buttons on your controller, dedicate some less-used actions to t
 It is fully customizable through the settings and intuitive to use. Any modded keybind is
 compatible with this menu.
 
-### Built-in gyro support
+### Gyro support
 
 Controlify has built-in support for controller gyroscopes, allowing you to make fine movements in-game
 with your controller. This can be combined with [flick stick](https://www.reddit.com/r/gamedev/comments/bw5xct/flick_stick_is_a_new_way_to_control_3d_games_with/) to be able to use a controller without
@@ -149,15 +143,9 @@ meaning you don't have to worry about it.
 
 ![image of calibration screen](https://cdn.modrinth.com/data/DOUdJVEm/images/f5f8e2a0a05e61adb95dd919760b424165ca5d14.png)
 
-## What is to come?
-
-A few features in various points in the horizon are:
-
-- Explicit Steam Deck support, with the ability to interface with its gyroscope and be able to handle its extra buttons on the back of the device.
-- A better way to change controller bindings, possibly a custom graphical GUI to pick what buttons do what actions, not the other way around.
-- Split-screen support of some degree.
-
 ## Backports?
 
 This mod is only and will only be available for **1.19.4** and above, this is because in 1.19.4, Mojang
 introduced arrow key navigation which was easily ported to controller, below 1.19.4, this is not possible.
+
+Controlify is currently actively supported for Minecraft versions 1.21.1 and above, and is compatible with both Fabric and NeoForge.

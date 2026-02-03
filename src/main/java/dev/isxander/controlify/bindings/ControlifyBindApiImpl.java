@@ -9,7 +9,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +42,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 
         Function<ControllerEntity, InputBindingImpl> finaliser = builder::build;
 
-        ResourceLocation bindId = builder.getIdAndLock();
+        Identifier bindId = builder.getIdAndLock();
 
         this.bindEntries.add(new RegistryEntry(filter, finaliser, builder.getKeyEmulation(), builder.getKeyEmulationToggle(), bindId));
 
@@ -59,7 +59,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public void registerRadialIcon(ResourceLocation id, RadialIcon icon) {
+    public void registerRadialIcon(Identifier id, RadialIcon icon) {
         checkLocked();
 
         RadialIcons.registerIcon(id, icon);
@@ -75,16 +75,21 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
             throw new IllegalStateException("Registry is locked. Cannot add bind now.");
     }
 
-    public List<InputBinding> provideBindsForController(ControllerEntity controller) {
+    /**
+     * Provides all bindings for a given controller.
+     * @param controller The controller to provide bindings for. Can be null to get a list of all bindings.
+     * @return A list of input bindings.
+     */
+    public List<InputBinding> provideBindsForController(@Nullable ControllerEntity controller) {
         List<InputBinding> bindings = new ArrayList<>();
 
         for (RegistryEntry entry : bindEntries) {
-            if (!entry.filter().test(controller))
+            if (controller != null && !entry.filter().test(controller))
                 continue;
 
             InputBindingImpl binding = entry.builder().apply(controller);
 
-            if (entry.emulation() != null) {
+            if (controller != null && entry.emulation() != null) {
                 BooleanSupplier emulationToggle = null;
                 if (entry.emulationToggle() != null) {
                     emulationToggle = () -> entry.emulationToggle().apply(controller);
@@ -103,7 +108,7 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public InputBindingSupplier createSupplier(ResourceLocation bindingId) {
+    public InputBindingSupplier createSupplier(Identifier bindingId) {
         return new InputBindingSupplierImpl(bindingId);
     }
 
@@ -112,15 +117,15 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
     }
 
     @Override
-    public Stream<ResourceLocation> getAllBindIds() {
+    public Stream<Identifier> getAllBindIds() {
         return this.bindEntries.stream().map(RegistryEntry::id);
     }
 
     private record RegistryEntry(
             Predicate<ControllerEntity> filter,
-            Function<ControllerEntity, InputBindingImpl> builder,
+            Function<@Nullable ControllerEntity, InputBindingImpl> builder,
             KeyMapping emulation,
             Function<ControllerEntity, Boolean> emulationToggle,
-            ResourceLocation id
+            Identifier id
     ) {}
 }

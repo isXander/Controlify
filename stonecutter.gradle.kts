@@ -1,22 +1,20 @@
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    base
     id("me.modmuss50.mod-publish-plugin")
     id("dev.kikugie.stonecutter")
     id("de.undercouch.download") version "5.6.0"
     id("org.moddedmc.wiki.toolkit") version "0.2.5"
+    id("com.gradleup.nmcp.aggregation") version "1.4.3"
+    id("dev.isxander.secrets")
 
     id("dev.isxander.modstitch.base") apply false
 }
 
 stonecutter active file("versions/current")
 
-stonecutter.tree.nodes.forEach { it.project.plugins.apply("dev.kikugie.stonecutter") }
-
-// subprojects depend themselves on this task
-val releaseModVersions by tasks.registering {
-    group = "controlify"
+repositories {
+    mavenCentral()
 }
 
 // download the most up to date controller database for SDL2
@@ -44,7 +42,8 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     filter { it.replace("Mac OS X", "macOS") }
 }
 
-tasks.clean {
+tasks.register("clean") {
+    group = "build"
     delete(layout.buildDirectory.dir("finalJars"))
 }
 
@@ -52,6 +51,8 @@ val modVersion: String by project
 version = modVersion
 
 publishMods {
+    dryRun = false
+
     val modChangelog = provider {
         rootProject.file("changelog.md")
             .takeIf { it.exists() }
@@ -69,6 +70,29 @@ publishMods {
             else -> STABLE
         }
     )
+}
+
+// subprojects depend themselves on this task
+val releaseModVersions by tasks.registering {
+    group = "controlify"
+
+    if (!publishMods.dryRun.get()) {
+        dependsOn("publishAggregationToCentralPortal")
+    }
+}
+
+nmcpAggregation {
+    centralPortal {
+        username = secrets.gradleProperty("mcentral.username")
+        password = secrets.gradleProperty("mcentral.password")
+
+        publicationName = "controlify:$version"
+    }
+}
+dependencies {
+    allprojects {
+        nmcpAggregation(project(path))
+    }
 }
 
 wiki {

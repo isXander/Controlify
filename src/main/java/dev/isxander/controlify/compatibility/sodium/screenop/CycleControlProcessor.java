@@ -16,13 +16,13 @@ public class CycleControlProcessor implements ComponentProcessor {
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).justPressed()
+        if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed()
                 || ControlifyBindings.GUI_PRESS.on(controller).justPressed()
         ) {
             cycleMethod.accept(false);
             return true;
         }
-        if (ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).justPressed()) {
+        if (ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed()) {
             cycleMethod.accept(true);
             return true;
         }

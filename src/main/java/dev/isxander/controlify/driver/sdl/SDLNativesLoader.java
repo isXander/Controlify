@@ -1,6 +1,7 @@
 package dev.isxander.controlify.driver.sdl;
 
 import com.sun.jna.Platform;
+import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl3java.jna.SdlNativeLibraryLoader;
@@ -49,6 +50,10 @@ public final class SDLNativesLoader {
                 String nativesFolderName = System.getenv("POJAV_NATIVEDIR");
                 Path libsLocation = Path.of(nativesFolderName).toAbsolutePath();
                 path = libsLocation.resolve("libSDL3.so").toString();
+            }
+            if (DebugProperties.SDL_NATIVES_OVERRIDE != null) {
+                path = DebugProperties.SDL_NATIVES_OVERRIDE;
+                logger.log("Using SDL natives override path: {}", path);
             }
 
             logger.log("Attempting to load SDL3 from {}", path);

@@ -3,16 +3,21 @@ package dev.isxander.controlify.api.guide;
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
+
+//? if >=1.21.11 {
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+//?} else {
+/*import net.minecraft.world.entity.animal.horse.AbstractHorse;
+*///?}
 
 public final class InGameFacts {
     private InGameFacts() {}
@@ -35,8 +40,9 @@ public final class InGameFacts {
     /** When the currently ridden vehicle is a Happy Ghast */
     public static final Fact<InGameCtx> RIDING_HAPPY_GHAST = register(
             CUtil.rl("riding_happy_ghast")
-            //? if >=1.21.6
-            ,ctx -> ctx.player().getVehicle() instanceof net.minecraft.world.entity.animal.HappyGhast
+            //? if >=1.21.6 {
+            ,ctx -> ctx.player().getVehicle() instanceof net.minecraft.world.entity.animal/*? if >=1.21.11 >>*/.happyghast .HappyGhast
+            //?}
     );
     /** When the player is currently in creative flight */
     public static final Fact<InGameCtx> FLYING = register(
@@ -97,12 +103,12 @@ public final class InGameFacts {
     /** When the player is using toggle sneak (does not mean it is currently toggled on) */
     public static final Fact<InGameCtx> IS_TOGGLE_SNEAK = register(
             CUtil.rl("is_toggle_sneak"),
-            ctx -> ctx.controller().genericConfig().config().toggleSneak
+            ctx -> ctx.controller().settings().generic.toggleSneak
     );
     /** When the player is using toggle sprint (does not mean it is currently toggled on) */
     public static final Fact<InGameCtx> IS_TOGGLE_SPRINT = register(
             CUtil.rl("is_toggle_sprint"),
-            ctx -> ctx.controller().genericConfig().config().toggleSprint
+            ctx -> ctx.controller().settings().generic.toggleSprint
     );
     /** When the player is attempting to sprint (pressing the sprint key, or it is toggled on) */
     public static final Fact<InGameCtx> SPRINTING = register(
@@ -196,12 +202,12 @@ public final class InGameFacts {
         *///?}
     }
 
-    private static Fact<InGameCtx> register(ResourceLocation id, FactProvider<InGameCtx> provider) {
+    private static Fact<InGameCtx> register(Identifier id, FactProvider<InGameCtx> provider) {
         var fact = Fact.of(id, provider);
         GuideDomains.IN_GAME.registerFact(fact);
         return fact;
     }
-    private static Fact<InGameCtx> register(ResourceLocation id) {
+    private static Fact<InGameCtx> register(Identifier id) {
         return register(id, FactProvider.staticProvider(false));
     }
 

@@ -12,7 +12,6 @@ import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
-import dev.isxander.controlify.controller.keyboard.NativeKeyboardComponent;
 import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
@@ -42,7 +41,6 @@ public class SteamDeckDriver implements Driver {
     private GyroComponent gyroComponent;
     private BatteryLevelComponent batteryLevelComponent;
     private TouchpadComponent touchpadComponent;
-    private NativeKeyboardComponent keyboardComponent;
 
     private ControlifyLogger logger;
 
@@ -86,10 +84,6 @@ public class SteamDeckDriver implements Driver {
                                 }
                         )
                 ) // there are two touchpads, one for each thumb
-        );
-
-        controller.setComponent(
-                this.keyboardComponent = new NativeKeyboardComponent(this::openKeyboard, 0.5f)
         );
 
         controller.setComponent(new SteamDeckComponent());
@@ -217,10 +211,6 @@ public class SteamDeckDriver implements Driver {
         }
     }
 
-    private void openKeyboard() {
-        deck.openModalKeyboard(true);
-    }
-
     @Override
     public void close() {
         logger.debugLog("Closing driver...");
@@ -233,7 +223,7 @@ public class SteamDeckDriver implements Driver {
     }
 
     public static Optional<SteamDeckDriver> create(ControlifyLogger logger) {
-        if (triedToLoad || !Controlify.instance().config().globalSettings().useEnhancedSteamDeckDriver)
+        if (triedToLoad || !Controlify.instance().config().getSettings().globalSettings().useEnhancedSteamDeckDriver)
             return Optional.empty();
 
         triedToLoad = true;

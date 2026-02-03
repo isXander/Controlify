@@ -4,7 +4,7 @@ import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -45,7 +45,7 @@ public interface ControlifyBindApi {
      * @param bindId the ID of the binding to create a supplier for
      * @return the supplier for the binding
      */
-    InputBindingSupplier createSupplier(ResourceLocation bindId);
+    InputBindingSupplier createSupplier(Identifier bindId);
 
     /**
      * Get all the controller bindings for a vanilla key mapping.
@@ -63,7 +63,7 @@ public interface ControlifyBindApi {
      * @param id the id of the icon
      * @param icon the icon object
      */
-    void registerRadialIcon(ResourceLocation id, RadialIcon icon);
+    void registerRadialIcon(Identifier id, RadialIcon icon);
 
     /**
      * Registers a new bind context that can be used to determine when a binding is active.
@@ -77,7 +77,7 @@ public interface ControlifyBindApi {
      *
      * @return the stream of bind contexts
      */
-    Stream<ResourceLocation> getAllBindIds();
+    Stream<Identifier> getAllBindIds();
 
     @FunctionalInterface
     interface RegistryCallback extends UnaryOperator<InputBindingBuilder> {

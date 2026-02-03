@@ -22,6 +22,9 @@ public interface ScreenAccessor {
     @Invoker
     void invokeClearFocus();
 
+    @Invoker
+    void invokeSetInitialFocus();
+
     @Accessor
     List<Renderable> getRenderables();
 }

@@ -19,7 +19,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
@@ -68,7 +68,7 @@ public class BindController implements Controller<Input> {
         @Override
         protected void drawValueText(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
             if (awaitingControllerInput) {
-                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFF, true);
+                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
                 if (EmptyInput.equals(bind)) return;
@@ -82,7 +82,12 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        //? if >=1.21.9 {
+        public boolean keyPressed(net.minecraft.client.input.KeyEvent keyEvent) {
+            int keyCode = keyEvent.key();
+        //?} else {
+        /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        *///?}
             if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER) {
                 openConsumerScreen();
                 return true;
@@ -92,7 +97,13 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        public boolean mouseClicked(double mouseX, double mouseY, int button /*? if >=1.21.9 {*/ ,boolean doubleClick /*?}*/) {
+        //? if >=1.21.9 {
+        public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+            double mouseX = mouseButtonEvent.x();
+            double mouseY = mouseButtonEvent.y();
+        //?} else {
+        /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        *///?}
             if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
                 openConsumerScreen();
                 return true;
@@ -143,19 +154,19 @@ public class BindController implements Controller<Input> {
             ControllerStateView state = input.stateNow();
             ControllerStateView prevState = input.stateThen();
 
-            for (ResourceLocation button : state.getButtons()) {
+            for (Identifier button : state.getButtons()) {
                 if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
                     return Optional.of(new ButtonInput(button));
                 }
             }
 
-            for (ResourceLocation axis : state.getAxes()) {
+            for (Identifier axis : state.getAxes()) {
                 if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
                     return Optional.of(new AxisInput(axis));
                 }
             }
 
-            for (ResourceLocation hat : state.getHats()) {
+            for (Identifier hat : state.getHats()) {
                 HatState hatState = state.getHatState(hat);
                 if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
                     return Optional.of(new HatInput(hat, hatState));

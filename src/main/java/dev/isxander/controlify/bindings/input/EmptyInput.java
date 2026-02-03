@@ -2,7 +2,7 @@ package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.controller.input.ControllerStateView;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public record EmptyInput() implements Input {
     }
 
     @Override
-    public List<ResourceLocation> getRelevantInputs() {
+    public List<Identifier> getRelevantInputs() {
         return List.of();
     }
 

@@ -8,21 +8,21 @@ import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
-    public static final ResourceLocation CHANNEL = CUtil.rl("vibration");
+    public static final Identifier CHANNEL = CUtil.rl("vibration");
 
     public static final StreamCodec<FriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.of(
         (buf, packet) -> {
-            buf.writeResourceLocation(packet.source().id());
+            buf.writeIdentifier(packet.source().id());
             buf.writeInt(packet.frames().length);
             for (RumbleState frame : packet.frames()) {
                 buf.writeInt(RumbleState.packToInt(frame));
             }
         },
         buf -> {
-            RumbleSource source = RumbleSource.get(buf.readResourceLocation());
+            RumbleSource source = RumbleSource.get(buf.readIdentifier());
             RumbleState[] frames = new RumbleState[buf.readInt()];
             for (int i = 0; i < frames.length; i++) {
                 frames[i] = RumbleState.unpackFromInt(buf.readInt());

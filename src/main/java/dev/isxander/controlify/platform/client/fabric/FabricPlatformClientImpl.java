@@ -24,7 +24,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 
 import java.util.Collection;
@@ -70,7 +70,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void registerBuiltinResourcePack(ResourceLocation id, Component displayName) {
+    public void registerBuiltinResourcePack(Identifier id, Component displayName) {
         ResourceManagerHelper.registerBuiltinResourcePack(
                 id,
                 FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
@@ -89,7 +89,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public void addHudLayer(ResourceLocation id, HudRenderLayer renderLayer) {
+    public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
         //? if >=1.21.6 {
         HudElementRegistry.addLast(id, renderLayer::render);
         //?} else if >=1.21.5 {
@@ -107,7 +107,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     }
 
     @Override
-    public <I, O> void setupClientsideHandshake(ResourceLocation handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
+    public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
         ClientLoginNetworking.registerGlobalReceiver(handshakeId, (client, handler, buf, listenerAdder) -> {
             I decodedInput = clientBoundCodec.decode(buf);
             O decodedOutput = handshakeHandler.apply(decodedInput);

@@ -2,7 +2,7 @@ package dev.isxander.controlify.api.guide;
 
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.Validate;
 
 import java.util.Arrays;
@@ -12,8 +12,8 @@ import java.util.Set;
 public final class RuleBuilder {
     private InputBindingSupplier binding;
     private ActionLocation where;
-    private final Set<ResourceLocation> when = new HashSet<>();
-    private final Set<ResourceLocation> forbid = new HashSet<>();
+    private final Set<Identifier> when = new HashSet<>();
+    private final Set<Identifier> forbid = new HashSet<>();
     private Component then;
 
     RuleBuilder() {}
@@ -28,7 +28,7 @@ public final class RuleBuilder {
         return this;
     }
 
-    public RuleBuilder when(ResourceLocation... when) {
+    public RuleBuilder when(Identifier... when) {
         this.when.addAll(Arrays.asList(when));
         return this;
     }
@@ -38,7 +38,7 @@ public final class RuleBuilder {
         return new StrictRuleBuilder<T>().when(when);
     }
 
-    public RuleBuilder forbid(ResourceLocation... forbid) {
+    public RuleBuilder forbid(Identifier... forbid) {
         this.forbid.addAll(Arrays.asList(forbid));
         return this;
     }
@@ -77,7 +77,7 @@ public final class RuleBuilder {
             return this;
         }
 
-        public StrictRuleBuilder<T> when(ResourceLocation... when) {
+        public StrictRuleBuilder<T> when(Identifier... when) {
             RuleBuilder.this.when(when);
             return this;
         }
@@ -90,7 +90,7 @@ public final class RuleBuilder {
             return this;
         }
 
-        public StrictRuleBuilder<T> forbid(ResourceLocation... when) {
+        public StrictRuleBuilder<T> forbid(Identifier... when) {
             RuleBuilder.this.forbid(when);
             return this;
         }

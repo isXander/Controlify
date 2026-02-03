@@ -12,9 +12,7 @@ This is 'A' on Xbox, or 'Cross' on PlayStation. This is defined within the built
 
 # Creating the definition
 
-Below is an example that sets 'Jump' to the south button,
-'Walk Forward' to pushing the left stick upwards,
-and unbinding the 'Open Inventory' action.
+Below is an example that sets 'Jump' to the south button, 'Walk Forward' to pushing the left stick upwards, and unbinding the 'Open Inventory' action.
 ```json
 {
   "defaults": {
@@ -34,8 +32,8 @@ and unbinding the 'Open Inventory' action.
 - If you would like your definition to apply to all controllers, you would put the example in the file
 `/assets/controlify/controllers/default_bind/default.json`
 - If you would like your definition to apply to a [specific controller namespace](custom-controller-identification)
-(e.g. my_resource_pack:switch), you would put the example in the file
-`/assets/my_resource_pack/controllers/default_bind/switch.json`
+(e.g. controlify:xbox_one), you would put the example in the file
+`/assets/controlify/controllers/default_bind/xbox_one.json`
 
 What is *not* data-driven is the bindings themselves, like `controlify:jump`. These are registered in code
 within the mod. Other mods can also register their own actions, like `generic_backpack_mod:open_backpack`.

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.controllermanager;
 
 import com.google.common.io.ByteStreams;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.info.UIDComponent;
@@ -14,7 +15,7 @@ import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.server.packs.resources.Resource;
@@ -90,7 +91,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
             drivers.add(new GLFWJoystickDriver(jid));
         }
 
-        Optional<HIDIdentifier> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
+        Optional<HIDID> hid = hidInfo.hidDevice().map(HIDDevice::asIdentifier);
         String uid = hidInfo.createControllerUID(
                 this.getControllerCountWithMatchingHID(hid.orElse(null))
         ).orElse("unknown-uid-" + ucid);
@@ -103,7 +104,13 @@ public class GLFWControllerManager extends AbstractControllerManager {
         CompoundDriver compoundDriver = new CompoundDriver(drivers);
 
         ControllerInfo info = new ControllerInfo(ucid, hidInfo.type(), hidInfo.hidDevice());
-        ControllerEntity controller = new ControllerEntity(info, compoundDriver, controllerLogger);
+        ControllerEntity controller = new ControllerEntity(
+                info,
+                compoundDriver,
+                this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
+                ProfileSettings.createDefault(info.type().namespace()),
+                controllerLogger
+        );
 
         addController(ucid, controller);
         return Optional.of(controller);

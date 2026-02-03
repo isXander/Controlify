@@ -1,11 +1,11 @@
 package dev.isxander.controlify.controller;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface ECSComponent {
-    ResourceLocation id();
+    Identifier id();
 
-    default void finalise() {
+    default void attach(ControllerEntity controller) {
 
     }
 }

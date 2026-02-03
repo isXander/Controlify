@@ -1,7 +1,7 @@
 package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.utils.ControllerUtils;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,41 +16,41 @@ public class DeadzoneControllerStateView implements ControllerStateView {
     }
 
     @Override
-    public boolean isButtonDown(ResourceLocation button) {
+    public boolean isButtonDown(Identifier button) {
         return view.isButtonDown(button);
     }
 
     @Override
-    public Set<ResourceLocation> getButtons() {
+    public Set<Identifier> getButtons() {
         return view.getButtons();
     }
 
     @Override
-    public float getAxisState(ResourceLocation axis) {
+    public float getAxisState(Identifier axis) {
         float rawAxis = view.getAxisState(axis);
-        Optional<ResourceLocation> deadzoneId = input.getDeadzoneForAxis(axis);
-        float deadzone = deadzoneId.map(id -> input.confObj().deadzones.get(id)).orElse(0f);
+        Optional<Identifier> deadzoneId = input.getDeadzoneForAxis(axis);
+        float deadzone = deadzoneId.map(id -> input.settings().sensitivity.getDeadzone(id)).orElse(0f);
 
         return ControllerUtils.deadzone(rawAxis, deadzone);
     }
 
     @Override
-    public Set<ResourceLocation> getAxes() {
+    public Set<Identifier> getAxes() {
         return view.getAxes();
     }
 
     @Override
-    public float getAxisResting(ResourceLocation axis) {
+    public float getAxisResting(Identifier axis) {
         return view.getAxisResting(axis);
     }
 
     @Override
-    public HatState getHatState(ResourceLocation hat) {
+    public HatState getHatState(Identifier hat) {
         return view.getHatState(hat);
     }
 
     @Override
-    public Set<ResourceLocation> getHats() {
+    public Set<Identifier> getHats() {
         return view.getHats();
     }
 }

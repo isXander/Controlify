@@ -27,7 +27,7 @@ public class TabNavigationBarMixin {
     private void renderControllerButtonOverlay(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode().isController()) {
             Controlify.instance().getCurrentController().ifPresent(c -> {
-                if (c.genericConfig().config().showScreenGuides) {
+                if (c.settings().generic.guide.showScreenGuides) {
                     this.renderControllerButtonOverlay(graphics, c);
                 }
             });
@@ -45,9 +45,9 @@ public class TabNavigationBarMixin {
 
         Component prevTabText = ControlifyBindings.GUI_PREV_TAB.on(controller).inputGlyph();
         int prevTabTextWidth = font.width(prevTabText);
-        graphics.drawString(font, prevTabText, firstTab.getX() - 2 - prevTabTextWidth, firstTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFF);
+        graphics.drawString(font, prevTabText, firstTab.getX() - 2 - prevTabTextWidth, firstTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFFFF);
 
         Component nextTabText = ControlifyBindings.GUI_NEXT_TAB.on(controller).inputGlyph();
-        graphics.drawString(font, nextTabText, lastTab.getX() + lastTab.getWidth() + 2, lastTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFF);
+        graphics.drawString(font, nextTabText, lastTab.getX() + lastTab.getWidth() + 2, lastTab.getY() / 2 + font.lineHeight / 2, 0xFFFFFFFF);
     }
 }

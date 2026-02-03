@@ -18,10 +18,10 @@ public class SliderControllerElementComponentProcessor implements ComponentProce
 
     @Override
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        var left = ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).digitalNow();
-        var leftPrev = ControlifyBindings.CYCLE_OPT_BACKWARD.on(controller).digitalPrev();
-        var right = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalNow();
-        var rightPrev = ControlifyBindings.CYCLE_OPT_FORWARD.on(controller).digitalPrev();
+        var left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalNow();
+        var leftPrev = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalPrev();
+        var right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalNow();
+        var rightPrev = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalPrev();
 
         if (!((ControllerWidgetAccessor) slider).getControl().option().available()) {
             return false;

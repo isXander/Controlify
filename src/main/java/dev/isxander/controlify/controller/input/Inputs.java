@@ -2,7 +2,7 @@ package dev.isxander.controlify.controller.input;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 
@@ -10,11 +10,11 @@ public final class Inputs {
     private Inputs() {
     }
 
-    public static MutableComponent getInputComponent(ResourceLocation input) {
+    public static MutableComponent getInputComponent(Identifier input) {
         return Component.translatable("controlify.input." + input.getNamespace() + "." + input.getPath());
     }
 
-    public static MutableComponent getInputComponentAnd(Collection<ResourceLocation> inputs) {
+    public static MutableComponent getInputComponentAnd(Collection<Identifier> inputs) {
         if (inputs.isEmpty())
             return Component.empty();
 

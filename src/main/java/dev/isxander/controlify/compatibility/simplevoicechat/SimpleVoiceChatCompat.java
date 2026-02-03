@@ -1,4 +1,4 @@
-//? if simple-voice-chat {
+//? if simple_voice_chat {
 package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
@@ -12,7 +12,7 @@ import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SimpleVoiceChatCompat {
     private static InputBindingSupplier pttHoldSupplier, pttToggleSupplier;
@@ -21,9 +21,9 @@ public class SimpleVoiceChatCompat {
     private static boolean pttDown, whisperDown;
 
     public static void init() {
-        ResourceLocation muteIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone_off.png"));
-        ResourceLocation pttIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone.png"));
-        ResourceLocation whisperIcon = registerIcon16x(ResourceLocation.fromNamespaceAndPath("voicechat", "textures/icons/microphone_whisper.png"));
+        Identifier muteIcon = registerIcon16x(Identifier.fromNamespaceAndPath("voicechat", "textures/icons/microphone_off.png"));
+        Identifier pttIcon = registerIcon16x(Identifier.fromNamespaceAndPath("voicechat", "textures/icons/microphone.png"));
+        Identifier whisperIcon = registerIcon16x(Identifier.fromNamespaceAndPath("voicechat", "textures/icons/microphone_whisper.png"));
 
         Component category = Component.translatable("key.categories.voicechat");
         pttHoldSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
@@ -103,7 +103,7 @@ public class SimpleVoiceChatCompat {
         }
     }
 
-    private static ResourceLocation registerIcon16x(ResourceLocation location) {
+    private static Identifier registerIcon16x(Identifier location) {
         ControlifyBindApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
                 Blit.tex(graphics, location, x, y, 0f, 0f, 16, 16, 16, 16)));
         return location;

@@ -8,13 +8,12 @@ import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.hid.HIDDevice;
-import dev.isxander.controlify.hid.HIDIdentifier;
+import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.ControllerUtils;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.ResourceProvider;
 
@@ -88,11 +87,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        boolean newController = controlify.config().loadControllerConfig(controller);
-
         logger.log("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
-        this.controlify.onControllerAdded(controller, hotplug, newController);
+        this.controlify.onControllerAdded(controller, hotplug, false);
     }
 
     protected void onControllerRemoved(ControllerEntity controller) {
@@ -147,7 +144,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         return controllersByUid.containsKey(uid);
     }
 
-    protected int getControllerCountWithMatchingHID(HIDIdentifier hid) {
+    protected int getControllerCountWithMatchingHID(HIDID hid) {
         return (int) controllersByJid.values().stream()
                 .filter(c -> c.info().hid().isPresent() && c.info().hid().get().asIdentifier().equals(hid))
                 .count();

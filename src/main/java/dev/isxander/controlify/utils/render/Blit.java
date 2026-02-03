@@ -5,7 +5,7 @@ import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
@@ -23,7 +23,7 @@ public final class Blit {
 
     public static void tex(
             GuiGraphics graphics,
-            ResourceLocation texture,
+            Identifier texture,
             int x, int y,
             float u, float v,
             int width, int height,
@@ -48,7 +48,7 @@ public final class Blit {
 
     public static void tex(
             GuiGraphics graphics,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             int x, int y,
             int textureX, int textureY,
             int width, int height,
@@ -73,7 +73,7 @@ public final class Blit {
 
     public static void tex(
             GuiGraphics graphics,
-            ResourceLocation texture,
+            Identifier texture,
             int x, int y,
             float u, float v,
             int width, int height,
@@ -108,7 +108,7 @@ public final class Blit {
 
     public static void sprite(
             GuiGraphics graphics,
-            ResourceLocation sprite,
+            Identifier sprite,
             int x, int y,
             int width, int height
     ) {
@@ -123,7 +123,7 @@ public final class Blit {
 
     public static void sprite(
             GuiGraphics graphics,
-            ResourceLocation sprite,
+            Identifier sprite,
             int textureWidth, int textureHeight,
             int u, int v,
             int x, int y,
@@ -171,7 +171,7 @@ public final class Blit {
         return RenderPipelines.GUI_TEXTURED;
     }
     //?} elif >=1.21.2 {
-    /*public static Function<ResourceLocation, RenderType> guiTextured() {
+    /*public static Function<Identifier, RenderType> guiTextured() {
         return RenderType::guiTextured;
     }
     *///?}

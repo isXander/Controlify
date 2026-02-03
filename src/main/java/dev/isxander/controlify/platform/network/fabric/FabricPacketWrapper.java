@@ -2,7 +2,7 @@
 package dev.isxander.controlify.platform.network.fabric;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -12,7 +12,7 @@ public class FabricPacketWrapper<T> {
     public final CustomPacketPayload.Type<FabricPacketPayloadWrapper> type;
 
     public FabricPacketWrapper(
-            ResourceLocation channel,
+            Identifier channel,
             StreamCodec<FriendlyByteBuf, T> codec,
             PayloadTypeRegistry<? extends FriendlyByteBuf> registry
     ) {

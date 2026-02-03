@@ -8,7 +8,7 @@ import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -31,7 +31,7 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         int renderHeight = (int) (radius * 2f);
 
         // axes go up -> down -> left -> right
-        List<ResourceLocation> deadzones = deadzoneGroup.axes();
+        List<Identifier> deadzones = deadzoneGroup.axes();
         float up = input.rawStateNow().getAxisState(deadzones.get(0));
         float down = input.rawStateNow().getAxisState(deadzones.get(1));
         float left = input.rawStateNow().getAxisState(deadzones.get(2));

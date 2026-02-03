@@ -1,18 +1,18 @@
 package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class JoystickInputs {
-    private static final ResourceLocation[] BUTTONS = new ResourceLocation[256];
-    private static final ResourceLocation[] AXES = new ResourceLocation[512];
-    private static final ResourceLocation[] HATS = new ResourceLocation[256];
+    private static final Identifier[] BUTTONS = new Identifier[256];
+    private static final Identifier[] AXES = new Identifier[512];
+    private static final Identifier[] HATS = new Identifier[256];
 
     private JoystickInputs() {
     }
 
-    public static ResourceLocation button(int index) {
-        ResourceLocation cache = BUTTONS[index];
+    public static Identifier button(int index) {
+        Identifier cache = BUTTONS[index];
 
         if (cache == null) {
             BUTTONS[index] = cache = CUtil.rl("button/" + index);
@@ -21,13 +21,13 @@ public final class JoystickInputs {
         return cache;
     }
 
-    public static ResourceLocation axis(int index, boolean positive) {
+    public static Identifier axis(int index, boolean positive) {
         int cacheIndex = index;
         if (!positive) {
             cacheIndex += 256;
         }
 
-        ResourceLocation cache = AXES[cacheIndex];
+        Identifier cache = AXES[cacheIndex];
 
         if (cache == null) {
             AXES[cacheIndex] = cache = CUtil.rl("axis/" + index + "/" + (positive ? "positive" : "negative"));
@@ -36,8 +36,8 @@ public final class JoystickInputs {
         return cache;
     }
 
-    public static ResourceLocation hat(int index) {
-        ResourceLocation cache = HATS[index];
+    public static Identifier hat(int index) {
+        Identifier cache = HATS[index];
 
         if (cache == null) {
             HATS[index] = cache = CUtil.rl("hat/" + index);

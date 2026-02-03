@@ -3,12 +3,10 @@ package dev.isxander.controlify.controller.info;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.controlify.controller.SingleValueComponent;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
-
-import javax.naming.ldap.Control;
+import net.minecraft.resources.Identifier;
 
 public class UIDComponent extends SingleValueComponent<ControllerUID> {
-    public static final ResourceLocation ID = CUtil.rl("uid");
+    public static final Identifier ID = CUtil.rl("uid");
 
     public UIDComponent(ControllerUID value) {
         super(value, ID);

@@ -1,5 +1,5 @@
-//? if reeses-sodium-options {
-package dev.isxander.controlify.compatibility.rso.mixins;
+//? if reeses_sodium_options {
+/*package dev.isxander.controlify.compatibility.rso.mixins;
 
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,4 +14,4 @@ public interface AbstractFrameAccessor {
     @Accessor
     List<ControlElement<?>> getControlElements();
 }
-//?}
+*///?}

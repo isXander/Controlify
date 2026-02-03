@@ -5,8 +5,8 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.compatibility.yacl.mixins.YACLScreenCategoryTabAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.yacl3.gui.OptionListWidget;
+import dev.isxander.yacl3.gui.WidgetAndType;
 import dev.isxander.yacl3.gui.YACLScreen;
-import dev.isxander.yacl3.gui.tab.ListHolderWidget;
 
 public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     public YACLScreenProcessor(YACLScreen screen) {
@@ -17,7 +17,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     protected void handleButtons(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
-                ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress();
+                ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(/*? if >=1.21.9 {*/ null /*?}*/);
             }
             playClackSound();
         }
@@ -28,11 +28,11 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     @Override
     protected void onTabChanged(ControllerEntity controller) {
         if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
-            ListHolderWidget<OptionListWidget> optionListHolder = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList();
-            OptionListWidget optionList = optionListHolder.getList();
+            WidgetAndType<OptionListWidget> optionListHolder = ((YACLScreenCategoryTabAccessor) categoryTab).getOptionList();
+            OptionListWidget optionList = optionListHolder.getType();
             optionList.setScrollAmount(0);
 
-            screen.setFocused(optionListHolder);
+            screen.setFocused(optionListHolder.getWidget());
 
             if (optionList.children().isEmpty())
                 return;

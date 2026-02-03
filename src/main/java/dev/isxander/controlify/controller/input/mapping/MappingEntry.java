@@ -1,10 +1,11 @@
 package dev.isxander.controlify.controller.input.mapping;
 
+import com.mojang.serialization.Codec;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.HatState;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import dev.isxander.controlify.utils.MthExt;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public sealed interface MappingEntry {
     void apply(ControllerState oldState, ModifiableControllerState newState);
@@ -13,9 +14,13 @@ public sealed interface MappingEntry {
 
     MapType outputType();
 
+    static Codec<MappingEntry> codec() {
+        return MappingEntryCodecs.CODEC;
+    }
+
     sealed interface FromButton extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, boolean invert, MapType inputType, MapType outputType) implements FromButton {
-            public ToButton(ResourceLocation from, ResourceLocation to, boolean invert) {
+        record ToButton(Identifier from, Identifier to, boolean invert, MapType inputType, MapType outputType) implements FromButton {
+            public ToButton(Identifier from, Identifier to, boolean invert) {
                 this(from, to, invert, MapType.BUTTON, MapType.BUTTON);
             }
 
@@ -27,8 +32,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, float offState, float onState, MapType inputType, MapType outputType) implements FromButton {
-            public ToAxis(ResourceLocation from, ResourceLocation to, float offState, float onState) {
+        record ToAxis(Identifier from, Identifier to, float offState, float onState, MapType inputType, MapType outputType) implements FromButton {
+            public ToAxis(Identifier from, Identifier to, float offState, float onState) {
                 this(from, to, offState, onState, MapType.BUTTON, MapType.AXIS);
             }
 
@@ -38,8 +43,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, HatState offState, HatState onState, MapType inputType, MapType outputType) implements FromButton {
-            public ToHat(ResourceLocation from, ResourceLocation to, HatState offState, HatState onState) {
+        record ToHat(Identifier from, Identifier to, HatState offState, HatState onState, MapType inputType, MapType outputType) implements FromButton {
+            public ToHat(Identifier from, Identifier to, HatState offState, HatState onState) {
                 this(from, to, offState, onState, MapType.BUTTON, MapType.HAT);
             }
 
@@ -51,8 +56,8 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromAxis extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, float threshold, MapType inputType, MapType outputType) implements FromAxis {
-            public ToButton(ResourceLocation from, ResourceLocation to, float threshold) {
+        record ToButton(Identifier from, Identifier to, float threshold, MapType inputType, MapType outputType) implements FromAxis {
+            public ToButton(Identifier from, Identifier to, float threshold) {
                 this(from, to, threshold, MapType.AXIS, MapType.BUTTON);
             }
 
@@ -62,8 +67,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, float minIn, float minOut, float maxIn, float maxOut, MapType inputType, MapType outputType) implements FromAxis {
-            public ToAxis(ResourceLocation from, ResourceLocation to, float minIn, float minOut, float maxIn, float maxOut) {
+        record ToAxis(Identifier from, Identifier to, float minIn, float minOut, float maxIn, float maxOut, MapType inputType, MapType outputType) implements FromAxis {
+            public ToAxis(Identifier from, Identifier to, float minIn, float minOut, float maxIn, float maxOut) {
                 this(from, to, minIn, minOut, maxIn, maxOut, MapType.AXIS, MapType.AXIS);
             }
 
@@ -75,8 +80,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, float threshold, HatState targetState, MapType inputType, MapType outputType) implements FromAxis {
-            public ToHat(ResourceLocation from, ResourceLocation to, float threshold, HatState targetState) {
+        record ToHat(Identifier from, Identifier to, float threshold, HatState targetState, MapType inputType, MapType outputType) implements FromAxis {
+            public ToHat(Identifier from, Identifier to, float threshold, HatState targetState) {
                 this(from, to, threshold, targetState, MapType.AXIS, MapType.HAT);
             }
 
@@ -89,8 +94,8 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromHat extends MappingEntry {
-        record ToButton(ResourceLocation from, ResourceLocation to, HatState targetState, MapType inputType, MapType outputType) implements FromHat {
-            public ToButton(ResourceLocation from, ResourceLocation to, HatState targetState) {
+        record ToButton(Identifier from, Identifier to, HatState targetState, MapType inputType, MapType outputType) implements FromHat {
+            public ToButton(Identifier from, Identifier to, HatState targetState) {
                 this(from, to, targetState, MapType.HAT, MapType.BUTTON);
             }
 
@@ -100,8 +105,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation from, ResourceLocation to, HatState targetState, float onState, float offState, MapType inputType, MapType outputType) implements FromHat {
-            public ToAxis(ResourceLocation from, ResourceLocation to, HatState targetState, float onState, float offState) {
+        record ToAxis(Identifier from, Identifier to, HatState targetState, float onState, float offState, MapType inputType, MapType outputType) implements FromHat {
+            public ToAxis(Identifier from, Identifier to, HatState targetState, float onState, float offState) {
                 this(from, to, targetState, onState, offState, MapType.HAT, MapType.AXIS);
             }
 
@@ -111,8 +116,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation from, ResourceLocation to, MapType inputType, MapType outputType) implements FromHat {
-            public ToHat(ResourceLocation from, ResourceLocation to) {
+        record ToHat(Identifier from, Identifier to, MapType inputType, MapType outputType) implements FromHat {
+            public ToHat(Identifier from, Identifier to) {
                 this(from, to, MapType.HAT, MapType.HAT);
             }
 
@@ -124,8 +129,8 @@ public sealed interface MappingEntry {
     }
 
     sealed interface FromNothing extends MappingEntry {
-        record ToButton(ResourceLocation to, boolean state, MapType inputType, MapType outputType) implements FromNothing {
-            public ToButton(ResourceLocation to, boolean state) {
+        record ToButton(Identifier to, boolean state, MapType inputType, MapType outputType) implements FromNothing {
+            public ToButton(Identifier to, boolean state) {
                 this(to, state, MapType.NOTHING, MapType.BUTTON);
             }
 
@@ -135,8 +140,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToAxis(ResourceLocation to, float state, MapType inputType, MapType outputType) implements FromNothing {
-            public ToAxis(ResourceLocation to, float state) {
+        record ToAxis(Identifier to, float state, MapType inputType, MapType outputType) implements FromNothing {
+            public ToAxis(Identifier to, float state) {
                 this(to, state, MapType.NOTHING, MapType.AXIS);
             }
 
@@ -146,8 +151,8 @@ public sealed interface MappingEntry {
             }
         }
 
-        record ToHat(ResourceLocation to, MapType inputType, MapType outputType) implements FromNothing {
-            public ToHat(ResourceLocation to) {
+        record ToHat(Identifier to, MapType inputType, MapType outputType) implements FromNothing {
+            public ToHat(Identifier to) {
                 this(to, MapType.NOTHING, MapType.HAT);
             }
 

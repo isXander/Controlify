@@ -2,7 +2,7 @@ package dev.isxander.controlify.api.guide;
 
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BundleItem;
 
@@ -57,14 +57,14 @@ public final class ContainerFacts {
             ,ctx -> ctx.hoveredSlot() != null && BundleItem.hasSelectedItem(ctx.hoveredSlot().getItem())
     );
 
-    private static Fact<ContainerCtx> register(ResourceLocation id, FactProvider<ContainerCtx> provider) {
+    private static Fact<ContainerCtx> register(Identifier id, FactProvider<ContainerCtx> provider) {
         var fact = Fact.of(id, provider);
 
         GuideDomains.CONTAINER.registerFact(fact);
 
         return fact;
     }
-    private static Fact<ContainerCtx> register(ResourceLocation id) {
+    private static Fact<ContainerCtx> register(Identifier id) {
         return register(id, FactProvider.staticProvider(false));
     }
 

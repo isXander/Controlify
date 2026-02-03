@@ -8,14 +8,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
 public class ControlifyHandshake {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final int PROTOCOL_VERSION = 1;
-    public static final ResourceLocation HANDSHAKE_CHANNEL = CUtil.rl("handshake");
+    public static final Identifier HANDSHAKE_CHANNEL = CUtil.rl("handshake");
 
     private static final StreamCodec<FriendlyByteBuf, HandshakePacket> handshakePacketCodec = StreamCodec.of(
             (buf, packet) -> buf.writeInt(packet.protocolVersion()),

@@ -1,12 +1,19 @@
 package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
+import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import org.lwjgl.glfw.GLFWDropCallbackI;
+import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
+import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,44 +28,58 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 
     @Unique private boolean controlify$calledFromMinecraftSetScreen = false;
 
-    // method_22686 is lambda for GLFW mouse click hook - do it outside of the `onPress` method due to fake inputs
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "InvalidInjectorMethodSignature"})
-    @Inject(
-            method = {"method_22686", "/lambda\\$setup\\$\\d+/"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onPress(JIII)V")
+    @WrapOperation(
+            method = "setup",
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.9 {
+                    target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
+                    //?} else {
+                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(JLorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
+                    *///?}
+            )
     )
-    private void onMouseClickInput(long window, int button, int action, int modifiers, CallbackInfo ci) {
-        onMouse(window);
-    }
-
-    // method_22689 is lambda for GLFW mouse move hook - do it outside of the `onMove` method due to fake inputs
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "InvalidInjectorMethodSignature"})
-    @Inject(
-            method = {"method_22689", "/lambda\\$setup\\$\\d+/"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onMove(JDD)V")
-    )
-    private void onMouseMoveInput(long window, double x, double y, CallbackInfo ci) {
-        onMouse(window);
-    }
-
-    // method_22687 is lambda for GLFW mouse scroll hook - do it outside of the `onScroll` method due to fake inputs
-    @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference", "InvalidInjectorMethodSignature"})
-    @Inject(
-            method = {"method_22687", "/lambda\\$setup\\$\\d+/"},
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;onScroll(JDD)V")
-    )
-    private void onMouseScrollInput(long window, double scrollDeltaX, double scrollDeltaY, CallbackInfo ci) {
-        onMouse(window);
+    private void wrapMouseEvents(
+            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
+            GLFWCursorPosCallbackI moveCallback,
+            GLFWMouseButtonCallbackI buttonCallback,
+            GLFWScrollCallbackI scrollCallback,
+            GLFWDropCallbackI fileDropCallback,
+            Operation<Void> operation
+    ) {
+        operation.call(
+                window,
+                (GLFWCursorPosCallbackI) (w, x, y) -> {
+                    onMouse(w);
+                    moveCallback.invoke(w, x, y);
+                },
+                (GLFWMouseButtonCallbackI) (w, b, a, m) -> {
+                    onMouse(w);
+                    buttonCallback.invoke(w, b, a, m);
+                },
+                (GLFWScrollCallbackI) (w, dx, dy) -> {
+                    onMouse(w);
+                    scrollCallback.invoke(w, dx, dy);
+                },
+                fileDropCallback
+        );
     }
 
     @Unique
     private void onMouse(long window) {
-        if (window == minecraft.getWindow().getWindow()) {
-            if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
-                Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
-            } else {
-                Controlify.instance().showCursorTemporarily();
-            }
+        //? if >=1.21.9 {
+        var windowHandle = minecraft.getWindow().handle();
+        //?} else {
+        /*var windowHandle = minecraft.getWindow().getWindow();
+        *///?}
+        if (window == windowHandle) {
+            minecraft.execute(() -> {
+                if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
+                    Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
+                } else {
+                    Controlify.instance().showCursorTemporarily();
+                }
+            });
         }
     }
 
@@ -67,7 +88,14 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
      */
     @Inject(
             method = "releaseMouse",
-            at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V")
+            at = @At(
+                    value = "INVOKE",
+                    //? if >=1.21.9 {
+                    target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+                    //?} else {
+                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"
+                    *///?}
+            )
     )
     private void moveMouseIfNecessary(CallbackInfo ci) {
         if (!controlify$calledFromMinecraftSetScreen && ControlifyApi.get().currentInputMode().isController()) {
@@ -83,11 +111,11 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 
     @ModifyExpressionValue(method = "grabMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"))
     private boolean passWindowActiveCheckIfOOFInputIsOn(boolean isWindowActive) {
-        return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().globalSettings().outOfFocusInput);
+        return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
     }
 
     @Override
-    public void imFromMinecraftSetScreen() {
+    public void controlify$imFromMinecraftSetScreen() {
         controlify$calledFromMinecraftSetScreen = true;
     }
 }
