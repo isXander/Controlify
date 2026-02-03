@@ -43,6 +43,7 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
 }
 
 tasks.register("clean") {
+    group = "build"
     delete(layout.buildDirectory.dir("finalJars"))
 }
 

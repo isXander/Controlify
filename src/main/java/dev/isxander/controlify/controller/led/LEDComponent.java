@@ -1,13 +1,13 @@
 package dev.isxander.controlify.controller.led;
 
-import dev.isxander.controlify.controller.ECSComponent;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
 
-public class LEDComponent implements ECSComponent {
+public class LEDComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("led");
 
     private final int[] ledColors;

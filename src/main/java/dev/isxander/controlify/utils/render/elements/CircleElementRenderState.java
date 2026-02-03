@@ -68,6 +68,6 @@ public record CircleElementRenderState(
     private static int segmentsForRadius(float radius) {
         // 2 * PI * r / 4
         // each segment is about 4 pixels long
-        return Mth.ceil(2 * Math.PI * radius / 4);
+        return Math.max(10, Mth.ceil(2 * Math.PI * radius / 4));
     }
 }

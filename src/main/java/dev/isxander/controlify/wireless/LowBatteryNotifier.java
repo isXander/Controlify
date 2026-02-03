@@ -24,7 +24,7 @@ public class LowBatteryNotifier {
         }
         interval = 20 * 60; // 1 minute
 
-        if (!Controlify.instance().config().globalSettings().notifyLowBattery)
+        if (!Controlify.instance().config().getSettings().globalSettings().notifyLowBattery)
             return;
 
         ControllerManager controllerManager = Controlify.instance().getControllerManager().orElse(null);

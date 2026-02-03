@@ -30,7 +30,7 @@ public class LocalPlayerMixin {
     @WrapOperation(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z"))
     private boolean requireHalfImpulse(net.minecraft.client.player.ClientInput instance, Operation<Boolean> original) {
         if (Controlify.instance().currentInputMode().isController()
-                && !Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
+                && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
             return instance.getMoveVector().y >= 0.8f;
         }
 

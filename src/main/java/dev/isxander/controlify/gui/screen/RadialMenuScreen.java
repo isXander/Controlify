@@ -74,7 +74,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         this.buttons = new RadialButton[items.length];
         this.editMode = editMode;
         this.parent = parent;
-        this.idleTicksTimeout = controller.input().orElseThrow().confObj().radialButtonFocusTimeoutTicks;
+        this.idleTicksTimeout = controller.input().orElseThrow().settings().radialMenu.radialButtonFocusTimeoutTicks;
         this.openBind = openBind;
     }
 
@@ -151,7 +151,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                     - ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
             float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
                     - ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
-            float threshold = controller.input().orElseThrow().config().config().buttonActivationThreshold;
+            float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
 
             if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
                 float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;
@@ -549,7 +549,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 if (controller == RadialMenuScreen.this.controller) {
                     if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
                         editMode.setRadialItem(radialIndex, item);
-                        Controlify.instance().config().setDirty();
+                        Controlify.instance().config().markDirty();
 
                         buttons[radialIndex].setAction(item);
 

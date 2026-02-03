@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.input.*;
 import dev.isxander.controlify.controller.input.mapping.MapType;
@@ -37,8 +38,8 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
             new MappingStage(GamepadInputs.NORTH_BUTTON, MapType.BUTTON, button("face_up"), "face_up", "faceview"),
             new MappingStage(GamepadInputs.LEFT_SHOULDER_BUTTON, MapType.BUTTON, button("left_bumper"), "left_bumper", "triggerview"),
             new MappingStage(GamepadInputs.RIGHT_SHOULDER_BUTTON, MapType.BUTTON, button("right_bumper"), "right_bumper", "triggerview"),
-            new MappingStage(GamepadInputs.START_BUTTON, MapType.BUTTON, button("left_special"), "left_special", "faceview"),
-            new MappingStage(GamepadInputs.GUIDE_BUTTON, MapType.BUTTON, button("right_special"), "right_special", "faceview"),
+            new MappingStage(GamepadInputs.BACK_BUTTON, MapType.BUTTON, button("left_special"), "left_special", "faceview"),
+            new MappingStage(GamepadInputs.START_BUTTON, MapType.BUTTON, button("right_special"), "right_special", "faceview"),
             new MappingStage(GamepadInputs.LEFT_STICK_BUTTON, MapType.BUTTON, button("left_stick_down"), "left_stick_press", "faceview"),
             new MappingStage(GamepadInputs.RIGHT_STICK_BUTTON, MapType.BUTTON, button("right_stick_down"), "right_stick_press", "faceview"),
             new MappingStage(GamepadInputs.DPAD_UP_BUTTON, MapType.BUTTON, button("dpad_up"), "dpad_up", "faceview"),
@@ -71,7 +72,9 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         mappingBuilder.putDeadzoneGroups(deadzoneGroups);
 
         // otherwise we will be mapping something that is already mapped
-        inputComponent.confObj().mapping = null;
+        DeviceSettings deviceSettings = Controlify.instance().config().getSettings()
+                .getOrCreateDeviceSettings(inputComponent.getController().uid());
+        deviceSettings.mapping = null;
     }
 
     public static ControllerMappingMakerScreen createGamepadMapping(InputComponent inputComponent, Screen lastScreen) {
@@ -209,8 +212,10 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     @Override
     public void onClose() {
         minecraft.setScreen(lastScreen);
-        inputComponent.confObj().mapping = mappingBuilder.build();
-        Controlify.instance().config().save();
+        DeviceSettings deviceSettings = Controlify.instance().config().getSettings()
+                .getOrCreateDeviceSettings(inputComponent.getController().uid());
+        deviceSettings.mapping = mappingBuilder.build();
+        Controlify.instance().config().saveSafely();
     }
 
     private void goBackStage() {

@@ -1,12 +1,11 @@
 package dev.isxander.controlify.controller.dualsense;
 
-import dev.isxander.controlify.controller.ECSComponent;
-import dev.isxander.controlify.driver.sdl.dualsense.DS5EffectsState;
+import dev.isxander.controlify.controller.impl.ECSComponentImpl;
 import dev.isxander.controlify.driver.sdl.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-public class DualSenseComponent implements ECSComponent {
+public class DualSenseComponent extends ECSComponentImpl {
     public static final Identifier ID = CUtil.rl("dualsense");
 
     private boolean muteLight;

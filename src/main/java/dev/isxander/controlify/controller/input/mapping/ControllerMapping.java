@@ -1,5 +1,7 @@
 package dev.isxander.controlify.controller.input.mapping;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.ModifiableControllerState;
@@ -12,6 +14,17 @@ public record ControllerMapping(
         List<MappingEntry> mappings,
         LinkedHashMap<Identifier, DeadzoneGroup> deadzones
 ) implements StateMapper {
+    public static final Codec<ControllerMapping> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            MappingEntry.codec()
+                    .listOf()
+                    .fieldOf("mappings")
+                    .forGetter(ControllerMapping::mappings),
+            Codec.unboundedMap(Identifier.CODEC, DeadzoneGroup.CODEC)
+                    .xmap(LinkedHashMap::new, map -> map)
+                    .fieldOf("deadzones")
+                    .forGetter(ControllerMapping::deadzones)
+    ).apply(instance, ControllerMapping::new));
+
     @Override
     public ControllerState mapState(ControllerState state) {
         if (mappings.isEmpty()) {

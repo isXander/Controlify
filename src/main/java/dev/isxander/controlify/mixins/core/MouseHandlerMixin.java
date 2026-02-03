@@ -111,7 +111,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 
     @ModifyExpressionValue(method = "grabMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"))
     private boolean passWindowActiveCheckIfOOFInputIsOn(boolean isWindowActive) {
-        return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().globalSettings().outOfFocusInput);
+        return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
     }
 
     @Override

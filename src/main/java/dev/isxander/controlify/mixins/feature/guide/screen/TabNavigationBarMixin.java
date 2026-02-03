@@ -27,7 +27,7 @@ public class TabNavigationBarMixin {
     private void renderControllerButtonOverlay(GuiGraphics graphics, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         if (Controlify.instance().currentInputMode().isController()) {
             Controlify.instance().getCurrentController().ifPresent(c -> {
-                if (c.genericConfig().config().showScreenGuides) {
+                if (c.settings().generic.guide.showScreenGuides) {
                     this.renderControllerButtonOverlay(graphics, c);
                 }
             });

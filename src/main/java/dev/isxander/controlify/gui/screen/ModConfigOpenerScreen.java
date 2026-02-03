@@ -20,7 +20,7 @@ public class ModConfigOpenerScreen extends Screen {
         Minecraft minecraft = Minecraft.getInstance();
         this.init(/*? if <1.21.11 >>*//*minecraft,*/ minecraft.getWindow().getGuiScaledWidth(), minecraft.getWindow().getGuiScaledHeight());
 
-        ControllerCarouselScreen.openConfigScreen(lastScreen);
+        ControlifySettingsScreen.openScreen(lastScreen);
     }
 
     @Override

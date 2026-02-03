@@ -103,12 +103,12 @@ public final class InGameFacts {
     /** When the player is using toggle sneak (does not mean it is currently toggled on) */
     public static final Fact<InGameCtx> IS_TOGGLE_SNEAK = register(
             CUtil.rl("is_toggle_sneak"),
-            ctx -> ctx.controller().genericConfig().config().toggleSneak
+            ctx -> ctx.controller().settings().generic.toggleSneak
     );
     /** When the player is using toggle sprint (does not mean it is currently toggled on) */
     public static final Fact<InGameCtx> IS_TOGGLE_SPRINT = register(
             CUtil.rl("is_toggle_sprint"),
-            ctx -> ctx.controller().genericConfig().config().toggleSprint
+            ctx -> ctx.controller().settings().generic.toggleSprint
     );
     /** When the player is attempting to sprint (pressing the sprint key, or it is toggled on) */
     public static final Fact<InGameCtx> SPRINTING = register(

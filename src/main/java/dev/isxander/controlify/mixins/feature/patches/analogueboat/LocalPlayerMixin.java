@@ -55,7 +55,7 @@ public class LocalPlayerMixin {
             boolean pressingLeft, boolean pressingRight, boolean pressingForward, boolean pressingBack,
             Operation<Void> original
     ) {
-        if (ControlifyApi.get().currentInputMode().isController() && !Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
+        if (ControlifyApi.get().currentInputMode().isController() && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
             Vec2 moveVec = InGameInputHandler.getMoveVec(input);
             float forwardImpulse = moveVec.y;
             float rightImpulse = -moveVec.x;

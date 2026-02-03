@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.defaults.DefaultBindProvider;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
@@ -118,20 +119,24 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         return keyEmulation(keyMapping, null);
     }
 
-    public InputBindingImpl build(ControllerEntity controller) {
+    public InputBindingImpl build(@Nullable ControllerEntity controller) {
         Validate.isTrue(locked, "Tried to build builder before it was locked.");
 
-        Component name = createDefaultString(controller, null, false);
+        Identifier controllerType = controller != null
+                ? controller.info().type().namespace()
+                : ControllerType.DEFAULT.namespace();
+
+        Component name = createDefaultString(controllerType, null, false);
         if (customName != null) name = customName;
 
-        Component description = createDefaultString(controller, "desc", true);
+        Component description = createDefaultString(controllerType, "desc", true);
         if (customDescription != null) description = customDescription;
         if (description == null) description = Component.empty();
 
         Supplier<Input> defaultSupplier = () -> {
             // retrieve every tick so the bind provider isn't cached after a resource reload
             DefaultBindProvider provider = Controlify.instance().defaultBindManager().getDefaultBindProvider(
-                    controller.info().type().namespace()
+                    controllerType
             );
 
             Input input = provider.getDefaultBind(id);
@@ -141,7 +146,17 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
             return input;
         };
 
-        return new InputBindingImpl(controller, id, name, description, category, defaultSupplier, allowedContexts, radialCandidate);
+        return new InputBindingImpl(
+                controller != null ? controller.input().orElse(null) : null,
+                controllerType,
+                id,
+                name,
+                description,
+                category,
+                defaultSupplier,
+                allowedContexts,
+                radialCandidate
+        );
     }
 
     @NotNull
@@ -171,12 +186,10 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
         Validate.isTrue(!locked, "Tried to modify binding builder after is has been locked!");
     }
 
-    private Component createDefaultString(ControllerEntity controller, @Nullable String suffix, boolean notExistToNull) {
+    private Component createDefaultString(Identifier controllerType, @Nullable String suffix, boolean notExistToNull) {
         Objects.requireNonNull(id);
 
-        Identifier type = controller.info().type().namespace();
-
-        String typeSpecificKey = type.toLanguageKey("controlify.binding", id.toLanguageKey());
+        String typeSpecificKey = controllerType.toLanguageKey("controlify.binding", id.toLanguageKey());
         if (suffix != null) typeSpecificKey += "." + suffix;
         if (Language.getInstance().has(typeSpecificKey)) {
             return Component.translatable(typeSpecificKey);

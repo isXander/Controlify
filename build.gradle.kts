@@ -101,6 +101,10 @@ dependencies {
     // Already included by YetAnotherConfigLib, but we need it too, so let's define explicit dep
     api("org.quiltmc.parsers:json:${property("deps.quiltparsers")}")
 
+    if (stonecutter.current.parsed < "1.21.11") {
+        compileOnly("org.jspecify:jspecify:1.0.0")
+    }
+
     // sodium compat
     modDependency("sodium", { "maven.modrinth:sodium:$it" })
     // RSO compat

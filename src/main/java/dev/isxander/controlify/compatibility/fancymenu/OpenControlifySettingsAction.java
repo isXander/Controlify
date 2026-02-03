@@ -2,15 +2,15 @@
 /*package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.Action;
-import dev.isxander.controlify.gui.screen.ControllerCarouselScreen;
+import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class OpenControllerCarouselAction extends Action {
-    public OpenControllerCarouselAction() {
-        super("controlify:open-carousel");
+public class OpenControlifySettingsAction extends Action {
+    public OpenControlifySettingsAction() {
+        super("controlify:open-settings");
     }
 
     @Override
@@ -20,7 +20,7 @@ public class OpenControllerCarouselAction extends Action {
 
     @Override
     public void execute(@Nullable String s) {
-        ControllerCarouselScreen.openConfigScreen(Minecraft.getInstance().screen);
+        ControlifySettingsScreen.openScreen(Minecraft.getInstance().screen);
     }
 
     @Override

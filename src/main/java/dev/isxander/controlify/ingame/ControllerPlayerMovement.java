@@ -54,8 +54,8 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
         float leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).analogueNow()
                 - ControlifyBindings.WALK_RIGHT.on(controller).analogueNow();
 
-        if (Controlify.instance().config().globalSettings().shouldUseKeyboardMovement()) {
-            float threshold = controller.input().orElseThrow().confObj().buttonActivationThreshold;
+        if (Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
+            float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
 
             forwardImpulse = Math.abs(forwardImpulse) >= threshold ? Math.copySign(1, forwardImpulse) : 0;
             leftImpulse = Math.abs(leftImpulse) >= threshold ? Math.copySign(1, leftImpulse) : 0;
@@ -89,7 +89,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
             jumping = false;
 
         InputBinding sneak = ControlifyBindings.SNEAK.on(controller);
-        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.genericConfig().config().toggleSneak) {
+        if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.settings().generic.toggleSneak) {
             if (sneak.justPressed())
                 shiftKeyDown = true;
             if (!sneak.digitalNow())
@@ -159,6 +159,7 @@ public class ControllerPlayerMovement extends /*? if >=1.21.2 {*/ ClientInput /*
     }
 
     public static boolean shouldBeControllerInput() {
-        return Controlify.instance().getCurrentController().isPresent() && Controlify.instance().currentInputMode().isController();
+        return Controlify.instance().getCurrentController().isPresent()
+                && Controlify.instance().currentInputMode().isController();
     }
 }
