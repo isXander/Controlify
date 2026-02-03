@@ -82,6 +82,8 @@ val releaseModVersions by tasks.registering {
 }
 
 nmcpAggregation {
+    allowDuplicateProjectNames = true
+
     centralPortal {
         username = secrets.gradleProperty("mcentral.username")
         password = secrets.gradleProperty("mcentral.password")

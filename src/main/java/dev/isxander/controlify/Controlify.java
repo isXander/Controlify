@@ -547,6 +547,10 @@ public class Controlify implements ControlifyApi {
         if (thisControllerGivingInput && !activeControllerGivingInput) {
             this.setCurrentController(controller, true);
         }
+
+        if (this.currentInputMode().isController()) {
+            ControlifyEvents.INACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
+        }
     }
 
     public ConfigManager config() {

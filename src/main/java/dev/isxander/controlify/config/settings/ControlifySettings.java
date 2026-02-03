@@ -3,6 +3,7 @@ package dev.isxander.controlify.config.settings;
 import dev.isxander.controlify.config.dto.ControlifyConfig;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.controller.ControllerUID;
 import net.minecraft.resources.Identifier;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import java.util.Map;
 public class ControlifySettings {
     private final List<ProfileSettings> profileSettings;
     private final GlobalSettings globalSettings;
-    private final Map<String, DeviceSettings> deviceSettings;
+    private final Map<ControllerUID, DeviceSettings> deviceSettings;
 
     private ControlifySettings() {
         this.profileSettings = new ArrayList<>();
@@ -24,7 +25,7 @@ public class ControlifySettings {
     public ControlifySettings(
             List<ProfileSettings> controllerSettings,
             GlobalSettings globalSettings,
-            Map<String, DeviceSettings> deviceSettings
+            Map<ControllerUID, DeviceSettings> deviceSettings
     ) {
         this.profileSettings = new ArrayList<>(controllerSettings);
         this.globalSettings = globalSettings;
@@ -59,7 +60,7 @@ public class ControlifySettings {
         return settings;
     }
 
-    public DeviceSettings getOrCreateDeviceSettings(String uid) {
+    public DeviceSettings getOrCreateDeviceSettings(ControllerUID uid) {
         return deviceSettings.computeIfAbsent(uid, id -> DeviceSettings.defaults());
     }
 

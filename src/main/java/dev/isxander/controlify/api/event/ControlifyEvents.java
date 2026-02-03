@@ -24,6 +24,11 @@ public final class ControlifyEvents {
     public static final EventHandler<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = EventHandler.createPlatformBackedEvent();
 
     /**
+     * Triggers every tick when a non-active connected controller's state has been updated.
+     */
+    public static final EventHandler<ControllerStateUpdate> INACTIVE_CONTROLLER_TICKED = EventHandler.createPlatformBackedEvent();
+
+    /**
      * @deprecated Use {@link #ACTIVE_CONTROLLER_TICKED} instead.
      */
     @Deprecated

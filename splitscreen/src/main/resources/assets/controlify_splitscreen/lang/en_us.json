@@ -34,5 +34,5 @@
   "controlify.splitscreen.config.basic.music_method.priority": "Priority",
   "controlify.splitscreen.open_button": "Splitscreen...",
   "controlify.splitscreen.toast.long_press_to_join.title": "Splitscreen",
-  "controlify.splitscreen.toast.long_press_to_join": "Long-press %s to start splitscreen"
+  "controlify.splitscreen.toast.long_press_to_join": "Press %s to start splitscreen"
 }

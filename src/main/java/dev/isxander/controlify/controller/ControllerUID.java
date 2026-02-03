@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller;
 
+import com.mojang.serialization.Codec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
  * @param string The string representation of the UID.
  */
 public record ControllerUID(@NotNull String string) {
+    public static final Codec<ControllerUID> CODEC = Codec.STRING.xmap(ControllerUID::new, ControllerUID::string);
+
     public static @Nullable ControllerUID fromNullableString(@Nullable String value) {
         return value == null ? null : new ControllerUID(value);
     }

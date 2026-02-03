@@ -7,6 +7,8 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.entrypoint.InitContext;
+import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerUID;
@@ -44,8 +46,8 @@ public class ControlifyExtension implements ControlifyEntrypoint {
     }
 
     @Override
-    public void onControlifyInit(ControlifyApi controlifyApi) {
-        ADD_PLAYER_BIND = ControlifyBindApi.get().registerBinding(builder -> builder
+    public void onControlifyPreInit(PreInitContext ctx) {
+        ADD_PLAYER_BIND = ctx.bindings().registerBinding(builder -> builder
                 .id(CSUtil.rl("add_player"))
                 .category(BINDING_CATEGORY));
 
@@ -54,6 +56,11 @@ public class ControlifyExtension implements ControlifyEntrypoint {
         ControlifyEvents.CONTROLLER_CONNECTED.register(this::onControllerConnected);
         ControlifyEvents.CONTROLLER_DISCONNECTED.register(this::onControllerDisconnected);
         ClientTickEvents.START_CLIENT_TICK.register(this::onClientTick);
+    }
+
+    @Override
+    public void onControlifyInit(InitContext ctx) {
+
     }
 
     private void onControllerStateUpdate(ControlifyEvents.ControllerStateUpdate event) {
@@ -69,7 +76,7 @@ public class ControlifyExtension implements ControlifyEntrypoint {
 
                 ControllerEntity currentController = controlify.getCurrentController().orElse(null);
 
-                if (ADD_PLAYER_BIND.on(controller).longPressed(true)) {
+                if (ADD_PLAYER_BIND.on(controller).justPressed()) {
                     if (controllersConnected == 1) {
                         // in the case where there is only one controller connected, we initialise
                         // splitscreen as Player 1: KB&M, Player 2: Controller 1

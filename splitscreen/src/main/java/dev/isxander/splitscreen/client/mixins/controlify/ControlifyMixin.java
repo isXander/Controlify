@@ -3,10 +3,12 @@ package dev.isxander.splitscreen.client.mixins.controlify;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.client.integrations.ControlifyExtension;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -35,5 +37,16 @@ public class ControlifyMixin {
             return Component.translatable("controlify.splitscreen.toast.long_press_to_join", binding.inputIcon());
         }
         return component;
+    }
+
+    @WrapWithCondition(
+            method = "tickInactiveController",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Ldev/isxander/controlify/Controlify;setCurrentController(Ldev/isxander/controlify/controller/ControllerEntity;Z)V"
+            )
+    )
+    private boolean preventAutoSwitchIfSplitscreen(Controlify instance, ControllerEntity controller, boolean notify) {
+        return !SplitscreenBootstrapper.isSplitscreen();
     }
 }
