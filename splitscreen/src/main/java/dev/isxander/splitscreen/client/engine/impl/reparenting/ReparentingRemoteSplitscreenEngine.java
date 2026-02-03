@@ -56,7 +56,7 @@ public class ReparentingRemoteSplitscreenEngine extends ReparentingSplitscreenEn
 
     public void onWindowInit() {
         Window window = this.minecraft.getWindow();
-        NativeWindowHandle nativeHandle = this.windowManager.getNativeWindowHandle(window.getWindow());
+        NativeWindowHandle nativeHandle = this.windowManager.getNativeWindowHandle(window.handle());
 
         this.localPawn = new LocalReparentingPawn(this.minecraft, nativeHandle);
         this.payloadSender.sendPayload(new ControllerboundThisIsMyWindowPayload(nativeHandle));

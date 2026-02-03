@@ -56,7 +56,7 @@ public sealed interface SplitscreenPlayerInfo {
 
         public List<ServerPlayer> subPlayers() {
             return Stream.of(subPlayerProfiles())
-                    .map(profile -> server.getPlayerList().getPlayer(profile.getId()))
+                    .map(profile -> server.getPlayerList().getPlayer(profile.id()))
                     .filter(Objects::nonNull) // race condition from sound playing immediately after the controller logs in, before the pawns have got player objects
                     .toList();
         }
@@ -82,7 +82,7 @@ public sealed interface SplitscreenPlayerInfo {
     record SubPlayer(GameProfile controllerProfile, SplitscreenServerSharedConfig sharedConfig, int pawnIndex, MinecraftServer server, ServerPlayer player) implements SplitscreenPlayerInfo {
         @Override
         public Controller controller() {
-            return (Controller) get(server.getPlayerList().getPlayer(controllerProfile.getId())).orElseThrow();
+            return (Controller) get(server.getPlayerList().getPlayer(controllerProfile.id())).orElseThrow();
         }
 
         @Override

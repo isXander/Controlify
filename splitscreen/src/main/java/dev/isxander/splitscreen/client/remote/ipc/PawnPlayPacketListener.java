@@ -35,14 +35,14 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleJoinServer(PawnboundJoinServerPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         LOGGER.info("Pawn joining server server {}:{}", packet.host(), packet.port());
         this.pawn.joinServer(packet.host(), packet.port(), packet.nonce().orElse(null));
     }
 
     public void handleServerDisconnect(PawnboundServerDisconnectPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         LOGGER.info("Pawn disconnecting from server");
         this.pawn.disconnectFromServer();
@@ -57,7 +57,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleUseInputMethod(PawnboundUseInputMethodPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         LOGGER.info("Pawn using input method {}", packet.inputMethod());
         this.pawn.useInputMethod(packet.inputMethod());
@@ -68,7 +68,7 @@ public class PawnPlayPacketListener implements PawnboundCommonPacketListener, Cl
     }
 
     public void handleLoadConfig(PawnboundLoadConfigPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         this.pawn.onConfigSave(packet.config());
     }

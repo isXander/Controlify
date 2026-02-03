@@ -4,13 +4,13 @@ import dev.isxander.splitscreen.client.remote.ipc.PawnPlayPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.PacketType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
-public record PawnboundLoadConfigPacket(ResourceLocation config) implements PawnboundPlayPacket {
+public record PawnboundLoadConfigPacket(Identifier config) implements PawnboundPlayPacket {
 
     public static final StreamCodec<FriendlyByteBuf, PawnboundLoadConfigPacket> CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC,
+            Identifier.STREAM_CODEC,
             PawnboundLoadConfigPacket::config,
             PawnboundLoadConfigPacket::new
     );

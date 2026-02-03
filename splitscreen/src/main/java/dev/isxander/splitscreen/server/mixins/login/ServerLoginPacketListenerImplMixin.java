@@ -162,7 +162,7 @@ public abstract class ServerLoginPacketListenerImplMixin implements LoginListene
     private void wrapUserAuthThreadStart(Thread thread, Operation<Void> original) {
         if (state.passedSplitscreenAuth()) {
             GameProfile profile = UUIDUtil.createOfflineProfile(Objects.requireNonNull(this.requestedUsername));
-            LOGGER.info("Allowing splitscreen player {} to join with UUID {}", profile.getName(), profile.getId());
+            LOGGER.info("Allowing splitscreen player {} to join with UUID {}", profile.name(), profile.id());
             startClientVerification(profile);
         } else {
             original.call(thread);

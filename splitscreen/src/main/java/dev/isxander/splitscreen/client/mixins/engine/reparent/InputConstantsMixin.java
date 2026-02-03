@@ -3,6 +3,7 @@ package dev.isxander.splitscreen.client.mixins.engine.reparent;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import dev.isxander.splitscreen.client.SplitscreenBootstrapper;
 import dev.isxander.splitscreen.client.engine.impl.reparenting.wm.NativeWindowHandle;
 import dev.isxander.splitscreen.client.engine.impl.reparenting.wm.WindowManager;
@@ -15,12 +16,12 @@ public class InputConstantsMixin {
      * Ideally splitscreen should allow one keyboard/mouse player, but we're not there yet.
      */
     @WrapMethod(method = "grabOrReleaseMouse")
-    private static void shouldAllowMouseGrab(long window, int cursorValue, double xPos, double yPos, Operation<Void> original) {
+    private static void shouldAllowMouseGrab(Window window, int cursorValue, double xPos, double yPos, Operation<Void> original) {
         if (SplitscreenBootstrapper.getController()
                 .map(c -> c.getLocalPawn().getAssociatedInputMethod().isKeyboardAndMouse())
                 .orElse(false) || !SplitscreenBootstrapper.isSplitscreen()) {
             WindowManager windowManager = WindowManager.get();
-            NativeWindowHandle nativeWindowHandle = windowManager.getNativeWindowHandle(window);
+            NativeWindowHandle nativeWindowHandle = windowManager.getNativeWindowHandle(window.handle());
             windowManager.setWindowFocused(nativeWindowHandle);
             windowManager.setWindowForeground(nativeWindowHandle);
 

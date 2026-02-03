@@ -9,7 +9,7 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -47,7 +47,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
 
     @Override
     public void disconnectFromServer() {
-        PauseScreen.disconnectFromWorld(this.minecraft, ClientLevel.DEFAULT_QUIT_MESSAGE);
+        this.minecraft.disconnectFromWorld(ClientLevel.DEFAULT_QUIT_MESSAGE);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void onConfigSave(ResourceLocation config) {
+    public void onConfigSave(Identifier config) {
         ConfigSyncRegistry.onSave(config);
     }
 

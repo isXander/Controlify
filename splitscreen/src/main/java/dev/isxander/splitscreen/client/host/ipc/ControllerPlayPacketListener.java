@@ -33,7 +33,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleHello(ControllerboundHelloPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         this.pawnInstance = new RemoteSplitscreenPawn(this.connection, this.controller.getNextPawnIndex(), packet.inputMethod());
         this.controller.addPawn(this.pawnInstance);
@@ -49,7 +49,7 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleReadySignal(ControllerboundSignalReadyPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         this.controller.getControllerBridge().signalRemoteClientReady(packet.finished(), packet.progress(), this.pawnInstance, this.pawnInstance.getAssociatedInputMethod());
     }
@@ -59,21 +59,21 @@ public class ControllerPlayPacketListener implements ControllerboundCommonPacket
     }
 
     public void handleEngineCustomPayload(ControllerboundEngineCustomPayloadPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         this.controller.getSplitscreenEngine().handleInboundPayload(this.pawnInstance.getAssociatedInputMethod(), this.connection, packet.payload());
     }
 
     public void handleServerDisconnected(ControllerboundServerDisconnectedPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
         this.controller.getControllerBridge().serverDisconnectedRemote(packet.disconnectReason(), this.pawnInstance);
     }
 
     public void handleRequestMusic(ControllerboundRequestPlayMusicPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(packet, this, this.minecraft.packetProcessor());
 
-        this.controller.getControllerBridge().requestPlayMusicRemote(packet.music().orElse(null), packet.volume(), this.pawnInstance);
+        this.controller.getControllerBridge().requestPlayMusicRemote(packet.music().orElse(null), this.pawnInstance);
     }
 
     @Override

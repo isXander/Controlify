@@ -5,7 +5,7 @@ import dev.isxander.splitscreen.client.SplitscreenPawn;
 import dev.isxander.splitscreen.client.SplitscreenPosition;
 import dev.isxander.splitscreen.client.ipc.packets.pawnbound.play.*;
 import net.minecraft.network.Connection;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -56,7 +56,7 @@ public class RemoteSplitscreenPawn implements SplitscreenPawn {
     }
 
     @Override
-    public void onConfigSave(ResourceLocation config) {
+    public void onConfigSave(Identifier config) {
         this.connection.send(new PawnboundLoadConfigPacket(config));
     }
 

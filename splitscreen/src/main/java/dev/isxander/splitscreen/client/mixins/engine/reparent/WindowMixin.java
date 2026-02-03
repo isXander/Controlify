@@ -29,12 +29,12 @@ import java.util.Optional;
 import java.util.function.Function;
 
 @Mixin(Window.class)
-public class WindowMixin {
+public abstract class WindowMixin {
     @Shadow @Final private static Logger LOGGER;
 
     @Shadow
-    @Final
-    private long window;
+    public abstract long handle();
+
     @Unique private boolean hasDoneInitialSetup = false;
 
     @Inject(method = "<init>", at = @At("RETURN"))
@@ -90,7 +90,7 @@ public class WindowMixin {
 
     @Inject(method = "onEnter", at = @At("HEAD"))
     private void giveSelfFocusIfForeground(long window, boolean cursorEntered, CallbackInfo ci) {
-        if (window == this.window && cursorEntered) {
+        if (window == this.handle() && cursorEntered) {
             SplitscreenBootstrapper.getControllerBridge().ifPresent(ControllerBridge::giveFocusToMeIfForeground);
         }
     }

@@ -7,7 +7,7 @@ plugins {
 
 modstitch {
     metadata {
-        modVersion = "0.1.0-alpha.2+${stonecutter.current.version}"
+        modVersion = "0.1.0-alpha.3+${stonecutter.current.version}"
         modId = "controlify_splitscreen"
         modName = "Controlify (Splitscreen)"
     }
@@ -31,7 +31,7 @@ repositories {
 }
 
 val lwjglVersion = when (project.mcVersion) {
-    "1.21.8" -> "3.3.3"
+    "1.21.11" -> "3.3.3"
     else -> throw IllegalStateException("Can't get LWJGL version for: $mcVersion")
 }
 

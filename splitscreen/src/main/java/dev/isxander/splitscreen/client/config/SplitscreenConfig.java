@@ -11,12 +11,12 @@ import dev.isxander.yacl3.config.v3.ConfigEntry;
 import dev.isxander.yacl3.config.v3.JsonFileCodecConfig;
 import dev.isxander.yacl3.config.v3.ReadonlyConfigEntry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @SuppressWarnings("UnstableApiUsage")
 public class SplitscreenConfig extends JsonFileCodecConfig<SplitscreenConfig> {
     public static final SplitscreenConfig INSTANCE = new SplitscreenConfig();
-    public static final ResourceLocation CONFIG_ID = CSUtil.rl("config");
+    public static final Identifier CONFIG_ID = CSUtil.rl("config");
 
     public SplitscreenConfig() {
         super(FabricLoader.getInstance().getConfigDir().resolve("splitscreen.json"));

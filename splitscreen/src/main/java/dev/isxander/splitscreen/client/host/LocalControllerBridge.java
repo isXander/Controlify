@@ -62,12 +62,12 @@ public class LocalControllerBridge implements ControllerBridge {
     }
 
     @Override
-    public void requestPlayMusic(@Nullable Music music, float volume) {
-        this.requestPlayMusicRemote(music, volume, this.controller.getLocalPawn());
+    public void requestPlayMusic(@Nullable Music music) {
+        this.requestPlayMusicRemote(music, this.controller.getLocalPawn());
     }
 
-    public void requestPlayMusicRemote(@Nullable Music music, float volume, SplitscreenPawn pawn) {
-        this.controller.getPawnMusicManager().onRequest(music, volume, pawn);
+    public void requestPlayMusicRemote(@Nullable Music music, SplitscreenPawn pawn) {
+        this.controller.getPawnMusicManager().onRequest(music, pawn);
     }
 
     @Override

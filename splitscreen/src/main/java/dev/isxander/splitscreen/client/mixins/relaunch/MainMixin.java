@@ -29,11 +29,8 @@ public class MainMixin {
                                 UUIDUtil.createOfflinePlayerUUID(username),
                                 "",
                                 Optional.empty(),
-                                Optional.empty(),
-                                User.Type.LEGACY
+                                Optional.empty()
                         ),
-                        new PropertyMap(),
-                        new PropertyMap(),
                         originalData.proxy
                 ))
                 .orElse(originalData);

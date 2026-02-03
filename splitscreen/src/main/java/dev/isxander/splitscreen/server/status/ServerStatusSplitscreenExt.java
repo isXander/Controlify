@@ -6,7 +6,7 @@ import dev.isxander.splitscreen.util.CSUtil;
 import dev.isxander.splitscreen.util.CodecExtensionHelper;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.protocol.status.ServerStatus;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,8 +22,8 @@ import java.util.stream.IntStream;
  * @param maxSubPlayers the amount of sub-players a single client is permitted to join with
  */
 public record ServerStatusSplitscreenExt(int[] supportedProtocols, int maxSubPlayers) {
-    public static final ResourceLocation SPLITSCREEN_SUPPORTED_SPRITE = CSUtil.rl("splitscreen_supported");
-    public static final ResourceLocation SPLITSCREEN_UNSUPPORTED_SPRITE = CSUtil.rl("splitscreen_unsupported");
+    public static final Identifier SPLITSCREEN_SUPPORTED_SPRITE = CSUtil.rl("splitscreen_supported");
+    public static final Identifier SPLITSCREEN_UNSUPPORTED_SPRITE = CSUtil.rl("splitscreen_unsupported");
 
     public static final Codec<ServerStatusSplitscreenExt> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(

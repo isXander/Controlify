@@ -29,37 +29,6 @@ public abstract class ServerConfigurationPacketListenerImplMixin extends ServerC
         super(server, connection, cookie);
     }
 
-    /**
-     * Attach the splitscreen player info when it is created. This is so you
-     * can access necessary splitscreen info for the whole lifecycle of the game, not just login.
-     * @param player the player that was created
-     * @return the player that was created
-     */
-    @ModifyExpressionValue(method = "handleConfigurationFinished", at = @At(value = "NEW", target = "Lnet/minecraft/server/level/ServerPlayer;"))
-    private ServerPlayer attachSplitscreenInfoAtLogin(ServerPlayer player) {
-        @Nullable SplitscreenLoginFlowServer.ControllerState state = SplitscreenLoginFlowServer.getStateFromControllerOrSubplayer(gameProfile.getId());
-
-        if (state != null) {
-            var holder = (SplitscreenPlayerInfo.SplitscreenPlayerInfoHolder) player;
-
-            if (state.hostProfile().equals(gameProfile)) {
-                // we are the controller
-                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.Controller(state.subPlayerProfiles(), state.sharedConfig(), this.server, player));
-            } else {
-                // we are a subplayer
-                int subPlayerIndex = state.getSubPlayerIndex(player.getGameProfile());
-
-                if (subPlayerIndex == -1) {
-                    throw new IllegalStateException("Player " + player.getGameProfile().getName() + " has no subplayer index");
-                }
-
-                holder.splitscreen$setPlayerInfo(new SplitscreenPlayerInfo.SubPlayer(state.hostProfile(), state.sharedConfig(), subPlayerIndex, this.server, player));
-            }
-        }
-
-        return player;
-    }
-
     @Inject(method = "onDisconnect", at = @At("HEAD"))
     private void onDisconnect(DisconnectionDetails details, CallbackInfo ci) {
         SplitscreenLoginFlowServer.onClientDisconnect(this.gameProfile, details);

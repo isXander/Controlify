@@ -29,7 +29,7 @@ public class RemoteControllerBridge implements ControllerBridge {
     public void giveFocusToMeIfForeground() {
         this.connection.send(new ControllerboundGiveMeFocusIfForegroundPacket(
                 WindowManager.get().getNativeWindowHandle(
-                        this.minecraft.getWindow().getWindow()
+                        this.minecraft.getWindow().handle()
                 )
         ));
     }
@@ -45,8 +45,8 @@ public class RemoteControllerBridge implements ControllerBridge {
     }
 
     @Override
-    public void requestPlayMusic(@Nullable Music music, float volume) {
-        this.connection.send(new ControllerboundRequestPlayMusicPacket(music, volume));
+    public void requestPlayMusic(@Nullable Music music) {
+        this.connection.send(new ControllerboundRequestPlayMusicPacket(music));
     }
 
     public void sendEnginePayload(CustomPacketPayload payload) {

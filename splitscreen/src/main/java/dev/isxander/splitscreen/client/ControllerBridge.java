@@ -31,5 +31,5 @@ public interface ControllerBridge extends Bridge {
     /**
      * The client's music manager has attempted to play a track.
      */
-    void requestPlayMusic(@Nullable Music music, float volume);
+    void requestPlayMusic(@Nullable Music music);
 }

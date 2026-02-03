@@ -8,13 +8,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.PacketType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public record PawnboundDisconnectPacket(Component reason) implements Packet<PawnboundCommonPacketListener> {
     public static final StreamCodec<ByteBuf, PawnboundDisconnectPacket> CODEC =
             ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.map(PawnboundDisconnectPacket::new, PawnboundDisconnectPacket::reason);
     // using minecraft:disconnect instead of controlify:disconnect as Connection sends a vanilla disconnect packet, this handles it
-    public static final PacketType<PawnboundDisconnectPacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND, ResourceLocation.withDefaultNamespace("disconnect"));
+    public static final PacketType<PawnboundDisconnectPacket> TYPE = new PacketType<>(PacketFlow.CLIENTBOUND, Identifier.withDefaultNamespace("disconnect"));
 
     @Override
     public void handle(PawnboundCommonPacketListener handler) {

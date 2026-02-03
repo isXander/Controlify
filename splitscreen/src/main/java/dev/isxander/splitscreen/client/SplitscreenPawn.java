@@ -1,6 +1,6 @@
 package dev.isxander.splitscreen.client;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -50,7 +50,7 @@ public interface SplitscreenPawn extends Bridge {
      * Tells the pawns to load a specific config as it has been saved on the controller.
      * @param config the id of the config that was saved
      */
-    void onConfigSave(ResourceLocation config);
+    void onConfigSave(Identifier config);
 
     /**
      * @return the associated controller UID for this pawn, or null if no controller is associated

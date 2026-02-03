@@ -12,6 +12,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionSet;
+import net.minecraft.server.players.NameAndId;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -62,19 +65,19 @@ public class IntegratedServerMixin {
         }
     }
 
-    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getGameProfile()Lcom/mojang/authlib/GameProfile;"))
-    private GameProfile preventPlayerNPE0(LocalPlayer instance, Operation<GameProfile> original) {
+    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;nameAndId()Lnet/minecraft/server/players/NameAndId;"))
+    private NameAndId preventPlayerNPE0(LocalPlayer instance, Operation<NameAndId> original) {
         if (instance == null) return null;
         return original.call(instance);
     }
-    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/server/IntegratedServer;getProfilePermissions(Lcom/mojang/authlib/GameProfile;)I"))
-    private int preventPlayerNPE1(IntegratedServer instance, GameProfile gameProfile, Operation<Integer> original) {
-        if (gameProfile == null) return 0;
-        return original.call(instance, gameProfile);
+    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/server/IntegratedServer;getProfilePermissions(Lnet/minecraft/server/players/NameAndId;)Lnet/minecraft/server/permissions/LevelBasedPermissionSet;"))
+    private LevelBasedPermissionSet preventPlayerNPE1(IntegratedServer instance, NameAndId nameAndId, Operation<LevelBasedPermissionSet> original) {
+        if (nameAndId == null) return LevelBasedPermissionSet.OWNER;
+        return original.call(instance, nameAndId);
     }
-    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;setPermissionLevel(I)V"))
-    private void preventPlayerNPE2(LocalPlayer instance, int permissionLevel, Operation<Void> original) {
+    @WrapOperation(method = "publishServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;setPermissions(Lnet/minecraft/server/permissions/PermissionSet;)V"))
+    private void preventPlayerNPE2(LocalPlayer instance, PermissionSet permissionSet, Operation<Void> original) {
         if (instance == null) return;
-        original.call(instance, permissionLevel);
+        original.call(instance, permissionSet);
     }
 }

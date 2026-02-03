@@ -16,7 +16,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SplitscreenLoginFlowServer {
     public static final int PROTOCOL_VERSION = 1;
-    public static final ResourceLocation CHANNEL_IDENTIFY = CSUtil.rl("splitscreen_identify");
-    public static final ResourceLocation CHANNEL_CONTROLLER = CSUtil.rl("splitscreen_controller");
+    public static final Identifier CHANNEL_IDENTIFY = CSUtil.rl("splitscreen_identify");
+    public static final Identifier CHANNEL_CONTROLLER = CSUtil.rl("splitscreen_controller");
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Random RANDOM = new SecureRandom();
@@ -142,13 +142,13 @@ public class SplitscreenLoginFlowServer {
                         // enforce the username of the sub-player so they can't impersonate other players
                         // and are clearly associated with the main player.
                         GameProfile subPlayerProfile = controllerState.subPlayerProfile(subPlayerIndex);
-                        if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.getName(), helloPacket.name())) {
-                            LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.getName());
+                        if (!SplitscreenServerConfig.INSTANCE.allowAnyUsername.get() && !Objects.equals(subPlayerProfile.name(), helloPacket.name())) {
+                            LOGGER.error("Pawn has sent an invalid username. {} is not the expected username {}", helloPacket.name(), subPlayerProfile.name());
                             listener.disconnect(Component.translatable("controlify.splitscreen.login.invalid_profile"));
                             return;
                         }
 
-                        SUB_PLAYER_TO_CONTROLLER.put(subPlayerProfile.getId(), controllerUuid);
+                        SUB_PLAYER_TO_CONTROLLER.put(subPlayerProfile.id(), controllerUuid);
                         controllerState.signalSubPlayerFinished(subPlayerIndex, subPlayerProfile, connection);
                         listenerState.passedSplitscreenAuth = true;
                         listenerState.controllerState = controllerState;
@@ -201,10 +201,10 @@ public class SplitscreenLoginFlowServer {
 
             byte[] nonce = generateNonce();
             var controllerState = new ControllerState(profile, nonce, subPlayerCount, config);
-            CONTROLLER_STATE.put(profile.getId(), controllerState);
+            CONTROLLER_STATE.put(profile.id(), controllerState);
             state.controllerState = controllerState;
 
-            LOGGER.info("Sending nonce to controller {}", profile.getName());
+            LOGGER.info("Sending nonce to controller {}", profile.name());
             sender.sendPacket(CHANNEL_CONTROLLER, new ClientboundNoncePacket(nonce).encode());
 
             ServerLoginNetworking.registerReceiver(listener, CHANNEL_CONTROLLER, (server, listener1, understood, buf, synchronizer, sender1) -> {
@@ -217,7 +217,7 @@ public class SplitscreenLoginFlowServer {
 
         if (state.controllerState != null) {
             // do not switch to configuration until all clients have logged in.
-            LOGGER.info("Delaying login for controller {}: waiting for sub-players", profile.getName());
+            LOGGER.info("Delaying login for controller {}: waiting for sub-players", profile.name());
             return true;
         }
 
@@ -225,7 +225,7 @@ public class SplitscreenLoginFlowServer {
     }
 
     public static void onClientDisconnect(GameProfile clientProfile, DisconnectionDetails disconnectionDetails) {
-        ControllerState state = state(clientProfile.getId());
+        ControllerState state = state(clientProfile.id());
         if (state != null) {
             // propagate the disconnection to all sub-players
             for (WeakReference<Connection> connectionRef : state.subPlayerConnections.values()) {
@@ -236,7 +236,7 @@ public class SplitscreenLoginFlowServer {
             }
 
             // remove the controller state from the map
-            CONTROLLER_STATE.remove(clientProfile.getId());
+            CONTROLLER_STATE.remove(clientProfile.id());
         }
     }
 
@@ -342,12 +342,12 @@ public class SplitscreenLoginFlowServer {
 
         public GameProfile subPlayerProfile(int index) {
             // uses the `.` to make sure a splitscreen player can never share a username with an actual authenticated player
-            String username = hostProfile.getName() + "." + (index + 1);
+            String username = hostProfile.name() + "." + (index + 1);
             // uuid should be deterministic from the *account*, not their current username.
             // this prevents the main player's username from changing the sub-player's uuid
             // this comes with the side effect that the load order of the sub-player determines their uuid
             // which may not be ideal
-            UUID uuid = UUID.nameUUIDFromBytes((this.hostProfile.getId() + "splitscreen" + index).getBytes(StandardCharsets.UTF_8));
+            UUID uuid = UUID.nameUUIDFromBytes((this.hostProfile.id() + "splitscreen" + index).getBytes(StandardCharsets.UTF_8));
 
             return new GameProfile(uuid, username);
         }
@@ -387,7 +387,7 @@ public class SplitscreenLoginFlowServer {
 
         public void signalSubPlayerFinished(int index, GameProfile profile, Connection connection) {
             if (subPlayerWaiting.remove(index)) {
-                subPlayerConnections.put(profile.getId(), new WeakReference<>(connection));
+                subPlayerConnections.put(profile.id(), new WeakReference<>(connection));
                 subPlayerProfiles[index] = profile;
                 if (subPlayerWaiting.isEmpty()) {
                     allDoneFuture.complete(null);

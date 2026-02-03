@@ -1,13 +1,12 @@
 package dev.isxander.splitscreen.client.host.gui;
 
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -99,7 +98,7 @@ public class SplitscreenLoadingOverlay extends Overlay {
 
             this.fadeOutStart = Util.getMillis();
             if (this.minecraft.screen != null) {
-                this.minecraft.screen.init(this.minecraft, guiGraphics.guiWidth(), guiGraphics.guiHeight());
+                this.minecraft.screen.init(guiGraphics.guiWidth(), guiGraphics.guiHeight());
             }
         }
     }

@@ -3,7 +3,7 @@ package dev.isxander.splitscreen.client.host;
 import dev.isxander.splitscreen.client.InputMethod;
 import dev.isxander.splitscreen.client.LocalSplitscreenPawn;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
@@ -30,7 +30,7 @@ public class HostLocalSplitscreenPawn extends LocalSplitscreenPawn {
      * @param config the id of the config that was saved
      */
     @Override
-    public void onConfigSave(ResourceLocation config) {
+    public void onConfigSave(Identifier config) {
         // no-op
     }
 }

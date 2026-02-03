@@ -19,6 +19,7 @@
   "mixins": [
     "login.MemoryServerHandshakePacketListenerImplMixin",
     "login.PlayerListMixin",
+    "login.PrepareSpawnTaskReadyMixin",
     "login.ServerConfigurationPacketListenerImplMixin",
     "login.ServerGamePacketListenerImplMixin",
     "login.ServerLoginPacketListenerImplMixin",

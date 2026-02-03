@@ -93,7 +93,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
         LOGGER.info("Setting up parent window");
 
         this.parentWindow = new ParentWindow(this.minecraft, screenSize, screenManager, this, initialTitle);
-        this.localPawn = new LocalReparentingPawn(this.minecraft, this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().getWindow()));
+        this.localPawn = new LocalReparentingPawn(this.minecraft, this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().handle()));
         this.registerPawn(this.localInputMethod, this.localPawn);
 
         this.parentWindow.setIcon(minecraft.getVanillaPackResources(), SharedConstants.getCurrentVersion().stable() ? IconSet.RELEASE : IconSet.SNAPSHOT);
@@ -207,7 +207,7 @@ public class ReparentingHostSplitscreenEngine extends ReparentingSplitscreenEngi
     public void onFocusParentWindow(boolean focused) {
         if (focused) {
             this.windowManager.setWindowForeground(this.parentWindow.getNativeWindowHandle());
-            this.windowManager.setWindowFocused(this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().getWindow()));
+            this.windowManager.setWindowFocused(this.windowManager.getNativeWindowHandle(this.minecraft.getWindow().handle()));
         }
     }
 
