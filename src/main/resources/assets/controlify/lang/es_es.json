@@ -1,5 +1,4 @@
 {
-  "controlify.placeholder": "%1$s",
   "controlify.gui.carousel.title": "Mandos",
   "controlify.gui.carousel.no_controllers": "No hay mandos conectados.",
   "controlify.gui.carousel.entry.settings": "Ajustes",
@@ -52,7 +51,6 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Si se habilita, Controlify usará un controlador mejorado para Steam Deck para mejorar la compatibilidad y el rendimiento. Esto es experimental y puede tener errores. Este controlador requiere que Decky Loader esté instalado en tu Deck.",
   "controlify.gui.copy_debug_dump": "Copiar volcado de depuración al portapapeles",
   "controlify.gui.copy_debug_dump.tooltip": "Copia un volcado de depuración de Controlify a tu portapapeles. Es posible que se te pida usar esto si estás buscando soporte.",
-  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Nuevo en esta actualización",
   "controlify.gui.new_options.tooltip": "Una muestra de las nuevas opciones en las últimas actualizaciones.",
   "controlify.gui.new_options.label": "¡Esta opción es nueva!",
