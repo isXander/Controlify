@@ -52,7 +52,6 @@
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Khi bật, Controlify sẽ sử dụng trình điều khiển Steam Deck nâng cao để cải thiện hiệu năng và tính tương thích. Đây là tính năng thử nghiệm có thể xảy ra lỗi. Trình điều khiển này yêu cầu cài đặt Decky Loader lên Steam Deck.",
   "controlify.gui.copy_debug_dump": "Sao chép thông tin gỡ lỗi vào bộ nhớ tạm",
   "controlify.gui.copy_debug_dump.tooltip": "Sao chép thông tin gỡ lỗi Controlify vào bộ nhớ tạm. Bạn có thể sẽ được hỏi cung cấp thông tin này nếu đang yêu cầu hỗ trợ.",
-  "controlify.gui.not_supported": "Your controller may not support %s.",
   "controlify.gui.new_options": "Mới trong bản cập nhật này",
   "controlify.gui.new_options.tooltip": "Giới thiệu các tùy chọn mới trong bản cập nhật mới nhất.",
   "controlify.gui.new_options.label": "Đây là tùy chọn mới!",
