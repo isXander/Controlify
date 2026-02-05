@@ -1,5 +1,7 @@
 package dev.isxander.splitscreen.client;
 
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.ControllerUID;
 import dev.isxander.splitscreen.client.ipc.utils.ExtraStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
@@ -64,6 +66,13 @@ public sealed interface InputMethod {
         @Override
         public Optional<ControllerUID> getControllerUID() {
             return Optional.of(uid());
+        }
+
+        public Optional<ControllerEntity> findControllerEntity() {
+            return Controlify.instance().getControllerManager().orElseThrow()
+                    .getConnectedControllers().stream()
+                    .filter(c -> c.uid().equals(uid))
+                    .findAny();
         }
 
         @Override

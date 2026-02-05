@@ -93,6 +93,26 @@ public sealed interface SplitscreenPosition {
             return new ScreenRectangle(realX, realY, quadrantWidth, quadrantHeight);
         }
 
+        public ScreenRectangle applyToRealDims(int x, int y, int width, int height, int paddingBetween, int paddingEdge) {
+            int totalPaddingX = paddingEdge * 2 + paddingBetween * (cellCountX - 1);
+            int totalPaddingY = paddingEdge * 2 + paddingBetween * (cellCountY - 1);
+            int quadrantWidth = (width - totalPaddingX) / cellCountX;
+            int quadrantHeight = (height - totalPaddingY) / cellCountY;
+            int realX = x + paddingEdge + this.x * (quadrantWidth + paddingBetween);
+            int realY = y + paddingEdge + this.y * (quadrantHeight + paddingBetween);
+            return new ScreenRectangle(realX, realY, quadrantWidth, quadrantHeight);
+        }
+
+        public static Visible[] arrangeForN(int n, boolean preferHorizontal) {
+            return switch (n) {
+                case 1 -> new SplitscreenPosition.Visible[]{SplitscreenPosition.FULL};
+                case 2 -> preferHorizontal ? SplitscreenPosition.LEFT_RIGHT : SplitscreenPosition.TOP_BOTTOM;
+                case 3 -> preferHorizontal ? SplitscreenPosition.LEFT_TOP_BOTTOM : SplitscreenPosition.LEFT_RIGHT_BOTTOM;
+                case 4 -> SplitscreenPosition.FOUR_WAY;
+                default -> SplitscreenPosition.Visible.arrangeInGridForN(n);
+            };
+        }
+
         public static Visible[] arrangeInGridForN(int n) {
             int cellCountX = (int) Math.ceil(Math.sqrt(n));
             int cellCountY = (int) Math.ceil((double) n / cellCountX);

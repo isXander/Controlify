@@ -39,7 +39,7 @@ public class LocalSplitscreenPawn implements SplitscreenPawn {
     public void joinServer(String host, int port, byte @Nullable [] nonce) {
         String ip = host + ":" + port;
         var address = new ServerAddress(host, port);
-        var data = new ServerData("Splitscreen Master", ip, ServerData.Type.LAN);
+        var data = new ServerData("Splitscreen Host", ip, ServerData.Type.LAN);
         this.nonce = nonce;
 
         ConnectScreen.startConnecting(minecraft.screen, minecraft, address, data, false, null);

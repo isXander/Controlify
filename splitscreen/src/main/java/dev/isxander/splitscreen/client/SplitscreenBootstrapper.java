@@ -1,6 +1,7 @@
 package dev.isxander.splitscreen.client;
 
 import com.mojang.logging.LogUtils;
+import dev.isxander.controlify.Controlify;
 import dev.isxander.splitscreen.client.config.SplitscreenConfig;
 import dev.isxander.splitscreen.client.engine.SplitscreenEngine;
 import dev.isxander.splitscreen.server.SplitscreenSSClient;
@@ -22,7 +23,7 @@ import java.util.Optional;
 
 /**
  * The main class of the splitscreen mod.
- * Valid on both host and pawns, faciliates the abstraction and access
+ * Valid on both host and pawns, facilitates the abstraction and access
  * to the controller and pawn main classes.
  */
 public class SplitscreenBootstrapper {
@@ -94,6 +95,13 @@ public class SplitscreenBootstrapper {
 
     private static void bootstrapAsController(Minecraft minecraft, IPCMethod connectionMethod, InputMethod localInputMethod) {
         controller = new SplitscreenController(minecraft, connectionMethod, localInputMethod);
+        Controlify.instance().setCurrentController(
+                localInputMethod.getControllerUID()
+                        .flatMap(uid -> Controlify.instance().getControllerManager()
+                                .flatMap(cm -> cm.getController(uid)))
+                        .orElse(null),
+                true
+        );
     }
 
     public static boolean isSplitscreen() {

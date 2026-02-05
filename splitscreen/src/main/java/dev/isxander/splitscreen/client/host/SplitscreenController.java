@@ -83,6 +83,10 @@ public class SplitscreenController  {
         }
     }
 
+    public List<SplitscreenPawn> getPawns() {
+        return Collections.unmodifiableList(this.pawns);
+    }
+
     public int getNextPawnIndex() {
         return this.pawns.size();
     }
@@ -167,13 +171,7 @@ public class SplitscreenController  {
                 int pawnCount = this.pawns.size();
                 boolean horizontal = !SplitscreenConfig.INSTANCE.preferVerticalSplitscreen.get();
 
-                SplitscreenPosition.Visible[] positions = switch (pawnCount) {
-                    case 1 -> new SplitscreenPosition.Visible[]{SplitscreenPosition.FULL};
-                    case 2 -> horizontal ? SplitscreenPosition.LEFT_RIGHT : SplitscreenPosition.TOP_BOTTOM;
-                    case 3 -> horizontal ? SplitscreenPosition.LEFT_TOP_BOTTOM : SplitscreenPosition.LEFT_RIGHT_BOTTOM;
-                    case 4 -> SplitscreenPosition.FOUR_WAY;
-                    default -> SplitscreenPosition.Visible.arrangeInGridForN(pawnCount);
-                };
+                SplitscreenPosition.Visible[] positions = SplitscreenPosition.Visible.arrangeForN(pawnCount, horizontal);
 
                 this.forEachPawn((pawn, i) -> {
                     SplitscreenPosition position = positions[i];

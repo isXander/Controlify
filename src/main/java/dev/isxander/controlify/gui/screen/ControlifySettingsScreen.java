@@ -61,20 +61,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 
         // Top Links
-        Component donateText = Component.translatable("controlify.gui.carousel.donate")
-                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
-        PlainTextButton donateBtn = this.addRenderableWidget(new PlainTextButton(3, 3, 100, 11, donateText, btn -> {
-            Util.getPlatform().openUri("https://patreon.com/isxander");
-        }, font));
-        donateBtn.setTabOrderGroup(2);
-
-        Component artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
-                .withStyle(ChatFormatting.DARK_GRAY);
-        int artCreditTextWidth = font.width(artCreditText);
-        PlainTextButton artCreditBtn = this.addRenderableWidget(new PlainTextButton(width - artCreditTextWidth - 3, 3, artCreditTextWidth, 11, artCreditText, btn -> {
-            Util.getPlatform().openUri("https://github.com/Andrew6rant");
-        }, font));
-        artCreditBtn.setTabOrderGroup(2);
+        this.addTopLeftLink();
+        this.addTopRightLink();
 
 
         // Controller Not Detected Button
@@ -120,35 +108,60 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             int mainPaneY = 11;
             int mainPaneHeight = this.mainPaneHeight - mainPaneY;
 
-            int slotPaddingX = 10;
-            int slotPaddingY = 10;
+            int slotPadding = 10;
 
-            int playerSlotHeight = mainPaneHeight - (2 * slotPaddingY);
-            int playerSlotWidth = this.width - (2 * slotPaddingX);
-            if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
-                ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-                        0,
-                        mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-                        playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
-                );
-                this.addRenderableWidget(profileSlotEntry);
-                SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-                        mainPaneX + slotPaddingX + playerSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
-                        playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
-                );
-                this.addRenderableWidget(splitscreenAdEntry);
-            } else {
-                ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-                        0,
-                        mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-                        playerSlotWidth, playerSlotHeight
-                );
-                this.addRenderableWidget(profileSlotEntry);
-            }
+            this.arrangeGrid(mainPaneX, mainPaneY, this.width, mainPaneHeight, slotPadding);
         }
 
         ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
         ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
+    }
+
+    protected void arrangeGrid(int paneX, int paneY, int paneWidth, int paneHeight, int padding) {
+        int playerSlotHeight = paneHeight - (2 * padding);
+        int playerSlotWidth = paneWidth - (2 * padding);
+        if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd) {
+            ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+                    this,
+                    0,
+                    paneX + padding, paneY + padding,
+                    playerSlotWidth / 2 - (padding / 2), playerSlotHeight
+            );
+            this.addRenderableWidget(profileSlotEntry);
+            SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
+                    this,
+                    paneX + padding + playerSlotWidth / 2 + (padding / 2), paneY + padding,
+                    playerSlotWidth / 2 - (padding / 2), playerSlotHeight
+            );
+            this.addRenderableWidget(splitscreenAdEntry);
+        } else {
+            ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+                    this,
+                    0,
+                    paneX + padding, paneY + padding,
+                    playerSlotWidth, playerSlotHeight
+            );
+            this.addRenderableWidget(profileSlotEntry);
+        }
+    }
+
+    protected void addTopLeftLink() {
+        Component donateText = Component.translatable("controlify.gui.carousel.donate")
+                .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+        PlainTextButton donateBtn = this.addRenderableWidget(new PlainTextButton(3, 3, 100, 11, donateText, btn -> {
+            Util.getPlatform().openUri("https://patreon.com/isxander");
+        }, font));
+        donateBtn.setTabOrderGroup(2);
+    }
+
+    protected void addTopRightLink() {
+        Component artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
+                .withStyle(ChatFormatting.DARK_GRAY);
+        int artCreditTextWidth = font.width(artCreditText);
+        PlainTextButton artCreditBtn = this.addRenderableWidget(new PlainTextButton(width - artCreditTextWidth - 3, 3, artCreditTextWidth, 11, artCreditText, btn -> {
+            Util.getPlatform().openUri("https://github.com/Andrew6rant");
+        }, font));
+        artCreditBtn.setTabOrderGroup(2);
     }
 
     @Override
@@ -201,12 +214,15 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
                 .orElse(false);
     }
 
-    private abstract static class SlotEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+    public abstract static class SlotEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+        protected final ControlifySettingsScreen screen;
         protected final int x, y, width, height;
 
         public SlotEntry(
+                ControlifySettingsScreen screen,
                 int x, int y, int width, int height
         ) {
+            this.screen = screen;
             this.x = x;
             this.y = y;
             this.width = width;
@@ -234,24 +250,25 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
     }
 
-    private class ProfileSlotEntry extends SlotEntry {
-        private static final Identifier KEYBOARD_MOUSE_SPRITE = CUtil.rl("keyboard_mouse");
+    public static class ProfileSlotEntry extends SlotEntry {
+        protected static final Identifier KEYBOARD_MOUSE_SPRITE = CUtil.rl("keyboard_mouse");
 
-        private final int playerIndex;
-        private @Nullable ControllerEntity controller;
+        protected final int playerIndex;
+        protected @Nullable ControllerEntity controller;
 
-        private final Button settingsButton;
-        private final PlainTextWidget controllerNameText;
-        private /*? if >=1.21.8>>*/final ImageWidget controllerIcon;
-        private final GridLayout gridLayout;
+        protected final Button settingsButton;
+        protected final PlainTextWidget controllerNameText;
+        protected /*? if >=1.21.8>>*/final ImageWidget controllerIcon;
+        protected final GridLayout gridLayout;
 
-        private final ImmutableList<? extends GuiEventListener> children;
+        protected final ImmutableList<? extends GuiEventListener> children;
 
         public ProfileSlotEntry(
+                ControlifySettingsScreen screen,
                 int playerIndex,
                 int x, int y, int width, int height
         ) {
-            super(x, y, width, height);
+            super(screen, x, y, width, height);
             this.playerIndex = playerIndex;
 
             this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> onSettingsButtonPressed()).build();
@@ -284,18 +301,18 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         private void onSettingsButtonPressed() {
-            ProfileSettings profileSettings = Controlify.instance().config().getSettings().getProfileSettings(playerIndex);
-            ProfileSettings defaultSettings = ProfileSettings.createDefault(
-                    this.controller != null ? this.controller.info().type().namespace() : null
-            );
+            var controllerType = this.controller != null ? this.controller.info().type().namespace() : null;
+            ProfileSettings profileSettings = Controlify.instance().config().getSettings()
+                    .getOrCreateProfileSettings(playerIndex, controllerType);
+            ProfileSettings defaultSettings = ProfileSettings.createDefault(controllerType);
 
             var screen = ControllerConfigScreenFactory.generateConfigScreen(
-                    ControlifySettingsScreen.this,
+                    this.screen,
                     profileSettings,
                     defaultSettings,
                     this.controller
             );
-            minecraft.setScreen(screen);
+            Minecraft.getInstance().setScreen(screen);
         }
 
         private void updateControllerInfo(boolean force) {
@@ -325,7 +342,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             *///?}
         }
 
-        private @Nullable ControllerEntity getController() {
+        protected @Nullable ControllerEntity getController() {
             return Controlify.instance().getCurrentController().orElse(null);
         }
 
@@ -346,7 +363,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
     }
 
-    private class SplitscreenAdvertisementSlotEntry extends SlotEntry {
+    public static class SplitscreenAdvertisementSlotEntry extends SlotEntry {
         private final PlainTextWidget adText;
         private final Button adButton;
         private final PlainTextButton disableAdButton;
@@ -354,9 +371,10 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         private final ImmutableList<? extends GuiEventListener> children;
 
         public SplitscreenAdvertisementSlotEntry(
+                ControlifySettingsScreen screen,
                 int x, int y, int width, int height
         ) {
-            super(x, y, width, height);
+            super(screen, x, y, width, height);
 
             this.adText = new PlainTextWidget(
                     Component.literal("Try Splitscreen preview!")
@@ -369,14 +387,14 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
             Component disableAdText = Component.literal("Don't show this again")
                     .withStyle(ChatFormatting.DARK_GRAY);
             this.disableAdButton = new PlainTextButton(
-                    0, 0, font.width(disableAdText), 11,
+                    0, 0, Minecraft.getInstance().font.width(disableAdText), 11,
                     disableAdText,
                     btn -> {
                         Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd = false;
                         Controlify.instance().config().saveSafely();
-                        ControlifySettingsScreen.this.rebuildWidgets();
+                        this.screen.rebuildWidgets();
                     },
-                    font
+                    Minecraft.getInstance().font
             );
             this.children = ImmutableList.of(adText, adButton, disableAdButton);
 

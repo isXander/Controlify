@@ -107,7 +107,7 @@ public class GLFWControllerManager extends AbstractControllerManager {
         ControllerEntity controller = new ControllerEntity(
                 info,
                 compoundDriver,
-                this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
+                this.controlify.config().getSettings().getOrCreateProfileSettings(0, info.type().namespace()),
                 ProfileSettings.createDefault(info.type().namespace()),
                 controllerLogger
         );

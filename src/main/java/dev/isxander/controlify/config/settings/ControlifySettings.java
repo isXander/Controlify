@@ -47,12 +47,8 @@ public class ControlifySettings {
         return profileSettings.get(profileIndex);
     }
 
-    public ProfileSettings getProfileSettings() {
-        return getProfileSettings(0);
-    }
-
-    public ProfileSettings getOrCreateProfileSettings(Identifier controllerType) {
-        var settings = this.getProfileSettings(0);
+    public ProfileSettings getOrCreateProfileSettings(int playerIndex, Identifier controllerType) {
+        var settings = this.getProfileSettings(playerIndex);
         if (settings == null) {
             settings = ProfileSettings.createDefault(controllerType);
             this.profileSettings.add(settings);

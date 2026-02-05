@@ -10,6 +10,7 @@
   },
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "controlify.ControlifySettingsScreenMixin",
     "core.IntegratedServerMixin",
     "core.MinecraftMixin",
     "core.WindowAccessor",

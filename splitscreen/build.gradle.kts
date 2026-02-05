@@ -38,7 +38,7 @@ val lwjglVersion = when (project.mcVersion) {
 dependencies {
     fun Dependency?.jij() = this?.let { modstitchJiJ(it) }
 
-    if (modstitch.isLoom) {
+    if (modstitch.isLoom && !modstitch.isUnobfuscated.get()) {
         api(project(path = branchProj.path, configuration = "namedElements"))
     } else if (modstitch.isModDevGradleRegular) {
         api(branchProj)

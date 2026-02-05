@@ -33,6 +33,8 @@
   "controlify.splitscreen.config.basic.music_method.first_player": "First player",
   "controlify.splitscreen.config.basic.music_method.priority": "Priority",
   "controlify.splitscreen.open_button": "Splitscreen...",
+  "controlify.splitscreen.join_prompt": "Press %s to join",
   "controlify.splitscreen.toast.long_press_to_join.title": "Splitscreen",
-  "controlify.splitscreen.toast.long_press_to_join": "Press %s to start splitscreen"
+  "controlify.splitscreen.toast.long_press_to_join": "Press %s to start splitscreen",
+  "controlify.splitscreen.add_player_hint": "Press %s to add more players"
 }
