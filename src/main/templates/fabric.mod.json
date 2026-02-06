@@ -41,7 +41,7 @@
   "breaks": {
     "midnightcontrols": "*",
     "controllable": "*",
-    "zoomify": "<=2.13.4",
+    "zoomify": "<=2.15.1",
     "do_a_barrel_roll": "<=3.5.8"
   }
 }
