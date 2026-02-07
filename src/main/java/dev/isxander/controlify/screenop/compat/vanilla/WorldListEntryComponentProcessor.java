@@ -12,7 +12,7 @@ public class WorldListEntryComponentProcessor implements ComponentProcessor {
     public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
             var selectWorldScreen = (SelectWorldScreen) screen.screen;
-            selectWorldScreen.setFocused(((SelectWorldScreenAccessor) selectWorldScreen).getSelectButton());
+            selectWorldScreen.setFocused(((SelectWorldScreenAccessor) selectWorldScreen).getPlayWorldButton());
 
             return true;
         }

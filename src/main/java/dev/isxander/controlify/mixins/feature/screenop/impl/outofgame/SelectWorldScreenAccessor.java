@@ -8,8 +8,12 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(SelectWorldScreen.class)
 public interface SelectWorldScreenAccessor {
-    @Accessor
-    Button getSelectButton();
+    @Accessor(
+            //? if <26.1 {
+            /*"selectButton"
+            *///?}
+    )
+    Button getPlayWorldButton();
 
     @Accessor
     WorldSelectionList getList();

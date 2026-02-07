@@ -1,16 +1,8 @@
 {
   "$schema": "https://codeberg.org/stonecutter/stonecutter/raw/branch/0.7/tools/settings-schema.json",
-  "vcs": "1.21.11-fabric",
   "branches": {
     "": [
-      "26.1-fabric:26.1",
-      "1.21.11-fabric:1.21.11", "1.21.11-neoforge:1.21.11",
-      "1.21.10-fabric:1.21.10", "1.21.10-neoforge:1.21.10",
-      "1.21.8-fabric:1.21.8", "1.21.8-neoforge:1.21.8",
-      "1.21.5-fabric:1.21.5", "1.21.5-neoforge:1.21.5",
-      "1.21.4-fabric:1.21.4", "1.21.4-neoforge:1.21.4",
-      "1.21.3-fabric:1.21.3", "1.21.3-neoforge:1.21.3",
-      "1.21.1-fabric:1.21.1", "1.21.1-neoforge:1.21.1"
+      "26.1-fabric:26.1"
     ]
   }
 }
