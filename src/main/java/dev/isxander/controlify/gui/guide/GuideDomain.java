@@ -44,7 +44,7 @@ public class GuideDomain<T extends FactCtx> implements GuideDomainRegistry<T>, S
     /** All rules loaded from resource packs as well as dynamic rules */
     private List<Rule> rules;
     /** The facts that need to be resolved each tick based on references */
-    private Map<Identifier, Boolean> resolvedFacts;
+    private Map<Identifier, Boolean> resolvedFacts = Map.of();
 
     private PrecomputedLines leftGuides = PrecomputedLines.EMPTY;
     private PrecomputedLines rightGuides = PrecomputedLines.EMPTY;

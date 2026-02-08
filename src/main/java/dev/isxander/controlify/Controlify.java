@@ -5,10 +5,7 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
-import dev.isxander.controlify.api.guide.ContainerCtx;
-import dev.isxander.controlify.api.guide.GuideDomainRegistries;
-import dev.isxander.controlify.api.guide.GuideDomainRegistry;
-import dev.isxander.controlify.api.guide.InGameCtx;
+import dev.isxander.controlify.api.guide.*;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -30,6 +27,7 @@ import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
+import dev.isxander.controlify.gui.guide.GuideDomain;
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -196,6 +194,13 @@ public class Controlify implements ControlifyApi {
                             @Override
                             public GuideDomainRegistry<ContainerCtx> container() {
                                 return GuideDomains.CONTAINER;
+                            }
+
+                            @Override
+                            public <T extends FactCtx> GuideDomainRegistry<T> registerCustom(GuideDomain<T> domain) {
+                                GuideDomains.CUSTOM_DOMAINS.put(domain.id(), domain);
+                                PlatformClientUtil.registerAssetReloadListener(domain);
+                                return domain;
                             }
                         };
                     }
