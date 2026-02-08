@@ -581,14 +581,14 @@ public class Controlify implements ControlifyApi {
     }
 
     @Override
-    public boolean setInputMode(@NotNull InputMode currentInputMode) {
-        if (this.currentInputMode == currentInputMode) return false;
-        if (this.currentInputMode.isController() && this.getCurrentController().isEmpty()) {
+    public boolean setInputMode(@NotNull InputMode newInputMode) {
+        if (this.currentInputMode == newInputMode) return false;
+        if (newInputMode.isController() && this.getCurrentController().isEmpty()) {
             DebugLog.log("Attempted to switch to controller input mode with no current controller set.");
             return false;
         }
 
-        this.currentInputMode = currentInputMode;
+        this.currentInputMode = newInputMode;
 
         // Track consecutive input mode switches to prevent softlock
         if (Blaze3D.getTime() - lastInputSwitchTime < 20) {
@@ -599,7 +599,7 @@ public class Controlify implements ControlifyApi {
         lastInputSwitchTime = Blaze3D.getTime();
 
         if (!minecraft.mouseHandler.isMouseGrabbed()) {
-            hideMouse(currentInputMode.isController(), true);
+            hideMouse(newInputMode.isController(), true);
         }
 
         this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
@@ -616,11 +616,11 @@ public class Controlify implements ControlifyApi {
 
         // notify current screen of input mode change
         if (minecraft.screen != null) {
-            ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(currentInputMode);
+            ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(newInputMode);
         }
 
         // notify event listeners of input mode change
-        ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(currentInputMode));
+        ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(newInputMode));
 
         return true;
     }
