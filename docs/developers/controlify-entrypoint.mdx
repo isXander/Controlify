@@ -6,26 +6,70 @@ _Learn how to hook into Controlify._
 
 Controlify provides a Fabric entrypoint to hook into important lifecycle stages of Controlify. You do this just like `ClientModInitializer`.
 
+## Adding Controlify dependency
+
+In your `build.gradle` (or `build.gradle.kts`), you need to add the maven
+repository and the Controlify mod dependency.
+
+<details>
+<summary>Maven repository</summary>
+
+```kotlin
+repositories {
+    exclusiveContent {
+        forRepository { maven { url "https://maven.isxander.dev/releases" } }
+        filter { includeGroup "dev.isxander" }
+    }
+}
+```
+
+</details>
+
+<details>
+<summary>Dependency</summary>
+
+Add the version to your `gradle.properties`:
+
+```properties
+# You can find the versions in here: https://maven.isxander.dev/#/releases/dev/isxander/controlify
+controlify_version=2.4.3+1.21.1-neoforge
+```
+
+```kotlin
+dependencies {
+    // Note: "compileOnly" must be replaced with "modCompileOnly" if Fabric Loom is used while targeting an obfuscated Minecraft version.
+    //  This is not needed for deobfuscated Minecraft versions.
+    compileOnly("dev.isxander:controlify:${project.controlify_version}") {
+        // Only need Controlify API, ignore the transitive dependencies (e.g, QuiltMC parsers)
+        transitive = false
+    }
+}
+```
+
+</details>
+
 ## Registering the entrypoint
 
-- On Fabric, you register an entrypoint like any other, by adding an entry to your `fabric.mod.json` file under the `entrypoints` section.
-- On NeoForge, you register an entrypoint using a Java service provider interface (SPI) in your `META-INF/services` directory.
+The entrypoint can be registered using a
+Java service provider interface (SPI) in **`META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint`**
 
-<CodeTabs>
-    ```json !!tabs (Fabric) fabric.mod.json
-    {
-        "entrypoints": {
-            "controlify": [
-                "com.example.mymod.ControlifyEntrypoint"
-            ]
-        }
+```txt
+com.example.mymod.ControlifyEntrypoint
+```
+
+### Fabric Entrypoint
+
+On Fabric, the same entrypoint may **also** be registered via `fabric.mod.json`.
+
+```json
+{
+    "entrypoints": {
+        "controlify": [
+            "com.example.mymod.ControlifyEntrypoint"
+        ]
     }
-    ```
-
-    ```txt !!tabs (NeoForge) META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint
-    com.example.mymod.ControlifyEntrypoint
-    ```
-</CodeTabs>
+}
+```
 
 Then simply create the class and implement the interface:
 

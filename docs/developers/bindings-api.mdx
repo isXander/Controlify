@@ -7,40 +7,54 @@ _Learn how to register new controller bindings._
 ## Registering a custom input binding
 
 <Callout variant="info">
-    You should register bindings inside of the Controlify init entrypoint. Read more in [Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
+    The custom input bindings must be registered inside the Controlify pre-init entrypoint. Read more in [Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
 </Callout>
 
 Controlify allows users to configure different buttons on their controllers to actions in-game. You may want your own mod's actions to be able to be invoked from the controller too.
 
-To register a controller binding, you must use the `ControllerBindingsApi.`
+To register a controller binding, use the `ControlifyBindApi.get()` method:
 
 ```java
-private BindingSupplier action1Binding;
+private InputBindingSupplier actionBinding;
 
 @Override
 public void onControlifyInit(InitContext ctx) {
-    action1Binding = ctx.bindings().registerBinding(
+    final ControlifyBindApi registrar = ControlifyBindApi.get();
+    registerInputBindings(registrar);
+}
+
+private void registerInputBindings(ControlifyBindApi registrar) {
+    actionBinding = registrar.registerBinding(
             builder -> builder
-                    .id("mymod", "action1") // the id of the binding, this should be unique to your mod
-                    .category(Component.translatable("mymod.binding.category")) // the category of the binding, this is used to group bindings together in the settings
-                    .allowedContexts(BindContext.IN_GAME) // a context is where the binding can be used, you can use multiple contexts
-                    .radialCandiate(RadialIcons.getEffect/getIcon(...)) // if you want to allow your binding to be used in the radial menu
+                    .id(ResourceLocation.fromNamespaceAndPath(MyMod.MODID, path))
+                    // The category of the binding, this is used to group bindings together in the settings.
+                    .category(Component.translatable("mymod.binding.category"))
+                    // A context is where the binding can be used. Multiple contexts can be used.
+                    // For example, using `BindContext.IN_GAME` will cause the binding to always return
+                    // `false` inside a screen, even if it's pressed.
+                    .allowedContexts(BindContext.IN_GAME)
+                    // Allow using the binding in the radial menu.
+                    // You can't use a custom modded item directly in here, since it's not registered yet
+                    // and a runtime error will be thrown. Continue reading for a better alternative.
+                    .radialCandidate(RadialIcons.getItem(Items.BARRIER)))
+                    // Prevents Controlify from auto-registering controller bindings for the
+                    // vanilla key mappings due to explicit native support.
+                    .addKeyCorrelation(MyModKeyMappings.ACTION)
+                    // Emulates the vanilla KeyMapping behavior.
+                    // Note: "keyEmulation" calls "addKeyCorrelation" internally, so no need to call both.
+                    //
+                    // It will not work with key mappings that are handled using NeoForge `InputEvent`s.
+                    // It such cases, you can fix the problem either by:
+                    // 1. Patch the mod to migrate to vanilla `KeyMapping` handling (example: https://github.com/iron431/irons-spells-n-spellbooks/pull/989).
+                    // 2. Provide explicit Controlify support.
+                    .keyEmulation(MyModKeyMappings.ACTION)
     );
 }
 ```
 
 To add a name and description to the binding, you need to define the language keys `controlify.binding.<namespace>.<path>` and `controlify.binding.<namespace>.<path>.desc` respectively, alternatively, you can set `.name(Component)` and `.description(Component)`
 
-Registering the binding provides you with a `BindingSupplier`, where you can then access the binding with `action1Binding.on(controller);`
-
-Controlify automatically converts your existed modded `KeyMapping`s to controller bindings, but relying on this behaviour if you are going to explicitly support Controlify is not recommended. You can stop this conversion with the following...
-
-```java
-@Override
-public void onControlifyInit(InitContext ctx) {
-    ctx.bindings().exclude(MyMod.myKeyMapping);
-}
-```
+Registering the binding provides you with a `InputBindingSupplier`, where you can then access the binding with `actionBinding.on(controller);`
 
 ## Defining a default binding
 
@@ -83,3 +97,63 @@ There are more properties available inside of `InputBinding` which you can look 
 There is nothing special about rendering glyphs for controller bindings, as Controlify utilises custom fonts.
 
 This means you can use the glyphs within localised text, or just render it with `graphics.drawString(myBinding.inputGlyph(), x, y, -1);`
+
+## Registering Custom Radial Icons
+
+When registering a radial menu candidate, you must provide an icon to render it in the GUI.
+You can use `RadialIcons.getEffect(...)` or `RadialIcons.getItem(...)` (for example, `RadialIcons.getItem(Items.REDSTONE)`).
+
+However, **do not reference modded items directly** (e.g., `RadialIcons.getItem(ModItems.CUSTOM.get())`),
+as item registration is deferred — meaning those items are not yet registered at this stage.
+
+What you can do instead, is to reference the texture image file in the bundled resource-pack of your mod,
+using the following approach:
+
+```java
+private enum MyRadialIcons {
+    CUSTOM(MyMod.rl("textures/item/custom.png")),;
+
+    private final @NotNull ResourceLocation id;
+
+    MyRadialIcons(@NotNull ResourceLocation id) {
+        this.id = id;
+    }
+
+    public @NotNull ResourceLocation getId() {
+        return id;
+    }
+}
+
+@Override
+public void onControlifyPreInit(PreInitContext context) {
+    final ControlifyBindApi registrar = ControlifyBindApi.get();
+    registerCustomRadialIcons();
+
+    // Must be called after registerCustomRadialIcons
+    registerInputBindings(registrar);
+}
+
+private void registerCustomRadialIcons() {
+    for (MyRadialIcons icon : MyRadialIcons.values()) {
+        final ResourceLocation location = icon.getId();
+
+        // For consistency with the current Controlify radial icons,
+        // this code is equivalent to:
+        // https://github.com/isXander/Controlify/blob/f5c94c57d5e0d4954e413624a0d7ead937b6e8ab/src/main/java/dev/isxander/controlify/bindings/RadialIcons.java#L106-L112
+        RadialIcons.registerIcon(location, (graphics, x, y, tickDelta) -> {
+            var pose = CGuiPose.ofPush(graphics);
+            pose.translate(x, y);
+            pose.scale(0.5f, 0.5f);
+            Blit.tex(graphics, location, 0, 0, 0, 0, 32, 32, 32, 32);
+            pose.pop();
+        });
+    }
+}
+
+private void registerInputBindings(ControlifyBindApi registrar) {
+    actionBinding = registrar.registerBinding(
+            builder -> builder
+                    .radialCandidate(MyRadialIcons.CUSTOM.getId())
+    );
+}
+```
