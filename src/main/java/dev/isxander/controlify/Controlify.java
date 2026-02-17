@@ -471,14 +471,16 @@ public class Controlify implements ControlifyApi {
                     currentController
             );
         });
-        for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-            if (controller.equals(getCurrentController().orElse(null))) continue;
+        if (config().getSettings().globalSettings().autoSwitchControllers) {
+            for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+                if (controller.equals(getCurrentController().orElse(null))) continue;
 
-            wrapControllerError(
-                    () -> tickInactiveController(controller),
-                    "Ticking inactive controller",
-                    controller
-            );
+                wrapControllerError(
+                        () -> tickInactiveController(controller),
+                        "Ticking inactive controller",
+                        controller
+                );
+            }
         }
 
         // Periodically save config if dirty (e.g., from gyro calibration updates)

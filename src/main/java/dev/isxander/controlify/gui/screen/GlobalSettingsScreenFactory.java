@@ -2,6 +2,7 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
@@ -21,16 +22,27 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class GlobalSettingsScreenFactory {
     public static Screen createGlobalSettingsScreen(Screen parent) {
         var globalSettings = Controlify.instance().config().getSettings().globalSettings();
         AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
+        AtomicReference<Option<String>> controllerSelector = new AtomicReference<>();
+
+        List<String> controllerUids = new ArrayList<>();
+        controllerUids.add("");
+        Controlify.instance().getControllerManager().ifPresent(cm -> {
+            for (ControllerEntity c : cm.getConnectedControllers()) {
+                controllerUids.add(c.uid());
+            }
+        });
 
         boolean is12106OrLater = /*? if >=1.21.6 {*/ true /*?} else {*/ /*false *//*?}*/;;
 
-        return YetAnotherConfigLib.createBuilder()
+        Screen result = YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))
                 .save(() -> Controlify.instance().config().saveSafely())
                 .category(ConfigCategory.createBuilder()
@@ -153,6 +165,56 @@ public class GlobalSettingsScreenFactory {
                                         .binding(GlobalSettings.defaults().mixedInput, () -> globalSettings.mixedInput, v -> globalSettings.mixedInput = v)
                                         .controller(TickBoxControllerBuilder::create)
                                         .build())
+                                .option(Option.<Boolean>createBuilder()
+                                        .name(Component.translatable("controlify.gui.auto_switch_controllers"))
+                                        .description(OptionDescription.createBuilder()
+                                                .text(Component.translatable("controlify.gui.auto_switch_controllers.tooltip"))
+                                                .build())
+                                        .binding(GlobalSettings.defaults().autoSwitchControllers, () -> globalSettings.autoSwitchControllers, v -> globalSettings.autoSwitchControllers = v)
+                                        .controller(TickBoxControllerBuilder::create)
+                                        .addListener((opt, event) -> {
+                                            var selector = controllerSelector.get();
+                                            if (selector != null) selector.setAvailable(!opt.pendingValue());
+                                        })
+                                        .build())
+                                .option(Util.make(() -> {
+                                    var opt = Option.<String>createBuilder()
+                                            .name(Component.translatable("controlify.gui.current_controller"))
+                                            .description(OptionDescription.createBuilder()
+                                                    .text(Component.translatable("controlify.gui.current_controller.tooltip"))
+                                                    .build())
+                                            .binding(
+                                                    "",
+                                                    () -> Controlify.instance().getCurrentController().map(ControllerEntity::uid).orElse(""),
+                                                    uid -> {
+                                                        if (uid.isEmpty()) {
+                                                            Controlify.instance().setCurrentController(null, true);
+                                                        } else {
+                                                            Controlify.instance().getControllerManager().ifPresent(cm ->
+                                                                    cm.getConnectedControllers().stream()
+                                                                            .filter(c -> c.uid().equals(uid))
+                                                                            .findFirst()
+                                                                            .ifPresent(c -> Controlify.instance().setCurrentController(c, true)));
+                                                        }
+                                                    }
+                                            )
+                                            .controller(o -> CyclingListControllerBuilder.create(o)
+                                                    .values(controllerUids)
+                                                    .formatValue(uid -> {
+                                                        if (uid.isEmpty()) return Component.translatable("controlify.gui.carousel.entry.keyboard_mouse");
+                                                        return Controlify.instance().getControllerManager()
+                                                                .map(cm -> cm.getConnectedControllers().stream()
+                                                                        .filter(c -> c.uid().equals(uid))
+                                                                        .findFirst()
+                                                                        .map(c -> (Component) Component.literal(c.name()))
+                                                                        .orElse(Component.literal(uid)))
+                                                                .orElse(Component.literal(uid));
+                                                    }))
+                                            .available(!globalSettings.autoSwitchControllers)
+                                            .build();
+                                    controllerSelector.set(opt);
+                                    return opt;
+                                }))
                                 .optionIf(SteamDeckUtil.IS_STEAM_DECK, Option.<Boolean>createBuilder()
                                         .name(Component.translatable("controlify.gui.use_enhanced_steam_deck_driver"))
                                         .description(OptionDescription.createBuilder()
@@ -182,6 +244,19 @@ public class GlobalSettingsScreenFactory {
                                 .build())
                         .build())
                 .build().generateScreen(parent);
+
+        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> {
+            if (Minecraft.getInstance().screen == result) {
+                Minecraft.getInstance().setScreen(createGlobalSettingsScreen(parent));
+            }
+        });
+        ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> {
+            if (Minecraft.getInstance().screen == result) {
+                Minecraft.getInstance().setScreen(createGlobalSettingsScreen(parent));
+            }
+        });
+
+        return result;
     }
 
     private static Identifier screenshot(String filename) {

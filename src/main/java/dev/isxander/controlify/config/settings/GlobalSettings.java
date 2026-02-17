@@ -29,6 +29,7 @@ public class GlobalSettings {
     public List<String> keyboardMovementWhitelist;
     public final Set<String> seenServers;
     public boolean showSplitscreenAd;
+    public boolean autoSwitchControllers;
 
     private static final GlobalSettings DEFAULT = new GlobalSettings();
 
@@ -48,6 +49,7 @@ public class GlobalSettings {
         this.keyboardMovementWhitelist = new ArrayList<>();
         this.seenServers = new HashSet<>();
         this.showSplitscreenAd = true;
+        this.autoSwitchControllers = true;
     }
 
     public GlobalSettings(
@@ -63,7 +65,8 @@ public class GlobalSettings {
             boolean alwaysKeyboardMovement,
             List<String> keyboardMovementWhitelist,
             Set<String> seenServers,
-            boolean showSplitscreenAd
+            boolean showSplitscreenAd,
+            boolean autoSwitchControllers
     ) {
         this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
         this.mixedInput = mixedInput;
@@ -78,6 +81,7 @@ public class GlobalSettings {
         this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
         this.seenServers = new HashSet<>(seenServers);
         this.showSplitscreenAd = showSplitscreenAd;
+        this.autoSwitchControllers = autoSwitchControllers;
     }
 
     public boolean shouldUseKeyboardMovement() {
@@ -114,7 +118,8 @@ public class GlobalSettings {
                 dto.alwaysAllowKeyboardMovement(),
                 List.copyOf(dto.keyboardMovementWhitelist()),
                 Set.copyOf(dto.seenServers()),
-                dto.showSplitscreenAd()
+                dto.showSplitscreenAd(),
+                dto.autoSwitchControllers()
         );
     }
 
@@ -135,7 +140,8 @@ public class GlobalSettings {
                 alwaysKeyboardMovement,
                 List.copyOf(keyboardMovementWhitelist),
                 List.copyOf(seenServers),
-                showSplitscreenAd
+                showSplitscreenAd,
+                autoSwitchControllers
         );
     }
 }
