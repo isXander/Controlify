@@ -2,7 +2,7 @@
 title: Input Glyphs
 ---
 
-# What is it?
+## What is it?
 
 Input glyphs are the icons that represent the buttons on your controller.
 Controlify has many built-in glyph sets for common controllers, but you can also create your own.
@@ -14,9 +14,9 @@ Controlify has many built-in glyph sets for common controllers, but you can also
 These glyphs are actually their own font, and you create them the same way as any other font in a resource pack.
 All you need to turn it into a controller glyph set is one extra file in the resource pack to link it together.
 
-# Creating a custom glyph set
+## Creating a custom glyph set
 
-## 1. Create the font file
+### 1. Create the font file
 
 <Callout>
     **Refer to the [Minecraft Wiki](https://minecraft.wiki/w/Font#Providers) for information on creating fonts.**
@@ -46,7 +46,7 @@ create a font file in your resource pack, like `/assets/my_resource_pack/font/co
 }
 ```
 
-## 2. Create the texture file
+### 2. Create the texture file
 
 As per the `"file"` entry in your font file, create a texture file in your resource pack.
 **Make sure to place it in the `textures` folder.**
@@ -57,7 +57,7 @@ In this case, `assets/my_resource_pack/textures/font/controller/switch.png`.
     <Asset className={"rounded-sm"} width={1020 / 2} location="controlify:images/button-glyph-atlas" />
 </div>
 
-## 3. Create the glyph font mapping
+### 3. Create the glyph font mapping
 
 Finally, create a file that links the [controller inputs](../reference/builtin-inputs) to the characters you
 defined in the font file.
@@ -83,10 +83,10 @@ Create a file in your resource pack, like `/assets/my_resource_pack/controllers/
 }
 ```
 
-## 4. Done!
+### 4. Done!
 
 You have now successfully created a custom glyph set for your controller! Test it out in game!
 
-# Overriding existing glyph sets
+## Overriding existing glyph sets
 
 To override an existing built-in glyph set, just follow the same steps as above, but use the same namespace as the built-in one.

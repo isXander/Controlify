@@ -9,7 +9,7 @@ Controlify provides a Fabric entrypoint to hook into important lifecycle stages 
 ## Registering the entrypoint
 
 - On Fabric, you register an entrypoint like any other, by adding an entry to your `fabric.mod.json` file under the `entrypoints` section.
-- On NeoForge, you register an entrypoint using a Java service provider interface (SPI) in your `META-INF/services` directory.
+- On NeoForge (or Fabric), you register an entrypoint using a Java service provider interface (SPI) in your `META-INF/services` directory.
 
 <CodeTabs>
     ```json !!tabs (Fabric) fabric.mod.json
@@ -22,8 +22,8 @@ Controlify provides a Fabric entrypoint to hook into important lifecycle stages 
     }
     ```
 
-    ```txt !!tabs (NeoForge) META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint
-    com.example.mymod.ControlifyEntrypoint
+    ```txt !!tabs (NeoForge/Universal) META-INF/services/dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint
+    com.example.mymod.MyControlifyEntrypoint
     ```
 </CodeTabs>
 
