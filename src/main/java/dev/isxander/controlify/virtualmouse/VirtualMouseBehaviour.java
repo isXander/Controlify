@@ -4,7 +4,8 @@ public enum VirtualMouseBehaviour {
     DEFAULT,
     ENABLED,
     DISABLED,
-    CURSOR_ONLY;
+    CURSOR_ONLY,
+    CURSOR_SCROLL;
 
     public boolean hasCursor() {
         return this != DISABLED;

@@ -141,9 +141,6 @@ public class VirtualMouseHandler {
         targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
         targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
-        scrollY += ControlifyBindings.VMOUSE_SCROLL_UP.on(controller).analogueNow()
-                - ControlifyBindings.VMOUSE_SCROLL_DOWN.on(controller).analogueNow();
-
         if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_UP.on(controller))) {
             snapInDirection(ScreenDirection.UP);
             holdRepeatHelper.onNavigate();
@@ -158,8 +155,13 @@ public class VirtualMouseHandler {
             holdRepeatHelper.onNavigate();
         }
 
-        if (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour().isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
+        VirtualMouseBehaviour vmouseBehaviour = ScreenProcessorProvider.provide(minecraft.screen)
+                .virtualMouseBehaviour();
+        if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
             handleCompatibilityBinds(controller);
+            handleScroll(controller);
+        } else if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.CURSOR_SCROLL)) {
+            handleScroll(controller);
         }
 
         if (ControlifyBindings.GUI_BACK.on(controller).justPressed() && minecraft.screen != null) {
@@ -199,6 +201,11 @@ public class VirtualMouseHandler {
             this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
             this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
         }
+    }
+
+    public void handleScroll(ControllerEntity controller) {
+        scrollY += ControlifyBindings.VMOUSE_SCROLL_UP.on(controller).analogueNow()
+                   - ControlifyBindings.VMOUSE_SCROLL_DOWN.on(controller).analogueNow();
     }
 
     private void simulateMousePress(int button, int action, int modifiers) {
@@ -469,8 +476,13 @@ public class VirtualMouseHandler {
 
         if (isController && hasScreen) {
             return switch (ScreenProcessorProvider.provide(minecraft.screen).virtualMouseBehaviour()) {
-                case DEFAULT -> Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens.stream().anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
-                case ENABLED, CURSOR_ONLY -> true;
+                case DEFAULT -> Controlify.instance().config()
+                        .getSettings()
+                        .globalSettings()
+                        .virtualMouseScreens
+                        .stream()
+                        .anyMatch(s -> s.isAssignableFrom(minecraft.screen.getClass()));
+                case ENABLED, CURSOR_ONLY, CURSOR_SCROLL -> true;
                 case DISABLED -> false;
             };
         }
