@@ -9,5 +9,5 @@ public interface GuideDomainRegistries {
     GuideDomainRegistry<ContainerCtx> container();
 
     @ApiStatus.Internal
-    <T extends FactCtx> GuideDomainRegistry<T> registerCustom(GuideDomain<T> domain);
+    <T extends FactCtx> RenderableGuideDomain<T> registerCustom(GuideDomain<T> domain);
 }
