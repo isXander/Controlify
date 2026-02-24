@@ -480,9 +480,6 @@ public class Controlify implements ControlifyApi {
                     controller
             );
         }
-
-        // Periodically save config if dirty (e.g., from gyro calibration updates)
-        config.saveIfDirty();
     }
 
     /**
