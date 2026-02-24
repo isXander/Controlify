@@ -1,19 +1,16 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.EditBoxComponentProcessor;
-import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
 import dev.isxander.controlify.screenop.keyboard.CommonKeyboardHints;
+import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
 import dev.isxander.controlify.screenop.keyboard.KeyboardOverlayScreen;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
@@ -28,6 +25,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(EditBox.class)
 public abstract class EditBoxMixin extends AbstractWidget implements ComponentProcessorProvider {
@@ -105,12 +103,16 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
         return renderedValue;
     }
 
-    @Definition(id = "isFocused", method = "Lnet/minecraft/client/gui/components/EditBox;isFocused()Z")
+    //? if >=26.1 {
+    @ModifyVariable(method = "renderWidget", at = @At("STORE"), name = "cursorOnScreen")
+    //?} else {
+    /*@Definition(id = "isFocused", method = "Lnet/minecraft/client/gui/components/EditBox;isFocused()Z")
     @Definition(id = "focusedTime", field = "Lnet/minecraft/client/gui/components/EditBox;focusedTime:J")
     @Expression("(?() - this.focusedTime) / 300 % 2 == 0")
     @ModifyExpressionValue(method = "renderWidget", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private boolean preventShowingCursor(boolean showCursor, @Share("renderHint") LocalBooleanRef renderHint) {
-        return showCursor && !renderHint.get();
+    *///?}
+    private boolean preventShowingCursor(boolean cursorOnScreen, @Share("renderHint") LocalBooleanRef renderHint) {
+        return cursorOnScreen && !renderHint.get();
     }
 
     @Override

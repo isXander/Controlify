@@ -39,10 +39,12 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptChar(char ch, int modifiers) {
-            //? if >=1.21.9 {
-            return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
-            //?} else {
-            /*return element.charTyped(ch, modifiers);
+            //? if >=26.1 {
+            return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch));
+            //?} elif >=1.21.9 {
+            /*return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+            *///?} else {
+            /*return element.charTyped(ch);
             *///?}
         }
 

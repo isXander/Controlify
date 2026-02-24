@@ -96,7 +96,7 @@ public final class DebugOverlayHelper {
         mc
                 .gui
                 .getChat()
-                .addMessage(
+                ./*? if >=26.1 {*/addClientSystemMessage/*?} else {*//*addMessage*//*?}*/(
                         Component.empty().append(Component.translatable("debug.prefix").withStyle(formatting, ChatFormatting.BOLD)).append(CommonComponents.SPACE).append(message)
                 );
     }

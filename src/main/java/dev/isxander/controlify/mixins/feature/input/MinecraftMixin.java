@@ -11,25 +11,38 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin implements PickBlockAccessor {
     @Unique
-    private boolean useNbtPick;
+    private final ThreadLocal<Boolean> useNbtPick = ThreadLocal.withInitial(() -> null);
 
+    //? if >=26.1 {
     @Shadow
+    protected abstract void pickBlockOrEntity();
+    //?} else {
+    /*@Shadow
     protected abstract void pickBlock();
+
+    private void pickBlockOrEntity() {
+        return pickBlock();
+    }
+    *///?}
 
     @Override
     public void controlify$pickBlock() {
-        useNbtPick = false;
-        pickBlock();
+        this.useNbtPick.set(false);
+        pickBlockOrEntity();
     }
 
     @Override
     public void controlify$pickBlockWithNbt() {
-        useNbtPick = true;
-        pickBlock();
+        this.useNbtPick.set(true);
+        pickBlockOrEntity();
     }
 
     @ModifyExpressionValue(
-            method = "pickBlock",
+            //? if >=26.1 {
+            method = "pickBlockOrEntity",
+            //?} else {
+            /*method = "pickBlock",
+            *///?}
             at = @At(
                     value = "INVOKE",
                     //? if >=1.21.9 {
@@ -40,9 +53,10 @@ public abstract class MinecraftMixin implements PickBlockAccessor {
             )
     )
     private boolean shouldUseNbtPick(boolean hasControlDown) {
-        if (useNbtPick) {
-            useNbtPick = false;
-            return true;
+        Boolean useNbtPick = this.useNbtPick.get();
+        if (useNbtPick != null) {
+            this.useNbtPick.remove();
+            return useNbtPick;
         }
         return hasControlDown;
     }

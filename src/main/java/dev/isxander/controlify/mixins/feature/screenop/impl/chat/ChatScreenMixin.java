@@ -111,11 +111,13 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 
     @Override
     public boolean controlify$acceptChar(char ch, int modifiers) {
-        //? if >=1.21.9 {
-        this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
-        //?} else {
-        /*this.input.charTyped(ch, modifiers);
-        *///?}
+        //? if >=26.1 {
+        this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch));
+        //?} elif >=1.21.9 {
+        /*this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
+         *///?} else {
+        /*this.input.charTyped(ch);
+         *///?}
         return true;
     }
 

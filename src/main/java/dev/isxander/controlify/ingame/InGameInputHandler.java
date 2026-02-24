@@ -200,7 +200,11 @@ public class InGameInputHandler {
                     this.minecraft.gameDirectory,
                     this.minecraft.getMainRenderTarget(),
                     component -> this.minecraft.execute(() -> {
-                        this.minecraft.gui.getChat().addMessage(component);
+                        //? if >=26.1 {
+                        this.minecraft.gui.getChat().addClientSystemMessage(component);
+                        //?} else {
+                        /*this.minecraft.gui.getChat().addMessage(component);
+                        *///?}
 
                         // TODO: this currently does not work, yet to debug why not
                         SteamDeckDriver.getDeck().ifPresent(deck -> {
