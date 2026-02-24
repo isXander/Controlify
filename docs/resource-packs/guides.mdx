@@ -2,7 +2,7 @@
 title: Guides
 ---
 
-# What are guides?
+## What are guides?
 
 Guides are a feature of Controlify that shows hints to the player about what buttons to press to perform certain actions.
 
@@ -13,7 +13,7 @@ Since version `2.3.0`, guides are data-driven, meaning you can override the defa
     <Asset className={"rounded-sm"} width={1020 / 2} location="controlify:images/container_guide" />
 </div>
 
-# Concepts
+## Concepts
 
 There are three main concepts you need to understand to create your own guides.
 
@@ -30,7 +30,7 @@ There are three main concepts you need to understand to create your own guides.
    - `controlify:container` is a domain that has facts and rules for when the player is in a container GUI, like the inventory or a chest.
    - For example, you wouldn't have a rule for `controlify:on_ground` in the `controlify:container` domain, since it's irrelevant in a container GUI.
 
-# Creating custom rules
+## Creating custom rules
 
 Controlify only allows resource packs to add and override _rules_, not _facts_ or _domains_.
 
@@ -66,7 +66,7 @@ A rule can be displayed either on the `left` or `right` side of the screen, this
 Because `"override": false`, this resource pack will not override the default rules, but instead add an additional rule.
 If you want to override the default rules, or any resource pack below yours, set `"override": true`.
 
-## Stacking rules
+### Stacking rules
 
 You can stack multiple rules for the same binding, the first rule that succeeds will be applied, the rest will be ignored.
 However, if the rules have different locations (e.g. `left` and `right`), they will both be applied.
@@ -101,13 +101,13 @@ and the second rule will apply when the player is on the ground.
 Even when the player is in water and touching the ground, only the first rule will apply,
 because it is the first rule that matches its conditions.
 
-# Facts
+## Facts
 
 Controlify has a set of built-in facts that you can use in your rules.
 
 Below is a list of the built-in facts for each domain.
 
-## Common facts
+### Common facts
 
 These facts are available in all domains.
 
@@ -119,7 +119,7 @@ These facts are available in all domains.
 | `controlify:verbosity_minimal`         | When the guide verbosity is set to minimal.               |
 
 
-## `controlify:in_game`
+### `controlify:in_game`
 
 | ID                                      | Description                                                                                                                   |
 |-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -152,7 +152,7 @@ These facts are available in all domains.
 | `controlify:has_item_in_offhand`        | When the player has an item in their offhand.                                                                                 |
 | `controlify:has_multiple_items_in_hand` | When the player is holding an item stack with a count greater than one.                                                       |
 
-## `controlify:container`
+### `controlify:container`
 
 | ID                                    | Description                                                                                                                |
 |---------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
