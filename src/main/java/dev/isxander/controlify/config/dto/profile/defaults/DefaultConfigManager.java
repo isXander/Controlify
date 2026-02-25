@@ -37,6 +37,9 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
 
     @Override
     public ProfileConfig getDefaultForNamespace(@Nullable Identifier namespace) {
+        if (!this.isReady()) {
+            throw new IllegalStateException("Attempted to fetch default config before DefaultConfigManager was ready!");
+        }
         if (namespace == null) {
             namespace = ControllerType.DEFAULT.namespace();
         }
