@@ -5,15 +5,14 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.api.guide.Fact;
-import dev.isxander.controlify.api.guide.FactCtx;
-import dev.isxander.controlify.api.guide.GuideDomainRegistry;
-import dev.isxander.controlify.api.guide.Rule;
-import dev.isxander.controlify.api.guide.ActionLocation;
+import dev.isxander.controlify.api.guide.*;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -27,7 +26,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class GuideDomain<T extends FactCtx> implements GuideDomainRegistry<T>, SimpleControlifyReloadListener<GuideDomain.Preparations> {
+public class GuideDomain<T extends FactCtx> implements RenderableGuideDomain<T>, SimpleControlifyReloadListener<GuideDomain.Preparations> {
     public static final String DIRECTORY = "guides";
     private static final FileToIdConverter converter = FileToIdConverter.json(DIRECTORY);
 
@@ -186,6 +185,21 @@ public class GuideDomain<T extends FactCtx> implements GuideDomainRegistry<T>, S
         Validate.notNull(rule, "Rule cannot be null");
 
         this.dynamicRules.add(rule);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, boolean bottomAligned, boolean textContrast) {
+        GuideRenderer.render(graphics, this, Minecraft.getInstance(), bottomAligned, textContrast);
+    }
+
+    @Override
+    public Renderable renderable(boolean bottomAligned, boolean textContrast) {
+        return new GuideRenderer.Renderable(
+                this,
+                Minecraft.getInstance(),
+                bottomAligned,
+                textContrast
+        );
     }
 
     public boolean freeze() {

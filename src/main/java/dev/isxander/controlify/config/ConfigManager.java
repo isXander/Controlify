@@ -138,15 +138,14 @@ public class ConfigManager {
                 .toJson(jsonObject);
 
         Files.writeString(this.path, jsonString);
+        this.dirty = false;
         LOGGER.info("Config saved successfully");
         return true;
     }
 
     public boolean saveSafely() {
         try {
-            boolean result = this.save();
-            this.dirty = false;
-            return result;
+            return this.save();
         } catch (IOException e) {
             LOGGER.error("Failed to save config", e);
         }

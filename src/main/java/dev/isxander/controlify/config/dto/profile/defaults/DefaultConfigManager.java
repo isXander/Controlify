@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -36,10 +37,16 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
 
     @Override
     public ProfileConfig getDefaultForNamespace(@Nullable Identifier namespace) {
+        if (!this.isReady()) {
+            throw new IllegalStateException("Attempted to fetch default config before DefaultConfigManager was ready!");
+        }
         if (namespace == null) {
             namespace = ControllerType.DEFAULT.namespace();
         }
-        return defaultsByNamespace.getOrDefault(namespace, defaultsByNamespace.get(ControllerType.DEFAULT.namespace()));
+        return Objects.requireNonNull(
+                this.defaultsByNamespace.getOrDefault(namespace, this.defaultsByNamespace.get(ControllerType.DEFAULT.namespace())),
+                "Could not fetch default config for default namespace! This should never happen."
+        );
     }
 
     @Override
