@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
+
 
 public class InputSettings {
     public final BindingsSettings bindings;
@@ -147,7 +149,7 @@ public class InputSettings {
             if (radialActions.size() != 8) {
                 throw new IllegalArgumentException("radialActions must have exactly 8 elements");
             }
-            this.radialActions = List.copyOf(radialActions);
+            this.radialActions = new ArrayList<>(radialActions);
             this.radialButtonFocusTimeoutTicks = radialButtonFocusTimeoutTicks;
         }
 

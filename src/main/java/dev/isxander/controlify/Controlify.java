@@ -197,7 +197,7 @@ public class Controlify implements ControlifyApi {
                             }
 
                             @Override
-                            public <T extends FactCtx> GuideDomainRegistry<T> registerCustom(GuideDomain<T> domain) {
+                            public <T extends FactCtx> RenderableGuideDomain<T> registerCustom(GuideDomain<T> domain) {
                                 GuideDomains.CUSTOM_DOMAINS.put(domain.id(), domain);
                                 PlatformClientUtil.registerAssetReloadListener(domain);
                                 return domain;
@@ -480,9 +480,6 @@ public class Controlify implements ControlifyApi {
                     controller
             );
         }
-
-        // Periodically save config if dirty (e.g., from gyro calibration updates)
-        config.saveIfDirty();
     }
 
     /**
