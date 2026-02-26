@@ -2,7 +2,6 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
@@ -42,7 +41,7 @@ public class GlobalSettingsScreenFactory {
 
         boolean is12106OrLater = /*? if >=1.21.6 {*/ true /*?} else {*/ /*false *//*?}*/;;
 
-        Screen result = YetAnotherConfigLib.createBuilder()
+        return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))
                 .save(() -> Controlify.instance().config().saveSafely())
                 .category(ConfigCategory.createBuilder()
@@ -245,19 +244,6 @@ public class GlobalSettingsScreenFactory {
                                 .build())
                         .build())
                 .build().generateScreen(parent);
-
-        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> {
-            if (Minecraft.getInstance().screen == result) {
-                Minecraft.getInstance().setScreen(createGlobalSettingsScreen(parent));
-            }
-        });
-        ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> {
-            if (Minecraft.getInstance().screen == result) {
-                Minecraft.getInstance().setScreen(createGlobalSettingsScreen(parent));
-            }
-        });
-
-        return result;
     }
 
     private static Identifier screenshot(String filename) {

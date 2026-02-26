@@ -37,7 +37,7 @@ public record GlobalConfig(
             Codec.list(Codec.STRING).fieldOf("keyboard_movement_whitelist").forGetter(GlobalConfig::keyboardMovementWhitelist),
             Codec.list(Codec.STRING).fieldOf("seen_servers").forGetter(GlobalConfig::seenServers),
             Codec.BOOL.fieldOf("show_splitscreen_ad").forGetter(GlobalConfig::showSplitscreenAd),
-            Codec.BOOL.optionalFieldOf("auto_switch_controllers", true).forGetter(GlobalConfig::autoSwitchControllers),
-            Codec.STRING.optionalFieldOf("preferred_controller_uid", "").forGetter(GlobalConfig::preferredControllerUid)
+            Codec.BOOL.fieldOf("auto_switch_controllers").forGetter(GlobalConfig::autoSwitchControllers),
+            Codec.STRING.fieldOf("preferred_controller_uid").forGetter(GlobalConfig::preferredControllerUid)
     ).apply(instance, GlobalConfig::new));
 }

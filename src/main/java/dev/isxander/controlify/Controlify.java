@@ -484,16 +484,14 @@ public class Controlify implements ControlifyApi {
                     currentController
             );
         });
-        if (config().getSettings().globalSettings().autoSwitchControllers) {
-            for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-                if (controller.equals(getCurrentController().orElse(null))) continue;
+        for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+            if (controller.equals(getCurrentController().orElse(null))) continue;
 
-                wrapControllerError(
-                        () -> tickInactiveController(controller),
-                        "Ticking inactive controller",
-                        controller
-                );
-            }
+            wrapControllerError(
+                    () -> tickInactiveController(controller),
+                    "Ticking inactive controller",
+                    controller
+            );
         }
 
         // Periodically save config if dirty (e.g., from gyro calibration updates)
@@ -564,7 +562,8 @@ public class Controlify implements ControlifyApi {
         boolean thisControllerGivingInput = state.isGivingInput();
         boolean activeControllerGivingInput = getCurrentController().map(c -> c.input().orElseThrow().stateNow().isGivingInput()).orElse(false);
 
-        if (thisControllerGivingInput && !activeControllerGivingInput) {
+        if (config().getSettings().globalSettings().autoSwitchControllers
+                && thisControllerGivingInput && !activeControllerGivingInput) {
             this.setCurrentController(controller, true);
         }
     }
