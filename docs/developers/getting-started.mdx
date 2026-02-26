@@ -1,0 +1,37 @@
+---
+title: Getting Started
+---
+
+_Learn how to depend on Controlify._
+
+## Adding Controlify to your gradle project
+
+Recent versions of Controlify are available on [Maven Central](https://central.sonatype.com/artifact/dev.isxander/controlify/versions).
+Versions older than 2.5.1 are available through `https://maven.isxander.dev/releases/`.
+
+The artifact you need to depend on is `dev.isxander:controlify`.
+An example of a version would be `3.0.0+1.21.11-fabric`.
+
+Depend on Controlify like you would any other mod.
+
+On Fabric (`>=26.1`): `implementation`
+On Fabric (`<26.1`): `modImplementation`
+On NeoForge: `implementation`
+
+## Adding dependency to your mod manifest
+
+Because it is likely your mod should not have a hard dependency on Controlify,
+you should not add Controlify to the `"depends":` section of your `fabric.mod.json`.
+
+Instead, you should add Controlify to the `"breaks":` section. Cause the game to crash when the
+Controlify version is less than the minimum version your mod supports.
+This way, if a user has an incompatible version of Controlify, they will crash, but won't
+crash if they don't have Controlify at all.
+
+For example, if you use a feature added in Controlify 2.5.0, you can add this to your `fabric.mod.json`:
+
+```json
+"breaks": {
+    "controlify": "<2.5.0"
+}
+```

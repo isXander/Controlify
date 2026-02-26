@@ -151,7 +151,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
     @Override
     public VirtualMouseBehaviour virtualMouseBehaviour() {
-        return VirtualMouseBehaviour.CURSOR_ONLY;
+        return VirtualMouseBehaviour.CURSOR_SCROLL;
     }
 
     @FunctionalInterface

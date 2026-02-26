@@ -2,7 +2,7 @@
 title: Custom Controller Identification
 ---
 
-# What is it?
+## What is it?
 
 Controlify allows you to create custom definitions for your controller.
 
@@ -12,7 +12,7 @@ Creating a custom definition allows you to define a **specific name** for your c
 an [**input glyph set**](input-glyphs),
 and [**special mappings**](input-mappings) for controllers like flight-sticks.
 
-# Creating the definition
+## Creating the definition
 
 In your resource pack, create the file `/assets/controlify/controllers/controller_identification.json5`.
 Unlike most resources in Minecraft, this file is **additive** and **does not overwrite** the base definitions
@@ -48,13 +48,13 @@ pack, to prevent conflicts with other resource packs.
 devices have their own PID. In the case of a Switch Pro Controller, Nintendo's VID is `0x57e` and the
 controller's PID is `0x2009`. This is defined as a json array: `[0x57e, 0x2009]`.
 
-## Finding your controller's VID and PID
+### Finding your controller's VID and PID
 
 Even without a custom definition, Controlify will still attempt to load your controller.
 When it does so, it adds the VID and PID information into a *debug dump* that you can retrieve from the
 **Global Settings** of Controlify. Inside, you will find the information you need.
 
-# Done!
+## Done!
 
 You have now successfully created a custom controller definition!
 Restart the game to see that your controller is now using your custom name!
@@ -62,7 +62,7 @@ Restart the game to see that your controller is now using your custom name!
 If you'd like to customise your custom controller further with features mentioned at the start of this page,
 check the sidebar for pages on how to do so.
 
-# Adding to built-in namespaces
+## Adding to built-in namespaces
 
 Your resource pack can extend these definitions and add additional VID and PIDs to them. Exclude the `"name"` property
 for the definition for Controlify to use the built-in name.

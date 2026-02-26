@@ -1,0 +1,13 @@
+{
+  "generic": {
+    "auto_jump": false,
+    "toggle_sprint": true,
+    "toggle_sneak": true,
+    "disable_fly_drifting": true
+  },
+  "input": {
+    "sensitivity": {
+      "is_lce": true
+    }
+  }
+}
