@@ -196,6 +196,7 @@ public class GlobalSettingsScreenFactory {
                                                                             .findFirst()
                                                                             .ifPresent(c -> Controlify.instance().setCurrentController(c, true)));
                                                         }
+                                                        globalSettings.preferredControllerUid = uid;
                                                     }
                                             )
                                             .controller(o -> CyclingListControllerBuilder.create(o)

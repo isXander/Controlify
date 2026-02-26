@@ -335,12 +335,18 @@ public class Controlify implements ControlifyApi {
             CUtil.LOGGER.log("No controllers found.");
         }
 
-        // if no controller is currently selected, pick the first one
+        // if no controller is currently selected, try to restore preference or pick the first one
         if (this.getCurrentController().isEmpty()) {
-            Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-                    .stream()
-                    .findAny();
-            this.setCurrentController(firstController.orElse(null), false);
+            String preferredUid = config().getSettings().globalSettings().preferredControllerUid;
+            Optional<ControllerEntity> preferred = Optional.empty();
+            if (!config().getSettings().globalSettings().autoSwitchControllers && !preferredUid.isEmpty()) {
+                preferred = controllerManager.getConnectedControllers().stream()
+                        .filter(c -> c.uid().equals(preferredUid))
+                        .findFirst();
+            }
+            this.setCurrentController(preferred.orElseGet(() ->
+                    controllerManager.getConnectedControllers().stream().findAny().orElse(null)
+            ), false);
         }
 
         config().saveIfDirty();
@@ -396,6 +402,13 @@ public class Controlify implements ControlifyApi {
         // saved after discovery
         if (hotplugged) {
             config().saveIfDirty();
+        }
+
+        if (hotplugged && !config().getSettings().globalSettings().autoSwitchControllers) {
+            String preferredUid = config().getSettings().globalSettings().preferredControllerUid;
+            if (controller.uid().equals(preferredUid)) {
+                this.setCurrentController(controller, true);
+            }
         }
 
         setupWizards.add(wizard);
