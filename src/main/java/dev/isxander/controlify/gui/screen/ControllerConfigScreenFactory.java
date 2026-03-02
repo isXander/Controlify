@@ -132,6 +132,8 @@ public class ControllerConfigScreenFactory {
         InputSettings.SensitivitySettings sens = settings.input.sensitivity;
         InputSettings.SensitivitySettings def = defaults.input.sensitivity;
 
+        Option<InputCurves> lookInputCurveOpt;
+
         return Optional.of(builder
                 .option(Option.<Float>createBuilder()
                         .name(Component.translatable("controlify.gui.horizontal_look_sensitivity"))
@@ -177,7 +179,7 @@ public class ControllerConfigScreenFactory {
                         .binding(def.reduceAimingSensitivity, () -> sens.reduceAimingSensitivity, v -> sens.reduceAimingSensitivity = v)
                         .controller(TickBoxControllerBuilder::create)
                         .build())
-                .option(Option.<InputCurves>createBuilder()
+                .option(lookInputCurveOpt = Option.<InputCurves>createBuilder()
                         .name(Component.translatable("controlify.gui.look_input_curve"))
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.look_input_curve.tooltip"))
@@ -194,6 +196,9 @@ public class ControllerConfigScreenFactory {
                         .binding(def.isLCE, () -> sens.isLCE, v -> sens.isLCE = v)
                         .controller(opt -> BooleanControllerBuilder.create(opt)
                                 .onOffFormatter())
+                        .addListener((opt, event) -> {
+                            lookInputCurveOpt.setAvailable(!opt.pendingValue());
+                        })
                         .build())
                 .build());
     }
