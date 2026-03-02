@@ -317,17 +317,17 @@ public class InGameInputHandler {
             regularImpulse.y *= -1;
         }
 
-        InputCurve curve = settings.sensitivity.lookInputCurve;
         if (!settings.sensitivity.isLCE) {
             // apply the easing on its length to preserve circularity
             regularImpulse = ControllerUtils.applyEasingToLength(
                     regularImpulse,
-                    curve::apply
+                    settings.sensitivity.lookInputCurve::apply
             );
         } else {
-            // LCE doesn't preserve circularity
-            regularImpulse.x = curve.apply(regularImpulse.x);
-            regularImpulse.y = curve.apply(regularImpulse.y);
+            // LCE uses a quadratic curve on each axis independently,
+            // and its default turn speed was 7.5 degrees per tick at 100% sensitivity
+            regularImpulse.x = regularImpulse.x * Math.abs(regularImpulse.x) * 0.75f;
+            regularImpulse.y = regularImpulse.y * Math.abs(regularImpulse.y) * 0.75f;
         }
 
         if (settings.sensitivity.reduceAimingSensitivity && player.isUsingItem()) {
@@ -344,7 +344,7 @@ public class InGameInputHandler {
             regularImpulse.mul(aimMultiplier);
         }
 
-        // 10 degrees per second at 100% sensitivity
+        // 10 degrees per tick at 100% sensitivity
         regularImpulse.x *= settings.sensitivity.hLookSensitivity * 10f;
         regularImpulse.y *= settings.sensitivity.vLookSensitivity * 10f;
 
