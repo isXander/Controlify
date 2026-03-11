@@ -29,7 +29,7 @@ public abstract class ChatComponentMixin {
     // in >=1.21.11, there render method is overloaded
     @Unique private static final String RENDER_METHOD =
             //? if >=26.1 {
-            "render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V";
+            "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V";
             //?} elif >=1.21.11 {
             /*"render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IIZ)V";
             *///?} else {

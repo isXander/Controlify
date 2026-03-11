@@ -10,10 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(GameRenderer.class)
+@Mixin(Minecraft.class)
 public class GameRendererMixin {
-    @Shadow @Final
-    private Minecraft minecraft;
 
     //? if >=1.21.11 {
     @ModifyExpressionValue(
@@ -33,6 +31,6 @@ public class GameRendererMixin {
     )
     *///?}
     private HitResult modifyPick(HitResult hitResult) {
-        return ReachAroundHandler.getReachAroundHitResult(minecraft.getCameraEntity(), hitResult);
+        return ReachAroundHandler.getReachAroundHitResult(((Minecraft)(Object)this).getCameraEntity(), hitResult);
     }
 }
