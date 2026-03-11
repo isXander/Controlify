@@ -8,7 +8,7 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -34,18 +34,18 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
+    public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float tickDelta) {
         Dimension<Integer> dim = widgetToFocus.getDimension();
 
-        var pose = CGuiPose.ofPush(guiGraphics);
+        var pose = CGuiPose.ofPush(GuiGraphicsExtractor);
         // text renders with z > 0 so push everything back so text doesn't pop through fill
         //? if <1.21.6
-        /*guiGraphics.pose().translate(0, 0, -20);*/
+        /*GuiGraphicsExtractor.pose().translate(0, 0, -20);*/
 
         //? if >=1.21.10 {
-        backgroundScreen.renderWithTooltipAndSubtitles(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        backgroundScreen.extractRenderStateWithTooltipAndSubtitles(GuiGraphicsExtractor, dim.centerX(), dim.centerY(), tickDelta);
         //?} else {
-        /*backgroundScreen.renderWithTooltip(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
+        /*backgroundScreen.renderWithTooltip(GuiGraphicsExtractor, dim.centerX(), dim.centerY(), tickDelta);
         *///?}
 
         pose.pop();
@@ -54,18 +54,18 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         pose.nextLayer(1000f);
 
         // darken everything except the widget
-        guiGraphics.fill(0, 0, width, dim.y() - 1, 0x80000000);
-        guiGraphics.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
-        guiGraphics.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
-        guiGraphics.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
+        GuiGraphicsExtractor.fill(0, 0, width, dim.y() - 1, 0x80000000);
+        GuiGraphicsExtractor.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
+        GuiGraphicsExtractor.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
+        GuiGraphicsExtractor.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
 
         pose.pop();
 
-        super.render(guiGraphics, mouseX, mouseY, tickDelta);
+        super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, tickDelta);
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
+    public void extractBackground(GuiGraphicsExtractor GuiGraphicsExtractor, int i, int j, float f) {
         // do not render background
     }
 

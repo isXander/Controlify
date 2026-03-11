@@ -1,6 +1,6 @@
 package dev.isxander.controlify.gui.layout;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
@@ -35,11 +35,11 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         this.renderComponent(graphics, delta);
     }
 
-    public void renderComponent(GuiGraphics graphics, float deltaTime) {
+    public void renderComponent(GuiGraphicsExtractor graphics, float deltaTime) {
         component.render(graphics, x, y, deltaTime);
     }
 

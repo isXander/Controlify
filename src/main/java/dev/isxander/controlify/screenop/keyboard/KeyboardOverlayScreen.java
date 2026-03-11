@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
@@ -80,18 +80,18 @@ public class KeyboardOverlayScreen extends Screen {
     *///?}
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        var pose = CGuiPose.ofPush(guiGraphics);
-        this.backgroundScreen.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+        var pose = CGuiPose.ofPush(GuiGraphicsExtractor);
+        this.backgroundScreen.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
         pose.nextLayer(1000f);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         // above render(..) call called renderBackground pre 1.21.6 which renders background twice
         //? if >=1.21.6
-        this.backgroundScreen.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+        this.backgroundScreen.extractBackground(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
     }
 
     @Override

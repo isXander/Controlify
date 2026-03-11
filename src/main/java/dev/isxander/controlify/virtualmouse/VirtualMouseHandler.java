@@ -21,7 +21,7 @@ import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.network.chat.Component;
@@ -383,7 +383,7 @@ public class VirtualMouseHandler {
         }
     }
 
-    public void renderVirtualMouse(GuiGraphics graphics) {
+    public void renderVirtualMouse(GuiGraphicsExtractor graphics) {
         if (!virtualMouseEnabled) return;
 
         if (DebugProperties.DEBUG_SNAPPING) {

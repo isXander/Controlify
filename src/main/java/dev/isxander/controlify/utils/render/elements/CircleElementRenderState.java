@@ -3,7 +3,7 @@ package dev.isxander.controlify.utils.render.elements;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.isxander.controlify.utils.render.BaseRenderState;
 import dev.isxander.controlify.utils.render.CGuiElementRenderState;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
 
 public record CircleElementRenderState(
@@ -39,7 +39,7 @@ public record CircleElementRenderState(
     }
 
     public static CircleElementRenderState outline(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             float originX, float originY,
             float radius, float thickness,
             int color
@@ -58,7 +58,7 @@ public record CircleElementRenderState(
     }
 
     public static CircleElementRenderState filled(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             float originX, float originY,
             float radius, int color
     ) {

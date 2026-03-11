@@ -15,7 +15,7 @@ import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.ColorUtils;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -229,12 +229,12 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-        super.render(guiGraphics, i, j, f);
+    public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int i, int j, float f) {
+        super.extractRenderState(GuiGraphicsExtractor, i, j, f);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
+        GuiGraphicsExtractor.centeredText(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
 
-        guiGraphics.drawCenteredString(
+        GuiGraphicsExtractor.centeredText(
                 font,
                 currentStage == null ? Component.translatable("controlify.gui.mapping_maker.please_wait") : currentStage.name(),
                 width / 2, height - 20,
@@ -244,7 +244,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         int safeZone = Math.min(width, height) - 30;
         float scale = safeZone / 32f;
 
-        var pose = CGuiPose.ofPush(guiGraphics);
+        var pose = CGuiPose.ofPush(GuiGraphicsExtractor);
         pose.translate(width / 2f, -5);
         pose.translate(-32 * scale / 2f, 0);
         pose.scale(scale, scale);
@@ -253,7 +253,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
         if (currentStage != null && currentStage.background() != null) {
             Blit.tex(
-                    guiGraphics,
+                    GuiGraphicsExtractor,
                     currentStage.background(),
                     0, 0,
                     0, 0,
@@ -266,7 +266,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         if (currentStage == null || !currentStage.isSatisfied()) {
             Identifier texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
             Blit.tex(
-                    guiGraphics,
+                    GuiGraphicsExtractor,
                     texture,
                     0, 0,
                     0, 0,
@@ -279,7 +279,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         pose.pop();
 
         float progress = currentStage != null ? (float) (stages.indexOf(currentStage) + 1) / stages.size() : 0;
-        ClientUtils.drawBar(guiGraphics, width / 2, height - 30, progress);
+        ClientUtils.drawBar(GuiGraphicsExtractor, width / 2, height - 30, progress);
     }
 
     private static Component button(String buttonName) {

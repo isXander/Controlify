@@ -8,7 +8,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.AbstractContainerScreenProcessor;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.Nullable;
@@ -59,13 +59,13 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
         return screenProcessor;
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void setPrevSlotShare(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void setPrevSlotShare(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
         prevSlot.set(this.hoveredSlot);
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void triggerSlotHovered(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
+    @Inject(method = "extractRenderState", at = @At("RETURN"))
+    private void triggerSlotHovered(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
         @Nullable Slot oldSlot = prevSlot.get();
         @Nullable Slot newSlot = this.hoveredSlot;
 

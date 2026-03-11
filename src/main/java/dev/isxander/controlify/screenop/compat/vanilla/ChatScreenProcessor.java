@@ -12,7 +12,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.LazyComponentDims;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
@@ -88,7 +88,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
     }
 
     @Override
-    protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+    protected void render(ControllerEntity controller, GuiGraphicsExtractor graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
         var settings = controller.settings().generic;
 
         if (this.keyboardSupplier.get() != null && settings.guide.showScreenGuides) {
@@ -98,7 +98,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
                 int x = this.inputSupplier.get().getRight() - hint.getWidth() - 2;
                 int y = this.inputSupplier.get().getY() - hint.getHeight();
 
-                graphics.drawString(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
+                graphics.text(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
             }
 
             if (settings.keyboard.hintCommandSuggester) {
@@ -110,7 +110,7 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
                     int x = this.screen.width - hint.getWidth() - 2;
                     int y = 2 + Math.max(0, hint.getHeight() - minecraft.font.lineHeight);
 
-                    graphics.drawString(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
+                    graphics.text(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
                 }
             }
         }

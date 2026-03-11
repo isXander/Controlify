@@ -227,6 +227,7 @@ public class Controlify implements ControlifyApi {
      * as one or more controllers are connected.
      */
     public void initializeControlify() {
+		MixinEnvironment.getCurrentEnvironment().audit();
         CUtil.LOGGER.log("Initializing Controlify...");
         this.minecraft = Minecraft.getInstance();
 

@@ -3,7 +3,7 @@ package dev.isxander.controlify.mixins.feature.bind;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class GuiMixin {
     @Shadow @Final private Minecraft minecraft;
 
-    @Inject(method = "renderCrosshair", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "extractCrosshair", at = @At("HEAD"), cancellable = true)
     private void shouldRenderCrosshair(CallbackInfo ci) {
         if (minecraft.screen instanceof RadialMenuScreen) {
             ci.cancel();

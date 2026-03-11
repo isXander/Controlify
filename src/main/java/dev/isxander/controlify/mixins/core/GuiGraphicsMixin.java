@@ -1,20 +1,20 @@
 package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.utils.render.GuiRenderStateSink;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 //? if >=1.21.6 {
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
-import net.minecraft.client.gui.render.state.GuiRenderState;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.client.renderer.state.gui.GuiRenderState;
 //?} else {
 /*import net.minecraft.client.renderer.MultiBufferSource;
 *///?}
 
-@Mixin(GuiGraphics.class)
+@Mixin(GuiGraphicsExtractor.class)
 public class GuiGraphicsMixin implements GuiRenderStateSink {
 
     //? if >=1.21.6 {
@@ -22,11 +22,11 @@ public class GuiGraphicsMixin implements GuiRenderStateSink {
 
     @Override
     public void controlify$submit(GuiElementRenderState renderState) {
-        this.guiRenderState.submitGuiElement(renderState);
+        this.guiRenderState.addGuiElement(renderState);
     }
 
 
-    @Shadow @Final private GuiGraphics.ScissorStack scissorStack;
+    @Shadow @Final private GuiGraphicsExtractor.ScissorStack scissorStack;
 
     @Override
     public ScreenRectangle controlify$peekScissorStack() {

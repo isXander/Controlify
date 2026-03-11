@@ -4,12 +4,12 @@ import com.google.common.collect.Lists;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public final class GuideRenderer {
     private GuideRenderer() {}
 
-    public static void render(GuiGraphics graphics, GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
+    public static void render(GuiGraphicsExtractor graphics, GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
         int width = minecraft.getWindow().getGuiScaledWidth();
         int height = minecraft.getWindow().getGuiScaledHeight();
 
@@ -19,7 +19,7 @@ public final class GuideRenderer {
         });
     }
 
-    private static void renderLines(GuiGraphics graphics, PrecomputedLines lines, Font font, int width, int height, boolean bottomAligned, boolean rightAligned, boolean textContrast) {
+    private static void renderLines(GuiGraphicsExtractor graphics, PrecomputedLines lines, Font font, int width, int height, boolean bottomAligned, boolean rightAligned, boolean textContrast) {
         int safeAreaX = 2;
         int safeAreaY = 5;
         int betweenLines = 2;
@@ -41,7 +41,7 @@ public final class GuideRenderer {
                 );
             }
 
-            graphics.drawString(font, line.text(), lineX, y, 0xFFFFFFFF, !textContrast);
+            graphics.text(font, line.text(), lineX, y, 0xFFFFFFFF, !textContrast);
 
             y += line.height() + betweenLines;
         }
@@ -61,8 +61,8 @@ public final class GuideRenderer {
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            GuideRenderer.render(guiGraphics, domain, minecraft, bottomAligned, textContrast);
+        public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+            GuideRenderer.render(GuiGraphicsExtractor, domain, minecraft, bottomAligned, textContrast);
         }
 
         public void setBottomAligned(boolean bottomAligned) {

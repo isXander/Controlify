@@ -82,7 +82,7 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
     @Override
     public void registerPostScreenRender(ScreenRenderEvent event) {
         ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            ScreenEvents.afterRender(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
+            ScreenEvents.afterExtract(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
                 event.onRender(screen, graphics, mouseX, mouseY, tickDelta);
             });
         });

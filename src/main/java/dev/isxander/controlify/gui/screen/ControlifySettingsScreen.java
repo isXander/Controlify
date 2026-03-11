@@ -14,7 +14,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -152,15 +152,15 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         if (this.controllerNotDetectedButton.visible == hasController()) {
             this.repositionElements();
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
 
         Blit.tex(
-                guiGraphics,
+                GuiGraphicsExtractor,
                 minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
                 0, footerY,
                 0.0F, 0.0F,
@@ -170,8 +170,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
-        super.renderBackground(graphics, i, j, f);
+    public void extractBackground(GuiGraphicsExtractor graphics, int i, int j, float f) {
+        super.extractBackground(graphics, i, j, f);
 
         Blit.tex(
                 graphics,
@@ -214,13 +214,13 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            guiGraphics.fill(
+        public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+            GuiGraphicsExtractor.fill(
                     this.x, this.y,
                     this.x + this.width, this.y + this.height,
                     0x55000000
             );
-            guiGraphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(x, y, width, height, 0x5AFFFFFF);
+            GuiGraphicsExtractor./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/outline/*?}*/(x, y, width, height, 0x5AFFFFFF);
         }
 
         @Override
@@ -273,14 +273,14 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+            super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
 
             updateControllerInfo(false);
 
-            this.settingsButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.controllerNameText.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.controllerIcon.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.settingsButton.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
+            this.controllerNameText.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
+            this.controllerIcon.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
 
         private void onSettingsButtonPressed() {
@@ -391,12 +391,12 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void extractRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
+            super.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
 
-            this.adText.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.adButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.disableAdButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.adText.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
+            this.adButton.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
+            this.disableAdButton.extractRenderState(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
 
         @Override

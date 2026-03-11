@@ -61,7 +61,7 @@ public final class RadialIcons {
             ItemStack stack = entry.getValue().getDefaultInstance();
 
             map.put(key./*? if >=1.21.11 {*/identifier/*?} else {*//*location*//*?}*/().withPrefix("item/"), (graphics, x, y, tickDelta) -> {
-                graphics.renderItem(stack, x, y);
+                graphics.item(stack, x, y);
             });
         });
     }

@@ -37,6 +37,10 @@ modstitch {
     }
 }
 
+repositories {
+    mavenLocal()
+}
+
 dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)
     fun Dependency?.productionMod() = this?.also { "productionMods"(it) }

@@ -1,13 +1,13 @@
 package dev.isxander.controlify.utils.render;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix4f;
 
 //? if >=1.21.6 {
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.gui.render.state.GuiElementRenderState;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +71,7 @@ public interface CGuiElementRenderState /*? if >=1.21.6 {*/extends GuiElementRen
          *///?}
     }
 
-    default void submit(GuiGraphics graphics) {
+    default void submit(GuiGraphicsExtractor graphics) {
         //? if >=1.21.6 {
         GuiRenderStateSink.submit(graphics, this);
          //?} else {

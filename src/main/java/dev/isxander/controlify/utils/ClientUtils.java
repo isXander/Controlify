@@ -2,7 +2,7 @@ package dev.isxander.controlify.utils;
 
 import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.components.StringWidget;
@@ -25,11 +25,11 @@ public final class ClientUtils {
         return new PlainTextButton(x, y, font.width(text.getVisualOrderText()), font.lineHeight, text, onPress, font);
     }
 
-    public static void drawSprite(GuiGraphics graphics, Identifier location, int x, int y, int width, int height) {
+    public static void drawSprite(GuiGraphicsExtractor graphics, Identifier location, int x, int y, int width, int height) {
         Blit.sprite(graphics, location, x, y, width, height);
     }
 
-    public static void drawBar(GuiGraphics graphics, int centerX, int y, float progress) {
+    public static void drawBar(GuiGraphicsExtractor graphics, int centerX, int y, float progress) {
         int width = Mth.lerpDiscrete(progress, 0, 182);
 
         int x = centerX - 182 / 2;

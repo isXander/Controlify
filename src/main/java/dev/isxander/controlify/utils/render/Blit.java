@@ -2,7 +2,7 @@ package dev.isxander.controlify.utils.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.isxander.controlify.utils.ColorUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 import java.util.function.Function;
 
 public final class Blit {
-    public static void batchDraw(GuiGraphics graphics, Runnable renderer) {
+    public static void batchDraw(GuiGraphicsExtractor graphics, Runnable renderer) {
         //? if >=1.21.6 {
         renderer.run();
         //?} elif >=1.21.2 {
@@ -22,7 +22,7 @@ public final class Blit {
     }
 
     public static void tex(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             Identifier texture,
             int x, int y,
             float u, float v,
@@ -47,7 +47,7 @@ public final class Blit {
     }
 
     public static void tex(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             Identifier atlasLocation,
             int x, int y,
             int textureX, int textureY,
@@ -72,7 +72,7 @@ public final class Blit {
     }
 
     public static void tex(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             Identifier texture,
             int x, int y,
             float u, float v,
@@ -107,7 +107,7 @@ public final class Blit {
     }
 
     public static void sprite(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             Identifier sprite,
             int x, int y,
             int width, int height
@@ -122,7 +122,7 @@ public final class Blit {
     }
 
     public static void sprite(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             Identifier sprite,
             int textureWidth, int textureHeight,
             int u, int v,
@@ -141,7 +141,7 @@ public final class Blit {
     }
 
     public static void sprite(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             TextureAtlasSprite sprite,
             int x, int y,
             int width, int height,

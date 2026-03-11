@@ -1,7 +1,7 @@
 package dev.isxander.controlify.utils.render;
 
 import dev.isxander.yacl3.gui.utils.GuiUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +30,7 @@ public record BaseRenderState(
         Matrix4f pose
         *///?}
 ) {
-    public static BaseRenderState create(GuiGraphics graphics, @Nullable Identifier texture, int x0, int y0, int x1, int y1) {
+    public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture, int x0, int y0, int x1, int y1) {
         //? if >=1.21.6 {
         @Nullable ScreenRectangle scissorArea = GuiRenderStateSink.peekScissorStack(graphics);
         ScreenRectangle bounds = boundsFromMaxPoints(x0, y0, x1, y1, graphics.pose(), scissorArea);
@@ -46,7 +46,7 @@ public record BaseRenderState(
         *///?}
     }
 
-    public static BaseRenderState create(GuiGraphics graphics, @Nullable Identifier texture) {
+    public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture) {
         //? if >=1.21.6 {
         return new BaseRenderState(
                 texture != null ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI,

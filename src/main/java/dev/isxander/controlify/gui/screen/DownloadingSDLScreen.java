@@ -4,7 +4,7 @@ import dev.isxander.controlify.utils.ClientUtils;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.ChatFormatting;
 import net.minecraft.util.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineTextWidget;
 import net.minecraft.client.gui.components.PlainTextButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -52,16 +52,16 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        extractBackground(graphics, mouseX, mouseY, delta);
 
-        super.render(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
 
         var pose = CGuiPose.ofPush(graphics);
         pose.translate(width / 2f - font.width(this.getTitle()) / 2f * 2.5f, 30);
         pose.scale(2.5f, 2.5f);
 
-        graphics.drawString(font, this.getTitle(), 0, 0, -1);
+        graphics.text(font, this.getTitle(), 0, 0, -1);
 
         pose.pop();
 
@@ -78,7 +78,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
         pose.pop();
 
         String totalString = format.format(totalBytes / 1024f / 1024f);
-        graphics.drawString(
+        graphics.text(
                 font,
                 totalString,
                 (int) (width / 2f + 182 * 2f / 2 - font.width(totalString)),
@@ -87,7 +87,7 @@ public class DownloadingSDLScreen extends Screen implements DontInteruptScreen {
         );
 
         String receivedString = format.format(receivedBytes / 1024f / 1024f);
-        graphics.drawString(
+        graphics.text(
                 font,
                 receivedString,
                 (int) (width / 2f - 182 * 2f / 2),

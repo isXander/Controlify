@@ -2,7 +2,7 @@ package dev.isxander.controlify.gui.components;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -26,11 +26,11 @@ public class PlainTextWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         //? if >=1.21.11 {
-        guiGraphics.textRenderer().accept(getX(), getY() + 1, getMessage());
+        GuiGraphicsExtractor.textRenderer().accept(getX(), getY() + 1, getMessage());
         //?} else {
-        /*guiGraphics.drawString(Minecraft.getInstance().font, getMessage(), getX(), getY() + 1, 0xFFFFFFFF);
+        /*GuiGraphicsExtractor.drawString(Minecraft.getInstance().font, getMessage(), getX(), getY() + 1, 0xFFFFFFFF);
         *///?}
     }
 

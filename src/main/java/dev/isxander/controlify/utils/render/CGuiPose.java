@@ -1,7 +1,7 @@
 package dev.isxander.controlify.utils.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import org.joml.Matrix3x2fStack;
 
 public interface CGuiPose {
@@ -15,7 +15,7 @@ public interface CGuiPose {
 
     CGuiPose nextLayer(float legacyZShift);
 
-    static CGuiPose of(GuiGraphics graphics) {
+    static CGuiPose of(GuiGraphicsExtractor graphics) {
         //? if >=1.21.6 {
         return new Impl2D(graphics);
         //?} else {
@@ -23,15 +23,15 @@ public interface CGuiPose {
         *///?}
     }
 
-    static CGuiPose ofPush(GuiGraphics graphics) {
+    static CGuiPose ofPush(GuiGraphicsExtractor graphics) {
         return of(graphics).push();
     }
 
     //? if >=1.21.6 {
     class Impl2D implements CGuiPose {
-        private final GuiGraphics graphics;
+        private final GuiGraphicsExtractor graphics;
 
-        public Impl2D(GuiGraphics graphics) {
+        public Impl2D(GuiGraphicsExtractor graphics) {
             this.graphics = graphics;
         }
 

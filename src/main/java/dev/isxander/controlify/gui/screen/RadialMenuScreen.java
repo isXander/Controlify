@@ -20,7 +20,7 @@ import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -187,11 +187,11 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        super.render(graphics, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
 
         if (editMode == null) {
-            graphics.drawCenteredString(
+            graphics.centeredText(
                     font,
                     text,
                     width / 2,
@@ -202,9 +202,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         if (editMode != null) {
-            super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+            super.extractBackground(GuiGraphicsExtractor, mouseX, mouseY, partialTick);
         }
     }
 
@@ -266,7 +266,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
             var pose = CGuiPose.ofPush(graphics);
             pose.translate(x + translateX, y + translateY);
 
@@ -292,7 +292,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 pose.pop();
             } else {
                 Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputGlyph();
-                graphics.drawString(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
+                graphics.text(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
             }
 
             pose.pop();
@@ -419,7 +419,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
         }
 
         @Override
-        public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
             graphics.fill(x, y, x + width, y + height, 0x80000000);
 
             graphics.enableScissor(x, y, x + width, y + height);
@@ -430,7 +430,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
             }
             graphics.disableScissor();
 
-            graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
+            graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/outline/*?}*/(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
         }
 
         @Override
@@ -514,13 +514,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
                 this.item = item;
             }
 
-            public void render(GuiGraphics graphics, int x, int y, int width, int itemHeight, int mouseX, int mouseY, float delta) {
+            public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int itemHeight, int mouseX, int mouseY, float delta) {
                 this.x = x;
                 this.y = y;
 
                 if (focused)
                     graphics.fill(x, y, x + width, y + itemHeight, 0xff000000);
-                graphics.drawString(RadialMenuScreen.this.font, item.name(), x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
+                graphics.text(RadialMenuScreen.this.font, item.name(), x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
             }
 
             @Override

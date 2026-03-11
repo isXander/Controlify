@@ -14,7 +14,7 @@ import dev.isxander.controlify.utils.HoldRepeatHelper;
 import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -59,7 +59,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         this.renderHeight = height / renderScale;
     }
 
-    public void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void renderKeyBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         this.active = this.supportsAction();
 
         if (!this.isFocused()) {
@@ -71,7 +71,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, renderWidth - 2, renderHeight - 2);
 
             if (isHoveredOrFocused()) {
-                graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
+                graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/outline/*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
             } else if (!shortcutPressed) {
                 this.holdRepeatHelper.reset();
             }
@@ -83,10 +83,10 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         });
     }
 
-    public void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float deltaTick) {
+    public void renderKeyForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTick) {
         doScaledRender(graphics, () -> {
             Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.regularLabel;
-            graphics.drawCenteredString(
+            graphics.centeredText(
                     Minecraft.getInstance().font,
                     label,
                     getX() + renderWidth / 2,
@@ -97,7 +97,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor GuiGraphicsExtractor, int mouseX, int mouseY, float partialTick) {
         // custom rendered above
     }
 
@@ -307,7 +307,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
     }
 
-    private void doScaledRender(GuiGraphics graphics, Runnable runnable) {
+    private void doScaledRender(GuiGraphicsExtractor graphics, Runnable runnable) {
         var pose = CGuiPose.ofPush(graphics);
         pose.translate(getX(), getY());
         pose.scale(this.renderScale, this.renderScale);
