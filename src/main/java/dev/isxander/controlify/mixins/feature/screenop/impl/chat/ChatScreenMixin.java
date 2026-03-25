@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
 
     @Shadow protected EditBox input;
-    @Shadow CommandSuggestions commandSuggestions;
+    @Shadow private CommandSuggestions commandSuggestions;
 
     @Unique private KeyboardWidget keyboard;
     @Unique private float shiftChatAmt = 0f;
@@ -74,20 +74,20 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
         return this.height - (int) (this.height * this.shiftChatAmt) - 12;
     }
 
-    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V")
+    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fill(IIIII)V")
     @Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
     @Definition(id = "width", field = "Lnet/minecraft/client/gui/screens/ChatScreen;width:I")
     @Expression("?.fill(2, @(this.height - 14), this.width - 2, this.height - 2, ?)")
-    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+    @ModifyExpressionValue(method = "extractRenderState", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifyInputBoxBackgroundTop(int y) {
         return this.input.getY() - 2;
     }
 
-    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphics;fill(IIIII)V")
+    @Definition(id = "fill", method = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;fill(IIIII)V")
     @Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
     @Definition(id = "width", field = "Lnet/minecraft/client/gui/screens/ChatScreen;width:I")
     @Expression("?.fill(2, this.height - 14, this.width - 2, @(this.height - 2), ?)")
-    @ModifyExpressionValue(method = "render", at = @At("MIXINEXTRAS:EXPRESSION"))
+    @ModifyExpressionValue(method = "extractRenderState", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifyInputBoxBackgroundBottom(int y) {
         return this.input.getBottom() - 2;
     }

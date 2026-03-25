@@ -3,8 +3,9 @@ package dev.isxander.controlify.utils.render.elements;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.isxander.controlify.utils.render.BaseRenderState;
 import dev.isxander.controlify.utils.render.CGuiElementRenderState;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.NonNull;
 
 public record CircleElementRenderState(
         BaseRenderState baseState,
@@ -14,7 +15,7 @@ public record CircleElementRenderState(
         int segments
 ) implements CGuiElementRenderState {
     @Override
-    public void buildVertices(VertexConsumer vertexConsumer, float z) {
+    public void buildVertices(@NonNull VertexConsumer vertexConsumer) {
         float innerRadius = radius - thickness;
         for (int i = 0; i < segments; i++) {
             int j = (i + 1) % segments;
@@ -31,15 +32,15 @@ public record CircleElementRenderState(
             float xo2 = originX + Mth.sin(nextAngle) * radius;
             float yo2 = originY + Mth.cos(nextAngle) * radius;
 
-            add2DVertex(vertexConsumer, xi1, yi1, z).setColor(color);
-            add2DVertex(vertexConsumer, xo1, yo1, z).setColor(color);
-            add2DVertex(vertexConsumer, xo2, yo2, z).setColor(color);
-            add2DVertex(vertexConsumer, xi2, yi2, z).setColor(color);
+            vertexConsumer.addVertexWith2DPose(baseState().pose(), xi1, yi1).setColor(color);
+            vertexConsumer.addVertexWith2DPose(baseState().pose(), xo1, yo1).setColor(color);
+            vertexConsumer.addVertexWith2DPose(baseState().pose(), xo2, yo2).setColor(color);
+            vertexConsumer.addVertexWith2DPose(baseState().pose(), xi2, yi2).setColor(color);
         }
     }
 
     public static CircleElementRenderState outline(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             float originX, float originY,
             float radius, float thickness,
             int color
@@ -58,7 +59,7 @@ public record CircleElementRenderState(
     }
 
     public static CircleElementRenderState filled(
-            GuiGraphics graphics,
+            GuiGraphicsExtractor graphics,
             float originX, float originY,
             float radius, int color
     ) {

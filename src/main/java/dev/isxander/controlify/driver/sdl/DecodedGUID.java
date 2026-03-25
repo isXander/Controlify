@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.Map;
 
 public record DecodedGUID(
@@ -90,7 +91,7 @@ public record DecodedGUID(
     }
 
     public static String getDriverHint(byte driverSignature) {
-        return driverSigToName.getOrDefault(driverSignature, "Unrecognised: '" + (char) driverSignature + "'");
+        return driverSigToName.getOrDefault(driverSignature, "Unrecognised: " + HexFormat.of().toHexDigits(driverSignature) + " '" + (char) driverSignature + "'");
     }
 
     public String getDriverHint() {

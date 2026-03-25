@@ -13,7 +13,7 @@ import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
 import dev.isxander.controlify.utils.LazyComponentDims;
 import dev.isxander.controlify.utils.PrecomputedComponentDims;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.network.chat.CommonComponents;
@@ -82,7 +82,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
     }
 
     @Override
-    protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+    protected void render(ControllerEntity controller, GuiGraphicsExtractor graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
         var config = controller.settings().generic;
         KeyboardWidget keyboardWidget = this.keyboardWidgetSupplier.get();
         if (keyboardWidget != null && config.guide.showScreenGuides) {
@@ -92,7 +92,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
                 int x = keyboardWidget.getRight() - hint.getWidth() - 2;
                 int y = keyboardWidget.getY() - hint.getHeight();
 
-                graphics.drawString(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
+                graphics.text(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
             }
 
             if (config.keyboard.hintSignLine && this.signLineHintLines != null) {
@@ -102,7 +102,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
                     int lineHeight = line.height();
                     FormattedCharSequence lineText = line.component();
 
-                    graphics.drawString(minecraft.font, lineText, this.screen.width - 1 - lineWidth, y, 0xFFFFFFFF, true);
+                    graphics.text(minecraft.font, lineText, this.screen.width - 1 - lineWidth, y, 0xFFFFFFFF, true);
 
                     y += minecraft.font.lineHeight;
                 }

@@ -1,10 +1,10 @@
 package dev.isxander.controlify.api.bind;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 @FunctionalInterface
 public interface RadialIcon {
     RadialIcon EMPTY = (graphics, x, y, tickDelta) -> {};
 
-    void draw(GuiGraphics graphics, int x, int y, float tickDelta);
+    void draw(GuiGraphicsExtractor graphics, int x, int y, float tickDelta);
 }

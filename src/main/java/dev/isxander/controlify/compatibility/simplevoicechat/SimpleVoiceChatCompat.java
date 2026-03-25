@@ -1,5 +1,5 @@
 //? if simple_voice_chat {
-/*package dev.isxander.controlify.compatibility.simplevoicechat;
+package dev.isxander.controlify.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
@@ -8,8 +8,8 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -105,8 +105,8 @@ public class SimpleVoiceChatCompat {
 
     private static Identifier registerIcon16x(Identifier location) {
         ControlifyBindApi.get().registerRadialIcon(location, ((graphics, x, y, tickDelta) ->
-                Blit.tex(graphics, location, x, y, 0f, 0f, 16, 16, 16, 16)));
+                graphics.blit(RenderPipelines.GUI_TEXTURED, location, x, y, 0, 0, 16, 16, 16, 16)));
         return location;
     }
 }
-*///?}
+//?}

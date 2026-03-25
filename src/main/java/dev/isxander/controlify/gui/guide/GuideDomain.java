@@ -11,7 +11,7 @@ import dev.isxander.controlify.font.BindingFontHelper;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.FileToIdConverter;
@@ -188,7 +188,7 @@ public class GuideDomain<T extends FactCtx> implements RenderableGuideDomain<T>,
     }
 
     @Override
-    public void render(GuiGraphics graphics, boolean bottomAligned, boolean textContrast) {
+    public void render(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast) {
         GuideRenderer.render(graphics, this, Minecraft.getInstance(), bottomAligned, textContrast);
     }
 

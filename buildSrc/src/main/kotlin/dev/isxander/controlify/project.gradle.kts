@@ -13,6 +13,7 @@ plugins {
 
 modstitch.apply {
     minecraftVersion = mcVersion
+    javaVersion = 25
 
     parchment {
         propMap("parchment.version") { mappingsVersion = it }
@@ -51,7 +52,6 @@ modstitch.apply {
 
     moddevgradle {
         propMap("deps.neoForge") { neoForgeVersion = it }
-        propMap("deps.forge") { forgeVersion = it }
 
         defaultRuns()
     }
@@ -63,6 +63,9 @@ repositories {
     }
     strictMaven("https://maven.quiltmc.org/repository/release") {
         includeGroupAndSubgroups("org.quiltmc")
+    }
+    strictMaven("https://maven.nucleoid.xyz/releases") {
+        includeGroupAndSubgroups("eu.pb4")
     }
     maven("https://maven.isxander.dev/releases")
 }
@@ -114,58 +117,10 @@ stonecutter.apply {
         put("simple_voice_chat", isPropDefined("deps.simpleVoiceChat"))
         put("reeses_sodium_options", isPropDefined("deps.reesesSodiumOptions"))
         put("fancy_menu", isPropDefined("deps.fancyMenu"))
-
-        put("unobf", modstitch.isUnobfuscated)
-        put("intermediary_lambdas", modstitch.isUnobfuscated.map { !it && !modstitch.isModDevGradle })
     }
 
     dependencies {
         put("fapi", prop("deps.fabricApi") ?: "0.0.0")
-    }
-
-    replacements {
-        fun ReplacementContainer.replaceClass(direction: Boolean, from: String, to: String) {
-            val fromPackage = from.substringBeforeLast('.')
-            val toPackage = to.substringBeforeLast('.')
-
-            if (fromPackage != toPackage) {
-                string(direction) {
-                    replace(from, to)
-                }
-            }
-
-            val fromName = from.substringAfterLast('.')
-            val toName = to.substringAfterLast('.')
-            if (fromName != toName) {
-                regex(direction) {
-                    replace(
-                        "(?<![a-zA-Z0-9\$_])$fromName(?![a-zA-Z0-9\$_])" to toName,
-                        "(?<![a-zA-Z0-9\$_])$toName(?![a-zA-Z0-9\$_])" to fromName
-                    )
-                }
-            }
-        }
-
-        replaceClass(
-            current.parsed >= "1.21.11",
-            "net.minecraft.Util",
-            "net.minecraft.util.Util"
-        )
-        replaceClass(
-            current.parsed >= "1.21.11",
-            "net.minecraft.resources.ResourceLocation",
-            "net.minecraft.resources.Identifier"
-        )
-        replaceClass(
-            current.parsed >= "26.1",
-            "net.fabricmc.fabric.impl.client.keybinding.KeyBindingRegistryImpl",
-            "net.fabricmc.fabric.impl.client.keymapping.KeyMappingRegistryImpl"
-        )
-        replaceClass(
-            current.parsed >= "26.1",
-            "net.fabricmc.fabric.api.networking.v1.PacketByteBufs",
-            "net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs"
-        )
     }
 }
 

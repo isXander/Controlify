@@ -11,14 +11,15 @@ import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
-import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -59,7 +60,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         this.renderHeight = height / renderScale;
     }
 
-    public void renderKeyBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+    public void extractKeyBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         this.active = this.supportsAction();
 
         if (!this.isFocused()) {
@@ -67,11 +68,19 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
             this.buttonPressed = false;
         }
 
-        doScaledRender(graphics, () -> {
-            Blit.sprite(graphics, isVisuallyPressed() ? SPRITE_PRESSED : SPRITE, getX() + 1, getY() + 1, renderWidth - 2, renderHeight - 2);
+        doScaledExtraction(graphics, () -> {
+            Identifier sprite = isVisuallyPressed() ? SPRITE_PRESSED : SPRITE;
+            int x = getX() + 1;
+            int y = getY() + 1;
+            graphics.blitSprite(
+                    RenderPipelines.GUI_TEXTURED,
+                    sprite,
+                    x, y,
+                    renderWidth - 2, renderHeight - 2
+            );
 
             if (isHoveredOrFocused()) {
-                graphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
+                graphics.outline(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
             } else if (!shortcutPressed) {
                 this.holdRepeatHelper.reset();
             }
@@ -83,10 +92,10 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         });
     }
 
-    public void renderKeyForeground(GuiGraphics graphics, int mouseX, int mouseY, float deltaTick) {
-        doScaledRender(graphics, () -> {
+    public void extractKeyForeground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float deltaTick) {
+        doScaledExtraction(graphics, () -> {
             Component label = this.keyboard.isShifted() ? this.shiftedLabel : this.regularLabel;
-            graphics.drawCenteredString(
+            graphics.centeredText(
                     Minecraft.getInstance().font,
                     label,
                     getX() + renderWidth / 2,
@@ -97,7 +106,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         // custom rendered above
     }
 
@@ -138,13 +147,9 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
     }
 
     @Override
-    //? if >=1.21.9 {
-    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean bl) {
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         double mouseX = mouseButtonEvent.x();
         double mouseY = mouseButtonEvent.y();
-    //?} else {
-    /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    *///?}
         if (isMouseOver(mouseX, mouseY)) {
             this.mousePressed = true;
             onPress();
@@ -153,19 +158,11 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
         return false;
     }
 
-    //? if >=1.21.9 {
     @Override
-    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent) {
+    public boolean mouseReleased(@NonNull MouseButtonEvent mouseButtonEvent) {
         this.mousePressed = false;
         return super.mouseReleased(mouseButtonEvent);
     }
-    //?} else {
-    /*@Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        this.mousePressed = false;
-        return super.mouseReleased(mouseX, mouseY, button);
-    }
-    *///?}
 
     private void onPress() {
         KeyboardLayout.KeyFunction keyFunction = this.getKeyFunction();
@@ -307,15 +304,15 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
     }
 
-    private void doScaledRender(GuiGraphics graphics, Runnable runnable) {
-        var pose = CGuiPose.ofPush(graphics);
+    private void doScaledExtraction(GuiGraphicsExtractor graphics, Runnable runnable) {
+        var pose = graphics.pose().pushMatrix();
         pose.translate(getX(), getY());
         pose.scale(this.renderScale, this.renderScale);
         pose.translate(-getX(), -getY());
 
         runnable.run();
 
-        pose.pop();
+        pose.popMatrix();
     }
 
     private static void insertText(String text, InputTarget inputConsumer) {

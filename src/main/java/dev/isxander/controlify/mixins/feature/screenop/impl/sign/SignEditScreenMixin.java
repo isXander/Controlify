@@ -18,28 +18,19 @@ public abstract class SignEditScreenMixin extends AbstractSignEditScreen {
         super(sign, isFrontText, isFiltered);
     }
 
-    //? if >=1.21.6 {
     @ModifyReturnValue(method = "getSignYOffset", at = @At("RETURN"))
     private float modifySignY(float original) {
         return original - calculateOverlap();
     }
-    //?}
 
-    //? if >=1.21.6 {
-    @Definition(
-            id = "submitSignRenderState",
-            //? if >=1.21.9 {
-            method = "Lnet/minecraft/client/gui/GuiGraphics;submitSignRenderState(Lnet/minecraft/client/model/Model$Simple;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V"
-            //?} else {
-            /*method = "Lnet/minecraft/client/gui/GuiGraphics;submitSignRenderState(Lnet/minecraft/client/model/Model;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V"
-            *///?}
-    )
-    @Expression("?.submitSignRenderState(?, ?, ?, ?, @(66), ?, @(168))")
-    @ModifyExpressionValue(method = "renderSignBackground", at = @At("MIXINEXTRAS:EXPRESSION"))
+
+    @Definition(id = "sign", method = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;sign(Lnet/minecraft/client/model/Model$Simple;FLnet/minecraft/world/level/block/state/properties/WoodType;IIII)V")
+    @Expression("?.sign(?, ?, ?, ?, @(66), ?, @(168))")
+    @ModifyExpressionValue(method = "extractSignBackground", at = @At("MIXINEXTRAS:EXPRESSION"))
     private int modifySignRenderY(int original) {
         return (int) (original - calculateOverlap());
     }
-    //?}
+
 
     @Unique
     private float calculateOverlap() {

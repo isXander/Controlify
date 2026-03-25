@@ -17,7 +17,9 @@ import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
@@ -66,9 +68,9 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        protected void drawValueText(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        protected void extractValueText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
             if (awaitingControllerInput) {
-                graphics.drawString(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
+                graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
             } else {
                 var bind = control.option().pendingValue();
                 if (EmptyInput.equals(bind)) return;
@@ -77,18 +79,13 @@ public class BindController implements Controller<Input> {
                         .getComponentFromBind(control.controller.info().type().namespace(), bind);
                 int width = textRenderer.width(text);
 
-                graphics.drawString(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
+                graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
             }
         }
 
         @Override
-        //? if >=1.21.9 {
-        public boolean keyPressed(net.minecraft.client.input.KeyEvent keyEvent) {
-            int keyCode = keyEvent.key();
-        //?} else {
-        /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        *///?}
-            if (isFocused() && keyCode == GLFW.GLFW_KEY_ENTER) {
+        public boolean keyPressed(KeyEvent keyEvent) {
+            if (isFocused() && keyEvent.key() == GLFW.GLFW_KEY_ENTER) {
                 openConsumerScreen();
                 return true;
             }
@@ -97,14 +94,8 @@ public class BindController implements Controller<Input> {
         }
 
         @Override
-        //? if >=1.21.9 {
-        public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-            double mouseX = mouseButtonEvent.x();
-            double mouseY = mouseButtonEvent.y();
-        //?} else {
-        /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        *///?}
-            if (getDimension().isPointInside((int)mouseX, (int)mouseY)) {
+        public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+            if (getDimension().isPointInside((int) mouseButtonEvent.x(), (int) mouseButtonEvent.y())) {
                 openConsumerScreen();
                 return true;
             }

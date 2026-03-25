@@ -7,7 +7,7 @@ import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.resources.Identifier;
 
 import java.text.DecimalFormat;
@@ -26,7 +26,7 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
     }
 
     @Override
-    public int render(GuiGraphics graphics, int x, int y, int renderWidth, float tickDelta) {
+    public int render(GuiGraphicsExtractor graphics, int x, int y, int renderWidth, float tickDelta) {
         float radius = renderWidth / 4f;
         int renderHeight = (int) (radius * 2f);
 
@@ -40,8 +40,8 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
         float currentY = down - up;
 
         // axis lines
-        graphics.hLine(x, (int)(x + radius*2), (int) (y + radius), 0xFFAAAAAA);
-        graphics.vLine((int) (x + radius), y, (int)(y + radius*2), 0xFFAAAAAA);
+        graphics.horizontalLine(x, (int)(x + radius*2), (int) (y + radius), 0xFFAAAAAA);
+        graphics.verticalLine((int) (x + radius), y, (int)(y + radius*2), 0xFFAAAAAA);
 
         // 100% outline
         CircleElementRenderState.outline(
@@ -70,8 +70,8 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 
         Font font = Minecraft.getInstance().font;
         DecimalFormat format = new DecimalFormat("0.000");
-        graphics.drawString(font, "X: " + format.format(currentX), (int) (x + radius * 2 + 5), y, -1);
-        graphics.drawString(font, "Y: " + format.format(currentY), (int) (x + radius * 2 + 5), y + font.lineHeight + 1, -1);
+        graphics.text(font, "X: " + format.format(currentX), (int) (x + radius * 2 + 5), y, -1);
+        graphics.text(font, "Y: " + format.format(currentY), (int) (x + radius * 2 + 5), y + font.lineHeight + 1, -1);
 
         return renderHeight;
     }

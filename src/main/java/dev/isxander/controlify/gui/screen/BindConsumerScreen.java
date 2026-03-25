@@ -5,12 +5,14 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -34,38 +36,24 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         Dimension<Integer> dim = widgetToFocus.getDimension();
 
-        var pose = CGuiPose.ofPush(guiGraphics);
-        // text renders with z > 0 so push everything back so text doesn't pop through fill
-        //? if <1.21.6
-        /*guiGraphics.pose().translate(0, 0, -20);*/
+        backgroundScreen.extractRenderStateWithTooltipAndSubtitles(graphics, dim.centerX(), dim.centerY(), a);
 
-        //? if >=1.21.10 {
-        backgroundScreen.renderWithTooltipAndSubtitles(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
-        //?} else {
-        /*backgroundScreen.renderWithTooltip(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);
-        *///?}
-
-        pose.pop();
-
-        pose.push();
-        pose.nextLayer(1000f);
+        graphics.nextStratum();
 
         // darken everything except the widget
-        guiGraphics.fill(0, 0, width, dim.y() - 1, 0x80000000);
-        guiGraphics.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
-        guiGraphics.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
-        guiGraphics.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
+        graphics.fill(0, 0, width, dim.y() - 1, 0x80000000);
+        graphics.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
+        graphics.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
+        graphics.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
 
-        pose.pop();
-
-        super.render(guiGraphics, mouseX, mouseY, tickDelta);
+        super.extractRenderState(graphics, mouseX, mouseY, a);
     }
 
     @Override
-    public void renderBackground(GuiGraphics guiGraphics, int i, int j, float f) {
+    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         // do not render background
     }
 
@@ -97,13 +85,8 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    //? if >=1.21.9 {
-    public boolean keyPressed(net.minecraft.client.input.KeyEvent keyEvent) {
+    public boolean keyPressed(@NonNull KeyEvent keyEvent) {
         boolean consumed = super.keyPressed(keyEvent);
-    //?} else {
-    /*public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean consumed = super.keyPressed(keyCode, scanCode, modifiers);
-    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;
@@ -112,13 +95,8 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    //? if >=1.21.9 {
-    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+    public boolean mouseClicked(@NonNull MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
         boolean consumed = super.mouseClicked(mouseButtonEvent, doubleClick);
-    //?} else {
-    /*public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        boolean consumed = super.mouseClicked(mouseX, mouseY, button);
-    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;
@@ -127,13 +105,8 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     @Override
-    //? if >=1.21.9 {
-    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, double dx, double dy) {
+    public boolean mouseDragged(@NonNull MouseButtonEvent mouseButtonEvent, double dx, double dy) {
         boolean consumed = super.mouseDragged(mouseButtonEvent, dx, dy);
-    //?} else {
-    /*public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-        boolean consumed = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
-    *///?}
         if (consumed) return true;
 
         if (ticksTillInput > 0) return false;

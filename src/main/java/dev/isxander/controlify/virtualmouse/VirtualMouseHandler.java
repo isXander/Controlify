@@ -18,12 +18,11 @@ import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.utils.*;
-import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -383,7 +382,7 @@ public class VirtualMouseHandler {
         }
     }
 
-    public void renderVirtualMouse(GuiGraphics graphics) {
+    public void renderVirtualMouse(GuiGraphicsExtractor graphics) {
         if (!virtualMouseEnabled) return;
 
         if (DebugProperties.DEBUG_SNAPPING) {
@@ -396,14 +395,21 @@ public class VirtualMouseHandler {
         var scaledX = currentX * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
         var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
-        var pose = CGuiPose.ofPush(graphics);
+        var pose = graphics.pose().pushMatrix();
         pose.translate((float) scaledX, (float) scaledY);
-        pose.nextLayer(1000f);
+        graphics.nextStratum();
         pose.scale(0.5f, 0.5f);
 
-        Blit.tex(graphics, CURSOR_TEXTURE, -16, -16, 0, 0, 32, 32, 32, 32);
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                CURSOR_TEXTURE,
+                -16, -16,
+                0, 0,
+                32, 32,
+                32, 32
+        );
 
-        pose.pop();
+        pose.popMatrix();
     }
 
     public void enableVirtualMouse() {

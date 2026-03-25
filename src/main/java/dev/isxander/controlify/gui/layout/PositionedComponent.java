@@ -1,11 +1,12 @@
 package dev.isxander.controlify.gui.layout;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import org.joml.Vector2ic;
+import org.jspecify.annotations.NonNull;
 
 public class PositionedComponent<T extends RenderComponent> implements Renderable, GuiEventListener, NarratableEntry {
     private final T component;
@@ -35,12 +36,12 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        this.renderComponent(graphics, delta);
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.extractComponentRenderState(graphics, a);
     }
 
-    public void renderComponent(GuiGraphics graphics, float deltaTime) {
-        component.render(graphics, x, y, deltaTime);
+    public void extractComponentRenderState(GuiGraphicsExtractor graphics, float deltaTime) {
+        component.extractRenderState(graphics, x, y, deltaTime);
     }
 
     public int x() {
@@ -66,12 +67,12 @@ public class PositionedComponent<T extends RenderComponent> implements Renderabl
     }
 
     @Override
-    public NarrationPriority narrationPriority() {
+    public @NonNull NarrationPriority narrationPriority() {
         return NarrationPriority.NONE;
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput builder) {
+    public void updateNarration(@NonNull NarrationElementOutput builder) {
 
     }
 }

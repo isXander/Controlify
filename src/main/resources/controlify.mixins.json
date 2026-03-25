@@ -5,7 +5,6 @@
   "mixinextras": {
     "minVersion": "0.5.0-beta.4"
   },
-  "minMixinExtrasVersion": "0.5.0-beta.4",
   "injectors": {
     "defaultRequire": 1
   },
@@ -13,7 +12,6 @@
   "client": [
     "core.ClientPacketListenerMixin",
     "core.GLXMixin",
-    "core.GuiGraphicsMixin",
     "core.GuiMixin",
     "core.KeyboardHandlerMixin",
     "core.MinecraftMixin",
@@ -28,6 +26,7 @@
     "feature.font.TranslatableContentsMixin",
     "feature.guide.ingame.ClientPacketListenerMixin",
     "feature.guide.ingame.GuiMixin",
+    "feature.guide.ingame.MinecraftAccessor",
     "feature.guide.ingame.PlayerAccessor",
     "feature.guide.screen.AbstractButtonMixin",
     "feature.guide.screen.AbstractContainerScreenAccessor",
@@ -38,7 +37,7 @@
     "feature.hdhaptics.SoundManagerAccessor",
     "feature.input.DebugScreenOverlayAccessor",
     "feature.input.MinecraftMixin",
-    "feature.oofinput.GameRendererMixin",
+    "feature.oofinput.MinecraftMixin",
     "feature.patches.analogueboat.BoatMixin",
     "feature.patches.analogueboat.LocalPlayerMixin",
     "feature.patches.bookfocusfix.BookEditScreenMixin",
@@ -48,7 +47,7 @@
     "feature.patches.keymessages.OpenInventoryTutorialStepMixin",
     "feature.patches.keymessages.PunchTreeTutorialStepInstanceMixin",
     "feature.patches.sprintfix.LocalPlayerMixin",
-    "feature.reacharound.GameRendererMixin",
+    "feature.reacharound.MinecraftMixin",
     "feature.rumble.MinecraftMixin",
     "feature.rumble.blockbreak.MultiPlayerGameModeMixin",
     "feature.rumble.damage.LivingEntityMixin",

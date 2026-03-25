@@ -1,13 +1,11 @@
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.utils.render.Blit;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -60,43 +58,34 @@ public final class RadialIcons {
             ResourceKey<Item> key = entry.getKey();
             ItemStack stack = entry.getValue().getDefaultInstance();
 
-            map.put(key./*? if >=1.21.11 {*/identifier/*?} else {*//*location*//*?}*/().withPrefix("item/"), (graphics, x, y, tickDelta) -> {
-                graphics.renderItem(stack, x, y);
+            map.put(key.identifier().withPrefix("item/"), (graphics, x, y, a) -> {
+                graphics.item(stack, x, y);
             });
         });
     }
 
     private static void addPotionEffects(Map<Identifier, RadialIcon> map) {
-        //? if <1.21.6
-        /*var mobEffectTextureManager = minecraft.getMobEffectTextures();*/
-
         BuiltInRegistries.MOB_EFFECT.entrySet().forEach(entry -> {
             ResourceKey<MobEffect> key = entry.getKey();
 
             Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(entry.getValue());
 
-            boolean render = true;
-            //? if >=1.21.6 {
             Identifier sprite = Gui.getMobEffectSprite(effect);
-            //?} else {
-            /*TextureAtlasSprite sprite = mobEffectTextureManager.get(effect);
 
-            if (sprite == null || sprite.atlasLocation() == null) {
-                render = false;
-            }
-            *///?}
+            map.put(key.identifier().withPrefix("effect/"), (graphics, x, y, a) -> {
+                var pose = graphics.pose().pushMatrix();
+                pose.translate(x, y);
+                pose.scale(0.88f, 0.88f);
 
-            if (render) {
-                map.put(key./*? if >=1.21.11 {*/identifier/*?} else {*//*location*//*?}*/().withPrefix("effect/"), (graphics, x, y, tickDelta) -> {
-                    var pose = CGuiPose.ofPush(graphics);
-                    pose.translate(x, y);
-                    pose.scale(0.88f, 0.88f);
+                graphics.blitSprite(
+                        RenderPipelines.GUI_TEXTURED,
+                        sprite,
+                        0, 0,
+                        18, 18
+                );
 
-                    Blit.sprite(graphics, sprite, 0, 0, 18, 18 /*? if <1.21.6 >>*//*,-1*/ );
-
-                    pose.pop();
-                });
-            }
+                pose.popMatrix();
+            });
         });
     }
 
@@ -106,11 +95,18 @@ public final class RadialIcons {
 
         map.put(EMPTY, (graphics, x, y, tickDelta) -> {});
         map.put(modLoaderIcon, (graphics, x, y, tickDelta) -> {
-            var pose = CGuiPose.ofPush(graphics);
+            var pose = graphics.pose().pushMatrix();
             pose.translate(x, y);
             pose.scale(0.5f, 0.5f);
-            Blit.tex(graphics, modLoaderIcon, 0, 0, 0, 0, 32, 32, 32, 32);
-            pose.pop();
+            graphics.blit(
+                    RenderPipelines.GUI_TEXTURED,
+                    modLoaderIcon,
+                    0, 0,
+                    0, 0,
+                    32, 32,
+                    32, 32
+            );
+            pose.popMatrix();
         });
         addItems(map);
         addPotionEffects(map);

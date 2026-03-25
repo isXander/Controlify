@@ -11,16 +11,16 @@ import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.ClientUtils;
+import dev.isxander.controlify.utils.render.RenderUtils;
 import dev.isxander.controlify.utils.ColorUtils;
-import dev.isxander.controlify.utils.render.Blit;
-import dev.isxander.controlify.utils.render.CGuiPose;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -229,12 +229,12 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int i, int j, float f) {
-        super.render(guiGraphics, i, j, f);
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractRenderState(graphics, mouseX, mouseY, a);
 
-        guiGraphics.drawCenteredString(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
+        graphics.centeredText(font, Component.translatable("controlify.gui.mapping_maker.title"), width / 2, 15, 0xFFFFFFFF);
 
-        guiGraphics.drawCenteredString(
+        graphics.centeredText(
                 font,
                 currentStage == null ? Component.translatable("controlify.gui.mapping_maker.please_wait") : currentStage.name(),
                 width / 2, height - 20,
@@ -244,7 +244,8 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         int safeZone = Math.min(width, height) - 30;
         float scale = safeZone / 32f;
 
-        var pose = CGuiPose.ofPush(guiGraphics);
+        var pose = graphics.pose();
+        pose.pushMatrix();
         pose.translate(width / 2f, -5);
         pose.translate(-32 * scale / 2f, 0);
         pose.scale(scale, scale);
@@ -252,34 +253,37 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
         float colour = currentStage != null && currentStage.isSatisfied() ? 0.46f : 1f;
 
         if (currentStage != null && currentStage.background() != null) {
-            Blit.tex(
-                    guiGraphics,
-                    currentStage.background(),
+            Identifier texture = currentStage.background();
+            int color = ColorUtils.grey(colour, 1f);
+            graphics.blit(
+                    RenderPipelines.GUI_TEXTURED,
+                    texture,
                     0, 0,
-                    0, 0,
+                    (float) 0, (float) 0,
                     32, 32,
                     32, 32,
-                    ColorUtils.grey(colour, 1f)
+                    color
             );
         }
 
         if (currentStage == null || !currentStage.isSatisfied()) {
             Identifier texture = currentStage != null ? currentStage.foreground() : CUtil.rl("textures/gui/controllerdiagram/faceview.png");
-            Blit.tex(
-                    guiGraphics,
+            int color = ColorUtils.grey(colour, 1f);
+            graphics.blit(
+                    RenderPipelines.GUI_TEXTURED,
                     texture,
                     0, 0,
-                    0, 0,
+                    (float) 0, (float) 0,
                     32, 32,
                     32, 32,
-                    ColorUtils.grey(colour, 1f)
+                    color
             );
         }
 
-        pose.pop();
+        pose.popMatrix();
 
         float progress = currentStage != null ? (float) (stages.indexOf(currentStage) + 1) / stages.size() : 0;
-        ClientUtils.drawBar(guiGraphics, width / 2, height - 30, progress);
+        RenderUtils.extractBar(graphics, width / 2, height - 30, progress);
     }
 
     private static Component button(String buttonName) {

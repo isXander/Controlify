@@ -7,9 +7,8 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
-import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -20,6 +19,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -115,30 +115,28 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
     }
 
     @Override
-    protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    protected void extractWidgetRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         for (KeyWidget key : keys) {
             // vanilla widget render does other stuff like mouse hover update etc
             // render method of keys are empty - this doesn't actually do any rendering
-            key.render(guiGraphics, mouseX, mouseY, partialTick);
+            key.extractRenderState(graphics, mouseX, mouseY, a);
         }
 
         // draw in a managed context so we can batch render calls
         // everything within here is rendered in a single draw call
-        Blit.batchDraw(guiGraphics, () -> {
-            guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
-            guiGraphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
+        graphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), 0x80000000);
+        graphics.outline(getX(), getY(), getWidth(), getHeight(), 0xFFAAAAAA);
 
-            for (KeyWidget key : keys) {
-                // every key background is rendered into the same vertex buffer to upload at once
-                key.renderKeyBackground(guiGraphics, mouseX, mouseY, partialTick);
-            }
+        for (KeyWidget key : keys) {
+            // every key background is rendered into the same vertex buffer to upload at once
+            key.extractKeyBackground(graphics, mouseX, mouseY, a);
+        }
 
-            // renders all foreground after background to prevent context switching
-            for (KeyWidget key : keys) {
-                // text rendering is batched by default in managed mode
-                key.renderKeyForeground(guiGraphics, mouseX, mouseY, partialTick);
-            }
-        });
+        // renders all foreground after background to prevent context switching
+        for (KeyWidget key : keys) {
+            // text rendering is batched by default in managed mode
+            key.extractKeyForeground(graphics, mouseX, mouseY, a);
+        }
     }
 
     @Override

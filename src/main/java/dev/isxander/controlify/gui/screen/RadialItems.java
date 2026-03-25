@@ -6,7 +6,6 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugOverlayHelper;
-import dev.isxander.controlify.utils.render.CGuiPose;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
@@ -96,7 +95,7 @@ public final class RadialItems {
             items[i] = new RadialItemRecord(
                     Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
                     (graphics, x, y, tickDelta) -> {
-                        graphics.renderItem(mc.player.getInventory().getItem(j), x, y);
+                        graphics.item(mc.player.getInventory().getItem(j), x, y);
                     },
                     () -> {
                         //? if >=1.21.5 {
@@ -248,12 +247,10 @@ public final class RadialItems {
 
             if (!stack.is(Items.AIR)) {
                 return (graphics, x, y, tickDelta) -> {
-                    graphics.renderItem(stack, x, y);
+                    graphics.item(stack, x, y);
 
                     if (showNumbers) {
-                        var pose = CGuiPose.ofPush(graphics);
-                        graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
-                        pose.pop();
+                        graphics.text(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
                     }
                 };
             }
@@ -261,7 +258,7 @@ public final class RadialItems {
 
         return (graphics, x, y, tickDelta) -> {
             if (showNumbers) {
-                graphics.drawString(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
+                graphics.text(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
             }
         };
     }

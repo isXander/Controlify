@@ -19,7 +19,7 @@ import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ComponentPath;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -69,7 +69,7 @@ public class ScreenProcessor<T extends Screen> {
         eventListeners.forEach(listener -> listener.onControllerInput(controller));
     }
 
-    public void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta) {
+    public void render(ControllerEntity controller, GuiGraphicsExtractor graphics, float tickDelta) {
         var vmouse = Controlify.instance().virtualMouseHandler();
         this.render(controller, graphics, tickDelta, vmouse.isVirtualMouseEnabled() ? Optional.of(vmouse) : Optional.empty());
     }
@@ -275,7 +275,7 @@ public class ScreenProcessor<T extends Screen> {
         }
     }
 
-    protected void render(ControllerEntity controller, GuiGraphics graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
+    protected void render(ControllerEntity controller, GuiGraphicsExtractor graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
 
     }
 

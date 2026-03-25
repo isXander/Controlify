@@ -23,7 +23,7 @@ public abstract class AbstractWidgetMixin implements NarratableEntry {
     }
 
     //? if <1.21.11 {
-    /*@ModifyExpressionValue(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;getMessage()Lnet/minecraft/network/chat/Component;"))
+    /*@ModifyExpressionValue(method = "renderScrollingString(Lnet/minecraft/client/gui/GuiGraphicsExtractor;Lnet/minecraft/client/gui/Font;II)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractWidget;getMessage()Lnet/minecraft/network/chat/Component;"))
     protected Component modifyRenderedLabel(Component actualMessage) {
         return actualMessage;
     }

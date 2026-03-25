@@ -11,10 +11,9 @@ import dev.isxander.controlify.gui.components.PlainTextWidget;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.render.Blit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -25,6 +24,7 @@ import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -152,16 +152,17 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (this.controllerNotDetectedButton.visible == hasController()) {
             this.repositionElements();
         }
 
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, a);
 
-        Blit.tex(
-                guiGraphics,
-                minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR,
+        Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                texture,
                 0, footerY,
                 0.0F, 0.0F,
                 this.width, 2,
@@ -170,12 +171,16 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int i, int j, float f) {
-        super.renderBackground(graphics, i, j, f);
+    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        super.extractBackground(graphics, mouseX, mouseY, a);
 
-        Blit.tex(
-                graphics,
-                minecraft.level == null ? AbstractSelectionListAccessor.getMenuListBackground() : AbstractSelectionListAccessor.getInWorldMenuListBackground(),
+        Identifier texture = minecraft.level == null
+                ? AbstractSelectionListAccessor.getMenuListBackground()
+                : AbstractSelectionListAccessor.getInWorldMenuListBackground();
+
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                texture,
                 0, 0,
                 0f, 0f,
                 width, footerY,
@@ -186,7 +191,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
     @Override
     public void onControllerInput(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            globalSettingsButton.onPress(/*? if >=1.21.9 >>*/null );
+            // Button impl does not use NonNull parameter
+            globalSettingsButton.onPress(null);
         }
     }
 
@@ -214,13 +220,13 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            guiGraphics.fill(
+        public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            graphics.fill(
                     this.x, this.y,
                     this.x + this.width, this.y + this.height,
                     0x55000000
             );
-            guiGraphics./*? if >=1.21.9 && <1.21.11 {*//*submitOutline*//*?} else {*/renderOutline/*?}*/(x, y, width, height, 0x5AFFFFFF);
+            graphics.outline(x, y, width, height, 0x5AFFFFFF);
         }
 
         @Override
@@ -242,7 +248,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
         private final Button settingsButton;
         private final PlainTextWidget controllerNameText;
-        private /*? if >=1.21.8>>*/final ImageWidget controllerIcon;
+        private final ImageWidget controllerIcon;
         private final GridLayout gridLayout;
 
         private final ImmutableList<? extends GuiEventListener> children;
@@ -273,14 +279,14 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            super.extractRenderState(graphics, mouseX, mouseY, a);
 
             updateControllerInfo(false);
 
-            this.settingsButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.controllerNameText.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.controllerIcon.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.settingsButton.extractRenderState(graphics, mouseX, mouseY, a);
+            this.controllerNameText.extractRenderState(graphics, mouseX, mouseY, a);
+            this.controllerIcon.extractRenderState(graphics, mouseX, mouseY, a);
         }
 
         private void onSettingsButtonPressed() {
@@ -318,11 +324,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         private void updateIcon(Identifier iconSprite) {
-            //? if >=1.21.8 {
             this.controllerIcon.updateResource(iconSprite);
-            //?} else {
-            /*this.controllerIcon = ImageWidget.sprite(64, 64, iconSprite);
-            *///?}
         }
 
         private @Nullable ControllerEntity getController() {
@@ -391,12 +393,12 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.render(guiGraphics, mouseX, mouseY, partialTick);
+        public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+            super.extractRenderState(graphics, mouseX, mouseY, a);
 
-            this.adText.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.adButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            this.disableAdButton.render(guiGraphics, mouseX, mouseY, partialTick);
+            this.adText.extractRenderState(graphics, mouseX, mouseY, a);
+            this.adButton.extractRenderState(graphics, mouseX, mouseY, a);
+            this.disableAdButton.extractRenderState(graphics, mouseX, mouseY, a);
         }
 
         @Override

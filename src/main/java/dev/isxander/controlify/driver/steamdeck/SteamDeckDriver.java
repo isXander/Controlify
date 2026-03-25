@@ -125,7 +125,6 @@ public class SteamDeckDriver implements Driver {
         ControllerState deckState = deck.getControllerState();
 
         boolean focused = deck.isGameInFocus();
-        Minecraft.getInstance().setWindowActive(focused);
 
         state.setButton(GamepadInputs.NORTH_BUTTON, deckState.getButtonState(ControllerButton.Y) && focused);
         state.setButton(GamepadInputs.EAST_BUTTON, deckState.getButtonState(ControllerButton.B) && focused);

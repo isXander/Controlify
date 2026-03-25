@@ -3,8 +3,9 @@ package dev.isxander.controlify.gui.guide;
 import dev.isxander.controlify.config.settings.profile.GenericControllerSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.api.guide.InGameCtx;
+import dev.isxander.controlify.mixins.feature.guide.ingame.MinecraftAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public class InGameButtonGuide {
     private final ControllerEntity controller;
@@ -15,7 +16,7 @@ public class InGameButtonGuide {
         this.minecraft = minecraft;
     }
 
-    public void renderHud(GuiGraphics graphics, float tickDelta) {
+    public void renderHud(GuiGraphicsExtractor graphics, float tickDelta) {
         boolean debugOpen = minecraft.getDebugOverlay().showDebugScreen();
         boolean hideGui = minecraft.options.hideGui;
         boolean screenOpen = minecraft.screen != null;
@@ -31,7 +32,7 @@ public class InGameButtonGuide {
 
         if (settings.showIngameGuide) {
             if (minecraft.hitResult == null) {
-                minecraft.gameRenderer.pick(1f);
+                ((MinecraftAccessor) minecraft).invokePick(1f);
             }
             GuideDomains.IN_GAME.updateGuides(new InGameCtx(minecraft, minecraft.player, minecraft.level, minecraft.hitResult, controller, settings.verbosity), minecraft.font);
         }

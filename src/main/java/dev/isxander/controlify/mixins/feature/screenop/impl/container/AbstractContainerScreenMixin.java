@@ -8,8 +8,11 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.screenop.compat.vanilla.AbstractContainerScreenProcessor;
-import net.minecraft.client.gui.GuiGraphics;
+import dev.isxander.controlify.screenop.compat.vanilla.ItemSlotControllerAction;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.ItemSlotMouseAction;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -22,10 +25,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 
-//? if >=1.21.2 {
-import net.minecraft.client.gui.ItemSlotMouseAction;
-import dev.isxander.controlify.screenop.compat.vanilla.ItemSlotControllerAction;
-//?}
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin implements ScreenProcessorProvider {
@@ -35,15 +34,9 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
             Slot slot,
             int slotId,
             int buttonNum,
-            //? if >=26.1 {
-            net.minecraft.world.inventory.ContainerInput
-            //?} else {
-            /*net.minecraft.world.inventory.ClickType
-            *///?}
-                    containerInput
+            ContainerInput containerInput
     );
 
-    //? if >=1.21.2
     @Shadow @Final private List<ItemSlotMouseAction> itemSlotMouseActions;
 
     @Unique
@@ -59,13 +52,13 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
         return screenProcessor;
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void setPrevSlotShare(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void setPrevSlotShare(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
         prevSlot.set(this.hoveredSlot);
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void triggerSlotHovered(GuiGraphics graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
+    @Inject(method = "extractRenderState", at = @At("RETURN"))
+    private void triggerSlotHovered(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a, CallbackInfo ci, @Share("prevSlot") LocalRef<Slot> prevSlot) {
         @Nullable Slot oldSlot = prevSlot.get();
         @Nullable Slot newSlot = this.hoveredSlot;
 
@@ -78,7 +71,6 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
 
     @Unique
     protected boolean handleControllerItemSlotActions(ControllerEntity controller) {
-        //? if >=1.21.2 {
         for (ItemSlotMouseAction itemSlotMouseAction : this.itemSlotMouseActions) {
             if (itemSlotMouseAction instanceof ItemSlotControllerAction itemSlotControllerAction
                     && itemSlotMouseAction.matches(this.hoveredSlot)
@@ -86,11 +78,9 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
                 return true;
             }
         }
-        //?}
         return false;
     }
 
-    //? if >=1.21.2 {
     @ModifyExpressionValue(
             method = "mouseScrolled",
             at = @At(
@@ -101,5 +91,4 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
     private boolean allowItemSlotScrolling(boolean original) {
         return original && !Controlify.instance().currentInputMode().isController();
     }
-    //?}
 }

@@ -21,11 +21,7 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
     @Unique private RenderData<AbstractButton> renderData = null;
     @Unique private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
-    //? if >=1.21.11 {
-    @ModifyExpressionValue(method = "renderDefaultLabel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractButton;getMessage()Lnet/minecraft/network/chat/Component;"))
-    //?} else {
-    /*@Override
-    *///?}
+    @ModifyExpressionValue(method = "extractDefaultLabel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractButton;getMessage()Lnet/minecraft/network/chat/Component;"))
     protected Component modifyRenderedLabel(Component originalMessage) {
         return getControllerMessage(originalMessage);
     }
