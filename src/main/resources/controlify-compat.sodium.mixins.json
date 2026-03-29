@@ -12,7 +12,7 @@
   "plugin": "dev.isxander.controlify.compatibility.sodium.SodiumMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "SodiumOptionsGUIMixin"
+    "VideoSettingsScreenMixin"
   ],
   "mixins": [
     "AbstractWidgetMixin",

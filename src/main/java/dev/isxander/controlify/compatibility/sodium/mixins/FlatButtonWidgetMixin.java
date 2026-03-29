@@ -1,5 +1,5 @@
 //? if sodium {
-/*package dev.isxander.controlify.compatibility.sodium.mixins;
+package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.bind.InputBinding;
@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +30,7 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
     private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
     @ModifyExpressionValue(
-            method = "render",
+            method = "extractRenderState",
             at = @At(
                     value = "FIELD",
                     target = "Lnet/caffeinemc/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
@@ -41,11 +39,6 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
     )
     private Component modifyRenderedLabel(Component actualLabel) {
         return getControllerMessage(actualLabel);
-    }
-
-    @Inject(method = "setLabel", at = @At("HEAD"))
-    private void removeLabelCache(CallbackInfo ci) {
-        this.controllerMessages.clear();
     }
 
     @Unique
@@ -78,4 +71,4 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
         this.controllerMessages.clear();
     }
 }
-*///?}
+//?}

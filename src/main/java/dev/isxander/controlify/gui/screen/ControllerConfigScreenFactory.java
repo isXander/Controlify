@@ -640,14 +640,17 @@ public class ControllerConfigScreenFactory {
                         .description(OptionDescription.createBuilder()
                                 .text(Component.translatable("controlify.gui.radial_menu.tooltip"))
                                 .build())
-                        .action((screen, opt) -> Minecraft.getInstance().setScreen(new RadialMenuScreen(
-                                controller.orElseThrow(),
-                                null,
-                                RadialItems.createBindings(controller.get()),
-                                Component.empty(),
-                                new RadialItems.BindingEditMode(controller.get()),
-                                screen
-                        )))
+                        .action((screen, opt) -> {
+                            if (Minecraft.getInstance().level == null) return;
+                            Minecraft.getInstance().setScreen(new RadialMenuScreen(
+                                    controller.orElseThrow(),
+                                    null,
+                                    RadialItems.createBindings(controller.get()),
+                                    Component.empty(),
+                                    new RadialItems.BindingEditMode(controller.get()),
+                                    screen
+                            ));
+                        })
                         .text(Component.translatable("controlify.gui.radial_menu.btn_text"))
                         .build())
                 .option(Option.<Integer>createBuilder()
