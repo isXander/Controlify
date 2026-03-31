@@ -18,7 +18,11 @@ public record BaseRenderState(
         @Nullable ScreenRectangle scissorArea
 ) {
     public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture, int x0, int y0, int x1, int y1) {
+        //? if fabric
         @Nullable ScreenRectangle scissorArea = graphics.scissorStack.peek();
+        //? if neoforge
+        //@Nullable ScreenRectangle scissorArea = graphics.peekScissorStack();
+
         ScreenRectangle bounds = boundsFromMaxPoints(x0, y0, x1, y1, graphics.pose(), scissorArea);
 
         return new BaseRenderState(
@@ -30,11 +34,16 @@ public record BaseRenderState(
     }
 
     public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture) {
+        //? if fabric
+        @Nullable ScreenRectangle scissorArea = graphics.scissorStack.peek();
+        //? if neoforge
+        //@Nullable ScreenRectangle scissorArea = graphics.peekScissorStack();
+
         return new BaseRenderState(
                 texture != null ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI,
                 textureSetup(texture),
                 new Matrix3x2f(graphics.pose()),
-                null, graphics.scissorStack.peek()
+                null, scissorArea
         );
     }
 

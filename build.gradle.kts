@@ -41,14 +41,6 @@ dependencies {
     fun Dependency?.jij() = this?.also(::modstitchJiJ)
     fun Dependency?.productionMod() = this?.also { "productionMods"(it) }
 
-    propMap("deps.mixinExtras") {
-        when {
-            modstitch.isLoom -> modstitchImplementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:$it")!!).jij()
-            modstitch.isModDevGradleRegular -> implementation("io.github.llamalad7:mixinextras-neoforge:$it").jij()
-            else -> error("Unknown loader")
-        }
-    }
-
     fun modDependency(
         id: String,
         artifactGetter: (String) -> String,

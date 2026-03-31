@@ -33,7 +33,10 @@ public interface CGuiElementRenderState extends GuiElementRenderState {
     }
 
     default void submit(GuiGraphicsExtractor graphics) {
+        //? if fabric
         graphics.guiRenderState.addGuiElement(this);
+        //? if neoforge
+        //graphics.submitGuiElementRenderState(this);
     }
 }
 

@@ -3,14 +3,13 @@
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
-    "minVersion": "0.5.0-beta.4"
+    "minVersion": "0.5.0"
   },
-  "minMixinExtrasVersion": "0.5.0-beta.4",
   "injectors": {
     "defaultRequire": 1
   },
   "plugin": "dev.isxander.controlify.compatibility.rso.RSOMixinPlugin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "client": [
     "SodiumVideoOptionsScreenMixin"
   ],
