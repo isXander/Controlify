@@ -87,7 +87,7 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
             }
 
             return new Preparations(defaultsByNamespace);
-        });
+        }, executor);
     }
 
     private JsonObject readDefaults(JsonObject base, Identifier resourceId, List<Resource> resources) {
@@ -117,7 +117,7 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
             if (data != null) {
                 this.defaultsByNamespace.putAll(data.map);
             }
-        });
+        }, executor);
     }
 
     @Override
