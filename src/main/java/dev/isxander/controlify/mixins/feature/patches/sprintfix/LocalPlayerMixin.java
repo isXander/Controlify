@@ -1,10 +1,15 @@
 package dev.isxander.controlify.mixins.feature.patches.sprintfix;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.Controlify;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LocalPlayer.class)
@@ -27,12 +32,31 @@ public class LocalPlayerMixin {
      * @return if the client input state satisfies sprinting
      */
     @WrapOperation(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z"))
-    private boolean requireHalfImpulse(net.minecraft.client.player.ClientInput instance, Operation<Boolean> original) {
+    private boolean requireSignificantImpulseToSprint(ClientInput instance, Operation<Boolean> original) {
         if (Controlify.instance().currentInputMode().isController()
                 && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
-            return instance.getMoveVector().y >= 0.8f;
+            return hasSignificantForwardImpulse(instance);
         }
 
         return original.call(instance);
+    }
+
+    @Definition(id = "hasForwardImpulseLocal", local = @Local(type = boolean.class, name = "hasForwardImpulse"))
+    @Definition(id = "input", field = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/ClientInput;")
+    @Definition(id = "hasForwardImpulse", method = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z")
+    @Expression("hasForwardImpulseLocal = @(this.input.hasForwardImpulse())")
+    @WrapOperation(method = "aiStep", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private boolean requireSignificantImpulseToDoubleTapSprint(ClientInput instance, Operation<Boolean> original) {
+        if (Controlify.instance().currentInputMode().isController()
+                && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
+            return hasSignificantForwardImpulse(instance);
+        }
+
+        return original.call(instance);
+    }
+
+    @Unique
+    private boolean hasSignificantForwardImpulse(ClientInput input) {
+        return input.getMoveVector().y >= 0.8f;
     }
 }
