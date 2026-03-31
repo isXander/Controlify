@@ -1,5 +1,6 @@
 package dev.isxander.controlify.screenop;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -27,6 +28,7 @@ import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -193,11 +195,7 @@ public class ScreenProcessor<T extends Screen> {
 
         if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
             if (!this.tryOpenKeyboard(controller, screen.getFocused())) {
-                //? if >=1.21.9 {
-                screen.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_ENTER, 0, 0));
-                //?} else {
-                /*screen.keyPressed(GLFW.GLFW_KEY_ENTER, 0, 0);
-                *///?}
+                screen.keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
             }
         }
         if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {

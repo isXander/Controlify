@@ -1,28 +1,16 @@
 package dev.isxander.controlify.font;
 
-import com.mojang.blaze3d.font.GlyphInfo;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.mixins.feature.font.FontAccessor;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.font.FontSet;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import net.minecraft.util.StringDecomposer;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.jetbrains.annotations.Nullable;
-
-//? if >=1.21.9 {
-import net.minecraft.client.gui.font.GlyphStitcher;
-import net.minecraft.client.gui.font.glyphs.BakedGlyph;
-//?}
 
 public final class BindingFontHelper {
     public static final Identifier WRAPPER_FONT = CUtil.rl("inputs");
@@ -46,7 +34,7 @@ public final class BindingFontHelper {
     }
 
     public static Component binding(Identifier binding) {
-        return Component.keybind(binding.toString()).withStyle(style -> style.withFont(CUtil.createResourceFont(WRAPPER_FONT)));
+        return Component.keybind(binding.toString()).withStyle(style -> style.withFont(new FontDescription.Resource(WRAPPER_FONT)));
     }
 
     public static Component binding(InputBinding binding) {
@@ -72,19 +60,7 @@ public final class BindingFontHelper {
     }
 
     private static int getHeight(Font font, int codepoint, Style style) {
-        //? if >=1.21.9 {
         // i can't figure out how to get the height here
         return 15;
-        //?} else {
-        /*FontSet fontSet = ((FontAccessor) font).invokeGetFontSet(style.getFont());
-        GlyphInfo glyphInfo = fontSet.getGlyphInfo(codepoint, false);
-        // GlyphInfo does not expose height, hack a solution
-        MutableInt f = new MutableInt(0);
-        glyphInfo.bake(sheetGlyphInfo -> {
-            f.setValue(Mth.ceil(sheetGlyphInfo.getPixelHeight() / sheetGlyphInfo.getOversample()));
-            return null;
-        });
-        return f.intValue();
-        *///?}
     }
 }

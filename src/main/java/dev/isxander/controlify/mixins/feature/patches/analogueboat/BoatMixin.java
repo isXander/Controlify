@@ -2,6 +2,7 @@ package dev.isxander.controlify.mixins.feature.patches.analogueboat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.fixes.boatfix.AnalogBoatInput;
+import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -11,15 +12,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(
-        //? if >=1.21.11 {
-        net.minecraft.world.entity.vehicle.boat.AbstractBoat.class
-        //?} elif >=1.21.2 {
-        /*net.minecraft.world.entity.vehicle.AbstractBoat.class
-        *///?} else {
-        /*net.minecraft.world.entity.vehicle.Boat.class
-        *///?}
-)
+@Mixin(AbstractBoat.class)
 public abstract class BoatMixin implements AnalogBoatInput {
     @Shadow private float deltaRotation;
     @Shadow private boolean inputLeft;
@@ -31,38 +24,35 @@ public abstract class BoatMixin implements AnalogBoatInput {
     @Unique private float analogRight;
     @Unique private boolean usingAnalogInput;
 
-    @Unique
-    private static final String TARGET_CLASS =
-            //? if >=1.21.11 {
-            "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat";
-            //?} elif >=1.21.2 {
-            /*"Lnet/minecraft/world/entity/vehicle/AbstractBoat";
-            *///?} else {
-            /*"Lnet/minecraft/world/entity/vehicle/Boat";
-            *///?}
-
-    @Inject(method = "controlBoat", at = @At(value = "INVOKE", target = TARGET_CLASS + ";getYRot()F", ordinal = 0))
+    @Inject(
+            method = "controlBoat",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat;getYRot()F",
+                    ordinal = 0
+            )
+    )
     private void rotateBoatAnalog(CallbackInfo ci) {
         if (usingAnalogInput)
             this.deltaRotation += analogRight;
     }
 
-    @ModifyVariable(method = "controlBoat", at = @At(value = "STORE", ordinal = 0), ordinal = 0)
-    private float forwardBoatAnalog(float forwardVelocity) {
+    @ModifyVariable(method = "controlBoat", at = @At(value = "STORE", ordinal = 0), name = "acceleration")
+    private float forwardBoatAnalog(float acceleration) {
         if (!usingAnalogInput)
-            return forwardVelocity;
+            return acceleration;
 
         // these values are what vanilla boat uses
         float velocity = analogForward > 0 ? analogForward * 0.04f : analogForward * 0.005f;
 
-        return forwardVelocity + velocity;
+        return acceleration + velocity;
     }
 
     @ModifyExpressionValue(method = "controlBoat", at = {
-            @At(value = "FIELD", target = TARGET_CLASS + ";inputLeft:Z", opcode = Opcodes.GETFIELD, ordinal = 0),
-            @At(value = "FIELD", target = TARGET_CLASS + ";inputRight:Z", opcode = Opcodes.GETFIELD, ordinal = 0),
-            @At(value = "FIELD", target = TARGET_CLASS + ";inputUp:Z", opcode = Opcodes.GETFIELD, ordinal = 1),
-            @At(value = "FIELD", target = TARGET_CLASS + ";inputDown:Z", opcode = Opcodes.GETFIELD, ordinal = 1)
+            @At(value = "FIELD", target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat" + ";inputLeft:Z", opcode = Opcodes.GETFIELD, ordinal = 0),
+            @At(value = "FIELD", target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat" + ";inputRight:Z", opcode = Opcodes.GETFIELD, ordinal = 0),
+            @At(value = "FIELD", target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat" + ";inputUp:Z", opcode = Opcodes.GETFIELD, ordinal = 1),
+            @At(value = "FIELD", target = "Lnet/minecraft/world/entity/vehicle/boat/AbstractBoat" + ";inputDown:Z", opcode = Opcodes.GETFIELD, ordinal = 1)
     })
     private boolean shouldDoDigitalInput(boolean original) {
         return !usingAnalogInput && original;
@@ -82,7 +72,7 @@ public abstract class BoatMixin implements AnalogBoatInput {
     }
 
     @Inject(method = "setInput", at = @At("HEAD"))
-    private void onUseDigitalInput(boolean pressingLeft, boolean pressingRight, boolean pressingForward, boolean pressingBack, CallbackInfo ci) {
+    private void onUseDigitalInput(boolean left, boolean right, boolean up, boolean down, CallbackInfo ci) {
         this.usingAnalogInput = false;
     }
 }

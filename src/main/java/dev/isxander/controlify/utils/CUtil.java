@@ -174,14 +174,4 @@ public class CUtil {
                + Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
     }
 
-    //? if >=1.21.9 {
-    public static net.minecraft.network.chat.FontDescription createResourceFont(Identifier resource) {
-        return new net.minecraft.network.chat.FontDescription.Resource(resource);
-    }
-    //?} else {
-    /*public static Identifier createResourceFont(Identifier resource) {
-        return resource;
-    }
-    *///?}
-
 }

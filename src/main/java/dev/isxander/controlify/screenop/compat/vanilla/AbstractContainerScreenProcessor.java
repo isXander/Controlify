@@ -21,12 +21,7 @@ import net.minecraft.world.inventory.Slot;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-//? if >=26.1 {
 import net.minecraft.world.inventory.ContainerInput;
-//?} else {
-/*import net.minecraft.world.inventory.ClickType;
-*///?}
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
@@ -67,7 +62,6 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                         vmouse.getCurrentY(1f),
                         accessor.getLeftPos(),
                         accessor.getTopPos()
-                        /*? if <1.21.9 >>*//*,0*/
                 ),
                 controller,
                 controller.settings().generic.guide.verbosity
@@ -83,22 +77,22 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
             }
 
             if (ControlifyBindings.INV_SELECT.on(controller).justPressed()) {
-                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, /*? if >=26.1 {*/ContainerInput/*?} else {*//*ClickType*//*?}*/.PICKUP);
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ContainerInput.PICKUP);
                 hapticNavigate();
             }
 
             if (ControlifyBindings.INV_QUICK_MOVE.on(controller).justPressed()) {
-                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, /*? if >=26.1 {*/ContainerInput/*?} else {*//*ClickType*//*?}*/.QUICK_MOVE);
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ContainerInput.QUICK_MOVE);
                 hapticNavigate();
             }
 
             if (ControlifyBindings.INV_TAKE_HALF.on(controller).justPressed()) {
-                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, /*? if >=26.1 {*/ContainerInput/*?} else {*//*ClickType*//*?}*/.PICKUP);
+                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, ContainerInput.PICKUP);
                 hapticNavigate();
             }
 
 //            if (ControlifyBindings.SWAP_HANDS.on(controller).justPressed()) {
-//                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, /*? if >=26.1 {*/ContainerInput/*?} else {*/ClickType/*?}*/.SWAP);
+//                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ContainerInput.SWAP);
 //                hapticNavigate();
 //            }
         } else {
@@ -107,7 +101,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
         if (!screen.getMenu().getCarried().isEmpty()) {
             if (ControlifyBindings.DROP_INVENTORY.on(controller).justPressed()) {
-                clickSlotFunction.clickSlot(null, -999, 0, /*? if >=26.1 {*/ContainerInput/*?} else {*//*ClickType*//*?}*/.PICKUP);
+                clickSlotFunction.clickSlot(null, -999, 0, ContainerInput.PICKUP);
                 hapticNavigate();
             }
         }
@@ -160,7 +154,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                 Slot slot,
                 int slotId,
                 int button,
-                /*? if >=26.1 {*/ContainerInput/*?} else {*//*ClickType*//*?}*/ containerInput
+                ContainerInput containerInput
         );
     }
 }

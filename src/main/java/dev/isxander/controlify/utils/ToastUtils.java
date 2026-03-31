@@ -12,10 +12,6 @@ public class ToastUtils {
                 title,
                 message
         );
-        //? if >=1.21.2 {
         Minecraft.getInstance().getToastManager().addToast(toast);
-        //?} else {
-        /*Minecraft.getInstance().getToasts().addToast(toast);
-        *///?}
     }
 }

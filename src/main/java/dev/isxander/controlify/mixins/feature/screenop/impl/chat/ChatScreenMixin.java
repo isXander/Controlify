@@ -13,6 +13,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -111,13 +113,7 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 
     @Override
     public boolean controlify$acceptChar(char ch, int modifiers) {
-        //? if >=26.1 {
-        this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch));
-        //?} elif >=1.21.9 {
-        /*this.input.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
-         *///?} else {
-        /*this.input.charTyped(ch);
-         *///?}
+        this.input.charTyped(new CharacterEvent(ch));
         return true;
     }
 
@@ -133,11 +129,7 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
                 InputConstants.KEY_ESCAPE
         ).contains(keycode);
 
-        //? if >=1.21.9 {
-        Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
-        //?} else {
-        /*Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(keycode, scancode, modifiers);
-        *///?}
+        Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(new KeyEvent(keycode, scancode, modifiers));
 
         if (bypassInput) {
             return keyPress.test((ChatScreen) (Object) this);

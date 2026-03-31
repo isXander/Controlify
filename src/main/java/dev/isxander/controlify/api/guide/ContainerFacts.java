@@ -46,18 +46,13 @@ public final class ContainerFacts {
     );
     /** When the user is hovering their cursor over a slot which is occupied with an item tagged by BUNDLES */
     public static final Fact<ContainerCtx> HOVERING_ITEM_IS_BUNDLE = register(
-            CUtil.rl("hovering_item_is_bundle")
-            //? if >=1.21.2
-            ,ctx -> ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().is(ItemTags.BUNDLES)
+            CUtil.rl("hovering_item_is_bundle"),
+            ctx -> ctx.hoveredSlot() != null && ctx.hoveredSlot().getItem().is(ItemTags.BUNDLES)
     );
     /** When the user is currently selecting an item from within the bundle they're hovering */
     public static final Fact<ContainerCtx> SELECTED_BUNDLE_SLOT = register(
-            CUtil.rl("selected_bundle_slot")
-            //? if >=26.1 {
-            ,ctx -> ctx.hoveredSlot() != null && BundleItem.getSelectedItem(ctx.hoveredSlot().getItem()) != null
-            //?} elif >=1.21.2 {
-            /*,ctx -> ctx.hoveredSlot() != null && BundleItem.hasSelectedItem(ctx.hoveredSlot().getItem())
-            *///?}
+            CUtil.rl("selected_bundle_slot"),
+            ctx -> ctx.hoveredSlot() != null && BundleItem.getSelectedItem(ctx.hoveredSlot().getItem()) != null
     );
 
     private static Fact<ContainerCtx> register(Identifier id, FactProvider<ContainerCtx> provider) {

@@ -4,7 +4,6 @@ import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.server.CSUtil;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
@@ -16,14 +15,14 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
 
     public static final StreamCodec<FriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.of(
         (buf, packet) -> {
-            CSUtil.writeIdentifier(buf, packet.source().id());
+            buf.writeIdentifier(packet.source().id());
             buf.writeInt(packet.frames().length);
             for (RumbleState frame : packet.frames()) {
                 buf.writeInt(RumbleState.packToInt(frame));
             }
         },
         buf -> {
-            RumbleSource source = RumbleSource.get(CSUtil.readIdentifier(buf));
+            RumbleSource source = RumbleSource.get(buf.readIdentifier());
             RumbleState[] frames = new RumbleState[buf.readInt()];
             for (int i = 0; i < frames.length; i++) {
                 frames[i] = RumbleState.unpackFromInt(buf.readInt());

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -98,11 +99,7 @@ public final class RadialItems {
                         graphics.item(mc.player.getInventory().getItem(j), x, y);
                     },
                     () -> {
-                        //? if >=1.21.5 {
                         mc.player.getInventory().setSelectedSlot(j);
-                        //?} else {
-                        /*mc.player.getInventory().selected = j;
-                        *///?}
                         return true;
                     },
                     CUtil.rl("hotbar_item_select/" + j)
@@ -337,7 +334,7 @@ public final class RadialItems {
         public boolean playAction() {
             Minecraft client = Minecraft.getInstance();
             if (client.gameMode != null && client.player != null) {
-                if (client.player./*? if >=1.21.11 {*/permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER)/*?} else {*//*hasPermissions(2)*//*?}*/
+                if (client.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
                     && client.gameMode.getPlayerMode() != gameType) {
                     client.player.connection.sendCommand(command);
                     return true;

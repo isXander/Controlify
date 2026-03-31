@@ -13,6 +13,7 @@ import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -118,8 +119,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
                 .collect(Collectors.joining("+"));
 
         return Component.literal(literal).withStyle(style -> style
-                .withFont(CUtil.createResourceFont(fontMap.namespace().withPrefix("controller/")))
-                //? if >=1.21.4
+                .withFont(new FontDescription.Resource(fontMap.namespace().withPrefix("controller/")))
                 .withShadowColor(0x00000000) // remove shadow
                 .withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
     }

@@ -22,25 +22,15 @@ public class KeyboardHandlerMixin {
             method = "setup",
             at = @At(
                     value = "INVOKE",
-                    //? if >=26.1 {
                     target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharCallbackI;Lorg/lwjgl/glfw/GLFWPreeditCallbackI;Lorg/lwjgl/glfw/GLFWIMEStatusCallbackI;)V"
-                    //?} elif >=1.21.9 {
-                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
-                    *///?} else {
-                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupKeyboardCallbacks(JLorg/lwjgl/glfw/GLFWKeyCallbackI;Lorg/lwjgl/glfw/GLFWCharModsCallbackI;)V"
-                    *///?}
             )
     )
     private void wrapKeyboardEvents(
-            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
+            Window window,
             GLFWKeyCallbackI keyPressCallback,
-            //? if >=26.1 {
             GLFWCharCallbackI charTypedCallback,
             GLFWPreeditCallbackI preeditCallback,
             GLFWIMEStatusCallbackI imeStatusCallback,
-            //?} else {
-            /*GLFWCharModsCallbackI charCallback,
-            *///?}
             Operation<Void> original
     ) {
         original.call(
@@ -49,7 +39,6 @@ public class KeyboardHandlerMixin {
                     onKeyboardInput();
                     keyPressCallback.invoke(w, k, s, a, m);
                 },
-                //? if >=26.1 {
                 (GLFWCharCallbackI) (w, c) -> {
                     onKeyboardInput();
                     charTypedCallback.invoke(w, c);
@@ -59,12 +48,6 @@ public class KeyboardHandlerMixin {
                     preeditCallback.invoke(w, pc, s, bc, bs, fb, c);
                 },
                 imeStatusCallback
-                //?} else {
-                /*(GLFWCharModsCallbackI) (w, c, m) -> {
-                    onKeyboardInput();
-                    charTypedCallback.invoke(w, c, m);
-                }
-                *///?}
         );
     }
 

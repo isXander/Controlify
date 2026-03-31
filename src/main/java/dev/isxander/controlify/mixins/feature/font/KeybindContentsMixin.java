@@ -17,8 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Optional;
-
-//? if >=1.21.9
 import net.minecraft.network.chat.FontDescription;
 
 @Mixin(KeybindContents.class)
@@ -29,12 +27,8 @@ public class KeybindContentsMixin {
 
     @WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
     private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true) Style style) {
-        //? if >=1.21.9 {
         boolean wrapperFont = style.getFont() instanceof FontDescription.Resource(Identifier font)
                 && BindingFontHelper.WRAPPER_FONT.equals(font);
-        //?} else {
-        /*boolean wrapperFont = BindingFontHelper.WRAPPER_FONT.equals(style.getFont());
-        *///?}
 
         if (wrapperFont) {
             Optional<Component> inputText = ControlifyApi.get().getCurrentController()

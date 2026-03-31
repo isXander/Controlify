@@ -6,8 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Player.class)
 public interface PlayerAccessor {
-    //? if >=1.21.2 {
     @Invoker
     boolean callCanGlide();
-    //?}
 }

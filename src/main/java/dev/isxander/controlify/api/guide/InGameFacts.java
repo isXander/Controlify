@@ -3,21 +3,14 @@ package dev.isxander.controlify.api.guide;
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import dev.isxander.controlify.utils.CUtil;
-import net.minecraft.util.Util;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
-
-//? if >=1.21.11 {
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
-//?} else {
-/*import net.minecraft.world.entity.animal.horse.AbstractHorse;
-*///?}
 
 public final class InGameFacts {
     private InGameFacts() {}
@@ -39,10 +32,8 @@ public final class InGameFacts {
     );
     /** When the currently ridden vehicle is a Happy Ghast */
     public static final Fact<InGameCtx> RIDING_HAPPY_GHAST = register(
-            CUtil.rl("riding_happy_ghast")
-            //? if >=1.21.6 {
-            ,ctx -> ctx.player().getVehicle() instanceof net.minecraft.world.entity.animal/*? if >=1.21.11 >>*/.happyghast .HappyGhast
-            //?}
+            CUtil.rl("riding_happy_ghast"),
+            ctx -> ctx.player().getVehicle() instanceof HappyGhast
     );
     /** When the player is currently in creative flight */
     public static final Fact<InGameCtx> FLYING = register(
@@ -57,23 +48,11 @@ public final class InGameFacts {
     /** When the player is in a state where pressing jump will cause the elytra to deploy */
     public static final Fact<InGameCtx> CAN_ELYTRA_FLY = register(
             CUtil.rl("can_elytra_fly"),
-            //? if >=1.21.2 {
             ctx -> ((PlayerAccessor) ctx.player()).callCanGlide()
                     && !ctx.player().onClimbable()
                     && !ctx.player().onGround()
                     && !ctx.player().isInLiquid()
                     && !ctx.player().isFallFlying()
-            //?} else {
-            /*ctx -> ctx.player().isPassenger()
-                    && !ctx.player().hasEffect(MobEffects.LEVITATION)
-                    && Util.make(() -> {
-                        var chestStack = ctx.player().getItemBySlot(EquipmentSlot.CHEST);
-                        return chestStack.is(Items.ELYTRA) && net.minecraft.world.item.ElytraItem.isFlyEnabled(chestStack);
-                    })
-                    && !ctx.player().onGround()
-                    && !ctx.player().isInLiquid()
-                    && !ctx.player().isFallFlying()
-            *///?}
     );
     /** When the player is touching liquid, such as water or lava */
     public static final Fact<InGameCtx> IN_LIQUID = register(
@@ -113,13 +92,7 @@ public final class InGameFacts {
     /** When the player is attempting to sprint (pressing the sprint key, or it is toggled on) */
     public static final Fact<InGameCtx> SPRINTING = register(
             CUtil.rl("sprinting"),
-            ctx -> {
-                //? if >=1.21.2 {
-                return ctx.player().input.keyPresses.sprint();
-                //?} else {
-                /*return ctx.client().options.keySprint.isDown();
-                *///?}
-            }
+            ctx -> ctx.player().input.keyPresses.sprint()
     );
     /** When the player is applying movement input - even if the player is not physically moving, if they're trying to, this fact goes */
     public static final Fact<InGameCtx> INPUT_MOVING = register(
@@ -144,12 +117,12 @@ public final class InGameFacts {
     /** When the player is in {@link GameType#ADVENTURE adventure mode} */
     public static final Fact<InGameCtx> IS_ADVENTURE = register(
             CUtil.rl("is_adventure"),
-            ctx -> getGameMode(ctx) == GameType.ADVENTURE
+            ctx -> ctx.player().gameMode() == GameType.ADVENTURE
     );
     /** When the player is in {@link GameType#SURVIVAL survival mode} */
     public static final Fact<InGameCtx> IS_SURVIVAL = register(
             CUtil.rl("is_survival"),
-            ctx -> getGameMode(ctx) == GameType.SURVIVAL
+            ctx -> ctx.player().gameMode() == GameType.SURVIVAL
     );
     /** When the player is currently looking at an entity and is in range to interact with it */
     public static final Fact<InGameCtx> LOOKING_AT_ENTITY = register(
@@ -185,22 +158,10 @@ public final class InGameFacts {
     public static final Fact<InGameCtx> HAS_MULTIPLE_ITEMS_IN_HAND = register(
             CUtil.rl("has_multiple_items_in_hand"),
             ctx -> {
-                //? if >=1.21.5 {
                 var holdingItem = ctx.player().getInventory().getSelectedItem();
-                //?} else {
-                /*var holdingItem = ctx.player().getInventory().getSelected();
-                *///?}
                 return !holdingItem.isEmpty() && holdingItem.getCount() > 1;
             }
     );
-
-    private static GameType getGameMode(InGameCtx ctx) {
-        //? if >=1.21.5 {
-        return ctx.player().gameMode();
-        //?} else {
-        /*return ctx.client().gameMode.getPlayerMode();
-        *///?}
-    }
 
     private static Fact<InGameCtx> register(Identifier id, FactProvider<InGameCtx> provider) {
         var fact = Fact.of(id, provider);

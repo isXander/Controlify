@@ -13,17 +13,8 @@ public abstract class MinecraftMixin implements PickBlockAccessor {
     @Unique
     private final ThreadLocal<Boolean> useNbtPick = ThreadLocal.withInitial(() -> null);
 
-    //? if >=26.1 {
     @Shadow
     protected abstract void pickBlockOrEntity();
-    //?} else {
-    /*@Shadow
-    protected abstract void pickBlock();
-
-    private void pickBlockOrEntity() {
-        return pickBlock();
-    }
-    *///?}
 
     @Override
     public void controlify$pickBlock() {
@@ -38,18 +29,10 @@ public abstract class MinecraftMixin implements PickBlockAccessor {
     }
 
     @ModifyExpressionValue(
-            //? if >=26.1 {
             method = "pickBlockOrEntity",
-            //?} else {
-            /*method = "pickBlock",
-            *///?}
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.9 {
                     target = "Lnet/minecraft/client/Minecraft;hasControlDown()Z"
-                    //?} else {
-                    /*target = "Lnet/minecraft/client/gui/screens/Screen;hasControlDown()Z"
-                    *///?}
             )
     )
     private boolean shouldUseNbtPick(boolean hasControlDown) {

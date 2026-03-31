@@ -8,6 +8,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,11 +22,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
     @Shadow
     protected abstract boolean isMoving();
 
-    //? if >=1.21.2 {
-    @Shadow public net.minecraft.client.player.ClientInput input;
-    //?} else {
-    /*@Shadow public net.minecraft.client.player.Input input;
-    *///?}
+    @Shadow public ClientInput input;
 
     @Unique private ContinuousRumbleEffect slowBlockRumble = null;
 
@@ -37,13 +34,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
             method = "aiStep",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.4 {
                     target = "Lnet/minecraft/client/player/ClientInput;tick()V"
-                    //?} else if >=1.21.2 {
-                    /*target = "Lnet/minecraft/client/player/ClientInput;tick(ZF)V"
-                    *///?} else {
-                    /*target = "Lnet/minecraft/client/player/Input;tick(ZF)V"
-                    *///?}
             )
     )
     private void manageSlowBlockRumble(CallbackInfo ci) {

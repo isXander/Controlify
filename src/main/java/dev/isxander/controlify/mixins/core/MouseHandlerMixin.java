@@ -32,47 +32,38 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
             method = "setup",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.9 {
                     target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(Lcom/mojang/blaze3d/platform/Window;Lorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
-                    //?} else {
-                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;setupMouseCallbacks(JLorg/lwjgl/glfw/GLFWCursorPosCallbackI;Lorg/lwjgl/glfw/GLFWMouseButtonCallbackI;Lorg/lwjgl/glfw/GLFWScrollCallbackI;Lorg/lwjgl/glfw/GLFWDropCallbackI;)V"
-                    *///?}
             )
     )
     private void wrapMouseEvents(
-            /*? if >=1.21.9 {*/ Window /*?} else {*/ /*long *//*?}*/ window,
-            GLFWCursorPosCallbackI moveCallback,
-            GLFWMouseButtonCallbackI buttonCallback,
-            GLFWScrollCallbackI scrollCallback,
-            GLFWDropCallbackI fileDropCallback,
+            Window window,
+            GLFWCursorPosCallbackI onMoveCallback,
+            GLFWMouseButtonCallbackI onPressCallback,
+            GLFWScrollCallbackI onScrollCallback,
+            GLFWDropCallbackI onDropCallback,
             Operation<Void> operation
     ) {
         operation.call(
                 window,
                 (GLFWCursorPosCallbackI) (w, x, y) -> {
                     onMouse(w);
-                    moveCallback.invoke(w, x, y);
+                    onMoveCallback.invoke(w, x, y);
                 },
                 (GLFWMouseButtonCallbackI) (w, b, a, m) -> {
                     onMouse(w);
-                    buttonCallback.invoke(w, b, a, m);
+                    onPressCallback.invoke(w, b, a, m);
                 },
                 (GLFWScrollCallbackI) (w, dx, dy) -> {
                     onMouse(w);
-                    scrollCallback.invoke(w, dx, dy);
+                    onScrollCallback.invoke(w, dx, dy);
                 },
-                fileDropCallback
+                onDropCallback
         );
     }
 
     @Unique
     private void onMouse(long window) {
-        //? if >=1.21.9 {
-        var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-        *///?}
-        if (window == windowHandle) {
+        if (window == minecraft.getWindow().handle()) {
             minecraft.execute(() -> {
                 if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
                     Controlify.instance().setInputMode(InputMode.KEYBOARD_MOUSE);
@@ -90,11 +81,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
             method = "releaseMouse",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.9 {
                     target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
-                    //?} else {
-                    /*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(JIDD)V"
-                    *///?}
             )
     )
     private void moveMouseIfNecessary(CallbackInfo ci) {

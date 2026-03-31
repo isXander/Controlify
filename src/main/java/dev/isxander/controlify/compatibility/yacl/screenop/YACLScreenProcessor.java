@@ -17,7 +17,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
     protected void handleButtons(ControllerEntity controller) {
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
-                ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(/*? if >=1.21.9 {*/ null /*?}*/);
+                ((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(null);
             }
             playClackSound();
         }

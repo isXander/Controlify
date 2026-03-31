@@ -1,4 +1,3 @@
-//? if >=1.21.2 {
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -12,4 +11,3 @@ public interface ItemSlotControllerAction extends ItemSlotMouseAction {
             ControllerEntity controller
     );
 }
-//?}

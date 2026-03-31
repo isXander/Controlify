@@ -26,7 +26,6 @@ public class LocalPlayerMixin {
      * @param original the original call to {@link net.minecraft.client.player.ClientInput#hasForwardImpulse()}
      * @return if the client input state satisfies sprinting
      */
-    //? if >=1.21.5 {
     @WrapOperation(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z"))
     private boolean requireHalfImpulse(net.minecraft.client.player.ClientInput instance, Operation<Boolean> original) {
         if (Controlify.instance().currentInputMode().isController()
@@ -36,5 +35,4 @@ public class LocalPlayerMixin {
 
         return original.call(instance);
     }
-    //?}
 }

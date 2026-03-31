@@ -28,8 +28,6 @@ public class GlobalSettingsScreenFactory {
         var globalSettings = Controlify.instance().config().getSettings().globalSettings();
         AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
 
-        boolean is12106OrLater = /*? if >=1.21.6 {*/ true /*?} else {*/ /*false *//*?}*/;;
-
         return YetAnotherConfigLib.createBuilder()
                 .title(Component.translatable("controlify.gui.global_settings.title"))
                 .save(() -> Controlify.instance().config().saveSafely())
@@ -112,16 +110,16 @@ public class GlobalSettingsScreenFactory {
                                 .option(Option.<Float>createBuilder()
                                         .name(Component.translatable("controlify.gui.ingame_button_guide_scale"))
                                         .description(val  -> OptionDescription.createBuilder()
-                                                .text(is12106OrLater ? Component.literal("This setting is currently broken on 1.21.6+").withStyle(ChatFormatting.RED) : Component.empty())
+                                                .text(Component.literal("This setting is currently broken on 1.21.6+").withStyle(ChatFormatting.RED))
                                                 .text(Component.translatable("controlify.gui.ingame_button_guide_scale.tooltip"))
                                                 .text(val != 1f ? Component.translatable("controlify.gui.ingame_button_guide_scale.tooltip.warning").withStyle(ChatFormatting.RED) : Component.empty())
                                                 .build())
-                                        .binding(GlobalSettings.defaults().ingameButtonGuideScale, () -> is12106OrLater ? 1f : globalSettings.ingameButtonGuideScale, v -> globalSettings.ingameButtonGuideScale = v)
+                                        .binding(GlobalSettings.defaults().ingameButtonGuideScale, () -> 1f, v -> globalSettings.ingameButtonGuideScale = v)
                                         .controller(opt -> FloatSliderControllerBuilder.create(opt)
                                                 .range(0.5f, 1.5f)
                                                 .step(0.05f)
                                                 .formatValue(v -> Component.literal(String.format("%.0f%%", v*100))))
-                                        .available(!is12106OrLater)
+                                        .available(false)
                                         .build())
                                 .option(Option.<Boolean>createBuilder()
                                         .name(Component.translatable("controlify.gui.ui_sounds"))

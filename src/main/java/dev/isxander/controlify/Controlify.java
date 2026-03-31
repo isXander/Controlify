@@ -504,7 +504,6 @@ public class Controlify implements ControlifyApi {
         }
 
         if (state.isGivingInput()) {
-            //? if >=1.21.2
             minecraft.getFramerateLimitTracker().onInputReceived();
 
             if (!this.currentInputMode().isController()) {
@@ -665,11 +664,7 @@ public class Controlify implements ControlifyApi {
     }
 
     public void hideMouse(boolean hide, boolean moveMouse) {
-        //? if >=1.21.9 {
         long handle = minecraft.getWindow().handle();
-        //?} else {
-        /*long handle = minecraft.getWindow().getWindow();
-        *///?}
 
         GLFW.glfwSetInputMode(
                 handle,

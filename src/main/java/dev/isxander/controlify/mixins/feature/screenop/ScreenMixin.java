@@ -28,11 +28,7 @@ public abstract class ScreenMixin implements ScreenProcessorProvider {
     }
 
     @Inject(
-            //? if >=1.21.11 {
             method = "init(II)V",
-            //?} else {
-            /*method = "init(Lnet/minecraft/client/Minecraft;II)V",
-            *///?}
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/screens/Screen;init()V",

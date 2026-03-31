@@ -1,14 +1,13 @@
 package dev.isxander.controlify.mixins.feature.guide.ingame;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,19 +16,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-    @Inject(
-            method = "handleLogin",
-            at = @At(
-                    value = "FIELD",
-                    //? if >=1.21.2 {
-                    target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/ClientInput;",
-                    //?} else {
-                    /*target = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/Input;",
-                    *///?}
-                    opcode = Opcodes.ASTORE,
-                    shift = At.Shift.AFTER
-            )
-    )
+    @Definition(id = "minecraft", field = "Lnet/minecraft/client/multiplayer/ClientPacketListener;minecraft:Lnet/minecraft/client/Minecraft;")
+    @Definition(id = "player", field = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/player/LocalPlayer;")
+    @Definition(id = "input", field = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/ClientInput;")
+    @Expression("?.minecraft.player.input = ?")
+    @Inject(method = "handleLogin", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
     private void buttonGuideLogin(ClientboundLoginPacket packet, CallbackInfo ci) {
         initButtonGuide();
     }

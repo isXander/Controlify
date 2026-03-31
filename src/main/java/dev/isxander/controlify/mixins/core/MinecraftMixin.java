@@ -1,5 +1,7 @@
 package dev.isxander.controlify.mixins.core;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -7,6 +9,7 @@ import dev.isxander.controlify.utils.InitialScreenRegistryDuck;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.CrashReport;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,18 +31,7 @@ import java.util.function.Function;
 public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     @Shadow public abstract void setScreen(@Nullable Screen screen);
 
-    //? if >=1.21.2 {
-    @Shadow public abstract net.minecraft.client.DeltaTracker getDeltaTracker();
-    //?} elif >1.20.6 {
-    /*@Shadow public abstract net.minecraft.client.DeltaTracker getTimer();
-
-    @Unique
-    public net.minecraft.client.DeltaTracker getDeltaTracker() {
-        return getTimer();
-    }
-    *///?} else {
-    /*@Shadow public abstract float getDeltaFrameTime();
-    *///?}
+    @Shadow public abstract DeltaTracker getDeltaTracker();
 
     @Shadow @Final public MouseHandler mouseHandler;
     @Shadow @Nullable public Screen screen;
@@ -68,11 +60,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
             method = "setScreen",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.11 {
                     target = "Lnet/minecraft/client/gui/screens/Screen;init(II)V",
-                    //?} else {
-                    /*target = "Lnet/minecraft/client/gui/screens/Screen;init(Lnet/minecraft/client/Minecraft;II)V",
-                    *///?}
                     shift = At.Shift.AFTER
             )
     )
@@ -112,11 +100,7 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
     }
 
     @Inject(
-            //? if >=26.1 {
             method = "renderFrame",
-            //?} else {
-            /*method = "runTick",
-            *///?}
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
@@ -126,11 +110,12 @@ public abstract class MinecraftMixin implements InitialScreenRegistryDuck {
         Animator.INSTANCE.tick(getTickDelta());
     }
 
-    @ModifyVariable(method = "addInitialScreens", at = @At("TAIL"), argsOnly = true)
-    private List<Function<Runnable, Screen>> injectCustomInitialScreens(List<Function<Runnable, Screen>> output) {
-        output.addAll(initialScreenCallbacks);
+    @WrapMethod(method = "addInitialScreens")
+    private boolean injectCustomInitialScreens(List<Function<Runnable, Screen>> screens, Operation<Boolean> original) {
+        boolean result = original.call(screens);
+        screens.addAll(initialScreenCallbacks);
         initialScreensHappened = true;
-        return output;
+        return result;
     }
 
     @Unique

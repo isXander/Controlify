@@ -47,7 +47,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
             Button directConnectButton = this.directConnectButtonSupplier.get();
             if (directConnectButton != null) {
                 playClackSound();
-                directConnectButton.onPress(/*? if >=1.21.9 >>*/null );
+                directConnectButton.onPress(null);
             }
         }
 
@@ -55,7 +55,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
             Button addServerButton = this.addServerButtonSupplier.get();
             if (addServerButton != null) {
                 playClackSound();
-                addServerButton.onPress(/*? if >=1.21.9 >>*/null );
+                addServerButton.onPress(null);
             }
         }
 

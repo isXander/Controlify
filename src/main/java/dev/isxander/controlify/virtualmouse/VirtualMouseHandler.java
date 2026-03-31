@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -170,11 +171,7 @@ public class VirtualMouseHandler {
     }
 
     public void handleCompatibilityBinds(ControllerEntity controller) {
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-        *///?}
 
 //        Optional<TouchpadComponent> touchpad = controller.touchpad();
 //        List<TouchpadState.Finger> touchpadState = touchpad.map(TouchpadComponent::fingersNow).orElse(List.of());
@@ -209,27 +206,15 @@ public class VirtualMouseHandler {
 
     private void simulateMousePress(int button, int action, int modifiers) {
         var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        mouseHandler.invokeOnButton(windowHandle, new net.minecraft.client.input.MouseButtonInfo(button, modifiers), action);
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-        mouseHandler.invokeOnPress(windowHandle, button, action, modifiers);
-        *///?}
+        mouseHandler.invokeOnButton(windowHandle, new MouseButtonInfo(button, modifiers), action);
     }
 
     public void updateMouse() {
         if (!virtualMouseEnabled) return;
-        //? if >=1.21.2 {
         float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
-        //?} else {
-        /*float delta = minecraft.getTimer().getRealtimeDeltaTicks();
-        *///?}
-        //? if >=1.21.9 {
+
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-         *///?}
 
         if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
             currentX = Mth.lerp(delta, currentX, targetX);
@@ -342,20 +327,12 @@ public class VirtualMouseHandler {
         targetX = currentX = snapPoint.position().x() / scaleFactor.x();
         targetY = currentY = snapPoint.position().y() / scaleFactor.y();
 
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-         *///?}
         ((MouseHandlerAccessor) minecraft.mouseHandler).invokeOnMove(windowHandle, currentX, currentY);
     }
 
     public void onScreenChanged() {
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-         *///?}
 
         if (minecraft.screen != null) {
             if (requiresVirtualMouse()) {
@@ -415,11 +392,7 @@ public class VirtualMouseHandler {
     public void enableVirtualMouse() {
         if (virtualMouseEnabled) return;
 
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-         *///?}
 
         GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
         virtualMouseEnabled = true;
@@ -442,11 +415,7 @@ public class VirtualMouseHandler {
     public void disableVirtualMouse() {
         if (!virtualMouseEnabled) return;
 
-        //? if >=1.21.9 {
         var windowHandle = minecraft.getWindow().handle();
-        //?} else {
-        /*var windowHandle = minecraft.getWindow().getWindow();
-         *///?}
 
         // make sure minecraft doesn't think the mouse is grabbed when it isn't
         ((MouseHandlerAccessor) minecraft.mouseHandler).setMouseGrabbed(false);
@@ -466,11 +435,7 @@ public class VirtualMouseHandler {
 
     private void setMousePosition() {
         GLFW.glfwSetCursorPos(
-                //? if >=1.21.9 {
                 minecraft.getWindow().handle(),
-                //?} else {
-                /*minecraft.getWindow().getWindow(),
-                *///?}
                 targetX,
                 targetY
         );

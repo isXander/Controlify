@@ -12,7 +12,7 @@ public interface AbstractContainerScreenAccessor {
     Slot getHoveredSlot();
 
     @Invoker
-    boolean invokeHasClickedOutside(double mouseX, double mouseY, int left, int top /*? if <1.21.9 {*/ /*,int button *//*?}*/);
+    boolean invokeHasClickedOutside(double mouseX, double mouseY, int left, int top);
 
     @Accessor
     int getLeftPos();

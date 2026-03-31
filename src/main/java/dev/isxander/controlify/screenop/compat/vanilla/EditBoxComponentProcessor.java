@@ -6,6 +6,8 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.keyboard.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 
 public class EditBoxComponentProcessor implements ComponentProcessor {
 
@@ -81,13 +83,7 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
 
         @Override
         public boolean acceptChar(char ch, int modifiers) {
-            //? if >=26.1 {
-            this.editBox.charTyped(new net.minecraft.client.input.CharacterEvent(ch));
-            //?} elif >=1.21.9 {
-            /*this.editBox.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
-             *///?} else {
-            /*this.editBox.charTyped(ch);
-             *///?}
+            this.editBox.charTyped(new CharacterEvent(ch));
             return true;
         }
 
@@ -98,11 +94,7 @@ public class EditBoxComponentProcessor implements ComponentProcessor {
 
         @Override
         public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            //? if >=1.21.9 {
-            this.editBox.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
-            //?} else {
-            /*this.editBox.keyPressed(keycode, scancode, modifiers);
-            *///?}
+            this.editBox.keyPressed(new KeyEvent(keycode, scancode, modifiers));
             return true;
         }
 

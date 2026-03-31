@@ -23,7 +23,7 @@ public final class S2CNetworkApiFabric implements S2CNetworkApi {
 
     @Override
     public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry./*? if >=26.1 {*/clientboundPlay/*?} else {*//*playS2C*//*?}*/()));
+        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry.clientboundPlay()));
     }
 
     @Override

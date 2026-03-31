@@ -60,11 +60,7 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
 
     @Override
     public boolean isDevEnv() {
-        //? if >=1.21.9 {
         return !FMLEnvironment.isProduction();
-        //?} else {
-        /^return !FMLEnvironment.production;
-        ^///?}
     }
 
     @Override

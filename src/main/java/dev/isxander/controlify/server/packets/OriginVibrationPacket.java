@@ -4,7 +4,6 @@ import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.server.CSUtil;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.Easings;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,14 +21,14 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
             buf.writeFloat(packet.effectRange());
             buf.writeVarInt(packet.duration());
             buf.writeInt(RumbleState.packToInt(packet.state()));
-            CSUtil.writeIdentifier(buf, packet.source().id());
+            buf.writeIdentifier(packet.source().id());
         },
         buf -> new OriginVibrationPacket(
             buf.readVector3f(),
             buf.readFloat(),
             buf.readVarInt(),
             RumbleState.unpackFromInt(buf.readInt()),
-            RumbleSource.get(CSUtil.readIdentifier(buf))
+            RumbleSource.get(buf.readIdentifier())
         )
     );
 

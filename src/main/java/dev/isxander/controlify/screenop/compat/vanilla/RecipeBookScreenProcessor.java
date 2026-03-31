@@ -6,6 +6,7 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookCo
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
@@ -15,13 +16,12 @@ import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-
-//? if >=1.21.2
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.world.inventory.Slot;
 
-public class RecipeBookScreenProcessor
-        <T extends /*? if >=1.21.2 {*/ AbstractRecipeBookScreen<?> /*?} else {*/ /*AbstractContainerScreen<?> *//*?}*/>
+public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
         extends AbstractContainerScreenProcessor<T> {
 
     private final RecipeBookScreenAccessor recipeBookScreenAccessor;
@@ -41,7 +41,7 @@ public class RecipeBookScreenProcessor
     protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
         super.handleScreenVMouse(controller, vmouse);
 
-        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ recipeBookComponent = recipeBookScreenAccessor.controlify$getRecipeBookComponent();
+        RecipeBookComponent<?> recipeBookComponent = recipeBookScreenAccessor.controlify$getRecipeBookComponent();
 
         if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
@@ -52,11 +52,7 @@ public class RecipeBookScreenProcessor
                 .toList();
         RecipeBookTabButton selectedTab = componentAccessor.getSelectedTab();
 
-        //? if >=1.21.11 {
-        net.minecraft.client.gui.components.ImageButton button = null;
-        //?} else {
-        /*net.minecraft.client.gui.components.StateSwitchingButton button = null;
-        *///?}
+        ImageButton button = null;
         if (ControlifyBindings.VMOUSE_PAGE_NEXT.on(controller).justPressed()) {
             button = pageAccessor.getForwardButton();
         }
@@ -76,17 +72,13 @@ public class RecipeBookScreenProcessor
             }
         }
         if (button != null) {
-            //? if >=1.21.9 {
-            recipeBookComponent.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(
+            recipeBookComponent.mouseClicked(new MouseButtonEvent(
                     button.getX(), button.getY(),
-                    new net.minecraft.client.input.MouseButtonInfo(0, 0)), false);
-            //?} else {
-            /*recipeBookComponent.mouseClicked(button.getX(), button.getY(), 0);
-            *///?}
+                    new MouseButtonInfo(0, 0)), false);
         }
     }
 
     public interface RecipeBookScreenAccessor {
-        RecipeBookComponent/*? if >=1.21.2 {*/<?>/*?}*/ controlify$getRecipeBookComponent();
+        RecipeBookComponent<?> controlify$getRecipeBookComponent();
     }
 }

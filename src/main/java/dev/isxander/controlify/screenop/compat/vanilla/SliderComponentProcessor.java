@@ -5,6 +5,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
@@ -33,22 +34,14 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
         if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).digitalNow()) {
             if (canSliderChange) {
-                //? if >=1.21.9 {
-                component.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_RIGHT, 0, 0));
-                //?} else {
-                /*component.keyPressed(GLFW.GLFW_KEY_RIGHT, 0, 0);
-                *///?}
+                component.keyPressed(new KeyEvent(GLFW.GLFW_KEY_RIGHT, 0, 0));
                 lastSliderChange = 0;
             }
 
             return true;
         } else if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).digitalNow()) {
             if (canSliderChange) {
-                //? if >=1.21.9 {
-                component.keyPressed(new net.minecraft.client.input.KeyEvent(GLFW.GLFW_KEY_LEFT, 0, 0));
-                //?} else {
-                /*component.keyPressed(GLFW.GLFW_KEY_LEFT, 0, 0);
-                *///?}
+                component.keyPressed(new KeyEvent(GLFW.GLFW_KEY_LEFT, 0, 0));
                 lastSliderChange = 0;
             }
 

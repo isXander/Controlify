@@ -6,6 +6,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -15,25 +16,10 @@ public class AbstractWidgetMixin {
             method = "mouseClicked",
             at = @At(
                     value = "INVOKE",
-                    //? if >=1.21.9 {
                     target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(Lnet/minecraft/client/input/MouseButtonEvent;Z)V"
-                    //?} elif fabric {
-                    /*target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(DD)V"
-                    *///?} else {
-                    /*target = "Lnet/minecraft/client/gui/components/AbstractWidget;onClick(DDI)V"
-                    *///?}
             )
     )
-    private boolean openKeyboardInVmouseMode(
-            AbstractWidget instance,
-            //? if >=1.21.9 {
-            net.minecraft.client.input.MouseButtonEvent mouseButtonEvent, boolean doubleClick
-            //?} elif fabric {
-            /*double x, double y
-            *///?} else {
-            /*double x, double y, int button
-            *///?}
-    ) {
+    private boolean openKeyboardInVmouseMode(AbstractWidget instance, MouseButtonEvent event, boolean doubleClick) {
         Controlify controlify = Controlify.instance();
         ControllerEntity controller = controlify.getCurrentController().orElse(null);
 

@@ -40,11 +40,7 @@ public class VibrateCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(
                 Commands.literal("vibratecontroller")
-                        //? if >=1.21.11 {
                         .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        //?} else {
-                        /*.requires(source -> source.hasPermission(2))
-                        *///?}
                         .then(
                                 Commands.argument("receivers", EntityArgument.players())
                                         .then(

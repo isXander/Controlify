@@ -10,6 +10,8 @@ import dev.isxander.controlify.screenop.keyboard.InputTarget;
 import dev.isxander.controlify.screenop.keyboard.KeyboardLayouts;
 import dev.isxander.controlify.screenop.keyboard.KeyboardOverlayScreen;
 import dev.isxander.yacl3.gui.controllers.string.StringControllerElement;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 
 public class StringControllerElementComponentProcessor implements ComponentProcessor {
     private final StringControllerElement element;
@@ -39,13 +41,7 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptChar(char ch, int modifiers) {
-            //? if >=26.1 {
-            return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch));
-            //?} elif >=1.21.9 {
-            /*return element.charTyped(new net.minecraft.client.input.CharacterEvent(ch, modifiers));
-            *///?} else {
-            /*return element.charTyped(ch);
-            *///?}
+            return element.charTyped(new CharacterEvent(ch));
         }
 
         @Override
@@ -55,11 +51,7 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            //? if >=1.21.9 {
             return element.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
-            //?} else {
-            /*return element.keyPressed(keycode, scancode, modifiers);
-            *///?}
         }
 
         @Override
@@ -71,11 +63,7 @@ public class StringControllerElementComponentProcessor implements ComponentProce
         public boolean moveCursor(int amount) {
             int keycode = amount > 0 ? InputConstants.KEY_RIGHT : InputConstants.KEY_LEFT;
             for (int i = 0; i < amount; i++) {
-                //? if >=1.21.9 {
-                element.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, 0, 0));
-                //?} else {
-                /*element.keyPressed(keycode, 0, 0);
-                *///?}
+                element.keyPressed(new KeyEvent(keycode, 0, 0));
             }
             return true;
         }

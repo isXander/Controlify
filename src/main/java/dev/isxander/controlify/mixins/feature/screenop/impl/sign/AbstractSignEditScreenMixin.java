@@ -97,17 +97,6 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
         }
     }
 
-    //? if <1.21.6 {
-    /*@WrapOperation(method = "offsetSign", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V"))
-    private void modifySignOffset(PoseStack instance, float x, float y, float z, Operation<Void> original, @Local(argsOnly = true) BlockState state) {
-        if (this.keyboard != null) {
-            boolean isStanding = state.getBlock() instanceof StandingSignBlock;
-            y = isStanding ? 30f : 20f;
-        }
-        original.call(instance, x, y, z);
-    }
-    *///?}
-
     @Definition(id = "centeredText", method = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;centeredText(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V")
     @Definition(id = "title", field = "Lnet/minecraft/client/gui/screens/inventory/AbstractSignEditScreen;title:Lnet/minecraft/network/chat/Component;")
     @Expression("?.centeredText(?, this.title, ?, ?, ?)")

@@ -13,13 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(
-        //? if >=1.21.2 {
-        LevelEventHandler.class
-        //?} else {
-        /*LevelRenderer.class
-        *///?}
-)
+@Mixin(LevelEventHandler.class)
 public class LevelEventHandlerMixin {
     @Inject(method = "levelEvent", at = @At("HEAD"))
     private void onLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {

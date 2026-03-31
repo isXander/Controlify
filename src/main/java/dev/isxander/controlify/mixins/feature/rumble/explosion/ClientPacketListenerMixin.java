@@ -35,17 +35,10 @@ public class ClientPacketListenerMixin {
 
     @Unique
     private float calculateMagnitude(ClientboundExplodePacket packet) {
-        //? if >=1.21.2 {
         double x = packet.center().x();
         double y = packet.center().y();
         double z = packet.center().z();
         float power = 50f; // 1.21.2+ has no power in the packet
-        //?} else {
-        /*double x = packet.getX();
-        double y = packet.getY();
-        double z = packet.getZ();
-        float power = packet.getPower();
-        *///?}
 
         float distanceSqr = Math.max(
                 (float) Minecraft.getInstance().player.distanceToSqr(x, y, z)

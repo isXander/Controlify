@@ -26,11 +26,7 @@ public abstract class StonecutterScreenMixin extends AbstractContainerScreenMixi
 
         int startIndex = this.startIndex;
         int endIndex = this.startIndex + SLOTS;
-        //? if >=1.21.2 {
         int visibleRecipes = this.menu.getNumberOfVisibleRecipes();
-        //?} else {
-        /*int visibleRecipes = this.menu.getNumRecipes();
-        *///?}
 
         int gridLeft = this.leftPos + 52;
         int gridTop = this.topPos + 14;

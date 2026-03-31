@@ -25,6 +25,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -95,24 +96,12 @@ public class InGameInputHandler {
             if (hotbarNextRepeatHelper.shouldAction(ControlifyBindings.NEXT_SLOT.on(controller))) {
                 hotbarNextRepeatHelper.onNavigate();
 
-                //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() + 1) % Inventory.getSelectionSize());
-                //?} elif >=1.21.2 {
-                /*inventory.setSelectedHotbarSlot((inventory.selected + 1) % Inventory.getSelectionSize());
-                *///?} else {
-                /*minecraft.player.getInventory().swapPaint(-1);
-                *///?}
             }
             if (hotbarPrevRepeatHelper.shouldAction(ControlifyBindings.PREV_SLOT.on(controller))) {
                 hotbarPrevRepeatHelper.onNavigate();
 
-                //? if >=1.21.5 {
                 inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
-                //?} elif >=1.21.2 {
-                /*inventory.setSelectedHotbarSlot((inventory.selected - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
-                *///?} else {
-                /*minecraft.player.getInventory().swapPaint(1);
-                *///?}
             }
 
             if (!minecraft.player.isSpectator()) {
@@ -200,11 +189,7 @@ public class InGameInputHandler {
                     this.minecraft.gameDirectory,
                     this.minecraft.getMainRenderTarget(),
                     component -> this.minecraft.execute(() -> {
-                        //? if >=26.1 {
                         this.minecraft.gui.getChat().addClientSystemMessage(component);
-                        //?} else {
-                        /*this.minecraft.gui.getChat().addMessage(component);
-                        *///?}
 
                         // TODO: this currently does not work, yet to debug why not
                         SteamDeckDriver.getDeck().ifPresent(deck -> {
@@ -251,7 +236,7 @@ public class InGameInputHandler {
             ));
         }
 
-        if (/*? if >=1.21.5 {*/ minecraft.player.hasInfiniteMaterials() /*?} else {*/ /*this.minecraft.gameMode.hasInfiniteItems() *//*?}*/) {
+        if (minecraft.player.hasInfiniteMaterials()) {
             if (ControlifyBindings.HOTBAR_LOAD_RADIAL.on(controller).justPressed()) {
                 minecraft.setScreen(new RadialMenuScreen(
                         controller,
@@ -438,13 +423,8 @@ public class InGameInputHandler {
             double y = motion.y;
             double z = motion.z;
 
-            //? if >=1.21.2 {
             boolean jumping = player.input.keyPresses.jump();
             boolean shiftKeyDown = player.input.keyPresses.shift();
-            //?} else {
-            /*boolean jumping = player.input.jumping;
-            boolean shiftKeyDown = player.input.shiftKeyDown;
-            *///?}
 
             if (!jumping)
                 y = Math.min(y, 0);
@@ -477,17 +457,7 @@ public class InGameInputHandler {
         return !mouseNotGrabbed && !outOfFocus && !screenVisible && playerExists;
     }
 
-    public static Vec2 getMoveVec(
-            //? if >=1.21.2 {
-            net.minecraft.client.player.ClientInput input
-            //?} else {
-            /*net.minecraft.client.player.Input input
-            *///?}
-    ) {
-        //? if >=1.21.5 {
+    public static Vec2 getMoveVec(ClientInput input) {
         return input.getMoveVector();
-        //?} else {
-        /*return new Vec2(input.leftImpulse, input.forwardImpulse);
-        *///?}
     }
 }

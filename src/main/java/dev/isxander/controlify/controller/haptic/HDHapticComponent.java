@@ -50,7 +50,7 @@ public class HDHapticComponent extends ECSComponentImpl {
 
     public void playHaptic(SoundEvent sound) {
         Identifier location = Minecraft.getInstance().getSoundManager()
-                .getSoundEvent(/*? if >=1.21.2 {*/ sound.location() /*?} else {*/ /*sound.getLocation() *//*?}*/)
+                .getSoundEvent(sound.location())
                 .getSound(randomSource).getLocation();
 
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
