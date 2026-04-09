@@ -25,7 +25,7 @@ public class MultiPlayerGameModeMixin {
     @Unique private ContinuousRumbleEffect blockBreakRumble = null;
 
     @Inject(
-            method = "lambda$startDestroyBlock$1",
+            method = "lambda$startDestroyBlock$2",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
     )
     private void onStartBreakingBlock(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
@@ -33,7 +33,7 @@ public class MultiPlayerGameModeMixin {
     }
 
     @Inject(
-            method = "lambda$startDestroyBlock$1",
+            method = "lambda$startDestroyBlock$2",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z")
     )
     private void onInstabreakBlockSurvival(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {

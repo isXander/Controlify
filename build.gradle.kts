@@ -18,6 +18,8 @@ val loader = when {
 }
 
 modstitch {
+    javaVersion = 25
+
     metadata {
         modId = "controlify"
         modName = "Controlify"
