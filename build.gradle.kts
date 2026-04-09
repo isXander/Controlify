@@ -98,7 +98,16 @@ dependencies {
     }
 
     // sodium compat
-    modDependency("sodium", { "net.caffeinemc:sodium-$it" })
+    when {
+        modstitch.isLoom -> {
+            modDependency("sodium", { "net.caffeinemc:sodium-fabric:$it" })
+        }
+        modstitch.isModDevGradle -> {
+            modDependency("sodium", { "net.caffeinemc:sodium-neoforge:$it" })
+            modDependency("sodium", { "net.caffeinemc:sodium-neoforge-mod:$it" })
+        }
+    }
+
     // RSO compat
     modDependency("reesesSodiumOptions", { "maven.modrinth:reeses-sodium-options:$it" })
     // iris compat
