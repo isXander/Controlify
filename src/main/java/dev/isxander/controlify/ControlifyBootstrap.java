@@ -27,15 +27,9 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
 }
 //?} elif neoforge {
 /*import dev.isxander.controlify.gui.screen.ModConfigOpenerScreen;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.common.NeoForge;
 
 @Mod("controlify")
 public class ControlifyBootstrap {

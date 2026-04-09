@@ -98,7 +98,7 @@ dependencies {
     }
 
     // sodium compat
-    modDependency("sodium", { "maven.modrinth:sodium:$it" })
+    modDependency("sodium", { "net.caffeinemc:sodium-$it" })
     // RSO compat
     modDependency("reesesSodiumOptions", { "maven.modrinth:reeses-sodium-options:$it" })
     // iris compat

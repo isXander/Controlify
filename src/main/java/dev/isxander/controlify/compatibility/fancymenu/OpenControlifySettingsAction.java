@@ -1,5 +1,5 @@
 //? if fancy_menu {
-/*package dev.isxander.controlify.compatibility.fancymenu;
+package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
@@ -43,4 +43,4 @@ public class OpenControlifySettingsAction extends Action {
         return "";
     }
 }
-*///?}
+//?}

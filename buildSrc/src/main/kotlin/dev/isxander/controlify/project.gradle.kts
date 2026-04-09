@@ -67,6 +67,9 @@ repositories {
     strictMaven("https://maven.nucleoid.xyz/releases") {
         includeGroupAndSubgroups("eu.pb4")
     }
+    strictMaven("https://maven.caffeinemc.net/releases") {
+        includeGroupAndSubgroups("net.caffeinemc")
+    }
     maven("https://maven.isxander.dev/releases")
 }
 

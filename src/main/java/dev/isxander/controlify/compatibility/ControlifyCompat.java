@@ -30,7 +30,7 @@ public class ControlifyCompat {
         //?}
 
         //? if fancy_menu {
-        /*try {
+        try {
             wrapCompatCall(
                     FANCY_MENU,
                     dev.isxander.controlify.compatibility.fancymenu.FancyMenuCompat::registerActions
@@ -38,7 +38,7 @@ public class ControlifyCompat {
         } catch (NoClassDefFoundError e) {
             disabledMods.add(FANCY_MENU);
         }
-        *///?}
+        //?}
     }
 
     private static void wrapCompatCall(String modid, Runnable runnable) throws NoClassDefFoundError {
