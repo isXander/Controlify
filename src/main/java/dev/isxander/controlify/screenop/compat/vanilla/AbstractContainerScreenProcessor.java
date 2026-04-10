@@ -57,11 +57,11 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         var ctx = new ContainerCtx(
                 hoveredSlot.get(),
                 screen.getMenu().getCarried(),
-                accessor.invokeHasClickedOutside(
+                accessor.controlify$invokeHasClickedOutside(
                         vmouse.getCurrentX(1f),
                         vmouse.getCurrentY(1f),
-                        accessor.getLeftPos(),
-                        accessor.getTopPos()
+                        accessor.controlify$getLeftPos(),
+                        accessor.controlify$getTopPos()
                 ),
                 controller,
                 controller.settings().generic.guide.verbosity
@@ -122,7 +122,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
     private void setRenderGuide(boolean render) {
         render &= ControlifyApi.get().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false);
 
-        List<Renderable> renderables = ((ScreenAccessor) screen).getRenderables();
+        List<Renderable> renderables = ((ScreenAccessor) screen).controlify$getRenderables();
 
         if (render) {
             renderables.add(guideRenderable);

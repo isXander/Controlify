@@ -2,8 +2,6 @@ package dev.isxander.controlify.mixins.feature.screenop;
 
 import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.navigation.FocusNavigationEvent;
-import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -13,18 +11,15 @@ import java.util.List;
 
 @Mixin(Screen.class)
 public interface ScreenAccessor {
-    @Invoker
-    FocusNavigationEvent.ArrowNavigation invokeCreateArrowEvent(ScreenDirection direction);
+    @Invoker("changeFocus")
+    void controlify$invokeChangeFocus(ComponentPath path);
 
-    @Invoker
-    void invokeChangeFocus(ComponentPath path);
+    @Invoker("clearFocus")
+    void controlify$invokeClearFocus();
 
-    @Invoker
-    void invokeClearFocus();
-
-    @Invoker
+    @Invoker("setInitialFocus")
     void invokeSetInitialFocus();
 
-    @Accessor
-    List<Renderable> getRenderables();
+    @Accessor("renderables")
+    List<Renderable> controlify$getRenderables();
 }

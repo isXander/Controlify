@@ -10,12 +10,12 @@ import java.util.List;
 
 @Mixin(RecipeBookPage.class)
 public interface RecipeBookPageAccessor {
-    @Accessor
-    List<RecipeButton> getButtons();
+    @Accessor("buttons")
+    List<RecipeButton> controlify$getButtons();
 
-    @Accessor
-    ImageButton getForwardButton();
+    @Accessor("forwardButton")
+    ImageButton controlify$getForwardButton();
 
-    @Accessor
-    ImageButton getBackButton();
+    @Accessor("backButton")
+    ImageButton controlify$getBackButton();
 }

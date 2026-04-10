@@ -5,12 +5,10 @@ import dev.isxander.controlify.controller.battery.PowerState;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.utils.ToastUtils;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.network.chat.Component;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class LowBatteryNotifier {
@@ -40,7 +38,7 @@ public class LowBatteryNotifier {
 
             if (batteryLevel instanceof PowerState.Depleting depleting && depleting.percent() <= 10) {
                 if (!notifiedControllers.contains(uid)) {
-                    ToastUtils.sendToast(
+                    MinecraftUtil.sendToast(
                             Component.translatable("controlify.toast.low_battery.title"),
                             Component.translatable("controlify.toast.low_battery.message", controller.name(), depleting.percent() + "%"),
                             true

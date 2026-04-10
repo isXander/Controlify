@@ -2,7 +2,8 @@
   "$schema": "https://codeberg.org/stonecutter/stonecutter/raw/branch/0.7/tools/settings-schema.json",
   "branches": {
     "": [
-      "26.1-fabric:26.1", "26.1-neoforge:26.1"
+      "26.1-fabric:26.1", "26.1-neoforge:26.1",
+      "26.2-fabric:26.2"
     ]
   }
 }

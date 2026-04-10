@@ -48,7 +48,7 @@ public final class InGameFacts {
     /** When the player is in a state where pressing jump will cause the elytra to deploy */
     public static final Fact<InGameCtx> CAN_ELYTRA_FLY = register(
             CUtil.rl("can_elytra_fly"),
-            ctx -> ((PlayerAccessor) ctx.player()).callCanGlide()
+            ctx -> ((PlayerAccessor) ctx.player()).controlify$callCanGlide()
                     && !ctx.player().onClimbable()
                     && !ctx.player().onGround()
                     && !ctx.player().isInLiquid()

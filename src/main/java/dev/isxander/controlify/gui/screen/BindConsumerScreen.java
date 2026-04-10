@@ -5,6 +5,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -64,7 +65,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
             if (ticksTillClose == 0) {
                 widgetToFocus.awaitingControllerInput = false;
                 // don't call setScreen because will cause background to re-init
-                minecraft.screen = backgroundScreen;
+                MinecraftUtil.forceSetScreen(backgroundScreen);
             }
         }
 

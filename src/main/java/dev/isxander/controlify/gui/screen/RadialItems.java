@@ -149,7 +149,13 @@ public final class RadialItems {
                 ),
                 new RadialItemRecord(
                         Component.translatable("controlify.radial.debug.reload_packs"),
-                        RadialIcons.getIcons().get(RadialIcons.getItem(Items.PINK_DYE)),
+                        RadialIcons.getIcons().get(
+                                //? if >=26.2 {
+                                RadialIcons.getItem(Items.DYE.pink())
+                                //?} else {
+                                /*RadialIcons.getItem(Items.PINK_DYE)
+                                *///?}
+                        ),
                         () -> {
                             DebugOverlayHelper.reloadResourcePacks();
                             return true;

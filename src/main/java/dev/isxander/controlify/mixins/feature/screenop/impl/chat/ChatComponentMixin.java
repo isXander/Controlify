@@ -4,21 +4,15 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.screenop.keyboard.ChatKeyboardDucky;
-import net.minecraft.client.Minecraft;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin {
-    @Shadow
-    @Final
-    private Minecraft minecraft;
 
     @Unique private static final int VANILLA_CHAT_PADDING = 40;
     @Unique private static final int SHIFTED_CHAT_PADDING = 20;
@@ -30,7 +24,7 @@ public abstract class ChatComponentMixin {
             at = @At("MIXINEXTRAS:EXPRESSION")
     )
     private int modifyChatOffset(int y) {
-        if (minecraft.screen instanceof ChatScreen chat)
+        if (MinecraftUtil.getScreen() instanceof ChatScreen chat)
             return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
         return y;
     }
@@ -40,7 +34,7 @@ public abstract class ChatComponentMixin {
             at = @At(value = "CONSTANT", args = "intValue=" + VANILLA_CHAT_PADDING)
     )
     private int modifyChatToInputPadding(int padding) {
-        if (minecraft.screen instanceof ChatScreen chat) {
+        if (MinecraftUtil.getScreen() instanceof ChatScreen chat) {
             if (ChatKeyboardDucky.getKeyboardShiftAmount(chat) > 0) {
                 return SHIFTED_CHAT_PADDING;
             }

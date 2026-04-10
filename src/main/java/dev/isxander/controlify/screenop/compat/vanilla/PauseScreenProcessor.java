@@ -6,6 +6,7 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.PauseScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
@@ -27,7 +28,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
         super.handleButtons(controller);
 
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            minecraft.setScreen(new OptionsScreen(screen, minecraft.options, true));
+            MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, true));
         }
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
             screen.setFocused(disconnectButtonSupplier.get());

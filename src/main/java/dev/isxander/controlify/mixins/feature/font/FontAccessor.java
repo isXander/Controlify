@@ -8,6 +8,6 @@ import net.minecraft.client.gui.font.glyphs.BakedGlyph;
 
 @Mixin(Font.class)
 public interface FontAccessor {
-    @Invoker
-    BakedGlyph invokeGetGlyph(int i, Style style);
+    @Invoker("getGlyph")
+    BakedGlyph controlfy$invokeGetGlyph(int i, Style style);
 }

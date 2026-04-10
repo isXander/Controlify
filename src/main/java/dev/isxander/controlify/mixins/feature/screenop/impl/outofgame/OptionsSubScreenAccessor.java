@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(OptionsSubScreen.class)
 public interface OptionsSubScreenAccessor {
-    @Accessor
-    Screen getLastScreen();
+    @Accessor("lastScreen")
+    Screen controlify$getLastScreen();
 }

@@ -2,6 +2,7 @@ package dev.isxander.controlify.utils;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
@@ -64,14 +65,20 @@ public final class DebugOverlayHelper {
         }
     }
 
+    private static ChatComponent getChat() {
+        //? if >=26.2 {
+        return mc.gui.hud.getChat();
+        //?} else {
+        /*return mc.gui.getChat();
+         *///?}
+    }
+
     public static void clearChat() {
-        mc.gui.getChat().clearMessages(false);
+        getChat().clearMessages(false);
     }
 
     private static void debugComponent(ChatFormatting formatting, Component message) {
-        mc
-                .gui
-                .getChat()
+        getChat()
                 .addClientSystemMessage(
                         Component.empty().append(Component.translatable("debug.prefix").withStyle(formatting, ChatFormatting.BOLD)).append(CommonComponents.SPACE).append(message)
                 );

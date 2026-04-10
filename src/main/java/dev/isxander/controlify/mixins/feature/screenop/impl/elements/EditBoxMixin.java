@@ -12,6 +12,7 @@ import dev.isxander.controlify.screenop.compat.vanilla.EditBoxComponentProcessor
 import dev.isxander.controlify.screenop.keyboard.CommonKeyboardHints;
 import dev.isxander.controlify.screenop.keyboard.ComponentKeyboardBehaviour;
 import dev.isxander.controlify.screenop.keyboard.KeyboardOverlayScreen;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -53,7 +54,11 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
      * If the edit box has some text, the hint will be minimally rendered
      */
     @ModifyExpressionValue(method = "extractWidgetRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;plainSubstrByWidth(Ljava/lang/String;I)Ljava/lang/String;"))
-    private String renderHintText(String renderedValue, @Local(argsOnly = true) GuiGraphicsExtractor graphics, @Share("renderHint") LocalBooleanRef renderHint) {
+    private String renderHintText(
+            String renderedValue,
+            @Local(argsOnly = true, name = "graphics") GuiGraphicsExtractor graphics,
+            @Share("renderHint") LocalBooleanRef renderHint
+    ) {
         renderHint.set(false);
 
         ControlifyApi.get().getCurrentController().ifPresent(controller -> {
@@ -61,7 +66,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
                 && controller.settings().generic.keyboard.showOnScreenKeyboard
                 && controller.settings().generic.guide.showScreenGuides
                 && ControlifyApi.get().currentInputMode().isController()
-                && !(Minecraft.getInstance().screen instanceof KeyboardOverlayScreen)
+                && !(MinecraftUtil.getScreen() instanceof KeyboardOverlayScreen)
                 && processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
             ) {
                 int textX = this.getX() + (this.isBordered() ? 2 : 0) + 2;

@@ -8,6 +8,7 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.CommonComponents;
@@ -98,7 +99,7 @@ public class SimpleVoiceChatCompat {
     }
 
     private static void checkConnected() {
-        if (Minecraft.getInstance().getOverlay() == null && Minecraft.getInstance().screen == null) {
+        if (MinecraftUtil.getOverlay() == null && MinecraftUtil.getScreen() == null) {
             ((KeyEventsAccessor) ClientManager.instance().getKeyEvents()).invokeCheckConnected();
         }
     }

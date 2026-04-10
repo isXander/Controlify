@@ -27,6 +27,7 @@ import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.server.ServerPolicies;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
 import net.minecraft.ChatFormatting;
@@ -414,7 +415,7 @@ public class ControllerConfigScreenFactory {
                 .option(ButtonOption.createBuilder()
                         .name(Component.translatable("controlify.gui.create_gamepad_mapping"))
                         .description(OptionDescription.of(Component.translatable("controlify.gui.create_gamepad_mapping.tooltip")))
-                        .action((screen, button) -> Minecraft.getInstance().setScreen(ControllerMappingMakerScreen.createGamepadMapping(input, screen)))
+                        .action((screen, button) -> MinecraftUtil.setScreen(ControllerMappingMakerScreen.createGamepadMapping(input, screen)))
                         .build())
                 .option(ButtonOption.createBuilder()
                         .name(Component.translatable("controlify.gui.clear_mapping"))
@@ -642,7 +643,7 @@ public class ControllerConfigScreenFactory {
                                 .build())
                         .action((screen, opt) -> {
                             if (Minecraft.getInstance().level == null) return;
-                            Minecraft.getInstance().setScreen(new RadialMenuScreen(
+                            MinecraftUtil.setScreen(new RadialMenuScreen(
                                     controller.orElseThrow(),
                                     null,
                                     RadialItems.createBindings(controller.get()),

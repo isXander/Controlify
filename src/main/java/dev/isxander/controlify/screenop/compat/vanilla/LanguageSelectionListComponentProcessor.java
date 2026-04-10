@@ -5,6 +5,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.OptionsSubScreenAccessor;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 
 public class LanguageSelectionListComponentProcessor implements ComponentProcessor {
@@ -26,7 +27,7 @@ public class LanguageSelectionListComponentProcessor implements ComponentProcess
                 minecraft.options.save();
             }
 
-            minecraft.setScreen(((OptionsSubScreenAccessor) screen.screen).getLastScreen());
+            MinecraftUtil.setScreen(((OptionsSubScreenAccessor) screen.screen).controlify$getLastScreen());
 
             return true;
         }

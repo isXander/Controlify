@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -20,11 +21,13 @@ public class AbstractWidgetMixin {
             )
     )
     private boolean openKeyboardInVmouseMode(AbstractWidget instance, MouseButtonEvent event, boolean doubleClick) {
+        assert MinecraftUtil.getScreen() != null;
+
         Controlify controlify = Controlify.instance();
         ControllerEntity controller = controlify.getCurrentController().orElse(null);
 
         if (controller != null && controlify.virtualMouseHandler().isVirtualMouseEnabled()) {
-            var screenProcessor = ScreenProcessorProvider.provide(Minecraft.getInstance().screen);
+            var screenProcessor = ScreenProcessorProvider.provide(MinecraftUtil.getScreen());
             return !screenProcessor.tryOpenKeyboard(controller, (AbstractWidget) (Object) this);
         }
 

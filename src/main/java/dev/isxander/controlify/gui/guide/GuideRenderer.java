@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 public final class GuideRenderer {
     private GuideRenderer() {}
 
-    public static void render(GuiGraphicsExtractor graphics, GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
+    public static void extractRenderState(GuiGraphicsExtractor graphics, GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
         int width = minecraft.getWindow().getGuiScaledWidth();
         int height = minecraft.getWindow().getGuiScaledHeight();
 
@@ -61,7 +61,7 @@ public final class GuideRenderer {
 
         @Override
         public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            GuideRenderer.render(graphics, domain, minecraft, bottomAligned, textContrast);
+            GuideRenderer.extractRenderState(graphics, domain, minecraft, bottomAligned, textContrast);
         }
 
         public void setBottomAligned(boolean bottomAligned) {

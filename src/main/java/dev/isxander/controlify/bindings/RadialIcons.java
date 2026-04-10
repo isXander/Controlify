@@ -4,7 +4,6 @@ import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -70,7 +69,11 @@ public final class RadialIcons {
 
             Holder<MobEffect> effect = BuiltInRegistries.MOB_EFFECT.wrapAsHolder(entry.getValue());
 
-            Identifier sprite = Gui.getMobEffectSprite(effect);
+            //? if >=26.2 {
+            Identifier sprite = net.minecraft.client.gui.Hud.getMobEffectSprite(effect);
+            //?} else {
+            /*Identifier sprite = net.minecraft.client.gui.Gui.getMobEffectSprite(effect);
+            *///?}
 
             map.put(key.identifier().withPrefix("effect/"), (graphics, x, y, a) -> {
                 var pose = graphics.pose().pushMatrix();

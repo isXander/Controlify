@@ -189,7 +189,7 @@ public class GuideDomain<T extends FactCtx> implements RenderableGuideDomain<T>,
 
     @Override
     public void render(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast) {
-        GuideRenderer.render(graphics, this, Minecraft.getInstance(), bottomAligned, textContrast);
+        GuideRenderer.extractRenderState(graphics, this, Minecraft.getInstance(), bottomAligned, textContrast);
     }
 
     @Override

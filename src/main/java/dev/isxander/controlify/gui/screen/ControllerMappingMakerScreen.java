@@ -11,6 +11,7 @@ import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.controlify.utils.render.RenderUtils;
 import dev.isxander.controlify.utils.ColorUtils;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -211,7 +212,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 
     @Override
     public void onClose() {
-        minecraft.setScreen(lastScreen);
+        MinecraftUtil.setScreen(lastScreen);
         DeviceSettings deviceSettings = Controlify.instance().config().getSettings()
                 .getOrCreateDeviceSettings(inputComponent.getController().uid());
         deviceSettings.mapping = mappingBuilder.build();

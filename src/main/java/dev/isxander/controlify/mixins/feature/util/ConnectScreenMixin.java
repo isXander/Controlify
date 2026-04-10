@@ -16,11 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ConnectScreenMixin {
     @Inject(method = "connect", at = @At("HEAD"))
     private void onConnect(
-            Minecraft client,
-            ServerAddress address, @Nullable ServerData serverInfo,
+            Minecraft minecraft,
+            ServerAddress hostAndPort,
+            @Nullable ServerData server,
             @Nullable TransferState transferState,
             CallbackInfo ci
     ) {
-        Controlify.instance().notifyNewServer(serverInfo);
+        Controlify.instance().notifyNewServer(server);
     }
 }

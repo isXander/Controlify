@@ -9,9 +9,9 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(TabNavigationBar.class)
 public interface TabNavigationBarAccessor {
-    @Accessor
-    ImmutableList<Tab> getTabs();
+    @Accessor("tabs")
+    ImmutableList<Tab> controlify$getTabs();
 
-    @Accessor
-    TabManager getTabManager();
+    @Accessor("tabManager")
+    TabManager controlify$getTabManager();
 }

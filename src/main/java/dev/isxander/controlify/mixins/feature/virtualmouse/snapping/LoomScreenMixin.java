@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(LoomScreen.class)
-public abstract class LoomMixin extends AbstractContainerScreenMixin<LoomMenu> implements ISnapBehaviour {
+public abstract class LoomScreenMixin extends AbstractContainerScreenMixin<LoomMenu> implements ISnapBehaviour {
 
     @Unique private static final int COLUMNS = 4, ROWS = 4, SLOTS = COLUMNS * ROWS;
     @Unique private static final int BTN_SIZE = 14;

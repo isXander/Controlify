@@ -4,6 +4,7 @@ import dev.isxander.controlify.config.settings.profile.GenericControllerSettings
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.api.guide.InGameCtx;
 import dev.isxander.controlify.mixins.feature.guide.ingame.MinecraftAccessor;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -16,14 +17,18 @@ public class InGameButtonGuide {
         this.minecraft = minecraft;
     }
 
-    public void renderHud(GuiGraphicsExtractor graphics, float tickDelta) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, float tickDelta) {
         boolean debugOpen = minecraft.getDebugOverlay().showDebugScreen();
-        boolean hideGui = minecraft.options.hideGui;
-        boolean screenOpen = minecraft.screen != null;
+        //? if >=26.2 {
+        boolean hideGui = minecraft.gui.hud.isHidden();
+        //?} else {
+        /*boolean hideGui = minecraft.options.hideGui;
+        *///?}
+        boolean screenOpen = MinecraftUtil.getScreen() != null;
         GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 
         if (!debugOpen && !hideGui && !screenOpen && settings.showIngameGuide) {
-            GuideRenderer.render(graphics, GuideDomains.IN_GAME, minecraft, settings.ingameGuideBottom, true);
+            GuideRenderer.extractRenderState(graphics, GuideDomains.IN_GAME, minecraft, settings.ingameGuideBottom, true);
         }
     }
 
@@ -32,7 +37,7 @@ public class InGameButtonGuide {
 
         if (settings.showIngameGuide) {
             if (minecraft.hitResult == null) {
-                ((MinecraftAccessor) minecraft).invokePick(1f);
+                ((MinecraftAccessor) minecraft).controlify$invokePick(1f);
             }
             GuideDomains.IN_GAME.updateGuides(new InGameCtx(minecraft, minecraft.player, minecraft.level, minecraft.hitResult, controller, settings.verbosity), minecraft.font);
         }

@@ -3,6 +3,7 @@ package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +21,7 @@ public class OpenControlifySettingsAction extends Action {
 
     @Override
     public void execute(@Nullable String s) {
-        ControlifySettingsScreen.openScreen(Minecraft.getInstance().screen);
+        ControlifySettingsScreen.openScreen(MinecraftUtil.getScreen());
     }
 
     @Override
