@@ -12,13 +12,21 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 
     protected CompatMixinPlugin() {
         //? if fabric {
-        this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getModId());
+        this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getFabricModId());
         //?} elif neoforge {
-        /*this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getModId()) != null;
+        /*this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getNeoforgeModId()) != null;
         *///?}
     }
 
-    public abstract String getModId();
+    protected abstract String getModId();
+
+    protected String getFabricModId() {
+        return this.getModId();
+    }
+
+    protected String getNeoforgeModId() {
+        return this.getModId();
+    }
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
