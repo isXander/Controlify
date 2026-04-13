@@ -1,0 +1,18 @@
+{
+  "package": "dev.isxander.controlify.compatibility.rrls.mixins",
+  "required": false,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
+  "injectors": {
+    "defaultRequire": 0
+  },
+  "plugin": "dev.isxander.controlify.compatibility.rrls.RrlsMixinPlugin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+  ],
+  "mixins": [
+    "HideTypeMixin"
+  ]
+}
