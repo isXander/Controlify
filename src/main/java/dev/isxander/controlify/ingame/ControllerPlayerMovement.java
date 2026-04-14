@@ -93,11 +93,20 @@ public class ControllerPlayerMovement extends ClientInput {
         so this won't actually make any difference for most people.
         But custom joystick configurations may produce irregular results, hence this is necessary.
          */
+        //? if >=1.21.5 {
+        /*
+        // Starting snapshot 25w02a, move vector is now normalised.
+        // This slows down the player when moving diagonally, this will be reflected
+        // by Controlify. This means that 25w02a and later targets will have differing movement mechanics
+        // in Controlify.
+        this.moveVector = new Vec2(left, forward).normalized();
+        *///?} else {
         this.moveVector = new Vec2(left, forward);
         float length = this.moveVector.length();
         if (length > 1) {
             this.moveVector = this.moveVector.scale(1f / length);
         }
+        //?}
     }
 
     public static void updatePlayerInput(@Nullable LocalPlayer player) {
