@@ -274,5 +274,6 @@
   "controlify.joystick_mapping.unmapped.button": "按钮#%s",
   "controlify.joystick_mapping.unmapped.hat": "头#%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "（负）",
-  "controlify.joystick_mapping.unmapped.axis_direction.positive": "（正）"
+  "controlify.joystick_mapping.unmapped.axis_direction.positive": "（正）",
+  "controlify.input_curves.linear": "线性"
 }
