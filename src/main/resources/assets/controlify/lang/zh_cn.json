@@ -283,6 +283,7 @@
   "controlify.binding.controlify.pick_block": "选取方块",
   "controlify.binding.controlify.pick_block_nbt": "选取方块（含NBT）",
   "controlify.binding.controlify.take_screenshot": "屏幕截图",
+  "controlify.binding.controlify.debug_radial": "调试圆形菜单",
   "controlify.binding.controlify.toggle_hud_visibility": "切换HUD可见性",
   "controlify.binding.controlify.show_player_list": "显示玩家列表",
   "controlify.binding.controlify.radial_menu": "圆形菜单",
