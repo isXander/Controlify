@@ -9,7 +9,7 @@
     "defaultRequire": 0
   },
   "plugin": "dev.isxander.controlify.compatibility.rrls.RrlsMixinPlugin",
-  "compatibilityLevel": "JAVA_25",
+  "compatibilityLevel": "JAVA_21",
   "client": [
   ],
   "mixins": [
