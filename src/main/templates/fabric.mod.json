@@ -43,5 +43,14 @@
     "controllable": "*",
     "zoomify": "<=2.13.4",
     "do_a_barrel_roll": "<=3.5.8"
+  },
+  "custom": {
+    "rrls": {
+      "force_load": [
+        "controlify:default_config",
+        "controlify:controller_type",
+        "controlify:default_binds"
+      ]
+    }
   }
 }
