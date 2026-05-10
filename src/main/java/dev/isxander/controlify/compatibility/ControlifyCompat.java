@@ -16,8 +16,18 @@ public class ControlifyCompat {
     public static final String IMMEDIATELY_FAST = "immediatelyfast";
     public static final String SIMPLE_VOICE_CHAT = "voicechat";
     public static final String FANCY_MENU = "fancymenu";
+    public static final String COBBLEMON_RIDING_FABRIC = "cobblemonridingfabric";
 
     public static void init() {
+        try {
+            wrapCompatCall(
+                    COBBLEMON_RIDING_FABRIC,
+                    dev.isxander.controlify.compatibility.cobblemonriding.CobblemonRidingCompat::init
+            );
+        } catch (NoClassDefFoundError e) {
+            disabledMods.add(COBBLEMON_RIDING_FABRIC);
+        }
+
         //? if simple_voice_chat {
         try {
             wrapCompatCall(
