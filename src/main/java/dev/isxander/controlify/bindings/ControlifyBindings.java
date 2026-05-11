@@ -2,6 +2,7 @@ package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.ChatFormatting;
@@ -75,6 +76,7 @@ public final class ControlifyBindings {
             .id("controlify", "jump")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
+            .keyEmulation(options.keyJump)
             .radialCandidate(RadialIcons.getEffect(MobEffects.JUMP_BOOST)));
     public static final InputBindingSupplier SPRINT = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "sprint")
@@ -85,7 +87,7 @@ public final class ControlifyBindings {
             .id("controlify", "sneak")
             .category(MOVEMENT_CATEGORY)
             .allowedContexts(BindContext.IN_GAME)
-            .addKeyCorrelation(options.keyShift));
+            .keyEmulation(options.keyShift, ControlifyBindings::shouldToggleSneak));
 
     public static final InputBindingSupplier ATTACK = ControlifyBindApi.get().registerBinding(builder -> builder
             .id("controlify", "attack")
@@ -418,6 +420,15 @@ public final class ControlifyBindings {
                 CUtil.LOGGER.error("Failed to automatically register modded keybind: {}", keyMapping.getName(), e);
             }
         }
+    }
+
+    private static boolean shouldToggleSneak(ControllerEntity controller) {
+        var player = Minecraft.getInstance().player;
+        return controller.settings().generic.toggleSneak
+                && player != null
+                && !player.getAbilities().flying
+                && !(player.isInWater() && !player.onGround())
+                && player.getVehicle() == null;
     }
 
     private ControlifyBindings() {
