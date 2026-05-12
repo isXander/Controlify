@@ -14,12 +14,16 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
     private final ControllerEntity controller;
     private final StateAccess stateAccess;
     private final KeyMapping keyMapping;
+    private final boolean waitForReleaseAfterSuppression;
+    private boolean waitingForRelease;
     private boolean pressed;
 
     public KeyMappingEmulationOutput(ControllerEntity controller, InputBinding binding, KeyMapping keyMapping, BooleanSupplier toggleCondition) {
         this.controller = controller;
         this.stateAccess = binding.createStateAccess(1, state -> push());
         this.keyMapping = keyMapping;
+        // Jump already has movement-side handling to avoid jumping after closing a GUI with the button held.
+        this.waitForReleaseAfterSuppression = keyMapping == Minecraft.getInstance().options.keyJump;
 
         if (toggleCondition != null) {
             ((KeyMappingHandle) keyMapping).controlify$addToggleCondition(controller, toggleCondition);
@@ -33,10 +37,19 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
 
     private void push() {
         boolean nextPressed = stateAccess.digital(0);
-
-        if (stateAccess.isSuppressed()
+        boolean suppressed = stateAccess.isSuppressed()
                 || ControlifyApi.get().getCurrentController().orElse(null) != controller
-                || Minecraft.getInstance().screen != null) {
+                || Minecraft.getInstance().screen != null;
+
+        if (waitForReleaseAfterSuppression) {
+            if (!nextPressed) {
+                waitingForRelease = false;
+            } else if (suppressed) {
+                waitingForRelease = true;
+            }
+        }
+
+        if (suppressed || waitingForRelease) {
             nextPressed = false;
         }
 
