@@ -14,10 +14,12 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
     private final ControllerEntity controller;
     private final StateAccess stateAccess;
     private final KeyMapping keyMapping;
+    private boolean pressed;
+    private boolean waitingForRelease;
 
     public KeyMappingEmulationOutput(ControllerEntity controller, InputBinding binding, KeyMapping keyMapping, BooleanSupplier toggleCondition) {
         this.controller = controller;
-        this.stateAccess = binding.createStateAccess(2, state -> push());
+        this.stateAccess = binding.createStateAccess(1, state -> push());
         this.keyMapping = keyMapping;
 
         if (toggleCondition != null) {
@@ -31,20 +33,23 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
     }
 
     private void push() {
-        boolean now = stateAccess.digital(0);
-        boolean prev = stateAccess.digital(1);
+        boolean inputPressed = stateAccess.digital(0);
+        boolean suppressed = stateAccess.isSuppressed()
+                || ControlifyApi.get().getCurrentController().orElse(null) != controller
+                || !ControlifyApi.get().currentInputMode().isController()
+                || Minecraft.getInstance().screen != null;
 
-        if (ControlifyApi.get().getCurrentController().orElse(null) != controller)
-            return; // only emulate current controller
-
-        if (Minecraft.getInstance().screen != null)
-            return; // minecraft keybinds don't work in gui screens it conflicts
-
-        KeyMappingHandle handle = (KeyMappingHandle) keyMapping;
-        if (now && !prev) {
-            handle.controlify$setPressed(true);
-        } else if (prev && !now) {
-            handle.controlify$setPressed(false);
+        if (!inputPressed) {
+            waitingForRelease = false;
+        } else if (suppressed) {
+            waitingForRelease = true;
         }
+
+        boolean nextPressed = inputPressed && !suppressed && !waitingForRelease;
+        if (pressed == nextPressed)
+            return;
+
+        ((KeyMappingHandle) keyMapping).controlify$setPressed(nextPressed);
+        pressed = nextPressed;
     }
 }
