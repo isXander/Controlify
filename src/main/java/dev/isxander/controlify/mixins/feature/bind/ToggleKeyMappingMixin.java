@@ -26,6 +26,11 @@ public abstract class ToggleKeyMappingMixin extends KeyMappingMixin implements K
         this.setDown(isDown);
     }
 
+    @Override
+    public void controlify$forceSetPressed(boolean isDown) {
+        super.controlify$setPressed(isDown);
+    }
+
     @ModifyExpressionValue(method = "setDown", at = @At(value = "INVOKE", target = "Ljava/util/function/BooleanSupplier;getAsBoolean()Z"))
     private boolean modifyToggleMode(boolean vanillaToggleMode) {
         if (Controlify.instance().currentInputMode().isController()) {

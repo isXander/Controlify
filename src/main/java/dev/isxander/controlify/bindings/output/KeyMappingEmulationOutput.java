@@ -14,15 +14,19 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
     private final ControllerEntity controller;
     private final StateAccess stateAccess;
     private final KeyMapping keyMapping;
+    private final BooleanSupplier toggleCondition;
     private boolean pressed;
     private boolean waitingForRelease;
+    private boolean lastToggleMode;
 
     public KeyMappingEmulationOutput(ControllerEntity controller, InputBinding binding, KeyMapping keyMapping, BooleanSupplier toggleCondition) {
         this.controller = controller;
         this.stateAccess = binding.createStateAccess(1, state -> push());
         this.keyMapping = keyMapping;
+        this.toggleCondition = toggleCondition;
 
         if (toggleCondition != null) {
+            lastToggleMode = toggleCondition.getAsBoolean();
             ((KeyMappingHandle) keyMapping).controlify$addToggleCondition(controller, toggleCondition);
         }
     }
@@ -34,6 +38,15 @@ public class KeyMappingEmulationOutput implements DigitalOutput {
 
     private void push() {
         boolean inputPressed = stateAccess.digital(0);
+        boolean toggleMode = toggleCondition != null && toggleCondition.getAsBoolean();
+
+        if (pressed && toggleMode != lastToggleMode) {
+            ((KeyMappingHandle) keyMapping).controlify$forceSetPressed(false);
+            pressed = false;
+            waitingForRelease = inputPressed;
+        }
+        lastToggleMode = toggleMode;
+
         boolean suppressed = stateAccess.isSuppressed()
                 || ControlifyApi.get().getCurrentController().orElse(null) != controller
                 || !ControlifyApi.get().currentInputMode().isController()

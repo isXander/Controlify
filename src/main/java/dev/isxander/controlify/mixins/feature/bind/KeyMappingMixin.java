@@ -29,6 +29,11 @@ public class KeyMappingMixin implements KeyMappingHandle {
     }
 
     @Override
+    public void controlify$forceSetPressed(boolean isDown) {
+        controlify$setPressed(isDown);
+    }
+
+    @Override
     public void controlify$addToggleCondition(ControllerEntity controller, BooleanSupplier condition) {
 
     }
