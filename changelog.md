@@ -9,10 +9,6 @@ This version has the following targets:
 
 ## Changes
 
-- Fix crash when attempting to edit the radial menu
-- Add some error checking surrounding DefaultConfigManager to debug an ongoing bug
-- Stop periodically saving when using gyro auto-calibration
-- Fix stale boundInputs in InputBindings for controllers sharing the same settings
-- Make vmouse CURSOR_ONLY truly cursor only, and add a new CURSOR_SCROLL mode to replace the original functionality
-- Allow registration and rendering of custom guide domains
-- Update translations
+- Fix crash on slow computers when using the Remove Reloading Screen mod
+- Fix double tap to sprint being hard to trigger
+- Fix crash with large modpacks due to a race condition in a Controlify resource reloader
