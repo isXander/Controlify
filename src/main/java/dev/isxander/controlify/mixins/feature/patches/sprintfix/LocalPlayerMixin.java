@@ -25,7 +25,7 @@ public class LocalPlayerMixin {
      * However, we do so anyway just for the sake of preventing any modifications to movement code with this toggle on.
      * <p>
      * This mixin retains parity with <1.21.5, where sprinting was only allowed at >=0.8f, 1.21.5 removed this,
-     * since it does nto affect vanilla keyboard players.
+     * since it does not affect vanilla keyboard players.
      *
      * @param instance the receiver
      * @param original the original call to {@link net.minecraft.client.player.ClientInput#hasForwardImpulse()}
@@ -42,7 +42,7 @@ public class LocalPlayerMixin {
         return original.call(instance);
     }
 
-    @Definition(id = "hasForwardImpulseLocal", local = @Local(type = boolean.class, name = "hasForwardImpulse"))
+    @Definition(id = "hasForwardImpulseLocal", local = @Local(type = boolean.class, ordinal = 2))
     @Definition(id = "input", field = "Lnet/minecraft/client/player/LocalPlayer;input:Lnet/minecraft/client/player/ClientInput;")
     @Definition(id = "hasForwardImpulse", method = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z")
     @Expression("hasForwardImpulseLocal = @(this.input.hasForwardImpulse())")
