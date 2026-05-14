@@ -68,7 +68,7 @@ public final class RadialIcons {
 
     private static void addPotionEffects(Map<Identifier, RadialIcon> map) {
         //? if <1.21.6
-        /*var mobEffectTextureManager = minecraft.getMobEffectTextures();*/
+        //var mobEffectTextureManager = minecraft.getMobEffectTextures();
 
         BuiltInRegistries.MOB_EFFECT.entrySet().forEach(entry -> {
             ResourceKey<MobEffect> key = entry.getKey();

@@ -1,5 +1,9 @@
 package dev.isxander.controlify.mixins.feature.patches.sprintfix;
 
+import net.minecraft.client.player.LocalPlayer;
+import org.spongepowered.asm.mixin.Mixin;
+
+//? if >=1.21.5 {
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -7,10 +11,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.Controlify;
 import net.minecraft.client.player.ClientInput;
-import net.minecraft.client.player.LocalPlayer;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+//?}
 
 @Mixin(LocalPlayer.class)
 public class LocalPlayerMixin {

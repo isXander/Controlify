@@ -40,7 +40,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         var pose = CGuiPose.ofPush(guiGraphics);
         // text renders with z > 0 so push everything back so text doesn't pop through fill
         //? if <1.21.6
-        /*guiGraphics.pose().translate(0, 0, -20);*/
+        //guiGraphics.pose().translate(0, 0, -20);
 
         //? if >=1.21.10 {
         backgroundScreen.renderWithTooltipAndSubtitles(guiGraphics, dim.centerX(), dim.centerY(), tickDelta);

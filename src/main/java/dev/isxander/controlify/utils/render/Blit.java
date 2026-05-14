@@ -30,7 +30,7 @@ public final class Blit {
             int textureWidth, int textureHeight
     ) {
         //? if <1.21.2
-        /*RenderSystem.enableBlend();*/ // maintain parity with guiTextured render type that enables blending
+        //RenderSystem.enableBlend(); // maintain parity with guiTextured render type that enables blending
 
         graphics.blit(
                 //? if >=1.21.2
@@ -43,7 +43,7 @@ public final class Blit {
         );
 
         //? if <1.21.2
-        /*RenderSystem.disableBlend();*/
+        //RenderSystem.disableBlend();
     }
 
     public static void tex(
@@ -55,7 +55,7 @@ public final class Blit {
             int atlasWidth, int atlasHeight
     ) {
         //? if <1.21.2
-        /*RenderSystem.enableBlend();*/ // maintain parity with guiTextured render type that enables blending
+        //RenderSystem.enableBlend(); // maintain parity with guiTextured render type that enables blending
 
         graphics.blit(
                 //? if >=1.21.2
@@ -68,7 +68,7 @@ public final class Blit {
         );
 
         //? if <1.21.2
-        /*RenderSystem.disableBlend();*/
+        //RenderSystem.disableBlend();
     }
 
     public static void tex(
