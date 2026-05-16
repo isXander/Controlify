@@ -52,6 +52,10 @@
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
   "controlify.gui.use_enhanced_steam_deck_driver": "Use Enhanced Steam Deck Driver",
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "If enabled, Controlify will use an enhanced driver for the Steam Deck to improve compatibility and performance. This is experimental and may have bugs. This driver requires Decky Loader to be installed on your Deck.",
+  "controlify.gui.auto_switch_controllers": "Auto-Switch Controllers",
+  "controlify.gui.auto_switch_controllers.tooltip": "Automatically switches the active controller when input is detected from a different controller. Disable this if you are running multiple game instances with different controllers.",
+  "controlify.gui.current_controller": "Current Controller",
+  "controlify.gui.current_controller.tooltip": "Select which controller to use. This option is only available when auto-switching is disabled.",
   "controlify.gui.copy_debug_dump": "Copy Debug Dump To Clipboard",
   "controlify.gui.copy_debug_dump.tooltip": "Copies a Controlify debug dump to your clipboard. You may be asked to use this if you are seeking support.",
 
