@@ -54,7 +54,7 @@ public final class SteamDeckUtil {
 
     private static boolean isHardwareSteamDeck() {
         if (true) {
-            logger.error("Skipping Steam Deck checks as steamOS has temporarily broken the enhaned driver.");
+            logger.error("Skipping Steam Deck checks as steamOS has temporarily broken the enhanced driver.");
             return false;
         }
 
