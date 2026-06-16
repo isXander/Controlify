@@ -4,7 +4,7 @@ import dev.isxander.controlify.compatibility.CompatMixinPlugin;
 
 public class SVCMixinPlugin extends CompatMixinPlugin {
     @Override
-    public String getModId() {
+    protected String getModId() {
         return "voicechat";
     }
 }

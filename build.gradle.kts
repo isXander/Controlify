@@ -32,6 +32,7 @@ modstitch {
         if (isPropDefined("deps.reesesSodiumOptions")) configs.register("controlify-compat.reeses-sodium-options")
         configs.register("controlify-compat.yacl")
         if (isPropDefined("deps.simpleVoiceChat")) configs.register("controlify-compat.simple-voice-chat")
+        configs.register("controlify-compat.rrls")
         if (modstitch.isLoom) configs.register("controlify-platform.fabric")
         if (modstitch.isModDevGradleRegular) configs.register("controlify-platform.neoforge")
     }

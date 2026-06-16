@@ -9,6 +9,4 @@ This version has the following targets:
 
 ## Changes
 
-- Fix double tap to sprint being hard to trigger
-- Fix crash with large modpacks due to a race condition in a Controlify resource reloader
-- Optimise some mixins
+- Fix crash on slow computers when using the Remove Reloading Screen mod
