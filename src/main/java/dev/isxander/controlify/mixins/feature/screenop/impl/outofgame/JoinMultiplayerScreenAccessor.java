@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(JoinMultiplayerScreen.class)
 public interface JoinMultiplayerScreenAccessor {
-    @Accessor
-    Button getSelectButton();
+    @Accessor("selectButton")
+    Button controlify$getSelectButton();
 }

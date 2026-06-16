@@ -2,6 +2,7 @@ package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -16,7 +17,7 @@ public class BluetoothWarningScreen extends ConfirmScreen {
                 Controlify.instance().config().saveSafely();
             }
 
-            Minecraft.getInstance().setScreen(nextScreen);
+            MinecraftUtil.setScreen(nextScreen);
         },
                 Component.translatable("controlify.bluetooth_warning.title"),
                 Component.translatable("controlify.bluetooth_warning.desc"),

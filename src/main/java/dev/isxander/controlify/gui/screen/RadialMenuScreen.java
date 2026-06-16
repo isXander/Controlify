@@ -12,6 +12,7 @@ import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
@@ -219,7 +220,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
     @Override
     public void onClose() {
         Controlify.instance().config().saveIfDirty();
-        minecraft.setScreen(parent);
+        MinecraftUtil.setScreen(parent);
     }
 
     @Override

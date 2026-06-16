@@ -33,6 +33,6 @@ dependencies {
     implementation(plugin("dev.isxander.modstitch.base", "0.8.4"))
     implementation(plugin("dev.isxander.secrets", "0.1.0"))
     implementation(plugin("dev.kikugie.stonecutter", "0.8.2"))
-    implementation(plugin("fabric-loom", "1.14.9"))
+    implementation(plugin("fabric-loom", "1.16.1"))
     implementation(plugin("net.neoforged.moddev", "2.0.137"))
 }

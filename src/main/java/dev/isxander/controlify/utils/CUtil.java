@@ -1,8 +1,5 @@
 package dev.isxander.controlify.utils;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.*;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.util.Util;
@@ -29,10 +26,6 @@ public class CUtil {
     
     public static Identifier rl(String path) {
         return Identifier.fromNamespaceAndPath("controlify", path);
-    }
-
-    public static BufferBuilder beginBuffer(VertexFormat.Mode mode, VertexFormat format) {
-        return Tesselator.getInstance().begin(mode, format);
     }
 
     public static final boolean IS_POJAV_LAUNCHER = System.getenv("POJAV_NATIVEDIR") != null;

@@ -15,11 +15,11 @@ import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.TabNavigat
 import dev.isxander.controlify.screenop.keyboard.*;
 import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.HoldRepeatHelper;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -33,7 +33,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -83,7 +82,7 @@ public class ScreenProcessor<T extends Screen> {
                         .anyMatch(component -> ComponentProcessorProvider.provide(component).shouldKeepFocusOnKeyboardMode(this));
 
                 if (!shouldKeepFocus) {
-                    ((ScreenAccessor) screen).invokeClearFocus();
+                    ((ScreenAccessor) screen).controlify$invokeClearFocus();
                 }
             }
             case CONTROLLER, MIXED -> {
@@ -182,7 +181,7 @@ public class ScreenProcessor<T extends Screen> {
         }
 
         return () -> {
-            ((ScreenAccessor) screen).invokeChangeFocus(path);
+            ((ScreenAccessor) screen).controlify$invokeChangeFocus(path);
             return true;
         };
     }
@@ -240,8 +239,8 @@ public class ScreenProcessor<T extends Screen> {
                     .findAny()
                     .ifPresent(navBar -> {
                         var accessor = (TabNavigationBarAccessor) navBar;
-                        List<Tab> tabs = accessor.getTabs();
-                        int currentIndex = tabs.indexOf(accessor.getTabManager().getCurrentTab());
+                        List<Tab> tabs = accessor.controlify$getTabs();
+                        int currentIndex = tabs.indexOf(accessor.controlify$getTabManager().getCurrentTab());
 
                         int newIndex = currentIndex + (prevTab ? -1 : 1);
                         if (newIndex < 0) newIndex = tabs.size() - 1;
@@ -267,7 +266,7 @@ public class ScreenProcessor<T extends Screen> {
 
     public void onVirtualMouseToggled(boolean enabled) {
         if (enabled) {
-            ((ScreenAccessor) screen).invokeClearFocus();
+            ((ScreenAccessor) screen).controlify$invokeClearFocus();
         } else {
             ((ScreenAccessor) screen).invokeSetInitialFocus();
         }
@@ -303,7 +302,7 @@ public class ScreenProcessor<T extends Screen> {
                     KeyboardOverlayScreen.KeyboardPositioner positioner
             ) -> {
                 if (controller.settings().generic.keyboard.showOnScreenKeyboard) {
-                    minecraft.setScreen(new KeyboardOverlayScreen(screen, layout, inputTarget, positioner));
+                    MinecraftUtil.setScreen(new KeyboardOverlayScreen(screen, layout, inputTarget, positioner));
                 }
                 return true;
             }

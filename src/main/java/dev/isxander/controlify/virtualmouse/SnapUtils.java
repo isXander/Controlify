@@ -6,7 +6,6 @@ import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPa
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import org.joml.Vector2i;
 
-import java.util.Collection;
 import java.util.function.Consumer;
 
 public final class SnapUtils {
@@ -16,34 +15,34 @@ public final class SnapUtils {
     public static void addRecipeSnapPoints(RecipeBookComponent recipeBookComponent, Consumer<SnapPoint> consumer) {
         if (recipeBookComponent.isVisible()) {
             RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
-            componentAccessor.getTabButtons().forEach(button -> {
+            componentAccessor.controlify$getTabButtons().forEach(button -> {
                 int x = button.getX() + button.getWidth() / 2;
                 int y = button.getY() + button.getHeight() / 2;
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 20));
             });
 
-            var filterButton = componentAccessor.getFilterButton();
+            var filterButton = componentAccessor.controlify$getFilterButton();
             if (filterButton.visible) {
                 int x = filterButton.getX() + filterButton.getWidth() / 2;
                 int y = filterButton.getY() + filterButton.getHeight() / 2;
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 14));
             }
 
-            RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
-            pageAccessor.getButtons().forEach(button -> {
+            RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.controlify$getRecipeBookPage();
+            pageAccessor.controlify$getButtons().forEach(button -> {
                 int x = button.getX() + button.getWidth() / 2;
                 int y = button.getY() + button.getHeight() / 2;
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 21));
             });
 
-            var forwardButton = pageAccessor.getForwardButton();
+            var forwardButton = pageAccessor.controlify$getForwardButton();
             if (forwardButton.visible) {
                 int x = forwardButton.getX() + forwardButton.getWidth() / 2 - 2;
                 int y = forwardButton.getY() + forwardButton.getHeight() / 2;
                 consumer.accept(new SnapPoint(new Vector2i(x, y), 10));
             }
 
-            var backButton = pageAccessor.getBackButton();
+            var backButton = pageAccessor.controlify$getBackButton();
             if (backButton.visible) {
                 int x = backButton.getX() + backButton.getWidth() / 2 + 2;
                 int y = backButton.getY() + backButton.getHeight() / 2;

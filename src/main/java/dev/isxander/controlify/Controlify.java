@@ -173,7 +173,7 @@ public class Controlify implements ControlifyApi {
         });
 
         PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
-                inGameButtonGuide().ifPresent(guide -> guide.renderHud(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
+                inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
 
         PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
             try {
@@ -386,7 +386,7 @@ public class Controlify implements ControlifyApi {
         );
 
         if (hotplugged) {
-            ToastUtils.sendToast(
+            MinecraftUtil.sendToast(
                     Component.translatable("controlify.toast.controller_connected.title"),
                     Component.translatable("controlify.toast.controller_connected.description", controller.name()),
                     false
@@ -410,7 +410,7 @@ public class Controlify implements ControlifyApi {
             this.selectFirstConnectedController();
         }
 
-        ToastUtils.sendToast(
+        MinecraftUtil.sendToast(
                 Component.translatable("controlify.toast.controller_disconnected.title"),
                 Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
                 false
@@ -429,14 +429,14 @@ public class Controlify implements ControlifyApi {
      * Only the current controller ticks.
      */
     public void tick(Minecraft client) {
-        if (minecraft.getOverlay() == null) {
+        if (MinecraftUtil.getOverlay() == null) {
             if (currentSetupWizard != null && currentSetupWizard.isDone()) {
                 currentSetupWizard = null;
             }
 
-            if (!setupWizards.isEmpty() && !(minecraft.screen instanceof DontInteruptScreen)) {
+            if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInteruptScreen)) {
                 currentSetupWizard = setupWizards.poll();
-                minecraft.setScreen(currentSetupWizard.start(minecraft.screen));
+                MinecraftUtil.setScreen(currentSetupWizard.start(MinecraftUtil.getScreen()));
             }
         }
 
@@ -493,8 +493,8 @@ public class Controlify implements ControlifyApi {
         ControllerStateView state = input.stateNow();
         Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
 
-        boolean isPaused = minecraft.isPaused() || minecraft.screen instanceof PauseScreen;
-        boolean isConfigScreen = minecraft.screen instanceof YACLScreen;
+        boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
+        boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
 
         rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
         if (outOfFocus) {
@@ -515,7 +515,7 @@ public class Controlify implements ControlifyApi {
 
         if (consecutiveInputSwitches > 100) {
             CUtil.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
-            ToastUtils.sendToast(
+            MinecraftUtil.sendToast(
                     Component.translatable("controlify.toast.faulty_input.title"),
                     Component.translatable("controlify.toast.faulty_input.description"),
                     true
@@ -530,8 +530,8 @@ public class Controlify implements ControlifyApi {
         }
 
         if (this.currentInputMode().isController()) {
-            if (minecraft.screen != null) {
-                ScreenProcessorProvider.provide(minecraft.screen).onControllerUpdate(controller);
+            if (MinecraftUtil.getScreen() != null) {
+                ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerUpdate(controller);
             }
 
             ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
@@ -611,8 +611,8 @@ public class Controlify implements ControlifyApi {
         }
 
         // notify current screen of input mode change
-        if (minecraft.screen != null) {
-            ScreenProcessorProvider.provide(minecraft.screen).onInputModeChanged(newInputMode);
+        if (MinecraftUtil.getScreen() != null) {
+            ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onInputModeChanged(newInputMode);
         }
 
         // notify event listeners of input mode change
@@ -673,12 +673,12 @@ public class Controlify implements ControlifyApi {
                         ? GLFW.GLFW_CURSOR_HIDDEN
                         : GLFW.GLFW_CURSOR_NORMAL
         );
-        if (minecraft.screen != null) {
+        if (MinecraftUtil.getScreen() != null) {
             var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
             if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
                 // stop mouse hovering over last element before hiding cursor but don't actually move it
                 // so when the user switches back to mouse it will be in the same place
-                mouseHandlerAccessor.invokeOnMove(handle, -50, -50);
+                mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50);
             }
         }
     }
@@ -722,7 +722,7 @@ public class Controlify implements ControlifyApi {
             return;
 
         if (config().getSettings().globalSettings().seenServers.add(data.ip)) {
-            ToastUtils.sendToast(
+            MinecraftUtil.sendToast(
                     Component.translatable("controlify.toast.new_server.title"),
                     Component.translatable("controlify.toast.new_server.description", data.name),
                     true

@@ -11,8 +11,8 @@ import dev.isxander.controlify.gui.components.PlainTextWidget;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
@@ -49,7 +49,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
     public static ControlifySettingsScreen openScreen(@Nullable Screen parent) {
         var screen = new ControlifySettingsScreen(parent);
-        Minecraft.getInstance().setScreen(screen);
+        MinecraftUtil.setScreen(screen);
         return screen;
     }
 
@@ -97,7 +97,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         globalSettingsButton = rowHelper.addChild(
                 Button.builder(
                         Component.translatable("controlify.gui.global_settings.title"),
-                        btn -> minecraft.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))
+                        btn -> MinecraftUtil.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))
                 ).build()
         );
         doneButton = rowHelper.addChild(
@@ -175,8 +175,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
         super.extractBackground(graphics, mouseX, mouseY, a);
 
         Identifier texture = minecraft.level == null
-                ? AbstractSelectionListAccessor.getMenuListBackground()
-                : AbstractSelectionListAccessor.getInWorldMenuListBackground();
+                ? AbstractSelectionListAccessor.controlify$getMenuListBackground()
+                : AbstractSelectionListAccessor.controlify$getInWorldMenuListBackground();
 
         graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
@@ -198,7 +198,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
     @Override
     public void onClose() {
-        minecraft.setScreen(parent);
+        MinecraftUtil.setScreen(parent);
     }
 
     private boolean hasController() {
@@ -301,7 +301,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
                     defaultSettings,
                     this.controller
             );
-            minecraft.setScreen(screen);
+            MinecraftUtil.setScreen(screen);
         }
 
         private void updateControllerInfo(boolean force) {

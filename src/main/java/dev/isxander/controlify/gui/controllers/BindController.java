@@ -10,6 +10,7 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gui.screen.BindConsumerScreen;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.Controller;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
@@ -105,7 +106,7 @@ public class BindController implements Controller<Input> {
 
         private void openConsumerScreen() {
             awaitingControllerInput = true;
-            Minecraft.getInstance().setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, Minecraft.getInstance().screen));
+            MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, MinecraftUtil.getScreen()));
         }
 
         @Override

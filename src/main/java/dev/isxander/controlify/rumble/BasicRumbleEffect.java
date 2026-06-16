@@ -1,5 +1,6 @@
 package dev.isxander.controlify.rumble;
 
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.apache.commons.lang3.Validate;
@@ -150,7 +151,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
     }
 
     public static BooleanSupplier finishOnScreenChange() {
-        Screen screen = Minecraft.getInstance().screen;
-        return () -> screen != Minecraft.getInstance().screen;
+        Screen screen = MinecraftUtil.getScreen();
+        return () -> screen != MinecraftUtil.getScreen();
     }
 }

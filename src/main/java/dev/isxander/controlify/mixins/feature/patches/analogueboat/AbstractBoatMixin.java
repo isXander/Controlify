@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractBoat.class)
-public abstract class BoatMixin implements AnalogBoatInput {
+public abstract class AbstractBoatMixin implements AnalogBoatInput {
     @Shadow private float deltaRotation;
     @Shadow private boolean inputLeft;
     @Shadow private boolean inputRight;

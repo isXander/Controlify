@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2i;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -20,7 +21,7 @@ public abstract class ScreenMixin implements ISnapBehaviour {
 
     @Shadow public int width;
     @Shadow public int height;
-    @Shadow protected @Nullable  Minecraft minecraft;
+    @Final @Shadow protected @Nullable Minecraft minecraft;
 
     @Override
     public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {

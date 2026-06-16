@@ -5,6 +5,7 @@ import dev.isxander.controlify.server.ServerPolicies;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class ReachAroundHandler {
     public static HitResult getReachAroundHitResult(Entity entity, HitResult hitResult) {
@@ -27,7 +28,7 @@ public class ReachAroundHandler {
 
         // this allows all interaction with blocks, such as opening containers, ringing bells, etc.
         // this is consistent with bedrock edition behaviour, tested
-        return new BlockHitResult(supportingBlockPos.getCenter(), entity.getDirection(), supportingBlockPos, false);
+        return new BlockHitResult(Vec3.atCenterOf(supportingBlockPos), entity.getDirection(), supportingBlockPos, false);
     }
 
     private static boolean canReachAround(Entity cameraEntity) {

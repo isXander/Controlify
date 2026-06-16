@@ -14,20 +14,24 @@ import java.util.function.Consumer;
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMenu> extends ScreenMixin implements ISnapBehaviour {
 
-    @Shadow public abstract T getMenu();
+    @Shadow
+    public abstract T getMenu();
 
-    @Shadow protected int leftPos;
+    @Shadow
+    protected int leftPos;
 
-    @Shadow protected int topPos;
+    @Shadow
+    protected int topPos;
 
-    @Shadow protected int imageHeight;
+    @Final @Shadow
+    protected int imageWidth;
+
+    @Final @Shadow
+    protected int imageHeight;
 
     @Shadow
     @Final
     protected T menu;
-
-    @Shadow
-    protected int imageWidth;
 
     @Override
     public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {

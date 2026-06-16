@@ -1,6 +1,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
@@ -11,9 +12,9 @@ public class AskToMapControllerScreen extends ConfirmScreen {
         super(
                 (confirmed) -> {
                     if (confirmed) {
-                        Minecraft.getInstance().setScreen(ControllerMappingMakerScreen.createGamepadMapping(controller.input().orElseThrow(), lastScreen));
+                        MinecraftUtil.setScreen(ControllerMappingMakerScreen.createGamepadMapping(controller.input().orElseThrow(), lastScreen));
                     } else {
-                        Minecraft.getInstance().setScreen(lastScreen);
+                        MinecraftUtil.setScreen(lastScreen);
                     }
                 },
                 Component.translatable("controlify.ask_to_map_controller.title"),

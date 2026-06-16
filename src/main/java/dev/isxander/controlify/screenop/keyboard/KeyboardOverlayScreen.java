@@ -2,6 +2,8 @@ package dev.isxander.controlify.screenop.keyboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.mixins.feature.screenop.GuiMixin;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -21,7 +23,7 @@ import java.util.function.Supplier;
  * instead of adding and removing widgets, where focus to the keyboard could
  * be lost without the keyboard closing.
  *
- * @see dev.isxander.controlify.mixins.feature.screenop.MinecraftMixin#preventRemovingOldScreen(Screen, Screen)
+ * @see GuiMixin#preventRemovingOldScreen(Screen, Screen)
  * this mixin prevents calling removed() on the underlying screen when this overlay is presented, since it will be restored
  */
 public class KeyboardOverlayScreen extends Screen {
@@ -115,7 +117,7 @@ public class KeyboardOverlayScreen extends Screen {
     public void onClose() {
         // restore the previous screen without calling minecraft.setScreen
         // so the screen is not reinitialised
-        this.minecraft.screen = this.backgroundScreen;
+        MinecraftUtil.forceSetScreen(this.backgroundScreen);
 
         Controlify.instance().virtualMouseHandler().onScreenChanged();
     }

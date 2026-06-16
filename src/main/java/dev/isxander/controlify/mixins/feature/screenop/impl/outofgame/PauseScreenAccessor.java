@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(PauseScreen.class)
 public interface PauseScreenAccessor {
-    @Accessor
+    @Accessor("showPauseMenu")
     boolean getShowPauseMenu();
 }

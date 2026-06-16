@@ -5,6 +5,7 @@ import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -27,7 +28,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 
         if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
             if (getWidget("menu.options").isPresent()) {
-                minecraft.setScreen(new OptionsScreen(screen, minecraft.options, false));
+                MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, false));
                 playClackSound();
             }
         }

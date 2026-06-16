@@ -4,6 +4,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,7 +25,7 @@ public class ControllerPlayerMovement extends ClientInput {
 
     @Override
     public void tick() {
-        if (Minecraft.getInstance().screen != null || player == null) {
+        if (MinecraftUtil.getScreen() != null || player == null) {
             this.setMoveVec(0, 0);
 
             this.keyPresses = Input.EMPTY;

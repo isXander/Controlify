@@ -8,8 +8,8 @@ import java.io.File;
 
 @Mixin(Screenshot.class)
 public interface ScreenshotAccessor {
-    @Invoker
-    static File invokeGetFile(File file) {
+    @Invoker("getFile")
+    static File controlify$invokeGetFile(File file) {
         throw new AssertionError();
     }
 }

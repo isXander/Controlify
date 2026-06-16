@@ -6,6 +6,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(Minecraft.class)
 public interface MinecraftAccessor {
-    @Invoker
-    void invokePick(float partialTicks);
+    @Invoker("pick")
+    void controlify$invokePick(float partialTicks);
 }

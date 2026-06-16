@@ -7,7 +7,7 @@ import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.ToastUtils;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.network.chat.Component;
 import org.hid4java.*;
 
@@ -78,7 +78,7 @@ public class ControllerHIDService {
         if (firstFetch) {
             firstFetch = false;
             if (isDisabled() && !SDLNativesLoader.isLoaded()) {
-                ToastUtils.sendToast(
+                MinecraftUtil.sendToast(
                         Component.translatable("controlify.error.hid"),
                         Component.translatable("controlify.error.hid.desc"),
                         true

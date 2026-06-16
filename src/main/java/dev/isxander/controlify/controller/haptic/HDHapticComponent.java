@@ -54,8 +54,8 @@ public class HDHapticComponent extends ECSComponentImpl {
                 .getSound(randomSource).getLocation();
 
         SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).getSoundEngine();
-        SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).getSoundBuffers();
+        SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).controlify$getSoundEngine();
+        SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).controlify$getSoundBuffers();
 
         Identifier soundId = location.withPrefix("sounds/").withSuffix(".ogg");
 
@@ -75,8 +75,8 @@ public class HDHapticComponent extends ECSComponentImpl {
         return sound
                 .thenApply(soundBuffer -> hapticData.computeIfAbsent(id, key -> {
                     var accessor = (SoundBufferAccessor) soundBuffer;
-                    ByteBuffer bytes = accessor.getData();
-                    AudioFormat format = accessor.getFormat();
+                    ByteBuffer bytes = accessor.controlify$getData();
+                    AudioFormat format = accessor.controlify$getFormat();
 
                     if (bytes == null) {
                         return null;

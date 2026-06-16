@@ -4,14 +4,10 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
-import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
-import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -45,19 +41,19 @@ public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 
         if (!recipeBookComponent.isVisible()) return;
         RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
-        RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.getRecipeBookPage();
+        RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.controlify$getRecipeBookPage();
         List<RecipeBookTabButton> tabs = componentAccessor
-                .getTabButtons()
+                .controlify$getTabButtons()
                 .stream().filter(tab -> tab.visible)
                 .toList();
-        RecipeBookTabButton selectedTab = componentAccessor.getSelectedTab();
+        RecipeBookTabButton selectedTab = componentAccessor.controlify$getSelectedTab();
 
         ImageButton button = null;
         if (ControlifyBindings.VMOUSE_PAGE_NEXT.on(controller).justPressed()) {
-            button = pageAccessor.getForwardButton();
+            button = pageAccessor.controlify$getForwardButton();
         }
         if (ControlifyBindings.VMOUSE_PAGE_PREV.on(controller).justPressed()) {
-            button = pageAccessor.getBackButton();
+            button = pageAccessor.controlify$getBackButton();
         }
         if (ControlifyBindings.VMOUSE_PAGE_DOWN.on(controller).justPressed()) {
             int index = tabs.indexOf(selectedTab);

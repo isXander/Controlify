@@ -8,6 +8,9 @@
   "injectors": {
     "defaultRequire": 1
   },
+  "overwrites": {
+    "requireAnnotations": true
+  },
   "plugin": "dev.isxander.controlify.compatibility.simplevoicechat.SVCMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [

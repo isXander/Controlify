@@ -11,15 +11,15 @@ import java.util.List;
 
 @Mixin(RecipeBookComponent.class)
 public interface RecipeBookComponentAccessor {
-    @Accessor
-    RecipeBookPage getRecipeBookPage();
+    @Accessor("recipeBookPage")
+    RecipeBookPage controlify$getRecipeBookPage();
 
-    @Accessor
-    List<RecipeBookTabButton> getTabButtons();
+    @Accessor("tabButtons")
+    List<RecipeBookTabButton> controlify$getTabButtons();
 
-    @Accessor
-    RecipeBookTabButton getSelectedTab();
+    @Accessor("selectedTab")
+    RecipeBookTabButton controlify$getSelectedTab();
 
-    @Accessor
-    CycleButton<?> getFilterButton();
+    @Accessor("filterButton")
+    CycleButton<?> controlify$getFilterButton();
 }
