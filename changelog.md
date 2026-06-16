@@ -9,4 +9,4 @@ This version has the following targets:
 
 ## Changes
 
-- Fix crash on slow computers when using the Remove Reloading Screen mod
+- Update to 26.2
