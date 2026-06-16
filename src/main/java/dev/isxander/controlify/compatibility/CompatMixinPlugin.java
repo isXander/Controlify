@@ -14,7 +14,11 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
         //? if fabric {
         this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getFabricModId());
         //?} elif neoforge {
-        /*this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getNeoforgeModId()) != null;
+        /*//? if >=26.2 {
+        this.compatEnabled = net.neoforged.fml.loading.FMLLoader.getCurrent().getLoadingModList().getModFileById(this.getNeoforgeModId()) != null;
+        //?} else {
+        /^this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getNeoforgeModId()) != null;
+        ^///?}
         *///?}
     }
 
