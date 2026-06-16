@@ -146,7 +146,8 @@ public class InGameInputHandler {
                     minecraft.gameRenderer.checkEntityPostEffect(minecraft.options.getCameraType().isFirstPerson() ? minecraft.getCameraEntity() : null);
                 }
 
-                minecraft.levelRenderer.needsUpdate();
+                //? if <26.2
+                //minecraft.levelRenderer.needsUpdate();
             }
         }
         if (ControlifyBindings.TOGGLE_HUD_VISIBILITY.on(controller).justPressed()) {
@@ -192,7 +193,11 @@ public class InGameInputHandler {
 
             Screenshot.grab(
                     this.minecraft.gameDirectory,
-                    this.minecraft.getMainRenderTarget(),
+                    //? if >=26.2 {
+                    this.minecraft.gameRenderer.mainRenderTarget(),
+                    //?} else {
+                    /*this.minecraft.getMainRenderTarget(),
+                    *///?}
                     component -> this.minecraft.execute(() -> {
                         //? if >=26.2 {
                         this.minecraft.gui.hud.getChat()

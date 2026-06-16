@@ -21,9 +21,15 @@ import java.util.List;
 
 @Mixin(VideoSettingsScreen.class)
 public abstract class VideoSettingsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
-    @Shadow private FlatButtonWidget applyButton;
+    //? if >=26.2 {
+    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
+    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
+    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
+    //?} else {
+    /*@Shadow private FlatButtonWidget applyButton;
     @Shadow private FlatButtonWidget closeButton;
     @Shadow private FlatButtonWidget undoButton;
+    *///?}
     @Shadow private OptionListWidget optionList;
 
     @Unique private Page controlify$currentPage = null;

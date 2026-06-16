@@ -3,7 +3,7 @@
   "branches": {
     "": [
       "26.1-fabric:26.1", "26.1-neoforge:26.1",
-      "26.2-fabric:26.2"
+      "26.2-fabric:26.2", "26.2-neoforge:26.2"
     ]
   }
 }

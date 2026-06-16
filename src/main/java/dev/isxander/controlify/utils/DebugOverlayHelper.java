@@ -31,7 +31,11 @@ public final class DebugOverlayHelper {
     }
 
     public static void reloadChunks() {
-        mc.levelRenderer.allChanged();
+        //? if >=26.2 {
+        mc.levelExtractor.allChanged();
+        //?} else {
+        /*mc.levelRenderer.allChanged();
+        *///?}
         debugFeedbackTranslated("debug.reload_chunks.message");
     }
 
