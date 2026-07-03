@@ -94,15 +94,13 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
                 }
                 returnToBackground();
             } else {
-                List<Input> pressedBindCopy = currentInputs.stream().toList();
                 // Input validation
                 // This is done because sometimes it's possible to input a button twice.
                 for (Input input : pressedBinds) {
-                    if (pressedBindCopy.stream().noneMatch(storedInput -> storedInput.getRelevantInputs().containsAll(input.getRelevantInputs()))) {
+                    if (currentInputs.stream().noneMatch(storedInput -> storedInput.getRelevantInputs().containsAll(input.getRelevantInputs()))) {
                         currentInputs.add(input);
                     }
                 }
-                //pressedBind.ifPresent(currentInputs::addAll);
             }
         }
     }
