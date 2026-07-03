@@ -19,10 +19,11 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
     public static final InputType<ButtonInput> BUTTON = new InputType<>(ButtonInput.INPUT_ID, ButtonInput.CODEC);
     public static final InputType<AxisInput> AXIS = new InputType<>(AxisInput.INPUT_ID, AxisInput.CODEC);
     public static final InputType<HatInput> HAT = new InputType<>(HatInput.INPUT_ID, HatInput.CODEC);
+    public static final InputType<CompoundInput> COMPOUND = new InputType<CompoundInput>(CompoundInput.INPUT_ID, CompoundInput.CODEC);
     public static final InputType<EmptyInput> EMPTY = new InputType<>(EmptyInput.INPUT_ID, EmptyInput.CODEC);
 
     public static final InputType<?>[] TYPES = {
-        InputType.BUTTON, InputType.AXIS, InputType.HAT, InputType.EMPTY
+        InputType.BUTTON, InputType.AXIS, InputType.HAT, InputType.COMPOUND, InputType.EMPTY
     };
 
     public static <T extends StringRepresentable, E> MapCodec<E> createCodec(

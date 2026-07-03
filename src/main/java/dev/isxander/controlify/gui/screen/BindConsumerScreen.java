@@ -1,6 +1,9 @@
 package dev.isxander.controlify.gui.screen;
 
+import dev.isxander.controlify.bindings.input.CompoundInput;
+import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.bindings.input.InputType;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.gui.controllers.BindController;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -15,7 +18,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BindConsumerScreen extends Screen implements ScreenProcessorProvider {
     private final BindConsumer bindConsumer;
@@ -23,6 +27,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     private final Screen backgroundScreen;
     private final BindController.BindControllerElement widgetToFocus;
     private final ScreenProcessorImpl screenProcessor = new ScreenProcessorImpl(this);
+    private final List<Input> currentInputs = new ArrayList<>();
 
     private int ticksTillClose;
     private int ticksTillInput;
@@ -77,11 +82,28 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
         }
 
         // tick runs after all controller input ticks
-
-        Optional<Input> pressedBind = bindConsumer.getPressedBind();
-        if (pressedBind.isPresent()) {
-            option.requestSet(pressedBind.get());
-            returnToBackground();
+        List<Input> pressedBinds = bindConsumer.getPressedBinds();
+        if (!pressedBinds.isEmpty()) {
+            if (pressedBinds.getFirst().type() == InputType.EMPTY) { // Create bind if input released
+                if (currentInputs.size() == 1) {
+                    option.requestSet(currentInputs.getFirst());
+                } else if (currentInputs.size() > 1) {
+                    option.requestSet(new CompoundInput(currentInputs));
+                } else {
+                    option.requestSet(EmptyInput.INSTANCE);
+                }
+                returnToBackground();
+            } else {
+                List<Input> pressedBindCopy = currentInputs.stream().toList();
+                // Input validation
+                // This is done because sometimes it's possible to input a button twice.
+                for (Input input : currentInputs) {
+                    if (pressedBindCopy.stream().noneMatch(storedInput -> storedInput.getRelevantInputs().containsAll(input.getRelevantInputs()))) {
+                        currentInputs.add(input);
+                    }
+                }
+                //pressedBind.ifPresent(currentInputs::addAll);
+            }
         }
     }
 
@@ -135,7 +157,10 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
     }
 
     public interface BindConsumer {
-        Optional<Input> getPressedBind();
+        /**
+         * @return A list of all newly pressed binds during this check. Or a list containing only {@link EmptyInput} to indicate that the user has released an input.
+         */
+        List<Input> getPressedBinds();
     }
 
     private static class ScreenProcessorImpl extends ScreenProcessor<BindConsumerScreen> {

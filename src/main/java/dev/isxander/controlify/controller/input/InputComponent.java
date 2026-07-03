@@ -3,6 +3,7 @@ package dev.isxander.controlify.controller.input;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.bindings.input.InputType;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.InputSettings;
 import dev.isxander.controlify.controller.*;
@@ -84,7 +85,24 @@ public class InputComponent extends ECSComponentImpl {
         this.stateNow = state;
         this.updateDeadzoneView();
 
+        // Get all the CompoundInputs from the current inputs.
+        List<InputBinding> sortedBindings = this.inputBindings.values().stream()
+                .filter(object -> object.boundInput().type() == InputType.COMPOUND)
+                .toList();
+        List<Identifier> boundIdentifiers = new ArrayList<>();
+        // For all the active CompoundInputs, get a list of the underlying active inputs.
+        sortedBindings.forEach(inputBinding -> {
+            if (inputBinding.boundInput().state(this.deadzoneStateNow) == 1)
+                boundIdentifiers.addAll(inputBinding.boundInput().getRelevantInputs());
+        });
+        Set<Identifier> boundIdentifierSet = new HashSet<>(boundIdentifiers);
+        // Prevent those active inputs from being used in a non-compound bind.
         for (InputBinding binding : this.inputBindings.values()) {
+            if (binding.boundInput().type() != InputType.COMPOUND) {
+                if (boundIdentifierSet.containsAll(binding.boundInput().getRelevantInputs())) {
+                    binding.limitActivity();
+                }
+            }
             binding.pushState(this.deadzoneStateNow);
         }
     }

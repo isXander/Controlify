@@ -17,7 +17,6 @@ import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -25,7 +24,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BindController implements Controller<Input> {
     private final Option<Input> option;
@@ -106,7 +106,7 @@ public class BindController implements Controller<Input> {
 
         private void openConsumerScreen() {
             awaitingControllerInput = true;
-            MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, MinecraftUtil.getScreen()));
+            MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBinds, control.option(), this, MinecraftUtil.getScreen()));
         }
 
         @Override
@@ -141,31 +141,37 @@ public class BindController implements Controller<Input> {
             return control.conflicting ? 0xFFFF5555 : super.getValueColor();
         }
 
-        public Optional<Input> getPressedBind() {
+        public List<Input> getPressedBinds() {
             InputComponent input = control.controller.input().orElseThrow();
             ControllerStateView state = input.stateNow();
             ControllerStateView prevState = input.stateThen();
+            List<Input> pressedBinds = new ArrayList<>();
 
             for (Identifier button : state.getButtons()) {
                 if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
-                    return Optional.of(new ButtonInput(button));
+                    pressedBinds.add(new ButtonInput(button));
+                } else if (!state.isButtonDown(button) && prevState.isButtonDown(button)) {
+                    return List.of(EmptyInput.INSTANCE);
                 }
             }
 
             for (Identifier axis : state.getAxes()) {
                 if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
-                    return Optional.of(new AxisInput(axis));
+                    pressedBinds.add(new AxisInput(axis));
+                } else if (state.getAxisState(axis) <= 0.5f && prevState.getAxisState(axis) > 0.5f) {
+                    return List.of(EmptyInput.INSTANCE);
                 }
             }
 
             for (Identifier hat : state.getHats()) {
                 HatState hatState = state.getHatState(hat);
                 if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
-                    return Optional.of(new HatInput(hat, hatState));
+                    pressedBinds.add(new HatInput(hat, hatState));
+                } else if (hatState == HatState.CENTERED && prevState.getHatState(hat) != HatState.CENTERED) {
+                    return List.of(EmptyInput.INSTANCE);
                 }
             }
-
-            return Optional.empty();
+            return pressedBinds;
         }
     }
 }

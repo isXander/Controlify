@@ -179,6 +179,12 @@ public class InputBindingImpl implements InputBinding {
     }
 
     @Override
+    public void limitActivity() {
+        if (fakePressState == -1)
+            fakePressState = 3;
+    }
+
+    @Override
     public void setBoundInput(Input input) {
         if (inputComponent != null) {
             var settings = inputComponent.settings();

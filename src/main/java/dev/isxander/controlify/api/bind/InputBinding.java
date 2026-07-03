@@ -2,6 +2,7 @@ package dev.isxander.controlify.api.bind;
 
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.StateAccess;
+import dev.isxander.controlify.bindings.input.CompoundInput;
 import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.bindings.output.AnalogueOutput;
@@ -99,6 +100,13 @@ public interface InputBinding {
      * This is used by the radial menu.
      */
     void fakePress();
+
+    /**
+     * Prevents this binding from being used. Used every state update where the bind is meant to be suppressed.
+     * This is used to prevent individual bindings from being activated when a {@link CompoundInput} is being used.
+     * Does not prevent {@link #fakePress()} from being used.
+     */
+    void limitActivity();
 
     /**
      * Set the input that this binding is bound to.
