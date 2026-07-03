@@ -97,7 +97,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
                 List<Input> pressedBindCopy = currentInputs.stream().toList();
                 // Input validation
                 // This is done because sometimes it's possible to input a button twice.
-                for (Input input : currentInputs) {
+                for (Input input : pressedBinds) {
                     if (pressedBindCopy.stream().noneMatch(storedInput -> storedInput.getRelevantInputs().containsAll(input.getRelevantInputs()))) {
                         currentInputs.add(input);
                     }
