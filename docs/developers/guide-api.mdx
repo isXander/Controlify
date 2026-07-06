@@ -1,0 +1,117 @@
+---
+title: Guide API
+---
+
+_Learn how to use existing Guide domains, and register your own, for use in your own Screens._
+
+<Callout variant="info">
+    For instructions on modifying rules for existing Guide domains,
+    see the [resource pack page](../resource-packs/guides)
+</Callout>
+
+## How does this API work?
+
+The Guide API has a few distinct concepts:
+
+- **Guide Domain**: Holds a list of valid facts in the domain,
+  for example, `controlify:in_game` is a domain which holds facts such as `controlify:on_ground`.
+- **Guide Context**: Holds data which facts use to determine if they are true or false.
+- **Guide Instance**: Applies to a specific domain, holds current state of the facts applied to a context and the rules which pass.
+
+## Registering facts to a `GuideDomain`
+
+You may want to add additional facts relating to your mod to an existing `GuideDomain`, such as `controlify:in_game`,
+which you would then use in an embedded resource pack to add additional rules.
+
+You may want to create and render your own `GuideDomain`, and you need to register your own set of facts.
+
+```java
+@Override
+public void onControlifyPreInit(PreInitContext ctx) {
+    ctx.guides().inGame().registerFact(
+            Identifier.fromNamespaceAndPath("my_mod", "holding_wand"),
+            ctx -> ctx.player().isItemInMainHandModdedWand()
+    );
+}
+```
+
+Now resource packs can use your additional rule. Refer to the [resource pack page](../resource-packs/guides)
+to create rules using resource packs.
+
+If your mod is not loaded or does not register a referenced fact for whatever reason, the state of the fact
+will be `false`, and a warning will be issued on resource reload that an unknown fact was referenced.
+
+## Rendering a Guide
+
+To render a Guide, you must create a new `GuideInstance`, update its facts, and then finally render it.
+
+Because the only time you have API-safe access to existing Guide Domains is during pre-init,
+you must capture a reference to it to use it later.
+
+```java
+private GuideDomain<InGameCtx> inGameGuideDomain;
+
+@Override
+public void onControlifyPreInit(PreInitContext ctx) {
+    this.inGameGuideDomain = ctx.guides().inGame();
+}
+```
+
+Once you have a reference to a domain, you can create an instance from it.
+
+```java
+GuideInstance<InGameCtx> guideInstance = guideDomain.createInstance();
+```
+
+Ruleset and fact resolution is completely independent of rendering, you may update the guide once every tick,
+while you render it every frame.
+
+Every fact in a `GuideDomain` requires a specific context type (`FactCtx`), you must construct this type to be
+able to update an instance.
+
+```java
+void tick() {
+    guideInstance.update(new InGameCtx(...), font);
+}
+```
+
+Then, you can render it. You can either use the `extractRenderState` method, or you can get a `Renderable`
+which you can then add to a `Screen`.
+
+```java
+class MyScreen extends Screen {
+    @Override
+    protected void init() {
+        boolean bottomAligned = true; // if false, top aligned
+        boolean textContrast = false; // adds a translucent background behind text
+        this.addRenderableOnly(this.guideInstance.renderable(bottomAligned, textContrast));
+    }
+}
+```
+
+## Registering your own domain
+
+It is very simple to register your own domain.
+Once registered, Controlify handles resource reloading for you.
+
+Before registering a new domain, you need to decide whether it will use an existing fact context
+(either `InGameCtx` or `ContainerCtx`), or your own. This is the data you give to the guide instance
+each update, which the facts use to resolve their state. Here is an example fact context.
+
+```java
+public record ModdedCtx(
+        ModClient modClient
+) implements FactCtx {}
+```
+
+Each fact you register would then be able to reference `modClient` and therefore the rest of your mod's state.
+
+```java
+@Override
+public void onControlifyPreInit(PreInitContext ctx) {
+    GuideDomain<ModdedCtx> domain = ctx.guides().registerCustomDomain(Identifier.fromNamespaceAndPath("my_mod", "mod_context"));
+    domain.registerFact(...);
+}
+```
+
+
