@@ -22,9 +22,6 @@ repositories {
     strictMaven("https://maven.kikugie.dev/releases") {
         includeGroupAndSubgroups("dev.kikugie")
     }
-    strictMaven("https://quiltmc.org/repository/release") {
-        includeGroupAndSubgroups("org.quiltmc")
-    }
 }
 
 dependencies {
@@ -33,6 +30,6 @@ dependencies {
     implementation(plugin("dev.isxander.modstitch.base", "0.8.4"))
     implementation(plugin("dev.isxander.secrets", "0.1.0"))
     implementation(plugin("dev.kikugie.stonecutter", "0.8.2"))
-    implementation(plugin("fabric-loom", "1.16.1"))
-    implementation(plugin("net.neoforged.moddev", "2.0.137"))
+    implementation(plugin("fabric-loom", "1.17.12"))
+    implementation(plugin("net.neoforged.moddev", "2.0.141"))
 }
