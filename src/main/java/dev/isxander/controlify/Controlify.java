@@ -27,7 +27,7 @@ import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
-import dev.isxander.controlify.gui.guide.GuideDomain;
+import dev.isxander.controlify.gui.guide.GuideDomainImpl;
 import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -55,6 +55,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -184,21 +185,22 @@ public class Controlify implements ControlifyApi {
                     }
 
                     @Override
-                    public GuideDomainRegistries guideRegistries() {
-                        return new GuideDomainRegistries() {
+                    public GuideDomainRegistry guideRegistries() {
+                        return new GuideDomainRegistry() {
                             @Override
-                            public GuideDomainRegistry<InGameCtx> inGame() {
+                            public GuideDomain<InGameCtx> inGame() {
                                 return GuideDomains.IN_GAME;
                             }
 
                             @Override
-                            public GuideDomainRegistry<ContainerCtx> container() {
+                            public GuideDomain<ContainerCtx> container() {
                                 return GuideDomains.CONTAINER;
                             }
 
                             @Override
-                            public <T extends FactCtx> RenderableGuideDomain<T> registerCustom(GuideDomain<T> domain) {
-                                GuideDomains.CUSTOM_DOMAINS.put(domain.id(), domain);
+                            public <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId) {
+                                GuideDomainImpl<T> domain = new GuideDomainImpl<>(domainId);
+                                GuideDomains.CUSTOM_DOMAINS.put(domainId, domain);
                                 PlatformClientUtil.registerAssetReloadListener(domain);
                                 return domain;
                             }

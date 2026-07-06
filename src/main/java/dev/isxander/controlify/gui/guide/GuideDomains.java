@@ -13,15 +13,15 @@ import java.util.Map;
 public final class GuideDomains {
     private GuideDomains() {}
 
-    public static final GuideDomain<InGameCtx> IN_GAME = new GuideDomain<>(CUtil.rl("in_game"));
-    public static final GuideDomain<ContainerCtx> CONTAINER = new GuideDomain<>(CUtil.rl("container"));
+    public static final GuideDomainImpl<InGameCtx> IN_GAME = new GuideDomainImpl<>(CUtil.rl("in_game"));
+    public static final GuideDomainImpl<ContainerCtx> CONTAINER = new GuideDomainImpl<>(CUtil.rl("container"));
 
-    public static final Map<Identifier, GuideDomain<?>> CUSTOM_DOMAINS = new HashMap<>();
+    public static final Map<Identifier, GuideDomainImpl<?>> CUSTOM_DOMAINS = new HashMap<>();
 
     public static void freeze() {
         IN_GAME.freeze();
         CONTAINER.freeze();
-        CUSTOM_DOMAINS.values().forEach(GuideDomain::freeze);
+        CUSTOM_DOMAINS.values().forEach(GuideDomainImpl::freeze);
     }
 
     static {
