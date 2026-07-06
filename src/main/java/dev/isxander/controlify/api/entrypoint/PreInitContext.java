@@ -6,5 +6,5 @@ import dev.isxander.controlify.api.guide.GuideDomainRegistry;
 public interface PreInitContext {
     ControlifyBindApi bindings();
 
-    GuideDomainRegistry guideRegistries();
+    GuideDomainRegistry guides();
 }

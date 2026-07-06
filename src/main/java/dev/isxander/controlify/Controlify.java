@@ -185,7 +185,7 @@ public class Controlify implements ControlifyApi {
                     }
 
                     @Override
-                    public GuideDomainRegistry guideRegistries() {
+                    public GuideDomainRegistry guides() {
                         return new GuideDomainRegistry() {
                             @Override
                             public GuideDomain<InGameCtx> inGame() {
