@@ -2,13 +2,14 @@ package dev.isxander.controlify.config.dto.dfu;
 
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
+import dev.isxander.controlify.config.dto.dfu.fixes.AddAutoSwitchControllersFix;
 import dev.isxander.controlify.config.dto.dfu.fixes.TheHolyMigrationFix;
 import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.utils.CUtil;
 
 public final class ControlifyDataFixer {
-    public static final int CURRENT_VERSION = 1;
+    public static final int CURRENT_VERSION = 2;
 
     private static final DataFixer FIXER = createFixer();
 
@@ -27,6 +28,9 @@ public final class ControlifyDataFixer {
                 GlobalSettings.defaults(),
                 ProfileSettings.createDefault(CUtil.rl("generic"))
         ));
+
+        var v2 = builder.addSchema(2, ControlifySchemas.SchemaV2::new);
+        builder.addFixer(new AddAutoSwitchControllersFix(v2));
 
         return builder.build().fixer();
     }
