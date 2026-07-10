@@ -9,4 +9,5 @@ This version has the following targets:
 
 ## Changes
 
-- Update to 26.2
+- Update the Guides API to be fully API-safe, so mods can now use, and create their own guides.
+- Update a mixin to make it more compatible with other mods
