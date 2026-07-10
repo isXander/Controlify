@@ -30,14 +30,9 @@ public abstract class AbstractRecipeBookScreenMixin
     @Final
     private RecipeBookComponent<?> recipeBookComponent;
 
-    @Unique
-    private RecipeBookComponent<?> getRecipeBookComponent() {
-        return recipeBookComponent;
-    }
-
     @Override
     public RecipeBookComponent<?> controlify$getRecipeBookComponent() {
-        return this.getRecipeBookComponent();
+        return this.recipeBookComponent;
     }
 
     @Override
