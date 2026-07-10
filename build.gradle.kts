@@ -6,7 +6,6 @@ plugins {
 
     id("me.modmuss50.mod-publish-plugin")
     `maven-publish`
-    id("com.gradleup.nmcp")
 
     id("dev.kikugie.postprocess.j52j") version "2.1-beta.3"
 }
@@ -287,33 +286,16 @@ publishing {
 
             artifactId = "controlify"
             groupId = "dev.isxander"
+        }
+    }
 
-            pom {
-                name = modstitch.metadata.modName
-                description = modstitch.metadata.modDescription
-                url = "https://www.isxander.dev/projects/controlify"
-                licenses {
-                    license {
-                        name = "LGPL-3.0-or-later"
-                        url = "https://www.gnu.org/licenses/lgpl-3.0.en.html"
-                    }
-                }
-                developers {
-                    developer {
-                        id = "isXander"
-                        name = "Xander"
-                        email = "business@isxander.dev"
-                    }
-                }
-                scm {
-                    url = "https://github.com/isXander/Controlify"
-                    connection = "scm:git:git//github.com/isXander/Controlify.git"
-                    developerConnection = "scm:git:ssh://git@github.com/isXander/Controlify.git"
-                }
+    repositories {
+        maven("https://maven.isxander.dev/releases") {
+            name = "XanderMaven"
+            credentials {
+                username = secrets.gradleProperty("maven.username").orNull
+                password = secrets.gradleProperty("maven.password").orNull
             }
         }
     }
-}
-signing {
-    sign(publishing.publications["mod"])
 }

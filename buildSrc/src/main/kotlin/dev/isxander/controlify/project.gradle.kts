@@ -6,7 +6,6 @@ plugins {
     `java-library`
     id("dev.isxander.modstitch.base")
     `maven-publish`
-    signing
     id("dev.isxander.secrets")
 }
 
@@ -140,27 +139,6 @@ tasks.named<ProcessResources>("generateModMetadata") {
         // don't include photoshop files for the textures for development
         if (name.endsWith(".psd")) {
             exclude()
-        }
-    }
-}
-
-val signingKeyProvider = secrets.gradleProperty("signing.secretKey")
-val signingPasswordProvider = secrets.gradleProperty("signing.password")
-// not configuration cache friendly, but neither is the whole of signing plugin
-// this plugin does not support lazy configuration of signing keys
-gradle.taskGraph.whenReady {
-    val willSign = allTasks.any { it.name.startsWith("sign") }
-    if (willSign) {
-        signing {
-            val signingKey = signingKeyProvider.orNull
-            val signingPassword = signingPasswordProvider.orNull
-
-            isRequired = signingKey != null && signingPassword != null
-            if (isRequired) {
-                useInMemoryPgpKeys(signingKey, signingPassword)
-            } else {
-                logger.error("Signing keys not found; skipping signing!")
-            }
         }
     }
 }
