@@ -18,6 +18,7 @@ import dev.isxander.controlify.driver.sdl.SDLUtil;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerSpecify;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.CUtil;
@@ -78,6 +79,11 @@ public class SDLControllerManager extends AbstractControllerManager {
                     SDL_JoystickID jid = event.jdevice.which;
                     logger.validateIsTrue(jid != null, "event.jdevice.which was null during SDL_EVENT_JOYSTICK_ADDED event");
 
+                    if (!isAssignedToThisInstance(jid)) {
+                        logger.debugLog("Ignoring hotplugged joystick {} - not assigned to this instance", jid.intValue());
+                        break;
+                    }
+
                     logger.debugLog("SDL event: Joystick added: {}", jid.intValue());
 
                     UniqueControllerID ucid = new SDLUniqueControllerID(jid);
@@ -111,12 +117,39 @@ public class SDLControllerManager extends AbstractControllerManager {
         super.tick(outOfFocus);
     }
 
+    private boolean isAssignedToThisInstance(SDL_JoystickID jid) {
+        ControllerSpecify cfg = ControllerSpecify.get();
+        if (!cfg.isFilteringEnabled()) return true;
+
+        SDL_Joystick tempHandle = SDL_OpenJoystick(jid);
+        if (tempHandle == null) {
+            logger.warn("Could not open joystick {} to check serial: {}", jid.intValue(), SDL_GetError());
+            return false;
+        }
+
+        try {
+            String serial = SDL_GetJoystickSerial(tempHandle);
+            if (serial == null) {
+                logger.warn("Joystick {} reported no serial number - cannot filter by MAC for this device", jid.intValue());
+                return false;
+            }
+            return ControllerSpecify.normalizeMac(serial).equals(ControllerSpecify.normalizeMac(cfg.getAssignedControllerMac()));
+        } finally {
+            SDL_CloseJoystick(tempHandle);
+        }
+    }
+
     @Override
     public void discoverControllers() {
         logger.debugLog("Discovering controllers...");
 
         SDL_JoystickID[] joysticks = SDL_GetJoysticks();
         for (SDL_JoystickID jid : joysticks) {
+            if (!isAssignedToThisInstance(jid)) {
+                logger.debugLog("Skipping joystick {} - not assigned to this instance", jid.intValue());
+                continue;
+            }
+
             Optional<ControllerEntity> controllerOpt = tryCreate(
                     new SDLUniqueControllerID(jid),
                     fetchTypeFromSDL(jid)
