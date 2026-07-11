@@ -9,15 +9,15 @@ import org.jspecify.annotations.NonNull;
 public final class GuideRenderer {
     private GuideRenderer() {}
 
-    public static void extractRenderState(GuiGraphicsExtractor graphics, GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
+    public static void extractRenderState(GuiGraphicsExtractor graphics, GuideInstanceImpl<?> guideInstance, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
         int width = minecraft.getWindow().getGuiScaledWidth();
         int height = minecraft.getWindow().getGuiScaledHeight();
 
-        renderLines(graphics, domain.leftGuides(), minecraft.font, width, height, bottomAligned, false, textContrast);
-        renderLines(graphics, domain.rightGuides(), minecraft.font, width, height, bottomAligned, true, textContrast);
+        extractLines(graphics, guideInstance.leftGuides(), minecraft.font, width, height, bottomAligned, false, textContrast);
+        extractLines(graphics, guideInstance.rightGuides(), minecraft.font, width, height, bottomAligned, true, textContrast);
     }
 
-    private static void renderLines(GuiGraphicsExtractor graphics, PrecomputedLines lines, Font font, int width, int height, boolean bottomAligned, boolean rightAligned, boolean textContrast) {
+    private static void extractLines(GuiGraphicsExtractor graphics, PrecomputedLines lines, Font font, int width, int height, boolean bottomAligned, boolean rightAligned, boolean textContrast) {
         int safeAreaX = 2;
         int safeAreaY = 5;
         int betweenLines = 2;
@@ -45,14 +45,14 @@ public final class GuideRenderer {
         }
     }
 
-    public static class Renderable implements net.minecraft.client.gui.components.Renderable {
-        private final GuideDomain<?> domain;
+    static class Renderable implements net.minecraft.client.gui.components.Renderable {
+        private final GuideInstanceImpl<?> instance;
         private final Minecraft minecraft;
         private boolean bottomAligned;
         private boolean textContrast;
 
-        public Renderable(GuideDomain<?> domain, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
-            this.domain = domain;
+        public Renderable(GuideInstanceImpl<?> instance, Minecraft minecraft, boolean bottomAligned, boolean textContrast) {
+            this.instance = instance;
             this.minecraft = minecraft;
             this.bottomAligned = bottomAligned;
             this.textContrast = textContrast;
@@ -61,7 +61,7 @@ public final class GuideRenderer {
 
         @Override
         public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            GuideRenderer.extractRenderState(graphics, domain, minecraft, bottomAligned, textContrast);
+            GuideRenderer.extractRenderState(graphics, instance, minecraft, bottomAligned, textContrast);
         }
 
         public void setBottomAligned(boolean bottomAligned) {

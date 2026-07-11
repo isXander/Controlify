@@ -1,7 +1,11 @@
 package dev.isxander.controlify.api.guide;
 
-public interface GuideDomainRegistry<T extends FactCtx> {
-    void registerFact(Fact<? super T> fact);
+import net.minecraft.resources.Identifier;
 
-    void registerDynamicRule(Rule rule);
+public interface GuideDomainRegistry {
+    GuideDomain<InGameCtx> inGame();
+
+    GuideDomain<ContainerCtx> container();
+
+    <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId);
 }

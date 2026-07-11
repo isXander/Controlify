@@ -3,6 +3,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.guide.ContainerCtx;
+import dev.isxander.controlify.api.guide.GuideInstance;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
@@ -25,7 +26,8 @@ import net.minecraft.world.inventory.ContainerInput;
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
-    private final GuideRenderer.Renderable guideRenderable;
+    private final GuideInstance<ContainerCtx> guideInstance;
+    private final Renderable guideRenderable;
 
     private final Supplier<Slot> hoveredSlot;
     private final ClickSlotFunction clickSlotFunction;
@@ -42,12 +44,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         this.hoveredSlot = hoveredSlot;
         this.clickSlotFunction = clickSlotFunction;
         this.doItemSlotActions = doItemSlotActions;
-        this.guideRenderable = new GuideRenderer.Renderable(
-                GuideDomains.CONTAINER,
-                minecraft,
-                true,
-                false
-        );
+        this.guideInstance = GuideDomains.CONTAINER.createInstance();
+        this.guideRenderable = guideInstance.renderable(true, false);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
                 controller,
                 controller.settings().generic.guide.verbosity
         );
-        GuideDomains.CONTAINER.updateGuides(ctx, minecraft.font);
+        this.guideInstance.update(ctx, minecraft.font);
 
         Slot hoveredSlot = this.hoveredSlot.get();
         if (hoveredSlot != null) {
@@ -125,7 +123,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
         List<Renderable> renderables = ((ScreenAccessor) screen).controlify$getRenderables();
 
         if (render) {
-            renderables.add(guideRenderable);
+            renderables.add(this.guideRenderable);
         } else if (this.guideRenderable != null) {
             renderables.remove(this.guideRenderable);
         }
