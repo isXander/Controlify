@@ -27,6 +27,7 @@
       [0x45e, 0x28f], // Xbox 360 Wireless Controller via Plug & Charge Cable
       [0x45e, 0x2a1], // Xbox 360 Wireless Receiver for Windows
       [0xe6f, 0x310], // PDP Rematch Xbox Wired Controller
+      [0x2dc8, 0x310a], // 8BitDo Ultimate 2C
     ]
   },
   {
