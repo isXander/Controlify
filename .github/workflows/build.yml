@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '25' # Change to 17 or 8 depending on the Minecraft version
+          java-version: '21' # Change to 17 or 8 depending on the Minecraft version
 
       - name: Make Gradle Executable
         run: chmod +x gradlew
