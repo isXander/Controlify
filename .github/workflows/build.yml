@@ -1,78 +1,28 @@
-name: Gradle CI (new)
+name: Build Mod Without Local JDK
 
-on:
-  push:
-    paths-ignore:
-      - 'README.md'
-      - 'LICENSE'
-      - '.gitignore'
-      - '.editorconfig'
-      - 'changelog.md'
-      - 'docs'
-  pull_request:
+on: [push, workflow_dispatch]
 
 jobs:
-  generate-build-matrix:
-    runs-on: ubuntu-latest
-    name: Generate build matrix
-
-    outputs:
-      matrix: ${{ steps.generate-matrix.outputs.matrix }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get potential versions
-        id: generate-matrix
-        run: |
-          MATRIX=$(jq -c '{include: (.branches[""] | map({target: ., experimental: (test("exp"))}))}' ./versions/versions.json)
-          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
-
   build:
-    needs: generate-build-matrix
     runs-on: ubuntu-latest
-    name: Build with gradle
-
-    strategy:
-      fail-fast: false
-      matrix: ${{ fromJson(needs.generate-build-matrix.outputs.matrix) }}
-
-    continue-on-error: ${{ matrix.experimental == 'true' }}
-
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: 25
-          distribution: temurin
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-      - name: Overwrite current version
-        run: printf "%s" "${{ matrix.target }}" | cut -d':' -f1 | tr -d '\n' > ./versions/current
-      - name: Build ${{ matrix.target }}
-        run: |
-          ./gradlew "Refresh active project"
-          ./gradlew buildAndCollectActive --stacktrace
-        env:
-          CI_SINGLE_BUILD: ${{ matrix.target }}
+          distribution: 'temurin'
+          java-version: '25' # Change to 17 or 8 depending on the Minecraft version
 
-      - name: Sanitize artifact name
-        run: |
-          raw="${{ matrix.target }}"
-          clean="${raw%%:*}"
-          echo "ARTIFACT_NAME=$clean" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v4
+      - name: Make Gradle Executable
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Upload Mod Jar
+        uses: actions/upload-artifact@v4
         with:
-          path: build/finalJars/*.jar
-          name: ${{ env.ARTIFACT_NAME }}
-
-#  run:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    name: Run Minecraft
-#
-#    strategy:
-#      matrix:
-#        target: ${{ fromJson(needs.retrieve-targets.outputs.targets) }}
+          name: compiled-mod
+          path: build/libs/*.jar
