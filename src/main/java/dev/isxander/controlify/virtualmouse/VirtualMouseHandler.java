@@ -36,6 +36,7 @@ import net.minecraft.util.Mth;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
+import java.lang.Math;
 import java.util.*;
 
 public class VirtualMouseHandler {

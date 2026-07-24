@@ -86,7 +86,6 @@ spotless {
 		target("src/**/*.java")
 		licenseHeaderFile(rootProject.layout.projectDirectory.file("HEADER"))
 
-		removeUnusedImports()
 		trimTrailingWhitespace()
 		endWithNewline()
 		formatAnnotations()
