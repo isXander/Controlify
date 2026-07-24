@@ -40,7 +40,7 @@ stonecutter {
     if (ciSingleBuild != null) {
         val split = ciSingleBuild.split(":")
         create(rootProject) {
-            version(split[0], split[1])
+            version(split[0], split.getOrNull(1) ?: split[0])
         }
     } else {
         create(rootProject, file("versions/versions.json"))
