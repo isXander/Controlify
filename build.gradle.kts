@@ -264,7 +264,7 @@ publishMods {
         projectId = providers.gradleProperty("modrinth.id")
         environment = CLIENT_ONLY_SERVER_OPTIONAL
         announcementTitle = "Modrinth ($minecraftVersion)"
-        minecraftVersions.addAll(minecraftVersions)
+        minecraftVersions.addAll(supportedMinecraftVersions)
 
         requires("fabric-api")
         requires("yacl")
@@ -278,7 +278,7 @@ publishMods {
         client = true
         server = true
         announcementTitle = "Curseforge ($minecraftVersion)"
-        minecraftVersions.addAll(minecraftVersions)
+        minecraftVersions.addAll(supportedMinecraftVersions)
 
         requires("fabric-api")
         requires("yacl")
