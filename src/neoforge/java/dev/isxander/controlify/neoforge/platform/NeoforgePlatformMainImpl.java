@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.neoforge.platform;
 
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
@@ -38,71 +44,71 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
 	private static final C2SNetworkApi c2sNetworkApi = new C2SNetworkApiNeoforge();
 	private static final S2CNetworkApi s2cNetworkApi = new S2CNetworkApiNeoforge();
 
-    @Override
-    public void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback) {
-        NeoForge.EVENT_BUS.<RegisterCommandsEvent>addListener(e -> {
-            callback.onRegister(e.getDispatcher(), e.getBuildContext(), e.getCommandSelection());
-        });
-    }
+	@Override
+	public void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback) {
+		NeoForge.EVENT_BUS.<RegisterCommandsEvent>addListener(e -> {
+			callback.onRegister(e.getDispatcher(), e.getBuildContext(), e.getCommandSelection());
+		});
+	}
 
-    @Override
-    public void registerInitPlayConnectionEvent(PlayerJoinedEvent event) {
-        NeoForge.EVENT_BUS.<PlayerEvent.PlayerLoggedInEvent>addListener(e -> {
-            event.onInit((ServerPlayer) e.getEntity());
-        });
-    }
+	@Override
+	public void registerInitPlayConnectionEvent(PlayerJoinedEvent event) {
+		NeoForge.EVENT_BUS.<PlayerEvent.PlayerLoggedInEvent>addListener(e -> {
+			event.onInit((ServerPlayer) e.getEntity());
+		});
+	}
 
-    @Override
-    public boolean isModLoaded(String... modIds) {
-        return Arrays.stream(modIds).anyMatch(ModList.get()::isLoaded);
-    }
+	@Override
+	public boolean isModLoaded(String... modIds) {
+		return Arrays.stream(modIds).anyMatch(ModList.get()::isLoaded);
+	}
 
-    @Override
-    public Path getGameDir() {
-        return FMLPaths.GAMEDIR.get();
-    }
+	@Override
+	public Path getGameDir() {
+		return FMLPaths.GAMEDIR.get();
+	}
 
-    @Override
-    public Path getConfigDir() {
-        return FMLPaths.CONFIGDIR.get();
-    }
+	@Override
+	public Path getConfigDir() {
+		return FMLPaths.CONFIGDIR.get();
+	}
 
-    @Override
-    public boolean isDevEnv() {
-        return !FMLEnvironment.isProduction();
-    }
+	@Override
+	public boolean isDevEnv() {
+		return !FMLEnvironment.isProduction();
+	}
 
-    @Override
-    public Environment getEnv() {
-        return switch (FMLEnvironment.getDist()) {
-            case CLIENT -> Environment.CLIENT;
-            case DEDICATED_SERVER -> Environment.SERVER;
-        };
-    }
+	@Override
+	public Environment getEnv() {
+		return switch (FMLEnvironment.getDist()) {
+			case CLIENT -> Environment.CLIENT;
+			case DEDICATED_SERVER -> Environment.SERVER;
+		};
+	}
 
-    @Override
-    public String getControlifyVersion() {
-        return ModList.get().getModFileById("controlify").versionString();
-    }
+	@Override
+	public String getControlifyVersion() {
+		return ModList.get().getModFileById("controlify").versionString();
+	}
 
-    @Override
-    public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-        ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
-    }
+	@Override
+	public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
+		ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
+	}
 
-    @Override
-    public <I, O> void setupServersideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
-        // TODO
-    }
+	@Override
+	public <I, O> void setupServersideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> serverBoundCodec, StreamCodec<FriendlyByteBuf, O> clientBoundCodec, Supplier<O> packetCreator, HandshakeCompletionEvent<I> completionEvent) {
+		// TODO
+	}
 
-    @Override
-    public <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant) {
-        return DeferredRegister.create(registry, id.getNamespace()).register(id.getPath(), registrant);
-    }
+	@Override
+	public <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant) {
+		return DeferredRegister.create(registry, id.getNamespace()).register(id.getPath(), registrant);
+	}
 
-    private IEventBus getModEventBus() {
-        return ModLoadingContext.get().getActiveContainer().getEventBus();
-    }
+	private IEventBus getModEventBus() {
+		return ModLoadingContext.get().getActiveContainer().getEventBus();
+	}
 
 	@Override
 	public C2SNetworkApi c2sNetworkApi() {

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.Controlify;
@@ -16,329 +22,329 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class InputBindingImpl implements InputBinding {
-    private final Identifier id;
-    private final Component name, description, category;
-    /**
-     * Fallback bound input used only when inputComponent is null (i.e., bindings not attached to a controller).
-     * When inputComponent is present, the bound input is read/written directly from the config.
-     */
-    private Input fallbackBoundInput;
-    private final Supplier<Input> defaultBindSupplier;
-    private final Set<BindContext> contexts;
-    private final @Nullable Identifier radialIcon;
+	private final Identifier id;
+	private final Component name, description, category;
+	/**
+	 * Fallback bound input used only when inputComponent is null (i.e., bindings not attached to a controller).
+	 * When inputComponent is present, the bound input is read/written directly from the config.
+	 */
+	private Input fallbackBoundInput;
+	private final Supplier<Input> defaultBindSupplier;
+	private final Set<BindContext> contexts;
+	private final @Nullable Identifier radialIcon;
 
-    private final @Nullable InputComponent inputComponent;
-    private final Identifier controllerType;
+	private final @Nullable InputComponent inputComponent;
+	private final Identifier controllerType;
 
-    private final ResizableRingBuffer<Float> stateHistory;
-    private final Set<StateAccessImpl> borrowedAccesses;
+	private final ResizableRingBuffer<Float> stateHistory;
+	private final Set<StateAccessImpl> borrowedAccesses;
 
-    private boolean suppressed;
+	private boolean suppressed;
 
-    private final AnalogueOutput analogueNow;
-    private final AnalogueOutput analoguePrev;
-    private final DigitalOutput digitalNow;
-    private final DigitalOutput digitalThen;
-    private final DigitalOutput justPressed;
-    private final DigitalOutput justReleased;
-    private final DigitalOutput justTapped;
-    private final GuiPressOutput guiPressOutput;
+	private final AnalogueOutput analogueNow;
+	private final AnalogueOutput analoguePrev;
+	private final DigitalOutput digitalNow;
+	private final DigitalOutput digitalThen;
+	private final DigitalOutput justPressed;
+	private final DigitalOutput justReleased;
+	private final DigitalOutput justTapped;
+	private final GuiPressOutput guiPressOutput;
 
-    private final Map<Identifier, DigitalOutput> digitalOutputs;
-    private final Map<Identifier, AnalogueOutput> analogueOutputs;
+	private final Map<Identifier, DigitalOutput> digitalOutputs;
+	private final Map<Identifier, AnalogueOutput> analogueOutputs;
 
-    private int fakePressState = -1;
+	private int fakePressState = -1;
 
-    public InputBindingImpl(
-            @Nullable InputComponent inputComponent,
-            Identifier controllerType,
-            Identifier id,
-            Component name,
-            Component description,
-            Component category,
-            Supplier<Input> defaultBindSupplier,
-            Set<BindContext> contexts,
-            @Nullable Identifier radialIcon
-    ) {
-        this.inputComponent = inputComponent;
-        this.controllerType = controllerType;
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.category = category;
-        this.stateHistory = new ResizableRingBuffer<>(2, () -> 0f);
-        this.fallbackBoundInput = defaultBindSupplier.get();
-        this.defaultBindSupplier = defaultBindSupplier;
-        this.contexts = contexts;
-        this.radialIcon = radialIcon;
-        this.borrowedAccesses = new HashSet<>();
+	public InputBindingImpl(
+			@Nullable InputComponent inputComponent,
+			Identifier controllerType,
+			Identifier id,
+			Component name,
+			Component description,
+			Component category,
+			Supplier<Input> defaultBindSupplier,
+			Set<BindContext> contexts,
+			@Nullable Identifier radialIcon
+	) {
+		this.inputComponent = inputComponent;
+		this.controllerType = controllerType;
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.category = category;
+		this.stateHistory = new ResizableRingBuffer<>(2, () -> 0f);
+		this.fallbackBoundInput = defaultBindSupplier.get();
+		this.defaultBindSupplier = defaultBindSupplier;
+		this.contexts = contexts;
+		this.radialIcon = radialIcon;
+		this.borrowedAccesses = new HashSet<>();
 
-        this.digitalOutputs = new HashMap<>();
-        this.analogueOutputs = new HashMap<>();
+		this.digitalOutputs = new HashMap<>();
+		this.analogueOutputs = new HashMap<>();
 
-        this.analogueNow = addAnalogueOutput(ANALOGUE_NOW, new SimpleAnalogueOutput(this, 0));
-        this.analoguePrev = addAnalogueOutput(ANALOGUE_PREV, new SimpleAnalogueOutput(this, 1));
-        this.digitalNow = addDigitalOutput(DIGITAL_NOW, new SimpleDigitalOutput(this, 0));
-        this.digitalThen = addDigitalOutput(DIGITAL_PREV, new SimpleDigitalOutput(this, 1));
-        this.justPressed = addDigitalOutput(JUST_PRESSED, new JustPressedOutput(this));
-        this.justReleased = addDigitalOutput(JUST_RELEASED, new JustReleasedOutput(this));
-        this.justTapped = addDigitalOutput(JUST_TAPPED, new JustTappedOutput(this));
-        this.guiPressOutput = addDigitalOutput(GUI_PRESSED, new GuiPressOutput(this));
-    }
+		this.analogueNow = addAnalogueOutput(ANALOGUE_NOW, new SimpleAnalogueOutput(this, 0));
+		this.analoguePrev = addAnalogueOutput(ANALOGUE_PREV, new SimpleAnalogueOutput(this, 1));
+		this.digitalNow = addDigitalOutput(DIGITAL_NOW, new SimpleDigitalOutput(this, 0));
+		this.digitalThen = addDigitalOutput(DIGITAL_PREV, new SimpleDigitalOutput(this, 1));
+		this.justPressed = addDigitalOutput(JUST_PRESSED, new JustPressedOutput(this));
+		this.justReleased = addDigitalOutput(JUST_RELEASED, new JustReleasedOutput(this));
+		this.justTapped = addDigitalOutput(JUST_TAPPED, new JustTappedOutput(this));
+		this.guiPressOutput = addDigitalOutput(GUI_PRESSED, new GuiPressOutput(this));
+	}
 
-    @Override
-    public Identifier id() {
-        return this.id;
-    }
+	@Override
+	public Identifier id() {
+		return this.id;
+	}
 
-    @Override
-    public Component name() {
-        return this.name;
-    }
+	@Override
+	public Component name() {
+		return this.name;
+	}
 
-    @Override
-    public Component description() {
-        return this.description;
-    }
+	@Override
+	public Component description() {
+		return this.description;
+	}
 
-    @Override
-    public Component category() {
-        return this.category;
-    }
+	@Override
+	public Component category() {
+		return this.category;
+	}
 
-    @Override
-    public Component inputGlyph() {
-        return Controlify.instance().inputFontMapper().getComponentFromInputs(
-                controllerType,
-                boundInput().getRelevantInputs()
-        );
-    }
+	@Override
+	public Component inputGlyph() {
+		return Controlify.instance().inputFontMapper().getComponentFromInputs(
+				controllerType,
+				boundInput().getRelevantInputs()
+		);
+	}
 
-    @Override
-    public StateAccess createStateAccess(int historyRequired) {
-        return createStateAccess(historyRequired, null);
-    }
+	@Override
+	public StateAccess createStateAccess(int historyRequired) {
+		return createStateAccess(historyRequired, null);
+	}
 
-    @Override
-    public StateAccess createStateAccess(int historyRequired, Consumer<StateAccess> pushEvent) {
-        if (historyRequired > this.stateHistory.size()) {
-            this.stateHistory.setSize(historyRequired);
-        }
+	@Override
+	public StateAccess createStateAccess(int historyRequired, Consumer<StateAccess> pushEvent) {
+		if (historyRequired > this.stateHistory.size()) {
+			this.stateHistory.setSize(historyRequired);
+		}
 
-        StateAccessImpl access = new StateAccessImpl(historyRequired, pushEvent);
-        borrowedAccesses.add(access);
+		StateAccessImpl access = new StateAccessImpl(historyRequired, pushEvent);
+		borrowedAccesses.add(access);
 
-        return access;
-    }
+		return access;
+	}
 
-    @Override
-    public void returnStateAccess(StateAccess stateAccess) {
-        if (stateAccess instanceof StateAccessImpl accessImpl) {
-            boolean removed = this.borrowedAccesses.remove(accessImpl);
-            accessImpl.retire();
+	@Override
+	public void returnStateAccess(StateAccess stateAccess) {
+		if (stateAccess instanceof StateAccessImpl accessImpl) {
+			boolean removed = this.borrowedAccesses.remove(accessImpl);
+			accessImpl.retire();
 
-            if (removed) {
-                OptionalInt newMaxSize = this.borrowedAccesses.stream().mapToInt(StateAccessImpl::maxHistory).max();
-                newMaxSize.ifPresent(this.stateHistory::setSize);
-            }
-        } else {
-            throw new IllegalStateException("Unknown implementation of state access");
-        }
-    }
+			if (removed) {
+				OptionalInt newMaxSize = this.borrowedAccesses.stream().mapToInt(StateAccessImpl::maxHistory).max();
+				newMaxSize.ifPresent(this.stateHistory::setSize);
+			}
+		} else {
+			throw new IllegalStateException("Unknown implementation of state access");
+		}
+	}
 
-    @Override
-    public void pushState(ControllerStateView state) {
-        if (!this.contexts.isEmpty()) {
-            Set<BindContext> thisTickContexts = Controlify.instance().thisTickBindContexts();
-            this.suppressed = this.contexts.stream().noneMatch(thisTickContexts::contains);
-        } else {
-            this.suppressed = false;
-        }
+	@Override
+	public void pushState(ControllerStateView state) {
+		if (!this.contexts.isEmpty()) {
+			Set<BindContext> thisTickContexts = Controlify.instance().thisTickBindContexts();
+			this.suppressed = this.contexts.stream().noneMatch(thisTickContexts::contains);
+		} else {
+			this.suppressed = false;
+		}
 
-        float analogue = this.boundInput().state(state);
+		float analogue = this.boundInput().state(state);
 
-        switch (fakePressState) {
-            case 0 -> analogue = 0;
-            case 1,2 -> analogue = 1;
-            case 3 -> analogue = 0;
-        }
-        if (fakePressState >= 0) {
-            if (fakePressState == 3)
-                fakePressState = -1;
-            else
-                fakePressState++;
-        }
+		switch (fakePressState) {
+			case 0 -> analogue = 0;
+			case 1,2 -> analogue = 1;
+			case 3 -> analogue = 0;
+		}
+		if (fakePressState >= 0) {
+			if (fakePressState == 3)
+				fakePressState = -1;
+			else
+				fakePressState++;
+		}
 
-        this.stateHistory.push(analogue);
-        borrowedAccesses.forEach(StateAccessImpl::onPush);
-    }
+		this.stateHistory.push(analogue);
+		borrowedAccesses.forEach(StateAccessImpl::onPush);
+	}
 
-    @Override
-    public void fakePress() {
-        fakePressState = 0;
-    }
+	@Override
+	public void fakePress() {
+		fakePressState = 0;
+	}
 
-    @Override
-    public void setBoundInput(Input input) {
-        if (inputComponent != null) {
-            var settings = inputComponent.settings();
-            // If keepDefaultBindings is false and the input equals the default,
-            // remove from config so it won't be serialized (allowing future default changes to take effect)
-            if (!settings.keepDefaultBindings && input.equals(defaultInput())) {
-                settings.bindings.bindings.remove(id);
-            } else {
-                // Write directly to the config - all bindings sharing the same config will see this change
-                settings.bindings.bindings.put(id, input);
-            }
-        } else {
-            // No inputComponent means this binding isn't attached to a controller, use fallback
-            this.fallbackBoundInput = input;
-        }
-        Controlify.instance().config().markDirty();
-    }
+	@Override
+	public void setBoundInput(Input input) {
+		if (inputComponent != null) {
+			var settings = inputComponent.settings();
+			// If keepDefaultBindings is false and the input equals the default,
+			// remove from config so it won't be serialized (allowing future default changes to take effect)
+			if (!settings.keepDefaultBindings && input.equals(defaultInput())) {
+				settings.bindings.bindings.remove(id);
+			} else {
+				// Write directly to the config - all bindings sharing the same config will see this change
+				settings.bindings.bindings.put(id, input);
+			}
+		} else {
+			// No inputComponent means this binding isn't attached to a controller, use fallback
+			this.fallbackBoundInput = input;
+		}
+		Controlify.instance().config().markDirty();
+	}
 
-    @Override
-    public Input boundInput() {
-        if (inputComponent != null) {
-            // Read directly from the config - ensures all bindings sharing the same config see the same value
-            Input configInput = inputComponent.settings().bindings.bindings.get(id);
-            if (configInput != null) {
-                return configInput;
-            }
-            // Not in config means it's at the default (when keepDefaultBindings is false)
-            // Return the dynamic default so all controllers stay in sync
-            return defaultInput();
-        }
-        // Fallback: use local value for bindings without inputComponent
-        return this.fallbackBoundInput;
-    }
+	@Override
+	public Input boundInput() {
+		if (inputComponent != null) {
+			// Read directly from the config - ensures all bindings sharing the same config see the same value
+			Input configInput = inputComponent.settings().bindings.bindings.get(id);
+			if (configInput != null) {
+				return configInput;
+			}
+			// Not in config means it's at the default (when keepDefaultBindings is false)
+			// Return the dynamic default so all controllers stay in sync
+			return defaultInput();
+		}
+		// Fallback: use local value for bindings without inputComponent
+		return this.fallbackBoundInput;
+	}
 
-    @Override
-    public Input defaultInput() {
-        return this.defaultBindSupplier.get();
-    }
+	@Override
+	public Input defaultInput() {
+		return this.defaultBindSupplier.get();
+	}
 
-    @Override
-    public Set<BindContext> contexts() {
-        return this.contexts;
-    }
+	@Override
+	public Set<BindContext> contexts() {
+		return this.contexts;
+	}
 
-    @Override
-    public Optional<Identifier> radialIcon() {
-        return Optional.ofNullable(this.radialIcon);
-    }
+	@Override
+	public Optional<Identifier> radialIcon() {
+		return Optional.ofNullable(this.radialIcon);
+	}
 
-    @Override
-    public float analogueNow() {
-        return this.analogueNow.get();
-    }
+	@Override
+	public float analogueNow() {
+		return this.analogueNow.get();
+	}
 
-    @Override
-    public float analoguePrev() {
-        return this.analoguePrev.get();
-    }
+	@Override
+	public float analoguePrev() {
+		return this.analoguePrev.get();
+	}
 
-    @Override
-    public boolean digitalNow() {
-        return this.digitalNow.get();
-    }
+	@Override
+	public boolean digitalNow() {
+		return this.digitalNow.get();
+	}
 
-    @Override
-    public boolean digitalPrev() {
-        return this.digitalThen.get();
-    }
+	@Override
+	public boolean digitalPrev() {
+		return this.digitalThen.get();
+	}
 
-    @Override
-    public boolean justPressed() {
-        return this.justPressed.get();
-    }
+	@Override
+	public boolean justPressed() {
+		return this.justPressed.get();
+	}
 
-    @Override
-    public boolean justReleased() {
-        return this.justReleased.get();
-    }
+	@Override
+	public boolean justReleased() {
+		return this.justReleased.get();
+	}
 
-    @Override
-    public boolean justTapped() {
-        return this.justTapped.get();
-    }
+	@Override
+	public boolean justTapped() {
+		return this.justTapped.get();
+	}
 
-    @Override
-    public GuiPressOutput guiPressed() {
-        return this.guiPressOutput;
-    }
+	@Override
+	public GuiPressOutput guiPressed() {
+		return this.guiPressOutput;
+	}
 
-    @Override
-    public <T extends DigitalOutput> T addDigitalOutput(Identifier id, T output) {
-        this.digitalOutputs.put(id, output);
-        return output;
-    }
+	@Override
+	public <T extends DigitalOutput> T addDigitalOutput(Identifier id, T output) {
+		this.digitalOutputs.put(id, output);
+		return output;
+	}
 
-    @Override
-    public <T extends DigitalOutput> T getDigitalOutput(Identifier id) {
-        return (T) this.digitalOutputs.get(id);
-    }
+	@Override
+	public <T extends DigitalOutput> T getDigitalOutput(Identifier id) {
+		return (T) this.digitalOutputs.get(id);
+	}
 
-    @Override
-    public <T extends AnalogueOutput> T addAnalogueOutput(Identifier id, T output) {
-        this.analogueOutputs.put(id, output);
-        return output;
-    }
+	@Override
+	public <T extends AnalogueOutput> T addAnalogueOutput(Identifier id, T output) {
+		this.analogueOutputs.put(id, output);
+		return output;
+	}
 
-    @Override
-    public <T extends AnalogueOutput> T getAnalogueOutput(Identifier id) {
-        return (T) this.analogueOutputs.get(id);
-    }
+	@Override
+	public <T extends AnalogueOutput> T getAnalogueOutput(Identifier id) {
+		return (T) this.analogueOutputs.get(id);
+	}
 
-    private class StateAccessImpl implements StateAccess {
-        private final int maxHistory;
-        private boolean valid;
-        private final @Nullable Consumer<StateAccess> pushListener;
+	private class StateAccessImpl implements StateAccess {
+		private final int maxHistory;
+		private boolean valid;
+		private final @Nullable Consumer<StateAccess> pushListener;
 
-        public StateAccessImpl(int maxHistory, @Nullable Consumer<StateAccess> pushListener) {
-            this.maxHistory = maxHistory;
-            this.valid = true;
-            this.pushListener = pushListener;
-        }
+		public StateAccessImpl(int maxHistory, @Nullable Consumer<StateAccess> pushListener) {
+			this.maxHistory = maxHistory;
+			this.valid = true;
+			this.pushListener = pushListener;
+		}
 
-        @Override
-        public float analogue(int history) {
-            if (!valid) throw new IllegalStateException("Tried to access state from returned access!");
-            if (history > maxHistory) throw new IllegalStateException("Overflowing history!");
+		@Override
+		public float analogue(int history) {
+			if (!valid) throw new IllegalStateException("Tried to access state from returned access!");
+			if (history > maxHistory) throw new IllegalStateException("Overflowing history!");
 
-            return InputBindingImpl.this.stateHistory.tail(history);
-        }
+			return InputBindingImpl.this.stateHistory.tail(history);
+		}
 
-        @Override
-        public boolean digital(int history) {
-            float threshold = inputComponent != null
-                    ? inputComponent.settings().buttonActivationThreshold
-                    : 0.5f;
-            return analogue(history) > threshold;
-        }
+		@Override
+		public boolean digital(int history) {
+			float threshold = inputComponent != null
+					? inputComponent.settings().buttonActivationThreshold
+					: 0.5f;
+			return analogue(history) > threshold;
+		}
 
-        @Override
-        public boolean isSuppressed() {
-            return suppressed;
-        }
+		@Override
+		public boolean isSuppressed() {
+			return suppressed;
+		}
 
-        @Override
-        public boolean isValid() {
-            return valid;
-        }
+		@Override
+		public boolean isValid() {
+			return valid;
+		}
 
-        @Override
-        public int maxHistory() {
-            return this.maxHistory;
-        }
+		@Override
+		public int maxHistory() {
+			return this.maxHistory;
+		}
 
-        public void onPush() {
-            if (this.pushListener != null)
-                this.pushListener.accept(this);
-        }
+		public void onPush() {
+			if (this.pushListener != null)
+				this.pushListener.accept(this);
+		}
 
-        public void retire() {
-            this.valid = false;
-        }
-    }
+		public void retire() {
+			this.valid = false;
+		}
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.output;
 
 /**
@@ -5,5 +11,5 @@ package dev.isxander.controlify.bindings.output;
  * state and outputting a relevant value from that.
  */
 public interface DigitalOutput extends BindingOutput {
-    boolean get();
+	boolean get();
 }

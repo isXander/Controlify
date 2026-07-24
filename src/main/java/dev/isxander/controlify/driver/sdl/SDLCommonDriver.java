@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.driver.sdl;
 
 import dev.isxander.controlify.Controlify;
@@ -40,292 +46,290 @@ import static dev.isxander.sdl.SdlInit.*;
 import static dev.isxander.sdl.SdlProperties.*;
 
 public abstract class SDLCommonDriver<SdlController> implements Driver {
-    private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
+	private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
 	protected final Sdl sdl;
-    private final ControlifyLogger logger;
+	private final ControlifyLogger logger;
 
 	protected final Arena arena;
 
-    protected SdlController ptrController;
+	protected SdlController ptrController;
 
-    protected BatteryLevelComponent batteryLevelComponent;
-    protected RumbleComponent rumbleComponent;
-    protected TriggerRumbleComponent triggerRumbleComponent;
-    protected HDHapticComponent hdHapticComponent;
-    protected LEDComponent ledComponent;
-    protected DualSenseComponent dualSenseComponent;
-    
-    protected final boolean isRumbleSupported, isTriggerRumbleSupported;
-    protected final boolean isDualsense;
-    protected final boolean isRGBLedSupported;
-    
-    protected final SdlGuid guid;
-    protected final String guidString;
-    protected final @Nullable String serial;
-    protected final String name;
-    protected final SdlPropertiesId props;
-    protected final short vendorId, productId;
-    protected final SDLJoystickConnectionState connectionState;
+	protected BatteryLevelComponent batteryLevelComponent;
+	protected RumbleComponent rumbleComponent;
+	protected TriggerRumbleComponent triggerRumbleComponent;
+	protected HDHapticComponent hdHapticComponent;
+	protected LEDComponent ledComponent;
+	protected DualSenseComponent dualSenseComponent;
 
-    @Nullable
-    protected SdlAudioDeviceId dualsenseAudioDev;
-    @Nullable
-    protected SdlAudioSpec dualsenseAudioSpec;
-    protected final List<AudioStreamHandle> dualsenseAudioHandles;
-    
-    public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
-        this.sdl = sdl;
+	protected final boolean isRumbleSupported, isTriggerRumbleSupported;
+	protected final boolean isDualsense;
+	protected final boolean isRGBLedSupported;
+
+	protected final SdlGuid guid;
+	protected final String guidString;
+	protected final @Nullable String serial;
+	protected final String name;
+	protected final SdlPropertiesId props;
+	protected final short vendorId, productId;
+	protected final SDLJoystickConnectionState connectionState;
+
+	@Nullable protected SdlAudioDeviceId dualsenseAudioDev;
+	@Nullable protected SdlAudioSpec dualsenseAudioSpec;
+	protected final List<AudioStreamHandle> dualsenseAudioHandles;
+
+	public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
+		this.sdl = sdl;
 		this.arena = Arena.ofConfined();
 
 		this.ptrController = ptrController;
-        this.logger = logger;
-        
-        this.props = SDL_GetControllerProperties(ptrController);
+		this.logger = logger;
 
-        this.name = SDL_GetControllerName(ptrController);
+		this.props = SDL_GetControllerProperties(ptrController);
 
-        this.guid = SDL_GetControllerGUIDForID(jid);
-        this.guidString = sdl.guid().SDL_GUIDToString(guid);
-        logger.debugLog("SDL GUID: {}", guidString);
+		this.name = SDL_GetControllerName(ptrController);
 
-        this.serial = SDL_GetControllerSerial(ptrController);
-        logger.debugLog("SDL Serial: {}", serial);
+		this.guid = SDL_GetControllerGUIDForID(jid);
+		this.guidString = sdl.guid().SDL_GUIDToString(guid);
+		logger.debugLog("SDL GUID: {}", guidString);
 
-        this.vendorId = SDL_GetControllerVendor(ptrController);
-        this.productId = SDL_GetControllerProduct(ptrController);
-        logger.debugLog("SDL VID: {} PID: {}", vendorId, productId);
+		this.serial = SDL_GetControllerSerial(ptrController);
+		logger.debugLog("SDL Serial: {}", serial);
 
-        this.connectionState = SDLJoystickConnectionState.fromInt(SDL_GetControllerConnectionState(ptrController));
-        logger.debugLog("SDL Connection State: {}", connectionState);
-        
-        this.isRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
-        this.isTriggerRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
-        this.isRGBLedSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
+		this.vendorId = SDL_GetControllerVendor(ptrController);
+		this.productId = SDL_GetControllerProduct(ptrController);
+		logger.debugLog("SDL VID: {} PID: {}", vendorId, productId);
 
-        DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
-        logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
+		this.connectionState = SDLJoystickConnectionState.fromInt(SDL_GetControllerConnectionState(ptrController));
+		logger.debugLog("SDL Connection State: {}", connectionState);
 
-        // open audio device for dualsense hd haptics
-        this.dualsenseAudioHandles = new ArrayList<>();
+		this.isRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
+		this.isTriggerRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+		this.isRGBLedSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
 
-        if (CUtil.rl("dualsense").equals(type.namespace())) {
-            this.isDualsense = true;
-            logger.debugLog("DualSense controller detected.");
+		DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
+		logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
 
-            // macOS HD haptics are broken
-            if (Util.getPlatform() != Util.OS.OSX && sdl.init().SDL_WasInit(SDL_INIT_AUDIO) != 0) {
-                SdlAudioDeviceId dualsenseAudioDev = null;
+		// open audio device for dualsense hd haptics
+		this.dualsenseAudioHandles = new ArrayList<>();
+
+		if (CUtil.rl("dualsense").equals(type.namespace())) {
+			this.isDualsense = true;
+			logger.debugLog("DualSense controller detected.");
+
+			// macOS HD haptics are broken
+			if (Util.getPlatform() != Util.OS.OSX && sdl.init().SDL_WasInit(SDL_INIT_AUDIO) != 0) {
+				SdlAudioDeviceId dualsenseAudioDev = null;
 				SdlAudio.SdlAudioSpecRef devSpec = new SdlAudio.SdlAudioSpecRef();
 
-                for (SdlAudioDeviceId dev : sdl.audio().SDL_GetAudioPlaybackDevices()) {
-                    String name = sdl.audio().SDL_GetAudioDeviceName(dev).toLowerCase();
-                    if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
-                        sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, null);
-                        if (devSpec.value.channels() == 4) {
-                            dualsenseAudioDev = dev;
-                            break;
-                        }
-                    }
-                }
+				for (SdlAudioDeviceId dev : sdl.audio().SDL_GetAudioPlaybackDevices()) {
+					String name = sdl.audio().SDL_GetAudioDeviceName(dev).toLowerCase();
+					if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
+						sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, null);
+						if (devSpec.value.channels() == 4) {
+							dualsenseAudioDev = dev;
+							break;
+						}
+					}
+				}
 
-                if (dualsenseAudioDev != null) {
-                    logger.debugLog("DualSense HD Haptics audio device found.");
-                    this.dualsenseAudioSpec = devSpec.value;
-                    this.dualsenseAudioDev = sdl.audio().SDL_OpenAudioDevice(dualsenseAudioDev, this.dualsenseAudioSpec);
-                } else {
-                    logger.debugLog("DualSense HD Haptics audio device not found.");
-                }
-            }
-        } else {
-            this.isDualsense = false;
-        }
-    }
+				if (dualsenseAudioDev != null) {
+					logger.debugLog("DualSense HD Haptics audio device found.");
+					this.dualsenseAudioSpec = devSpec.value;
+					this.dualsenseAudioDev = sdl.audio().SDL_OpenAudioDevice(dualsenseAudioDev, this.dualsenseAudioSpec);
+				} else {
+					logger.debugLog("DualSense HD Haptics audio device not found.");
+				}
+			}
+		} else {
+			this.isDualsense = false;
+		}
+	}
 
-    @Override
-    public void addComponents(ControllerEntity controller) {
-        controller.setComponent(new DriverNameComponent(this.name));
-        controller.setComponent(new GUIDComponent(this.guidString));
-        controller.setComponent(new UIDComponent(createUid()));
+	@Override
+	public void addComponents(ControllerEntity controller) {
+		controller.setComponent(new DriverNameComponent(this.name));
+		controller.setComponent(new GUIDComponent(this.guidString));
+		controller.setComponent(new UIDComponent(createUid()));
 
-        controller.setComponent(this.batteryLevelComponent = new BatteryLevelComponent());
-        if (this.isRumbleSupported) {
-            controller.setComponent(this.rumbleComponent = new RumbleComponent());
-        }
-        if (this.isTriggerRumbleSupported) {
-            controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
-        }
-        if (this.isRGBLedSupported) {
-            controller.setComponent(this.ledComponent = new LEDComponent(1));
-        }
-        if (this.isDualsense) {
-            controller.setComponent(this.dualSenseComponent = new DualSenseComponent());
-        }
-        if (this.dualsenseAudioDev != null) {
-            controller.setComponent(this.hdHapticComponent = new HDHapticComponent());
-            this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
-        }
-        
-        if (isBluetooth()) {
-            controller.setComponent(new BluetoothDeviceComponent());
-        }
-    }
+		controller.setComponent(this.batteryLevelComponent = new BatteryLevelComponent());
+		if (this.isRumbleSupported) {
+			controller.setComponent(this.rumbleComponent = new RumbleComponent());
+		}
+		if (this.isTriggerRumbleSupported) {
+			controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
+		}
+		if (this.isRGBLedSupported) {
+			controller.setComponent(this.ledComponent = new LEDComponent(1));
+		}
+		if (this.isDualsense) {
+			controller.setComponent(this.dualSenseComponent = new DualSenseComponent());
+		}
+		if (this.dualsenseAudioDev != null) {
+			controller.setComponent(this.hdHapticComponent = new HDHapticComponent());
+			this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
+		}
 
-    @Override
-    public void update(ControllerEntity controller, boolean outOfFocus) {
-        if (ptrController == null) {
-            throw new IllegalStateException("Tried to update controller when it's closed.");
-        }
+		if (isBluetooth()) {
+			controller.setComponent(new BluetoothDeviceComponent());
+		}
+	}
 
-        updateRumble();
-        updateBatteryLevel();
-        updateLED();
-        updateDualSense();
-        updateHDHaptic();
-    }
+	@Override
+	public void update(ControllerEntity controller, boolean outOfFocus) {
+		if (ptrController == null) {
+			throw new IllegalStateException("Tried to update controller when it's closed.");
+		}
 
-    @Override
-    public void close() {
-        if (ptrController == null) {
-            throw new IllegalStateException("Tried to close controller when it's already closed.");
-        }
-        
-        SDL_CloseController(ptrController);
-        ptrController = null;
-        
-        if (dualsenseAudioDev != null) {
-            sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
-            dualsenseAudioDev = null;
-            for (AudioStreamHandle handle : dualsenseAudioHandles) {
-                handle.close();
-            }
-        }
+		updateRumble();
+		updateBatteryLevel();
+		updateLED();
+		updateDualSense();
+		updateHDHaptic();
+	}
+
+	@Override
+	public void close() {
+		if (ptrController == null) {
+			throw new IllegalStateException("Tried to close controller when it's already closed.");
+		}
+
+		SDL_CloseController(ptrController);
+		ptrController = null;
+
+		if (dualsenseAudioDev != null) {
+			sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
+			dualsenseAudioDev = null;
+			for (AudioStreamHandle handle : dualsenseAudioHandles) {
+				handle.close();
+			}
+		}
 
 		arena.close();
-    }
-    
-    protected void updateRumble() {
-        if (isRumbleSupported) {
-            Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
+	}
 
-            stateOpt.ifPresent(state -> {
-                if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), 5000)) {
-                    CUtil.LOGGER.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
-                }
-            });
-        }
+	protected void updateRumble() {
+		if (isRumbleSupported) {
+			Optional<RumbleState> stateOpt = this.rumbleComponent.consumeRumble();
 
-        if (isTriggerRumbleSupported) {
-            Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
+			stateOpt.ifPresent(state -> {
+				if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), 5000)) {
+					CUtil.LOGGER.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
+				}
+			});
+		}
 
-            stateOpt.ifPresent(state -> {
-                if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), 0)) {
-                    CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
-                }
-            });
-        }
-    }
+		if (isTriggerRumbleSupported) {
+			Optional<TriggerRumbleState> stateOpt = this.triggerRumbleComponent.consumeTriggerRumble();
 
-    private void updateBatteryLevel() {
-        SdlRefs.IntRef percent = new SdlRefs.IntRef();
-        int powerState = SDL_GetControllerPowerInfo(ptrController, percent);
+			stateOpt.ifPresent(state -> {
+				if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), 0)) {
+					CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
+				}
+			});
+		}
+	}
 
-        PowerState level = switch (powerState) {
-            case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
-            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.value);
-            case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
-            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.value);
-            case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
-            default -> throw new IllegalStateException("Unexpected value");
-        };
+	private void updateBatteryLevel() {
+		SdlRefs.IntRef percent = new SdlRefs.IntRef();
+		int powerState = SDL_GetControllerPowerInfo(ptrController, percent);
 
-        this.batteryLevelComponent.setBatteryLevel(level);
-    }
+		PowerState level = switch (powerState) {
+			case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
+			case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.value);
+			case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
+			case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.value);
+			case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
+			default -> throw new IllegalStateException("Unexpected value");
+		};
 
-    private void updateLED() {
-        if (ledComponent == null) return;
+		this.batteryLevelComponent.setBatteryLevel(level);
+	}
 
-        if (ledComponent.consumeDirty()) {
-            int color = ledComponent.get(0); // SDL only supports one LED
+	private void updateLED() {
+		if (ledComponent == null) return;
 
-            byte red = (byte) ((color >> 16) & 0xFF);
-            byte green = (byte) ((color >> 8) & 0xFF);
-            byte blue = (byte) (color & 0xFF);
+		if (ledComponent.consumeDirty()) {
+			int color = ledComponent.get(0); // SDL only supports one LED
 
-            if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
-                logger.error("Could not set controller LED: {}", sdl.error().SDL_GetError());
-            } else {
-                logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
-            }
-        }
-    }
+			byte red = (byte) ((color >> 16) & 0xFF);
+			byte green = (byte) ((color >> 8) & 0xFF);
+			byte blue = (byte) (color & 0xFF);
 
-    private void updateDualSense() {
-        if (dualSenseComponent == null) return;
+			if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
+				logger.error("Could not set controller LED: {}", sdl.error().SDL_GetError());
+			} else {
+				logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
+			}
+		}
+	}
 
-        if (this.dualSenseComponent.consumeDirty()) {
+	private void updateDualSense() {
+		if (dualSenseComponent == null) return;
+
+		if (this.dualSenseComponent.consumeDirty()) {
 			DS5EffectsState effectsState = new DS5EffectsState();
 
-            // Left Trigger Effect
-            Optional.ofNullable(this.dualSenseComponent.getLeftTriggerEffect()).ifPresent(effect -> {
-                effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
-                effectsState.rgucLeftTriggerEffect = effect.createState();
-            });
+			// Left Trigger Effect
+			Optional.ofNullable(this.dualSenseComponent.getLeftTriggerEffect()).ifPresent(effect -> {
+				effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
+				effectsState.rgucLeftTriggerEffect = effect.createState();
+			});
 
-            // Right Trigger Effect
-            Optional.ofNullable(this.dualSenseComponent.getRightTriggerEffect()).ifPresent(effect -> {
-                effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
-                effectsState.rgucRightTriggerEffect = effect.createState();
-            });
+			// Right Trigger Effect
+			Optional.ofNullable(this.dualSenseComponent.getRightTriggerEffect()).ifPresent(effect -> {
+				effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
+				effectsState.rgucRightTriggerEffect = effect.createState();
+			});
 
-            // Mute Light
-            effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
-            effectsState.ucMicLightMode = DS5EffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
+			// Mute Light
+			effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
+			effectsState.ucMicLightMode = DS5EffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
 
 			try (Arena arena = Arena.ofConfined()) {
 				MemorySegment memory = arena.allocate(DS5EffectsState.LAYOUT);
 				effectsState.writeTo(memory);
 				SDL_SendControllerEffect(ptrController, memory.asByteBuffer());
 			}
-        }
-    }
+		}
+	}
 
-    private void updateHDHaptic() {
-        for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
-            AudioStreamHandle handle = dualsenseAudioHandles.get(i);
-            if (handle.isTimedOut()) {
-                handle.close();
-                dualsenseAudioHandles.remove(handle);
-            } else {
-                handle.tick();
-            }
-        }
-    }
+	private void updateHDHaptic() {
+		for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
+			AudioStreamHandle handle = dualsenseAudioHandles.get(i);
+			if (handle.isTimedOut()) {
+				handle.close();
+				dualsenseAudioHandles.remove(handle);
+			} else {
+				handle.tick();
+			}
+		}
+	}
 
-    private void playHaptic(CompleteSoundData sound) {
-        if (ptrController == null || dualsenseAudioDev == null || dualsenseAudioSpec == null) {
-            return;
-        }
+	private void playHaptic(CompleteSoundData sound) {
+		if (ptrController == null || dualsenseAudioDev == null || dualsenseAudioSpec == null) {
+			return;
+		}
 
 		int format = -1;
-        int ss = sound.format().getSampleSizeInBits();
-        int byteSs = ss / 8;
-        AudioFormat.Encoding encoding = sound.format().getEncoding();
-        if (ss == 8) {
-            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                format = SDL_AUDIO_S8;
-            } else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
-                format = SDL_AUDIO_U8;
-            }
-        } else if (sound.format().isBigEndian()) {
+		int ss = sound.format().getSampleSizeInBits();
+		int byteSs = ss / 8;
+		AudioFormat.Encoding encoding = sound.format().getEncoding();
+		if (ss == 8) {
+			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+				format = SDL_AUDIO_S8;
+			} else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
+				format = SDL_AUDIO_U8;
+			}
+		} else if (sound.format().isBigEndian()) {
 			format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16BE, SDL_AUDIO_S32BE, SDL_AUDIO_F32BE);
-        } else {
-            format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
-        }
+		} else {
+			format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
+		}
 
-        if (format == -1) {
-            throw new IllegalStateException("Unsupported format");
-        }
+		if (format == -1) {
+			throw new IllegalStateException("Unsupported format");
+		}
 
 		SdlAudioSpec spec = new SdlAudioSpec(
 			(int) sound.format().getSampleRate(),
@@ -333,171 +337,171 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			sound.format().getChannels()
 		);
 
-        AudioStreamHandle handle = null;
-        for (AudioStreamHandle stream : dualsenseAudioHandles) {
-            SdlAudioSpec streamSpec = stream.getSpec();
-            if (streamSpec.format() == spec.format()
-                && streamSpec.frequency() == spec.frequency()
-                && streamSpec.channels() == spec.channels()
-                && !stream.isInUse()
-            ) {
-                handle = stream;
-                break;
-            }
-        }
-        int length = sound.audio().length / spec.frequency() / spec.channels() / byteSs * 20;
+		AudioStreamHandle handle = null;
+		for (AudioStreamHandle stream : dualsenseAudioHandles) {
+			SdlAudioSpec streamSpec = stream.getSpec();
+			if (streamSpec.format() == spec.format()
+				&& streamSpec.frequency() == spec.frequency()
+				&& streamSpec.channels() == spec.channels()
+				&& !stream.isInUse()
+			) {
+				handle = stream;
+				break;
+			}
+		}
+		int length = sound.audio().length / spec.frequency() / spec.channels() / byteSs * 20;
 
-        if (handle != null) {
-            handle.queueAudio(sound.audio(), length);
-        } else {
-            if (dualsenseAudioHandles.size() >= 16) {
-                dualsenseAudioHandles.removeFirst().close();
-            }
+		if (handle != null) {
+			handle.queueAudio(sound.audio(), length);
+		} else {
+			if (dualsenseAudioHandles.size() >= 16) {
+				dualsenseAudioHandles.removeFirst().close();
+			}
 
-            AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(sdl, dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
-            dualsenseAudioHandles.add(newHandle);
-        }
-    }
+			AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(sdl, dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
+			dualsenseAudioHandles.add(newHandle);
+		}
+	}
 
-    protected String createUid() {
-        int identifiers = 0;
-        List<byte[]> bytes = new ArrayList<>();
+	protected String createUid() {
+		int identifiers = 0;
+		List<byte[]> bytes = new ArrayList<>();
 
-        // IMPORTANT: the order of these identifiers are important, as they are passed through a hash function
-        // rearranging the order will result in a different UID
+		// IMPORTANT: the order of these identifiers are important, as they are passed through a hash function
+		// rearranging the order will result in a different UID
 
-        // add vendor and product id if available
-        if (vendorId != 0 && productId != 0) {
-            bytes.add(new byte[] {
-                    (byte) (vendorId >> 8), (byte) vendorId,
-                    (byte) (productId >> 8), (byte) productId
-            });
-            identifiers++;
-        }
+		// add vendor and product id if available
+		if (vendorId != 0 && productId != 0) {
+			bytes.add(new byte[] {
+					(byte) (vendorId >> 8), (byte) vendorId,
+					(byte) (productId >> 8), (byte) productId
+			});
+			identifiers++;
+		}
 
-        // add serial if available - even with different drivers, serials should remain constant, if provided
-        if (this.serial != null) {
-            bytes.add(this.serial.getBytes());
-            identifiers++;
-        }
+		// add serial if available - even with different drivers, serials should remain constant, if provided
+		if (this.serial != null) {
+			bytes.add(this.serial.getBytes());
+			identifiers++;
+		}
 
-        if (identifiers == 0) {
-            // if no other providers are available, use the GUID
-            // the GUID is prone to changing quite a bit, so it's not a good identifier
-            bytes.add(this.guid.data().clone());
-        }
+		if (identifiers == 0) {
+			// if no other providers are available, use the GUID
+			// the GUID is prone to changing quite a bit, so it's not a good identifier
+			bytes.add(this.guid.data().clone());
+		}
 
-        String uid = CUtil.createUIDFromBytes(bytes.toArray(new byte[0][]));
+		String uid = CUtil.createUIDFromBytes(bytes.toArray(new byte[0][]));
 
-        String nonDuplicateUid = uid;
-        int duplicateCount = (int) Controlify.instance().getControllerManager().orElseThrow()
-                .getConnectedControllers()
-                .stream()
-                .filter(controller -> controller.uid().startsWith(nonDuplicateUid))
-                .count();
-        if (duplicateCount > 0) {
-            uid += "-" + duplicateCount;
-        }
+		String nonDuplicateUid = uid;
+		int duplicateCount = (int) Controlify.instance().getControllerManager().orElseThrow()
+				.getConnectedControllers()
+				.stream()
+				.filter(controller -> controller.uid().startsWith(nonDuplicateUid))
+				.count();
+		if (duplicateCount > 0) {
+			uid += "-" + duplicateCount;
+		}
 
-        return uid;
-    }
+		return uid;
+	}
 
-    protected boolean isBluetooth() {
-        return connectionState == SDLJoystickConnectionState.WIRELESS;
-    }
+	protected boolean isBluetooth() {
+		return connectionState == SDLJoystickConnectionState.WIRELESS;
+	}
 
-    protected abstract SdlPropertiesId SDL_GetControllerProperties(SdlController ptrController);
-    protected abstract String SDL_GetControllerName(SdlController ptrController);
-    protected abstract SdlGuid SDL_GetControllerGUIDForID(SdlJoystickId jid);
-    protected abstract @Nullable String SDL_GetControllerSerial(SdlController ptrController);
-    protected abstract short SDL_GetControllerVendor(SdlController ptrController);
-    protected abstract short SDL_GetControllerProduct(SdlController ptrController);
-    //@MagicConstant(valuesFromClass = SDL_JoystickConnectionState.class)
-    protected abstract int SDL_GetControllerConnectionState(SdlController ptrController);
-    protected abstract boolean SDL_CloseController(SdlController ptrController);
-    protected abstract boolean SDL_RumbleController(SdlController ptrController, float strong, float weak, int durationMs);
-    protected abstract boolean SDL_RumbleControllerTriggers(SdlController ptrController, float left, float right, int durationMs);
-    //@MagicConstant(valuesFromClass = SDL_PowerState.class)
-    protected abstract int SDL_GetControllerPowerInfo(SdlController ptrController, SdlRefs.IntRef percent);
-    protected abstract boolean SDL_SendControllerEffect(SdlController ptrController, ByteBuffer effect);
-    protected abstract boolean SDL_SetControllerLED(SdlController ptrController, byte red, byte green, byte blue);
+	protected abstract SdlPropertiesId SDL_GetControllerProperties(SdlController ptrController);
+	protected abstract String SDL_GetControllerName(SdlController ptrController);
+	protected abstract SdlGuid SDL_GetControllerGUIDForID(SdlJoystickId jid);
+	protected abstract @Nullable String SDL_GetControllerSerial(SdlController ptrController);
+	protected abstract short SDL_GetControllerVendor(SdlController ptrController);
+	protected abstract short SDL_GetControllerProduct(SdlController ptrController);
+	//@MagicConstant(valuesFromClass = SDL_JoystickConnectionState.class)
+	protected abstract int SDL_GetControllerConnectionState(SdlController ptrController);
+	protected abstract boolean SDL_CloseController(SdlController ptrController);
+	protected abstract boolean SDL_RumbleController(SdlController ptrController, float strong, float weak, int durationMs);
+	protected abstract boolean SDL_RumbleControllerTriggers(SdlController ptrController, float left, float right, int durationMs);
+	//@MagicConstant(valuesFromClass = SDL_PowerState.class)
+	protected abstract int SDL_GetControllerPowerInfo(SdlController ptrController, SdlRefs.IntRef percent);
+	protected abstract boolean SDL_SendControllerEffect(SdlController ptrController, ByteBuffer effect);
+	protected abstract boolean SDL_SetControllerLED(SdlController ptrController, byte red, byte green, byte blue);
 
-    private static int audioFmtEndian(int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
-        if (ss == 16) {
-            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                return signed16;
-            }
-        } else if (ss == 32) {
-            if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                return signed32;
-            } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                return float32;
-            }
-        }
+	private static int audioFmtEndian(int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
+		if (ss == 16) {
+			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+				return signed16;
+			}
+		} else if (ss == 32) {
+			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
+				return signed32;
+			} else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
+				return float32;
+			}
+		}
 		return -1;
-    }
+	}
 
-    protected static class AudioStreamHandle {
-        private int streamLastPlayed;
+	protected static class AudioStreamHandle {
+		private int streamLastPlayed;
 		private final Sdl sdl;
-        private final SdlAudioStreamHandle stream;
-        private final SdlAudioSpec spec;
+		private final SdlAudioStreamHandle stream;
+		private final SdlAudioSpec spec;
 
-        private AudioStreamHandle(Sdl sdl, SdlAudioStreamHandle stream, SdlAudioSpec spec) {
-            this.sdl = sdl;
+		private AudioStreamHandle(Sdl sdl, SdlAudioStreamHandle stream, SdlAudioSpec spec) {
+			this.sdl = sdl;
 			this.stream = stream;
-            this.spec = spec;
-            this.streamLastPlayed = 0;
-        }
+			this.spec = spec;
+			this.streamLastPlayed = 0;
+		}
 
-        public void queueAudio(byte[] audio, int tickLength) {
-            try (Arena arena = Arena.ofConfined()) {
+		public void queueAudio(byte[] audio, int tickLength) {
+			try (Arena arena = Arena.ofConfined()) {
 				MemorySegment memory = arena.allocateFrom(ValueLayout.JAVA_BYTE, audio);
 
-                sdl.audio().SDL_PutAudioStreamData(stream, memory.asByteBuffer());
+				sdl.audio().SDL_PutAudioStreamData(stream, memory.asByteBuffer());
 
-                streamLastPlayed = Math.min(0, streamLastPlayed);
-                streamLastPlayed -= tickLength;
-            }
-        }
+				streamLastPlayed = Math.min(0, streamLastPlayed);
+				streamLastPlayed -= tickLength;
+			}
+		}
 
-        public SdlAudioSpec getSpec() {
-            return this.spec;
-        }
+		public SdlAudioSpec getSpec() {
+			return this.spec;
+		}
 
-        public boolean isInUse() {
-            return streamLastPlayed < 0;
-        }
+		public boolean isInUse() {
+			return streamLastPlayed < 0;
+		}
 
-        public boolean isTimedOut() {
-            return streamLastPlayed >= AUDIO_STREAM_TIMEOUT_TICKS;
-        }
+		public boolean isTimedOut() {
+			return streamLastPlayed >= AUDIO_STREAM_TIMEOUT_TICKS;
+		}
 
-        public void tick() {
-            streamLastPlayed++;
-        }
+		public void tick() {
+			streamLastPlayed++;
+		}
 
-        public void close() {
-            sdl.audio().SDL_DestroyAudioStream(stream);
-        }
+		public void close() {
+			sdl.audio().SDL_DestroyAudioStream(stream);
+		}
 
-        public static AudioStreamHandle createWithAudio(Sdl sdl, SdlAudioDeviceId device, SdlAudioSpec audioSpec, SdlAudioSpec devSpec, byte[] audio, int tickLength) {
-            SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(audioSpec, devSpec);
+		public static AudioStreamHandle createWithAudio(Sdl sdl, SdlAudioDeviceId device, SdlAudioSpec audioSpec, SdlAudioSpec devSpec, byte[] audio, int tickLength) {
+			SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(audioSpec, devSpec);
 
-            sdl.audio().SDL_BindAudioStream(device, stream);
+			sdl.audio().SDL_BindAudioStream(device, stream);
 
-            int[] channelMap = switch (audioSpec.channels()) {
-                case 1 -> new int[]{ -1, -1, 0, 0 };
-                case 2 -> new int[]{ -1, -1, 0, 1 };
-                default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels());
-            };
-            if (!sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
-                System.out.println(sdl.error().SDL_GetError());
-            }
+			int[] channelMap = switch (audioSpec.channels()) {
+				case 1 -> new int[]{ -1, -1, 0, 0 };
+				case 2 -> new int[]{ -1, -1, 0, 1 };
+				default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels());
+			};
+			if (!sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
+				System.out.println(sdl.error().SDL_GetError());
+			}
 
-            var handle = new AudioStreamHandle(sdl, stream, audioSpec);
-            handle.queueAudio(audio, tickLength);
-            return handle;
-        }
-    }
+			var handle = new AudioStreamHandle(sdl, stream, audioSpec);
+			handle.queueAudio(audio, tickLength);
+			return handle;
+		}
+	}
 }

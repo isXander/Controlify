@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.hdhaptics;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
@@ -10,9 +16,9 @@ import java.nio.ByteBuffer;
 
 @Mixin(SoundBuffer.class)
 public interface SoundBufferAccessor {
-    @Accessor("data")
-    @Nullable ByteBuffer controlify$getData();
+	@Accessor("data")
+	@Nullable ByteBuffer controlify$getData();
 
-    @Accessor("format")
-    AudioFormat controlify$getFormat();
+	@Accessor("format")
+	AudioFormat controlify$getFormat();
 }

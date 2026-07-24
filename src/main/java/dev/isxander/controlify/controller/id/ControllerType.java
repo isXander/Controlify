@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.id;
 
 import com.mojang.serialization.Codec;
@@ -9,21 +15,21 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public record ControllerType(@Nullable String friendlyName, String mappingId, Identifier namespace, boolean forceJoystick, boolean dontLoad) {
-    public static final ControllerType DEFAULT = new ControllerType(null, "default", CUtil.rl("default"), false, false);
+	public static final ControllerType DEFAULT = new ControllerType(null, "default", CUtil.rl("default"), false, false);
 
-    public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.STRING.optionalFieldOf("name", null).forGetter(ControllerType::friendlyName),
-            Codec.STRING.optionalFieldOf("mapping", DEFAULT.mappingId()).forGetter(ControllerType::mappingId),
-            Identifier.CODEC.optionalFieldOf("namespace", DEFAULT.namespace()).forGetter(ControllerType::namespace),
-            Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
-            Codec.BOOL.optionalFieldOf("dont_load", false).forGetter(ControllerType::dontLoad)
-    ).apply(instance, ControllerType::new));
+	public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Codec.STRING.optionalFieldOf("name", null).forGetter(ControllerType::friendlyName),
+			Codec.STRING.optionalFieldOf("mapping", DEFAULT.mappingId()).forGetter(ControllerType::mappingId),
+			Identifier.CODEC.optionalFieldOf("namespace", DEFAULT.namespace()).forGetter(ControllerType::namespace),
+			Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
+			Codec.BOOL.optionalFieldOf("dont_load", false).forGetter(ControllerType::dontLoad)
+	).apply(instance, ControllerType::new));
 
-    public Identifier getIconSprite() {
-        return namespace.withPrefix("controllers/");
-    }
+	public Identifier getIconSprite() {
+		return namespace.withPrefix("controllers/");
+	}
 
-    public boolean isSteamDeck() {
-        return namespace.equals(SteamDeckUtil.STEAM_DECK_NAMESPACE);
-    }
+	public boolean isSteamDeck() {
+		return namespace.equals(SteamDeckUtil.STEAM_DECK_NAMESPACE);
+	}
 }

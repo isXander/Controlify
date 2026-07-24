@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.guide;
 
 import com.mojang.serialization.Codec;
@@ -8,20 +14,20 @@ import org.jetbrains.annotations.NotNull;
  * Whether the action should be on the left or right list.
  */
 public enum ActionLocation implements StringRepresentable {
-    LEFT("left"),
-    RIGHT("right");
+	LEFT("left"),
+	RIGHT("right");
 
-    private final String serialName;
+	private final String serialName;
 
-    ActionLocation(String serialName) {
-        this.serialName = serialName;
-    }
+	ActionLocation(String serialName) {
+		this.serialName = serialName;
+	}
 
-    @Override
-    public @NotNull String getSerializedName() {
-        return this.serialName;
-    }
+	@Override
+	public @NotNull String getSerializedName() {
+		return this.serialName;
+	}
 
-    public static final Codec<ActionLocation> CODEC =
-            StringRepresentable.fromEnum(ActionLocation::values);
+	public static final Codec<ActionLocation> CODEC =
+			StringRepresentable.fromEnum(ActionLocation::values);
 }

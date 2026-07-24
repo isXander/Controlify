@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.haptic;
 
 import com.mojang.blaze3d.audio.SoundBuffer;
@@ -23,85 +29,85 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 public class HDHapticComponent extends ECSComponentImpl {
-    public static final Identifier ID = CUtil.rl("hd_haptics");
+	public static final Identifier ID = CUtil.rl("hd_haptics");
 
-    private Consumer<CompleteSoundData> playHapticConsumer;
-    private final RandomSource randomSource;
+	private Consumer<CompleteSoundData> playHapticConsumer;
+	private final RandomSource randomSource;
 
-    // the existing sound buffer library in the sound engine works on a ResourceProvider for registered sounds only
-    // haptics are not sounds.
-    private static final SoundBufferLibrary hapticBufferLibrary = new SoundBufferLibrary(Minecraft.getInstance().getResourceManager());
-    private static final Map<Identifier, CompleteSoundData> hapticData = new HashMap<>();
+	// the existing sound buffer library in the sound engine works on a ResourceProvider for registered sounds only
+	// haptics are not sounds.
+	private static final SoundBufferLibrary hapticBufferLibrary = new SoundBufferLibrary(Minecraft.getInstance().getResourceManager());
+	private static final Map<Identifier, CompleteSoundData> hapticData = new HashMap<>();
 
-    public HDHapticComponent() {
-        this.randomSource = RandomSource.create();
-    }
+	public HDHapticComponent() {
+		this.randomSource = RandomSource.create();
+	}
 
-    public void playHaptic(Identifier haptic) {
-        if (!settings().enabled || playHapticConsumer == null) return;
+	public void playHaptic(Identifier haptic) {
+		if (!settings().enabled || playHapticConsumer == null) return;
 
-        getSoundData(haptic,  hapticBufferLibrary.getCompleteBuffer(haptic))
-                .thenAccept(playHapticConsumer)
-                .exceptionally(throwable -> {
-                    throwable.printStackTrace();
-                    return null;
-                });
-    }
+		getSoundData(haptic,  hapticBufferLibrary.getCompleteBuffer(haptic))
+				.thenAccept(playHapticConsumer)
+				.exceptionally(throwable -> {
+					throwable.printStackTrace();
+					return null;
+				});
+	}
 
-    public void playHaptic(SoundEvent sound) {
-        Identifier location = Minecraft.getInstance().getSoundManager()
-                .getSoundEvent(sound.location())
-                .getSound(randomSource).getLocation();
+	public void playHaptic(SoundEvent sound) {
+		Identifier location = Minecraft.getInstance().getSoundManager()
+				.getSoundEvent(sound.location())
+				.getSound(randomSource).getLocation();
 
-        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).controlify$getSoundEngine();
-        SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).controlify$getSoundBuffers();
+		SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+		SoundEngine soundEngine = ((SoundManagerAccessor) soundManager).controlify$getSoundEngine();
+		SoundBufferLibrary bufferLibrary = ((SoundEngineAccessor) soundEngine).controlify$getSoundBuffers();
 
-        Identifier soundId = location.withPrefix("sounds/").withSuffix(".ogg");
+		Identifier soundId = location.withPrefix("sounds/").withSuffix(".ogg");
 
-        getSoundData(soundId, bufferLibrary.getCompleteBuffer(soundId))
-                .thenAccept(playHapticConsumer)
-                .exceptionally(throwable -> {
-                    throwable.printStackTrace();
-                    return null;
-                });
-    }
+		getSoundData(soundId, bufferLibrary.getCompleteBuffer(soundId))
+				.thenAccept(playHapticConsumer)
+				.exceptionally(throwable -> {
+					throwable.printStackTrace();
+					return null;
+				});
+	}
 
-    public void acceptPlayHaptic(Consumer<CompleteSoundData> consumer) {
-        this.playHapticConsumer = consumer;
-    }
+	public void acceptPlayHaptic(Consumer<CompleteSoundData> consumer) {
+		this.playHapticConsumer = consumer;
+	}
 
-    private CompletableFuture<CompleteSoundData> getSoundData(Identifier id, CompletableFuture<SoundBuffer> sound) {
-        return sound
-                .thenApply(soundBuffer -> hapticData.computeIfAbsent(id, key -> {
-                    var accessor = (SoundBufferAccessor) soundBuffer;
-                    ByteBuffer bytes = accessor.controlify$getData();
-                    AudioFormat format = accessor.controlify$getFormat();
+	private CompletableFuture<CompleteSoundData> getSoundData(Identifier id, CompletableFuture<SoundBuffer> sound) {
+		return sound
+				.thenApply(soundBuffer -> hapticData.computeIfAbsent(id, key -> {
+					var accessor = (SoundBufferAccessor) soundBuffer;
+					ByteBuffer bytes = accessor.controlify$getData();
+					AudioFormat format = accessor.controlify$getFormat();
 
-                    if (bytes == null) {
-                        return null;
-                    }
+					if (bytes == null) {
+						return null;
+					}
 
-                    bytes.rewind();
+					bytes.rewind();
 
-                    byte[] audio = new byte[bytes.remaining()];
+					byte[] audio = new byte[bytes.remaining()];
 
-                    bytes.get(audio);
+					bytes.get(audio);
 
-                    return new CompleteSoundData(audio, format);
-                }));
-    }
+					return new CompleteSoundData(audio, format);
+				}));
+	}
 
-    public HDHapticSettings settings() {
-        return this.controller().settings().hdHaptic;
-    }
+	public HDHapticSettings settings() {
+		return this.controller().settings().hdHaptic;
+	}
 
-    public HDHapticSettings defaultSettings() {
-        return this.controller().defaultSettings().hdHaptic;
-    }
+	public HDHapticSettings defaultSettings() {
+		return this.controller().defaultSettings().hdHaptic;
+	}
 
-    @Override
-    public Identifier id() {
-        return ID;
-    }
+	@Override
+	public Identifier id() {
+		return ID;
+	}
 }

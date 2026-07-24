@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.platform.client;
 
 import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
@@ -20,56 +26,56 @@ import java.util.Collection;
 import java.util.function.Function;
 
 public final class PlatformClientUtil {
-    public static PlatformClientUtilImpl IMPL = null;
+	public static PlatformClientUtilImpl IMPL = null;
 
-    public static void registerClientTickStarted(TickEvent event) {
-        IMPL.registerClientTickStarted(event);
-    }
+	public static void registerClientTickStarted(TickEvent event) {
+		IMPL.registerClientTickStarted(event);
+	}
 
-    public static void registerClientTickEnded(TickEvent event) {
-        IMPL.registerClientTickEnded(event);
-    }
+	public static void registerClientTickEnded(TickEvent event) {
+		IMPL.registerClientTickEnded(event);
+	}
 
-    public static void registerClientStopping(LifecycleEvent event) {
-        IMPL.registerClientStopping(event);
-    }
+	public static void registerClientStopping(LifecycleEvent event) {
+		IMPL.registerClientStopping(event);
+	}
 
-    public static void registerClientDisconnected(DisconnectedEvent event) {
-        IMPL.registerClientDisconnected(event);
-    }
+	public static void registerClientDisconnected(DisconnectedEvent event) {
+		IMPL.registerClientDisconnected(event);
+	}
 
-    public static void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
-        IMPL.registerAssetReloadListener(reloadListener);
-    }
+	public static void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
+		IMPL.registerAssetReloadListener(reloadListener);
+	}
 
-    public static void registerBuiltinResourcePack(Identifier id, Component displayName) {
-        IMPL.registerBuiltinResourcePack(id, displayName);
-    }
+	public static void registerBuiltinResourcePack(Identifier id, Component displayName) {
+		IMPL.registerBuiltinResourcePack(id, displayName);
+	}
 
-    public static void registerPostScreenRender(ScreenRenderEvent event) {
-        IMPL.registerPostScreenRender(event);
-    }
+	public static void registerPostScreenRender(ScreenRenderEvent event) {
+		IMPL.registerPostScreenRender(event);
+	}
 
-    public static void addHudLayer(Identifier id, HudRenderLayer layer) {
-        IMPL.addHudLayer(id, layer);
-    }
+	public static void addHudLayer(Identifier id, HudRenderLayer layer) {
+		IMPL.addHudLayer(id, layer);
+	}
 
-    public static Collection<KeyMapping> getModdedKeyMappings() {
-        return IMPL.getModdedKeyMappings();
-    }
+	public static Collection<KeyMapping> getModdedKeyMappings() {
+		return IMPL.getModdedKeyMappings();
+	}
 
-    public static <I, O> void setupClientsideHandshake(
-            Identifier handshakeId,
-            StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
-            StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
-            Function<I, O> handshakeHandler
-    ) {
-        IMPL.setupClientsideHandshake(handshakeId, clientBoundCodec, serverBoundCodec, handshakeHandler);
-    }
+	public static <I, O> void setupClientsideHandshake(
+			Identifier handshakeId,
+			StreamCodec<FriendlyByteBuf, I> clientBoundCodec,
+			StreamCodec<FriendlyByteBuf, O> serverBoundCodec,
+			Function<I, O> handshakeHandler
+	) {
+		IMPL.setupClientsideHandshake(handshakeId, clientBoundCodec, serverBoundCodec, handshakeHandler);
+	}
 
-    public static CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
-        return IMPL.createCreativeTabHelper(creativeScreen);
-    }
+	public static CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+		return IMPL.createCreativeTabHelper(creativeScreen);
+	}
 
 	public static @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {
 		return IMPL.peekScissorStack(graphics);
@@ -79,6 +85,6 @@ public final class PlatformClientUtil {
 		IMPL.submitGuiElement(graphics, guiElement);
 	}
 
-    private PlatformClientUtil() {
-    }
+	private PlatformClientUtil() {
+	}
 }

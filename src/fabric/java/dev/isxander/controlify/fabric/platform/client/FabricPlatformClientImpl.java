@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.fabric.platform.client;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
@@ -36,79 +42,79 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
-    @Override
-    public void registerClientTickStarted(TickEvent event) {
-        ClientTickEvents.START_CLIENT_TICK.register(event::onTick);
-    }
+	@Override
+	public void registerClientTickStarted(TickEvent event) {
+		ClientTickEvents.START_CLIENT_TICK.register(event::onTick);
+	}
 
-    @Override
-    public void registerClientTickEnded(TickEvent event) {
-        ClientTickEvents.END_CLIENT_TICK.register(event::onTick);
-    }
+	@Override
+	public void registerClientTickEnded(TickEvent event) {
+		ClientTickEvents.END_CLIENT_TICK.register(event::onTick);
+	}
 
-    @Override
-    public void registerClientStopping(LifecycleEvent event) {
-        ClientLifecycleEvents.CLIENT_STOPPING.register(event::onLifecycle);
-    }
+	@Override
+	public void registerClientStopping(LifecycleEvent event) {
+		ClientLifecycleEvents.CLIENT_STOPPING.register(event::onLifecycle);
+	}
 
-    @Override
-    public void registerClientDisconnected(DisconnectedEvent event) {
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            event.onDisconnected(client);
-        });
-    }
+	@Override
+	public void registerClientDisconnected(DisconnectedEvent event) {
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			event.onDisconnected(client);
+		});
+	}
 
-    @Override
-    public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
-        ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(reloadListener.getReloadId(), reloadListener);
-    }
+	@Override
+	public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
+		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(reloadListener.getReloadId(), reloadListener);
+	}
 
-    @Override
-    public void registerBuiltinResourcePack(Identifier id, Component displayName) {
-        ResourceLoader.registerBuiltinPack(
-                id,
-                FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
-                displayName,
-                PackActivationType.NORMAL
-        );
-    }
+	@Override
+	public void registerBuiltinResourcePack(Identifier id, Component displayName) {
+		ResourceLoader.registerBuiltinPack(
+				id,
+				FabricLoader.getInstance().getModContainer("controlify").orElseThrow(),
+				displayName,
+				PackActivationType.NORMAL
+		);
+	}
 
-    @Override
-    public void registerPostScreenRender(ScreenRenderEvent event) {
-        ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            ScreenEvents.afterExtract(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
-                event.onRender(screen, graphics, mouseX, mouseY, tickDelta);
-            });
-        });
-    }
+	@Override
+	public void registerPostScreenRender(ScreenRenderEvent event) {
+		ScreenEvents.BEFORE_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+			ScreenEvents.afterExtract(screen).register((unused, graphics, mouseX, mouseY, tickDelta) -> {
+				event.onRender(screen, graphics, mouseX, mouseY, tickDelta);
+			});
+		});
+	}
 
-    @Override
-    public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
-        HudElementRegistry.addLast(id, renderLayer::render);
-    }
+	@Override
+	public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
+		HudElementRegistry.addLast(id, renderLayer::render);
+	}
 
-    @Override
-    public Collection<KeyMapping> getModdedKeyMappings() {
-        return KeyBindingRegistryImplAccessor.getCustomKeys();
-    }
+	@Override
+	public Collection<KeyMapping> getModdedKeyMappings() {
+		return KeyBindingRegistryImplAccessor.getCustomKeys();
+	}
 
-    @Override
-    public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
-        ClientLoginNetworking.registerGlobalReceiver(handshakeId, (client, handler, buf, listenerAdder) -> {
-            I decodedInput = clientBoundCodec.decode(buf);
-            O decodedOutput = handshakeHandler.apply(decodedInput);
+	@Override
+	public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
+		ClientLoginNetworking.registerGlobalReceiver(handshakeId, (client, handler, buf, listenerAdder) -> {
+			I decodedInput = clientBoundCodec.decode(buf);
+			O decodedOutput = handshakeHandler.apply(decodedInput);
 
-            FriendlyByteBuf encodedOutput = FriendlyByteBufs.create();
-            serverBoundCodec.encode(encodedOutput, decodedOutput);
+			FriendlyByteBuf encodedOutput = FriendlyByteBufs.create();
+			serverBoundCodec.encode(encodedOutput, decodedOutput);
 
-            return CompletableFuture.completedFuture(encodedOutput);
-        });
-    }
+			return CompletableFuture.completedFuture(encodedOutput);
+		});
+	}
 
-    @Override
-    public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
-        return new FAPIApiCreativeTabHelper(creativeScreen);
-    }
+	@Override
+	public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+		return new FAPIApiCreativeTabHelper(creativeScreen);
+	}
 
 	@Override
 	public @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {

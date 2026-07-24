@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.MapCodec;
@@ -7,27 +13,27 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public record EmptyInput() implements Input {
-    public static final EmptyInput INSTANCE = new EmptyInput();
+	public static final EmptyInput INSTANCE = new EmptyInput();
 
-    public static final String INPUT_ID = "empty";
-    public static final MapCodec<EmptyInput> CODEC = MapCodec.unit(() -> INSTANCE);
+	public static final String INPUT_ID = "empty";
+	public static final MapCodec<EmptyInput> CODEC = MapCodec.unit(() -> INSTANCE);
 
-    @Override
-    public float state(ControllerStateView state) {
-        return 0;
-    }
+	@Override
+	public float state(ControllerStateView state) {
+		return 0;
+	}
 
-    @Override
-    public List<Identifier> getRelevantInputs() {
-        return List.of();
-    }
+	@Override
+	public List<Identifier> getRelevantInputs() {
+		return List.of();
+	}
 
-    @Override
-    public InputType<?> type() {
-        return InputType.EMPTY;
-    }
+	@Override
+	public InputType<?> type() {
+		return InputType.EMPTY;
+	}
 
-    public static boolean equals(Input input) {
-        return input instanceof EmptyInput;
-    }
+	public static boolean equals(Input input) {
+		return input instanceof EmptyInput;
+	}
 }

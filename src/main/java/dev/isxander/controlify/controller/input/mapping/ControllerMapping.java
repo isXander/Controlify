@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.input.mapping;
 
 import com.mojang.serialization.Codec;
@@ -11,58 +17,58 @@ import net.minecraft.resources.Identifier;
 import java.util.*;
 
 public record ControllerMapping(
-        List<MappingEntry> mappings,
-        LinkedHashMap<Identifier, DeadzoneGroup> deadzones
+		List<MappingEntry> mappings,
+		LinkedHashMap<Identifier, DeadzoneGroup> deadzones
 ) implements StateMapper {
-    public static final Codec<ControllerMapping> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            MappingEntry.codec()
-                    .listOf()
-                    .fieldOf("mappings")
-                    .forGetter(ControllerMapping::mappings),
-            Codec.unboundedMap(Identifier.CODEC, DeadzoneGroup.CODEC)
-                    .xmap(LinkedHashMap::new, map -> map)
-                    .fieldOf("deadzones")
-                    .forGetter(ControllerMapping::deadzones)
-    ).apply(instance, ControllerMapping::new));
+	public static final Codec<ControllerMapping> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			MappingEntry.codec()
+					.listOf()
+					.fieldOf("mappings")
+					.forGetter(ControllerMapping::mappings),
+			Codec.unboundedMap(Identifier.CODEC, DeadzoneGroup.CODEC)
+					.xmap(LinkedHashMap::new, map -> map)
+					.fieldOf("deadzones")
+					.forGetter(ControllerMapping::deadzones)
+	).apply(instance, ControllerMapping::new));
 
-    @Override
-    public ControllerState mapState(ControllerState state) {
-        if (mappings.isEmpty()) {
-            return state;
-        }
+	@Override
+	public ControllerState mapState(ControllerState state) {
+		if (mappings.isEmpty()) {
+			return state;
+		}
 
-        ModifiableControllerState newState = new ControllerStateImpl();
+		ModifiableControllerState newState = new ControllerStateImpl();
 
-        for (MappingEntry mapping : mappings) {
-            mapping.apply(state, newState);
-        }
+		for (MappingEntry mapping : mappings) {
+			mapping.apply(state, newState);
+		}
 
-        return newState;
-    }
+		return newState;
+	}
 
-    public static final ControllerMapping NO_MAPPING = new Builder().build();
+	public static final ControllerMapping NO_MAPPING = new Builder().build();
 
-    public static class Builder {
-        private final List<MappingEntry> mappings = new ArrayList<>();
-        private final LinkedHashMap<Identifier, DeadzoneGroup> deadzones = new LinkedHashMap<>();
+	public static class Builder {
+		private final List<MappingEntry> mappings = new ArrayList<>();
+		private final LinkedHashMap<Identifier, DeadzoneGroup> deadzones = new LinkedHashMap<>();
 
-        public Builder putMapping(MappingEntry mapping) {
-            if (mapping == null)
-                return this;
+		public Builder putMapping(MappingEntry mapping) {
+			if (mapping == null)
+				return this;
 
-            mappings.add(mapping);
-            return this;
-        }
+			mappings.add(mapping);
+			return this;
+		}
 
-        public Builder putDeadzoneGroups(Iterable<DeadzoneGroup> deadzoneGroup) {
-            for (DeadzoneGroup group : deadzoneGroup) {
-                this.deadzones.put(group.name(), group);
-            }
-            return this;
-        }
+		public Builder putDeadzoneGroups(Iterable<DeadzoneGroup> deadzoneGroup) {
+			for (DeadzoneGroup group : deadzoneGroup) {
+				this.deadzones.put(group.name(), group);
+			}
+			return this;
+		}
 
-        public ControllerMapping build() {
-            return new ControllerMapping(mappings, deadzones);
-        }
-    }
+		public ControllerMapping build() {
+			return new ControllerMapping(mappings, deadzones);
+		}
+	}
 }

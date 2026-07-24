@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify;
 
 import com.mojang.blaze3d.Blaze3D;
@@ -66,662 +72,662 @@ import java.util.stream.Collectors;
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
 public class Controlify implements ControlifyApi {
-    private static Controlify instance = null;
+	private static Controlify instance = null;
 
-    private Minecraft minecraft = null;
+	private Minecraft minecraft = null;
 
-    private ControllerManager controllerManager;
+	private ControllerManager controllerManager;
 
-    private ControllerEntity currentController = null;
-    private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
+	private ControllerEntity currentController = null;
+	private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
 
-    private @Nullable InGameInputHandler inGameInputHandler;
-    public @Nullable InGameButtonGuide inGameButtonGuide;
-    private VirtualMouseHandler virtualMouseHandler;
+	private @Nullable InGameInputHandler inGameInputHandler;
+	public @Nullable InGameButtonGuide inGameButtonGuide;
+	private VirtualMouseHandler virtualMouseHandler;
 
-    // Asset reloaders / managers
-    private InputFontMapper inputFontMapper;
-    private DefaultBindManager defaultBindManager;
-    private DefaultConfigManager defaultConfigManager;
-    private ControllerTypeManager controllerTypeManager;
-    private KeyboardLayoutManager keyboardLayoutManager;
+	// Asset reloaders / managers
+	private InputFontMapper inputFontMapper;
+	private DefaultBindManager defaultBindManager;
+	private DefaultConfigManager defaultConfigManager;
+	private ControllerTypeManager controllerTypeManager;
+	private KeyboardLayoutManager keyboardLayoutManager;
 
-    private Set<BindContext> thisTickContexts;
+	private Set<BindContext> thisTickContexts;
 
-    private ConfigManager config;
+	private ConfigManager config;
 
-    private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
-    private ControllerSetupWizard currentSetupWizard = null;
-    private boolean hasDiscoveredControllers = false;
+	private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
+	private ControllerSetupWizard currentSetupWizard = null;
+	private boolean hasDiscoveredControllers = false;
 
-    private int consecutiveInputSwitches = 0;
-    private double lastInputSwitchTime = 0;
+	private int consecutiveInputSwitches = 0;
+	private double lastInputSwitchTime = 0;
 
-    private int showMouseTicks = 0;
+	private int showMouseTicks = 0;
 
-    /**
-     * Called at usual fabric client entrypoint and in NeoForge mod constructor
-     * Always runs, even with no controllers detected.
-     * In this state, Controlify is only partially loaded, no controllers
-     * have been initialised, nor has the config. This is done at {@link Controlify#initializeControlify()}.
-     * This is where regular fabric callbacks and forge events should be registered.
-     * On NeoForge, this is run so early that Minecraft.getInstance() has not yet been set. So extra care should be taken as to not use it.
-     */
-    public void preInitialiseControlify() {
-        DebugProperties.printProperties();
+	/**
+	 * Called at usual fabric client entrypoint and in NeoForge mod constructor
+	 * Always runs, even with no controllers detected.
+	 * In this state, Controlify is only partially loaded, no controllers
+	 * have been initialised, nor has the config. This is done at {@link Controlify#initializeControlify()}.
+	 * This is where regular fabric callbacks and forge events should be registered.
+	 * On NeoForge, this is run so early that Minecraft.getInstance() has not yet been set. So extra care should be taken as to not use it.
+	 */
+	public void preInitialiseControlify() {
+		DebugProperties.printProperties();
 
-        CUtil.LOGGER.log("Pre-initializing Controlify...");
+		CUtil.LOGGER.log("Pre-initializing Controlify...");
 
-        if (DebugProperties.MIXIN_AUDIT) {
-            MixinEnvironment.getCurrentEnvironment().audit();
-        }
+		if (DebugProperties.MIXIN_AUDIT) {
+			MixinEnvironment.getCurrentEnvironment().audit();
+		}
 
-        this.config = new ConfigManager(
-                PlatformMainUtil.getConfigDir().resolve("controlify.json")
-        );
+		this.config = new ConfigManager(
+				PlatformMainUtil.getConfigDir().resolve("controlify.json")
+		);
 
-        this.inputFontMapper = new InputFontMapper();
-        this.defaultBindManager = new DefaultBindManager();
-        this.defaultConfigManager = new DefaultConfigManager();
-        this.controllerTypeManager = new ControllerTypeManager();
-        this.keyboardLayoutManager = new KeyboardLayoutManager();
-        PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
-        PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
-        PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
-        PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
-        PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
-        PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
-        PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
+		this.inputFontMapper = new InputFontMapper();
+		this.defaultBindManager = new DefaultBindManager();
+		this.defaultConfigManager = new DefaultConfigManager();
+		this.controllerTypeManager = new ControllerTypeManager();
+		this.keyboardLayoutManager = new KeyboardLayoutManager();
+		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
+		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
+		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
+		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
+		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
+		PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
+		PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
-        registerBuiltinPack("legacy_console");
+		registerBuiltinPack("legacy_console");
 
-        ControlifyClientSounds.init();
+		ControlifyClientSounds.init();
 
-        ControlifyHandshake.setupOnClient();
+		ControlifyHandshake.setupOnClient();
 
-        SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
-            if (config().getSettings().globalSettings().allowServerRumble) {
-                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
-                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
-            }
-        });
-        SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
-            if (config().getSettings().globalSettings().allowServerRumble) {
-                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
-                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
-            }
-        });
-        SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
-            if (config().getSettings().globalSettings().allowServerRumble) {
-                getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
-                        rumble.rumbleManager().play(packet.source(), packet.createEffect()));
-            }
-        });
-        SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
-            CUtil.LOGGER.log("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
-            ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
-        });
+		SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
+			if (config().getSettings().globalSettings().allowServerRumble) {
+				getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+						rumble.rumbleManager().play(packet.source(), packet.createEffect()));
+			}
+		});
+		SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
+			if (config().getSettings().globalSettings().allowServerRumble) {
+				getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+						rumble.rumbleManager().play(packet.source(), packet.createEffect()));
+			}
+		});
+		SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
+			if (config().getSettings().globalSettings().allowServerRumble) {
+				getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble ->
+						rumble.rumbleManager().play(packet.source(), packet.createEffect()));
+			}
+		});
+		SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
+			CUtil.LOGGER.log("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
+			ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
+		});
 
-        PlatformClientUtil.registerClientDisconnected((client) -> {
-            DebugLog.log("Disconnected from server, resetting server policies");
-            ServerPolicies.unsetAll();
-        });
+		PlatformClientUtil.registerClientDisconnected((client) -> {
+			DebugLog.log("Disconnected from server, resetting server policies");
+			ServerPolicies.unsetAll();
+		});
 
-        PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
-                inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
+		PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
+				inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
 
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControlifyPreInit(new PreInitContext() {
-                    @Override
-                    public ControlifyBindApi bindings() {
-                        return ControlifyBindApiImpl.INSTANCE;
-                    }
+		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+			try {
+				entrypoint.onControlifyPreInit(new PreInitContext() {
+					@Override
+					public ControlifyBindApi bindings() {
+						return ControlifyBindApiImpl.INSTANCE;
+					}
 
-                    @Override
-                    public GuideDomainRegistry guides() {
-                        return new GuideDomainRegistry() {
-                            @Override
-                            public GuideDomain<InGameCtx> inGame() {
-                                return GuideDomains.IN_GAME;
-                            }
+					@Override
+					public GuideDomainRegistry guides() {
+						return new GuideDomainRegistry() {
+							@Override
+							public GuideDomain<InGameCtx> inGame() {
+								return GuideDomains.IN_GAME;
+							}
 
-                            @Override
-                            public GuideDomain<ContainerCtx> container() {
-                                return GuideDomains.CONTAINER;
-                            }
+							@Override
+							public GuideDomain<ContainerCtx> container() {
+								return GuideDomains.CONTAINER;
+							}
 
-                            @Override
-                            public <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId) {
-                                GuideDomainImpl<T> domain = new GuideDomainImpl<>(domainId);
-                                GuideDomains.CUSTOM_DOMAINS.put(domainId, domain);
-                                PlatformClientUtil.registerAssetReloadListener(domain);
-                                return domain;
-                            }
-                        };
-                    }
-                });
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
-        GuideDomains.freeze();
-    }
+							@Override
+							public <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId) {
+								GuideDomainImpl<T> domain = new GuideDomainImpl<>(domainId);
+								GuideDomains.CUSTOM_DOMAINS.put(domainId, domain);
+								PlatformClientUtil.registerAssetReloadListener(domain);
+								return domain;
+							}
+						};
+					}
+				});
+			} catch (Throwable e) {
+				CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+			}
+		});
+		GuideDomains.freeze();
+	}
 
-    private void registerBuiltinPack(String id) {
-        PlatformClientUtil.registerBuiltinResourcePack(
-                CUtil.rl(id),
-                Component.translatable("controlify.extra_pack." + id + ".name")
-        );
-    }
+	private void registerBuiltinPack(String id) {
+		PlatformClientUtil.registerBuiltinResourcePack(
+				CUtil.rl(id),
+				Component.translatable("controlify.extra_pack." + id + ".name")
+		);
+	}
 
-    /**
-     * Called once Minecraft has completely loaded.
-     * (When the loading overlay starts to fade).
-     *
-     * This is where controllers are usually initialised, as long
-     * as one or more controllers are connected.
-     */
-    public void initializeControlify() {
-        CUtil.LOGGER.log("Initializing Controlify...");
-        this.minecraft = Minecraft.getInstance();
+	/**
+	 * Called once Minecraft has completely loaded.
+	 * (When the loading overlay starts to fade).
+	 *
+	 * This is where controllers are usually initialised, as long
+	 * as one or more controllers are connected.
+	 */
+	public void initializeControlify() {
+		CUtil.LOGGER.log("Initializing Controlify...");
+		this.minecraft = Minecraft.getInstance();
 
-        this.inGameInputHandler = null; // set when the current controller changes
-        this.virtualMouseHandler = new VirtualMouseHandler();
+		this.inGameInputHandler = null; // set when the current controller changes
+		this.virtualMouseHandler = new VirtualMouseHandler();
 
-        config().loadOrDefault();
+		config().loadOrDefault();
 
-        ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
-                event.controller(), event.hotplugged()));
-        ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
+		ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
+				event.controller(), event.hotplugged()));
+		ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
 
-        ControlifyBindings.registerModdedBindings();
+		ControlifyBindings.registerModdedBindings();
 
-        PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
-                ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-                    virtualMouseHandler().renderVirtualMouse(graphics);
-                    ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
-                }));
+		PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
+				ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+					virtualMouseHandler().renderVirtualMouse(graphics);
+					ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
+				}));
 
-        try {
+		try {
 			Sdl sdl = SDLNativesLoader.load();
-            controllerManager = new SDLControllerManager(sdl, CUtil.LOGGER);
-        } catch (Throwable throwable) {
-            CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
-            return;
-        }
-
-        PlatformClientUtil.registerClientTickStarted(this::tick);
-
-        // initialise and compatability modules that controlify implements itself
-        // this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
-        ControlifyCompat.init();
-
-        // make sure people don't someone add binds after controllers could have been created
-        ControlifyBindApiImpl.INSTANCE.lock();
-
-        discoverControllers();
-
-        if (DebugProperties.INIT_DUMP) {
-            CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
-        }
-
-        if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
-            doSteamDeckChecks();
-        }
-
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControlifyInit(new InitContext() {
-                    @Override
-                    public ControlifyApi controlify() {
-                        return Controlify.this;
-                    }
-                });
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
-    }
-
-    private void doSteamDeckChecks() {
-        CUtil.LOGGER.log("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
-
-        if (!SteamDeckUtil.IS_STEAM_DECK && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
-            return;
-        }
-
-        boolean connectedToCef = SteamDeckUtil.getDeckInstance().isPresent();
-
-        if (!connectedToCef) {
-            CUtil.LOGGER.error("Controlify could not connect to CEF debugger instance. Decky is probably not installed.");
-            InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDeckyRequiredWarning);
-        }
-
-        if (SteamDeckUtil.DECK_MODE == SteamDeckMode.DESKTOP_MODE) {
-            CUtil.LOGGER.warn("Controlify is running in SteamOS desktop mode.");
-            InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
-        }
-
-        if (connectedToCef && SteamDeckUtil.DECK_MODE == SteamDeckMode.GAMING_MODE) {
-            CUtil.LOGGER.log("Steam Deck is in gaming mode and Controlify has successfully connected to CEF.");
-        }
-    }
-
-    /**
-     * Loops through every controller slot and initialises it if it is connected.
-     * This is guaranteed to be called at most once. If no controllers are connected
-     * in the whole game lifecycle, this is never ran.
-     */
-    public void discoverControllers() {
-        if (hasDiscoveredControllers) {
-            CUtil.LOGGER.warn("Attempted to discover controllers twice!");
-            return;
-        }
-        hasDiscoveredControllers = true;
-
-        DebugLog.log("Discovering and initializing controllers...");
-
-        controllerManager.discoverControllers();
-
-        if (controllerManager.getConnectedControllers().isEmpty()) {
-            CUtil.LOGGER.log("No controllers found.");
-        }
-
-        // if no controller is currently selected, pick the first one
-        if (this.getCurrentController().isEmpty()) {
-            Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-                    .stream()
-                    .findAny();
-            this.setCurrentController(firstController.orElse(null), false);
-        }
-
-        config().saveIfDirty();
-
-        PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-            try {
-                entrypoint.onControllersDiscovered(this);
-            } catch (Throwable e) {
-                CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-            }
-        });
-    }
-
-    /**
-     * Called when a controller is connected. Either from controller
-     * discovery or hotplugging.
-     *
-     * @param controller the new controller
-     * @param hotplugged if this was a result of hotplugging
-     */
-    private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
-        ControllerSetupWizard wizard = new ControllerSetupWizard();
-
-        // wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
-
-        // Calibration screen removed - gyro calibration is now automatic via rolling calibration
-
-        wizard.addStage(
-                () -> {
-                    Optional<InputComponent> inputOpt = controller.input();
-                    if (inputOpt.isPresent()) {
-                        InputComponent input = inputOpt.get();
-                        DeviceSettings deviceSettings = config().getSettings().getOrCreateDeviceSettings(controller.uid());
-                        return !input.isDefinitelyGamepad() && deviceSettings.mapping == null;
-                    }
-                    return false;
-                },
-                nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
-        );
-        wizard.addStage(
-                () -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.settings().dontShowWarning).orElse(false),
-                nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
-        );
-
-        if (hotplugged) {
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.controller_connected.title"),
-                    Component.translatable("controlify.toast.controller_connected.description", controller.name()),
-                    false
-            );
-        }
-
-        // saved after discovery
-        if (hotplugged) {
-            config().saveIfDirty();
-        }
-
-        setupWizards.add(wizard);
-    }
-
-    /**
-     * Called when a controller is disconnected.
-     * @param controller controller that has been disconnected
-     */
-    private void onControllerRemoved(ControllerEntity controller) {
-        if (this.getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
-            this.selectFirstConnectedController();
-        }
-
-        MinecraftUtil.sendToast(
-                Component.translatable("controlify.toast.controller_disconnected.title"),
-                Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
-                false
-        );
-    }
-
-    private void selectFirstConnectedController() {
-        Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-                .stream()
-                .findFirst();
-        this.setCurrentController(firstController.orElse(null), true);
-    }
-
-    /**
-     * The main loop of Controlify.
-     * Only the current controller ticks.
-     */
-    public void tick(Minecraft client) {
-        if (MinecraftUtil.getOverlay() == null) {
-            if (currentSetupWizard != null && currentSetupWizard.isDone()) {
-                currentSetupWizard = null;
-            }
-
-            if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInteruptScreen)) {
-                currentSetupWizard = setupWizards.poll();
-                MinecraftUtil.setScreen(currentSetupWizard.start(MinecraftUtil.getScreen()));
-            }
-        }
-
-        boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput && !client.isWindowActive();
-
-        this.thisTickContexts = BindContext.CONTEXTS.values().stream()
-                .filter(ctx -> ctx.isApplicable().apply(minecraft))
-                .collect(Collectors.toUnmodifiableSet());
-
-        // handles updating state of all controllers
-        controllerManager.tick(outOfFocus);
-
-        // handle showing/hiding mouse whilst in mixed input mode
-        if (minecraft.mouseHandler.isMouseGrabbed())
-            showMouseTicks = 0;
-        if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
-            showMouseTicks--;
-            if (showMouseTicks == 0) {
-                hideMouse(true, false);
-                if (virtualMouseHandler().requiresVirtualMouse()) {
-                    virtualMouseHandler().enableVirtualMouse();
-                }
-            }
-        }
-
-        LowBatteryNotifier.tick();
-
-        getCurrentController().ifPresent(currentController -> {
-            wrapControllerError(
-                    () -> tickActiveController(currentController, outOfFocus),
-                    "Ticking current controller",
-                    currentController
-            );
-        });
-        for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-            if (controller.equals(getCurrentController().orElse(null))) continue;
-
-            wrapControllerError(
-                    () -> tickInactiveController(controller),
-                    "Ticking inactive controller",
-                    controller
-            );
-        }
-    }
-
-    /**
-     * Ticks a specific controller.
-     *
-     * @param controller controller to tick
-     * @param outOfFocus if the window is out of focus
-     */
-    private void tickActiveController(ControllerEntity controller, boolean outOfFocus) {
-        InputComponent input = controller.input().orElseThrow();
-        ControllerStateView state = input.stateNow();
-        Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
-
-        boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
-        boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
-
-        rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
-        if (outOfFocus) {
-            state = ControllerState.EMPTY;
-        } else {
-            rumbleManager.ifPresent(RumbleManager::tick);
-        }
-
-        if (state.isGivingInput()) {
-            minecraft.getFramerateLimitTracker().onInputReceived();
-
-            if (!this.currentInputMode().isController()) {
-                this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
-
-                return; // don't process input if this is changing mode.
-            }
-        }
-
-        if (consecutiveInputSwitches > 100) {
-            CUtil.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.faulty_input.title"),
-                    Component.translatable("controlify.toast.faulty_input.description"),
-                    true
-            );
-            this.setCurrentController(null, true);
-            consecutiveInputSwitches = 0;
-            return;
-        }
-
-        if (minecraft.level != null) {
-            this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
-        }
-
-        if (this.currentInputMode().isController()) {
-            if (MinecraftUtil.getScreen() != null) {
-                ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerUpdate(controller);
-            }
-
-            ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
-        }
-    }
-
-    private void tickInactiveController(ControllerEntity controller) {
-        InputComponent input = controller.input().orElseThrow();
-        ControllerStateView state = input.stateNow();
-
-        boolean thisControllerGivingInput = state.isGivingInput();
-        boolean activeControllerGivingInput = getCurrentController().map(c -> c.input().orElseThrow().stateNow().isGivingInput()).orElse(false);
-
-        if (thisControllerGivingInput && !activeControllerGivingInput) {
-            this.setCurrentController(controller, true);
-        }
-    }
-
-    public ConfigManager config() {
-        return config;
-    }
-
-    @Override
-    public @NotNull Optional<ControllerEntity> getCurrentController() {
-        return Optional.ofNullable(currentController);
-    }
-
-    public void setCurrentController(@Nullable ControllerEntity controller, boolean changeInputMode) {
-        if (this.currentController == controller) return;
-        this.currentController = controller;
-
-        boolean changedInputMode = false;
-        if (controller == null) {
-            changedInputMode = this.setInputMode(InputMode.KEYBOARD_MOUSE);
-            DebugLog.log("Cleared current controller.");
-        } else {
-            changedInputMode = this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
-            DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
-        }
-        if (!changedInputMode) {
-            this.setupForController(controller);
-        }
-    }
-
-    @Override
-    public boolean setInputMode(@NotNull InputMode newInputMode) {
-        if (this.currentInputMode == newInputMode) return false;
-        if (newInputMode.isController() && this.getCurrentController().isEmpty()) {
-            DebugLog.log("Attempted to switch to controller input mode with no current controller set.");
-            return false;
-        }
-
-        this.currentInputMode = newInputMode;
-
-        // Track consecutive input mode switches to prevent softlock
-        if (Blaze3D.getTime() - lastInputSwitchTime < 20) {
-            consecutiveInputSwitches++;
-        } else {
-            consecutiveInputSwitches = 0;
-        }
-        lastInputSwitchTime = Blaze3D.getTime();
-
-        if (!minecraft.mouseHandler.isMouseGrabbed()) {
-            hideMouse(newInputMode.isController(), true);
-        }
-
-        this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
-
-        KeyMapping.resetToggleKeys();
-
-        // If we have already joined a server with KB&M, then switch to controller,
-        // we should do the new server notification as it won't have been triggered on join.
-        if (this.currentInputMode.isController()) {
-            if (minecraft.getCurrentServer() != null) {
-                notifyNewServer(minecraft.getCurrentServer());
-            }
-        }
-
-        // notify current screen of input mode change
-        if (MinecraftUtil.getScreen() != null) {
-            ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onInputModeChanged(newInputMode);
-        }
-
-        // notify event listeners of input mode change
-        ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(newInputMode));
-
-        return true;
-    }
-
-    private void setupForController(@Nullable ControllerEntity controller) {
-        ControllerPlayerMovement.updatePlayerInput(minecraft.player);
-
-        if (controller == null) {
-            this.inGameInputHandler = null;
-            this.inGameButtonGuide = null;
-            return;
-        }
-
-        this.inGameInputHandler = new InGameInputHandler(controller);
-        this.inGameButtonGuide = new InGameButtonGuide(controller, this.minecraft);
-
-        controller.input().ifPresent(input -> {
-            input.rawStateNow().clearState();
-            input.rawStateThen().clearState();
-        });
-    }
-
-    public Optional<ControllerManager> getControllerManager() {
-        return Optional.ofNullable(controllerManager);
-    }
-
-    public Optional<InGameInputHandler> inGameInputHandler() {
-        return Optional.ofNullable(inGameInputHandler);
-    }
-
-    public Optional<InGameButtonGuide> inGameButtonGuide() {
-        return Optional.ofNullable(inGameButtonGuide);
-    }
-
-    public VirtualMouseHandler virtualMouseHandler() {
-        return virtualMouseHandler;
-    }
-
-    public @NotNull InputMode currentInputMode() {
-        return currentInputMode;
-    }
-
-    public void hideMouse(boolean hide, boolean moveMouse) {
-        long handle = minecraft.getWindow().handle();
-
-        GLFW.glfwSetInputMode(
-                handle,
-                GLFW.GLFW_CURSOR,
-                hide
-                        ? GLFW.GLFW_CURSOR_HIDDEN
-                        : GLFW.GLFW_CURSOR_NORMAL
-        );
-        if (MinecraftUtil.getScreen() != null) {
-            var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
-            if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
-                // stop mouse hovering over last element before hiding cursor but don't actually move it
-                // so when the user switches back to mouse it will be in the same place
-                mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50);
-            }
-        }
-    }
-
-    public void showCursorTemporarily() {
-        if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
-            hideMouse(false, false);
-            showMouseTicks = 20 * 2;
-            if (virtualMouseHandler().isVirtualMouseEnabled()) {
-                virtualMouseHandler().disableVirtualMouse();
-            }
-        }
-    }
-
-    public InputFontMapper inputFontMapper() {
-        return inputFontMapper;
-    }
-
-    public DefaultBindManager defaultBindManager() {
-        return defaultBindManager;
-    }
-
-    public DefaultConfigManager defaultConfigManager() {
-        return defaultConfigManager;
-    }
-
-    public ControllerTypeManager controllerTypeManager() {
-        return controllerTypeManager;
-    }
-
-    public KeyboardLayoutManager keyboardLayoutManager() {
-        return keyboardLayoutManager;
-    }
-
-    public Set<BindContext> thisTickBindContexts() {
-        return this.thisTickContexts;
-    }
-
-    public void notifyNewServer(ServerData data) {
-        if (!currentInputMode().isController())
-            return;
-
-        if (config().getSettings().globalSettings().seenServers.add(data.ip)) {
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.new_server.title"),
-                    Component.translatable("controlify.toast.new_server.description", data.name),
-                    true
-            );
-            config().saveSafely();
-        }
-    }
-
-    public static Controlify instance() {
-        if (instance == null) instance = new Controlify();
-        return instance;
-    }
+			controllerManager = new SDLControllerManager(sdl, CUtil.LOGGER);
+		} catch (Throwable throwable) {
+			CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
+			return;
+		}
+
+		PlatformClientUtil.registerClientTickStarted(this::tick);
+
+		// initialise and compatability modules that controlify implements itself
+		// this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
+		ControlifyCompat.init();
+
+		// make sure people don't someone add binds after controllers could have been created
+		ControlifyBindApiImpl.INSTANCE.lock();
+
+		discoverControllers();
+
+		if (DebugProperties.INIT_DUMP) {
+			CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
+		}
+
+		if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
+			doSteamDeckChecks();
+		}
+
+		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+			try {
+				entrypoint.onControlifyInit(new InitContext() {
+					@Override
+					public ControlifyApi controlify() {
+						return Controlify.this;
+					}
+				});
+			} catch (Throwable e) {
+				CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+			}
+		});
+	}
+
+	private void doSteamDeckChecks() {
+		CUtil.LOGGER.log("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
+
+		if (!SteamDeckUtil.IS_STEAM_DECK && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
+			return;
+		}
+
+		boolean connectedToCef = SteamDeckUtil.getDeckInstance().isPresent();
+
+		if (!connectedToCef) {
+			CUtil.LOGGER.error("Controlify could not connect to CEF debugger instance. Decky is probably not installed.");
+			InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDeckyRequiredWarning);
+		}
+
+		if (SteamDeckUtil.DECK_MODE == SteamDeckMode.DESKTOP_MODE) {
+			CUtil.LOGGER.warn("Controlify is running in SteamOS desktop mode.");
+			InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
+		}
+
+		if (connectedToCef && SteamDeckUtil.DECK_MODE == SteamDeckMode.GAMING_MODE) {
+			CUtil.LOGGER.log("Steam Deck is in gaming mode and Controlify has successfully connected to CEF.");
+		}
+	}
+
+	/**
+	 * Loops through every controller slot and initialises it if it is connected.
+	 * This is guaranteed to be called at most once. If no controllers are connected
+	 * in the whole game lifecycle, this is never ran.
+	 */
+	public void discoverControllers() {
+		if (hasDiscoveredControllers) {
+			CUtil.LOGGER.warn("Attempted to discover controllers twice!");
+			return;
+		}
+		hasDiscoveredControllers = true;
+
+		DebugLog.log("Discovering and initializing controllers...");
+
+		controllerManager.discoverControllers();
+
+		if (controllerManager.getConnectedControllers().isEmpty()) {
+			CUtil.LOGGER.log("No controllers found.");
+		}
+
+		// if no controller is currently selected, pick the first one
+		if (this.getCurrentController().isEmpty()) {
+			Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
+					.stream()
+					.findAny();
+			this.setCurrentController(firstController.orElse(null), false);
+		}
+
+		config().saveIfDirty();
+
+		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
+			try {
+				entrypoint.onControllersDiscovered(this);
+			} catch (Throwable e) {
+				CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
+			}
+		});
+	}
+
+	/**
+	 * Called when a controller is connected. Either from controller
+	 * discovery or hotplugging.
+	 *
+	 * @param controller the new controller
+	 * @param hotplugged if this was a result of hotplugging
+	 */
+	private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
+		ControllerSetupWizard wizard = new ControllerSetupWizard();
+
+		// wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
+
+		// Calibration screen removed - gyro calibration is now automatic via rolling calibration
+
+		wizard.addStage(
+				() -> {
+					Optional<InputComponent> inputOpt = controller.input();
+					if (inputOpt.isPresent()) {
+						InputComponent input = inputOpt.get();
+						DeviceSettings deviceSettings = config().getSettings().getOrCreateDeviceSettings(controller.uid());
+						return !input.isDefinitelyGamepad() && deviceSettings.mapping == null;
+					}
+					return false;
+				},
+				nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
+		);
+		wizard.addStage(
+				() -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.settings().dontShowWarning).orElse(false),
+				nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
+		);
+
+		if (hotplugged) {
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.controller_connected.title"),
+					Component.translatable("controlify.toast.controller_connected.description", controller.name()),
+					false
+			);
+		}
+
+		// saved after discovery
+		if (hotplugged) {
+			config().saveIfDirty();
+		}
+
+		setupWizards.add(wizard);
+	}
+
+	/**
+	 * Called when a controller is disconnected.
+	 * @param controller controller that has been disconnected
+	 */
+	private void onControllerRemoved(ControllerEntity controller) {
+		if (this.getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
+			this.selectFirstConnectedController();
+		}
+
+		MinecraftUtil.sendToast(
+				Component.translatable("controlify.toast.controller_disconnected.title"),
+				Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
+				false
+		);
+	}
+
+	private void selectFirstConnectedController() {
+		Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
+				.stream()
+				.findFirst();
+		this.setCurrentController(firstController.orElse(null), true);
+	}
+
+	/**
+	 * The main loop of Controlify.
+	 * Only the current controller ticks.
+	 */
+	public void tick(Minecraft client) {
+		if (MinecraftUtil.getOverlay() == null) {
+			if (currentSetupWizard != null && currentSetupWizard.isDone()) {
+				currentSetupWizard = null;
+			}
+
+			if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInteruptScreen)) {
+				currentSetupWizard = setupWizards.poll();
+				MinecraftUtil.setScreen(currentSetupWizard.start(MinecraftUtil.getScreen()));
+			}
+		}
+
+		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput && !client.isWindowActive();
+
+		this.thisTickContexts = BindContext.CONTEXTS.values().stream()
+				.filter(ctx -> ctx.isApplicable().apply(minecraft))
+				.collect(Collectors.toUnmodifiableSet());
+
+		// handles updating state of all controllers
+		controllerManager.tick(outOfFocus);
+
+		// handle showing/hiding mouse whilst in mixed input mode
+		if (minecraft.mouseHandler.isMouseGrabbed())
+			showMouseTicks = 0;
+		if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
+			showMouseTicks--;
+			if (showMouseTicks == 0) {
+				hideMouse(true, false);
+				if (virtualMouseHandler().requiresVirtualMouse()) {
+					virtualMouseHandler().enableVirtualMouse();
+				}
+			}
+		}
+
+		LowBatteryNotifier.tick();
+
+		getCurrentController().ifPresent(currentController -> {
+			wrapControllerError(
+					() -> tickActiveController(currentController, outOfFocus),
+					"Ticking current controller",
+					currentController
+			);
+		});
+		for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+			if (controller.equals(getCurrentController().orElse(null))) continue;
+
+			wrapControllerError(
+					() -> tickInactiveController(controller),
+					"Ticking inactive controller",
+					controller
+			);
+		}
+	}
+
+	/**
+	 * Ticks a specific controller.
+	 *
+	 * @param controller controller to tick
+	 * @param outOfFocus if the window is out of focus
+	 */
+	private void tickActiveController(ControllerEntity controller, boolean outOfFocus) {
+		InputComponent input = controller.input().orElseThrow();
+		ControllerStateView state = input.stateNow();
+		Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
+
+		boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
+		boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
+
+		rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
+		if (outOfFocus) {
+			state = ControllerState.EMPTY;
+		} else {
+			rumbleManager.ifPresent(RumbleManager::tick);
+		}
+
+		if (state.isGivingInput()) {
+			minecraft.getFramerateLimitTracker().onInputReceived();
+
+			if (!this.currentInputMode().isController()) {
+				this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+
+				return; // don't process input if this is changing mode.
+			}
+		}
+
+		if (consecutiveInputSwitches > 100) {
+			CUtil.LOGGER.warn("Controlify detected current controller to be constantly giving input and has been disabled.");
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.faulty_input.title"),
+					Component.translatable("controlify.toast.faulty_input.description"),
+					true
+			);
+			this.setCurrentController(null, true);
+			consecutiveInputSwitches = 0;
+			return;
+		}
+
+		if (minecraft.level != null) {
+			this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
+		}
+
+		if (this.currentInputMode().isController()) {
+			if (MinecraftUtil.getScreen() != null) {
+				ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerUpdate(controller);
+			}
+
+			ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
+		}
+	}
+
+	private void tickInactiveController(ControllerEntity controller) {
+		InputComponent input = controller.input().orElseThrow();
+		ControllerStateView state = input.stateNow();
+
+		boolean thisControllerGivingInput = state.isGivingInput();
+		boolean activeControllerGivingInput = getCurrentController().map(c -> c.input().orElseThrow().stateNow().isGivingInput()).orElse(false);
+
+		if (thisControllerGivingInput && !activeControllerGivingInput) {
+			this.setCurrentController(controller, true);
+		}
+	}
+
+	public ConfigManager config() {
+		return config;
+	}
+
+	@Override
+	public @NotNull Optional<ControllerEntity> getCurrentController() {
+		return Optional.ofNullable(currentController);
+	}
+
+	public void setCurrentController(@Nullable ControllerEntity controller, boolean changeInputMode) {
+		if (this.currentController == controller) return;
+		this.currentController = controller;
+
+		boolean changedInputMode = false;
+		if (controller == null) {
+			changedInputMode = this.setInputMode(InputMode.KEYBOARD_MOUSE);
+			DebugLog.log("Cleared current controller.");
+		} else {
+			changedInputMode = this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
+			DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
+		}
+		if (!changedInputMode) {
+			this.setupForController(controller);
+		}
+	}
+
+	@Override
+	public boolean setInputMode(@NotNull InputMode newInputMode) {
+		if (this.currentInputMode == newInputMode) return false;
+		if (newInputMode.isController() && this.getCurrentController().isEmpty()) {
+			DebugLog.log("Attempted to switch to controller input mode with no current controller set.");
+			return false;
+		}
+
+		this.currentInputMode = newInputMode;
+
+		// Track consecutive input mode switches to prevent softlock
+		if (Blaze3D.getTime() - lastInputSwitchTime < 20) {
+			consecutiveInputSwitches++;
+		} else {
+			consecutiveInputSwitches = 0;
+		}
+		lastInputSwitchTime = Blaze3D.getTime();
+
+		if (!minecraft.mouseHandler.isMouseGrabbed()) {
+			hideMouse(newInputMode.isController(), true);
+		}
+
+		this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
+
+		KeyMapping.resetToggleKeys();
+
+		// If we have already joined a server with KB&M, then switch to controller,
+		// we should do the new server notification as it won't have been triggered on join.
+		if (this.currentInputMode.isController()) {
+			if (minecraft.getCurrentServer() != null) {
+				notifyNewServer(minecraft.getCurrentServer());
+			}
+		}
+
+		// notify current screen of input mode change
+		if (MinecraftUtil.getScreen() != null) {
+			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onInputModeChanged(newInputMode);
+		}
+
+		// notify event listeners of input mode change
+		ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(newInputMode));
+
+		return true;
+	}
+
+	private void setupForController(@Nullable ControllerEntity controller) {
+		ControllerPlayerMovement.updatePlayerInput(minecraft.player);
+
+		if (controller == null) {
+			this.inGameInputHandler = null;
+			this.inGameButtonGuide = null;
+			return;
+		}
+
+		this.inGameInputHandler = new InGameInputHandler(controller);
+		this.inGameButtonGuide = new InGameButtonGuide(controller, this.minecraft);
+
+		controller.input().ifPresent(input -> {
+			input.rawStateNow().clearState();
+			input.rawStateThen().clearState();
+		});
+	}
+
+	public Optional<ControllerManager> getControllerManager() {
+		return Optional.ofNullable(controllerManager);
+	}
+
+	public Optional<InGameInputHandler> inGameInputHandler() {
+		return Optional.ofNullable(inGameInputHandler);
+	}
+
+	public Optional<InGameButtonGuide> inGameButtonGuide() {
+		return Optional.ofNullable(inGameButtonGuide);
+	}
+
+	public VirtualMouseHandler virtualMouseHandler() {
+		return virtualMouseHandler;
+	}
+
+	public @NotNull InputMode currentInputMode() {
+		return currentInputMode;
+	}
+
+	public void hideMouse(boolean hide, boolean moveMouse) {
+		long handle = minecraft.getWindow().handle();
+
+		GLFW.glfwSetInputMode(
+				handle,
+				GLFW.GLFW_CURSOR,
+				hide
+						? GLFW.GLFW_CURSOR_HIDDEN
+						: GLFW.GLFW_CURSOR_NORMAL
+		);
+		if (MinecraftUtil.getScreen() != null) {
+			var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
+			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
+				// stop mouse hovering over last element before hiding cursor but don't actually move it
+				// so when the user switches back to mouse it will be in the same place
+				mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50);
+			}
+		}
+	}
+
+	public void showCursorTemporarily() {
+		if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
+			hideMouse(false, false);
+			showMouseTicks = 20 * 2;
+			if (virtualMouseHandler().isVirtualMouseEnabled()) {
+				virtualMouseHandler().disableVirtualMouse();
+			}
+		}
+	}
+
+	public InputFontMapper inputFontMapper() {
+		return inputFontMapper;
+	}
+
+	public DefaultBindManager defaultBindManager() {
+		return defaultBindManager;
+	}
+
+	public DefaultConfigManager defaultConfigManager() {
+		return defaultConfigManager;
+	}
+
+	public ControllerTypeManager controllerTypeManager() {
+		return controllerTypeManager;
+	}
+
+	public KeyboardLayoutManager keyboardLayoutManager() {
+		return keyboardLayoutManager;
+	}
+
+	public Set<BindContext> thisTickBindContexts() {
+		return this.thisTickContexts;
+	}
+
+	public void notifyNewServer(ServerData data) {
+		if (!currentInputMode().isController())
+			return;
+
+		if (config().getSettings().globalSettings().seenServers.add(data.ip)) {
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.new_server.title"),
+					Component.translatable("controlify.toast.new_server.description", data.name),
+					true
+			);
+			config().saveSafely();
+		}
+	}
+
+	public static Controlify instance() {
+		if (instance == null) instance = new Controlify();
+		return instance;
+	}
 }

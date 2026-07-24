@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.guide;
 
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -6,10 +12,10 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 public record ContainerCtx(
-        @Nullable Slot hoveredSlot,
-        ItemStack holdingItem,
-        boolean cursorOutsideContainer,
-        ControllerEntity controller,
-        GuideVerbosity verbosity
+		@Nullable Slot hoveredSlot,
+		ItemStack holdingItem,
+		boolean cursorOutsideContainer,
+		ControllerEntity controller,
+		GuideVerbosity verbosity
 ) implements FactCtx {
 }

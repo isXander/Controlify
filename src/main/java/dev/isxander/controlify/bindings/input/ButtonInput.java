@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.MapCodec;
@@ -8,24 +14,24 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public record ButtonInput(Identifier button) implements Input {
-    public static final String INPUT_ID = "button";
+	public static final String INPUT_ID = "button";
 
-    public static final MapCodec<ButtonInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Identifier.CODEC.fieldOf(INPUT_ID).forGetter(ButtonInput::button)
-    ).apply(instance, ButtonInput::new));
+	public static final MapCodec<ButtonInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Identifier.CODEC.fieldOf(INPUT_ID).forGetter(ButtonInput::button)
+	).apply(instance, ButtonInput::new));
 
-    @Override
-    public float state(ControllerStateView state) {
-        return state.isButtonDown(button) ? 1 : 0;
-    }
+	@Override
+	public float state(ControllerStateView state) {
+		return state.isButtonDown(button) ? 1 : 0;
+	}
 
-    @Override
-    public List<Identifier> getRelevantInputs() {
-        return List.of(button);
-    }
+	@Override
+	public List<Identifier> getRelevantInputs() {
+		return List.of(button);
+	}
 
-    @Override
-    public InputType<?> type() {
-        return InputType.BUTTON;
-    }
+	@Override
+	public InputType<?> type() {
+		return InputType.BUTTON;
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.neoforge.platform.network;
 
 import dev.isxander.controlify.platform.network.C2SNetworkApi;
@@ -9,27 +15,27 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 
 public class C2SNetworkApiNeoforge implements C2SNetworkApi {
-    @Override
-    public <T> void sendPacket(Identifier channel, T packet) {
-        // TODO
-    }
+	@Override
+	public <T> void sendPacket(Identifier channel, T packet) {
+		// TODO
+	}
 
-    @Override
-    public <T> CustomPacketPayload createPayload(Identifier channel, T packet) {
-        return null;
-    }
+	@Override
+	public <T> CustomPacketPayload createPayload(Identifier channel, T packet) {
+		return null;
+	}
 
-    @Override
-    public <T> void listenForPacket(Identifier channel, PacketListener<T> listener) {
-        // TODO
-    }
+	@Override
+	public <T> void listenForPacket(Identifier channel, PacketListener<T> listener) {
+		// TODO
+	}
 
-    @Override
-    public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> handler) {
-        // TODO
-    }
+	@Override
+	public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> handler) {
+		// TODO
+	}
 
-    private IEventBus getModEventBus() {
-        return ModLoadingContext.get().getActiveContainer().getEventBus();
-    }
+	private IEventBus getModEventBus() {
+		return ModLoadingContext.get().getActiveContainer().getEventBus();
+	}
 }

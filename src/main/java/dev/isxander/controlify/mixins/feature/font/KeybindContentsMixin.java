@@ -1,9 +1,14 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.font;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.font.BindingFontHelper;
@@ -21,29 +26,29 @@ import net.minecraft.network.chat.FontDescription;
 
 @Mixin(KeybindContents.class)
 public class KeybindContentsMixin {
-    @Shadow
-    @Final
-    private String name;
+	@Shadow
+	@Final
+	private String name;
 
-    @WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
-    private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true) Style style) {
-        boolean wrapperFont = style.getFont() instanceof FontDescription.Resource(Identifier font)
-                && BindingFontHelper.WRAPPER_FONT.equals(font);
+	@WrapOperation(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;", at = @At(value = "INVOKE", target = "Lnet/minecraft/network/chat/contents/KeybindContents;getNestedComponent()Lnet/minecraft/network/chat/Component;"))
+	private Component testVisitWithStyle(KeybindContents instance, Operation<Component> original, @Local(argsOnly = true) Style style) {
+		boolean wrapperFont = style.getFont() instanceof FontDescription.Resource(Identifier font)
+				&& BindingFontHelper.WRAPPER_FONT.equals(font);
 
-        if (wrapperFont) {
-            Optional<Component> inputText = ControlifyApi.get().getCurrentController()
-                    .filter(c -> c.input().isPresent())
-                    .map(c -> Controlify.instance().inputFontMapper()
-                            .getComponentFromBinding(
-                                    c.info().type().namespace(),
-                                    c.input().get().getBinding(Identifier.tryParse(this.name))
-                            )
-                    );
-            if (inputText.isPresent()) {
-                return inputText.get();
-            }
-        }
+		if (wrapperFont) {
+			Optional<Component> inputText = ControlifyApi.get().getCurrentController()
+					.filter(c -> c.input().isPresent())
+					.map(c -> Controlify.instance().inputFontMapper()
+							.getComponentFromBinding(
+									c.info().type().namespace(),
+									c.input().get().getBinding(Identifier.tryParse(this.name))
+							)
+					);
+			if (inputText.isPresent()) {
+				return inputText.get();
+			}
+		}
 
-        return original.call(instance);
-    }
+		return original.call(instance);
+	}
 }

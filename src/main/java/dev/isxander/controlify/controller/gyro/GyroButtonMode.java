@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.gyro;
 
 import com.mojang.serialization.Codec;
@@ -5,15 +11,15 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 
 public enum GyroButtonMode implements StringRepresentable {
-    ON,
-    INVERT,
-    TOGGLE,
-    OFF;
+	ON,
+	INVERT,
+	TOGGLE,
+	OFF;
 
-    public static final Codec<GyroButtonMode> CODEC = StringRepresentable.fromEnum(GyroButtonMode::values);
+	public static final Codec<GyroButtonMode> CODEC = StringRepresentable.fromEnum(GyroButtonMode::values);
 
-    @Override
-    public @NonNull String getSerializedName() {
-        return this.name().toLowerCase();
-    }
+	@Override
+	public @NonNull String getSerializedName() {
+		return this.name().toLowerCase();
+	}
 }

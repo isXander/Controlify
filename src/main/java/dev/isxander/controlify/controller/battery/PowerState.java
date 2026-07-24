@@ -1,18 +1,24 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.battery;
 
 public sealed interface PowerState {
-    default int percent() {
-        return -1;
-    }
+	default int percent() {
+		return -1;
+	}
 
-    record Depleting(int percent) implements PowerState {}
-    record Charging(int percent) implements PowerState {}
-    record Full() implements PowerState {
-        @Override
-        public int percent() {
-            return 100;
-        }
-    }
-    record WiredOnly() implements PowerState {}
-    record Unknown() implements PowerState {}
+	record Depleting(int percent) implements PowerState {}
+	record Charging(int percent) implements PowerState {}
+	record Full() implements PowerState {
+		@Override
+		public int percent() {
+			return 100;
+		}
+	}
+	record WiredOnly() implements PowerState {}
+	record Unknown() implements PowerState {}
 }

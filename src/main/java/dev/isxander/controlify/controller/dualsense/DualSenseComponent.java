@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.dualsense;
 
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
@@ -6,56 +12,56 @@ import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
 public class DualSenseComponent extends ECSComponentImpl {
-    public static final Identifier ID = CUtil.rl("dualsense");
+	public static final Identifier ID = CUtil.rl("dualsense");
 
-    private boolean muteLight;
+	private boolean muteLight;
 
-    private DualsenseTriggerEffect leftTriggerEffect;
-    private DualsenseTriggerEffect rightTriggerEffect;
+	private DualsenseTriggerEffect leftTriggerEffect;
+	private DualsenseTriggerEffect rightTriggerEffect;
 
-    private boolean dirty;
+	private boolean dirty;
 
-    public void setLeftTriggerEffect(DualsenseTriggerEffect effect) {
-        this.leftTriggerEffect = effect;
-        this.setDirty();
-    }
+	public void setLeftTriggerEffect(DualsenseTriggerEffect effect) {
+		this.leftTriggerEffect = effect;
+		this.setDirty();
+	}
 
-    public DualsenseTriggerEffect getLeftTriggerEffect() {
-        return this.leftTriggerEffect;
-    }
+	public DualsenseTriggerEffect getLeftTriggerEffect() {
+		return this.leftTriggerEffect;
+	}
 
-    public void setRightTriggerEffect(DualsenseTriggerEffect effect) {
-        this.rightTriggerEffect = effect;
-        this.setDirty();
-    }
+	public void setRightTriggerEffect(DualsenseTriggerEffect effect) {
+		this.rightTriggerEffect = effect;
+		this.setDirty();
+	}
 
-    public DualsenseTriggerEffect getRightTriggerEffect() {
-        return this.rightTriggerEffect;
-    }
+	public DualsenseTriggerEffect getRightTriggerEffect() {
+		return this.rightTriggerEffect;
+	}
 
-    public void setMuteLight(boolean on) {
-        if (this.muteLight != on) {
-            this.muteLight = on;
-            this.setDirty();
-        }
-    }
+	public void setMuteLight(boolean on) {
+		if (this.muteLight != on) {
+			this.muteLight = on;
+			this.setDirty();
+		}
+	}
 
-    public boolean getMuteLight() {
-        return this.muteLight;
-    }
+	public boolean getMuteLight() {
+		return this.muteLight;
+	}
 
-    private void setDirty() {
-        this.dirty = true;
-    }
+	private void setDirty() {
+		this.dirty = true;
+	}
 
-    public boolean consumeDirty() {
-        boolean old = this.dirty;
-        this.dirty = false;
-        return old;
-    }
+	public boolean consumeDirty() {
+		boolean old = this.dirty;
+		this.dirty = false;
+		return old;
+	}
 
-    @Override
-    public Identifier id() {
-        return ID;
-    }
+	@Override
+	public Identifier id() {
+		return ID;
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
 import net.minecraft.client.gui.components.CycleButton;
@@ -11,15 +17,15 @@ import java.util.List;
 
 @Mixin(RecipeBookComponent.class)
 public interface RecipeBookComponentAccessor {
-    @Accessor("recipeBookPage")
-    RecipeBookPage controlify$getRecipeBookPage();
+	@Accessor("recipeBookPage")
+	RecipeBookPage controlify$getRecipeBookPage();
 
-    @Accessor("tabButtons")
-    List<RecipeBookTabButton> controlify$getTabButtons();
+	@Accessor("tabButtons")
+	List<RecipeBookTabButton> controlify$getTabButtons();
 
-    @Accessor("selectedTab")
-    RecipeBookTabButton controlify$getSelectedTab();
+	@Accessor("selectedTab")
+	RecipeBookTabButton controlify$getSelectedTab();
 
-    @Accessor("filterButton")
-    CycleButton<?> controlify$getFilterButton();
+	@Accessor("filterButton")
+	CycleButton<?> controlify$getFilterButton();
 }

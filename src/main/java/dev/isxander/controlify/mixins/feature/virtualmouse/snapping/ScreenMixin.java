@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
@@ -17,21 +23,21 @@ import java.util.function.Consumer;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin implements ISnapBehaviour {
-    @Shadow public abstract List<? extends GuiEventListener> children();
+	@Shadow public abstract List<? extends GuiEventListener> children();
 
-    @Shadow public int width;
-    @Shadow public int height;
-    @Final @Shadow protected @Nullable Minecraft minecraft;
+	@Shadow public int width;
+	@Shadow public int height;
+	@Final @Shadow protected @Nullable Minecraft minecraft;
 
-    @Override
-    public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
-        children().stream()
-                .filter(child -> child instanceof AbstractWidget)
-                .map(AbstractWidget.class::cast)
-                .map(widget -> new SnapPoint(
-                        new Vector2i(widget.getX() + widget.getWidth() / 2, widget.getY() + widget.getHeight() / 2),
-                        Math.min(widget.getWidth(), widget.getHeight()) / 2 + 10
-                ))
-                .forEach(consumer);
-    }
+	@Override
+	public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
+		children().stream()
+				.filter(child -> child instanceof AbstractWidget)
+				.map(AbstractWidget.class::cast)
+				.map(widget -> new SnapPoint(
+						new Vector2i(widget.getX() + widget.getWidth() / 2, widget.getY() + widget.getHeight() / 2),
+						Math.min(widget.getWidth(), widget.getHeight()) / 2 + 10
+				))
+				.forEach(consumer);
+	}
 }

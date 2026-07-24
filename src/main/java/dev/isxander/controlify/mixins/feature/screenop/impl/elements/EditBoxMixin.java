@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -30,90 +36,89 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(EditBox.class)
 public abstract class EditBoxMixin extends AbstractWidget implements ComponentProcessorProvider {
 
-    @Shadow private @Nullable Component hint;
-    @Shadow private @Nullable String suggestion;
-    @Shadow @Final private Font font;
+	@Shadow private @Nullable Component hint;
+	@Shadow private @Nullable String suggestion;
+	@Shadow @Final private Font font;
 
-    @Shadow
-    public abstract boolean isBordered();
+	@Shadow
+	public abstract boolean isBordered();
 
-    @Unique
-    private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
-            (EditBox) (Object) this,
-            Minecraft.getInstance().getWindow().getGuiScaledWidth(),
-            Minecraft.getInstance().getWindow().getGuiScaledHeight()
-    );
+	@Unique private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
+			(EditBox) (Object) this,
+			Minecraft.getInstance().getWindow().getGuiScaledWidth(),
+			Minecraft.getInstance().getWindow().getGuiScaledHeight()
+	);
 
-    public EditBoxMixin(int x, int y, int width, int height, Component message) {
-        super(x, y, width, height, message);
-    }
+	public EditBoxMixin(int x, int y, int width, int height, Component message) {
+		super(x, y, width, height, message);
+	}
 
-    /**
-     * Renders some hint text when the edit box is focused to indicate
-     * that pressing GUI_PRESS will open the on-screen keyboard.
-     * If the edit box has some text, the hint will be minimally rendered
-     */
-    @ModifyExpressionValue(method = "extractWidgetRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;plainSubstrByWidth(Ljava/lang/String;I)Ljava/lang/String;"))
-    private String renderHintText(
-            String renderedValue,
-            @Local(argsOnly = true, name = "graphics") GuiGraphicsExtractor graphics,
-            @Share("renderHint") LocalBooleanRef renderHint
-    ) {
-        renderHint.set(false);
+	/**
+	 * Renders some hint text when the edit box is focused to indicate
+	 * that pressing GUI_PRESS will open the on-screen keyboard.
+	 * If the edit box has some text, the hint will be minimally rendered
+	 */
+	@ModifyExpressionValue(method = "extractWidgetRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;plainSubstrByWidth(Ljava/lang/String;I)Ljava/lang/String;"))
+	private String renderHintText(
+			String renderedValue,
+			@Local(argsOnly = true, name = "graphics") GuiGraphicsExtractor graphics,
+			@Share("renderHint") LocalBooleanRef renderHint
+	) {
+		renderHint.set(false);
 
-        ControlifyApi.get().getCurrentController().ifPresent(controller -> {
-            if (this.isFocused()
-                && controller.settings().generic.keyboard.showOnScreenKeyboard
-                && controller.settings().generic.guide.showScreenGuides
-                && ControlifyApi.get().currentInputMode().isController()
-                && !(MinecraftUtil.getScreen() instanceof KeyboardOverlayScreen)
-                && processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
-            ) {
-                int textX = this.getX() + (this.isBordered() ? 2 : 0) + 2;
-                int textY = this.getY() + (this.isBordered() ? 2 : 0) + 4;
+		ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+			if (this.isFocused()
+				&& controller.settings().generic.keyboard.showOnScreenKeyboard
+				&& controller.settings().generic.guide.showScreenGuides
+				&& ControlifyApi.get().currentInputMode().isController()
+				&& !(MinecraftUtil.getScreen() instanceof KeyboardOverlayScreen)
+				&& processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
+			) {
+				int textX = this.getX() + (this.isBordered() ? 2 : 0) + 2;
+				int textY = this.getY() + (this.isBordered() ? 2 : 0) + 4;
 
-                if (renderedValue.isEmpty()
-                    && this.hint == null
-                    && this.suggestion == null
-                ) {
-                    var component = CommonKeyboardHints.OPEN_KEYBOARD;
-                    int width = component.getWidth();
+				if (renderedValue.isEmpty()
+					&& this.hint == null
+					&& this.suggestion == null
+				) {
+					var component = CommonKeyboardHints.OPEN_KEYBOARD;
+					int width = component.getWidth();
 
-                    var pose = graphics.pose().pushMatrix();
-                    if (width > this.getWidth() + (this.isBordered() ? 4 : 0)) {
-                        pose.translate(textX, textY + 3);
-                        pose.scale(0.5f, 0.5f);
-                        pose.translate(-textX, -textY - 3);
-                    }
+					var pose = graphics.pose().pushMatrix();
+					if (width > this.getWidth() + (this.isBordered() ? 4 : 0)) {
+						pose.translate(textX, textY + 3);
+						pose.scale(0.5f, 0.5f);
+						pose.translate(-textX, -textY - 3);
+					}
 
-                    renderHint.set(true);
-                    graphics.text(font, component.getComponent(), textX, textY, 0xFFAAAAAA);
+					renderHint.set(true);
+					graphics.text(font, component.getComponent(), textX, textY, 0xFFAAAAAA);
 
-                    pose.popMatrix();
-                } else {
-                    var component = ControlifyBindings.GUI_PRESS.inputGlyph();
-                    int width = font.width(component);
+					pose.popMatrix();
+				} else {
+					var component = ControlifyBindings.GUI_PRESS.inputGlyph();
+					int width = font.width(component);
 
-                    graphics.text(
-                            font, component,
-                            this.getRight() - 2 - width,
-                            textY,
-                            -1
-                    );
-                }
-            }
-        });
+					graphics.text(
+							font, component,
+							this.getRight() - 2 - width,
+							textY,
+							-1
+					);
+				}
+			}
+		});
 
-        return renderedValue;
-    }
+		return renderedValue;
+	}
 
-    @ModifyVariable(method = "extractWidgetRenderState", at = @At("STORE"), name = "cursorOnScreen")
-    private boolean preventShowingCursor(boolean cursorOnScreen, @Share("renderHint") LocalBooleanRef renderHint) {
-        return cursorOnScreen && !renderHint.get();
-    }
+	@ModifyVariable(method = "extractWidgetRenderState", at = @At("STORE"), name = "cursorOnScreen")
+	private boolean preventShowingCursor(boolean cursorOnScreen, @Share("renderHint") LocalBooleanRef renderHint) {
+		return cursorOnScreen && !renderHint.get();
+	}
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return processor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return processor;
+	}
 }

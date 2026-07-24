@@ -1,4 +1,9 @@
-//? if fancy_menu {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.fancymenu;
 
 import de.keksuccino.fancymenu.customization.action.Action;
@@ -9,34 +14,34 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class OpenControlifySettingsAction extends Action {
-    public OpenControlifySettingsAction() {
-        super("controlify:open-settings");
-    }
+	public OpenControlifySettingsAction() {
+		super("controlify:open-settings");
+	}
 
-    @Override
-    public boolean hasValue() {
-        return false;
-    }
+	@Override
+	public boolean hasValue() {
+		return false;
+	}
 
-    @Override
-    public void execute(@Nullable String s) {
-        ControlifySettingsScreen.openScreen(MinecraftUtil.getScreen());
-    }
+	@Override
+	public void execute(@Nullable String s) {
+		ControlifySettingsScreen.openScreen(MinecraftUtil.getScreen());
+	}
 
-    @Override
-    public @NotNull Component getDisplayName() {
-        return Component.translatable("controlify.gui.button");
-    }
+	@Override
+	public @NotNull Component getDisplayName() {
+		return Component.translatable("controlify.gui.button");
+	}
 
-    @Override
-    public @NotNull Component getDescription() {
-        return Component.empty();
-    }
+	@Override
+	public @NotNull Component getDescription() {
+		return Component.empty();
+	}
 
-    @Override
-    public @Nullable Component getValueDisplayName() {
-        return null;
-    }
+	@Override
+	public @Nullable Component getValueDisplayName() {
+		return null;
+	}
 
 	@Override
 	public @Nullable String getValuePreset() {

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.server;
 
 import com.mojang.logging.LogUtils;
@@ -12,45 +18,45 @@ import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
 public class ControlifyHandshake {
-    public static final Logger LOGGER = LogUtils.getLogger();
+	public static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final int PROTOCOL_VERSION = 1;
-    public static final Identifier HANDSHAKE_CHANNEL = CUtil.rl("handshake");
+	public static final int PROTOCOL_VERSION = 1;
+	public static final Identifier HANDSHAKE_CHANNEL = CUtil.rl("handshake");
 
-    private static final StreamCodec<FriendlyByteBuf, HandshakePacket> handshakePacketCodec = StreamCodec.of(
-            (buf, packet) -> buf.writeInt(packet.protocolVersion()),
-            buf -> new HandshakePacket(buf.readInt())
-    );
+	private static final StreamCodec<FriendlyByteBuf, HandshakePacket> handshakePacketCodec = StreamCodec.of(
+			(buf, packet) -> buf.writeInt(packet.protocolVersion()),
+			buf -> new HandshakePacket(buf.readInt())
+	);
 
-    public static void setupOnServer() {
-        PlatformMainUtil.setupServersideHandshake(
-                HANDSHAKE_CHANNEL,
-                handshakePacketCodec,
-                handshakePacketCodec,
-                () -> new HandshakePacket(PROTOCOL_VERSION),
-                (packet, handler) -> {
-                    if (packet == null) {
-                        // client does not have controlify installed
-                        return;
-                    }
+	public static void setupOnServer() {
+		PlatformMainUtil.setupServersideHandshake(
+				HANDSHAKE_CHANNEL,
+				handshakePacketCodec,
+				handshakePacketCodec,
+				() -> new HandshakePacket(PROTOCOL_VERSION),
+				(packet, handler) -> {
+					if (packet == null) {
+						// client does not have controlify installed
+						return;
+					}
 
-                    if (packet.protocolVersion() > PROTOCOL_VERSION) {
-                        handler.disconnect(Component.literal("Server has an old version of Controlify installed and is incompatible with this client.").withStyle(ChatFormatting.RED));
-                    } else if (packet.protocolVersion() < PROTOCOL_VERSION) {
-                        handler.disconnect(Component.literal("Client has an old version of Controlify installed and is incompatible with this server.").withStyle(ChatFormatting.RED));
-                    }
-                }
-        );
-    }
+					if (packet.protocolVersion() > PROTOCOL_VERSION) {
+						handler.disconnect(Component.literal("Server has an old version of Controlify installed and is incompatible with this client.").withStyle(ChatFormatting.RED));
+					} else if (packet.protocolVersion() < PROTOCOL_VERSION) {
+						handler.disconnect(Component.literal("Client has an old version of Controlify installed and is incompatible with this server.").withStyle(ChatFormatting.RED));
+					}
+				}
+		);
+	}
 
-    public static void setupOnClient() {
-        PlatformClientUtil.setupClientsideHandshake(
-                HANDSHAKE_CHANNEL,
-                handshakePacketCodec,
-                handshakePacketCodec,
-                inboundHandshake -> new HandshakePacket(PROTOCOL_VERSION)
-        );
-    }
+	public static void setupOnClient() {
+		PlatformClientUtil.setupClientsideHandshake(
+				HANDSHAKE_CHANNEL,
+				handshakePacketCodec,
+				handshakePacketCodec,
+				inboundHandshake -> new HandshakePacket(PROTOCOL_VERSION)
+		);
+	}
 
-    private record HandshakePacket(int protocolVersion) {}
+	private record HandshakePacket(int protocolVersion) {}
 }

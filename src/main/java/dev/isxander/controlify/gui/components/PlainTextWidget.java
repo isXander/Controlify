@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.gui.components;
 
 import net.minecraft.client.Minecraft;
@@ -13,31 +19,31 @@ import org.jspecify.annotations.Nullable;
 
 public class PlainTextWidget extends AbstractWidget {
 
-    public PlainTextWidget(Component text) {
-        super(0, 0, 0, 0, text);
-        this.setWidth(Minecraft.getInstance().font.width(text));
-        this.setHeight(Minecraft.getInstance().font.lineHeight + 2);
-    }
+	public PlainTextWidget(Component text) {
+		super(0, 0, 0, 0, text);
+		this.setWidth(Minecraft.getInstance().font.width(text));
+		this.setHeight(Minecraft.getInstance().font.lineHeight + 2);
+	}
 
-    @Override
-    public void setMessage(@NonNull Component message) {
-        super.setMessage(message);
-        this.setWidth(Minecraft.getInstance().font.width(message));
-    }
+	@Override
+	public void setMessage(@NonNull Component message) {
+		super.setMessage(message);
+		this.setWidth(Minecraft.getInstance().font.width(message));
+	}
 
-    @Override
-    protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR)
-                .accept(getX(), getY() + 1, getMessage());
-    }
+	@Override
+	protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR)
+				.accept(getX(), getY() + 1, getMessage());
+	}
 
-    @Override
-    public @Nullable ComponentPath nextFocusPath(@NonNull FocusNavigationEvent event) {
-        return null;
-    }
+	@Override
+	public @Nullable ComponentPath nextFocusPath(@NonNull FocusNavigationEvent event) {
+		return null;
+	}
 
-    @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-        narrationElementOutput.add(NarratedElementType.TITLE, getMessage());
-    }
+	@Override
+	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+		narrationElementOutput.add(NarratedElementType.TITLE, getMessage());
+	}
 }

@@ -1,7 +1,13 @@
-//? if reeses_sodium_options {
-/*package dev.isxander.controlify.compatibility.rso.mixins;
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.compatibility.rso.mixins;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+//? if reeses_sodium_options {
+/*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -28,115 +34,111 @@ import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 
 @Mixin(SodiumVideoOptionsScreen.class)
 public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
-    @Shadow
-    private FlatButtonWidget applyButton;
-    @Shadow
-    private FlatButtonWidget closeButton;
-    @Shadow
-    private FlatButtonWidget undoButton;
+	@Shadow
+	private FlatButtonWidget applyButton;
+	@Shadow
+	private FlatButtonWidget closeButton;
+	@Shadow
+	private FlatButtonWidget undoButton;
 
-    @Unique
-    private final SodiumGuiScreenProcessor controlify$screenProcessor
-            = new SodiumGuiScreenProcessor((SodiumVideoOptionsScreen) (Object) this, this);
+	@Unique private final SodiumGuiScreenProcessor controlify$screenProcessor
+			= new SodiumGuiScreenProcessor((SodiumVideoOptionsScreen) (Object) this, this);
 
-    @Unique
-    private TabFrame tabFrame;
+	@Unique private TabFrame tabFrame;
 
-    protected SodiumVideoOptionsScreenMixin(Component title) {
-        super(title);
-    }
+	protected SodiumVideoOptionsScreenMixin(Component title) {
+		super(title);
+	}
 
-    @Inject(method = "init", at = @At("RETURN"))
-    private void notifyProcessorRebuild(CallbackInfo ci) {
-        controlify$screenProcessor.onRebuildGUI();
-        focusOnFirstControl();
-    }
+	@Inject(method = "init", at = @At("RETURN"))
+	private void notifyProcessorRebuild(CallbackInfo ci) {
+		controlify$screenProcessor.onRebuildGUI();
+		focusOnFirstControl();
+	}
 
-    @ModifyExpressionValue(
-            method = "lambda$parentBasicFrameBuilder$9",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;build()Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame;"
-            )
-    )
-    private TabFrame storeBuiltTabFrame(TabFrame original) {
-        return tabFrame = original;
-    }
+	@ModifyExpressionValue(
+			method = "lambda$parentBasicFrameBuilder$9",
+			at = @At(
+					value = "INVOKE",
+					target = "Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;build()Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame;"
+			)
+	)
+	private TabFrame storeBuiltTabFrame(TabFrame original) {
+		return tabFrame = original;
+	}
 
-    @ModifyArg(
-            method = "lambda$parentBasicFrameBuilder$9",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;onSetTab(Ljava/lang/Runnable;)Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;"
-            )
-    )
-    private Runnable setInitialFocusOnTabChange(Runnable onSetTab) {
-        return () -> {
-            onSetTab.run();
-            Minecraft.getInstance().
-                    /^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
-        };
-    }
+	@ModifyArg(
+			method = "lambda$parentBasicFrameBuilder$9",
+			at = @At(
+					value = "INVOKE",
+					target = "Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;onSetTab(Ljava/lang/Runnable;)Lme/flashyreese/mods/reeses_sodium_options/client/gui/frame/tab/TabFrame$Builder;"
+			)
+	)
+	private Runnable setInitialFocusOnTabChange(Runnable onSetTab) {
+		return () -> {
+			onSetTab.run();
+			Minecraft.getInstance().
+					/^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
+		};
+	}
 
-    @Unique
-    private void focusOnFirstControl() {
-        AbstractFrame tabContentsFrame = ((TabFrameAccessor) tabFrame).getSelectedFrame();
-        List<ControlElement<?>> controlElements = ((AbstractFrameAccessor) tabContentsFrame).getControlElements();
-        if (!controlElements.isEmpty()) {
-            System.out.println(controlElements.get(0).getOption().getName().getString());
-            setInitialFocus(controlElements.get(0));
-        }
-    }
+	@Unique private void focusOnFirstControl() {
+		AbstractFrame tabContentsFrame = ((TabFrameAccessor) tabFrame).getSelectedFrame();
+		List<ControlElement<?>> controlElements = ((AbstractFrameAccessor) tabContentsFrame).getControlElements();
+		if (!controlElements.isEmpty()) {
+			System.out.println(controlElements.get(0).getOption().getName().getString());
+			setInitialFocus(controlElements.get(0));
+		}
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return controlify$screenProcessor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return controlify$screenProcessor;
+	}
 
-    @Override
-    public void controlify$nextPage() {
-        var accessor = (TabFrameAccessor) this.tabFrame;
-        List<Tab<?>> tabs = accessor.getTabs();
-        Optional<Tab<?>> selectedTab = getSelectedTab(accessor);
-        if (selectedTab.isEmpty()) return;
+	@Override
+	public void controlify$nextPage() {
+		var accessor = (TabFrameAccessor) this.tabFrame;
+		List<Tab<?>> tabs = accessor.getTabs();
+		Optional<Tab<?>> selectedTab = getSelectedTab(accessor);
+		if (selectedTab.isEmpty()) return;
 
-        var currentIndex = tabs.indexOf(selectedTab.get());
-        var nextIndex = (currentIndex + 1) % tabs.size();
+		var currentIndex = tabs.indexOf(selectedTab.get());
+		var nextIndex = (currentIndex + 1) % tabs.size();
 
-        tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
-    }
+		tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
+	}
 
-    @Override
-    public void controlify$prevPage() {
-        var accessor = (TabFrameAccessor) this.tabFrame;
-        List<Tab<?>> tabs = accessor.getTabs();
-        Optional<Tab<?>> selectedTab = getSelectedTab(accessor);
-        if (selectedTab.isEmpty()) return;
+	@Override
+	public void controlify$prevPage() {
+		var accessor = (TabFrameAccessor) this.tabFrame;
+		List<Tab<?>> tabs = accessor.getTabs();
+		Optional<Tab<?>> selectedTab = getSelectedTab(accessor);
+		if (selectedTab.isEmpty()) return;
 
-        var currentIndex = tabs.indexOf(selectedTab.get());
-        var nextIndex = (currentIndex - 1 + tabs.size()) % tabs.size();
+		var currentIndex = tabs.indexOf(selectedTab.get());
+		var nextIndex = (currentIndex - 1 + tabs.size()) % tabs.size();
 
-        tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
-    }
+		tabFrame.setTab(Optional.of(tabs.get(nextIndex)));
+	}
 
-    @Override
-    public FlatButtonWidget controlify$getApplyButton() {
-        return applyButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getApplyButton() {
+		return applyButton;
+	}
 
-    @Override
-    public FlatButtonWidget controlify$getCloseButton() {
-        return closeButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getCloseButton() {
+		return closeButton;
+	}
 
-    @Override
-    public FlatButtonWidget controlify$getUndoButton() {
-        return undoButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getUndoButton() {
+		return undoButton;
+	}
 
-    @Unique
-    private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
-        return accessor.getSelectedTab();
-    }
+	@Unique private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
+		return accessor.getSelectedTab();
+	}
 }
 *///?}

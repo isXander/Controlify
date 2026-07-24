@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
 import net.minecraft.world.entity.player.Player;
@@ -8,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public class PlayerMixin extends LivingEntityMixin {
-    @Inject(method = "animateHurt", at = @At("HEAD"))
-    protected void onEntityHurtMeDamage(float yaw, CallbackInfo ci) {
+	@Inject(method = "animateHurt", at = @At("HEAD"))
+	protected void onEntityHurtMeDamage(float yaw, CallbackInfo ci) {
 
-    }
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
@@ -26,129 +32,126 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ControllerEntity extends ECSEntityImpl {
-    private final ControllerInfo info;
-    private final Driver driver;
-    private final ProfileSettings settings;
-    private final ProfileSettings defaultSettings;
-    private final ControlifyLogger logger;
+	private final ControllerInfo info;
+	private final Driver driver;
+	private final ProfileSettings settings;
+	private final ProfileSettings defaultSettings;
+	private final ControlifyLogger logger;
 
-    public ControllerEntity(
-            ControllerInfo info,
-            Driver driver,
-            ProfileSettings settings,
-            ProfileSettings defaultSettings,
-            ControlifyLogger logger
-    ) {
-        this.info = info;
-        this.driver = driver;
-        this.settings = settings;
-        this.defaultSettings = defaultSettings;
-        this.logger = logger;
+	public ControllerEntity(
+			ControllerInfo info,
+			Driver driver,
+			ProfileSettings settings,
+			ProfileSettings defaultSettings,
+			ControlifyLogger logger
+	) {
+		this.info = info;
+		this.driver = driver;
+		this.settings = settings;
+		this.defaultSettings = defaultSettings;
+		this.logger = logger;
 
-        driver.addComponents(this);
-        this.getAllComponents().values().forEach(c -> c.attach(this));
+		driver.addComponents(this);
+		this.getAllComponents().values().forEach(c -> c.attach(this));
 
-        logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(Identifier::toString).collect(Collectors.joining(", ")));
-    }
+		logger.debugLog("Components: {}", this.getAllComponents().keySet().stream().map(Identifier::toString).collect(Collectors.joining(", ")));
+	}
 
-    public String uid() {
-        return this.<UIDComponent>getComponent(UIDComponent.ID).orElseThrow().value();
-    }
+	public String uid() {
+		return this.<UIDComponent>getComponent(UIDComponent.ID).orElseThrow().value();
+	}
 
-    @NotNull
-    public String driverName() {
-        return this.<DriverNameComponent>getComponent(DriverNameComponent.ID).orElseThrow().value();
-    }
+	@NotNull public String driverName() {
+		return this.<DriverNameComponent>getComponent(DriverNameComponent.ID).orElseThrow().value();
+	}
 
-    @NotNull
-    public String guid() {
-        return this.<GUIDComponent>getComponent(GUIDComponent.ID).orElseThrow().value();
-    }
+	@NotNull public String guid() {
+		return this.<GUIDComponent>getComponent(GUIDComponent.ID).orElseThrow().value();
+	}
 
-    public ControllerInfo info() {
-        return this.info;
-    }
+	public ControllerInfo info() {
+		return this.info;
+	}
 
-    @NotNull
-    public String name() {
-        String friendlyName = info().type().friendlyName();
-        if (friendlyName != null)
-            return friendlyName;
+	@NotNull public String name() {
+		String friendlyName = info().type().friendlyName();
+		if (friendlyName != null)
+			return friendlyName;
 
-        return driverName();
-    }
+		return driverName();
+	}
 
-    public Driver drivers() {
-        return driver;
-    }
+	public Driver drivers() {
+		return driver;
+	}
 
-    public ProfileSettings settings() {
-        return settings;
-    }
+	public ProfileSettings settings() {
+		return settings;
+	}
 
-    public ProfileSettings defaultSettings() {
-        return defaultSettings;
-    }
+	public ProfileSettings defaultSettings() {
+		return defaultSettings;
+	}
 
-    @Contract(pure = true)
-    public Optional<InputComponent> input() {
-        return this.getComponent(InputComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<InputComponent> input() {
+		return this.getComponent(InputComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<RumbleComponent> rumble() {
-        return this.getComponent(RumbleComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<RumbleComponent> rumble() {
+		return this.getComponent(RumbleComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<TriggerRumbleComponent> triggerRumble() {
-        return this.getComponent(TriggerRumbleComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<TriggerRumbleComponent> triggerRumble() {
+		return this.getComponent(TriggerRumbleComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<GyroComponent> gyro() {
-        return this.getComponent(GyroComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<GyroComponent> gyro() {
+		return this.getComponent(GyroComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<TouchpadComponent> touchpad() {
-        return this.getComponent(TouchpadComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<TouchpadComponent> touchpad() {
+		return this.getComponent(TouchpadComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<BatteryLevelComponent> batteryLevel() {
-        return this.getComponent(BatteryLevelComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<BatteryLevelComponent> batteryLevel() {
+		return this.getComponent(BatteryLevelComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<HDHapticComponent> hdHaptics() {
-        return this.getComponent(HDHapticComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<HDHapticComponent> hdHaptics() {
+		return this.getComponent(HDHapticComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<DualSenseComponent> dualSense() {
-        return this.getComponent(DualSenseComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<DualSenseComponent> dualSense() {
+		return this.getComponent(DualSenseComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<LEDComponent> led() {
-        return this.getComponent(LEDComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<LEDComponent> led() {
+		return this.getComponent(LEDComponent.ID);
+	}
 
-    @Contract(pure = true)
-    public Optional<BluetoothDeviceComponent> bluetooth() {
-        return this.getComponent(BluetoothDeviceComponent.ID);
-    }
+	@Contract(pure = true)
+	public Optional<BluetoothDeviceComponent> bluetooth() {
+		return this.getComponent(BluetoothDeviceComponent.ID);
+	}
 
-    public void update(boolean outOfFocus) {
-        this.driver.update(this, outOfFocus);
-    }
+	public void update(boolean outOfFocus) {
+		this.driver.update(this, outOfFocus);
+	}
 
-    public void close() {
-        this.driver.close();
-    }
+	public void close() {
+		this.driver.close();
+	}
 
-    public ControlifyLogger getLogger() {
-        return logger;
-    }
+	public ControlifyLogger getLogger() {
+		return logger;
+	}
 }

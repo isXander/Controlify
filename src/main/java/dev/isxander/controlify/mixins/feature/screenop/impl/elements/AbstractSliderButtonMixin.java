@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -17,24 +23,23 @@ import org.spongepowered.asm.mixin.injection.At;
  */
 @Mixin(AbstractSliderButton.class)
 public class AbstractSliderButtonMixin implements ComponentProcessorProvider {
-    @Shadow private boolean canChangeValue;
+	@Shadow private boolean canChangeValue;
 
-    @Unique
-    private final SliderComponentProcessor controlify$processor = new SliderComponentProcessor(
-            (AbstractSliderButton) (Object) this,
-            () -> this.canChangeValue,
-            val -> this.canChangeValue = val
-    );
+	@Unique private final SliderComponentProcessor controlify$processor = new SliderComponentProcessor(
+			(AbstractSliderButton) (Object) this,
+			() -> this.canChangeValue,
+			val -> this.canChangeValue = val
+	);
 
-    @ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getLastInputType()Lnet/minecraft/client/InputType;"))
-    private InputType shouldChangeValue(InputType type) {
-        if (Controlify.instance().currentInputMode().isController())
-            return InputType.NONE; // none doesn't pass condition
-        return type;
-    }
+	@ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getLastInputType()Lnet/minecraft/client/InputType;"))
+	private InputType shouldChangeValue(InputType type) {
+		if (Controlify.instance().currentInputMode().isController())
+			return InputType.NONE; // none doesn't pass condition
+		return type;
+	}
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return controlify$processor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return controlify$processor;
+	}
 }

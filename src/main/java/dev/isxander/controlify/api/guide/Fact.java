@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.guide;
 
 import net.minecraft.resources.Identifier;
@@ -9,11 +15,11 @@ import net.minecraft.resources.Identifier;
  */
 public record Fact<T extends FactCtx>(Identifier id, FactProvider<T> provider) {
 
-    public static <Z extends FactCtx> Fact<Z> of(Identifier id, FactProvider<Z> provider) {
-        return new Fact<>(id, provider);
-    }
+	public static <Z extends FactCtx> Fact<Z> of(Identifier id, FactProvider<Z> provider) {
+		return new Fact<>(id, provider);
+	}
 
-    public static <Z extends FactCtx> Fact<Z> of(Identifier id) {
-        return new Fact<>(id, FactProvider.staticProvider(false));
-    }
+	public static <Z extends FactCtx> Fact<Z> of(Identifier id) {
+		return new Fact<>(id, FactProvider.staticProvider(false));
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.virtualmouse;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -30,49 +36,48 @@ import net.minecraft.util.Mth;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 
-import java.lang.Math;
 import java.util.*;
 
 public class VirtualMouseHandler {
-    private static final Identifier CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
+	private static final Identifier CURSOR_TEXTURE = CUtil.rl("textures/gui/virtual_mouse.png");
 
-    private double targetX, targetY;
-    private double currentX, currentY;
+	private double targetX, targetY;
+	private double currentX, currentY;
 
-    private double scrollX, scrollY;
+	private double scrollX, scrollY;
 
-    private float prevXFinger, prevYFinger;
+	private float prevXFinger, prevYFinger;
 
-    private final Minecraft minecraft;
-    private boolean virtualMouseEnabled;
+	private final Minecraft minecraft;
+	private boolean virtualMouseEnabled;
 
-    private Set<SnapPoint> snapPoints;
-    private SnapPoint lastSnappedPoint;
+	private Set<SnapPoint> snapPoints;
+	private SnapPoint lastSnappedPoint;
 
-    private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
+	private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(10, 3);
 
-    public VirtualMouseHandler() {
-        this.minecraft = Minecraft.getInstance();
-        this.snapPoints = collectSnapPoints();
+	public VirtualMouseHandler() {
+		this.minecraft = Minecraft.getInstance();
+		this.snapPoints = collectSnapPoints();
 
-        ControlifyEvents.INPUT_MODE_CHANGED.register(event -> this.onInputModeChanged(event.mode()));
-    }
+		ControlifyEvents.INPUT_MODE_CHANGED.register(event -> this.onInputModeChanged(event.mode()));
+	}
 
-    public void handleControllerInput(ControllerEntity controller) {
-        if (MinecraftUtil.getScreen() == null) return;
+	public void handleControllerInput(ControllerEntity controller) {
+		if (MinecraftUtil.getScreen() == null) return;
 
-        if (ControlifyBindings.VMOUSE_TOGGLE.on(controller).justPressed()) {
-            toggleVirtualMouse();
-        }
+		if (ControlifyBindings.VMOUSE_TOGGLE.on(controller).justPressed()) {
+			toggleVirtualMouse();
+		}
 
-        if (!virtualMouseEnabled) {
-            return;
-        }
+		if (!virtualMouseEnabled) {
+			return;
+		}
 
-        InputComponent input = controller.input().orElseThrow();
-        Optional<TouchpadComponent> touchpad = controller.touchpad();
+		InputComponent input = controller.input().orElseThrow();
+		Optional<TouchpadComponent> touchpad = controller.touchpad();
 
-        // TODO: re-enable touchpad support
+		// TODO: re-enable touchpad support
 //        List<Touchpads.Finger> fingerDeltas = touchpad.map(state -> ControllerUtils.deltaFingers(
 //                state.(),
 //                state.fingersThen()
@@ -90,23 +95,23 @@ public class VirtualMouseHandler {
 //            yImpulseFinger *= 20;
 //        }
 
-        InputBinding moveRight = ControlifyBindings.VMOUSE_MOVE_RIGHT.on(controller);
-        InputBinding moveLeft = ControlifyBindings.VMOUSE_MOVE_LEFT.on(controller);
-        InputBinding moveDown = ControlifyBindings.VMOUSE_MOVE_DOWN.on(controller);
-        InputBinding moveUp = ControlifyBindings.VMOUSE_MOVE_UP.on(controller);
+		InputBinding moveRight = ControlifyBindings.VMOUSE_MOVE_RIGHT.on(controller);
+		InputBinding moveLeft = ControlifyBindings.VMOUSE_MOVE_LEFT.on(controller);
+		InputBinding moveDown = ControlifyBindings.VMOUSE_MOVE_DOWN.on(controller);
+		InputBinding moveUp = ControlifyBindings.VMOUSE_MOVE_UP.on(controller);
 
-        // apply an easing function directly to the vector's length
-        // if you do easing(x), easing(y), then the diagonals where it's something like (~0.8, ~0.8) will incorrectly ease
-        Vector2d impulse = ControllerUtils.applyEasingToLength(
-                moveRight.analogueNow() - moveLeft.analogueNow(),
-                moveDown.analogueNow() - moveUp.analogueNow(),
-                x -> Math.pow(x, 3)
-        );
-        Vector2d prevImpulse = ControllerUtils.applyEasingToLength(
-                moveRight.analoguePrev() - moveLeft.analoguePrev(),
-                moveDown.analoguePrev() - moveUp.analoguePrev(),
-                x -> Math.pow(x, 3)
-        );
+		// apply an easing function directly to the vector's length
+		// if you do easing(x), easing(y), then the diagonals where it's something like (~0.8, ~0.8) will incorrectly ease
+		Vector2d impulse = ControllerUtils.applyEasingToLength(
+				moveRight.analogueNow() - moveLeft.analogueNow(),
+				moveDown.analogueNow() - moveUp.analogueNow(),
+				x -> Math.pow(x, 3)
+		);
+		Vector2d prevImpulse = ControllerUtils.applyEasingToLength(
+				moveRight.analoguePrev() - moveLeft.analoguePrev(),
+				moveDown.analoguePrev() - moveUp.analoguePrev(),
+				x -> Math.pow(x, 3)
+		);
 
 //        Vector2f fingerImpulse = ControllerUtils.applyEasingToLength(xImpulseFinger, yImpulseFinger, x -> (float) Math.pow(x, 1.5));
 //        Vector2f prevFingerImpulse = ControllerUtils.applyEasingToLength(prevXFinger, prevYFinger, x -> (float) Math.pow(x, 1.5));
@@ -117,414 +122,414 @@ public class VirtualMouseHandler {
 //        prevXFinger = xImpulseFinger;
 //        prevYFinger = yImpulseFinger;
 
-        this.snapPoints = collectSnapPoints();
+		this.snapPoints = collectSnapPoints();
 
-        // if just released stick, snap to nearest snap point
-        if (impulse.x == 0 && impulse.y == 0) {
-            if ((prevImpulse.x != 0 || prevImpulse.y != 0))
-                snapToClosestPoint();
-        }
+		// if just released stick, snap to nearest snap point
+		if (impulse.x == 0 && impulse.y == 0) {
+			if ((prevImpulse.x != 0 || prevImpulse.y != 0))
+				snapToClosestPoint();
+		}
 
-        var sensitivity = input.settings().sensitivity.virtualMouseSensitivity;
+		var sensitivity = input.settings().sensitivity.virtualMouseSensitivity;
 
 
-        if (!input.settings().sensitivity.isLCE) {
-            float windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
+		if (!input.settings().sensitivity.isLCE) {
+			float windowSizeModifier = Math.max(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight()) / 800f;
 
-            targetX += impulse.x * 20f * sensitivity * windowSizeModifier;
-            targetY += impulse.y * 20f * sensitivity * windowSizeModifier;
-        } else {
-            float windowSizeModifier = (float) minecraft.getWindow().getScreenWidth() / minecraft.getWindow().getGuiScaledWidth();
+			targetX += impulse.x * 20f * sensitivity * windowSizeModifier;
+			targetY += impulse.y * 20f * sensitivity * windowSizeModifier;
+		} else {
+			float windowSizeModifier = (float) minecraft.getWindow().getScreenWidth() / minecraft.getWindow().getGuiScaledWidth();
 
-            targetX += impulse.x * 10f * sensitivity * windowSizeModifier;
-            targetY += impulse.y * 10f * sensitivity * windowSizeModifier;
+			targetX += impulse.x * 10f * sensitivity * windowSizeModifier;
+			targetY += impulse.y * 10f * sensitivity * windowSizeModifier;
 
-        }
-        targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
-        targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
+		}
+		targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
+		targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
-        if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_UP.on(controller))) {
-            snapInDirection(ScreenDirection.UP);
-            holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_DOWN.on(controller))) {
-            snapInDirection(ScreenDirection.DOWN);
-            holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_LEFT.on(controller))) {
-            snapInDirection(ScreenDirection.LEFT);
-            holdRepeatHelper.onNavigate();
-        } else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_RIGHT.on(controller))) {
-            snapInDirection(ScreenDirection.RIGHT);
-            holdRepeatHelper.onNavigate();
-        }
+		if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_UP.on(controller))) {
+			snapInDirection(ScreenDirection.UP);
+			holdRepeatHelper.onNavigate();
+		} else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_DOWN.on(controller))) {
+			snapInDirection(ScreenDirection.DOWN);
+			holdRepeatHelper.onNavigate();
+		} else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_LEFT.on(controller))) {
+			snapInDirection(ScreenDirection.LEFT);
+			holdRepeatHelper.onNavigate();
+		} else if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_RIGHT.on(controller))) {
+			snapInDirection(ScreenDirection.RIGHT);
+			holdRepeatHelper.onNavigate();
+		}
 
-        VirtualMouseBehaviour vmouseBehaviour = ScreenProcessorProvider.provide(MinecraftUtil.getScreen())
-                .virtualMouseBehaviour();
-        if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
-            handleCompatibilityBinds(controller);
-            handleScroll(controller);
-        } else if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.CURSOR_SCROLL)) {
-            handleScroll(controller);
-        }
+		VirtualMouseBehaviour vmouseBehaviour = ScreenProcessorProvider.provide(MinecraftUtil.getScreen())
+				.virtualMouseBehaviour();
+		if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.ENABLED)) {
+			handleCompatibilityBinds(controller);
+			handleScroll(controller);
+		} else if (vmouseBehaviour.isDefaultOr(VirtualMouseBehaviour.CURSOR_SCROLL)) {
+			handleScroll(controller);
+		}
 
-        if (ControlifyBindings.GUI_BACK.on(controller).justPressed() && MinecraftUtil.getScreen() != null) {
-            ScreenProcessor.playClackSound();
-            MinecraftUtil.getScreen().onClose();
-        }
-    }
+		if (ControlifyBindings.GUI_BACK.on(controller).justPressed() && MinecraftUtil.getScreen() != null) {
+			ScreenProcessor.playClackSound();
+			MinecraftUtil.getScreen().onClose();
+		}
+	}
 
-    public void handleCompatibilityBinds(ControllerEntity controller) {
-        var windowHandle = minecraft.getWindow().handle();
+	public void handleCompatibilityBinds(ControllerEntity controller) {
+		var windowHandle = minecraft.getWindow().handle();
 
 //        Optional<TouchpadComponent> touchpad = controller.touchpad();
 //        List<TouchpadState.Finger> touchpadState = touchpad.map(TouchpadComponent::fingersNow).orElse(List.of());
 //        List<TouchpadState.Finger> prevTouchpadState = touchpad.map(TouchpadComponent::fingersThen).orElse(List.of());
 
-        InputComponent input = controller.input().orElseThrow();
-        boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
-        boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+		InputComponent input = controller.input().orElseThrow();
+		boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+		boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
 
-        if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 1*/)) {
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, 0);
-        } else if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, 0);
-        }
+		if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 1*/)) {
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, 0);
+		} else if (ControlifyBindings.VMOUSE_LCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, 0);
+		}
 
-        if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 2*/)) {
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.PRESS, 0);
-        } else if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.RELEASE, 0);
-        }
+		if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justPressed() || (touchpadPressed && !prevTouchpadPressed/* && touchpadState.size() == 2*/)) {
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.PRESS, 0);
+		} else if (ControlifyBindings.VMOUSE_RCLICK.on(controller).justReleased() || (!touchpadPressed && prevTouchpadPressed)) {
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.RELEASE, 0);
+		}
 
-        if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
-            this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
-        }
-    }
+		if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
+		}
+	}
 
-    public void handleScroll(ControllerEntity controller) {
-        scrollY += ControlifyBindings.VMOUSE_SCROLL_UP.on(controller).analogueNow()
-                   - ControlifyBindings.VMOUSE_SCROLL_DOWN.on(controller).analogueNow();
-    }
+	public void handleScroll(ControllerEntity controller) {
+		scrollY += ControlifyBindings.VMOUSE_SCROLL_UP.on(controller).analogueNow()
+				- ControlifyBindings.VMOUSE_SCROLL_DOWN.on(controller).analogueNow();
+	}
 
-    private void simulateMousePress(int button, int action, int modifiers) {
-        var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
-        var windowHandle = minecraft.getWindow().handle();
-        mouseHandler.controlify$invokeOnButton(windowHandle, new MouseButtonInfo(button, modifiers), action);
-    }
+	private void simulateMousePress(int button, int action, int modifiers) {
+		var mouseHandler = (MouseHandlerAccessor) minecraft.mouseHandler;
+		var windowHandle = minecraft.getWindow().handle();
+		mouseHandler.controlify$invokeOnButton(windowHandle, new MouseButtonInfo(button, modifiers), action);
+	}
 
-    public void updateMouse() {
-        if (!virtualMouseEnabled) return;
-        float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
+	public void updateMouse() {
+		if (!virtualMouseEnabled) return;
+		float delta = minecraft.getDeltaTracker().getRealtimeDeltaTicks();
 
-        var windowHandle = minecraft.getWindow().handle();
+		var windowHandle = minecraft.getWindow().handle();
 
-        if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
-            currentX = Mth.lerp(delta, currentX, targetX);
-            currentY = Mth.lerp(delta, currentY, targetY);
+		if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
+			currentX = Mth.lerp(delta, currentX, targetX);
+			currentY = Mth.lerp(delta, currentY, targetY);
 
-            ((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
-        } else {
-            currentX = targetX;
-            currentY = targetY;
-        }
+			((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
+		} else {
+			currentX = targetX;
+			currentY = targetY;
+		}
 
-        if (Math.abs(scrollX) >= 0.01 || Math.abs(scrollY) >= 0.01) {
-            var currentScrollY = scrollY * delta;
-            scrollY -= currentScrollY;
-            var currentScrollX = scrollX * delta;
-            scrollX -= currentScrollX;
+		if (Math.abs(scrollX) >= 0.01 || Math.abs(scrollY) >= 0.01) {
+			var currentScrollY = scrollY * delta;
+			scrollY -= currentScrollY;
+			var currentScrollX = scrollX * delta;
+			scrollX -= currentScrollX;
 
-            ((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnScroll(windowHandle, currentScrollX, currentScrollY);
-        } else {
-            scrollX = scrollY = 0;
-        }
-    }
+			((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnScroll(windowHandle, currentScrollX, currentScrollY);
+		} else {
+			scrollX = scrollY = 0;
+		}
+	}
 
-    public void snapToClosestPoint() {
-        var window = minecraft.getWindow();
-        var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
-        var target = new Vector2d(targetX, targetY).mul(scaleFactor);
+	public void snapToClosestPoint() {
+		var window = minecraft.getWindow();
+		var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+		var target = new Vector2d(targetX, targetY).mul(scaleFactor);
 
-        if (lastSnappedPoint != null) {
-            if (lastSnappedPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)) > (long) lastSnappedPoint.range() * lastSnappedPoint.range()) {
-                lastSnappedPoint = null;
-            }
-        }
+		if (lastSnappedPoint != null) {
+			if (lastSnappedPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)) > (long) lastSnappedPoint.range() * lastSnappedPoint.range()) {
+				lastSnappedPoint = null;
+			}
+		}
 
-        var closestSnapPoint = snapPoints.stream()
-                .filter(snapPoint -> !snapPoint.equals(lastSnappedPoint)) // don't snap to the point currently over snapped point
-                .map(snapPoint -> new Pair<>(snapPoint, snapPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)))) // map with distance to current pos
-                .filter(point -> point.getSecond() <= (long) point.getFirst().range() * point.getFirst().range()) // filter out of range options
-                .min(Comparator.comparingLong(Pair::getSecond)) // find the closest point
-                .orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
+		var closestSnapPoint = snapPoints.stream()
+				.filter(snapPoint -> !snapPoint.equals(lastSnappedPoint)) // don't snap to the point currently over snapped point
+				.map(snapPoint -> new Pair<>(snapPoint, snapPoint.position().distanceSquared(new Vector2i(target, RoundingMode.FLOOR)))) // map with distance to current pos
+				.filter(point -> point.getSecond() <= (long) point.getFirst().range() * point.getFirst().range()) // filter out of range options
+				.min(Comparator.comparingLong(Pair::getSecond)) // find the closest point
+				.orElse(new Pair<>(null, Long.MAX_VALUE)).getFirst(); // retrieve point
 
-        if (closestSnapPoint != null) {
-            snapToPoint(closestSnapPoint, scaleFactor);
-        }
-    }
+		if (closestSnapPoint != null) {
+			snapToPoint(closestSnapPoint, scaleFactor);
+		}
+	}
 
-    public void snapInDirection(ScreenDirection direction) {
-        var window = minecraft.getWindow();
-        var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
-        var target = new Vector2d(targetX, targetY).mul(scaleFactor);
+	public void snapInDirection(ScreenDirection direction) {
+		var window = minecraft.getWindow();
+		var scaleFactor = new Vector2d((double)window.getGuiScaledWidth() / (double)window.getScreenWidth(), (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
+		var target = new Vector2d(targetX, targetY).mul(scaleFactor);
 
-        Optional<SnapPoint> closestSnapPoint = findOrthogonalSnapPoint(lastSnappedPoint, direction, target, snapPoints)
-                .or(() -> {
-                    Vector2d orthogonalTarget = new Vector2d(target);
-                    switch (direction) {
-                        case UP -> orthogonalTarget.y = window.getGuiScaledHeight();
-                        case DOWN -> orthogonalTarget.y = 0;
-                        case LEFT -> orthogonalTarget.x = window.getGuiScaledWidth();
-                        case RIGHT -> orthogonalTarget.x = 0;
-                    }
+		Optional<SnapPoint> closestSnapPoint = findOrthogonalSnapPoint(lastSnappedPoint, direction, target, snapPoints)
+				.or(() -> {
+					Vector2d orthogonalTarget = new Vector2d(target);
+					switch (direction) {
+						case UP -> orthogonalTarget.y = window.getGuiScaledHeight();
+						case DOWN -> orthogonalTarget.y = 0;
+						case LEFT -> orthogonalTarget.x = window.getGuiScaledWidth();
+						case RIGHT -> orthogonalTarget.x = 0;
+					}
 
-                    return findOrthogonalSnapPoint(lastSnappedPoint, direction, orthogonalTarget, snapPoints);
-                });
+					return findOrthogonalSnapPoint(lastSnappedPoint, direction, orthogonalTarget, snapPoints);
+				});
 
-        closestSnapPoint.ifPresent(snapPoint -> {
-            snapToPoint(snapPoint, scaleFactor);
-        });
-    }
+		closestSnapPoint.ifPresent(snapPoint -> {
+			snapToPoint(snapPoint, scaleFactor);
+		});
+	}
 
-    private static Optional<SnapPoint> findOrthogonalSnapPoint(SnapPoint from, ScreenDirection direction, Vector2d target, Collection<SnapPoint> snapPoints) {
-        return snapPoints.stream()
-                .filter(snapPoint -> !snapPoint.equals(from)) // don't snap to the point currently over snapped point
-                .map(snapPoint -> new Pair<>(snapPoint, new Vector2d(snapPoint.position().x() - target.x(), snapPoint.position().y() - target.y()))) // map with distance to current pos
-                // filter points that are not in the correct direction
-                .filter(pair -> {
-                    Vector2d dist = pair.getSecond();
+	private static Optional<SnapPoint> findOrthogonalSnapPoint(SnapPoint from, ScreenDirection direction, Vector2d target, Collection<SnapPoint> snapPoints) {
+		return snapPoints.stream()
+				.filter(snapPoint -> !snapPoint.equals(from)) // don't snap to the point currently over snapped point
+				.map(snapPoint -> new Pair<>(snapPoint, new Vector2d(snapPoint.position().x() - target.x(), snapPoint.position().y() - target.y()))) // map with distance to current pos
+				// filter points that are not in the correct direction
+				.filter(pair -> {
+					Vector2d dist = pair.getSecond();
 
-                    double axis = direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y;
-                    double positive = direction.isPositive() ? 1 : -1;
+					double axis = direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y;
+					double positive = direction.isPositive() ? 1 : -1;
 
-                    return axis * positive > 0;
-                })
-                .filter(pair -> {
-                    SnapPoint snapPoint = pair.getFirst();
-                    Vector2d dist = pair.getSecond();
+					return axis * positive > 0;
+				})
+				.filter(pair -> {
+					SnapPoint snapPoint = pair.getFirst();
+					Vector2d dist = pair.getSecond();
 
-                    // distance in the correct orthogonal direction
-                    double distance = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y);
-                    // distance in the incorrect orthogonal direction
-                    double deviation = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.y : dist.x);
+					// distance in the correct orthogonal direction
+					double distance = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.x : dist.y);
+					// distance in the incorrect orthogonal direction
+					double deviation = Math.abs(direction.getAxis() == ScreenAxis.HORIZONTAL ? dist.y : dist.x);
 
-                    // punish deviation significantly
-                    pair.getSecond().set(distance, deviation * 4);
+					// punish deviation significantly
+					pair.getSecond().set(distance, deviation * 4);
 
-                    // reject if the deviation is double the correct direction away
-                    return distance >= snapPoint.range() && (deviation < distance * 2);
-                })
-                // pick the closest point
-                .min(Comparator.comparingDouble(pair -> {
-                    Vector2d distDev = pair.getSecond();
-                    // x = dist, y = deviation
-                    return distDev.x + distDev.y;
-                }))
-                .map(Pair::getFirst);
-    }
+					// reject if the deviation is double the correct direction away
+					return distance >= snapPoint.range() && (deviation < distance * 2);
+				})
+				// pick the closest point
+				.min(Comparator.comparingDouble(pair -> {
+					Vector2d distDev = pair.getSecond();
+					// x = dist, y = deviation
+					return distDev.x + distDev.y;
+				}))
+				.map(Pair::getFirst);
+	}
 
-    public void snapToPoint(SnapPoint snapPoint, Vector2dc scaleFactor) {
-        lastSnappedPoint = snapPoint;
+	public void snapToPoint(SnapPoint snapPoint, Vector2dc scaleFactor) {
+		lastSnappedPoint = snapPoint;
 
-        targetX = currentX = snapPoint.position().x() / scaleFactor.x();
-        targetY = currentY = snapPoint.position().y() / scaleFactor.y();
+		targetX = currentX = snapPoint.position().x() / scaleFactor.x();
+		targetY = currentY = snapPoint.position().y() / scaleFactor.y();
 
-        var windowHandle = minecraft.getWindow().handle();
-        ((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
-    }
+		var windowHandle = minecraft.getWindow().handle();
+		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
+	}
 
-    public void onScreenChanged() {
-        var windowHandle = minecraft.getWindow().handle();
+	public void onScreenChanged() {
+		var windowHandle = minecraft.getWindow().handle();
 
-        if (MinecraftUtil.getScreen() != null) {
-            if (requiresVirtualMouse()) {
-                enableVirtualMouse();
-            } else {
-                disableVirtualMouse();
-            }
-            if (Controlify.instance().currentInputMode().isController())
-                GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
-        } else if (virtualMouseEnabled) {
-            disableVirtualMouse();
+		if (MinecraftUtil.getScreen() != null) {
+			if (requiresVirtualMouse()) {
+				enableVirtualMouse();
+			} else {
+				disableVirtualMouse();
+			}
+			if (Controlify.instance().currentInputMode().isController())
+				GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+		} else if (virtualMouseEnabled) {
+			disableVirtualMouse();
 
-            minecraft.mouseHandler.grabMouse(); // re-grab mouse after vmouse disable
-        }
-    }
+			minecraft.mouseHandler.grabMouse(); // re-grab mouse after vmouse disable
+		}
+	}
 
-    public void onInputModeChanged(InputMode mode) {
-        if (mode.isController()) {
-            if (requiresVirtualMouse()) {
-                enableVirtualMouse();
-            }
-        } else if (virtualMouseEnabled) {
-            disableVirtualMouse();
-        }
-    }
+	public void onInputModeChanged(InputMode mode) {
+		if (mode.isController()) {
+			if (requiresVirtualMouse()) {
+				enableVirtualMouse();
+			}
+		} else if (virtualMouseEnabled) {
+			disableVirtualMouse();
+		}
+	}
 
-    public void renderVirtualMouse(GuiGraphicsExtractor graphics) {
-        if (!virtualMouseEnabled) return;
+	public void renderVirtualMouse(GuiGraphicsExtractor graphics) {
+		if (!virtualMouseEnabled) return;
 
-        if (DebugProperties.DEBUG_SNAPPING) {
-            for (var snapPoint : snapPoints) {
-                graphics.fill(snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
-                graphics.fill(snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);
-            }
-        }
+		if (DebugProperties.DEBUG_SNAPPING) {
+			for (var snapPoint : snapPoints) {
+				graphics.fill(snapPoint.position().x() - snapPoint.range(), snapPoint.position().y() - snapPoint.range(), snapPoint.position().x() + snapPoint.range(), snapPoint.position().y() + snapPoint.range(), 0x33FFFFFF);
+				graphics.fill(snapPoint.position().x() - 1, snapPoint.position().y() - 1, snapPoint.position().x() + 1, snapPoint.position().y() + 1, snapPoint.equals(lastSnappedPoint) ? 0xFFFFFF00 : 0xFFFF0000);
+			}
+		}
 
-        var scaledX = currentX * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
-        var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
+		var scaledX = currentX * (double)this.minecraft.getWindow().getGuiScaledWidth() / (double)this.minecraft.getWindow().getScreenWidth();
+		var scaledY = currentY * (double)this.minecraft.getWindow().getGuiScaledHeight() / (double)this.minecraft.getWindow().getScreenHeight();
 
-        var pose = graphics.pose().pushMatrix();
-        pose.translate((float) scaledX, (float) scaledY);
-        graphics.nextStratum();
-        pose.scale(0.5f, 0.5f);
+		var pose = graphics.pose().pushMatrix();
+		pose.translate((float) scaledX, (float) scaledY);
+		graphics.nextStratum();
+		pose.scale(0.5f, 0.5f);
 
-        graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                CURSOR_TEXTURE,
-                -16, -16,
-                0, 0,
-                32, 32,
-                32, 32
-        );
+		graphics.blit(
+				RenderPipelines.GUI_TEXTURED,
+				CURSOR_TEXTURE,
+				-16, -16,
+				0, 0,
+				32, 32,
+				32, 32
+		);
 
-        pose.popMatrix();
-    }
+		pose.popMatrix();
+	}
 
-    public void enableVirtualMouse() {
-        if (virtualMouseEnabled) return;
+	public void enableVirtualMouse() {
+		if (virtualMouseEnabled) return;
 
-        var windowHandle = minecraft.getWindow().handle();
+		var windowHandle = minecraft.getWindow().handle();
 
-        GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
-        virtualMouseEnabled = true;
+		GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+		virtualMouseEnabled = true;
 
-        if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
-            targetX = currentX = minecraft.getWindow().getScreenWidth() / 2f;
-            targetY = currentY = minecraft.getWindow().getScreenHeight() / 2f;
-        } else {
-            targetX = currentX = minecraft.mouseHandler.xpos();
-            targetY = currentY = minecraft.mouseHandler.ypos();
-        }
-        setMousePosition();
+		if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
+			targetX = currentX = minecraft.getWindow().getScreenWidth() / 2f;
+			targetY = currentY = minecraft.getWindow().getScreenHeight() / 2f;
+		} else {
+			targetX = currentX = minecraft.mouseHandler.xpos();
+			targetY = currentY = minecraft.mouseHandler.ypos();
+		}
+		setMousePosition();
 
-        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(true));
-        if (MinecraftUtil.getScreen() != null) {
-            ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onVirtualMouseToggled(true);
-        }
-    }
+		ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(true));
+		if (MinecraftUtil.getScreen() != null) {
+			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onVirtualMouseToggled(true);
+		}
+	}
 
-    public void disableVirtualMouse() {
-        if (!virtualMouseEnabled) return;
+	public void disableVirtualMouse() {
+		if (!virtualMouseEnabled) return;
 
-        var windowHandle = minecraft.getWindow().handle();
+		var windowHandle = minecraft.getWindow().handle();
 
-        // make sure minecraft doesn't think the mouse is grabbed when it isn't
-        ((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
+		// make sure minecraft doesn't think the mouse is grabbed when it isn't
+		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
 
-        Controlify.instance().hideMouse(true, true);
-        GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
-        setMousePosition();
-        virtualMouseEnabled = false;
-        targetX = currentX = minecraft.mouseHandler.xpos();
-        targetY = currentY = minecraft.mouseHandler.ypos();
+		Controlify.instance().hideMouse(true, true);
+		GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+		setMousePosition();
+		virtualMouseEnabled = false;
+		targetX = currentX = minecraft.mouseHandler.xpos();
+		targetY = currentY = minecraft.mouseHandler.ypos();
 
-        ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(false));
-        if (MinecraftUtil.getScreen() != null) {
-            ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onVirtualMouseToggled(false);
-        }
-    }
+		ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(false));
+		if (MinecraftUtil.getScreen() != null) {
+			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onVirtualMouseToggled(false);
+		}
+	}
 
-    private void setMousePosition() {
-        GLFW.glfwSetCursorPos(
-                minecraft.getWindow().handle(),
-                targetX,
-                targetY
-        );
-    }
+	private void setMousePosition() {
+		GLFW.glfwSetCursorPos(
+				minecraft.getWindow().handle(),
+				targetX,
+				targetY
+		);
+	}
 
-    public boolean requiresVirtualMouse() {
-        var isController = Controlify.instance().currentInputMode().isController();
-        var hasScreen = MinecraftUtil.getScreen() != null;
+	public boolean requiresVirtualMouse() {
+		var isController = Controlify.instance().currentInputMode().isController();
+		var hasScreen = MinecraftUtil.getScreen() != null;
 
-        if (isController && hasScreen) {
-            return switch (ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour()) {
-                case DEFAULT -> Controlify.instance().config()
-                        .getSettings()
-                        .globalSettings()
-                        .virtualMouseScreens
-                        .stream()
-                        .anyMatch(s -> s.isAssignableFrom(MinecraftUtil.getScreen().getClass()));
-                case ENABLED, CURSOR_ONLY, CURSOR_SCROLL -> true;
-                case DISABLED -> false;
-            };
-        }
+		if (isController && hasScreen) {
+			return switch (ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour()) {
+				case DEFAULT -> Controlify.instance().config()
+						.getSettings()
+						.globalSettings()
+						.virtualMouseScreens
+						.stream()
+						.anyMatch(s -> s.isAssignableFrom(MinecraftUtil.getScreen().getClass()));
+				case ENABLED, CURSOR_ONLY, CURSOR_SCROLL -> true;
+				case DISABLED -> false;
+			};
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    public void toggleVirtualMouse() {
-        if (MinecraftUtil.getScreen() == null) return;
+	public void toggleVirtualMouse() {
+		if (MinecraftUtil.getScreen() == null) return;
 
-        if (ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour() != VirtualMouseBehaviour.DEFAULT) {
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.vmouse_unavailable.title"),
-                    Component.translatable("controlify.toast.vmouse_unavailable.description"),
-                    false
-            );
-            return;
-        }
+		if (ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour() != VirtualMouseBehaviour.DEFAULT) {
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.vmouse_unavailable.title"),
+					Component.translatable("controlify.toast.vmouse_unavailable.description"),
+					false
+			);
+			return;
+		}
 
-        var screens = Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens;
-        var screenClass = MinecraftUtil.getScreen().getClass();
-        if (screens.contains(screenClass)) {
-            screens.remove(screenClass);
-            disableVirtualMouse();
-            Controlify.instance().hideMouse(true, false);
+		var screens = Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens;
+		var screenClass = MinecraftUtil.getScreen().getClass();
+		if (screens.contains(screenClass)) {
+			screens.remove(screenClass);
+			disableVirtualMouse();
+			Controlify.instance().hideMouse(true, false);
 
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.vmouse_disabled.title"),
-                    Component.translatable("controlify.toast.vmouse_disabled.description"),
-                    false
-            );
-        } else {
-            screens.add(screenClass);
-            enableVirtualMouse();
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.vmouse_disabled.title"),
+					Component.translatable("controlify.toast.vmouse_disabled.description"),
+					false
+			);
+		} else {
+			screens.add(screenClass);
+			enableVirtualMouse();
 
-            MinecraftUtil.sendToast(
-                    Component.translatable("controlify.toast.vmouse_enabled.title"),
-                    Component.translatable("controlify.toast.vmouse_enabled.description"),
-                    false
-            );
-        }
+			MinecraftUtil.sendToast(
+					Component.translatable("controlify.toast.vmouse_enabled.title"),
+					Component.translatable("controlify.toast.vmouse_enabled.description"),
+					false
+			);
+		}
 
-        Controlify.instance().config().saveSafely();
-    }
+		Controlify.instance().config().saveSafely();
+	}
 
-    public boolean isVirtualMouseEnabled() {
-        return virtualMouseEnabled;
-    }
+	public boolean isVirtualMouseEnabled() {
+		return virtualMouseEnabled;
+	}
 
-    public int getCurrentX(float deltaTime) {
-        return (int) Mth.lerp(deltaTime, currentX, targetX);
-    }
+	public int getCurrentX(float deltaTime) {
+		return (int) Mth.lerp(deltaTime, currentX, targetX);
+	}
 
-    public int getCurrentY(float deltaTime) {
-        return (int) Mth.lerp(deltaTime, currentY, targetY);
-    }
+	public int getCurrentY(float deltaTime) {
+		return (int) Mth.lerp(deltaTime, currentY, targetY);
+	}
 
-    public void preventScrollingThisTick() {
-        scrollX = 0;
-        scrollY = 0;
-    }
+	public void preventScrollingThisTick() {
+		scrollX = 0;
+		scrollY = 0;
+	}
 
-    private Set<SnapPoint> collectSnapPoints() {
-        if (MinecraftUtil.getScreen() instanceof ISnapBehaviour snapBehaviour) {
-            Set<SnapPoint> points = new HashSet<>();
-            snapBehaviour.controlify$collectSnapPoints(points::add);
-            return points;
-        } else {
-            return Set.of();
-        }
-    }
+	private Set<SnapPoint> collectSnapPoints() {
+		if (MinecraftUtil.getScreen() instanceof ISnapBehaviour snapBehaviour) {
+			Set<SnapPoint> points = new HashSet<>();
+			snapBehaviour.controlify$collectSnapPoints(points::add);
+			return points;
+		} else {
+			return Set.of();
+		}
+	}
 }

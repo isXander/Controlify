@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.font;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -10,24 +16,24 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(TranslatableContents.class)
 public class TranslatableContentsMixin {
-    @ModifyExpressionValue(
-            method = "decompose",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/minecraft/network/chat/contents/TranslatableContents;key:Ljava/lang/String;",
-                    opcode = Opcodes.GETFIELD
-            )
-    )
-    private String replaceControllerActiveKey(String originalKey) {
-        if (BindingFontHelper.PLACEHOLDER_CONTROLLER_ACTIVE_KEY.equals(originalKey)) {
-            if (ControlifyApi.get().currentInputMode().isController()) {
-                return BindingFontHelper.PLACEHOLDER_KEY;
-            } else {
-                // because the key doesn't exist, it will rely on the fallback text provided by this translatable contents
-                return originalKey;
-            }
-        }
+	@ModifyExpressionValue(
+			method = "decompose",
+			at = @At(
+					value = "FIELD",
+					target = "Lnet/minecraft/network/chat/contents/TranslatableContents;key:Ljava/lang/String;",
+					opcode = Opcodes.GETFIELD
+			)
+	)
+	private String replaceControllerActiveKey(String originalKey) {
+		if (BindingFontHelper.PLACEHOLDER_CONTROLLER_ACTIVE_KEY.equals(originalKey)) {
+			if (ControlifyApi.get().currentInputMode().isController()) {
+				return BindingFontHelper.PLACEHOLDER_KEY;
+			} else {
+				// because the key doesn't exist, it will rely on the fallback text provided by this translatable contents
+				return originalKey;
+			}
+		}
 
-        return originalKey;
-    }
+		return originalKey;
+	}
 }

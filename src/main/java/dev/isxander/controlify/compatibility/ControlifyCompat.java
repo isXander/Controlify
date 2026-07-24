@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility;
 
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
@@ -9,46 +15,46 @@ import java.util.Set;
 import java.util.function.Function;
 
 public class ControlifyCompat {
-    private static final Function<String, Boolean> modsLoaded = Util.memoize(modid ->
-            PlatformMainUtil.isModLoaded(modid));
-    private static final Set<String> disabledMods = new HashSet<>();
+	private static final Function<String, Boolean> modsLoaded = Util.memoize(modid ->
+			PlatformMainUtil.isModLoaded(modid));
+	private static final Set<String> disabledMods = new HashSet<>();
 
-    public static final String IMMEDIATELY_FAST = "immediatelyfast";
-    public static final String SIMPLE_VOICE_CHAT = "voicechat";
-    public static final String FANCY_MENU = "fancymenu";
+	public static final String IMMEDIATELY_FAST = "immediatelyfast";
+	public static final String SIMPLE_VOICE_CHAT = "voicechat";
+	public static final String FANCY_MENU = "fancymenu";
 
-    public static void init() {
-        //? if simple_voice_chat {
-        try {
-            wrapCompatCall(
-                    SIMPLE_VOICE_CHAT,
-                    dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat::init
-            );
-        } catch (NoClassDefFoundError e) {
-            disabledMods.add(SIMPLE_VOICE_CHAT);
-        }
-        //?}
+	public static void init() {
+		//? if simple_voice_chat {
+		try {
+			wrapCompatCall(
+					SIMPLE_VOICE_CHAT,
+					dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat::init
+			);
+		} catch (NoClassDefFoundError e) {
+			disabledMods.add(SIMPLE_VOICE_CHAT);
+		}
+		//?}
 
-        //? if fancy_menu {
-        try {
-            wrapCompatCall(
-                    FANCY_MENU,
-                    dev.isxander.controlify.compatibility.fancymenu.FancyMenuCompat::registerActions
-            );
-        } catch (NoClassDefFoundError e) {
-            disabledMods.add(FANCY_MENU);
-        }
-        //?}
-    }
+		//? if fancy_menu {
+		try {
+			wrapCompatCall(
+					FANCY_MENU,
+					dev.isxander.controlify.compatibility.fancymenu.FancyMenuCompat::registerActions
+			);
+		} catch (NoClassDefFoundError e) {
+			disabledMods.add(FANCY_MENU);
+		}
+		//?}
+	}
 
-    private static void wrapCompatCall(String modid, Runnable runnable) throws NoClassDefFoundError {
-        if (modsLoaded.apply(modid) && !disabledMods.contains(modid)) {
-            try {
-                runnable.run();
-            } catch (Throwable t) {
-                CUtil.LOGGER.error("Failed to run compatibility code for {}, potentially unsupported version? Disabling '{}' compat for this instance.", modid, modid, t);
-                disabledMods.add(modid);
-            }
-        }
-    }
+	private static void wrapCompatCall(String modid, Runnable runnable) throws NoClassDefFoundError {
+		if (modsLoaded.apply(modid) && !disabledMods.contains(modid)) {
+			try {
+				runnable.run();
+			} catch (Throwable t) {
+				CUtil.LOGGER.error("Failed to run compatibility code for {}, potentially unsupported version? Disabling '{}' compat for this instance.", modid, modid, t);
+				disabledMods.add(modid);
+			}
+		}
+	}
 }

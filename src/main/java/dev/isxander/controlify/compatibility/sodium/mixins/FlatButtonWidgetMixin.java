@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -19,56 +24,51 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
 @Mixin(FlatButtonWidget.class)
 public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidget> {
-    @Shadow
-    private boolean enabled;
-    @Shadow
-    private boolean visible;
+	@Shadow
+	private boolean enabled;
+	@Shadow
+	private boolean visible;
 
-    @Unique
-    private RenderData<FlatButtonWidget> renderData = null;
-    @Unique
-    private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
+	@Unique private RenderData<FlatButtonWidget> renderData = null;
+	@Unique private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
-    @ModifyExpressionValue(
-            method = "extractRenderState",
-            at = @At(
-                    value = "FIELD",
-                    target = "Lnet/caffeinemc/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
-                    opcode = Opcodes.GETFIELD
-            )
-    )
-    private Component modifyRenderedLabel(Component actualLabel) {
-        return getControllerMessage(actualLabel);
-    }
+	@ModifyExpressionValue(
+			method = "extractRenderState",
+			at = @At(
+					value = "FIELD",
+					target = "Lnet/caffeinemc/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
+					opcode = Opcodes.GETFIELD
+			)
+	)
+	private Component modifyRenderedLabel(Component actualLabel) {
+		return getControllerMessage(actualLabel);
+	}
 
-    @Unique
-    private Component getControllerMessage(Component actualLabel) {
-        if (!shouldRender())
-            return actualLabel;
+	@Unique private Component getControllerMessage(Component actualLabel) {
+		if (!shouldRender())
+			return actualLabel;
 
-        return getBind().map(bind -> controllerMessages
-                .computeIfAbsent(bind, b -> renderData.getControllerMessage(b, actualLabel)))
-                .orElse(actualLabel);
-    }
+		return getBind().map(bind -> controllerMessages
+				.computeIfAbsent(bind, b -> renderData.getControllerMessage(b, actualLabel)))
+				.orElse(actualLabel);
+	}
 
-    @Unique
-    protected boolean shouldRender() {
-        return renderData != null
-                && enabled
-                && visible
-                && renderData.shouldRender((FlatButtonWidget) (Object) this);
-    }
+	@Unique protected boolean shouldRender() {
+		return renderData != null
+				&& enabled
+				&& visible
+				&& renderData.shouldRender((FlatButtonWidget) (Object) this);
+	}
 
-    @Unique
-    private Optional<InputBinding> getBind() {
-        if (renderData == null) return Optional.empty();
-        return renderData.getBind();
-    }
+	@Unique private Optional<InputBinding> getBind() {
+		if (renderData == null) return Optional.empty();
+		return renderData.getBind();
+	}
 
-    @Override
-    public void controlify$setButtonGuide(RenderData<FlatButtonWidget> renderData) {
-        this.renderData = renderData;
-        this.controllerMessages.clear();
-    }
+	@Override
+	public void controlify$setButtonGuide(RenderData<FlatButtonWidget> renderData) {
+		this.renderData = renderData;
+		this.controllerMessages.clear();
+	}
 }
 //?}

@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.CycleControlProcessor;
@@ -10,14 +15,14 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.CyclingControl$CyclingControlElement")
 public abstract class CycleControlElementMixin implements ComponentProcessorProvider {
-    @Shadow protected abstract void cycleControl(boolean reverse);
+	@Shadow protected abstract void cycleControl(boolean reverse);
 
-    @Unique private final ComponentProcessor controlify$componentProcessor
-            = new CycleControlProcessor(this::cycleControl);
+	@Unique private final ComponentProcessor controlify$componentProcessor
+			= new CycleControlProcessor(this::cycleControl);
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return controlify$componentProcessor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return controlify$componentProcessor;
+	}
 }
 //?}

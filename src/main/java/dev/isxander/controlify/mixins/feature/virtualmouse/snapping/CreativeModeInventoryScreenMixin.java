@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
 import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
@@ -13,31 +19,31 @@ import java.util.function.Consumer;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreenMixin<CreativeModeInventoryScreen.ItemPickerMenu> {
-    @Shadow protected abstract int getTabX(CreativeModeTab group);
-    @Shadow private float scrollOffs;
-    @Shadow private EditBox searchBox;
-    @Shadow protected abstract boolean canScroll();
+	@Shadow protected abstract int getTabX(CreativeModeTab group);
+	@Shadow private float scrollOffs;
+	@Shadow private EditBox searchBox;
+	@Shadow protected abstract boolean canScroll();
 
-    @Override
-    public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
-        super.controlify$collectSnapPoints(consumer);
+	@Override
+	public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
+		super.controlify$collectSnapPoints(consumer);
 
-        for (var tab : CreativeModeTabs.tabs()) {
-            boolean topRow = tab.row() == CreativeModeTab.Row.TOP;
-            int x = leftPos + getTabX(tab);
-            int y = topPos + (topRow ? -28 : imageHeight - 4);
+		for (var tab : CreativeModeTabs.tabs()) {
+			boolean topRow = tab.row() == CreativeModeTab.Row.TOP;
+			int x = leftPos + getTabX(tab);
+			int y = topPos + (topRow ? -28 : imageHeight - 4);
 
-            consumer.accept(new SnapPoint(new Vector2i(x + 13, y + 16), 18));
-        }
+			consumer.accept(new SnapPoint(new Vector2i(x + 13, y + 16), 18));
+		}
 
-        if (canScroll()) {
-            int scrollTop = topPos + 18;
-            int scrollBottom = scrollTop + 112;
-            consumer.accept(new SnapPoint(new Vector2i(leftPos + 175 + 6, scrollTop + (int)((float)(scrollBottom - scrollTop - 17) * scrollOffs) + 7), 15));
-        }
+		if (canScroll()) {
+			int scrollTop = topPos + 18;
+			int scrollBottom = scrollTop + 112;
+			consumer.accept(new SnapPoint(new Vector2i(leftPos + 175 + 6, scrollTop + (int)((float)(scrollBottom - scrollTop - 17) * scrollOffs) + 7), 15));
+		}
 
-        if (searchBox.isVisible())
-            consumer.accept(new SnapPoint(new Vector2i(searchBox.getX() + searchBox.getWidth() / 2, searchBox.getY() + searchBox.getHeight() / 2), searchBox.getHeight() + 2));
+		if (searchBox.isVisible())
+			consumer.accept(new SnapPoint(new Vector2i(searchBox.getX() + searchBox.getWidth() / 2, searchBox.getY() + searchBox.getHeight() / 2), searchBox.getHeight() + 2));
 
-    }
+	}
 }

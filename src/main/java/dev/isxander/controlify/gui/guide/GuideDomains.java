@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.gui.guide;
 
 import dev.isxander.controlify.api.guide.ContainerCtx;
@@ -11,21 +17,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class GuideDomains {
-    private GuideDomains() {}
+	private GuideDomains() {}
 
-    public static final GuideDomainImpl<InGameCtx> IN_GAME = new GuideDomainImpl<>(CUtil.rl("in_game"));
-    public static final GuideDomainImpl<ContainerCtx> CONTAINER = new GuideDomainImpl<>(CUtil.rl("container"));
+	public static final GuideDomainImpl<InGameCtx> IN_GAME = new GuideDomainImpl<>(CUtil.rl("in_game"));
+	public static final GuideDomainImpl<ContainerCtx> CONTAINER = new GuideDomainImpl<>(CUtil.rl("container"));
 
-    public static final Map<Identifier, GuideDomainImpl<?>> CUSTOM_DOMAINS = new HashMap<>();
+	public static final Map<Identifier, GuideDomainImpl<?>> CUSTOM_DOMAINS = new HashMap<>();
 
-    public static void freeze() {
-        IN_GAME.freeze();
-        CONTAINER.freeze();
-        CUSTOM_DOMAINS.values().forEach(GuideDomainImpl::freeze);
-    }
+	public static void freeze() {
+		IN_GAME.freeze();
+		CONTAINER.freeze();
+		CUSTOM_DOMAINS.values().forEach(GuideDomainImpl::freeze);
+	}
 
-    static {
-        InGameFacts.registerAll();
-        ContainerFacts.registerAll();
-    }
+	static {
+		InGameFacts.registerAll();
+		ContainerFacts.registerAll();
+	}
 }

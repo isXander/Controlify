@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.keyboard;
 
 import com.google.gson.JsonElement;
@@ -24,108 +30,108 @@ import java.util.stream.Collectors;
  */
 public class KeyboardLayoutManager implements SimpleControlifyReloadListener<KeyboardLayoutManager.Preparations> {
 
-    private static final String PREFIX = "keyboard_layout";
-    private static final ControlifyLogger LOGGER = CUtil.LOGGER.createSubLogger("KeyboardLayoutManager");
+	private static final String PREFIX = "keyboard_layout";
+	private static final ControlifyLogger LOGGER = CUtil.LOGGER.createSubLogger("KeyboardLayoutManager");
 
-    private Map<KeyboardLayoutKey, KeyboardLayout> layouts = Map.of();
+	private Map<KeyboardLayoutKey, KeyboardLayout> layouts = Map.of();
 
-    @Override
-    public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
-        return CompletableFuture.supplyAsync(
-                () -> listMatchingResources(manager),
-                executor
-        ).thenCompose(layoutMap -> {
-            var futures = layoutMap.entrySet().stream()
-                    .map(entry -> loadLayout(entry.getKey(), entry.getValue(), executor))
-                    .toList();
+	@Override
+	public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
+		return CompletableFuture.supplyAsync(
+				() -> listMatchingResources(manager),
+				executor
+		).thenCompose(layoutMap -> {
+			var futures = layoutMap.entrySet().stream()
+					.map(entry -> loadLayout(entry.getKey(), entry.getValue(), executor))
+					.toList();
 
-            var map = Util.sequence(futures)
-                    .thenApply(listOfEntries -> listOfEntries.stream()
-                            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a)));
+			var map = Util.sequence(futures)
+					.thenApply(listOfEntries -> listOfEntries.stream()
+							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a)));
 
-            return map.thenApply(Preparations::new);
-        });
-    }
+			return map.thenApply(Preparations::new);
+		});
+	}
 
-    private CompletableFuture<Map.Entry<KeyboardLayoutKey, KeyboardLayout>> loadLayout(
-            Identifier file, Resource resource, Executor executor
-    ) {
-        return CompletableFuture.supplyAsync(() -> {
-            KeyboardLayoutKey key = fileToKey(file);
+	private CompletableFuture<Map.Entry<KeyboardLayoutKey, KeyboardLayout>> loadLayout(
+			Identifier file, Resource resource, Executor executor
+	) {
+		return CompletableFuture.supplyAsync(() -> {
+			KeyboardLayoutKey key = fileToKey(file);
 
-            try (BufferedReader reader = resource.openAsReader()) {
-                JsonElement json = JsonParser.parseReader(reader);
-                KeyboardLayout layout = KeyboardLayout.CODEC.parse(JsonOps.INSTANCE, json)
-                        .getOrThrow(reason -> new RuntimeException("Failed to parse keyboard layout " + key + ": " + reason));
+			try (BufferedReader reader = resource.openAsReader()) {
+				JsonElement json = JsonParser.parseReader(reader);
+				KeyboardLayout layout = KeyboardLayout.CODEC.parse(JsonOps.INSTANCE, json)
+						.getOrThrow(reason -> new RuntimeException("Failed to parse keyboard layout " + key + ": " + reason));
 
-                return Map.entry(key, layout);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to read keyboard layout " + key + ": " + e.getMessage(), e);
-            }
-        }, executor);
-    }
+				return Map.entry(key, layout);
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to read keyboard layout " + key + ": " + e.getMessage(), e);
+			}
+		}, executor);
+	}
 
-    @Override
-    public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, Executor executor) {
-        return CompletableFuture.runAsync(() -> {
-            this.layouts = data.layouts();
-            LOGGER.log("Loaded {} keyboard layouts", layouts.size());
-        }, executor);
-    }
+	@Override
+	public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, Executor executor) {
+		return CompletableFuture.runAsync(() -> {
+			this.layouts = data.layouts();
+			LOGGER.log("Loaded {} keyboard layouts", layouts.size());
+		}, executor);
+	}
 
-    public KeyboardLayoutWithId getLayout(Identifier layoutId, String languageCode) {
-        var key = new KeyboardLayoutKey(languageCode, layoutId);
+	public KeyboardLayoutWithId getLayout(Identifier layoutId, String languageCode) {
+		var key = new KeyboardLayoutKey(languageCode, layoutId);
 
-        return Optional.ofNullable(this.layouts.get(key))
-                .or(() -> Optional.ofNullable(this.layouts.get(key.withDefaultLanguage())))
-                .map(layout -> new KeyboardLayoutWithId(layout, layoutId))
-                .orElse(KeyboardLayouts.fallback());
-    }
+		return Optional.ofNullable(this.layouts.get(key))
+				.or(() -> Optional.ofNullable(this.layouts.get(key.withDefaultLanguage())))
+				.map(layout -> new KeyboardLayoutWithId(layout, layoutId))
+				.orElse(KeyboardLayouts.fallback());
+	}
 
-    public KeyboardLayoutWithId getLayout(Identifier layout) {
-        String currentLanguage = Minecraft.getInstance().getLanguageManager().getSelected();
-        return getLayout(layout, currentLanguage);
-    }
+	public KeyboardLayoutWithId getLayout(Identifier layout) {
+		String currentLanguage = Minecraft.getInstance().getLanguageManager().getSelected();
+		return getLayout(layout, currentLanguage);
+	}
 
-    @Override
-    public Identifier getReloadId() {
-        return CUtil.rl("keyboard_layout");
-    }
+	@Override
+	public Identifier getReloadId() {
+		return CUtil.rl("keyboard_layout");
+	}
 
-    private static Identifier keyToFile(KeyboardLayoutKey key) {
-        return key.layoutId().withPath(PREFIX + "/" + key.layoutId().getPath() + "/" + key.languageCode() + ".json");
-    }
+	private static Identifier keyToFile(KeyboardLayoutKey key) {
+		return key.layoutId().withPath(PREFIX + "/" + key.layoutId().getPath() + "/" + key.languageCode() + ".json");
+	}
 
-    private static KeyboardLayoutKey fileToKey(Identifier file) {
-        try {
-            var components = file.getPath().split("/");
-            var layoutPath = components[1];
-            var languageCodeWithExt = components[2];
-            var languageCode = languageCodeWithExt.substring(0, languageCodeWithExt.lastIndexOf('.'));
-            var layoutId = file.withPath(layoutPath);
+	private static KeyboardLayoutKey fileToKey(Identifier file) {
+		try {
+			var components = file.getPath().split("/");
+			var layoutPath = components[1];
+			var languageCodeWithExt = components[2];
+			var languageCode = languageCodeWithExt.substring(0, languageCodeWithExt.lastIndexOf('.'));
+			var layoutId = file.withPath(layoutPath);
 
-            return new KeyboardLayoutKey(languageCode, layoutId);
-        } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Invalid file path. Expected format: keyboard_layout/<layout_id>/<language_code>.json, but got " + file.getPath(), e);
-        }
+			return new KeyboardLayoutKey(languageCode, layoutId);
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Invalid file path. Expected format: keyboard_layout/<layout_id>/<language_code>.json, but got " + file.getPath(), e);
+		}
 
-    }
+	}
 
-    private static Map<Identifier, Resource> listMatchingResources(ResourceManager resourceManager) {
-        return resourceManager.listResources(PREFIX, path -> path.getPath().endsWith(".json"));
-    }
+	private static Map<Identifier, Resource> listMatchingResources(ResourceManager resourceManager) {
+		return resourceManager.listResources(PREFIX, path -> path.getPath().endsWith(".json"));
+	}
 
-    public record Preparations(Map<KeyboardLayoutKey, KeyboardLayout> layouts) {}
+	public record Preparations(Map<KeyboardLayoutKey, KeyboardLayout> layouts) {}
 
-    private record KeyboardLayoutKey(String languageCode, Identifier layoutId) {
-        public static final String DEFAULT_LANGUAGE = "en_us";
+	private record KeyboardLayoutKey(String languageCode, Identifier layoutId) {
+		public static final String DEFAULT_LANGUAGE = "en_us";
 
-        public KeyboardLayoutKey withLanguage(String languageCode) {
-            return new KeyboardLayoutKey(languageCode, this.layoutId);
-        }
+		public KeyboardLayoutKey withLanguage(String languageCode) {
+			return new KeyboardLayoutKey(languageCode, this.layoutId);
+		}
 
-        public KeyboardLayoutKey withDefaultLanguage() {
-            return new KeyboardLayoutKey(DEFAULT_LANGUAGE, this.layoutId);
-        }
-    }
+		public KeyboardLayoutKey withDefaultLanguage() {
+			return new KeyboardLayoutKey(DEFAULT_LANGUAGE, this.layoutId);
+		}
+	}
 }

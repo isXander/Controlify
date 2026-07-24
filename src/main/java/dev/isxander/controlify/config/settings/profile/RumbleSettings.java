@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.config.settings.profile;
 
 import dev.isxander.controlify.config.dto.profile.RumbleConfig;
@@ -9,35 +15,35 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RumbleSettings {
-    public boolean enabled;
-    public Map<Identifier, Float> vibrationStrengths;
+	public boolean enabled;
+	public Map<Identifier, Float> vibrationStrengths;
 
-    public RumbleSettings(boolean enabled, Map<Identifier, Float> vibrationStrengths) {
-        this.enabled = enabled;
-        this.vibrationStrengths = new HashMap<>(vibrationStrengths);
-    }
+	public RumbleSettings(boolean enabled, Map<Identifier, Float> vibrationStrengths) {
+		this.enabled = enabled;
+		this.vibrationStrengths = new HashMap<>(vibrationStrengths);
+	}
 
-    public static RumbleSettings fromDTO(RumbleConfig dto) {
-        return new RumbleSettings(dto.enabled(), dto.vibrationStrengths());
-    }
+	public static RumbleSettings fromDTO(RumbleConfig dto) {
+		return new RumbleSettings(dto.enabled(), dto.vibrationStrengths());
+	}
 
-    public RumbleConfig toDTO() {
-        return new RumbleConfig(enabled, Map.copyOf(vibrationStrengths));
-    }
+	public RumbleConfig toDTO() {
+		return new RumbleConfig(enabled, Map.copyOf(vibrationStrengths));
+	}
 
 
-    public float getStrengthForSource(Identifier sourceId) {
-        return this.vibrationStrengths.getOrDefault(sourceId, 1.0f);
-    }
+	public float getStrengthForSource(Identifier sourceId) {
+		return this.vibrationStrengths.getOrDefault(sourceId, 1.0f);
+	}
 
-    public RumbleState applyRumbleStrength(RumbleState baseStrength, RumbleSource source) {
-        Identifier masterSourceId = RumbleSource.MASTER.id();
-        float masterStrength = this.getStrengthForSource(masterSourceId);
-        if (masterSourceId.equals(source.id())) {
-            return baseStrength.mul(masterStrength);
-        }
+	public RumbleState applyRumbleStrength(RumbleState baseStrength, RumbleSource source) {
+		Identifier masterSourceId = RumbleSource.MASTER.id();
+		float masterStrength = this.getStrengthForSource(masterSourceId);
+		if (masterSourceId.equals(source.id())) {
+			return baseStrength.mul(masterStrength);
+		}
 
-        float strengthMultiplier = masterStrength * getStrengthForSource(source.id());
-        return baseStrength.mul(strengthMultiplier);
-    }
+		float strengthMultiplier = masterStrength * getStrengthForSource(source.id());
+		return baseStrength.mul(strengthMultiplier);
+	}
 }

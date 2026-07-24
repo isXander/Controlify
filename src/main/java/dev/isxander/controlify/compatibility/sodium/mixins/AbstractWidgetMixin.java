@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -11,12 +16,12 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.AbstractWidget;
 
 @Mixin(AbstractWidget.class)
 public class AbstractWidgetMixin {
-    @ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getLastInputType()Lnet/minecraft/client/InputType;"))
-    private InputType forceSetFocusedOnController(InputType type) {
-        if (Controlify.instance().currentInputMode().isController()) {
-            return InputType.KEYBOARD_ARROW;
-        }
-        return type;
-    }
+	@ModifyExpressionValue(method = "setFocused", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;getLastInputType()Lnet/minecraft/client/InputType;"))
+	private InputType forceSetFocusedOnController(InputType type) {
+		if (Controlify.instance().currentInputMode().isController()) {
+			return InputType.KEYBOARD_ARROW;
+		}
+		return type;
+	}
 }
 //?}

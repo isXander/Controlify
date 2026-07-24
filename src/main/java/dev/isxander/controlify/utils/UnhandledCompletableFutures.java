@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.utils;
 
 import net.minecraft.ReportedException;
@@ -10,26 +16,26 @@ import java.util.function.Supplier;
  * Returns a CompleteableFuture that does not catch Throwables, only Exceptions
  */
 public final class UnhandledCompletableFutures {
-    public static CompletableFuture<Void> run(Runnable runnable, Minecraft executor) {
-        return supply(() -> {
-            runnable.run();
-            return null;
-        }, executor);
-    }
+	public static CompletableFuture<Void> run(Runnable runnable, Minecraft executor) {
+		return supply(() -> {
+			runnable.run();
+			return null;
+		}, executor);
+	}
 
-    public static <T> CompletableFuture<T> supply(Supplier<T> supplier, Minecraft executor) {
-        var future = new CompletableFuture<T>();
-        executor.schedule(() -> {
-            try {
-                future.complete(supplier.get());
-            } catch (Exception e) { // allows Throwable to go uncaught
-                future.completeExceptionally(e);
+	public static <T> CompletableFuture<T> supply(Supplier<T> supplier, Minecraft executor) {
+		var future = new CompletableFuture<T>();
+		executor.schedule(() -> {
+			try {
+				future.complete(supplier.get());
+			} catch (Exception e) { // allows Throwable to go uncaught
+				future.completeExceptionally(e);
 
-                if (e instanceof ReportedException) {
-                    throw e; // rethrow a crash report
-                }
-            }
-        });
-        return future;
-    }
+				if (e instanceof ReportedException) {
+					throw e; // rethrow a crash report
+				}
+			}
+		});
+		return future;
+	}
 }

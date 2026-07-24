@@ -1,8 +1,13 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.buttonguide;
 
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
-import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,27 +18,26 @@ import java.util.function.Supplier;
  * This should be called every time a button is initialised, like in {@link Screen#init()}
  */
 public final class ButtonGuideApi {
-    /**
-     * Makes the button render the image of the binding specified.
-     * This does not invoke the button press on binding trigger, only renders the guide.
-     * Custom behaviour should be handled inside a {@link dev.isxander.controlify.screenop.ScreenProcessor} or {@link dev.isxander.controlify.screenop.ComponentProcessor}
-     *
-     * @param button          button to render the guide for
-     * @param binding         the custom binding to render
-     * @param renderPredicate whether the guide should be rendered
-     */
-    public static <T> void addGuideToButton(
-            @NotNull T button,
-            @NotNull InputBindingSupplier binding,
-            @NotNull ButtonGuidePredicate<T> renderPredicate) {
-        ButtonGuideRenderer.registerBindingForButton(button, () -> binding, renderPredicate);
-    }
+	/**
+	 * Makes the button render the image of the binding specified.
+	 * This does not invoke the button press on binding trigger, only renders the guide.
+	 * Custom behaviour should be handled inside a {@link dev.isxander.controlify.screenop.ScreenProcessor} or {@link dev.isxander.controlify.screenop.ComponentProcessor}
+	 *
+	 * @param button          button to render the guide for
+	 * @param binding         the custom binding to render
+	 * @param renderPredicate whether the guide should be rendered
+	 */
+	public static <T> void addGuideToButton(
+			@NotNull T button,
+			@NotNull InputBindingSupplier binding,
+			@NotNull ButtonGuidePredicate<T> renderPredicate) {
+		ButtonGuideRenderer.registerBindingForButton(button, () -> binding, renderPredicate);
+	}
 
-    public static <T> void addGuideToButton(
-            @NotNull T button,
-            @NotNull Supplier<InputBindingSupplier> binding,
-            @NotNull ButtonGuidePredicate<T> renderPredicate) {
-        ButtonGuideRenderer.registerBindingForButton(button, binding, renderPredicate);
-    }
+	public static <T> void addGuideToButton(
+			@NotNull T button,
+			@NotNull Supplier<InputBindingSupplier> binding,
+			@NotNull ButtonGuidePredicate<T> renderPredicate) {
+		ButtonGuideRenderer.registerBindingForButton(button, binding, renderPredicate);
+	}
 }
-

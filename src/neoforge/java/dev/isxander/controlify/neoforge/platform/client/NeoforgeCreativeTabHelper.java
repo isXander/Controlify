@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.neoforge.platform.client;
 
 import dev.isxander.controlify.neoforge.mixins.CreativeModeInventoryScreenAccessor;
@@ -9,43 +15,43 @@ import net.neoforged.neoforge.client.gui.CreativeTabsScreenPage;
 import java.util.List;
 
 public class NeoforgeCreativeTabHelper implements CreativeTabHelper {
-    private final CreativeModeInventoryScreen screen;
+	private final CreativeModeInventoryScreen screen;
 
-    public NeoforgeCreativeTabHelper(CreativeModeInventoryScreen screen) {
-        this.screen = screen;
-    }
+	public NeoforgeCreativeTabHelper(CreativeModeInventoryScreen screen) {
+		this.screen = screen;
+	}
 
-    @Override
-    public void setCurrentPage(int page) {
-        screen.setCurrentPage(getPages().get(page));
-    }
+	@Override
+	public void setCurrentPage(int page) {
+		screen.setCurrentPage(getPages().get(page));
+	}
 
-    @Override
-    public int getCurrentPage() {
-        return getPages().indexOf(screen.getCurrentPage());
-    }
+	@Override
+	public int getCurrentPage() {
+		return getPages().indexOf(screen.getCurrentPage());
+	}
 
-    @Override
-    public int getPageCount() {
-        return getPages().size();
-    }
+	@Override
+	public int getPageCount() {
+		return getPages().size();
+	}
 
-    @Override
-    public List<CreativeModeTab> getTabsForPage(int page) {
-        return screen.getCurrentPage().getVisibleTabs();
-    }
+	@Override
+	public List<CreativeModeTab> getTabsForPage(int page) {
+		return screen.getCurrentPage().getVisibleTabs();
+	}
 
-    @Override
-    public CreativeModeTab getSelectedTab() {
-        return CreativeModeInventoryScreenAccessor.getSelectedTab();
-    }
+	@Override
+	public CreativeModeTab getSelectedTab() {
+		return CreativeModeInventoryScreenAccessor.getSelectedTab();
+	}
 
-    @Override
-    public void setSelectedTab(CreativeModeTab tab) {
-        ((CreativeModeInventoryScreenAccessor) screen).invokeSelectTab(tab);
-    }
+	@Override
+	public void setSelectedTab(CreativeModeTab tab) {
+		((CreativeModeInventoryScreenAccessor) screen).invokeSelectTab(tab);
+	}
 
-    private List<CreativeTabsScreenPage> getPages() {
-        return ((CreativeModeInventoryScreenAccessor) screen).getPages();
-    }
+	private List<CreativeTabsScreenPage> getPages() {
+		return ((CreativeModeInventoryScreenAccessor) screen).getPages();
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.MapCodec;
@@ -9,25 +15,25 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public record HatInput(Identifier hat, HatState targetState) implements Input {
-    public static final String INPUT_ID = "hat";
+	public static final String INPUT_ID = "hat";
 
-    public static final MapCodec<HatInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Identifier.CODEC.fieldOf(INPUT_ID).forGetter(HatInput::hat),
-            HatState.CODEC.fieldOf("target_state").forGetter(HatInput::targetState)
-    ).apply(instance, HatInput::new));
+	public static final MapCodec<HatInput> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+			Identifier.CODEC.fieldOf(INPUT_ID).forGetter(HatInput::hat),
+			HatState.CODEC.fieldOf("target_state").forGetter(HatInput::targetState)
+	).apply(instance, HatInput::new));
 
-    @Override
-    public float state(ControllerStateView state) {
-        return state.getHatState(hat) == targetState ? 1 : 0;
-    }
+	@Override
+	public float state(ControllerStateView state) {
+		return state.getHatState(hat) == targetState ? 1 : 0;
+	}
 
-    @Override
-    public List<Identifier> getRelevantInputs() {
-        return List.of(hat);
-    }
+	@Override
+	public List<Identifier> getRelevantInputs() {
+		return List.of(hat);
+	}
 
-    @Override
-    public InputType<?> type() {
-        return InputType.HAT;
-    }
+	@Override
+	public InputType<?> type() {
+		return InputType.HAT;
+	}
 }

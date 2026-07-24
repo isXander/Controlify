@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.SliderControlProcessor;
@@ -14,27 +19,26 @@ import org.spongepowered.asm.mixin.*;
 
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.SliderControl$SliderControlElement")
 public abstract class SliderControlElementMixin extends ControlElement implements ComponentProcessorProvider {
-    @Shadow @Final private IntegerOption option;
+	@Shadow @Final private IntegerOption option;
 
-    @Unique private final ComponentProcessor controlify$componentProcessor
-            = new SliderControlProcessor(this::controlify$incrementSlider);
+	@Unique private final ComponentProcessor controlify$componentProcessor
+			= new SliderControlProcessor(this::controlify$incrementSlider);
 
-    public SliderControlElementMixin(AbstractOptionList list, Dim2i dim, ColorTheme theme) {
-        super(list, dim, theme);
-    }
+	public SliderControlElementMixin(AbstractOptionList list, Dim2i dim, ColorTheme theme) {
+		super(list, dim, theme);
+	}
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return controlify$componentProcessor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return controlify$componentProcessor;
+	}
 
-    @Unique
-    private void controlify$incrementSlider(boolean reverse) {
-        var range = option.getSteppedValidator();
-        option.modifyValue(Mth.clamp(
-                option.getValidatedValue() + (reverse ? -range.step() : range.step()),
-                range.min(), range.max()
-        ));
-    }
+	@Unique private void controlify$incrementSlider(boolean reverse) {
+		var range = option.getSteppedValidator();
+		option.modifyValue(Mth.clamp(
+				option.getValidatedValue() + (reverse ? -range.step() : range.step()),
+				range.min(), range.max()
+		));
+	}
 }
 //?}

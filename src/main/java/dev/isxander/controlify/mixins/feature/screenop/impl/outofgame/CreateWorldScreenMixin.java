@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -17,59 +23,59 @@ import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(CreateWorldScreen.class)
 public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider {
-    @Shadow protected abstract void onCreate();
+	@Shadow protected abstract void onCreate();
 
-    @Unique private final ScreenProcessor<CreateWorldScreen> processor
-            = new CreateWorldScreenProcessor((CreateWorldScreen) (Object) this, this::onCreate);
+	@Unique private final ScreenProcessor<CreateWorldScreen> processor
+			= new CreateWorldScreenProcessor((CreateWorldScreen) (Object) this, this::onCreate);
 
-    @ModifyExpressionValue(
-            method = "init()V",
-            slice = @Slice(
-                    from = @At(
-                            value = "CONSTANT",
-                            args = "stringValue=selectWorld.create"
-                    )
-            ),
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
-                    ordinal = 0
-            )
-    )
-    private Button modifyCreateButton(Button button) {
-        ButtonGuideApi.addGuideToButton(
-                button,
-                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonGuidePredicate.always()
-        );
-        return button;
-    }
+	@ModifyExpressionValue(
+			method = "init()V",
+			slice = @Slice(
+					from = @At(
+							value = "CONSTANT",
+							args = "stringValue=selectWorld.create"
+					)
+			),
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+					ordinal = 0
+			)
+	)
+	private Button modifyCreateButton(Button button) {
+		ButtonGuideApi.addGuideToButton(
+				button,
+				ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+				ButtonGuidePredicate.always()
+		);
+		return button;
+	}
 
-    @ModifyExpressionValue(
-            method = "init()V",
-            slice = @Slice(
-                    from = @At(
-                            value = "FIELD",
-                            target = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;"
-                    )
-            ),
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
-                    ordinal = 0
-            )
-    )
-    private Button modifyCancelButton(Button button) {
-        ButtonGuideApi.addGuideToButton(
-                button,
-                ControlifyBindings.GUI_BACK,
-                ButtonGuidePredicate.always()
-        );
-        return button;
-    }
+	@ModifyExpressionValue(
+			method = "init()V",
+			slice = @Slice(
+					from = @At(
+							value = "FIELD",
+							target = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;"
+					)
+			),
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;",
+					ordinal = 0
+			)
+	)
+	private Button modifyCancelButton(Button button) {
+		ButtonGuideApi.addGuideToButton(
+				button,
+				ControlifyBindings.GUI_BACK,
+				ButtonGuidePredicate.always()
+		);
+		return button;
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return processor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return processor;
+	}
 }

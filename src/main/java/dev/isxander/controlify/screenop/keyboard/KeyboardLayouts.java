@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.keyboard;
 
 import dev.isxander.controlify.Controlify;
@@ -12,25 +18,25 @@ import net.minecraft.resources.Identifier;
  */
 public final class KeyboardLayouts {
 
-    public static final Identifier FULL = CUtil.rl("full");
-    public static final Identifier SIMPLE = CUtil.rl("simple");
-    public static final Identifier SERVER_IP = CUtil.rl("server_ip");
+	public static final Identifier FULL = CUtil.rl("full");
+	public static final Identifier SIMPLE = CUtil.rl("simple");
+	public static final Identifier SERVER_IP = CUtil.rl("server_ip");
 
-    public static KeyboardLayoutWithId full() {
-        return Controlify.instance().keyboardLayoutManager().getLayout(FULL);
-    }
+	public static KeyboardLayoutWithId full() {
+		return Controlify.instance().keyboardLayoutManager().getLayout(FULL);
+	}
 
-    public static KeyboardLayoutWithId simple() {
-        return Controlify.instance().keyboardLayoutManager().getLayout(SIMPLE);
-    }
+	public static KeyboardLayoutWithId simple() {
+		return Controlify.instance().keyboardLayoutManager().getLayout(SIMPLE);
+	}
 
-    public static KeyboardLayoutWithId serverIp() {
-        return Controlify.instance().keyboardLayoutManager().getLayout(SERVER_IP);
-    }
+	public static KeyboardLayoutWithId serverIp() {
+		return Controlify.instance().keyboardLayoutManager().getLayout(SERVER_IP);
+	}
 
-    public static KeyboardLayoutWithId fallback() {
-        return new KeyboardLayoutWithId(FallbackKeyboardLayout.QWERTY, FallbackKeyboardLayout.ID);
-    }
+	public static KeyboardLayoutWithId fallback() {
+		return new KeyboardLayoutWithId(FallbackKeyboardLayout.QWERTY, FallbackKeyboardLayout.ID);
+	}
 
-    private KeyboardLayouts() {}
+	private KeyboardLayouts() {}
 }

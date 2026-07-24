@@ -1,10 +1,15 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.guide;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
-import dev.isxander.controlify.utils.codec.SetCodec;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
@@ -26,23 +31,23 @@ import java.util.Set;
  * @see #builder() for a builder to create dynamic rules
  */
 public record Rule(
-        InputBindingSupplier binding,
-        ActionLocation where,
-        Set<Identifier> when,
-        Set<Identifier> forbid,
-        Component then
+		InputBindingSupplier binding,
+		ActionLocation where,
+		Set<Identifier> when,
+		Set<Identifier> forbid,
+		Component then
 ) {
-    public static final Codec<Rule> CODEC = RecordCodecBuilder.create(
-            instance -> instance.group(
-                    InputBindingSupplier.CODEC.fieldOf("for").forGetter(Rule::binding),
-                    ActionLocation.CODEC.fieldOf("where").forGetter(Rule::where),
-                    CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("when", Set.of()).forGetter(Rule::when),
-                    CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("forbid", Set.of()).forGetter(Rule::forbid),
-                    ComponentSerialization.CODEC.fieldOf("then").forGetter(Rule::then)
-            ).apply(instance, Rule::new)
-    );
+	public static final Codec<Rule> CODEC = RecordCodecBuilder.create(
+			instance -> instance.group(
+					InputBindingSupplier.CODEC.fieldOf("for").forGetter(Rule::binding),
+					ActionLocation.CODEC.fieldOf("where").forGetter(Rule::where),
+					CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("when", Set.of()).forGetter(Rule::when),
+					CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("forbid", Set.of()).forGetter(Rule::forbid),
+					ComponentSerialization.CODEC.fieldOf("then").forGetter(Rule::then)
+			).apply(instance, Rule::new)
+	);
 
-    public static RuleBuilder builder() {
-        return new RuleBuilder();
-    }
+	public static RuleBuilder builder() {
+		return new RuleBuilder();
+	}
 }

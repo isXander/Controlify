@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.core;
 
 import com.mojang.blaze3d.platform.GLX;
@@ -11,9 +17,9 @@ import java.util.function.LongSupplier;
 
 @Mixin(GLX.class)
 public class GLXMixin {
-    @Inject(method = "_initGlfw", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwInit()Z"))
-    private static void addInitHints(CallbackInfoReturnable<LongSupplier> cir) {
-        // stops GLFW adding hats to button list (backward compat)
-        GLFW.glfwInitHint(GLFW.GLFW_JOYSTICK_HAT_BUTTONS, GLFW.GLFW_FALSE);
-    }
+	@Inject(method = "_initGlfw", at = @At(value = "INVOKE", target = "Lorg/lwjgl/glfw/GLFW;glfwInit()Z"))
+	private static void addInitHints(CallbackInfoReturnable<LongSupplier> cir) {
+		// stops GLFW adding hats to button list (backward compat)
+		GLFW.glfwInitHint(GLFW.GLFW_JOYSTICK_HAT_BUTTONS, GLFW.GLFW_FALSE);
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.oofinput;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -9,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @ModifyExpressionValue(method = "pauseIfInactive", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Options;pauseOnLostFocus:Z", opcode = Opcodes.GETFIELD))
-    private boolean shouldPauseOnLossFocus(boolean original) {
-        return original && !(Controlify.instance().config().getSettings().globalSettings().outOfFocusInput && Controlify.instance().getCurrentController().isPresent());
-    }
+	@ModifyExpressionValue(method = "pauseIfInactive", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Options;pauseOnLostFocus:Z", opcode = Opcodes.GETFIELD))
+	private boolean shouldPauseOnLossFocus(boolean original) {
+		return original && !(Controlify.instance().config().getSettings().globalSettings().outOfFocusInput && Controlify.instance().getCurrentController().isPresent());
+	}
 }

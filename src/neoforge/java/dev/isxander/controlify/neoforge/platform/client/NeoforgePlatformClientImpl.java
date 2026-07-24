@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.neoforge.platform.client;
 
 import dev.isxander.controlify.neoforge.platform.VanillaKeyMappingHolder;
@@ -37,100 +43,100 @@ import java.util.List;
 import java.util.function.Function;
 
 public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
-    private @Nullable Collection<KeyMapping> moddedKeyMappings;
+	private @Nullable Collection<KeyMapping> moddedKeyMappings;
 
-    @Override
-    public void registerClientTickStarted(TickEvent event) {
-        NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-            event.onTick(Minecraft.getInstance());
-        });
-    }
+	@Override
+	public void registerClientTickStarted(TickEvent event) {
+		NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+			event.onTick(Minecraft.getInstance());
+		});
+	}
 
-    @Override
-    public void registerClientTickEnded(TickEvent event) {
-        NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
-            event.onTick(Minecraft.getInstance());
-        });
-    }
+	@Override
+	public void registerClientTickEnded(TickEvent event) {
+		NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+			event.onTick(Minecraft.getInstance());
+		});
+	}
 
-    @Override
-    public void registerClientStopping(LifecycleEvent event) {
-        NeoForge.EVENT_BUS.<GameShuttingDownEvent>addListener(e -> {
-            event.onLifecycle(Minecraft.getInstance());
-        });
-    }
+	@Override
+	public void registerClientStopping(LifecycleEvent event) {
+		NeoForge.EVENT_BUS.<GameShuttingDownEvent>addListener(e -> {
+			event.onLifecycle(Minecraft.getInstance());
+		});
+	}
 
-    @Override
-    public void registerClientDisconnected(DisconnectedEvent event) {
-        NeoForge.EVENT_BUS.<ClientPlayerNetworkEvent.LoggingOut>addListener(e -> {
-            event.onDisconnected(Minecraft.getInstance());
-        });
-    }
+	@Override
+	public void registerClientDisconnected(DisconnectedEvent event) {
+		NeoForge.EVENT_BUS.<ClientPlayerNetworkEvent.LoggingOut>addListener(e -> {
+			event.onDisconnected(Minecraft.getInstance());
+		});
+	}
 
-    @Override
-    public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
-        getModEventBus().<AddClientReloadListenersEvent>addListener(e -> {
-            e.addListener(reloadListener.getReloadId(), reloadListener);
-        });
-    }
+	@Override
+	public void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
+		getModEventBus().<AddClientReloadListenersEvent>addListener(e -> {
+			e.addListener(reloadListener.getReloadId(), reloadListener);
+		});
+	}
 
-    @Override
-    public void registerBuiltinResourcePack(Identifier id, Component displayName) {
-        Identifier packLocation = id.withPrefix("resourcepacks/");
+	@Override
+	public void registerBuiltinResourcePack(Identifier id, Component displayName) {
+		Identifier packLocation = id.withPrefix("resourcepacks/");
 
-        getModEventBus().<AddPackFindersEvent>addListener(e -> {
-            e.addPackFinders(
-                    packLocation,
-                    PackType.CLIENT_RESOURCES,
-                    displayName,
-                    PackSource.BUILT_IN,
-                    false,
-                    Pack.Position.TOP
-            );
-        });
-    }
+		getModEventBus().<AddPackFindersEvent>addListener(e -> {
+			e.addPackFinders(
+					packLocation,
+					PackType.CLIENT_RESOURCES,
+					displayName,
+					PackSource.BUILT_IN,
+					false,
+					Pack.Position.TOP
+			);
+		});
+	}
 
-    @Override
-    public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
-        getModEventBus().addListener(
-                RegisterGuiLayersEvent.class,
-                e -> e.registerAboveAll(id, renderLayer::render)
-        );
-    }
+	@Override
+	public void addHudLayer(Identifier id, HudRenderLayer renderLayer) {
+		getModEventBus().addListener(
+				RegisterGuiLayersEvent.class,
+				e -> e.registerAboveAll(id, renderLayer::render)
+		);
+	}
 
-    @Override
-    public void registerPostScreenRender(ScreenRenderEvent event) {
-        NeoForge.EVENT_BUS.<ScreenEvent.Render.Post>addListener(e -> {
-            event.onRender(e.getScreen(), e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getPartialTick());
-        });
-    }
+	@Override
+	public void registerPostScreenRender(ScreenRenderEvent event) {
+		NeoForge.EVENT_BUS.<ScreenEvent.Render.Post>addListener(e -> {
+			event.onRender(e.getScreen(), e.getGuiGraphics(), e.getMouseX(), e.getMouseY(), e.getPartialTick());
+		});
+	}
 
-    @Override
-    public Collection<KeyMapping> getModdedKeyMappings() {
-        if (moddedKeyMappings == null)
-            moddedKeyMappings = calculateModdedKeyMappings();
-        return moddedKeyMappings;
-    }
+	@Override
+	public Collection<KeyMapping> getModdedKeyMappings() {
+		if (moddedKeyMappings == null)
+			moddedKeyMappings = calculateModdedKeyMappings();
+		return moddedKeyMappings;
+	}
 
-    private Collection<KeyMapping> calculateModdedKeyMappings() {
-        Options options = Minecraft.getInstance().options;
-        KeyMapping[] vanillaAndModded = options.keyMappings;
-        List<KeyMapping> vanillaOnly = Arrays.asList(((VanillaKeyMappingHolder) options).controlify$getVanillaKeys());
+	private Collection<KeyMapping> calculateModdedKeyMappings() {
+		Options options = Minecraft.getInstance().options;
+		KeyMapping[] vanillaAndModded = options.keyMappings;
+		List<KeyMapping> vanillaOnly = Arrays.asList(((VanillaKeyMappingHolder) options).controlify$getVanillaKeys());
 
-        return Arrays.stream(vanillaAndModded)
-                .filter(key -> !vanillaOnly.contains(key))
-                .toList();
-    }
+		return Arrays.stream(vanillaAndModded)
+				.filter(key -> !vanillaOnly.contains(key))
+				.toList();
+	}
 
-    @Override
-    public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
-        // TODO
-    }
+	@Override
+	public <I, O> void setupClientsideHandshake(Identifier handshakeId, StreamCodec<FriendlyByteBuf, I> clientBoundCodec, StreamCodec<FriendlyByteBuf, O> serverBoundCodec, Function<I, O> handshakeHandler) {
+		// TODO
+	}
 
-    @Override
-    public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
-        return new NeoforgeCreativeTabHelper(creativeScreen);
-    }
+	@Override
+	public CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
+		return new NeoforgeCreativeTabHelper(creativeScreen);
+	}
 
 	@Override
 	public @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {
@@ -143,6 +149,6 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 	}
 
 	private IEventBus getModEventBus() {
-        return ModLoadingContext.get().getActiveContainer().getEventBus();
-    }
+		return ModLoadingContext.get().getActiveContainer().getEventBus();
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.Controlify;
@@ -17,165 +23,165 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class InputComponent extends ECSComponentImpl {
-    public static final Identifier ID = CUtil.rl("input");
+	public static final Identifier ID = CUtil.rl("input");
 
-    private final ControllerEntity controller;
-    private DeviceSettings deviceSettings; // Cached reference
+	private final ControllerEntity controller;
+	private DeviceSettings deviceSettings; // Cached reference
 
-    private ControllerState
-            stateNow = ControllerState.EMPTY,
-            stateThen = ControllerState.EMPTY;
-    private DeadzoneControllerStateView
-            deadzoneStateNow,
-            deadzoneStateThen;
+	private ControllerState
+			stateNow = ControllerState.EMPTY,
+			stateThen = ControllerState.EMPTY;
+	private DeadzoneControllerStateView
+			deadzoneStateNow,
+			deadzoneStateThen;
 
-    private final int buttonCount, axisCount, hatCount;
-    private final Map<Identifier, DeadzoneGroup> deadzoneAxes;
-    private final boolean definitelyGamepad;
+	private final int buttonCount, axisCount, hatCount;
+	private final Map<Identifier, DeadzoneGroup> deadzoneAxes;
+	private final boolean definitelyGamepad;
 
-    private final Map<Identifier, InputBinding> inputBindings;
+	private final Map<Identifier, InputBinding> inputBindings;
 
-    public InputComponent(
-            ControllerEntity controller,
-            int buttonCount, int axisCount, int hatCount,
-            boolean definitelyGamepad,
-            Set<DeadzoneGroup> deadzoneAxes,
-            String mappingId
-    ) {
-        this.controller = controller;
-        this.buttonCount = buttonCount;
-        this.axisCount = axisCount;
-        this.hatCount = hatCount;
-        this.definitelyGamepad = definitelyGamepad;
-        this.deadzoneAxes = deadzoneAxes.stream()
-                .collect(Collectors.toMap(
-                        DeadzoneGroup::name,
-                        Function.identity(),
-                        (x, y) -> y,
-                        LinkedHashMap::new
-                ));
-        this.inputBindings = new LinkedHashMap<>();
+	public InputComponent(
+			ControllerEntity controller,
+			int buttonCount, int axisCount, int hatCount,
+			boolean definitelyGamepad,
+			Set<DeadzoneGroup> deadzoneAxes,
+			String mappingId
+	) {
+		this.controller = controller;
+		this.buttonCount = buttonCount;
+		this.axisCount = axisCount;
+		this.hatCount = hatCount;
+		this.definitelyGamepad = definitelyGamepad;
+		this.deadzoneAxes = deadzoneAxes.stream()
+				.collect(Collectors.toMap(
+						DeadzoneGroup::name,
+						Function.identity(),
+						(x, y) -> y,
+						LinkedHashMap::new
+				));
+		this.inputBindings = new LinkedHashMap<>();
 
-        this.updateDeadzoneView();
-    }
+		this.updateDeadzoneView();
+	}
 
-    public ControllerStateView stateNow() {
-        return this.deadzoneStateNow;
-    }
-    public ControllerStateView stateThen() {
-        return this.deadzoneStateThen;
-    }
+	public ControllerStateView stateNow() {
+		return this.deadzoneStateNow;
+	}
+	public ControllerStateView stateThen() {
+		return this.deadzoneStateThen;
+	}
 
-    public ControllerState rawStateNow() {
-        return this.stateNow;
-    }
+	public ControllerState rawStateNow() {
+		return this.stateNow;
+	}
 
-    public ControllerState rawStateThen() {
-        return this.stateThen;
-    }
+	public ControllerState rawStateThen() {
+		return this.stateThen;
+	}
 
-    public void pushState(ControllerState state) {
-        ControllerMapping mapping = getDeviceMapping();
-        if (mapping != null) {
-            state = mapping.mapState(state);
-        }
+	public void pushState(ControllerState state) {
+		ControllerMapping mapping = getDeviceMapping();
+		if (mapping != null) {
+			state = mapping.mapState(state);
+		}
 
-        this.stateThen = this.stateNow;
-        this.stateNow = state;
-        this.updateDeadzoneView();
+		this.stateThen = this.stateNow;
+		this.stateNow = state;
+		this.updateDeadzoneView();
 
-        for (InputBinding binding : this.inputBindings.values()) {
-            binding.pushState(this.deadzoneStateNow);
-        }
-    }
+		for (InputBinding binding : this.inputBindings.values()) {
+			binding.pushState(this.deadzoneStateNow);
+		}
+	}
 
-    public @Nullable InputBinding getBinding(Identifier id) {
-        return this.inputBindings.get(id);
-    }
+	public @Nullable InputBinding getBinding(Identifier id) {
+		return this.inputBindings.get(id);
+	}
 
-    public Collection<InputBinding> getAllBindings() {
-        return this.inputBindings.values();
-    }
+	public Collection<InputBinding> getAllBindings() {
+		return this.inputBindings.values();
+	}
 
-    public void notifyGuiPressOutputsOfNavigate() {
-        for (InputBinding binding : this.inputBindings.values()) {
-            binding.guiPressed().onNavigate();
-        }
-    }
+	public void notifyGuiPressOutputsOfNavigate() {
+		for (InputBinding binding : this.inputBindings.values()) {
+			binding.guiPressed().onNavigate();
+		}
+	}
 
-    @Override
-    public void attach(ControllerEntity controller) {
-        super.attach(controller);
+	@Override
+	public void attach(ControllerEntity controller) {
+		super.attach(controller);
 
-        // Cache device settings reference
-        this.deviceSettings = Controlify.instance().config().getSettings()
-                .getOrCreateDeviceSettings(controller.uid());
+		// Cache device settings reference
+		this.deviceSettings = Controlify.instance().config().getSettings()
+				.getOrCreateDeviceSettings(controller.uid());
 
-        // Populate bindings
-        for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
-            this.inputBindings.put(binding.id(), binding);
-        }
+		// Populate bindings
+		for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
+			this.inputBindings.put(binding.id(), binding);
+		}
 
-        // Note: No need to copy bound inputs from config here since InputBindingImpl.boundInput()
-        // now reads directly from the config (via inputComponent.settings().bindings.bindings)
-    }
+		// Note: No need to copy bound inputs from config here since InputBindingImpl.boundInput()
+		// now reads directly from the config (via inputComponent.settings().bindings.bindings)
+	}
 
-    public int buttonCount() {
-        return this.buttonCount;
-    }
-    public int axisCount() {
-        return this.axisCount;
-    }
-    public int hatCount() {
-        return this.hatCount;
-    }
+	public int buttonCount() {
+		return this.buttonCount;
+	}
+	public int axisCount() {
+		return this.axisCount;
+	}
+	public int hatCount() {
+		return this.hatCount;
+	}
 
-    public boolean isDefinitelyGamepad() {
-        return this.definitelyGamepad;
-    }
+	public boolean isDefinitelyGamepad() {
+		return this.definitelyGamepad;
+	}
 
-    public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
-        ControllerMapping mapping = getDeviceMapping();
-        if (mapping != null) {
-            return mapping.deadzones();
-        } else {
-            return this.deadzoneAxes;
-        }
-    }
+	public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
+		ControllerMapping mapping = getDeviceMapping();
+		if (mapping != null) {
+			return mapping.deadzones();
+		} else {
+			return this.deadzoneAxes;
+		}
+	}
 
-    private @Nullable ControllerMapping getDeviceMapping() {
-        // Use cached device settings to avoid repeated lookups
-        return deviceSettings.mapping;
-    }
+	private @Nullable ControllerMapping getDeviceMapping() {
+		// Use cached device settings to avoid repeated lookups
+		return deviceSettings.mapping;
+	}
 
-    public ControllerEntity getController() {
-        return controller();
-    }
+	public ControllerEntity getController() {
+		return controller();
+	}
 
-    public InputSettings settings() {
-        return this.controller().settings().input;
-    }
+	public InputSettings settings() {
+		return this.controller().settings().input;
+	}
 
-    public InputSettings defaultSettings() {
-        return this.controller().defaultSettings().input;
-    }
+	public InputSettings defaultSettings() {
+		return this.controller().defaultSettings().input;
+	}
 
-    @Override
-    public Identifier id() {
-        return ID;
-    }
+	@Override
+	public Identifier id() {
+		return ID;
+	}
 
-    private void updateDeadzoneView() {
-        this.deadzoneStateNow = new DeadzoneControllerStateView(this.stateNow, this);
-        this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this);
-    }
+	private void updateDeadzoneView() {
+		this.deadzoneStateNow = new DeadzoneControllerStateView(this.stateNow, this);
+		this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this);
+	}
 
-    Optional<Identifier> getDeadzoneForAxis(Identifier axis) {
-        for (DeadzoneGroup group : this.getDeadzoneGroups().values()) {
-            if (group.axes().contains(axis)) {
-                return Optional.of(group.name());
-            }
-        }
-        return Optional.empty();
-    }
+	Optional<Identifier> getDeadzoneForAxis(Identifier axis) {
+		for (DeadzoneGroup group : this.getDeadzoneGroups().values()) {
+			if (group.axes().contains(axis)) {
+				return Optional.of(group.name());
+			}
+		}
+		return Optional.empty();
+	}
 }

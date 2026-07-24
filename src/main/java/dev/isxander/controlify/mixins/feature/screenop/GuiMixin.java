@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
@@ -11,20 +17,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(
-        //? if >=26.2 {
-        net.minecraft.client.gui.Gui.class
-        //?} else {
-        /*net.minecraft.client.Minecraft.class
-        *///?}
+		//? if >=26.2 {
+		net.minecraft.client.gui.Gui.class
+		//?} else {
+		/*net.minecraft.client.Minecraft.class
+		*///?}
 )
 public class GuiMixin {
-    @Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateTitle()V"))
-    private void changeScreen(Screen screen, CallbackInfo ci) {
-        ComponentProcessorProvider.REGISTRY.clearCache();
-    }
+	@Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateTitle()V"))
+	private void changeScreen(Screen screen, CallbackInfo ci) {
+		ComponentProcessorProvider.REGISTRY.clearCache();
+	}
 
-    @WrapWithCondition(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
-    private boolean preventRemovingOldScreen(Screen oldScreen, @Local(argsOnly = true, name = "screen") Screen screen) {
-        return !(screen instanceof KeyboardOverlayScreen);
-    }
+	@WrapWithCondition(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
+	private boolean preventRemovingOldScreen(Screen oldScreen, @Local(argsOnly = true, name = "screen") Screen screen) {
+		return !(screen instanceof KeyboardOverlayScreen);
+	}
 }

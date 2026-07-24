@@ -1,4 +1,9 @@
-//? if iris {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.iris.mixins;
 
 import dev.isxander.controlify.compatibility.iris.screenop.BaseOptionElementComponentProcessor;
@@ -12,25 +17,24 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(BaseOptionElementWidget.class)
 public abstract class BaseOptionElementWidgetMixin implements ComponentProcessorProvider {
-    @Shadow public abstract boolean applyPreviousValue();
-    @Shadow public abstract boolean applyNextValue();
+	@Shadow public abstract boolean applyPreviousValue();
+	@Shadow public abstract boolean applyNextValue();
 
-    @Shadow protected NavigationController navigation;
-    @Unique private final BaseOptionElementComponentProcessor processor
-            = new BaseOptionElementComponentProcessor(this::cycle);
+	@Shadow protected NavigationController navigation;
+	@Unique private final BaseOptionElementComponentProcessor processor
+			= new BaseOptionElementComponentProcessor(this::cycle);
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return processor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return processor;
+	}
 
-    @Unique
-    private void cycle(boolean reverse) {
-        boolean needsUpdate = reverse ? applyPreviousValue() : applyNextValue();
-        if (needsUpdate) {
-            navigation.refresh();
-        }
-    }
+	@Unique private void cycle(boolean reverse) {
+		boolean needsUpdate = reverse ? applyPreviousValue() : applyNextValue();
+		if (needsUpdate) {
+			navigation.refresh();
+		}
+	}
 
 }
 //?}

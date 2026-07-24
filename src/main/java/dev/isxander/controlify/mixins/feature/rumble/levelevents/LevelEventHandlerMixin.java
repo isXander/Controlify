@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.levelevents;
 
 import dev.isxander.controlify.api.ControlifyApi;
@@ -15,43 +21,43 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelEventHandler.class)
 public class LevelEventHandlerMixin {
-    @Inject(method = "levelEvent", at = @At("HEAD"))
-    private void onLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
-        switch (eventId) {
-            case LevelEvent.SOUND_ANVIL_USED -> ControlifyApi.get().playRumbleEffect(
-                    RumbleSource.GUI,
-                    BasicRumbleEffect.join(
-                            BasicRumbleEffect.constant(1f, 0.5f, 2),
-                            BasicRumbleEffect.empty(5)
-                    ).repeat(3)
-            );
-        }
-    }
+	@Inject(method = "levelEvent", at = @At("HEAD"))
+	private void onLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
+		switch (eventId) {
+			case LevelEvent.SOUND_ANVIL_USED -> ControlifyApi.get().playRumbleEffect(
+					RumbleSource.GUI,
+					BasicRumbleEffect.join(
+							BasicRumbleEffect.constant(1f, 0.5f, 2),
+							BasicRumbleEffect.empty(5)
+					).repeat(3)
+			);
+		}
+	}
 
-    @Inject(method = "globalLevelEvent", at = @At("HEAD"))
-    private void onGlobalLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
-        switch (eventId) {
-            case LevelEvent.SOUND_DRAGON_DEATH -> ControlifyApi.get().playRumbleEffect(
-                    RumbleSource.WORLD,
-                    BasicRumbleEffect.join(
-                            BasicRumbleEffect.constant(1f, 1f, 194),
-                            BasicRumbleEffect.byTime(t -> {
-                                float easeOutQuad = (float) Easings.easeOutQuad(t);
-                                return new RumbleState(1 - easeOutQuad, 1 - easeOutQuad);
-                            }, 63)
-                    ).prioritised(10)
-            );
-            case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> ControlifyApi.get().playRumbleEffect(
-                    RumbleSource.WORLD,
-                    BasicRumbleEffect.join(
-                            BasicRumbleEffect.constant(1f, 1f, 9),
-                            BasicRumbleEffect.constant(0.1f, 1f, 14),
-                            BasicRumbleEffect.byTime(t -> {
-                                float easeOutQuad = 1 - (1 - t) * (1 - t);
-                                return new RumbleState(0f, 1 - easeOutQuad);
-                            }, 56)
-                    ).prioritised(10)
-            );
-        }
-    }
+	@Inject(method = "globalLevelEvent", at = @At("HEAD"))
+	private void onGlobalLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
+		switch (eventId) {
+			case LevelEvent.SOUND_DRAGON_DEATH -> ControlifyApi.get().playRumbleEffect(
+					RumbleSource.WORLD,
+					BasicRumbleEffect.join(
+							BasicRumbleEffect.constant(1f, 1f, 194),
+							BasicRumbleEffect.byTime(t -> {
+								float easeOutQuad = (float) Easings.easeOutQuad(t);
+								return new RumbleState(1 - easeOutQuad, 1 - easeOutQuad);
+							}, 63)
+					).prioritised(10)
+			);
+			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> ControlifyApi.get().playRumbleEffect(
+					RumbleSource.WORLD,
+					BasicRumbleEffect.join(
+							BasicRumbleEffect.constant(1f, 1f, 9),
+							BasicRumbleEffect.constant(0.1f, 1f, 14),
+							BasicRumbleEffect.byTime(t -> {
+								float easeOutQuad = 1 - (1 - t) * (1 - t);
+								return new RumbleState(0f, 1 - easeOutQuad);
+							}, 56)
+					).prioritised(10)
+			);
+		}
+	}
 }

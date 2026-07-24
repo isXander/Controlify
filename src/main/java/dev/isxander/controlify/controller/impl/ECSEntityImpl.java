@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.impl;
 
 import com.google.common.collect.ImmutableMap;
@@ -9,31 +15,31 @@ import org.jetbrains.annotations.Contract;
 import java.util.*;
 
 public class ECSEntityImpl implements ECSEntity {
-    private final Map<Identifier, ECSComponent> components;
+	private final Map<Identifier, ECSComponent> components;
 
-    public ECSEntityImpl() {
-        this.components = new HashMap<>();
-    }
+	public ECSEntityImpl() {
+		this.components = new HashMap<>();
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    @Contract(pure = true)
-    public <T extends ECSComponent> Optional<T> getComponent(Identifier id) {
-        return Optional.ofNullable((T) this.components.get(id));
-    }
+	@SuppressWarnings("unchecked")
+	@Override
+	@Contract(pure = true)
+	public <T extends ECSComponent> Optional<T> getComponent(Identifier id) {
+		return Optional.ofNullable((T) this.components.get(id));
+	}
 
-    @Override
-    public <T extends ECSComponent> boolean setComponent(T component) {
-        return this.components.put(component.id(), component) != null;
-    }
+	@Override
+	public <T extends ECSComponent> boolean setComponent(T component) {
+		return this.components.put(component.id(), component) != null;
+	}
 
-    @Override
-    public boolean removeComponent(Identifier id) {
-        return this.components.remove(id) != null;
-    }
+	@Override
+	public boolean removeComponent(Identifier id) {
+		return this.components.remove(id) != null;
+	}
 
-    @Override
-    public Map<Identifier, ECSComponent> getAllComponents() {
-        return ImmutableMap.copyOf(this.components);
-    }
+	@Override
+	public Map<Identifier, ECSComponent> getAllComponents() {
+		return ImmutableMap.copyOf(this.components);
+	}
 }

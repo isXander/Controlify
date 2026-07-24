@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.battery;
 
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
@@ -5,20 +11,20 @@ import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
 public class BatteryLevelComponent extends ECSComponentImpl {
-    public static final Identifier ID = CUtil.rl("battery_level");
+	public static final Identifier ID = CUtil.rl("battery_level");
 
-    private PowerState batteryLevel = new PowerState.Unknown();
+	private PowerState batteryLevel = new PowerState.Unknown();
 
-    public PowerState getBatteryLevel() {
-        return this.batteryLevel;
-    }
+	public PowerState getBatteryLevel() {
+		return this.batteryLevel;
+	}
 
-    public void setBatteryLevel(PowerState batteryLevel) {
-        this.batteryLevel = batteryLevel;
-    }
+	public void setBatteryLevel(PowerState batteryLevel) {
+		this.batteryLevel = batteryLevel;
+	}
 
-    @Override
-    public Identifier id() {
-        return ID;
-    }
+	@Override
+	public Identifier id() {
+		return ID;
+	}
 }

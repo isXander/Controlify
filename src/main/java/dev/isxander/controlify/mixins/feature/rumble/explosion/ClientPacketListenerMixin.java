@@ -1,7 +1,12 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.explosion;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.BasicRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -17,35 +22,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-    @Inject(method = "handleExplosion", at = @At("RETURN"))
-    private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
-        float initialMagnitude = calculateMagnitude(packet);
+	@Inject(method = "handleExplosion", at = @At("RETURN"))
+	private void onClientExplosion(ClientboundExplodePacket packet, CallbackInfo ci) {
+		float initialMagnitude = calculateMagnitude(packet);
 
-        ControlifyApi.get().playRumbleEffect(
-                RumbleSource.WORLD,
-                BasicRumbleEffect.join(
-                        BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
-                        BasicRumbleEffect.byTime(t -> {
-                            float magnitude = calculateMagnitude(packet);
-                            return new RumbleState(0f, magnitude - t * magnitude);
-                        }, 20) // explosion
-                )
-        );
-    }
+		ControlifyApi.get().playRumbleEffect(
+				RumbleSource.WORLD,
+				BasicRumbleEffect.join(
+						BasicRumbleEffect.constant(initialMagnitude, initialMagnitude, 4), // initial boom
+						BasicRumbleEffect.byTime(t -> {
+							float magnitude = calculateMagnitude(packet);
+							return new RumbleState(0f, magnitude - t * magnitude);
+						}, 20) // explosion
+				)
+		);
+	}
 
-    @Unique
-    private float calculateMagnitude(ClientboundExplodePacket packet) {
-        double x = packet.center().x();
-        double y = packet.center().y();
-        double z = packet.center().z();
-        float power = 50f; // 1.21.2+ has no power in the packet
+	@Unique private float calculateMagnitude(ClientboundExplodePacket packet) {
+		double x = packet.center().x();
+		double y = packet.center().y();
+		double z = packet.center().z();
+		float power = 50f; // 1.21.2+ has no power in the packet
 
-        float distanceSqr = Math.max(
-                (float) Minecraft.getInstance().player.distanceToSqr(x, y, z)
-                        - power * power, // power is explosion radius
-                0f);
-        float maxDistanceSqr = 4096f; // client only receives explosion packets within 64 blocks
+		float distanceSqr = Math.max(
+				(float) Minecraft.getInstance().player.distanceToSqr(x, y, z)
+						- power * power, // power is explosion radius
+				0f);
+		float maxDistanceSqr = 4096f; // client only receives explosion packets within 64 blocks
 
-        return 1f - (float)Easings.easeOutQuad(distanceSqr / maxDistanceSqr);
-    }
+		return 1f - (float)Easings.easeOutQuad(distanceSqr / maxDistanceSqr);
+	}
 }

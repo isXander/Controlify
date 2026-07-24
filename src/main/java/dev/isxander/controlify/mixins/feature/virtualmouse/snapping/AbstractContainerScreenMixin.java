@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
 import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
@@ -14,31 +20,31 @@ import java.util.function.Consumer;
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMenu> extends ScreenMixin implements ISnapBehaviour {
 
-    @Shadow
-    public abstract T getMenu();
+	@Shadow
+	public abstract T getMenu();
 
-    @Shadow
-    protected int leftPos;
+	@Shadow
+	protected int leftPos;
 
-    @Shadow
-    protected int topPos;
+	@Shadow
+	protected int topPos;
 
-    @Final @Shadow
-    protected int imageWidth;
+	@Final @Shadow
+	protected int imageWidth;
 
-    @Final @Shadow
-    protected int imageHeight;
+	@Final @Shadow
+	protected int imageHeight;
 
-    @Shadow
-    @Final
-    protected T menu;
+	@Shadow
+	@Final
+	protected T menu;
 
-    @Override
-    public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
-        super.controlify$collectSnapPoints(consumer);
+	@Override
+	public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
+		super.controlify$collectSnapPoints(consumer);
 
-        getMenu().slots.stream()
-                .map(slot -> new SnapPoint(new Vector2i(leftPos + slot.x + 8, topPos + slot.y + 8), 17))
-                .forEach(consumer);
-    }
+		getMenu().slots.stream()
+				.map(slot -> new SnapPoint(new Vector2i(leftPos + slot.x + 8, topPos + slot.y + 8), 17))
+				.forEach(consumer);
+	}
 }

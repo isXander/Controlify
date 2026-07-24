@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -9,13 +15,13 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(ServerSelectionList.Entry.class)
 public class ServerSelectionListEntryMixin implements ComponentProcessorProvider {
-    @Unique private final ServerSelectionListEntryComponentProcessor controlify$componentProcessor
-            = new ServerSelectionListEntryComponentProcessor();
+	@Unique private final ServerSelectionListEntryComponentProcessor controlify$componentProcessor
+			= new ServerSelectionListEntryComponentProcessor();
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return ((ServerSelectionList.Entry) (Object) this) instanceof ServerSelectionList.LANHeader
-                ? ComponentProcessor.EMPTY
-                : controlify$componentProcessor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return ((ServerSelectionList.Entry) (Object) this) instanceof ServerSelectionList.LANHeader
+				? ComponentProcessor.EMPTY
+				: controlify$componentProcessor;
+	}
 }

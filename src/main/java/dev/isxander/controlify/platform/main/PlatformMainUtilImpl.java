@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.platform.main;
 
 import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
@@ -20,35 +26,35 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public interface PlatformMainUtilImpl {
-    void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback);
+	void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback);
 
-    void registerInitPlayConnectionEvent(PlayerJoinedEvent event);
+	void registerInitPlayConnectionEvent(PlayerJoinedEvent event);
 
-    boolean isModLoaded(String... modIds);
+	boolean isModLoaded(String... modIds);
 
 	Optional<IOSupplier<InputStream>> getModFileInputStream(String modId, String path);
 
-    Path getGameDir();
+	Path getGameDir();
 
-    Path getConfigDir();
+	Path getConfigDir();
 
-    boolean isDevEnv();
+	boolean isDevEnv();
 
-    Environment getEnv();
+	Environment getEnv();
 
-    String getControlifyVersion();
+	String getControlifyVersion();
 
-    void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer);
+	void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer);
 
-    <I, O> void setupServersideHandshake(
-            Identifier handshakeId,
-            StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
-            StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
-            Supplier<O> packetCreator,
-            HandshakeCompletionEvent<I> completionEvent
-    );
+	<I, O> void setupServersideHandshake(
+			Identifier handshakeId,
+			StreamCodec<FriendlyByteBuf, I> serverBoundCodec,
+			StreamCodec<FriendlyByteBuf, O> clientBoundCodec,
+			Supplier<O> packetCreator,
+			HandshakeCompletionEvent<I> completionEvent
+	);
 
-    <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant);
+	<T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant);
 
 	C2SNetworkApi c2sNetworkApi();
 

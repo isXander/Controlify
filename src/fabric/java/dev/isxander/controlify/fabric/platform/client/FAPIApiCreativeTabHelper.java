@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.fabric.platform.client;
 
 import dev.isxander.controlify.platform.client.CreativeTabHelper;
@@ -8,39 +14,39 @@ import net.minecraft.world.item.CreativeModeTab;
 import java.util.List;
 
 public class FAPIApiCreativeTabHelper implements CreativeTabHelper {
-    private final FabricCreativeModeInventoryScreen screen;
+	private final FabricCreativeModeInventoryScreen screen;
 
-    public FAPIApiCreativeTabHelper(CreativeModeInventoryScreen screen) {
-        this.screen = (FabricCreativeModeInventoryScreen) screen;
-    }
+	public FAPIApiCreativeTabHelper(CreativeModeInventoryScreen screen) {
+		this.screen = (FabricCreativeModeInventoryScreen) screen;
+	}
 
-    @Override
-    public void setCurrentPage(int page) {
-        screen.switchToPage(page);
-    }
+	@Override
+	public void setCurrentPage(int page) {
+		screen.switchToPage(page);
+	}
 
-    @Override
-    public int getCurrentPage() {
-        return screen.getCurrentPage();
-    }
+	@Override
+	public int getCurrentPage() {
+		return screen.getCurrentPage();
+	}
 
-    @Override
-    public int getPageCount() {
-        return screen.getPageCount();
-    }
+	@Override
+	public int getPageCount() {
+		return screen.getPageCount();
+	}
 
-    @Override
-    public List<CreativeModeTab> getTabsForPage(int page) {
-        return screen.getTabsOnPage(page);
-    }
+	@Override
+	public List<CreativeModeTab> getTabsForPage(int page) {
+		return screen.getTabsOnPage(page);
+	}
 
-    @Override
-    public CreativeModeTab getSelectedTab() {
-        return screen.getSelectedTab();
-    }
+	@Override
+	public CreativeModeTab getSelectedTab() {
+		return screen.getSelectedTab();
+	}
 
-    @Override
-    public void setSelectedTab(CreativeModeTab tab) {
-        screen.setSelectedTab(tab);
-    }
+	@Override
+	public void setSelectedTab(CreativeModeTab tab) {
+		screen.setSelectedTab(tab);
+	}
 }

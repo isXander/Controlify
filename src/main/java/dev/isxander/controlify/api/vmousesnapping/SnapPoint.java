@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.api.vmousesnapping;
 
 import org.joml.Vector2i;
@@ -10,7 +16,7 @@ import org.joml.Vector2ic;
  * @param range how far away from the snap point the cursor can be and still snap to it
  */
 public record SnapPoint(Vector2ic position, int range) {
-    public SnapPoint(int x, int y, int range) {
-        this(new Vector2i(x, y), range);
-    }
+	public SnapPoint(int x, int y, int range) {
+		this(new Vector2i(x, y), range);
+	}
 }

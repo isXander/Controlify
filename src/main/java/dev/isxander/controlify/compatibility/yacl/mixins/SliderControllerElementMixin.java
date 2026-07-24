@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.yacl.mixins;
 
 import dev.isxander.controlify.screenop.ComponentProcessor;
@@ -9,11 +15,11 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(SliderControllerElement.class)
 public class SliderControllerElementMixin implements ComponentProcessorProvider {
-    @Unique private final SliderControllerElementComponentProcessor controlify$processor
-            = new SliderControllerElementComponentProcessor((SliderControllerElement) (Object) this);
+	@Unique private final SliderControllerElementComponentProcessor controlify$processor
+			= new SliderControllerElementComponentProcessor((SliderControllerElement) (Object) this);
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return controlify$processor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return controlify$processor;
+	}
 }

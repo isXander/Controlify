@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -13,30 +19,29 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(AbstractRecipeBookScreen.class)
 public abstract class AbstractRecipeBookScreenMixin
-        extends AbstractContainerScreenMixin
-        implements ScreenProcessorProvider, RecipeUpdateListener, RecipeBookScreenProcessor.RecipeBookScreenAccessor {
+		extends AbstractContainerScreenMixin
+		implements ScreenProcessorProvider, RecipeUpdateListener, RecipeBookScreenProcessor.RecipeBookScreenAccessor {
 
-    @Unique
-    private final RecipeBookScreenProcessor<?> processor =
-            new RecipeBookScreenProcessor<>(
-                    (AbstractRecipeBookScreen<?>) (Object) this,
-                    this,
-                    () -> hoveredSlot,
-                    this::slotClicked,
-                    this::handleControllerItemSlotActions
-            );
+	@Unique private final RecipeBookScreenProcessor<?> processor =
+			new RecipeBookScreenProcessor<>(
+					(AbstractRecipeBookScreen<?>) (Object) this,
+					this,
+					() -> hoveredSlot,
+					this::slotClicked,
+					this::handleControllerItemSlotActions
+			);
 
-    @Shadow
-    @Final
-    private RecipeBookComponent<?> recipeBookComponent;
+	@Shadow
+	@Final
+	private RecipeBookComponent<?> recipeBookComponent;
 
-    @Override
-    public RecipeBookComponent<?> controlify$getRecipeBookComponent() {
-        return this.recipeBookComponent;
-    }
+	@Override
+	public RecipeBookComponent<?> controlify$getRecipeBookComponent() {
+		return this.recipeBookComponent;
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return processor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return processor;
+	}
 }

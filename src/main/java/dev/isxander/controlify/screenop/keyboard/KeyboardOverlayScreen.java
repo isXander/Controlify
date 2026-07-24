@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.keyboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -27,169 +33,169 @@ import java.util.function.Supplier;
  * this mixin prevents calling removed() on the underlying screen when this overlay is presented, since it will be restored
  */
 public class KeyboardOverlayScreen extends Screen {
-    private final Screen backgroundScreen;
-    private final KeyboardLayoutWithId initialKeyboardLayout;
-    private final InputTarget inputTarget;
-    private final KeyboardPositioner keyboardPositioner;
+	private final Screen backgroundScreen;
+	private final KeyboardLayoutWithId initialKeyboardLayout;
+	private final InputTarget inputTarget;
+	private final KeyboardPositioner keyboardPositioner;
 
-    private KeyboardWidget keyboardWidget;
+	private KeyboardWidget keyboardWidget;
 
-    public KeyboardOverlayScreen(
-            Screen backgroundScreen,
-            KeyboardLayoutWithId initialKeyboardLayout,
-            InputTarget inputTarget,
-            KeyboardPositioner keyboardPositioner
-    ) {
-        super(backgroundScreen.getTitle());
-        this.backgroundScreen = backgroundScreen;
-        this.initialKeyboardLayout = initialKeyboardLayout;
-        this.inputTarget = new WrappedInputTarget(inputTarget);
-        this.keyboardPositioner = keyboardPositioner;
-    }
+	public KeyboardOverlayScreen(
+			Screen backgroundScreen,
+			KeyboardLayoutWithId initialKeyboardLayout,
+			InputTarget inputTarget,
+			KeyboardPositioner keyboardPositioner
+	) {
+		super(backgroundScreen.getTitle());
+		this.backgroundScreen = backgroundScreen;
+		this.initialKeyboardLayout = initialKeyboardLayout;
+		this.inputTarget = new WrappedInputTarget(inputTarget);
+		this.keyboardPositioner = keyboardPositioner;
+	}
 
-    @Override
-    protected void init() {
-        KeyboardLayoutWithId layout = this.keyboardWidget != null
-                ? Controlify.instance().keyboardLayoutManager().getLayout(this.keyboardWidget.getCurrentLayoutId())
-                : this.initialKeyboardLayout;
+	@Override
+	protected void init() {
+		KeyboardLayoutWithId layout = this.keyboardWidget != null
+				? Controlify.instance().keyboardLayoutManager().getLayout(this.keyboardWidget.getCurrentLayoutId())
+				: this.initialKeyboardLayout;
 
-        ScreenRectangle keyboardRect = this.keyboardPositioner.positionKeyboard(this.width, this.height);
+		ScreenRectangle keyboardRect = this.keyboardPositioner.positionKeyboard(this.width, this.height);
 
-        this.keyboardWidget = this.addRenderableWidget(
-                new KeyboardWidget(
-                        keyboardRect.left(),
-                        keyboardRect.top(),
-                        keyboardRect.width(),
-                        keyboardRect.height(),
-                        layout,
-                        this.inputTarget
-                )
-        );
-    }
+		this.keyboardWidget = this.addRenderableWidget(
+				new KeyboardWidget(
+						keyboardRect.left(),
+						keyboardRect.top(),
+						keyboardRect.width(),
+						keyboardRect.height(),
+						layout,
+						this.inputTarget
+				)
+		);
+	}
 
-    @Override
-    protected void repositionElements() {
-        super.repositionElements();
-        this.backgroundScreen.init(width, height);
-    }
+	@Override
+	protected void repositionElements() {
+		super.repositionElements();
+		this.backgroundScreen.init(width, height);
+	}
 
-    @Override
-    public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.backgroundScreen.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.nextStratum();
-        super.extractRenderState(graphics, mouseX, mouseY, a);
-    }
+	@Override
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		this.backgroundScreen.extractRenderState(graphics, mouseX, mouseY, a);
+		graphics.nextStratum();
+		super.extractRenderState(graphics, mouseX, mouseY, a);
+	}
 
-    @Override
-    public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-        this.backgroundScreen.extractBackground(graphics, mouseX, mouseY, a);
-    }
+	@Override
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		this.backgroundScreen.extractBackground(graphics, mouseX, mouseY, a);
+	}
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
-            return true;
-        } else {
-            return this.backgroundScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-        }
-    }
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+			return true;
+		} else {
+			return this.backgroundScreen.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+		}
+	}
 
-    @Override
-    public boolean mouseClicked(@NonNull MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-        if (super.mouseClicked(mouseButtonEvent, doubleClick)) {
-            return true;
-        } else {
-            if (this.backgroundScreen.mouseClicked(mouseButtonEvent, doubleClick)) {
-                onClose();
-                return true;
-            }
-        }
-        return false;
-    }
+	@Override
+	public boolean mouseClicked(@NonNull MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+		if (super.mouseClicked(mouseButtonEvent, doubleClick)) {
+			return true;
+		} else {
+			if (this.backgroundScreen.mouseClicked(mouseButtonEvent, doubleClick)) {
+				onClose();
+				return true;
+			}
+		}
+		return false;
+	}
 
-    @Override
-    public void tick() {
-        this.backgroundScreen.tick();
-        super.tick();
-    }
+	@Override
+	public void tick() {
+		this.backgroundScreen.tick();
+		super.tick();
+	}
 
-    @Override
-    public void onClose() {
-        // restore the previous screen without calling minecraft.setScreen
-        // so the screen is not reinitialised
-        MinecraftUtil.forceSetScreen(this.backgroundScreen);
+	@Override
+	public void onClose() {
+		// restore the previous screen without calling minecraft.setScreen
+		// so the screen is not reinitialised
+		MinecraftUtil.forceSetScreen(this.backgroundScreen);
 
-        Controlify.instance().virtualMouseHandler().onScreenChanged();
-    }
+		Controlify.instance().virtualMouseHandler().onScreenChanged();
+	}
 
-    /**
-     * An input target that captures {@link InputConstants#KEY_RETURN} and {@link InputConstants#KEY_ESCAPE}
-     * key presses to close the keyboard overlay screen.
-     */
-    private class WrappedInputTarget extends InputTarget.Delegated {
-        public WrappedInputTarget(InputTarget target) {
-            super(target);
-        }
+	/**
+	 * An input target that captures {@link InputConstants#KEY_RETURN} and {@link InputConstants#KEY_ESCAPE}
+	 * key presses to close the keyboard overlay screen.
+	 */
+	private class WrappedInputTarget extends InputTarget.Delegated {
+		public WrappedInputTarget(InputTarget target) {
+			super(target);
+		}
 
-        @Override
-        public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            if (keycode == InputConstants.KEY_RETURN || keycode == InputConstants.KEY_ESCAPE) {
-                // Close the keyboard overlay when pressing Enter or Escape
-                KeyboardOverlayScreen.this.onClose();
-                return true;
-            }
+		@Override
+		public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
+			if (keycode == InputConstants.KEY_RETURN || keycode == InputConstants.KEY_ESCAPE) {
+				// Close the keyboard overlay when pressing Enter or Escape
+				KeyboardOverlayScreen.this.onClose();
+				return true;
+			}
 
-            return super.acceptKeyCode(keycode, scancode, modifiers);
-        }
-    }
+			return super.acceptKeyCode(keycode, scancode, modifiers);
+		}
+	}
 
-    @FunctionalInterface
-    public interface KeyboardPositioner {
-        ScreenRectangle positionKeyboard(int screenWidth, int screenHeight);
-    }
+	@FunctionalInterface
+	public interface KeyboardPositioner {
+		ScreenRectangle positionKeyboard(int screenWidth, int screenHeight);
+	}
 
-    public static KeyboardPositioner aboveOrBelowWidgetPositioner(int desiredKeyboardWidth, int desiredKeyboardHeight, int padding, Supplier<ScreenRectangle> widgetRectSupplier) {
-        return (screenWidth, screenHeight) -> {
-            ScreenRectangle widgetRect = widgetRectSupplier.get();
+	public static KeyboardPositioner aboveOrBelowWidgetPositioner(int desiredKeyboardWidth, int desiredKeyboardHeight, int padding, Supplier<ScreenRectangle> widgetRectSupplier) {
+		return (screenWidth, screenHeight) -> {
+			ScreenRectangle widgetRect = widgetRectSupplier.get();
 
-            int keyboardWidth = Math.min(desiredKeyboardWidth, screenWidth);
-            int keyboardLeft = Math.clamp(
-                    widgetRect.getCenterInAxis(ScreenAxis.HORIZONTAL) - keyboardWidth / 2,
-                    0, screenWidth - keyboardWidth
-            );
+			int keyboardWidth = Math.min(desiredKeyboardWidth, screenWidth);
+			int keyboardLeft = Math.clamp(
+					widgetRect.getCenterInAxis(ScreenAxis.HORIZONTAL) - keyboardWidth / 2,
+					0, screenWidth - keyboardWidth
+			);
 
-            int spaceBelow = screenHeight - widgetRect.bottom() - padding;
-            int spaceAbove = widgetRect.top() - padding;
+			int spaceBelow = screenHeight - widgetRect.bottom() - padding;
+			int spaceAbove = widgetRect.top() - padding;
 
-            // Determine the best vertical position for the keyboard.
-            // 1. Prefer placing the keyboard below the widget, if it fits.
-            // 2. If there's not enough space below, check space above.
-            // 3. If neither fits fully, pick the side with more space and shrink the height.
-            int keyboardHeight;
-            boolean above;
-            if (spaceBelow >= desiredKeyboardHeight) {
-                keyboardHeight = desiredKeyboardHeight;
-                above = false;
-            } else if (spaceAbove >= desiredKeyboardHeight) {
-                keyboardHeight = desiredKeyboardHeight;
-                above = true;
-            } else if (spaceBelow >= spaceAbove) {
-                keyboardHeight = spaceBelow;
-                above = false;
-            } else {
-                keyboardHeight = spaceAbove;
-                above = true;
-            }
-            int keyboardTop = above
-                    ? widgetRect.top() - keyboardHeight - padding
-                    : widgetRect.bottom() + padding;
+			// Determine the best vertical position for the keyboard.
+			// 1. Prefer placing the keyboard below the widget, if it fits.
+			// 2. If there's not enough space below, check space above.
+			// 3. If neither fits fully, pick the side with more space and shrink the height.
+			int keyboardHeight;
+			boolean above;
+			if (spaceBelow >= desiredKeyboardHeight) {
+				keyboardHeight = desiredKeyboardHeight;
+				above = false;
+			} else if (spaceAbove >= desiredKeyboardHeight) {
+				keyboardHeight = desiredKeyboardHeight;
+				above = true;
+			} else if (spaceBelow >= spaceAbove) {
+				keyboardHeight = spaceBelow;
+				above = false;
+			} else {
+				keyboardHeight = spaceAbove;
+				above = true;
+			}
+			int keyboardTop = above
+					? widgetRect.top() - keyboardHeight - padding
+					: widgetRect.bottom() + padding;
 
-            return new ScreenRectangle(
-                    keyboardLeft,
-                    keyboardTop,
-                    keyboardWidth,
-                    keyboardHeight
-            );
-        };
-    }
+			return new ScreenRectangle(
+					keyboardLeft,
+					keyboardTop,
+					keyboardWidth,
+					keyboardHeight
+			);
+		};
+	}
 }

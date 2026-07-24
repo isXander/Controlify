@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import com.llamalad7.mixinextras.expression.Definition;
@@ -17,32 +23,30 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DirectJoinServerScreen.class)
 public class DirectJoinServerScreenMixin implements ScreenProcessorProvider {
-    @Shadow
-    private EditBox ipEdit;
-    @Shadow
-    private Button selectButton;
-    @Unique
-    private Button cancelButton;
+	@Shadow
+	private EditBox ipEdit;
+	@Shadow
+	private Button selectButton;
+	@Unique private Button cancelButton;
 
-    @Unique
-    private final AddServerLikeScreenProcessor screenProcessor = new AddServerLikeScreenProcessor(
-            (Screen) (Object) this,
-            () -> this.ipEdit,
-            () -> this.selectButton,
-            () -> this.cancelButton
-    );
+	@Unique private final AddServerLikeScreenProcessor screenProcessor = new AddServerLikeScreenProcessor(
+			(Screen) (Object) this,
+			() -> this.ipEdit,
+			() -> this.selectButton,
+			() -> this.cancelButton
+	);
 
-    @Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
-    @Definition(id = "GUI_CANCEL", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;")
-    @Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
-    @Expression("builder(GUI_CANCEL, ?).?(?, ?, ?, ?).build()")
-    @ModifyExpressionValue(method = "init", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private Button captureCancelButton(Button button) {
-        return this.cancelButton = button;
-    }
+	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
+	@Definition(id = "GUI_CANCEL", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;")
+	@Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")
+	@Expression("builder(GUI_CANCEL, ?).?(?, ?, ?, ?).build()")
+	@ModifyExpressionValue(method = "init", at = @At("MIXINEXTRAS:EXPRESSION"))
+	private Button captureCancelButton(Button button) {
+		return this.cancelButton = button;
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return this.screenProcessor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return this.screenProcessor;
+	}
 }

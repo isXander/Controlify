@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.neoforge.mixins;
 
 import dev.isxander.controlify.neoforge.platform.VanillaKeyMappingHolder;
@@ -14,17 +20,17 @@ import java.util.Arrays;
 
 @Mixin(Options.class)
 public class OptionsMixin implements VanillaKeyMappingHolder {
-    @Shadow public KeyMapping[] keyMappings;
+	@Shadow public KeyMapping[] keyMappings;
 
-    @Unique private KeyMapping[] controlify$vanillaKeyMappings;
+	@Unique private KeyMapping[] controlify$vanillaKeyMappings;
 
-    @Inject(method = "<init>", at = @At("RETURN"))
-    private void storeVanillaKeybindsBeforeModification(CallbackInfo ci) {
-        this.controlify$vanillaKeyMappings = Arrays.copyOf(keyMappings, keyMappings.length);
-    }
+	@Inject(method = "<init>", at = @At("RETURN"))
+	private void storeVanillaKeybindsBeforeModification(CallbackInfo ci) {
+		this.controlify$vanillaKeyMappings = Arrays.copyOf(keyMappings, keyMappings.length);
+	}
 
-    @Override
-    public KeyMapping[] controlify$getVanillaKeys() {
-        return controlify$vanillaKeyMappings;
-    }
+	@Override
+	public KeyMapping[] controlify$getVanillaKeys() {
+		return controlify$vanillaKeyMappings;
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.patches.keymessages;
 
 import com.llamalad7.mixinextras.expression.Definition;
@@ -12,10 +18,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(OpenInventoryTutorialStep.class)
 public class OpenInventoryTutorialStepMixin {
-    @Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
-    @Expression("key('inventory')")
-    @ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private static Component useGlyph(Component original) {
-        return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.INVENTORY.bindId(), original);
-    }
+	@Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
+	@Expression("key('inventory')")
+	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
+	private static Component useGlyph(Component original) {
+		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.INVENTORY.bindId(), original);
+	}
 }

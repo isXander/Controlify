@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.ingame;
 
 /**
@@ -6,25 +12,25 @@ package dev.isxander.controlify.ingame;
  */
 @FunctionalInterface
 public interface InputCurve {
-    double apply(double input);
+	double apply(double input);
 
-    static InputCurve power(double exponent) {
-        return d -> Math.signum(d) * Math.pow(Math.abs(d), exponent);
-    }
+	static InputCurve power(double exponent) {
+		return d -> Math.signum(d) * Math.pow(Math.abs(d), exponent);
+	}
 
-    static InputCurve cubicBlend(double blendFactor) {
-        return d -> {
-            double mag = Math.abs(d);
-            double blended = (1 - blendFactor) * mag + blendFactor * mag * mag * mag;
-            return Math.signum(d) * blended;
-        };
-    }
+	static InputCurve cubicBlend(double blendFactor) {
+		return d -> {
+			double mag = Math.abs(d);
+			double blended = (1 - blendFactor) * mag + blendFactor * mag * mag * mag;
+			return Math.signum(d) * blended;
+		};
+	}
 
-    static InputCurve sCurve() {
-        return d -> {
-            double mag = Math.abs(d);
-            double sCurved = mag * mag * (3 - 2 * mag);
-            return Math.signum(d) * sCurved;
-        };
-    }
+	static InputCurve sCurve() {
+		return d -> {
+			double mag = Math.abs(d);
+			double sCurved = mag * mag * (3 - 2 * mag);
+			return Math.signum(d) * sCurved;
+		};
+	}
 }

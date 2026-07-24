@@ -1,22 +1,28 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.output;
 
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.bindings.StateAccess;
 
 public class SimpleDigitalOutput implements DigitalOutput {
-    private final StateAccess stateAccess;
-    private final int history;
+	private final StateAccess stateAccess;
+	private final int history;
 
-    public SimpleDigitalOutput(InputBinding binding, int history) {
-        this.stateAccess = binding.createStateAccess(history + 1);
-        this.history = history;
-    }
+	public SimpleDigitalOutput(InputBinding binding, int history) {
+		this.stateAccess = binding.createStateAccess(history + 1);
+		this.history = history;
+	}
 
-    @Override
-    public boolean get() {
-        if (stateAccess.isSuppressed())
-            return false;
+	@Override
+	public boolean get() {
+		if (stateAccess.isSuppressed())
+			return false;
 
-        return stateAccess.digital(history);
-    }
+		return stateAccess.digital(history);
+	}
 }

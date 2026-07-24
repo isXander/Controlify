@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controllermanager;
 
 import com.google.common.collect.ImmutableList;
@@ -21,131 +27,131 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class AbstractControllerManager implements ControllerManager {
-    protected final Controlify controlify;
-    protected final Minecraft minecraft;
+	protected final Controlify controlify;
+	protected final Minecraft minecraft;
 
-    protected final Map<UniqueControllerID, ControllerEntity> controllersByJid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
+	protected final Map<UniqueControllerID, ControllerEntity> controllersByJid = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
+	protected final Map<String, ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
 
-    protected final ControlifyLogger logger;
+	protected final ControlifyLogger logger;
 
-    public AbstractControllerManager(ControlifyLogger logger) {
-        this.controlify = Controlify.instance();
-        this.minecraft = Minecraft.getInstance();
-        this.logger = logger.createSubLogger("ControllerManager");
-    }
+	public AbstractControllerManager(ControlifyLogger logger) {
+		this.controlify = Controlify.instance();
+		this.minecraft = Minecraft.getInstance();
+		this.logger = logger.createSubLogger("ControllerManager");
+	}
 
-    public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDInfo hidInfo) {
-        ControlifyLogger controllerLogger = logger.createSubLogger("Controller #" + ucid);
+	public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDInfo hidInfo) {
+		ControlifyLogger controllerLogger = logger.createSubLogger("Controller #" + ucid);
 
-        try {
-            if (controllersByJid.containsKey(ucid)) {
-                controllerLogger.warn("Tried to create controller that already is initialised: {}.", ucid);
-                return Optional.empty();
-            }
+		try {
+			if (controllersByJid.containsKey(ucid)) {
+				controllerLogger.warn("Tried to create controller that already is initialised: {}.", ucid);
+				return Optional.empty();
+			}
 
-            if (hidInfo.type().dontLoad()) {
-                controllerLogger.debugLog("Preventing load of controller #" + ucid + " because its type prevents loading.");
-                return Optional.empty();
-            }
+			if (hidInfo.type().dontLoad()) {
+				controllerLogger.debugLog("Preventing load of controller #" + ucid + " because its type prevents loading.");
+				return Optional.empty();
+			}
 
-            if (hidInfo.type().isSteamDeck()
-                && SteamDeckUtil.DECK_MODE.isDesktopMode()
-            ) {
-                controllerLogger.log("Preventing load of controller #{} because Steam Deck is in desktop mode.", ucid);
-                return Optional.empty();
-            }
+			if (hidInfo.type().isSteamDeck()
+				&& SteamDeckUtil.DECK_MODE.isDesktopMode()
+			) {
+				controllerLogger.log("Preventing load of controller #{} because Steam Deck is in desktop mode.", ucid);
+				return Optional.empty();
+			}
 
-            return createController(ucid, hidInfo, controllerLogger);
-        } catch (Throwable e) {
-            controllerLogger.error("Failed to create controller #{}!", e, ucid);
-            CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
-            CrashReportCategory category = crashReport.addCategory("Controller Info");
-            category.setDetail("Unique controller ID", ucid);
-            category.setDetail("Controller identification", hidInfo.type());
-            category.setDetail("HID path", hidInfo.hidDevice().map(HIDDevice::path).orElse("N/A"));
-            category.setDetail("System name", Optional.ofNullable(getControllerSystemName(ucid)).orElse("N/A"));
-            controllerLogger.crashReport(crashReport);
-            return Optional.empty();
-            //throw new ReportedException(crashReport);
-        }
-    }
+			return createController(ucid, hidInfo, controllerLogger);
+		} catch (Throwable e) {
+			controllerLogger.error("Failed to create controller #{}!", e, ucid);
+			CrashReport crashReport = CrashReport.forThrowable(e, "Creating controller #" + ucid);
+			CrashReportCategory category = crashReport.addCategory("Controller Info");
+			category.setDetail("Unique controller ID", ucid);
+			category.setDetail("Controller identification", hidInfo.type());
+			category.setDetail("HID path", hidInfo.hidDevice().map(HIDDevice::path).orElse("N/A"));
+			category.setDetail("System name", Optional.ofNullable(getControllerSystemName(ucid)).orElse("N/A"));
+			controllerLogger.crashReport(crashReport);
+			return Optional.empty();
+			//throw new ReportedException(crashReport);
+		}
+	}
 
-    protected abstract Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDInfo hidInfo, ControlifyLogger controllerLogger);
+	protected abstract Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDInfo hidInfo, ControlifyLogger controllerLogger);
 
-    @Override
-    public void tick(boolean outOfFocus) {
-        for (ControllerEntity controller : controllersByUid.values()) {
-            controller.update(outOfFocus);
-            ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
-        }
-    }
+	@Override
+	public void tick(boolean outOfFocus) {
+		for (ControllerEntity controller : controllersByUid.values()) {
+			controller.update(outOfFocus);
+			ControlifyEvents.CONTROLLER_STATE_UPDATE.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
+		}
+	}
 
-    protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
-        logger.log("Controller connected: {}", ControllerUtils.createControllerString(controller));
+	protected void onControllerConnected(ControllerEntity controller, boolean hotplug) {
+		logger.log("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
-        ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplug, false));
-    }
+		ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplug, false));
+	}
 
-    protected void onControllerRemoved(ControllerEntity controller) {
-        logger.log("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
+	protected void onControllerRemoved(ControllerEntity controller) {
+		logger.log("Controller disconnected: {}", ControllerUtils.createControllerString(controller));
 
-        closeController(controller.uid());
+		closeController(controller.uid());
 
-        ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
-    }
+		ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
+	}
 
-    @Override
-    public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDInfo hidInfo) {
-        onControllerRemoved(controller);
+	@Override
+	public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDInfo hidInfo) {
+		onControllerRemoved(controller);
 
-        Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
-        newController.ifPresent(c -> {
-            ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting controller", c);
-        });
-        return newController;
-    }
+		Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
+		newController.ifPresent(c -> {
+			ControllerUtils.wrapControllerError(() -> onControllerConnected(c, true), "Connecting controller", c);
+		});
+		return newController;
+	}
 
-    protected void addController(UniqueControllerID ucid, ControllerEntity controller) {
-        controllersByUid.put(controller.uid(), controller);
-        controllersByJid.put(ucid, controller);
-    }
+	protected void addController(UniqueControllerID ucid, ControllerEntity controller) {
+		controllersByUid.put(controller.uid(), controller);
+		controllersByJid.put(ucid, controller);
+	}
 
-    @Override
-    public void closeController(String uid) {
-        ControllerEntity controller = controllersByUid.remove(uid);
+	@Override
+	public void closeController(String uid) {
+		ControllerEntity controller = controllersByUid.remove(uid);
 
-        if (controller == null) return;
+		if (controller == null) return;
 
-        controller.close();
+		controller.close();
 
-        controllersByJid.remove(controller.info().ucid());
+		controllersByJid.remove(controller.info().ucid());
 		hidInfoByUid.remove(uid);
-    }
+	}
 
-    @Override
-    public List<ControllerEntity> getConnectedControllers() {
-        return ImmutableList.copyOf(controllersByUid.values());
-    }
+	@Override
+	public List<ControllerEntity> getConnectedControllers() {
+		return ImmutableList.copyOf(controllersByUid.values());
+	}
 
-    @Override
-    public boolean isControllerConnected(String uid) {
-        return controllersByUid.containsKey(uid);
-    }
+	@Override
+	public boolean isControllerConnected(String uid) {
+		return controllersByUid.containsKey(uid);
+	}
 
-    protected int getControllerCountWithMatchingHID(HIDID hid) {
-        return (int) controllersByJid.values().stream()
-                .filter(c -> c.info().hid().isPresent() && c.info().hid().get().hidid().equals(hid))
-                .count();
-    }
+	protected int getControllerCountWithMatchingHID(HIDID hid) {
+		return (int) controllersByJid.values().stream()
+				.filter(c -> c.info().hid().isPresent() && c.info().hid().get().hidid().equals(hid))
+				.count();
+	}
 
-    @Override
-    public void close() {
-        controllersByUid.values().forEach(ControllerEntity::close);
-    }
+	@Override
+	public void close() {
+		controllersByUid.values().forEach(ControllerEntity::close);
+	}
 
-    protected abstract void loadGamepadMappings(ResourceProvider resourceProvider);
+	protected abstract void loadGamepadMappings(ResourceProvider resourceProvider);
 
-    protected abstract String getControllerSystemName(UniqueControllerID ucid);
+	protected abstract String getControllerSystemName(UniqueControllerID ucid);
 }

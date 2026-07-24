@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
 import net.minecraft.client.gui.components.ImageButton;
@@ -10,12 +16,12 @@ import java.util.List;
 
 @Mixin(RecipeBookPage.class)
 public interface RecipeBookPageAccessor {
-    @Accessor("buttons")
-    List<RecipeButton> controlify$getButtons();
+	@Accessor("buttons")
+	List<RecipeButton> controlify$getButtons();
 
-    @Accessor("forwardButton")
-    ImageButton controlify$getForwardButton();
+	@Accessor("forwardButton")
+	ImageButton controlify$getForwardButton();
 
-    @Accessor("backButton")
-    ImageButton controlify$getBackButton();
+	@Accessor("backButton")
+	ImageButton controlify$getBackButton();
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings.input;
 
 import com.mojang.serialization.Codec;
@@ -8,12 +14,12 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public interface Input {
-    MapCodec<Input> MAP_CODEC = InputType.createCodec(InputType.TYPES, InputType::codec, Input::type, "type");
-    Codec<Input> CODEC = MAP_CODEC.codec();
+	MapCodec<Input> MAP_CODEC = InputType.createCodec(InputType.TYPES, InputType::codec, Input::type, "type");
+	Codec<Input> CODEC = MAP_CODEC.codec();
 
-    float state(ControllerStateView state);
+	float state(ControllerStateView state);
 
-    List<Identifier> getRelevantInputs();
+	List<Identifier> getRelevantInputs();
 
-    InputType<?> type();
+	InputType<?> type();
 }

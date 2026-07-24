@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.touchpad;
 
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
@@ -5,20 +11,20 @@ import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
 public class TouchpadComponent extends ECSComponentImpl {
-    public static final Identifier ID = CUtil.rl("touchpad");
+	public static final Identifier ID = CUtil.rl("touchpad");
 
-    private final Touchpads touchpads;
+	private final Touchpads touchpads;
 
-    public TouchpadComponent(Touchpads touchpads) {
-        this.touchpads = touchpads;
-    }
+	public TouchpadComponent(Touchpads touchpads) {
+		this.touchpads = touchpads;
+	}
 
-    public Touchpads.Touchpad[] touchpads() {
-        return touchpads.touchpads();
-    }
+	public Touchpads.Touchpad[] touchpads() {
+		return touchpads.touchpads();
+	}
 
-    @Override
-    public Identifier id() {
-        return ID;
-    }
+	@Override
+	public Identifier id() {
+		return ID;
+	}
 }

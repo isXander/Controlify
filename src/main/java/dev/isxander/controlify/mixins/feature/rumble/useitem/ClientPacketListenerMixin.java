@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
@@ -13,10 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
-    @Inject(method = "handleRespawn", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/player/LocalPlayer;", opcode = Opcodes.PUTFIELD))
-    private void clearUseItemRumble(ClientboundRespawnPacket packet, CallbackInfo ci) {
-        ContinuousRumbleEffect effect = ((UseItemEffectHolder) Minecraft.getInstance().player).controlify$getUseItemEffect();
-        if (effect != null) effect.stop();
-    }
+	@Inject(method = "handleRespawn", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/player/LocalPlayer;", opcode = Opcodes.PUTFIELD))
+	private void clearUseItemRumble(ClientboundRespawnPacket packet, CallbackInfo ci) {
+		ContinuousRumbleEffect effect = ((UseItemEffectHolder) Minecraft.getInstance().player).controlify$getUseItemEffect();
+		if (effect != null) effect.stop();
+	}
 
 }

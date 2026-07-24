@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -12,13 +18,13 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(PauseScreen.class)
 public class PauseScreenMixin implements ScreenProcessorProvider {
-    @Shadow private @Nullable Button disconnectButton;
+	@Shadow private @Nullable Button disconnectButton;
 
-    @Unique private final PauseScreenProcessor processor =
-            new PauseScreenProcessor((PauseScreen) (Object) this, () -> disconnectButton);
+	@Unique private final PauseScreenProcessor processor =
+			new PauseScreenProcessor((PauseScreen) (Object) this, () -> disconnectButton);
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return processor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return processor;
+	}
 }

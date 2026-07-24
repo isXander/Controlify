@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
@@ -21,83 +26,82 @@ import java.util.List;
 
 @Mixin(VideoSettingsScreen.class)
 public abstract class VideoSettingsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
-    //? if >=26.2 {
-    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
-    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
-    @Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
-    //?} else {
-    /*@Shadow private FlatButtonWidget applyButton;
-    @Shadow private FlatButtonWidget closeButton;
-    @Shadow private FlatButtonWidget undoButton;
-    *///?}
-    @Shadow private OptionListWidget optionList;
+	//? if >=26.2 {
+	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
+	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
+	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
+	//?} else {
+	/*@Shadow private FlatButtonWidget applyButton;
+	@Shadow private FlatButtonWidget closeButton;
+	@Shadow private FlatButtonWidget undoButton;
+	*///?}
+	@Shadow private OptionListWidget optionList;
 
-    @Unique private Page controlify$currentPage = null;
-    @Unique private final SodiumGuiScreenProcessor controlify$screenProcessor
-            = new SodiumGuiScreenProcessor((VideoSettingsScreen) (Object) this, this);
+	@Unique private Page controlify$currentPage = null;
+	@Unique private final SodiumGuiScreenProcessor controlify$screenProcessor
+			= new SodiumGuiScreenProcessor((VideoSettingsScreen) (Object) this, this);
 
-    protected VideoSettingsScreenMixin(Component title) {
-        super(title);
-    }
+	protected VideoSettingsScreenMixin(Component title) {
+		super(title);
+	}
 
-    @Inject(method = "init", at = @At("RETURN"))
-    private void controlify$onInit(CallbackInfo ci) {
-        if (optionList != null && !optionList.getControls().isEmpty()) {
-            this.setInitialFocus(optionList.getControls().get(0));
-        }
-        controlify$screenProcessor.onRebuildGUI();
-    }
+	@Inject(method = "init", at = @At("RETURN"))
+	private void controlify$onInit(CallbackInfo ci) {
+		if (optionList != null && !optionList.getControls().isEmpty()) {
+			this.setInitialFocus(optionList.getControls().get(0));
+		}
+		controlify$screenProcessor.onRebuildGUI();
+	}
 
-    @Inject(method = "onSectionFocused", at = @At("HEAD"))
-    private void controlify$trackCurrentPage(Page page, CallbackInfo ci) {
-        controlify$currentPage = page;
-    }
+	@Inject(method = "onSectionFocused", at = @At("HEAD"))
+	private void controlify$trackCurrentPage(Page page, CallbackInfo ci) {
+		controlify$currentPage = page;
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return controlify$screenProcessor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return controlify$screenProcessor;
+	}
 
-    @Override
-    public void controlify$nextPage() {
-        List<Page> pages = controlify$getAllPages();
-        if (pages.isEmpty()) return;
-        int currentIndex = controlify$currentPage != null ? pages.indexOf(controlify$currentPage) : -1;
-        int nextIndex = (currentIndex + 1) % pages.size();
-        jumpToPage(pages.get(nextIndex));
-    }
+	@Override
+	public void controlify$nextPage() {
+		List<Page> pages = controlify$getAllPages();
+		if (pages.isEmpty()) return;
+		int currentIndex = controlify$currentPage != null ? pages.indexOf(controlify$currentPage) : -1;
+		int nextIndex = (currentIndex + 1) % pages.size();
+		jumpToPage(pages.get(nextIndex));
+	}
 
-    @Override
-    public void controlify$prevPage() {
-        List<Page> pages = controlify$getAllPages();
-        if (pages.isEmpty()) return;
-        int currentIndex = controlify$currentPage != null ? pages.indexOf(controlify$currentPage) : 0;
-        int nextIndex = (currentIndex - 1 + pages.size()) % pages.size();
-        jumpToPage(pages.get(nextIndex));
-    }
+	@Override
+	public void controlify$prevPage() {
+		List<Page> pages = controlify$getAllPages();
+		if (pages.isEmpty()) return;
+		int currentIndex = controlify$currentPage != null ? pages.indexOf(controlify$currentPage) : 0;
+		int nextIndex = (currentIndex - 1 + pages.size()) % pages.size();
+		jumpToPage(pages.get(nextIndex));
+	}
 
-    @Unique
-    private List<Page> controlify$getAllPages() {
-        return ConfigManager.CONFIG.getModOptions().stream()
-                .flatMap(mod -> mod.pages().stream())
-                .toList();
-    }
+	@Unique private List<Page> controlify$getAllPages() {
+		return ConfigManager.CONFIG.getModOptions().stream()
+				.flatMap(mod -> mod.pages().stream())
+				.toList();
+	}
 
-    @Shadow public abstract void jumpToPage(Page page);
+	@Shadow public abstract void jumpToPage(Page page);
 
-    @Override
-    public FlatButtonWidget controlify$getApplyButton() {
-        return applyButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getApplyButton() {
+		return applyButton;
+	}
 
-    @Override
-    public FlatButtonWidget controlify$getCloseButton() {
-        return closeButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getCloseButton() {
+		return closeButton;
+	}
 
-    @Override
-    public FlatButtonWidget controlify$getUndoButton() {
-        return undoButton;
-    }
+	@Override
+	public FlatButtonWidget controlify$getUndoButton() {
+		return undoButton;
+	}
 }
 //?}

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
@@ -7,6 +13,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(OptionsSubScreen.class)
 public interface OptionsSubScreenAccessor {
-    @Accessor("lastScreen")
-    Screen controlify$getLastScreen();
+	@Accessor("lastScreen")
+	Screen controlify$getLastScreen();
 }

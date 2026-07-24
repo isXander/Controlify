@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.util;
 
 import dev.isxander.controlify.Controlify;
@@ -14,14 +20,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ConnectScreen.class)
 public class ConnectScreenMixin {
-    @Inject(method = "connect", at = @At("HEAD"))
-    private void onConnect(
-            Minecraft minecraft,
-            ServerAddress hostAndPort,
-            @Nullable ServerData server,
-            @Nullable TransferState transferState,
-            CallbackInfo ci
-    ) {
-        Controlify.instance().notifyNewServer(server);
-    }
+	@Inject(method = "connect", at = @At("HEAD"))
+	private void onConnect(
+			Minecraft minecraft,
+			ServerAddress hostAndPort,
+			@Nullable ServerData server,
+			@Nullable TransferState transferState,
+			CallbackInfo ci
+	) {
+		Controlify.instance().notifyNewServer(server);
+	}
 }

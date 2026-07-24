@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.waterland;
 
 import net.minecraft.world.entity.EntityType;
@@ -12,14 +18,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity {
-    @Shadow
-    public abstract boolean isSpectator();
+	@Shadow
+	public abstract boolean isSpectator();
 
-    protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
-        super(entityType, level);
-    }
+	protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+		super(entityType, level);
+	}
 
-    @Inject(method = "doWaterSplashEffect", at = @At("HEAD"))
-    protected void splashRumble(CallbackInfo ci) {
-    }
+	@Inject(method = "doWaterSplashEffect", at = @At("HEAD"))
+	protected void splashRumble(CallbackInfo ci) {
+	}
 }

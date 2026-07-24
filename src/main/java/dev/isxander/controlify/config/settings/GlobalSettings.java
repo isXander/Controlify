@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.config.settings;
 
 import com.google.common.collect.Sets;
@@ -16,126 +22,126 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GlobalSettings {
-    public final Set<Class<?>> virtualMouseScreens;
-    public boolean mixedInput;
-    public boolean outOfFocusInput;
-    public ReachAroundMode reachAround;
-    public boolean allowServerRumble;
-    public boolean extraUiSounds;
-    public boolean notifyLowBattery;
-    public float ingameButtonGuideScale;
-    public boolean useEnhancedSteamDeckDriver;
-    public boolean alwaysKeyboardMovement;
-    public List<String> keyboardMovementWhitelist;
-    public final Set<String> seenServers;
-    public boolean showSplitscreenAd;
+	public final Set<Class<?>> virtualMouseScreens;
+	public boolean mixedInput;
+	public boolean outOfFocusInput;
+	public ReachAroundMode reachAround;
+	public boolean allowServerRumble;
+	public boolean extraUiSounds;
+	public boolean notifyLowBattery;
+	public float ingameButtonGuideScale;
+	public boolean useEnhancedSteamDeckDriver;
+	public boolean alwaysKeyboardMovement;
+	public List<String> keyboardMovementWhitelist;
+	public final Set<String> seenServers;
+	public boolean showSplitscreenAd;
 
-    private static final GlobalSettings DEFAULT = new GlobalSettings();
+	private static final GlobalSettings DEFAULT = new GlobalSettings();
 
-    private GlobalSettings() {
-        this.virtualMouseScreens = Sets.newHashSet(
-                AbstractContainerScreen.class
-        );
-        this.mixedInput = false;
-        this.outOfFocusInput = false;
-        this.reachAround = ReachAroundMode.OFF;
-        this.allowServerRumble = true;
-        this.extraUiSounds = true;
-        this.notifyLowBattery = true;
-        this.ingameButtonGuideScale = 1f;
-        this.useEnhancedSteamDeckDriver = true;
-        this.alwaysKeyboardMovement = false;
-        this.keyboardMovementWhitelist = new ArrayList<>();
-        this.seenServers = new HashSet<>();
-        this.showSplitscreenAd = true;
-    }
+	private GlobalSettings() {
+		this.virtualMouseScreens = Sets.newHashSet(
+				AbstractContainerScreen.class
+		);
+		this.mixedInput = false;
+		this.outOfFocusInput = false;
+		this.reachAround = ReachAroundMode.OFF;
+		this.allowServerRumble = true;
+		this.extraUiSounds = true;
+		this.notifyLowBattery = true;
+		this.ingameButtonGuideScale = 1f;
+		this.useEnhancedSteamDeckDriver = true;
+		this.alwaysKeyboardMovement = false;
+		this.keyboardMovementWhitelist = new ArrayList<>();
+		this.seenServers = new HashSet<>();
+		this.showSplitscreenAd = true;
+	}
 
-    public GlobalSettings(
-            Set<Class<?>> virtualMouseScreens,
-            boolean mixedInput,
-            boolean outOfFocusInput,
-            ReachAroundMode reachAround,
-            boolean allowServerRumble,
-            boolean extraUiSounds,
-            boolean notifyLowBattery,
-            float ingameButtonGuideScale,
-            boolean useEnhancedSteamDeckDriver,
-            boolean alwaysKeyboardMovement,
-            List<String> keyboardMovementWhitelist,
-            Set<String> seenServers,
-            boolean showSplitscreenAd
-    ) {
-        this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
-        this.mixedInput = mixedInput;
-        this.outOfFocusInput = outOfFocusInput;
-        this.reachAround = reachAround;
-        this.allowServerRumble = allowServerRumble;
-        this.extraUiSounds = extraUiSounds;
-        this.notifyLowBattery = notifyLowBattery;
-        this.ingameButtonGuideScale = ingameButtonGuideScale;
-        this.useEnhancedSteamDeckDriver = useEnhancedSteamDeckDriver;
-        this.alwaysKeyboardMovement = alwaysKeyboardMovement;
-        this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
-        this.seenServers = new HashSet<>(seenServers);
-        this.showSplitscreenAd = showSplitscreenAd;
-    }
+	public GlobalSettings(
+			Set<Class<?>> virtualMouseScreens,
+			boolean mixedInput,
+			boolean outOfFocusInput,
+			ReachAroundMode reachAround,
+			boolean allowServerRumble,
+			boolean extraUiSounds,
+			boolean notifyLowBattery,
+			float ingameButtonGuideScale,
+			boolean useEnhancedSteamDeckDriver,
+			boolean alwaysKeyboardMovement,
+			List<String> keyboardMovementWhitelist,
+			Set<String> seenServers,
+			boolean showSplitscreenAd
+	) {
+		this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
+		this.mixedInput = mixedInput;
+		this.outOfFocusInput = outOfFocusInput;
+		this.reachAround = reachAround;
+		this.allowServerRumble = allowServerRumble;
+		this.extraUiSounds = extraUiSounds;
+		this.notifyLowBattery = notifyLowBattery;
+		this.ingameButtonGuideScale = ingameButtonGuideScale;
+		this.useEnhancedSteamDeckDriver = useEnhancedSteamDeckDriver;
+		this.alwaysKeyboardMovement = alwaysKeyboardMovement;
+		this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
+		this.seenServers = new HashSet<>(seenServers);
+		this.showSplitscreenAd = showSplitscreenAd;
+	}
 
-    public boolean shouldUseKeyboardMovement() {
-        ServerData server = Minecraft.getInstance().getCurrentServer();
-        return alwaysKeyboardMovement
-               || (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith))
-               || ServerPolicies.KEYBOARD_LIKE_MOVEMENT.get();
-    }
+	public boolean shouldUseKeyboardMovement() {
+		ServerData server = Minecraft.getInstance().getCurrentServer();
+		return alwaysKeyboardMovement
+			|| (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith))
+			|| ServerPolicies.KEYBOARD_LIKE_MOVEMENT.get();
+	}
 
-    public static GlobalSettings defaults() {
-        return DEFAULT;
-    }
+	public static GlobalSettings defaults() {
+		return DEFAULT;
+	}
 
-    public static GlobalSettings fromDTO(GlobalConfig dto) {
-        return new GlobalSettings(
-                dto.virtualMouseScreens()
-                        .stream()
-                        .flatMap(className -> {
-                            try {
-                                return Stream.of(Class.forName(className));
-                            } catch (ClassNotFoundException e) {
-                                return Stream.empty();
-                            }
-                        })
-                        .collect(Collectors.toSet()),
-                dto.mixedInput(),
-                dto.outOfFocusInput(),
-                dto.reachAround(),
-                dto.allowServerRumble(),
-                dto.extraUiSounds(),
-                dto.notifyLowBattery(),
-                dto.ingameButtonGuideScale(),
-                dto.useEnhancedSteamDeckDriver(),
-                dto.alwaysAllowKeyboardMovement(),
-                List.copyOf(dto.keyboardMovementWhitelist()),
-                Set.copyOf(dto.seenServers()),
-                dto.showSplitscreenAd()
-        );
-    }
+	public static GlobalSettings fromDTO(GlobalConfig dto) {
+		return new GlobalSettings(
+				dto.virtualMouseScreens()
+						.stream()
+						.flatMap(className -> {
+							try {
+								return Stream.of(Class.forName(className));
+							} catch (ClassNotFoundException e) {
+								return Stream.empty();
+							}
+						})
+						.collect(Collectors.toSet()),
+				dto.mixedInput(),
+				dto.outOfFocusInput(),
+				dto.reachAround(),
+				dto.allowServerRumble(),
+				dto.extraUiSounds(),
+				dto.notifyLowBattery(),
+				dto.ingameButtonGuideScale(),
+				dto.useEnhancedSteamDeckDriver(),
+				dto.alwaysAllowKeyboardMovement(),
+				List.copyOf(dto.keyboardMovementWhitelist()),
+				Set.copyOf(dto.seenServers()),
+				dto.showSplitscreenAd()
+		);
+	}
 
-    public GlobalConfig toDTO() {
-        return new GlobalConfig(
-                virtualMouseScreens
-                        .stream()
-                        .map(Class::getName)
-                        .toList(),
-                mixedInput,
-                outOfFocusInput,
-                reachAround,
-                allowServerRumble,
-                extraUiSounds,
-                notifyLowBattery,
-                ingameButtonGuideScale,
-                useEnhancedSteamDeckDriver,
-                alwaysKeyboardMovement,
-                List.copyOf(keyboardMovementWhitelist),
-                List.copyOf(seenServers),
-                showSplitscreenAd
-        );
-    }
+	public GlobalConfig toDTO() {
+		return new GlobalConfig(
+				virtualMouseScreens
+						.stream()
+						.map(Class::getName)
+						.toList(),
+				mixedInput,
+				outOfFocusInput,
+				reachAround,
+				allowServerRumble,
+				extraUiSounds,
+				notifyLowBattery,
+				ingameButtonGuideScale,
+				useEnhancedSteamDeckDriver,
+				alwaysKeyboardMovement,
+				List.copyOf(keyboardMovementWhitelist),
+				List.copyOf(seenServers),
+				showSplitscreenAd
+		);
+	}
 }

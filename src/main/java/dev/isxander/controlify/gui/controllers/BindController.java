@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.gui.controllers;
 
 import dev.isxander.controlify.Controlify;
@@ -17,7 +23,6 @@ import dev.isxander.yacl3.api.utils.Dimension;
 import dev.isxander.yacl3.gui.YACLScreen;
 import dev.isxander.yacl3.gui.controllers.ControllerWidget;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -28,144 +33,144 @@ import org.lwjgl.glfw.GLFW;
 import java.util.Optional;
 
 public class BindController implements Controller<Input> {
-    private final Option<Input> option;
-    public final ControllerEntity controller;
-    private boolean conflicting;
+	private final Option<Input> option;
+	public final ControllerEntity controller;
+	private boolean conflicting;
 
-    public BindController(Option<Input> option, ControllerEntity controller) {
-        this.option = option;
-        this.controller = controller;
-    }
+	public BindController(Option<Input> option, ControllerEntity controller) {
+		this.option = option;
+		this.controller = controller;
+	}
 
-    @Override
-    public Option<Input> option() {
-        return this.option;
-    }
+	@Override
+	public Option<Input> option() {
+		return this.option;
+	}
 
-    @Override
-    public Component formatValue() {
-        return Component.empty();
-    }
+	@Override
+	public Component formatValue() {
+		return Component.empty();
+	}
 
-    public void setConflicting(boolean conflicting) {
-        this.conflicting = conflicting;
-    }
+	public void setConflicting(boolean conflicting) {
+		this.conflicting = conflicting;
+	}
 
-    public boolean getConflicting() {
-        return this.conflicting;
-    }
+	public boolean getConflicting() {
+		return this.conflicting;
+	}
 
-    @Override
-    public BindControllerElement provideWidget(YACLScreen yaclScreen, Dimension<Integer> dimension) {
-        return new BindControllerElement(this, yaclScreen, dimension);
-    }
+	@Override
+	public BindControllerElement provideWidget(YACLScreen yaclScreen, Dimension<Integer> dimension) {
+		return new BindControllerElement(this, yaclScreen, dimension);
+	}
 
-    public static class BindControllerElement extends ControllerWidget<BindController> implements ComponentProcessor {
-        public boolean awaitingControllerInput = false;
-        private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
+	public static class BindControllerElement extends ControllerWidget<BindController> implements ComponentProcessor {
+		public boolean awaitingControllerInput = false;
+		private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
-        public BindControllerElement(BindController control, YACLScreen screen, Dimension<Integer> dim) {
-            super(control, screen, dim);
-        }
+		public BindControllerElement(BindController control, YACLScreen screen, Dimension<Integer> dim) {
+			super(control, screen, dim);
+		}
 
-        @Override
-        protected void extractValueText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-            if (awaitingControllerInput) {
-                graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
-            } else {
-                var bind = control.option().pendingValue();
-                if (EmptyInput.equals(bind)) return;
+		@Override
+		protected void extractValueText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+			if (awaitingControllerInput) {
+				graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
+			} else {
+				var bind = control.option().pendingValue();
+				if (EmptyInput.equals(bind)) return;
 
-                Component text = Controlify.instance().inputFontMapper()
-                        .getComponentFromBind(control.controller.info().type().namespace(), bind);
-                int width = textRenderer.width(text);
+				Component text = Controlify.instance().inputFontMapper()
+						.getComponentFromBind(control.controller.info().type().namespace(), bind);
+				int width = textRenderer.width(text);
 
-                graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
-            }
-        }
+				graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
+			}
+		}
 
-        @Override
-        public boolean keyPressed(KeyEvent keyEvent) {
-            if (isFocused() && keyEvent.key() == GLFW.GLFW_KEY_ENTER) {
-                openConsumerScreen();
-                return true;
-            }
+		@Override
+		public boolean keyPressed(KeyEvent keyEvent) {
+			if (isFocused() && keyEvent.key() == GLFW.GLFW_KEY_ENTER) {
+				openConsumerScreen();
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        @Override
-        public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
-            if (getDimension().isPointInside((int) mouseButtonEvent.x(), (int) mouseButtonEvent.y())) {
-                openConsumerScreen();
-                return true;
-            }
+		@Override
+		public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean doubleClick) {
+			if (getDimension().isPointInside((int) mouseButtonEvent.x(), (int) mouseButtonEvent.y())) {
+				openConsumerScreen();
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        private void openConsumerScreen() {
-            awaitingControllerInput = true;
-            MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, MinecraftUtil.getScreen()));
-        }
+		private void openConsumerScreen() {
+			awaitingControllerInput = true;
+			MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, MinecraftUtil.getScreen()));
+		}
 
-        @Override
-        public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-            if (controller != control.controller) return true;
+		@Override
+		public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+			if (controller != control.controller) return true;
 
-            if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
-                openConsumerScreen();
-                return true;
-            }
+			if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+				openConsumerScreen();
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
-        @Override
-        protected int getHoveredControlWidth() {
-            return getUnhoveredControlWidth();
-        }
+		@Override
+		protected int getHoveredControlWidth() {
+			return getUnhoveredControlWidth();
+		}
 
-        @Override
-        protected int getUnhoveredControlWidth() {
-            if (awaitingControllerInput)
-                return textRenderer.width(awaitingText);
+		@Override
+		protected int getUnhoveredControlWidth() {
+			if (awaitingControllerInput)
+				return textRenderer.width(awaitingText);
 
-            Component text = Controlify.instance().inputFontMapper()
-                    .getComponentFromBind(control.controller.info().type().namespace(), control.option().pendingValue());
-            return textRenderer.width(text);
-        }
+			Component text = Controlify.instance().inputFontMapper()
+					.getComponentFromBind(control.controller.info().type().namespace(), control.option().pendingValue());
+			return textRenderer.width(text);
+		}
 
-        @Override
-        protected int getValueColor() {
-            return control.conflicting ? 0xFFFF5555 : super.getValueColor();
-        }
+		@Override
+		protected int getValueColor() {
+			return control.conflicting ? 0xFFFF5555 : super.getValueColor();
+		}
 
-        public Optional<Input> getPressedBind() {
-            InputComponent input = control.controller.input().orElseThrow();
-            ControllerStateView state = input.stateNow();
-            ControllerStateView prevState = input.stateThen();
+		public Optional<Input> getPressedBind() {
+			InputComponent input = control.controller.input().orElseThrow();
+			ControllerStateView state = input.stateNow();
+			ControllerStateView prevState = input.stateThen();
 
-            for (Identifier button : state.getButtons()) {
-                if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
-                    return Optional.of(new ButtonInput(button));
-                }
-            }
+			for (Identifier button : state.getButtons()) {
+				if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
+					return Optional.of(new ButtonInput(button));
+				}
+			}
 
-            for (Identifier axis : state.getAxes()) {
-                if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
-                    return Optional.of(new AxisInput(axis));
-                }
-            }
+			for (Identifier axis : state.getAxes()) {
+				if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
+					return Optional.of(new AxisInput(axis));
+				}
+			}
 
-            for (Identifier hat : state.getHats()) {
-                HatState hatState = state.getHatState(hat);
-                if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
-                    return Optional.of(new HatInput(hat, hatState));
-                }
-            }
+			for (Identifier hat : state.getHats()) {
+				HatState hatState = state.getHatState(hat);
+				if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
+					return Optional.of(new HatInput(hat, hatState));
+				}
+			}
 
-            return Optional.empty();
-        }
-    }
+			return Optional.empty();
+		}
+	}
 }

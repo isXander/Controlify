@@ -1,8 +1,13 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.slowblock;
 
 import com.mojang.authlib.GameProfile;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
 import dev.isxander.controlify.rumble.RumbleSource;
 import dev.isxander.controlify.rumble.RumbleState;
@@ -19,54 +24,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends AbstractClientPlayer {
-    @Shadow
-    protected abstract boolean isMoving();
+	@Shadow
+	protected abstract boolean isMoving();
 
-    @Shadow public ClientInput input;
+	@Shadow public ClientInput input;
 
-    @Unique private ContinuousRumbleEffect slowBlockRumble = null;
+	@Unique private ContinuousRumbleEffect slowBlockRumble = null;
 
-    public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
-        super(world, profile);
-    }
+	public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
+		super(world, profile);
+	}
 
-    @Inject(
-            method = "aiStep",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/ClientInput;tick()V"
-            )
-    )
-    private void manageSlowBlockRumble(CallbackInfo ci) {
-        float speed = this.getBlockSpeedFactor();
+	@Inject(
+			method = "aiStep",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/player/ClientInput;tick()V"
+			)
+	)
+	private void manageSlowBlockRumble(CallbackInfo ci) {
+		float speed = this.getBlockSpeedFactor();
 
-        if (speed < 1f && isMoving()) {
-            ensureRumbleStarted();
-        } else {
-            ensureRumbleStopped();
-        }
-    }
+		if (speed < 1f && isMoving()) {
+			ensureRumbleStarted();
+		} else {
+			ensureRumbleStopped();
+		}
+	}
 
-    @Unique
-    private void ensureRumbleStarted() {
-        if (slowBlockRumble == null || slowBlockRumble.isFinished()) {
-            slowBlockRumble = ContinuousRumbleEffect.builder()
-                    .byTick(i -> {
-                        float movementAmount = input.getMoveVector().length();
-                        return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
-                    })
-                    .timeout(100)
-                    .build();
-            ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, slowBlockRumble);
-        } else {
-            slowBlockRumble.heartbeat();
-        }
-    }
+	@Unique private void ensureRumbleStarted() {
+		if (slowBlockRumble == null || slowBlockRumble.isFinished()) {
+			slowBlockRumble = ContinuousRumbleEffect.builder()
+					.byTick(i -> {
+						float movementAmount = input.getMoveVector().length();
+						return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
+					})
+					.timeout(100)
+					.build();
+			ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, slowBlockRumble);
+		} else {
+			slowBlockRumble.heartbeat();
+		}
+	}
 
-    @Unique
-    private void ensureRumbleStopped() {
-        if (slowBlockRumble != null && !slowBlockRumble.isFinished()) {
-            slowBlockRumble.stop();
-        }
-    }
+	@Unique private void ensureRumbleStopped() {
+		if (slowBlockRumble != null && !slowBlockRumble.isFinished()) {
+			slowBlockRumble.stop();
+		}
+	}
 }

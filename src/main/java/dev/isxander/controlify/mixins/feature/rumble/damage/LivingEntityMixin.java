@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
 import net.minecraft.world.damagesource.DamageSource;
@@ -10,14 +16,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
 public class LivingEntityMixin {
-    @Shadow
-    public int hurtDuration;
+	@Shadow
+	public int hurtDuration;
 
-    @Shadow
-    public int hurtTime;
+	@Shadow
+	public int hurtTime;
 
-    @Inject(method = "handleDamageEvent", at = @At("HEAD"))
-    protected void onHealthChangedDamage(DamageSource source, CallbackInfo ci) {
+	@Inject(method = "handleDamageEvent", at = @At("HEAD"))
+	protected void onHealthChangedDamage(DamageSource source, CallbackInfo ci) {
 
-    }
+	}
 }

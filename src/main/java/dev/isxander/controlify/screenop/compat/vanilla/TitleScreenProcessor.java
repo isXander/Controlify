@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
@@ -11,50 +17,50 @@ import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 
 public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
-    public TitleScreenProcessor(TitleScreen screen) {
-        super(screen);
-    }
+	public TitleScreenProcessor(TitleScreen screen) {
+		super(screen);
+	}
 
-    @Override
-    protected void handleButtons(ControllerEntity controller) {
-        if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
-            getWidget("menu.quit").ifPresent(widget -> {
-                screen.setFocused(widget);
-                playClackSound();
-            });
-        }
+	@Override
+	protected void handleButtons(ControllerEntity controller) {
+		if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
+			getWidget("menu.quit").ifPresent(widget -> {
+				screen.setFocused(widget);
+				playClackSound();
+			});
+		}
 
-        super.handleButtons(controller);
+		super.handleButtons(controller);
 
-        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            if (getWidget("menu.options").isPresent()) {
-                MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, false));
-                playClackSound();
-            }
-        }
-    }
+		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+			if (getWidget("menu.options").isPresent()) {
+				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, false));
+				playClackSound();
+			}
+		}
+	}
 
-    @Override
-    public void onWidgetRebuild() {
-        super.onWidgetRebuild();
+	@Override
+	public void onWidgetRebuild() {
+		super.onWidgetRebuild();
 
-        getWidget("menu.quit").ifPresent(widget -> {
-            var button = (AbstractButton) widget;
-            ButtonGuideApi.addGuideToButton(
-                    button,
-                    () -> button.isFocused() ? ControlifyBindings.GUI_PRESS : ControlifyBindings.GUI_BACK,
-                    ButtonGuidePredicate.always()
-            );
-        });
+		getWidget("menu.quit").ifPresent(widget -> {
+			var button = (AbstractButton) widget;
+			ButtonGuideApi.addGuideToButton(
+					button,
+					() -> button.isFocused() ? ControlifyBindings.GUI_PRESS : ControlifyBindings.GUI_BACK,
+					ButtonGuidePredicate.always()
+			);
+		});
 
-        getWidget("menu.options").ifPresent(widget -> {
-            var button = (AbstractButton) widget;
-            ButtonGuideApi.addGuideToButton(
-                    button,
-                    ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                    ButtonGuidePredicate.always()
-            );
-        });
+		getWidget("menu.options").ifPresent(widget -> {
+			var button = (AbstractButton) widget;
+			ButtonGuideApi.addGuideToButton(
+					button,
+					ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+					ButtonGuidePredicate.always()
+			);
+		});
 
-    }
+	}
 }

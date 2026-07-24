@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
@@ -17,42 +23,41 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CreativeModeInventoryScreen.class)
 public abstract class CreativeModeInventoryScreenMixin extends AbstractContainerScreenMixin implements ScreenProcessorProvider {
-    @Shadow
-    private EditBox searchBox;
+	@Shadow
+	private EditBox searchBox;
 
-    @Shadow
-    protected abstract void refreshSearchResults();
+	@Shadow
+	protected abstract void refreshSearchResults();
 
-    @Unique
-    protected CreativeModeInventoryScreenProcessor screenProcessor = new CreativeModeInventoryScreenProcessor(
-            (CreativeModeInventoryScreen) (Object) this,
-            () -> hoveredSlot,
-            this::slotClicked,
-            this::handleControllerItemSlotActions
-    );
+	@Unique protected CreativeModeInventoryScreenProcessor screenProcessor = new CreativeModeInventoryScreenProcessor(
+			(CreativeModeInventoryScreen) (Object) this,
+			() -> hoveredSlot,
+			this::slotClicked,
+			this::handleControllerItemSlotActions
+	);
 
-    @Inject(method = "init", at = @At("RETURN"))
-    private void fixSearchUpdate(CallbackInfo ci) {
-        if (this.searchBox != null) {
-            var processor = (EditBoxComponentProcessor) ComponentProcessorProvider.provide(this.searchBox);
-            processor.setInputTarget(new InputTarget.Delegated(new EditBoxComponentProcessor.EditBoxInputTarget(this.searchBox)) {
-                @Override
-                public boolean acceptChar(char ch, int modifiers) {
-                    CreativeModeInventoryScreenMixin.this.refreshSearchResults();
-                    return super.acceptChar(ch, modifiers);
-                }
+	@Inject(method = "init", at = @At("RETURN"))
+	private void fixSearchUpdate(CallbackInfo ci) {
+		if (this.searchBox != null) {
+			var processor = (EditBoxComponentProcessor) ComponentProcessorProvider.provide(this.searchBox);
+			processor.setInputTarget(new InputTarget.Delegated(new EditBoxComponentProcessor.EditBoxInputTarget(this.searchBox)) {
+				@Override
+				public boolean acceptChar(char ch, int modifiers) {
+					CreativeModeInventoryScreenMixin.this.refreshSearchResults();
+					return super.acceptChar(ch, modifiers);
+				}
 
-                @Override
-                public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-                    CreativeModeInventoryScreenMixin.this.refreshSearchResults();
-                    return super.acceptKeyCode(keycode, scancode, modifiers);
-                }
-            });
-        }
-    }
+				@Override
+				public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
+					CreativeModeInventoryScreenMixin.this.refreshSearchResults();
+					return super.acceptKeyCode(keycode, scancode, modifiers);
+				}
+			});
+		}
+	}
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return screenProcessor;
-    }
+	@Override
+	public ScreenProcessor<?> screenProcessor() {
+		return screenProcessor;
+	}
 }

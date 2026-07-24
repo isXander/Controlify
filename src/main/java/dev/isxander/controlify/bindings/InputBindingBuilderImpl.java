@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.Controlify;
@@ -7,7 +13,6 @@ import dev.isxander.controlify.bindings.input.EmptyInput;
 import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
-import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
@@ -21,186 +26,185 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class InputBindingBuilderImpl implements InputBindingBuilder {
-    private @Nullable Identifier id;
-    private @Nullable Component category;
-    private @Nullable Component customName, customDescription;
-    private @Nullable Input defaultInput;
-    private final Set<BindContext> allowedContexts = new HashSet<>();
-    private @Nullable Identifier radialCandidate;
+	private @Nullable Identifier id;
+	private @Nullable Component category;
+	private @Nullable Component customName, customDescription;
+	private @Nullable Input defaultInput;
+	private final Set<BindContext> allowedContexts = new HashSet<>();
+	private @Nullable Identifier radialCandidate;
 
-    private final Set<KeyMapping> keyCorrelations = new HashSet<>();
-    private KeyMapping keyEmulation = null;
-    private Function<ControllerEntity, Boolean> keyEmulationToggle = null;
+	private final Set<KeyMapping> keyCorrelations = new HashSet<>();
+	private KeyMapping keyEmulation = null;
+	private Function<ControllerEntity, Boolean> keyEmulationToggle = null;
 
-    private boolean locked;
+	private boolean locked;
 
-    @Override
-    public InputBindingBuilder id(@NotNull Identifier rl) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder id(@NotNull Identifier rl) {
+		checkLocked();
 
-        this.id = rl;
-        return this;
-    }
+		this.id = rl;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
-        return this.id(Identifier.fromNamespaceAndPath(namespace, path));
-    }
+	@Override
+	public InputBindingBuilder id(@NotNull String namespace, @NotNull String path) {
+		return this.id(Identifier.fromNamespaceAndPath(namespace, path));
+	}
 
-    @Override
-    public InputBindingBuilder category(@NotNull Component text) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder category(@NotNull Component text) {
+		checkLocked();
 
-        this.category = text;
-        return this;
-    }
+		this.category = text;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder name(@NotNull Component text) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder name(@NotNull Component text) {
+		checkLocked();
 
-        this.customName = text;
-        return this;
-    }
+		this.customName = text;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder description(@NotNull Component text) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder description(@NotNull Component text) {
+		checkLocked();
 
-        this.customDescription = text;
-        return this;
-    }
+		this.customDescription = text;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder defaultInput(@Nullable Input input) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder defaultInput(@Nullable Input input) {
+		checkLocked();
 
-        this.defaultInput = input;
-        return this;
-    }
+		this.defaultInput = input;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable ... contexts) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable ... contexts) {
+		checkLocked();
 
-        if (contexts != null)
-            this.allowedContexts.addAll(List.of(contexts));
-        return this;
-    }
+		if (contexts != null)
+			this.allowedContexts.addAll(List.of(contexts));
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder radialCandidate(@Nullable Identifier icon) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder radialCandidate(@Nullable Identifier icon) {
+		checkLocked();
 
-        this.radialCandidate = icon;
-        return this;
-    }
+		this.radialCandidate = icon;
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder addKeyCorrelation(@NotNull KeyMapping keyMapping) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder addKeyCorrelation(@NotNull KeyMapping keyMapping) {
+		checkLocked();
 
-        this.keyCorrelations.add(keyMapping);
-        return this;
-    }
+		this.keyCorrelations.add(keyMapping);
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition) {
-        checkLocked();
+	@Override
+	public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition) {
+		checkLocked();
 
-        this.keyEmulation = keyMapping;
-        this.keyEmulationToggle = toggleCondition;
-        this.addKeyCorrelation(keyMapping);
-        return this;
-    }
+		this.keyEmulation = keyMapping;
+		this.keyEmulationToggle = toggleCondition;
+		this.addKeyCorrelation(keyMapping);
+		return this;
+	}
 
-    @Override
-    public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
-        return keyEmulation(keyMapping, null);
-    }
+	@Override
+	public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
+		return keyEmulation(keyMapping, null);
+	}
 
-    public InputBindingImpl build(@Nullable ControllerEntity controller) {
-        Validate.isTrue(locked, "Tried to build builder before it was locked.");
+	public InputBindingImpl build(@Nullable ControllerEntity controller) {
+		Validate.isTrue(locked, "Tried to build builder before it was locked.");
 
-        Identifier controllerType = controller != null
-                ? controller.info().type().namespace()
-                : ControllerType.DEFAULT.namespace();
+		Identifier controllerType = controller != null
+				? controller.info().type().namespace()
+				: ControllerType.DEFAULT.namespace();
 
-        Component name = createDefaultString(controllerType, null, false);
-        if (customName != null) name = customName;
+		Component name = createDefaultString(controllerType, null, false);
+		if (customName != null) name = customName;
 
-        Component description = createDefaultString(controllerType, "desc", true);
-        if (customDescription != null) description = customDescription;
-        if (description == null) description = Component.empty();
+		Component description = createDefaultString(controllerType, "desc", true);
+		if (customDescription != null) description = customDescription;
+		if (description == null) description = Component.empty();
 
-        Supplier<Input> defaultSupplier = () -> {
-            // retrieve every tick so the bind provider isn't cached after a resource reload
-            DefaultBindProvider provider = Controlify.instance().defaultBindManager().getDefaultBindProvider(
-                    controllerType
-            );
+		Supplier<Input> defaultSupplier = () -> {
+			// retrieve every tick so the bind provider isn't cached after a resource reload
+			DefaultBindProvider provider = Controlify.instance().defaultBindManager().getDefaultBindProvider(
+					controllerType
+			);
 
-            Input input = provider.getDefaultBind(id);
-            if (input == null) input = defaultInput;
-            if (input == null) input = EmptyInput.INSTANCE;
+			Input input = provider.getDefaultBind(id);
+			if (input == null) input = defaultInput;
+			if (input == null) input = EmptyInput.INSTANCE;
 
-            return input;
-        };
+			return input;
+		};
 
-        return new InputBindingImpl(
-                controller != null ? controller.input().orElse(null) : null,
-                controllerType,
-                id,
-                name,
-                description,
-                category,
-                defaultSupplier,
-                allowedContexts,
-                radialCandidate
-        );
-    }
+		return new InputBindingImpl(
+				controller != null ? controller.input().orElse(null) : null,
+				controllerType,
+				id,
+				name,
+				description,
+				category,
+				defaultSupplier,
+				allowedContexts,
+				radialCandidate
+		);
+	}
 
-    @NotNull
-    public Identifier getIdAndLock() {
-        checkLocked();
+	@NotNull public Identifier getIdAndLock() {
+		checkLocked();
 
-        locked = true;
-        Validate.notNull(this.id, "Must call `.id(Identifier)` on builder!");
-        Validate.notNull(this.category, "Must call `.category(Component)` on builder %s!".formatted(this.id));
+		locked = true;
+		Validate.notNull(this.id, "Must call `.id(Identifier)` on builder!");
+		Validate.notNull(this.category, "Must call `.category(Component)` on builder %s!".formatted(this.id));
 
-        return this.id;
-    }
+		return this.id;
+	}
 
-    public Set<KeyMapping> getKeyCorrelations() {
-        return this.keyCorrelations;
-    }
+	public Set<KeyMapping> getKeyCorrelations() {
+		return this.keyCorrelations;
+	}
 
-    public @Nullable KeyMapping getKeyEmulation() {
-        return this.keyEmulation;
-    }
+	public @Nullable KeyMapping getKeyEmulation() {
+		return this.keyEmulation;
+	}
 
-    public @Nullable Function<ControllerEntity, Boolean> getKeyEmulationToggle() {
-        return this.keyEmulationToggle;
-    }
+	public @Nullable Function<ControllerEntity, Boolean> getKeyEmulationToggle() {
+		return this.keyEmulationToggle;
+	}
 
-    private void checkLocked() {
-        Validate.isTrue(!locked, "Tried to modify binding builder after is has been locked!");
-    }
+	private void checkLocked() {
+		Validate.isTrue(!locked, "Tried to modify binding builder after is has been locked!");
+	}
 
-    private Component createDefaultString(Identifier controllerType, @Nullable String suffix, boolean notExistToNull) {
-        Objects.requireNonNull(id);
+	private Component createDefaultString(Identifier controllerType, @Nullable String suffix, boolean notExistToNull) {
+		Objects.requireNonNull(id);
 
-        String typeSpecificKey = controllerType.toLanguageKey("controlify.binding", id.toLanguageKey());
-        if (suffix != null) typeSpecificKey += "." + suffix;
-        if (Language.getInstance().has(typeSpecificKey)) {
-            return Component.translatable(typeSpecificKey);
-        }
+		String typeSpecificKey = controllerType.toLanguageKey("controlify.binding", id.toLanguageKey());
+		if (suffix != null) typeSpecificKey += "." + suffix;
+		if (Language.getInstance().has(typeSpecificKey)) {
+			return Component.translatable(typeSpecificKey);
+		}
 
-        String genericKey = id.toLanguageKey("controlify.binding");
-        if (suffix != null) genericKey += "." + suffix;
+		String genericKey = id.toLanguageKey("controlify.binding");
+		if (suffix != null) genericKey += "." + suffix;
 
-        if (notExistToNull && !Language.getInstance().has(genericKey))
-            return null;
+		if (notExistToNull && !Language.getInstance().has(genericKey))
+			return null;
 
-        return Component.translatable(genericKey);
-    }
+		return Component.translatable(genericKey);
+	}
 }

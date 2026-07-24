@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.guide.ingame;
 
 import dev.isxander.controlify.Controlify;
@@ -11,19 +17,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(
-        //? if >=26.2 {
-        net.minecraft.client.gui.Hud.class
-        //?} else {
-        /*net.minecraft.client.gui.Gui.class
-        *///?}
+		//? if >=26.2 {
+		net.minecraft.client.gui.Hud.class
+		//?} else {
+		/*net.minecraft.client.gui.Gui.class
+		*///?}
 )
 public class HudMixin {
-    @Shadow @Final private Minecraft minecraft;
+	@Shadow @Final private Minecraft minecraft;
 
-    @Inject(method = "tick()V", at = @At("RETURN"))
-    private void tickButtonGuide(CallbackInfo ci) {
-        if (minecraft.level == null) return;
+	@Inject(method = "tick()V", at = @At("RETURN"))
+	private void tickButtonGuide(CallbackInfo ci) {
+		if (minecraft.level == null) return;
 
-        Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::tick);
-    }
+		Controlify.instance().inGameButtonGuide().ifPresent(InGameButtonGuide::tick);
+	}
 }

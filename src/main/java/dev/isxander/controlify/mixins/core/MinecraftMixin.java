@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.Controlify;
@@ -15,53 +21,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
 public abstract class MinecraftMixin {
-    @Shadow public abstract DeltaTracker getDeltaTracker();
+	@Shadow public abstract DeltaTracker getDeltaTracker();
 
-    @Shadow
-    public abstract void emergencySaveAndCrash(CrashReport partialReport);
+	@Shadow
+	public abstract void emergencySaveAndCrash(CrashReport partialReport);
 
-    @Inject(method = "onGameLoadFinished", at = @At("RETURN"))
-    private void initControlifyNow(CallbackInfo ci) {
-        try {
-            Controlify.instance().initializeControlify();
-        } catch (Throwable t) {
-            CrashReport report = CrashReport.forThrowable(t, "Failed to initialize Controlify");
+	@Inject(method = "onGameLoadFinished", at = @At("RETURN"))
+	private void initControlifyNow(CallbackInfo ci) {
+		try {
+			Controlify.instance().initializeControlify();
+		} catch (Throwable t) {
+			CrashReport report = CrashReport.forThrowable(t, "Failed to initialize Controlify");
 
-            // Further up the stack, any throwable is caught, including ReportedException,
-            // so we need to manually crash the game here.
-            emergencySaveAndCrash(report);
-        }
-    }
+			// Further up the stack, any throwable is caught, including ReportedException,
+			// so we need to manually crash the game here.
+			emergencySaveAndCrash(report);
+		}
+	}
 
-    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-    private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
-        Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
-    }
+	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
+	private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
+		Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
+	}
 
-    @Inject(
-            method = "close",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"
-            )
-    )
-    private void onMinecraftClose(CallbackInfo ci) {
-        Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
-    }
+	@Inject(
+			method = "close",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/telemetry/ClientTelemetryManager;close()V"
+			)
+	)
+	private void onMinecraftClose(CallbackInfo ci) {
+		Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
+	}
 
-    @Inject(
-            method = "renderFrame",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
-            )
-    )
-    private void tickAnimator(CallbackInfo ci) {
-        Animator.INSTANCE.tick(getTickDelta());
-    }
+	@Inject(
+			method = "renderFrame",
+			at = @At(
+					value = "INVOKE",
+					target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
+			)
+	)
+	private void tickAnimator(CallbackInfo ci) {
+		Animator.INSTANCE.tick(getTickDelta());
+	}
 
-    @Unique
-    private float getTickDelta() {
-        return getDeltaTracker().getGameTimeDeltaTicks();
-    }
+	@Unique private float getTickDelta() {
+		return getDeltaTracker().getGameTimeDeltaTicks();
+	}
 }

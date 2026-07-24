@@ -1,4 +1,9 @@
-//? if simple_voice_chat {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -10,34 +15,34 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(PTTKeyHandler.class)
 public class PTTKeyHandlerMixin {
-    @ModifyExpressionValue(
-            method = {
-                    "isPTTDown()Z",
-                    "isAnyDown()Z",
-            },
-            at = @At(
-                    value = "FIELD",
-                    target = "Lde/maxhenkel/voicechat/voice/client/PTTKeyHandler;pttKeyDown:Z",
-                    opcode = Opcodes.GETFIELD
-            )
-    )
-    private boolean isControllerPTTDown(boolean keyDown) {
-        return keyDown || SimpleVoiceChatCompat.isPTTDown();
-    }
+	@ModifyExpressionValue(
+			method = {
+					"isPTTDown()Z",
+					"isAnyDown()Z",
+			},
+			at = @At(
+					value = "FIELD",
+					target = "Lde/maxhenkel/voicechat/voice/client/PTTKeyHandler;pttKeyDown:Z",
+					opcode = Opcodes.GETFIELD
+			)
+	)
+	private boolean isControllerPTTDown(boolean keyDown) {
+		return keyDown || SimpleVoiceChatCompat.isPTTDown();
+	}
 
-    @ModifyExpressionValue(
-            method = {
-                    "isWhisperDown()Z",
-                    "isAnyDown()Z",
-            },
-            at = @At(
-                    value = "FIELD",
-                    target = "Lde/maxhenkel/voicechat/voice/client/PTTKeyHandler;whisperKeyDown:Z",
-                    opcode = Opcodes.GETFIELD
-            )
-    )
-    private boolean isControllerWhisperDown(boolean keyDown) {
-        return keyDown || SimpleVoiceChatCompat.isWhisperDown();
-    }
+	@ModifyExpressionValue(
+			method = {
+					"isWhisperDown()Z",
+					"isAnyDown()Z",
+			},
+			at = @At(
+					value = "FIELD",
+					target = "Lde/maxhenkel/voicechat/voice/client/PTTKeyHandler;whisperKeyDown:Z",
+					opcode = Opcodes.GETFIELD
+			)
+	)
+	private boolean isControllerWhisperDown(boolean keyDown) {
+		return keyDown || SimpleVoiceChatCompat.isWhisperDown();
+	}
 }
 //?}

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.utils.ControllerUtils;
@@ -7,50 +13,50 @@ import java.util.Optional;
 import java.util.Set;
 
 public class DeadzoneControllerStateView implements ControllerStateView {
-    private final ControllerStateView view;
-    private final InputComponent input;
+	private final ControllerStateView view;
+	private final InputComponent input;
 
-    public DeadzoneControllerStateView(ControllerStateView view, InputComponent input) {
-        this.view = view;
-        this.input = input;
-    }
+	public DeadzoneControllerStateView(ControllerStateView view, InputComponent input) {
+		this.view = view;
+		this.input = input;
+	}
 
-    @Override
-    public boolean isButtonDown(Identifier button) {
-        return view.isButtonDown(button);
-    }
+	@Override
+	public boolean isButtonDown(Identifier button) {
+		return view.isButtonDown(button);
+	}
 
-    @Override
-    public Set<Identifier> getButtons() {
-        return view.getButtons();
-    }
+	@Override
+	public Set<Identifier> getButtons() {
+		return view.getButtons();
+	}
 
-    @Override
-    public float getAxisState(Identifier axis) {
-        float rawAxis = view.getAxisState(axis);
-        Optional<Identifier> deadzoneId = input.getDeadzoneForAxis(axis);
-        float deadzone = deadzoneId.map(id -> input.settings().sensitivity.getDeadzone(id)).orElse(0f);
+	@Override
+	public float getAxisState(Identifier axis) {
+		float rawAxis = view.getAxisState(axis);
+		Optional<Identifier> deadzoneId = input.getDeadzoneForAxis(axis);
+		float deadzone = deadzoneId.map(id -> input.settings().sensitivity.getDeadzone(id)).orElse(0f);
 
-        return ControllerUtils.deadzone(rawAxis, deadzone);
-    }
+		return ControllerUtils.deadzone(rawAxis, deadzone);
+	}
 
-    @Override
-    public Set<Identifier> getAxes() {
-        return view.getAxes();
-    }
+	@Override
+	public Set<Identifier> getAxes() {
+		return view.getAxes();
+	}
 
-    @Override
-    public float getAxisResting(Identifier axis) {
-        return view.getAxisResting(axis);
-    }
+	@Override
+	public float getAxisResting(Identifier axis) {
+		return view.getAxisResting(axis);
+	}
 
-    @Override
-    public HatState getHatState(Identifier hat) {
-        return view.getHatState(hat);
-    }
+	@Override
+	public HatState getHatState(Identifier hat) {
+		return view.getHatState(hat);
+	}
 
-    @Override
-    public Set<Identifier> getHats() {
-        return view.getHats();
-    }
+	@Override
+	public Set<Identifier> getHats() {
+		return view.getHats();
+	}
 }

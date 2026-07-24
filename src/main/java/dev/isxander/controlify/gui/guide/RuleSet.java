@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.gui.guide;
 
 import com.mojang.serialization.Codec;
@@ -7,13 +13,13 @@ import dev.isxander.controlify.api.guide.Rule;
 import java.util.List;
 
 public record RuleSet(
-        boolean replace,
-        List<Rule> rules
+		boolean replace,
+		List<Rule> rules
 ) {
-    public static final Codec<RuleSet> CODEC = RecordCodecBuilder.create(
-            instance -> instance.group(
-                    Codec.BOOL.optionalFieldOf("replace", false).forGetter(RuleSet::replace),
-                    Rule.CODEC.listOf().fieldOf("rules").forGetter(RuleSet::rules)
-            ).apply(instance, RuleSet::new)
-    );
+	public static final Codec<RuleSet> CODEC = RecordCodecBuilder.create(
+			instance -> instance.group(
+					Codec.BOOL.optionalFieldOf("replace", false).forGetter(RuleSet::replace),
+					Rule.CODEC.listOf().fieldOf("rules").forGetter(RuleSet::rules)
+			).apply(instance, RuleSet::new)
+	);
 }

@@ -1,4 +1,9 @@
-//? if sodium {
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
 import dev.isxander.controlify.compatibility.sodium.screenop.TickBoxControlProcessor;
@@ -10,15 +15,15 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.TickBoxControl$TickBoxControlElement")
 public abstract class TickBoxControlElementMixin implements ComponentProcessorProvider {
-    @Shadow
-    protected abstract void toggleControl();
+	@Shadow
+	protected abstract void toggleControl();
 
-    @Unique private final ComponentProcessor controlify$componentProcessor
-            = new TickBoxControlProcessor(this::toggleControl);
+	@Unique private final ComponentProcessor controlify$componentProcessor
+			= new TickBoxControlProcessor(this::toggleControl);
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return controlify$componentProcessor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return controlify$componentProcessor;
+	}
 }
 //?}

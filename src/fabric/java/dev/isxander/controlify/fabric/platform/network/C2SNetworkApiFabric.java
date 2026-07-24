@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.fabric.platform.network;
 
 import dev.isxander.controlify.platform.network.C2SNetworkApi;
@@ -13,34 +19,34 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class C2SNetworkApiFabric implements C2SNetworkApi {
-    private final Map<Identifier, FabricPacketWrapper<?>> packets = new HashMap<>();
+	private final Map<Identifier, FabricPacketWrapper<?>> packets = new HashMap<>();
 
-    @Override
-    public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> codec) {
-        packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry.serverboundPlay()));
-    }
+	@Override
+	public <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> codec) {
+		packets.put(channel, new FabricPacketWrapper<>(channel, codec, PayloadTypeRegistry.serverboundPlay()));
+	}
 
-    @Override
-    public <T> void sendPacket(Identifier channel, T packet) {
-        ClientPlayNetworking.send(createPayload(channel, packet));
-    }
+	@Override
+	public <T> void sendPacket(Identifier channel, T packet) {
+		ClientPlayNetworking.send(createPayload(channel, packet));
+	}
 
-    @Override
-    public <T> CustomPacketPayload createPayload(Identifier channel, T packet) {
-        FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
-        return packetWrapper.new FabricPacketPayloadWrapper(packet);
-    }
+	@Override
+	public <T> CustomPacketPayload createPayload(Identifier channel, T packet) {
+		FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
+		return packetWrapper.new FabricPacketPayloadWrapper(packet);
+	}
 
-    @Override
-    public <T> void listenForPacket(Identifier channel, PacketListener<T> listener) {
-        FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
+	@Override
+	public <T> void listenForPacket(Identifier channel, PacketListener<T> listener) {
+		FabricPacketWrapper<T> packetWrapper = getWrapper(channel);
 
-        ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
-            listener.listen(packet.payload, context.player());
-        });
-    }
+		ServerPlayNetworking.registerGlobalReceiver(packetWrapper.type, (packet, context) -> {
+			listener.listen(packet.payload, context.player());
+		});
+	}
 
-    private <T> FabricPacketWrapper<T> getWrapper(Identifier channel) {
-        return (FabricPacketWrapper<T>) packets.get(channel);
-    }
+	private <T> FabricPacketWrapper<T> getWrapper(Identifier channel) {
+		return (FabricPacketWrapper<T>) packets.get(channel);
+	}
 }

@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.platform.client;
 
 import net.minecraft.world.item.CreativeModeTab;
@@ -5,15 +11,15 @@ import net.minecraft.world.item.CreativeModeTab;
 import java.util.List;
 
 public interface CreativeTabHelper {
-    void setCurrentPage(int page);
+	void setCurrentPage(int page);
 
-    int getCurrentPage();
+	int getCurrentPage();
 
-    int getPageCount();
+	int getPageCount();
 
-    List<CreativeModeTab> getTabsForPage(int page);
+	List<CreativeModeTab> getTabsForPage(int page);
 
-    CreativeModeTab getSelectedTab();
+	CreativeModeTab getSelectedTab();
 
-    void setSelectedTab(CreativeModeTab tab);
+	void setSelectedTab(CreativeModeTab tab);
 }

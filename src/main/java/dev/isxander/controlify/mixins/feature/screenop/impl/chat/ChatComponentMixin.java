@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
 import com.llamalad7.mixinextras.expression.Definition;
@@ -14,31 +20,31 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(ChatComponent.class)
 public abstract class ChatComponentMixin {
 
-    @Unique private static final int VANILLA_CHAT_PADDING = 40;
-    @Unique private static final int SHIFTED_CHAT_PADDING = 20;
+	@Unique private static final int VANILLA_CHAT_PADDING = 40;
+	@Unique private static final int SHIFTED_CHAT_PADDING = 20;
 
-    @Definition(id = "floor", method = "Lnet/minecraft/util/Mth;floor(F)I")
-    @Expression("floor((float) (@(?) - 40) / ?)")
-    @ModifyExpressionValue(
-            method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V",
-            at = @At("MIXINEXTRAS:EXPRESSION")
-    )
-    private int modifyChatOffset(int y) {
-        if (MinecraftUtil.getScreen() instanceof ChatScreen chat)
-            return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
-        return y;
-    }
+	@Definition(id = "floor", method = "Lnet/minecraft/util/Mth;floor(F)I")
+	@Expression("floor((float) (@(?) - 40) / ?)")
+	@ModifyExpressionValue(
+			method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V",
+			at = @At("MIXINEXTRAS:EXPRESSION")
+	)
+	private int modifyChatOffset(int y) {
+		if (MinecraftUtil.getScreen() instanceof ChatScreen chat)
+			return (int) (y * (1 - ChatKeyboardDucky.getKeyboardShiftAmount(chat)));
+		return y;
+	}
 
-    @ModifyExpressionValue(
-            method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V",
-            at = @At(value = "CONSTANT", args = "intValue=" + VANILLA_CHAT_PADDING)
-    )
-    private int modifyChatToInputPadding(int padding) {
-        if (MinecraftUtil.getScreen() instanceof ChatScreen chat) {
-            if (ChatKeyboardDucky.getKeyboardShiftAmount(chat) > 0) {
-                return SHIFTED_CHAT_PADDING;
-            }
-        }
-        return padding;
-    }
+	@ModifyExpressionValue(
+			method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V",
+			at = @At(value = "CONSTANT", args = "intValue=" + VANILLA_CHAT_PADDING)
+	)
+	private int modifyChatToInputPadding(int padding) {
+		if (MinecraftUtil.getScreen() instanceof ChatScreen chat) {
+			if (ChatKeyboardDucky.getKeyboardShiftAmount(chat) > 0) {
+				return SHIFTED_CHAT_PADDING;
+			}
+		}
+		return padding;
+	}
 }

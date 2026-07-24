@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.reacharound;
 
 import com.mojang.serialization.Codec;
@@ -11,38 +17,38 @@ import org.jspecify.annotations.NonNull;
 import java.util.function.BiFunction;
 
 public enum ReachAroundMode implements NameableEnum, StringRepresentable {
-    OFF((minecraft, controlify) -> false),
-    SINGLEPLAYER_ONLY((minecraft, controlify) ->
-            //? if >=26.2 {
-            minecraft.hasSingleplayerServer()
-            //?} else {
-            /*minecraft.isSingleplayer()
-            *///?}
-    ),
-    SINGLEPLAYER_AND_LAN((minecraft, controlify) -> minecraft.isLocalServer()),
-    EVERYWHERE((minecraft, controlify) -> true);
+	OFF((minecraft, controlify) -> false),
+	SINGLEPLAYER_ONLY((minecraft, controlify) ->
+			//? if >=26.2 {
+			minecraft.hasSingleplayerServer()
+			//?} else {
+			/*minecraft.isSingleplayer()
+			*///?}
+	),
+	SINGLEPLAYER_AND_LAN((minecraft, controlify) -> minecraft.isLocalServer()),
+	EVERYWHERE((minecraft, controlify) -> true);
 
-    public static final Codec<ReachAroundMode> CODEC = StringRepresentable.fromEnum(ReachAroundMode::values);
+	public static final Codec<ReachAroundMode> CODEC = StringRepresentable.fromEnum(ReachAroundMode::values);
 
-    private final BiFunction<Minecraft, Controlify, Boolean> canReachAround;
-    private final Component displayName;
+	private final BiFunction<Minecraft, Controlify, Boolean> canReachAround;
+	private final Component displayName;
 
-    ReachAroundMode(BiFunction<Minecraft, Controlify, Boolean> canReachAround) {
-        this.canReachAround = canReachAround;
-        this.displayName = Component.translatable("controlify.reach_around." + this.name().toLowerCase());
-    }
+	ReachAroundMode(BiFunction<Minecraft, Controlify, Boolean> canReachAround) {
+		this.canReachAround = canReachAround;
+		this.displayName = Component.translatable("controlify.reach_around." + this.name().toLowerCase());
+	}
 
-    public boolean canReachAround() {
-        return canReachAround.apply(Minecraft.getInstance(), Controlify.instance());
-    }
+	public boolean canReachAround() {
+		return canReachAround.apply(Minecraft.getInstance(), Controlify.instance());
+	}
 
-    @Override
-    public Component getDisplayName() {
-        return displayName;
-    }
+	@Override
+	public Component getDisplayName() {
+		return displayName;
+	}
 
-    @Override
-    public @NonNull String getSerializedName() {
-        return this.name().toLowerCase();
-    }
+	@Override
+	public @NonNull String getSerializedName() {
+		return this.name().toLowerCase();
+	}
 }

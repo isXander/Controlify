@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -9,29 +15,29 @@ import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 
 public class LanguageSelectionListComponentProcessor implements ComponentProcessor {
-    private final String code;
+	private final String code;
 
-    public LanguageSelectionListComponentProcessor(String code) {
-        this.code = code;
-    }
+	public LanguageSelectionListComponentProcessor(String code) {
+		this.code = code;
+	}
 
-    @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
-            var minecraft = Minecraft.getInstance();
-            var languageManager = minecraft.getLanguageManager();
-            if (!code.equals(languageManager.getSelected())) {
-                languageManager.setSelected(code);
-                minecraft.options.languageCode = code;
-                minecraft.reloadResourcePacks();
-                minecraft.options.save();
-            }
+	@Override
+	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+		if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+			var minecraft = Minecraft.getInstance();
+			var languageManager = minecraft.getLanguageManager();
+			if (!code.equals(languageManager.getSelected())) {
+				languageManager.setSelected(code);
+				minecraft.options.languageCode = code;
+				minecraft.reloadResourcePacks();
+				minecraft.options.save();
+			}
 
-            MinecraftUtil.setScreen(((OptionsSubScreenAccessor) screen.screen).controlify$getLastScreen());
+			MinecraftUtil.setScreen(((OptionsSubScreenAccessor) screen.screen).controlify$getLastScreen());
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

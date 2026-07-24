@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.sodium.screenop;
 
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -6,23 +12,23 @@ import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 
 public class TickBoxControlProcessor implements ComponentProcessor {
-    private final Runnable toggleMethod;
+	private final Runnable toggleMethod;
 
-    public TickBoxControlProcessor(Runnable toggleMethod) {
-        this.toggleMethod = toggleMethod;
-    }
+	public TickBoxControlProcessor(Runnable toggleMethod) {
+		this.toggleMethod = toggleMethod;
+	}
 
-    @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
-            toggleMethod.run();
-            return true;
-        }
-        if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed() || ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed()) {
-            toggleMethod.run();
-            return true;
-        }
+	@Override
+	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
+		if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
+			toggleMethod.run();
+			return true;
+		}
+		if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed() || ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed()) {
+			toggleMethod.run();
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

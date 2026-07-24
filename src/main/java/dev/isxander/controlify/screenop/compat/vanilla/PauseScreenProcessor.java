@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
@@ -16,55 +22,55 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
-    private final Supplier<@Nullable Button> disconnectButtonSupplier;
+	private final Supplier<@Nullable Button> disconnectButtonSupplier;
 
-    public PauseScreenProcessor(PauseScreen screen, Supplier<@Nullable Button> disconnectButtonSupplier) {
-        super(screen);
-        this.disconnectButtonSupplier = disconnectButtonSupplier;
-    }
+	public PauseScreenProcessor(PauseScreen screen, Supplier<@Nullable Button> disconnectButtonSupplier) {
+		super(screen);
+		this.disconnectButtonSupplier = disconnectButtonSupplier;
+	}
 
-    @Override
-    protected void handleButtons(ControllerEntity controller) {
-        super.handleButtons(controller);
+	@Override
+	protected void handleButtons(ControllerEntity controller) {
+		super.handleButtons(controller);
 
-        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-            MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, true));
-        }
-        if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
-            screen.setFocused(disconnectButtonSupplier.get());
-        }
-    }
+		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+			MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, true));
+		}
+		if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
+			screen.setFocused(disconnectButtonSupplier.get());
+		}
+	}
 
-    @Override
-    public void onWidgetRebuild() {
-        super.onWidgetRebuild();
+	@Override
+	public void onWidgetRebuild() {
+		super.onWidgetRebuild();
 
-        if (((PauseScreenAccessor) screen).getShowPauseMenu()) {
-            getWidget("menu.returnToGame").ifPresent(widget -> {
-                ButtonGuideApi.addGuideToButton(
-                        (AbstractButton) widget,
-                        ControlifyBindings.GUI_BACK,
-                        ButtonGuidePredicate.always()
-                );
-            });
-            getWidget("menu.options").ifPresent( widget -> {
-                ButtonGuideApi.addGuideToButton(
-                        (AbstractButton) widget,
-                        ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                        ButtonGuidePredicate.always()
-                );
-            });
+		if (((PauseScreenAccessor) screen).getShowPauseMenu()) {
+			getWidget("menu.returnToGame").ifPresent(widget -> {
+				ButtonGuideApi.addGuideToButton(
+						(AbstractButton) widget,
+						ControlifyBindings.GUI_BACK,
+						ButtonGuidePredicate.always()
+				);
+			});
+			getWidget("menu.options").ifPresent( widget -> {
+				ButtonGuideApi.addGuideToButton(
+						(AbstractButton) widget,
+						ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+						ButtonGuidePredicate.always()
+				);
+			});
 
-            Button disconnectButton = disconnectButtonSupplier.get();
-            if (disconnectButton != null) {
-                ButtonGuideApi.addGuideToButton(
-                        disconnectButton,
-                        () -> disconnectButton.isFocused()
-                                ? ControlifyBindings.GUI_PRESS
-                                : ControlifyBindings.GUI_ABSTRACT_ACTION_2,
-                        ButtonGuidePredicate.always()
-                );
-            }
-        }
-    }
+			Button disconnectButton = disconnectButtonSupplier.get();
+			if (disconnectButton != null) {
+				ButtonGuideApi.addGuideToButton(
+						disconnectButton,
+						() -> disconnectButton.isFocused()
+								? ControlifyBindings.GUI_PRESS
+								: ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+						ButtonGuidePredicate.always()
+				);
+			}
+		}
+	}
 }

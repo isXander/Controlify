@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.yacl.mixins;
 
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
@@ -14,11 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(YACLScreen.CategoryTab.class)
 public class YACLScreenCategoryTabMixin {
-    @Shadow @Final
-    public Button saveFinishedButton;
+	@Shadow @Final
+	public Button saveFinishedButton;
 
-    @Inject(method = "<init>", at = @At("RETURN"), require = 0)
-    private void onConstructCategory(CallbackInfo ci) {
-        ButtonGuideApi.addGuideToButton(saveFinishedButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-    }
+	@Inject(method = "<init>", at = @At("RETURN"), require = 0)
+	private void onConstructCategory(CallbackInfo ci) {
+		ButtonGuideApi.addGuideToButton(saveFinishedButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+	}
 }

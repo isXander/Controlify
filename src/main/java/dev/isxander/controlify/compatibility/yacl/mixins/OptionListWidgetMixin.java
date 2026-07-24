@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.compatibility.yacl.mixins;
 
 import dev.isxander.controlify.compatibility.yacl.screenop.OptionListWidgetComponentProcessor;
@@ -9,11 +15,11 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(OptionListWidget.class)
 public class OptionListWidgetMixin implements ComponentProcessorProvider {
-    @Unique private final OptionListWidgetComponentProcessor controlify$processor =
-            new OptionListWidgetComponentProcessor((OptionListWidget) (Object) this);
+	@Unique private final OptionListWidgetComponentProcessor controlify$processor =
+			new OptionListWidgetComponentProcessor((OptionListWidget) (Object) this);
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return this.controlify$processor;
-    }
+	@Override
+	public ComponentProcessor componentProcessor() {
+		return this.controlify$processor;
+	}
 }
