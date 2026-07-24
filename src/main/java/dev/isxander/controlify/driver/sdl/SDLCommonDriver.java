@@ -1,9 +1,5 @@
 package dev.isxander.controlify.driver.sdl;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
@@ -25,39 +21,33 @@ import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
-import dev.isxander.sdl3java.api.audio.SDL_AudioDeviceID;
-import dev.isxander.sdl3java.api.audio.SDL_AudioFormat;
-import dev.isxander.sdl3java.api.audio.SDL_AudioSpec;
-import dev.isxander.sdl3java.api.audio.SDL_AudioStream;
-import dev.isxander.sdl3java.api.joystick.SDL_JoystickConnectionState;
-import dev.isxander.sdl3java.api.joystick.SDL_JoystickGUID;
-import dev.isxander.sdl3java.api.joystick.SDL_JoystickID;
-import dev.isxander.sdl3java.api.power.SDL_PowerState;
-import dev.isxander.sdl3java.api.properties.SDL_PropertiesID;
+import dev.isxander.sdl.*;
 import net.minecraft.util.Util;
-import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.AudioFormat;
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.isxander.sdl3java.api.audio.SdlAudio.*;
-import static dev.isxander.sdl3java.api.audio.SdlAudioConsts.*;
-import static dev.isxander.sdl3java.api.error.SdlError.*;
-import static dev.isxander.sdl3java.api.gamepad.SdlGamepadPropsConst.*;
-import static dev.isxander.sdl3java.api.guid.SdlGuid.*;
-import static dev.isxander.sdl3java.api.power.SDL_PowerState.*;
-import static dev.isxander.sdl3java.api.properties.SdlProperties.*;
+import static dev.isxander.sdl.SdlAudio.*;
+import static dev.isxander.sdl.SdlGamepad.*;
+import static dev.isxander.sdl.SdlInit.*;
+import static dev.isxander.sdl.SdlProperties.*;
 
-public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
+public abstract class SDLCommonDriver<SdlController> implements Driver {
     private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
+	protected final Sdl sdl;
     private final ControlifyLogger logger;
 
-    protected SDL_Controller ptrController;
+	protected final Arena arena;
+
+    protected SdlController ptrController;
 
     protected BatteryLevelComponent batteryLevelComponent;
     protected RumbleComponent rumbleComponent;
@@ -70,22 +60,25 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     protected final boolean isDualsense;
     protected final boolean isRGBLedSupported;
     
-    protected final SDL_JoystickGUID guid;
+    protected final SdlGuid guid;
     protected final String guidString;
     protected final @Nullable String serial;
     protected final String name;
-    protected final SDL_PropertiesID props;
+    protected final SdlPropertiesId props;
     protected final short vendorId, productId;
     protected final SDLJoystickConnectionState connectionState;
 
     @Nullable
-    protected SDL_AudioDeviceID dualsenseAudioDev;
+    protected SdlAudioDeviceId dualsenseAudioDev;
     @Nullable
-    protected SDL_AudioSpec dualsenseAudioSpec;
+    protected SdlAudioSpec dualsenseAudioSpec;
     protected final List<AudioStreamHandle> dualsenseAudioHandles;
     
-    public SDLCommonDriver(SDL_Controller ptrController, SDL_JoystickID jid, ControllerType type, ControlifyLogger logger) {
-        this.ptrController = ptrController;
+    public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
+        this.sdl = sdl;
+		this.arena = Arena.ofConfined();
+
+		this.ptrController = ptrController;
         this.logger = logger;
         
         this.props = SDL_GetControllerProperties(ptrController);
@@ -93,7 +86,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         this.name = SDL_GetControllerName(ptrController);
 
         this.guid = SDL_GetControllerGUIDForID(jid);
-        this.guidString = SDL_GUIDToString(guid);
+        this.guidString = sdl.guid().SDL_GUIDToString(guid);
         logger.debugLog("SDL GUID: {}", guidString);
 
         this.serial = SDL_GetControllerSerial(ptrController);
@@ -106,9 +99,9 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         this.connectionState = SDLJoystickConnectionState.fromInt(SDL_GetControllerConnectionState(ptrController));
         logger.debugLog("SDL Connection State: {}", connectionState);
         
-        this.isRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
-        this.isTriggerRumbleSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
-        this.isRGBLedSupported = SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
+        this.isRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
+        this.isTriggerRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
+        this.isRGBLedSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
 
         DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
         logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
@@ -121,15 +114,15 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             logger.debugLog("DualSense controller detected.");
 
             // macOS HD haptics are broken
-            if (Util.getPlatform() != Util.OS.OSX && SDLNativesLoader.get().orElseThrow().hasAudio()) {
-                SDL_AudioDeviceID dualsenseAudioDev = null;
-                SDL_AudioSpec.ByReference devSpec = new SDL_AudioSpec.ByReference();
+            if (Util.getPlatform() != Util.OS.OSX && sdl.init().SDL_WasInit(SDL_INIT_AUDIO) != 0) {
+                SdlAudioDeviceId dualsenseAudioDev = null;
+				SdlAudio.SdlAudioSpecRef devSpec = new SdlAudio.SdlAudioSpecRef();
 
-                for (SDL_AudioDeviceID dev : SDL_GetAudioPlaybackDevices()) {
-                    String name = SDL_GetAudioDeviceName(dev).toLowerCase();
+                for (SdlAudioDeviceId dev : sdl.audio().SDL_GetAudioPlaybackDevices()) {
+                    String name = sdl.audio().SDL_GetAudioDeviceName(dev).toLowerCase();
                     if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
-                        SDL_GetAudioDeviceFormat(dev, devSpec, null);
-                        if (devSpec.channels == 4) {
+                        sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, null);
+                        if (devSpec.value.channels() == 4) {
                             dualsenseAudioDev = dev;
                             break;
                         }
@@ -138,8 +131,8 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
                 if (dualsenseAudioDev != null) {
                     logger.debugLog("DualSense HD Haptics audio device found.");
-                    this.dualsenseAudioSpec = devSpec;
-                    this.dualsenseAudioDev = SDL_OpenAudioDevice(dualsenseAudioDev, (SDL_AudioSpec.ByReference) this.dualsenseAudioSpec);
+                    this.dualsenseAudioSpec = devSpec.value;
+                    this.dualsenseAudioDev = sdl.audio().SDL_OpenAudioDevice(dualsenseAudioDev, this.dualsenseAudioSpec);
                 } else {
                     logger.debugLog("DualSense HD Haptics audio device not found.");
                 }
@@ -201,12 +194,14 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         ptrController = null;
         
         if (dualsenseAudioDev != null) {
-            SDL_CloseAudioDevice(dualsenseAudioDev);
+            sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
             dualsenseAudioDev = null;
             for (AudioStreamHandle handle : dualsenseAudioHandles) {
                 handle.close();
             }
         }
+
+		arena.close();
     }
     
     protected void updateRumble() {
@@ -215,7 +210,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
             stateOpt.ifPresent(state -> {
                 if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), 5000)) {
-                    CUtil.LOGGER.error("Could not rumble gamepad: {}", SDL_GetError());
+                    CUtil.LOGGER.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
                 }
             });
         }
@@ -225,21 +220,21 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
 
             stateOpt.ifPresent(state -> {
                 if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), 0)) {
-                    CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", SDL_GetError());
+                    CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
                 }
             });
         }
     }
 
     private void updateBatteryLevel() {
-        IntByReference percent = new IntByReference();
+        SdlRefs.IntRef percent = new SdlRefs.IntRef();
         int powerState = SDL_GetControllerPowerInfo(ptrController, percent);
 
         PowerState level = switch (powerState) {
             case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
-            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.getValue());
+            case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.value);
             case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
-            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.getValue());
+            case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.value);
             case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
             default -> throw new IllegalStateException("Unexpected value");
         };
@@ -258,7 +253,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             byte blue = (byte) (color & 0xFF);
 
             if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
-                logger.error("Could not set controller LED: {}", SDL_GetError());
+                logger.error("Could not set controller LED: {}", sdl.error().SDL_GetError());
             } else {
                 logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
             }
@@ -268,9 +263,9 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
     private void updateDualSense() {
         if (dualSenseComponent == null) return;
 
-        DS5EffectsState.ByValue effectsState = new DS5EffectsState.ByValue();
-
         if (this.dualSenseComponent.consumeDirty()) {
+			DS5EffectsState effectsState = new DS5EffectsState();
+
             // Left Trigger Effect
             Optional.ofNullable(this.dualSenseComponent.getLeftTriggerEffect()).ifPresent(effect -> {
                 effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
@@ -287,9 +282,11 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
             effectsState.ucMicLightMode = DS5EffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
 
-            effectsState.write();
-
-            SDL_SendControllerEffect(ptrController, effectsState.getPointer(), Native.getNativeSize(DS5EffectsState.ByValue.class));
+			try (Arena arena = Arena.ofConfined()) {
+				MemorySegment memory = arena.allocate(DS5EffectsState.LAYOUT);
+				effectsState.writeTo(memory);
+				SDL_SendControllerEffect(ptrController, memory.asByteBuffer());
+			}
         }
     }
 
@@ -310,51 +307,54 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
             return;
         }
 
-        SDL_AudioSpec spec = new SDL_AudioSpec();
-        spec.channels = sound.format().getChannels();
-        spec.freq = (int) sound.format().getSampleRate();
-
+		int format = -1;
         int ss = sound.format().getSampleSizeInBits();
         int byteSs = ss / 8;
         AudioFormat.Encoding encoding = sound.format().getEncoding();
         if (ss == 8) {
             if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                spec.format = new SDL_AudioFormat(SDL_AUDIO_S8);
+                format = SDL_AUDIO_S8;
             } else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
-                spec.format = new SDL_AudioFormat(SDL_AUDIO_U8);
+                format = SDL_AUDIO_U8;
             }
         } else if (sound.format().isBigEndian()) {
-            audioFmtEndian(spec, ss, encoding, SDL_AUDIO_S16BE, SDL_AUDIO_S32BE, SDL_AUDIO_F32BE);
+			format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16BE, SDL_AUDIO_S32BE, SDL_AUDIO_F32BE);
         } else {
-            audioFmtEndian(spec, ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
+            format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
         }
 
-        if (spec.format == null) {
+        if (format == -1) {
             throw new IllegalStateException("Unsupported format");
         }
 
+		SdlAudioSpec spec = new SdlAudioSpec(
+			(int) sound.format().getSampleRate(),
+			format,
+			sound.format().getChannels()
+		);
+
         AudioStreamHandle handle = null;
         for (AudioStreamHandle stream : dualsenseAudioHandles) {
-            SDL_AudioSpec streamSpec = stream.getSpec();
-            if (streamSpec.format.intValue() == spec.format.intValue()
-                && streamSpec.freq == spec.freq
-                && streamSpec.channels == spec.channels
+            SdlAudioSpec streamSpec = stream.getSpec();
+            if (streamSpec.format() == spec.format()
+                && streamSpec.frequency() == spec.frequency()
+                && streamSpec.channels() == spec.channels()
                 && !stream.isInUse()
             ) {
                 handle = stream;
                 break;
             }
         }
-        int length = sound.audio().length / spec.freq / spec.channels / byteSs * 20;
+        int length = sound.audio().length / spec.frequency() / spec.channels() / byteSs * 20;
 
         if (handle != null) {
             handle.queueAudio(sound.audio(), length);
         } else {
             if (dualsenseAudioHandles.size() >= 16) {
-                dualsenseAudioHandles.remove(0).close();
+                dualsenseAudioHandles.removeFirst().close();
             }
 
-            AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
+            AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(sdl, dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
             dualsenseAudioHandles.add(newHandle);
         }
     }
@@ -384,7 +384,7 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         if (identifiers == 0) {
             // if no other providers are available, use the GUID
             // the GUID is prone to changing quite a bit, so it's not a good identifier
-            bytes.add(this.guid.data.clone());
+            bytes.add(this.guid.data().clone());
         }
 
         String uid = CUtil.createUIDFromBytes(bytes.toArray(new byte[0][]));
@@ -406,58 +406,62 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         return connectionState == SDLJoystickConnectionState.WIRELESS;
     }
 
-    protected abstract SDL_PropertiesID SDL_GetControllerProperties(SDL_Controller ptrController);
-    protected abstract String SDL_GetControllerName(SDL_Controller ptrController);
-    protected abstract SDL_JoystickGUID SDL_GetControllerGUIDForID(SDL_JoystickID jid);
-    protected abstract @Nullable String SDL_GetControllerSerial(SDL_Controller ptrController);
-    protected abstract short SDL_GetControllerVendor(SDL_Controller ptrController);
-    protected abstract short SDL_GetControllerProduct(SDL_Controller ptrController);
-    @MagicConstant(valuesFromClass = SDL_JoystickConnectionState.class)
-    protected abstract int SDL_GetControllerConnectionState(SDL_Controller ptrController);
-    protected abstract boolean SDL_CloseController(SDL_Controller ptrController);
-    protected abstract boolean SDL_RumbleController(SDL_Controller ptrController, float strong, float weak, int durationMs);
-    protected abstract boolean SDL_RumbleControllerTriggers(SDL_Controller ptrController, float left, float right, int durationMs);
-    @MagicConstant(valuesFromClass = SDL_PowerState.class)
-    protected abstract int SDL_GetControllerPowerInfo(SDL_Controller ptrController, IntByReference percent);
-    protected abstract boolean SDL_SendControllerEffect(SDL_Controller ptrController, Pointer effect, int size);
-    protected abstract boolean SDL_SetControllerLED(SDL_Controller ptrController, byte red, byte green, byte blue);
+    protected abstract SdlPropertiesId SDL_GetControllerProperties(SdlController ptrController);
+    protected abstract String SDL_GetControllerName(SdlController ptrController);
+    protected abstract SdlGuid SDL_GetControllerGUIDForID(SdlJoystickId jid);
+    protected abstract @Nullable String SDL_GetControllerSerial(SdlController ptrController);
+    protected abstract short SDL_GetControllerVendor(SdlController ptrController);
+    protected abstract short SDL_GetControllerProduct(SdlController ptrController);
+    //@MagicConstant(valuesFromClass = SDL_JoystickConnectionState.class)
+    protected abstract int SDL_GetControllerConnectionState(SdlController ptrController);
+    protected abstract boolean SDL_CloseController(SdlController ptrController);
+    protected abstract boolean SDL_RumbleController(SdlController ptrController, float strong, float weak, int durationMs);
+    protected abstract boolean SDL_RumbleControllerTriggers(SdlController ptrController, float left, float right, int durationMs);
+    //@MagicConstant(valuesFromClass = SDL_PowerState.class)
+    protected abstract int SDL_GetControllerPowerInfo(SdlController ptrController, SdlRefs.IntRef percent);
+    protected abstract boolean SDL_SendControllerEffect(SdlController ptrController, ByteBuffer effect);
+    protected abstract boolean SDL_SetControllerLED(SdlController ptrController, byte red, byte green, byte blue);
 
-    private static void audioFmtEndian(SDL_AudioSpec spec, int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
+    private static int audioFmtEndian(int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
         if (ss == 16) {
             if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                spec.format = new SDL_AudioFormat(signed16);
+                return signed16;
             }
         } else if (ss == 32) {
             if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-                spec.format = new SDL_AudioFormat(signed32);
+                return signed32;
             } else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-                spec.format = new SDL_AudioFormat(float32);
+                return float32;
             }
         }
+		return -1;
     }
 
     protected static class AudioStreamHandle {
         private int streamLastPlayed;
-        private final SDL_AudioStream stream;
-        private final SDL_AudioSpec spec;
+		private final Sdl sdl;
+        private final SdlAudioStreamHandle stream;
+        private final SdlAudioSpec spec;
 
-        private AudioStreamHandle(SDL_AudioStream stream, SDL_AudioSpec spec) {
-            this.stream = stream;
+        private AudioStreamHandle(Sdl sdl, SdlAudioStreamHandle stream, SdlAudioSpec spec) {
+            this.sdl = sdl;
+			this.stream = stream;
             this.spec = spec;
             this.streamLastPlayed = 0;
         }
 
         public void queueAudio(byte[] audio, int tickLength) {
-            try (Memory memory = new Memory(audio.length)) {
-                memory.write(0, audio, 0, audio.length);
-                SDL_PutAudioStreamData(stream, memory, audio.length);
+            try (Arena arena = Arena.ofConfined()) {
+				MemorySegment memory = arena.allocateFrom(ValueLayout.JAVA_BYTE, audio);
+
+                sdl.audio().SDL_PutAudioStreamData(stream, memory.asByteBuffer());
 
                 streamLastPlayed = Math.min(0, streamLastPlayed);
                 streamLastPlayed -= tickLength;
             }
         }
 
-        public SDL_AudioSpec getSpec() {
+        public SdlAudioSpec getSpec() {
             return this.spec;
         }
 
@@ -474,24 +478,24 @@ public abstract class SDLCommonDriver<SDL_Controller> implements Driver {
         }
 
         public void close() {
-            SDL_DestroyAudioStream(stream);
+            sdl.audio().SDL_DestroyAudioStream(stream);
         }
 
-        public static AudioStreamHandle createWithAudio(SDL_AudioDeviceID device, SDL_AudioSpec audioSpec, SDL_AudioSpec devSpec, byte[] audio, int tickLength) {
-            SDL_AudioStream stream = SDL_CreateAudioStream(audioSpec, devSpec);
+        public static AudioStreamHandle createWithAudio(Sdl sdl, SdlAudioDeviceId device, SdlAudioSpec audioSpec, SdlAudioSpec devSpec, byte[] audio, int tickLength) {
+            SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(audioSpec, devSpec);
 
-            SDL_BindAudioStream(device, stream);
+            sdl.audio().SDL_BindAudioStream(device, stream);
 
-            int[] channelMap = switch (audioSpec.channels) {
+            int[] channelMap = switch (audioSpec.channels()) {
                 case 1 -> new int[]{ -1, -1, 0, 0 };
                 case 2 -> new int[]{ -1, -1, 0, 1 };
-                default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels);
+                default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels());
             };
-            if (!SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
-                System.out.println(SDL_GetError());
+            if (!sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
+                System.out.println(sdl.error().SDL_GetError());
             }
 
-            var handle = new AudioStreamHandle(stream, audioSpec);
+            var handle = new AudioStreamHandle(sdl, stream, audioSpec);
             handle.queueAudio(audio, tickLength);
             return handle;
         }

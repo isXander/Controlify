@@ -35,7 +35,6 @@ public class DebugDump {
     }
 
     private static void dumpClientDebug(IndentedStringBuilder dump) {
-        dump.line("SDL3 loaded: ", SDLNativesLoader.isLoaded());
         dump.line("Platform: ", Platform.RESOURCE_PREFIX);
         dump.line();
 
@@ -51,7 +50,7 @@ public class DebugDump {
                 dump.line("GUID: ", controller.guid());
                 dump.line("UID: ", controller.uid());
                 dump.line("UCID: ", controller.info().ucid());
-                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid.asIdentifier()));
+                controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid.hidid()));
 
                 controller.input().ifPresentOrElse(input -> {
                     dump.line("Input Component:").pushIndent();

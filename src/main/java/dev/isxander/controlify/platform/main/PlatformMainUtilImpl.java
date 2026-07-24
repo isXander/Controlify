@@ -5,12 +5,17 @@ import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
+import dev.isxander.controlify.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.platform.network.S2CNetworkApi;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import org.apache.commons.io.function.IOSupplier;
 
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -20,6 +25,8 @@ public interface PlatformMainUtilImpl {
     void registerInitPlayConnectionEvent(PlayerJoinedEvent event);
 
     boolean isModLoaded(String... modIds);
+
+	Optional<IOSupplier<InputStream>> getModFileInputStream(String modId, String path);
 
     Path getGameDir();
 
@@ -42,4 +49,8 @@ public interface PlatformMainUtilImpl {
     );
 
     <T> Supplier<T> deferredRegister(Registry<T> registry, Identifier id, Supplier<? extends T> registrant);
+
+	C2SNetworkApi c2sNetworkApi();
+
+	S2CNetworkApi s2cNetworkApi();
 }

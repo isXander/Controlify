@@ -14,7 +14,7 @@ public class FakePositionPlainTextButton extends PlainTextButton {
         super(x, y, width, height, content, empty, font);
     }
 
-    public FakePositionPlainTextButton(Component text, Font font, int x, int y, Button.OnPress onPress) {
+    public FakePositionPlainTextButton(Component text, Font font, int x, int y, OnPress onPress) {
         this(x, y, font.width(text.getVisualOrderText()), font.lineHeight, text, onPress, font);
     }
 

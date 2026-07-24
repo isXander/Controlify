@@ -1,0 +1,19 @@
+{
+  "package": "dev.isxander.controlify.neoforge.mixins",
+  "required": true,
+  "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "CreativeModeInventoryScreenAccessor",
+    "OptionsMixin"
+  ]
+}

@@ -3,24 +3,66 @@ package dev.isxander.controlify.compatibility;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
+import org.spongepowered.asm.service.IMixinService;
+import org.spongepowered.asm.service.MixinService;
 
 import java.util.List;
 import java.util.Set;
 
 public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
+    private static final Platform PLATFORM = loadPlatform();
+
     private final boolean compatEnabled;
 
     protected CompatMixinPlugin() {
-        //? if fabric {
-        this.compatEnabled = net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded(this.getFabricModId());
-        //?} elif neoforge {
-        /*//? if >=26.2 {
-        this.compatEnabled = net.neoforged.fml.loading.FMLLoader.getCurrent().getLoadingModList().getModFileById(this.getNeoforgeModId()) != null;
-        //?} else {
-        /^this.compatEnabled = net.neoforged.fml.loading.LoadingModList.get().getModFileById(this.getNeoforgeModId()) != null;
-        ^///?}
-        *///?}
+        String modId = switch (PLATFORM.loader()) {
+            case FABRIC -> this.getFabricModId();
+            case NEOFORGE -> this.getNeoforgeModId();
+        };
+        this.compatEnabled = PLATFORM.impl().isModLoaded(modId);
     }
+
+    private static Platform loadPlatform() {
+        IMixinService mixinService = MixinService.getService();
+
+        return switch (mixinService.getName()) {
+            case "Knot/Fabric" -> new Platform(
+                    Loader.FABRIC,
+                    loadPlatformImpl(
+                            mixinService,
+                            "dev.isxander.controlify.fabric.compatibility.FabricCompatMixinPlatform"
+                    )
+            );
+            case "FML" -> new Platform(
+                    Loader.NEOFORGE,
+                    loadPlatformImpl(
+                            mixinService,
+                            "dev.isxander.controlify.neoforge.compatibility.NeoforgeCompatMixinPlatform"
+                    )
+            );
+            default -> throw new IllegalStateException("Unsupported Mixin service: " + mixinService.getName());
+        };
+    }
+
+    private static CompatMixinPlatform loadPlatformImpl(IMixinService mixinService, String className) {
+        try {
+            // This must remain a dedicated mixin-time class, not one also used by the game.
+            return mixinService.getClassProvider()
+                    .findClass(className)
+                    .asSubclass(CompatMixinPlatform.class)
+                    .getConstructor()
+                    .newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Failed to load Mixin compatibility platform: " + className, e);
+        }
+    }
+
+    private enum Loader {
+        FABRIC,
+        NEOFORGE
+    }
+
+    private record Platform(Loader loader, CompatMixinPlatform impl) {}
 
     protected abstract String getModId();
 

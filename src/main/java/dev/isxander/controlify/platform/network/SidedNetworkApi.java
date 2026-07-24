@@ -1,22 +1,17 @@
 package dev.isxander.controlify.platform.network;
 
+import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
 public interface SidedNetworkApi {
-    static C2SNetworkApi C2S() {
-        //? if fabric
-        return dev.isxander.controlify.platform.network.fabric.C2SNetworkApiFabric.INSTANCE;
-        //? if neoforge
-        //return dev.isxander.controlify.platform.network.neoforge.C2SNetworkApiNeoforge.INSTANCE;
+	static C2SNetworkApi C2S() {
+        return PlatformMainUtil.c2sNetworkApi();
     }
 
     static S2CNetworkApi S2C() {
-        //? if fabric
-        return dev.isxander.controlify.platform.network.fabric.S2CNetworkApiFabric.INSTANCE;
-        //? if neoforge
-        //return dev.isxander.controlify.platform.network.neoforge.S2CNetworkApiNeoforge.INSTANCE;
+        return PlatformMainUtil.s2CNetworkApi();
     }
 
     <T> void registerPacket(Identifier channel, StreamCodec<FriendlyByteBuf, T> handler);

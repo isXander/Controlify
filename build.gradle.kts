@@ -1,305 +1,308 @@
-import dev.isxander.controlify.*
-
 plugins {
-    id("dev.kikugie.stonecutter")
-    id("dev.isxander.controlify.project")
+    id("controlify-common")
 
-    id("me.modmuss50.mod-publish-plugin")
-    `maven-publish`
-
-    id("dev.kikugie.postprocess.j52j") version "2.1-beta.3"
+    alias(libs.plugins.fabric.loom) apply false
+    alias(libs.plugins.neoforged.gradle.userdev) apply false
+    alias(libs.plugins.modstitch.multiloader)
+    alias(libs.plugins.modstitch.manifests)
+    alias(libs.plugins.mod.publish.plugin)
 }
 
-val loader = when {
-    modstitch.isLoom -> "fabric"
-    modstitch.isModDevGradle -> "neoforge"
-    else -> error("Unknown loader")
-}
+val modVersion = providers.gradleProperty("mod.version").get()
+val minecraftVersion = property("dep.minecraft")!!.toString()
+version = "$modVersion+mc$minecraftVersion"
 
-modstitch {
-    metadata {
-        modId = "controlify"
-        modName = "Controlify"
-    }
+base.archivesName = "controlify"
 
-    mixin {
-        addMixinsToModManifest = true
-
-        configs.register("controlify")
-        if (isPropDefined("deps.iris")) configs.register("controlify-compat.iris")
-        if (isPropDefined("deps.sodium")) configs.register("controlify-compat.sodium")
-        if (isPropDefined("deps.reesesSodiumOptions")) configs.register("controlify-compat.reeses-sodium-options")
-        configs.register("controlify-compat.yacl")
-        if (isPropDefined("deps.simpleVoiceChat")) configs.register("controlify-compat.simple-voice-chat")
-        configs.register("controlify-compat.rrls")
-        if (modstitch.isLoom) configs.register("controlify-platform.fabric")
-        if (modstitch.isModDevGradleRegular) configs.register("controlify-platform.neoforge")
-    }
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 dependencies {
-    fun Dependency?.jij() = this?.also(::modstitchJiJ)
-    fun Dependency?.productionMod() = this?.also { "productionMods"(it) }
+    minecraft("com.mojang:minecraft:$minecraftVersion")
+    fabricLoader(libs.fabric.loader)
+    neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
 
-    fun modDependency(
-        id: String,
-        artifactGetter: (String) -> String,
-        api: Boolean = false,
-        supportsRuntime: Boolean = true,
-        extra: (Boolean) -> Unit = {}
-    ) {
-        propMap("deps.$id") { modVersion ->
-            val noRuntime = propMap("deps.$id.noRuntime") { it.toBoolean() } == true
-            require(noRuntime || supportsRuntime) { "No runtime is not supported for $id" }
+    implementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
+	fabricImplementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
+	fabricImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-networking-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-command-api-v2")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-lifecycle-events-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-screen-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-rendering-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-creative-tab-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-key-mapping-api-v1")
+	// this needs to be on main because fabric is shared with main jar
+	implementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1")
+    fabricRuntimeOnly("net.fabricmc.fabric-api:fabric-api")
 
-            val configuration = if (api) {
-                if (noRuntime) "modstitchModCompileOnlyApi" else "modstitchModApi"
-            } else {
-                if (noRuntime) "modstitchModCompileOnly" else "modstitchModImplementation"
-            }
+    commonApi(libs.sdl.java.api)
+    commonInclude(libs.sdl.java.api)
+    commonApi(libs.sdl.java.backend.ffm)
+    commonInclude(libs.sdl.java.backend.ffm)
 
-            artifactGetter(modVersion).let {
-                configuration(it)
-                if (!noRuntime) "productionMods"(it)
-            }
+    commonApi(libs.steamdeck4j)
+    commonInclude(libs.steamdeck4j)
 
-            extra(!noRuntime)
-        }
+    commonApi(libs.quilt.parsers.json)
+
+    compileOnlyApi("dev.isxander:yet-another-config-lib:${property("dep.yacl")}") {
+		exclude(group = "net.fabricmc.fabric-api")
+	}
+    fabricApi("dev.isxander:yet-another-config-lib:${property("dep.yacl")}")
+    neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
+
+	ifPresent("dep.mod-menu") {
+		fabricImplementation("com.terraformersmc:modmenu:$it")
+	}
+
+    ifPresent("dep.sodium") {
+        compileOnly("net.caffeinemc:sodium-fabric:$it") {
+			exclude(group = "net.fabricmc.fabric-api")
+		}
+        fabricImplementation("net.caffeinemc:sodium-fabric:$it")
+        neoforgeImplementation("net.caffeinemc:sodium-neoforge:$it")
+        neoforgeImplementation("net.caffeinemc:sodium-neoforge-mod:$it")
     }
 
-    if (modstitch.isLoom) {
-        modDependency("fabricApi", { "net.fabricmc.fabric-api:fabric-api:$it" }, api = true)
-
-        // mod menu compat
-        modDependency("modMenu", { "com.terraformersmc:modmenu:$it" })
+    ifPresent("dep.iris") {
+        compileOnly("maven.modrinth:iris:$it")
+        fabricImplementation("maven.modrinth:iris:$it")
+    }
+    ifPresent("dep.iris-neoforge") {
+        neoforgeImplementation("maven.modrinth:iris:$it")
     }
 
-    modstitchModApi("dev.isxander:yet-another-config-lib:${property("deps.yacl")}") {
-        exclude(group = "thedarkcolour")
-    }.productionMod().jij()
-
-    // bindings for SDL3
-    modstitchApi("dev.isxander:libsdl4j:${property("deps.sdl3Target")}-${property("deps.sdl34jBuild")}")
-        .jij()
-
-    // steam deck bindings
-    modstitchApi("dev.isxander:steamdeck4j:${property("deps.steamdeck4j")}")
-        .jij()
-
-    // used to identify controller PID/VID when SDL is not available
-    modstitchApi("org.hid4java:hid4java:${property("deps.hid4java")}")
-        .jij()
-
-    // Already included by YetAnotherConfigLib, but we need it too, so let's define explicit dep
-    api("org.quiltmc.parsers:json:${property("deps.quiltparsers")}")
-
-    if (stonecutter.current.parsed < "1.21.11") {
-        compileOnly("org.jspecify:jspecify:1.0.0")
+    ifPresent("dep.rso") {
+        compileOnly("maven.modrinth:reeses-sodium-options:$it")
+        fabricImplementation("maven.modrinth:reeses-sodium-options:$it")
+    }
+    ifPresent("dep.rso-neoforge") {
+        neoforgeImplementation("maven.modrinth:reeses-sodium-options:$it")
     }
 
-    // sodium compat
-    when {
-        modstitch.isLoom -> {
-            modDependency("sodium", { "net.caffeinemc:sodium-fabric:$it" })
-        }
-        modstitch.isModDevGradle -> {
-            modDependency("sodium", { "net.caffeinemc:sodium-neoforge:$it" })
-            modDependency("sodium", { "net.caffeinemc:sodium-neoforge-mod:$it" })
-        }
+    ifPresent("dep.svc") {
+        compileOnly("maven.modrinth:simple-voice-chat:$it")
+        fabricImplementation("maven.modrinth:simple-voice-chat:$it")
+    }
+    ifPresent("dep.svc-neoforge") {
+        neoforgeImplementation("maven.modrinth:simple-voice-chat:$it")
     }
 
-    // RSO compat
-    modDependency("reesesSodiumOptions", { "maven.modrinth:reeses-sodium-options:$it" })
-    // iris compat
-    modDependency("iris", { "maven.modrinth:iris:$it" }) { runtime ->
-        if (runtime) {
-            modstitchModLocalRuntime("org.anarres:jcpp:1.4.14")
-            modstitchModLocalRuntime("io.github.douira:glsl-transformer:2.0.0-pre13")
-        }
+    ifPresent("dep.fancy-menu") {
+        compileOnly("maven.modrinth:fancymenu:$it")
+        fabricCompileOnly("maven.modrinth:fancymenu:$it")
     }
-    // immediately-fast compat
-    modDependency("immediatelyFast", { "maven.modrinth:immediatelyfast:$it" }) { runtime ->
-        if (runtime) {
-            modstitchModLocalRuntime("net.lenni0451:Reflect:1.1.0")
-        }
-    }
-    // simple-voice-chat compat
-    modDependency("simpleVoiceChat", { "maven.modrinth:simple-voice-chat:$it" })
-    // fancy menu compat
-    modDependency("fancyMenu", { "maven.modrinth:fancymenu:$it" }, supportsRuntime = false)
-}
-
-j52j {
-    prettyPrint = true
-}
-
-/*
-START
-Include native libraries for SDL3 in the jar.
- */
-data class NativeTarget(
-    val classifier: String,
-    val fileExtension: String,
-    val jnaPrefix: String,
-    val fileName: String,
-    val configurationName: String,
-)
-
-val nativeTargets = listOf(
-    NativeTarget(classifier = "linux-aarch64", fileExtension = "so", jnaPrefix = "linux-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxAarch64"),
-    NativeTarget(classifier = "linux-x86_64", fileExtension = "so", jnaPrefix = "linux-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxX86_64"),
-    NativeTarget(classifier = "macos-aarch64", fileExtension = "dylib", jnaPrefix = "darwin-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeMacArm"),
-    NativeTarget(classifier = "macos-x86_64", fileExtension = "dylib", jnaPrefix = "darwin-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeMacIntel"),
-    NativeTarget(classifier = "windows-x86_64", fileExtension = "dll", jnaPrefix = "win32-x86-64/", fileName = "SDL3", configurationName = "offlineNativeWinX86_64"),
-)
-
-// Create configurations
-val nativeConfigurations = nativeTargets.associate { target ->
-    target.configurationName to configurations.create(target.configurationName)
-}
-val nativeHashConfiguration: Configuration = configurations.create("nativeHashes")
-
-nativeTargets.forEach { target ->
-    dependencies {
-        nativeConfigurations[target.configurationName]!!("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}")
-        nativeHashConfiguration("dev.isxander:libsdl4j-natives:${property("deps.sdl3Target")}:${target.classifier}@${target.fileExtension}.md5")
+    ifPresent("dep.fancy-menu-neoforge") {
+        neoforgeCompileOnly("maven.modrinth:fancymenu:$it")
     }
 }
 
-val prepareNatives = tasks.register<Sync>("prepareNativeResources") {
-    group = "controlify/internal"
+/// Stonecutter
+stonecutter {
+    constants {
+        put("iris", hasProperty("dep.iris"))
+        put("mod_menu", hasProperty("dep.mod-menu"))
+        put("sodium", hasProperty("dep.sodium"))
+        put("simple_voice_chat", hasProperty("dep.svc"))
+        put("reeses_sodium_options", hasProperty("dep.rso"))
+        put("fancy_menu", hasProperty("dep.fancy-menu"))
+    }
+}
 
-    into(layout.buildDirectory.dir("generated-resources/sdl-natives"))
+/// Run configurations
+
+runs.register("neoforgeClient") {
+	runType("client")
+}
+
+/// Metadata file generation
+
+val minecraftRange = property("meta.minecraft-range")!!.toString()
+val supportedMinecraftVersions = manifests.minecraftReleasesMatching(minecraftRange)
+
+val commonManifest = manifests.manifest {
+    modId = providers.gradleProperty("mod.id")
+    version = project.version.toString()
+    displayName = providers.gradleProperty("mod.name")
+    description = providers.gradleProperty("mod.description")
+    authors.add("isXander")
+    iconPath = "icon.png"
+    licenses.add("LGPL-3.0")
+    issueTrackerUrl = providers.gradleProperty("mod.issuesUrl")
+    sourcesUrl = providers.gradleProperty("mod.sourcesUrl")
+    homepage = sourcesUrl
+
+    mixin("controlify.mixins.json")
+    mixin("controlify-compat.yacl.mixins.json")
+    ifPresent("deps.iris") { mixin("controlify-compat.iris.mixins.json") }
+    ifPresent("deps.sodium") { mixin("controlify-compat.sodium.mixins.json") }
+    ifPresent("deps.reeses-sodium-options") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
+    ifPresent("deps.svc") { mixin("controlify-compat.svc.mixins.json") }
+    mixin("controlify-compat.rrls.mixins.json")
+
+    dependency("minecraft", REQUIRED, minecraftRange)
+    dependency("yet_another_config_lib_v3", REQUIRED, "*")
+}
+manifests {
+    val rrlsData = mapOf<String, Any>("rrls" to mapOf(
+        "force_load" to listOf(
+            "controlify:default_config",
+            "controlify:controller_type",
+            "controlify:default_binds",
+        )
+    ))
+
+    fabricModJson(sourceSets.fabric.get()) {
+        from(commonManifest)
+
+        entrypoint("modmenu", "dev.isxander.controlify.fabric.compatibility.ModMenuIntegration")
+        entrypoint("main", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        entrypoint("client", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        entrypoint("server", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        dependency("fabricloader", REQUIRED, "[0.19,)")
+
+        mixin("controlify-platform.fabric.mixins.json")
+
+        customData.putAll(rrlsData)
+    }
+
+    neoForgeModsToml(sourceSets.neoforge.get()) {
+        from(commonManifest)
+
+        mixin("controlify-platform.neoforge.mixins.json")
+
+        modProperties.putAll(rrlsData)
+    }
+}
+
+tasks.withType<Jar>().configureEach {
+    from(rootProject.file("LICENSE")) {
+        into("META-INF")
+    }
+}
+
+// the neoforge main compile check reveals javac inconsistencies with
+// incremental compilation and anonymous class constructor parameter LVT
+tasks.withType<JavaCompile>().configureEach {
+	options.compilerArgs.add("-parameters")
+}
+
+/// Natives in the jar
+
+val includeNatives = sc.current.parsed < "26.3"
+
+stonecutter.constants.put("natives_in_jar", includeNatives)
+
+if (includeNatives) {
+    data class NativeTarget(
+        val classifier: String,
+        val ext: String,
+        val jarDir: String,
+        val fileName: String,
+        val configurationName: String,
+    )
+
+    val nativeTargets = listOf(
+        NativeTarget(classifier = "linux-aarch64", ext = "so", jarDir = "linux-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxAarch64"),
+        NativeTarget(classifier = "linux-x86_64", ext = "so", jarDir = "linux-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeLinuxX86_64"),
+        NativeTarget(classifier = "macos-aarch64", ext = "dylib", jarDir = "darwin-aarch64/", fileName = "libSDL3", configurationName = "offlineNativeMacAarch64"),
+        NativeTarget(classifier = "macos-x86_64", ext = "dylib", jarDir = "darwin-x86-64/", fileName = "libSDL3", configurationName = "offlineNativeMacX86_64"),
+        NativeTarget(classifier = "windows-x86_64", ext = "dll", jarDir = "win32-x86-64/", fileName = "SDL3", configurationName = "offlineNativeWinX86_64"),
+        NativeTarget(classifier = "windows-aarch64", ext = "dll", jarDir = "win32-aarch64/", fileName = "SDL3", configurationName = "offlineNativeWinAarch64"),
+    )
+
+    val nativeConfigurations = nativeTargets.associate { target ->
+        target.configurationName to configurations.create(target.configurationName)
+    }
 
     nativeTargets.forEach { target ->
-        from(configurations.named(target.configurationName)) {
-            into(target.jnaPrefix)
-            rename { "${target.fileName}.${target.fileExtension}" }
+        dependencies {
+            val sdlVersion = libs.versions.sdl.natives.get()
+            val configuration = nativeConfigurations[target.configurationName]!!
+            configuration("dev.isxander.sdl:sdl-natives:${sdlVersion}:${target.classifier}@${target.ext}")
+            configuration("dev.isxander.sdl:sdl-natives:${sdlVersion}:${target.classifier}@${target.ext}.md5")
         }
     }
-    from(configurations.named("nativeHashes")) {
-        into("sdl3-hashes/")
+
+    val prepareNatives = tasks.register<Sync>("prepareNativeResources") {
+        group = "controlify/internal"
+
+        into(layout.buildDirectory.dir("generated-resources/sdl-natives"))
+
+        nativeTargets.forEach { target ->
+            from(configurations.named(target.configurationName)) {
+                into(target.jarDir)
+                rename { fileName ->
+                    "${target.fileName}.${target.ext}${if (fileName.endsWith(".md5")) ".md5" else ""}"
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        main {
+            resources.srcDir(prepareNatives.map { it.destinationDir })
+        }
+    }
+
+    tasks.processResources {
+        dependsOn(prepareNatives)
     }
 }
 
-sourceSets {
-    main {
-        resources.srcDir(prepareNatives.map { it.destinationDir })
-    }
-}
-
-tasks.processResources {
-    dependsOn(prepareNatives)
-}
-/*
-END
-Include native libraries for SDL3 in the jar.
- */
-
-
-val releaseModVersion by tasks.registering {
-    group = "controlify/versioned"
-    dependsOn("publishMods")
-}
-createActiveTask(releaseModVersion)
-
-if (project.isPublishingEnabled) {
-    rootProject.tasks.named("releaseModVersions") {
-        dependsOn(releaseModVersion)
-    }
-}
-
-val finalJarTasks = listOf(
-    modstitch.finalJarTask,
-)
-
-val buildAndCollect by tasks.registering(Copy::class) {
-    group = "controlify/versioned"
-
-    finalJarTasks.forEach { jar ->
-        dependsOn(jar)
-        from(jar.flatMap { it.archiveFile })
-    }
-
-    into(rootProject.layout.buildDirectory.dir("finalJars"))
-}
-
-createActiveTask(buildAndCollect)
+/// Publishing
 
 publishMods {
     from(rootProject.publishMods)
-    dryRun = rootProject.publishMods.dryRun
 
-    file = modstitch.finalJarTask.flatMap { it.archiveFile }
-
-    displayName = "$modVersion for $loader $mcVersion"
-    modLoaders.add(loader)
-
-    fun versionList(prop: String) = findProperty(prop)?.toString()
-        ?.split(',')
-        ?.map { it.trim() }
-        ?: emptyList()
-
-    // modrinth and curseforge use different formats for snapshots. this can be expressed globally
-    val stableMCVersions = versionList("pub.stableMC")
+    file = tasks.universalJar.flatMap { it.archiveFile }
+    version = "$modVersion+mc$minecraftVersion"
+    displayName = commonManifest.displayName
+    modLoaders.addAll("fabric", "neoforge")
 
     modrinth {
-        accessToken = secrets.gradleProperty("modrinth.accessToken")
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        projectId = providers.gradleProperty("modrinth.id")
+        environment = CLIENT_ONLY_SERVER_OPTIONAL
+        announcementTitle = "Modrinth ($minecraftVersion)"
+        minecraftVersions.addAll(minecraftVersions)
 
-        projectId = providers.gradleProperty("pub.modrinthId")
-
-        minecraftVersions.addAll(stableMCVersions)
-        minecraftVersions.addAll(versionList("pub.modrinthMC"))
-
-        announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from Modrinth"
-
-        requires { slug.set("yacl") }
-
-        if (modstitch.isLoom) {
-            requires { slug.set("fabric-api") }
-            optional { slug.set("modmenu") }
-        }
+        requires("fabric-api")
+        requires("yacl")
+        optional("modmenu")
     }
 
     curseforge {
-        accessToken = secrets.gradleProperty("curseforge.accessToken")
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        projectId = providers.gradleProperty("curseforge.id")
+        projectSlug = providers.gradleProperty("curseforge.slug")
+        client = true
+        server = true
+        announcementTitle = "Curseforge ($minecraftVersion)"
+        minecraftVersions.addAll(minecraftVersions)
 
-        projectId = providers.gradleProperty("pub.curseforgeId")
-        projectSlug = providers.gradleProperty("pub.curseforgeSlug")
-
-        minecraftVersions.addAll(stableMCVersions)
-        minecraftVersions.addAll(versionList("pub.curseMC"))
-
-        announcementTitle = "Download $mcVersion for ${loader.replaceFirstChar { it.uppercase() }} from CurseForge"
-
-        requires { slug.set("yacl") }
-
-        if (modstitch.isLoom) {
-            requires { slug.set("fabric-api") }
-            optional { slug.set("modmenu") }
-        }
+        requires("fabric-api")
+        requires("yacl")
+        optional("modmenu")
     }
 }
+
 publishing {
     publications {
-        create<MavenPublication>("mod") {
+        register<MavenPublication>("mavenJava") {
             from(components["java"])
-
-            artifactId = "controlify"
-            groupId = "dev.isxander"
-        }
-    }
-
-    repositories {
-        maven("https://maven.isxander.dev/releases") {
-            name = "XanderMaven"
-            credentials {
-                username = secrets.gradleProperty("maven.username").orNull
-                password = secrets.gradleProperty("maven.password").orNull
-            }
+            artifact(tasks.universalJar)
+            artifact(tasks.universalSourcesJar)
         }
     }
 }
-signing {
-    sign(publishing.publications["mod"])
+
+/// Utilities
+
+fun <T> ifPresent(property: String, block: (String) -> T): T? {
+    return if (hasProperty(property)) {
+        block(property(property).toString())
+    } else {
+        null
+    }
 }

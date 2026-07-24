@@ -1,6 +1,7 @@
 package dev.isxander.controlify.utils.render;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -18,10 +19,7 @@ public record BaseRenderState(
         @Nullable ScreenRectangle scissorArea
 ) {
     public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture, int x0, int y0, int x1, int y1) {
-        //? if fabric
-        @Nullable ScreenRectangle scissorArea = graphics.scissorStack.peek();
-        //? if neoforge
-        //@Nullable ScreenRectangle scissorArea = graphics.peekScissorStack();
+        @Nullable ScreenRectangle scissorArea = PlatformClientUtil.peekScissorStack(graphics);
 
         ScreenRectangle bounds = boundsFromMaxPoints(x0, y0, x1, y1, graphics.pose(), scissorArea);
 
@@ -34,10 +32,7 @@ public record BaseRenderState(
     }
 
     public static BaseRenderState create(GuiGraphicsExtractor graphics, @Nullable Identifier texture) {
-        //? if fabric
-        @Nullable ScreenRectangle scissorArea = graphics.scissorStack.peek();
-        //? if neoforge
-        //@Nullable ScreenRectangle scissorArea = graphics.peekScissorStack();
+		@Nullable ScreenRectangle scissorArea = PlatformClientUtil.peekScissorStack(graphics);
 
         return new BaseRenderState(
                 texture != null ? RenderPipelines.GUI_TEXTURED : RenderPipelines.GUI,

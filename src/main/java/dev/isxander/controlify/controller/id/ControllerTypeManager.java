@@ -8,7 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDInfo;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
@@ -114,14 +114,14 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 
         HIDDevice hid = hidOpt.get();
 
-        ControllerType newType = this.getControllerType(hid.asIdentifier());
+        ControllerType newType = this.getControllerType(hid.hidid());
         ControllerType oldType = controller.info().type();
 
         // re-initialise the controller if its type has changed
         if (!newType.equals(oldType)) {
             controllerManager.reinitController(
                     controller,
-                    new ControllerHIDService.ControllerHIDInfo(
+                    new ControllerHIDInfo(
                             newType,
                             controller.info().hid()
                     )

@@ -1,0 +1,33 @@
+[versions]
+fabric_loader = "0.19.3"
+sdl_natives = "release-3.4.12"
+sdl_java = "release-3.4.12-4"
+steamdeck4j = "1.1.7"
+quilt_parsers = "0.3.0"
+
+modstitch_manifests = "0.1.5"
+modstitch_multiloader = "0.1.8"
+modstitch_modrepos = "0.1.2"
+fabric_loom = "1.17.16"
+neoforged_gradle = "7.1.38"
+spotless = "8.6.0"
+undercouch_download = "5.6.0"
+wiki_toolkit = "0.4.1"
+mod_publish_plugin = "2.1.1"
+
+[libraries]
+fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
+sdl_java_api = { module = "dev.isxander.sdl:sdl-api", version.ref = "sdl_java" }
+sdl_java_backend_ffm = { module = "dev.isxander.sdl:sdl-backend-ffm", version.ref = "sdl_java" }
+steamdeck4j = { module = "dev.isxander:steamdeck4j", version.ref = "steamdeck4j" }
+quilt_parsers_json = { module = "org.quiltmc.parsers:json", version.ref = "quilt_parsers" }
+
+[plugins]
+modstitch_manifests = { id = "dev.isxander.mtk.manifests", version.ref = "modstitch_manifests" }
+modstitch_multiloader = { id = "dev.isxander.mtk.multiloader", version.ref = "modstitch_multiloader" }
+fabric_loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric_loom" }
+neoforged_gradle_userdev = { id = "net.neoforged.gradle.userdev", version.ref = "neoforged_gradle" }
+undercouch_download = { id = "de.undercouch.download", version.ref = "undercouch_download" }
+wiki_toolkit = { id = "org.moddedmc.wiki.toolkit", version.ref = "wiki_toolkit" }
+mod_publish_plugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod_publish_plugin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

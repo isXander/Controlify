@@ -6,11 +6,7 @@ public interface EventHandler<T> {
     void invoke(T event);
 
     static <T> EventHandler<T> createPlatformBackedEvent() {
-        //? if fabric {
-        return new dev.isxander.controlify.platform.fabric.FabricBackedEventHandler<>();
-        //?} else {
-        /*return new ArrayBackedEventHandler<>();
-        *///?}
+        return new ArrayBackedEventHandler<>();
     }
 
     @FunctionalInterface

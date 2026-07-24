@@ -5,22 +5,23 @@ import dev.isxander.controlify.platform.Environment;
 import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
 import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
+import dev.isxander.controlify.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.platform.network.S2CNetworkApi;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import org.apache.commons.io.function.IOSupplier;
 
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class PlatformMainUtil {
 
-    private static final PlatformMainUtilImpl IMPL =
-            //? if fabric
-            new dev.isxander.controlify.platform.main.fabric.FabricPlatformMainImpl();
-            //? if neoforge
-            //new dev.isxander.controlify.platform.main.neoforge.NeoforgePlatformMainImpl();
+    public static PlatformMainUtilImpl IMPL = null;
 
     public static void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback) {
         IMPL.registerCommandRegistrationCallback(callback);
@@ -33,6 +34,10 @@ public final class PlatformMainUtil {
     public static boolean isModLoaded(String... modIds) {
         return IMPL.isModLoaded(modIds);
     }
+
+	public static Optional<IOSupplier<InputStream>> getModFileInputStream(String modId, String path) {
+		return IMPL.getModFileInputStream(modId, path);
+	}
 
     public static void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
         IMPL.applyToControlifyEntrypoint(entrypointConsumer);
@@ -71,4 +76,12 @@ public final class PlatformMainUtil {
     public static String getControlifyVersion() {
         return IMPL.getControlifyVersion();
     }
+
+	public static C2SNetworkApi c2sNetworkApi() {
+		return IMPL.c2sNetworkApi();
+	}
+
+	public static S2CNetworkApi s2CNetworkApi() {
+		return IMPL.s2cNetworkApi();
+	}
 }

@@ -1,5 +1,6 @@
 run
 runserver
+runs
 build
 /.idea
 .gradle

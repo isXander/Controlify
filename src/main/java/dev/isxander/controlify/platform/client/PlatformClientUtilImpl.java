@@ -3,11 +3,15 @@ package dev.isxander.controlify.platform.client;
 import dev.isxander.controlify.platform.client.events.*;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Function;
@@ -39,4 +43,8 @@ public interface PlatformClientUtilImpl {
     );
 
     CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen);
+
+	@Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics);
+
+	void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement);
 }

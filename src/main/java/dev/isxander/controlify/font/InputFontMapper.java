@@ -50,7 +50,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
     private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controllers/font_mappings");
 
     @Override
-    public CompletableFuture<InputFontMapper.Preparations> load(ResourceManager manager, Executor executor) {
+    public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             Map<Identifier, Resource> mappingResources = fileToIdConverter.listMatchingResources(manager);
             Map<Identifier, FontMap> mappings = mappingResources.entrySet().stream().flatMap(entry -> {

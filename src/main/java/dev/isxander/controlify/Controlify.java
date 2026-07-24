@@ -21,7 +21,6 @@ import dev.isxander.controlify.controller.input.ControllerStateView;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.controllermanager.GLFWControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
@@ -39,7 +38,6 @@ import dev.isxander.controlify.rumble.RumbleManager;
 import dev.isxander.controlify.screenop.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.server.*;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.hid.ControllerHIDService;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.ingame.InGameInputHandler;
@@ -49,6 +47,7 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
+import dev.isxander.sdl.Sdl;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -88,8 +87,6 @@ public class Controlify implements ControlifyApi {
     private KeyboardLayoutManager keyboardLayoutManager;
 
     private Set<BindContext> thisTickContexts;
-
-    private ControllerHIDService controllerHIDService;
 
     private ConfigManager config;
 
@@ -135,9 +132,6 @@ public class Controlify implements ControlifyApi {
         PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
         PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
-
-        controllerHIDService = new ControllerHIDService();
-        controllerHIDService.start();
 
         registerBuiltinPack("legacy_console");
 
@@ -249,9 +243,9 @@ public class Controlify implements ControlifyApi {
                     ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
                 }));
 
-        boolean loadedSDL = SDLNativesLoader.tryLoad();
         try {
-            controllerManager = loadedSDL ? new SDLControllerManager(CUtil.LOGGER) : new GLFWControllerManager(CUtil.LOGGER);
+			Sdl sdl = SDLNativesLoader.load();
+            controllerManager = new SDLControllerManager(sdl, CUtil.LOGGER);
         } catch (Throwable throwable) {
             CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
             return;
@@ -271,9 +265,6 @@ public class Controlify implements ControlifyApi {
         if (DebugProperties.INIT_DUMP) {
             CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
         }
-
-        // register events
-        PlatformClientUtil.registerClientStopping(client -> this.controllerHIDService().stop());
 
         if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
             doSteamDeckChecks();
@@ -655,10 +646,6 @@ public class Controlify implements ControlifyApi {
 
     public VirtualMouseHandler virtualMouseHandler() {
         return virtualMouseHandler;
-    }
-
-    public ControllerHIDService controllerHIDService() {
-        return controllerHIDService;
     }
 
     public @NotNull InputMode currentInputMode() {

@@ -1,5 +1,6 @@
 package dev.isxander.controlify.utils.render;
 
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -33,10 +34,7 @@ public interface CGuiElementRenderState extends GuiElementRenderState {
     }
 
     default void submit(GuiGraphicsExtractor graphics) {
-        //? if fabric
-        graphics.guiRenderState.addGuiElement(this);
-        //? if neoforge
-        //graphics.submitGuiElementRenderState(this);
+		PlatformClientUtil.submitGuiElement(graphics, this);
     }
 }
 

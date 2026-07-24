@@ -51,7 +51,7 @@ public class StringControllerElementComponentProcessor implements ComponentProce
 
         @Override
         public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-            return element.keyPressed(new net.minecraft.client.input.KeyEvent(keycode, scancode, modifiers));
+            return element.keyPressed(new KeyEvent(keycode, scancode, modifiers));
         }
 
         @Override

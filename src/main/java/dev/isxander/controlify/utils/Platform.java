@@ -8,6 +8,15 @@ public enum Platform {
     ANDROID,
     IOS;
 
+	public enum Architecture {
+		X64,
+		X86,
+		ARM64,
+		ARM32,
+		RISCV64,
+		OTHER
+	}
+
     private static final Platform currentPlatform;
     static {
         String osName = System.getProperty("os.name");

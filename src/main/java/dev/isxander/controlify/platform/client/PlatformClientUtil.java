@@ -6,21 +6,21 @@ import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
 import dev.isxander.controlify.platform.client.events.TickEvent;
 import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.function.Function;
 
 public final class PlatformClientUtil {
-    private static final PlatformClientUtilImpl IMPL =
-            //? if fabric
-            new dev.isxander.controlify.platform.client.fabric.FabricPlatformClientImpl();
-            //? if neoforge
-            //new dev.isxander.controlify.platform.client.neoforge.NeoforgePlatformClientImpl();
+    public static PlatformClientUtilImpl IMPL = null;
 
     public static void registerClientTickStarted(TickEvent event) {
         IMPL.registerClientTickStarted(event);
@@ -70,6 +70,14 @@ public final class PlatformClientUtil {
     public static CreativeTabHelper createCreativeTabHelper(CreativeModeInventoryScreen creativeScreen) {
         return IMPL.createCreativeTabHelper(creativeScreen);
     }
+
+	public static @Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics) {
+		return IMPL.peekScissorStack(graphics);
+	}
+
+	public static void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement) {
+		IMPL.submitGuiElement(graphics, guiElement);
+	}
 
     private PlatformClientUtil() {
     }

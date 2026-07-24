@@ -1,23 +1,18 @@
 import de.undercouch.gradle.tasks.download.Download
+import org.gradle.kotlin.dsl.register
 
 plugins {
-    id("me.modmuss50.mod-publish-plugin")
     id("dev.kikugie.stonecutter")
-    id("de.undercouch.download") version "5.6.0"
-    id("org.moddedmc.wiki.toolkit") version "0.2.5"
-    id("dev.isxander.secrets")
-
-    id("dev.isxander.modstitch.base") apply false
+    alias(libs.plugins.undercouch.download)
+    alias(libs.plugins.wiki.toolkit)
+    alias(libs.plugins.mod.publish.plugin)
+	alias(libs.plugins.spotless)
 }
 
 stonecutter active file("versions/current")
 
-repositories {
-    mavenCentral()
-}
-
 // download the most up to date controller database for SDL2
-val downloadHidDb by tasks.registering(Download::class) {
+val downloadHidDb = tasks.register<Download>("downloadHidDb") {
     finalizedBy("convertHidDBToSDL3")
 
     group = "controlify"
@@ -27,7 +22,7 @@ val downloadHidDb by tasks.registering(Download::class) {
 }
 
 // SDL3 renamed `Mac OS X` -> `macOS` and this change carried over to mappings
-val convertHidDBToSDL3 by tasks.registering(Copy::class) {
+val convertHidDBToSDL3 = tasks.register<Copy>("convertHidDBToSDL3") {
     mustRunAfter(downloadHidDb)
     dependsOn(downloadHidDb)
 
@@ -41,39 +36,58 @@ val convertHidDBToSDL3 by tasks.registering(Copy::class) {
     filter { it.replace("Mac OS X", "macOS") }
 }
 
-tasks.register("clean") {
-    group = "build"
-    delete(layout.buildDirectory.dir("finalJars"))
-}
-
-val modVersion: String by project
-version = modVersion
+val modVersion = providers.gradleProperty("mod.version")
 
 publishMods {
     dryRun = false
 
-    val modChangelog = provider {
-        rootProject.file("changelog.md")
-            .takeIf { it.exists() }
-            ?.readText()
-            ?.replace("{version}", modVersion)
-            ?.replace("{targets}", stonecutter.versions.joinToString(separator = "\n") { "- $it" })
-            ?: "No changelog provided."
-    }
-    changelog.set(modChangelog)
+    version = modVersion
 
-    type.set(
+    changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md"))
+        .asText
+        .zip(modVersion) { changelog, version ->
+            changelog.replace("{version}", version)
+        }
+        .map { changelog ->
+            changelog.replace(
+                "{targets}",
+                stonecutter.versions.joinToString(separator = "\n") { "- ${it.project}" }
+            )
+        }
+
+    type = modVersion.map { version ->
         when {
-            "alpha" in modVersion -> ALPHA
-            "beta" in modVersion -> BETA
+            "alpha" in version -> ALPHA
+            "beta" in version -> BETA
             else -> STABLE
         }
-    )
+    }
+
+    discord {
+        webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK_URL")
+        setPlatformsAllFrom(*stonecutter.versions.map { project(it.project) }.toTypedArray())
+        avatarUrl = providers.gradleProperty("discord.image-url")
+
+        style {
+            look = "MODERN"
+            thumbnailUrl = avatarUrl
+            color = providers.gradleProperty("discord.color")
+            link = "BUTTON"
+        }
+    }
 }
 
-// subprojects depend themselves on this task
-val releaseModVersions by tasks.registering {
-    group = "controlify"
+spotless {
+	java {
+		target("src/**/*.java")
+		licenseHeaderFile(rootProject.layout.projectDirectory.file("HEADER"))
+
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+		formatAnnotations()
+		leadingSpacesToTabs(4)
+	}
 }
 
 wiki {

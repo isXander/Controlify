@@ -5,7 +5,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
-import dev.isxander.controlify.hid.ControllerHIDService;
+import dev.isxander.controlify.hid.ControllerHIDInfo;
 import dev.isxander.controlify.hid.HIDDevice;
 import dev.isxander.controlify.hid.HIDID;
 import dev.isxander.controlify.utils.ControllerUtils;
@@ -26,7 +26,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     protected final Map<UniqueControllerID, ControllerEntity> controllersByJid = new Object2ObjectOpenHashMap<>();
     protected final Map<String, ControllerEntity> controllersByUid = new Object2ObjectOpenHashMap<>();
-    protected final Map<String, ControllerHIDService.ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
+    protected final Map<String, ControllerHIDInfo> hidInfoByUid = new Object2ObjectOpenHashMap<>();
 
     protected final ControlifyLogger logger;
 
@@ -34,11 +34,9 @@ public abstract class AbstractControllerManager implements ControllerManager {
         this.controlify = Controlify.instance();
         this.minecraft = Minecraft.getInstance();
         this.logger = logger.createSubLogger("ControllerManager");
-
-        this.loadGamepadMappings(minecraft.getResourceManager());
     }
 
-    public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    public Optional<ControllerEntity> tryCreate(UniqueControllerID ucid, ControllerHIDInfo hidInfo) {
         ControlifyLogger controllerLogger = logger.createSubLogger("Controller #" + ucid);
 
         try {
@@ -67,7 +65,6 @@ public abstract class AbstractControllerManager implements ControllerManager {
             category.setDetail("Unique controller ID", ucid);
             category.setDetail("Controller identification", hidInfo.type());
             category.setDetail("HID path", hidInfo.hidDevice().map(HIDDevice::path).orElse("N/A"));
-            category.setDetail("HID service status", Controlify.instance().controllerHIDService().isDisabled() ? "Disabled" : "Enabled");
             category.setDetail("System name", Optional.ofNullable(getControllerSystemName(ucid)).orElse("N/A"));
             controllerLogger.crashReport(crashReport);
             return Optional.empty();
@@ -75,7 +72,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         }
     }
 
-    protected abstract Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDService.ControllerHIDInfo hidInfo, ControlifyLogger controllerLogger);
+    protected abstract Optional<ControllerEntity> createController(UniqueControllerID ucid, ControllerHIDInfo hidInfo, ControlifyLogger controllerLogger);
 
     @Override
     public void tick(boolean outOfFocus) {
@@ -100,7 +97,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
     }
 
     @Override
-    public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDService.ControllerHIDInfo hidInfo) {
+    public Optional<ControllerEntity> reinitController(ControllerEntity controller, ControllerHIDInfo hidInfo) {
         onControllerRemoved(controller);
 
         Optional<ControllerEntity> newController = tryCreate(controller.info().ucid(), hidInfo);
@@ -124,8 +121,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
         controller.close();
 
         controllersByJid.remove(controller.info().ucid());
-        Optional.ofNullable(hidInfoByUid.remove(uid))
-                .ifPresent(controlify.controllerHIDService()::unconsumeController);
+		hidInfoByUid.remove(uid);
     }
 
     @Override
@@ -140,7 +136,7 @@ public abstract class AbstractControllerManager implements ControllerManager {
 
     protected int getControllerCountWithMatchingHID(HIDID hid) {
         return (int) controllersByJid.values().stream()
-                .filter(c -> c.info().hid().isPresent() && c.info().hid().get().asIdentifier().equals(hid))
+                .filter(c -> c.info().hid().isPresent() && c.info().hid().get().hidid().equals(hid))
                 .count();
     }
 

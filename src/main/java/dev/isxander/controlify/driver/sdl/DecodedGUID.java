@@ -1,11 +1,10 @@
 package dev.isxander.controlify.driver.sdl;
 
-import dev.isxander.sdl3java.api.guid.SDL_GUID;
+import dev.isxander.sdl.SdlGuid;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.Map;
 
@@ -27,11 +26,10 @@ public record DecodedGUID(
             ((byte) 'h'), "HIDAPI",
             ((byte) 'm'), "apple/MFI",
             ((byte) 'v'), "Virtual"
-
     );
 
-    public static DecodedGUID fromGUID(SDL_GUID guid) {
-        return fromBytes(guid.data);
+    public static DecodedGUID fromGUID(SdlGuid guid) {
+        return fromBytes(guid.data());
     }
 
     public static DecodedGUID fromString(String guid) {

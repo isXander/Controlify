@@ -1,33 +1,38 @@
 pluginManagement {
     repositories {
-        fun strictMaven(url: String, action: Action<in InclusiveRepositoryContentDescriptor>) =
-            exclusiveContent {
-                forRepository { maven(url) }
-                filter(action)
-            }
-
         gradlePluginPortal()
         mavenCentral()
-        strictMaven("https://maven.fabricmc.net") {
-            includeGroupAndSubgroups("net.fabricmc")
-            includeGroup("fabric-loom")
+
+        exclusiveContent {
+            forRepository { maven("https://maven.fabricmc.net") }
+            filter { includeGroupAndSubgroups("net.fabricmc") }
         }
-        strictMaven("https://maven.neoforged.net/releases/") {
-            includeGroupAndSubgroups("net.neoforged")
+        exclusiveContent {
+            forRepository { maven("https://maven.neoforged.net/releases") }
+            filter {
+                includeGroupAndSubgroups("net.neoforged")
+                includeGroupAndSubgroups("net.minecraftforge")
+            }
         }
-        strictMaven("https://maven.kikugie.dev/releases") {
-            includeGroupAndSubgroups("dev.kikugie")
+        exclusiveContent {
+            forRepository { maven("https://maven.kikugie.dev/releases") }
+            filter { includeGroupAndSubgroups("dev.kikugie") }
         }
-        strictMaven("https://maven.quiltmc.org/repository/release") {
-            includeGroupAndSubgroups("org.quiltmc")
+        exclusiveContent {
+            forRepository { maven("https://maven.quiltmc.org/repository/release") }
+            filter { includeGroupAndSubgroups("org.quiltmc") }
         }
     }
+
+    includeBuild("build-logic")
 }
 
 plugins {
-    id("dev.kikugie.stonecutter") version "0.8.2"
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
+    id("dev.kikugie.stonecutter") version "0.9.7"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
+
+rootProject.name = "controlify"
 
 stonecutter {
     val ciSingleBuild: String? = System.getenv("CI_SINGLE_BUILD")
@@ -42,5 +47,5 @@ stonecutter {
     }
 }
 
-rootProject.name = "Controlify"
+enableFeaturePreview("NO_IMPLICIT_LOOKUP_IN_PARENT_PROJECTS")
 

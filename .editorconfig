@@ -4,8 +4,6 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.tiny]
-indent_size = 4
+[*.{java,kt,kts,gradle}]
 indent_style = tab
-trim_trailing_whitespace = false
-end_of_line = lf
+tab_width = 4

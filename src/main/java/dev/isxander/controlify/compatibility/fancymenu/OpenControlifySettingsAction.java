@@ -4,7 +4,6 @@ package dev.isxander.controlify.compatibility.fancymenu;
 import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
 import dev.isxander.controlify.utils.MinecraftUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,13 +24,13 @@ public class OpenControlifySettingsAction extends Action {
     }
 
     @Override
-    public @NotNull Component getActionDisplayName() {
+    public @NotNull Component getDisplayName() {
         return Component.translatable("controlify.gui.button");
     }
 
     @Override
-    public @NotNull Component[] getActionDescription() {
-        return new Component[0];
+    public @NotNull Component getDescription() {
+        return Component.empty();
     }
 
     @Override
@@ -39,9 +38,10 @@ public class OpenControlifySettingsAction extends Action {
         return null;
     }
 
-    @Override
-    public @Nullable String getValueExample() {
-        return "";
-    }
+	@Override
+	public @Nullable String getValuePreset() {
+		return "";
+	}
+
 }
 //?}

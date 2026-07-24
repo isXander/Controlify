@@ -28,7 +28,7 @@ public class LocalPlayerMixin {
      * since it does nto affect vanilla keyboard players.
      *
      * @param instance the receiver
-     * @param original the original call to {@link net.minecraft.client.player.ClientInput#hasForwardImpulse()}
+     * @param original the original call to {@link ClientInput#hasForwardImpulse()}
      * @return if the client input state satisfies sprinting
      */
     @WrapOperation(method = "canStartSprinting", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/ClientInput;hasForwardImpulse()Z"))
