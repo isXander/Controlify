@@ -93,7 +93,7 @@ public class SDLNativesLoader {
 	}
 
 	private static Optional<Sdl> loadFromInputStream(SdlLoader sdlLoader, IOSupplier<InputStream> supplier) {
-		Path temporaryFile;
+		Path temporaryFile = null;
 		try(InputStream is = supplier.get()) {
 			temporaryFile = Files.createTempFile("controlify-native-", NATIVE_SDL_NAME);
 
@@ -103,7 +103,7 @@ public class SDLNativesLoader {
 				StandardCopyOption.REPLACE_EXISTING
 			);
 		} catch (IOException e) {
-			LOGGER.error("Failed to copy from input stream", e);
+			LOGGER.error("Failed to copy from input stream -> {}", e, temporaryFile);
 			return Optional.empty();
 		}
 
