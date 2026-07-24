@@ -98,6 +98,7 @@ dependencies {
 }
 
 /// Stonecutter
+
 stonecutter {
     constants {
         put("iris", hasProperty("dep.iris"))
