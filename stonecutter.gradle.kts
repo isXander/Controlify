@@ -21,7 +21,7 @@ val downloadHidDb = tasks.register<Download>("downloadHidDb") {
 
     group = "controlify"
 
-    src("https://raw.githubusercontent.com/gabomdq/SDL_GameControllerDB/master/gamecontrollerdb.txt")
+    src("https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt")
     dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
 }
 
