@@ -77,7 +77,6 @@ publishMods {
             look = "MODERN"
             thumbnailUrl = avatarUrl
             color = providers.gradleProperty("discord.color")
-            link = "BUTTON"
         }
     }
 }
