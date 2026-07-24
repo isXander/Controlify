@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.simplevoicechat;
 
+//? if simple_voice_chat {
+
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
 import dev.isxander.controlify.api.event.ControlifyEvents;

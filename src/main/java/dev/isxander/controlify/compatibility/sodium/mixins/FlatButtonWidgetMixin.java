@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
+//? if sodium {
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;

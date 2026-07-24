@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
+//? if sodium {
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import net.minecraft.client.InputType;

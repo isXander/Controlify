@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.fancymenu;
 
+//? if fancy_menu {
+
 import de.keksuccino.fancymenu.customization.action.Action;
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
 import dev.isxander.controlify.utils.MinecraftUtil;

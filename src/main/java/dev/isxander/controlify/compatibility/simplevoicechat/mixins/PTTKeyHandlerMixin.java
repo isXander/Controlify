@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
 
+//? if simple_voice_chat {
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;

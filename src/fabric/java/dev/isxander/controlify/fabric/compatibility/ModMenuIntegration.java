@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.fabric.compatibility;
 
+//? if mod_menu {
+
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;

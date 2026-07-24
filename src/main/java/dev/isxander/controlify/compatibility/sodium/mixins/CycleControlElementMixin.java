@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.sodium.mixins;
 
+//? if sodium {
+
 import dev.isxander.controlify.compatibility.sodium.screenop.CycleControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;

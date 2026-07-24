@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.compatibility.iris.mixins;
 
+//? if iris {
+
 import dev.isxander.controlify.compatibility.iris.screenop.BaseOptionElementComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
