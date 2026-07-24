@@ -77,6 +77,7 @@ public class InputSettings {
 	public static class SensitivitySettings {
 		public float hLookSensitivity;
 		public float vLookSensitivity;
+		public boolean hLookInvert;
 		public boolean vLookInvert;
 		public float virtualMouseSensitivity;
 		public boolean reduceAimingSensitivity;
@@ -88,6 +89,7 @@ public class InputSettings {
 		public SensitivitySettings(
 				float hLookSensitivity,
 				float vLookSensitivity,
+				boolean hLookInvert,
 				boolean vLookInvert,
 				float virtualMouseSensitivity,
 				boolean reduceAimingSensitivity,
@@ -98,6 +100,7 @@ public class InputSettings {
 		) {
 			this.hLookSensitivity = hLookSensitivity;
 			this.vLookSensitivity = vLookSensitivity;
+			this.hLookInvert = hLookInvert;
 			this.vLookInvert = vLookInvert;
 			this.virtualMouseSensitivity = virtualMouseSensitivity;
 			this.reduceAimingSensitivity = reduceAimingSensitivity;
@@ -119,6 +122,7 @@ public class InputSettings {
 			return new SensitivitySettings(
 					dto.hLookSensitivity(),
 					dto.vLookSensitivity(),
+					dto.hLookInvert(),
 					dto.vLookInvert(),
 					dto.virtualMouseSensitivity(),
 					dto.reduceAimingSensitivity(),
@@ -133,6 +137,7 @@ public class InputSettings {
 			return new InputConfig.SensitivityConfig(
 					hLookSensitivity,
 					vLookSensitivity,
+					hLookInvert,
 					vLookInvert,
 					virtualMouseSensitivity,
 					reduceAimingSensitivity,

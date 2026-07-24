@@ -9,6 +9,7 @@ package dev.isxander.controlify.config.dto.dfu;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.datafixers.DataFixerBuilder;
 import dev.isxander.controlify.config.dto.dfu.fixes.AnalogueMovementWhitelistFix;
+import dev.isxander.controlify.config.dto.dfu.fixes.HorizontalLookInvertFix;
 import dev.isxander.controlify.config.dto.dfu.fixes.TheHolyMigrationFix;
 import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
@@ -36,6 +37,7 @@ public final class ControlifyDataFixer {
 				ProfileSettings.createDefault(CUtil.rl("generic"))
 		));
 		builder.addFixer(new AnalogueMovementWhitelistFix(v2));
+		builder.addFixer(new HorizontalLookInvertFix(v2));
 
 		return builder.build().fixer();
 	}

@@ -43,8 +43,7 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
 		);
 	}
 
-	@Unique
-	private void openControllerSettings() {
+	@Unique private void openControllerSettings() {
 		MinecraftUtil.setScreen(new ControlifySettingsScreen(this));
 	}
 }

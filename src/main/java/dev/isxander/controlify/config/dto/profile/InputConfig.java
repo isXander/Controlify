@@ -46,6 +46,7 @@ public record InputConfig(
 	public record SensitivityConfig(
 		float hLookSensitivity,
 		float vLookSensitivity,
+		boolean hLookInvert,
 		boolean vLookInvert,
 		float virtualMouseSensitivity,
 		boolean reduceAimingSensitivity,
@@ -57,6 +58,7 @@ public record InputConfig(
 		public static final Codec<SensitivityConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.FLOAT.fieldOf("horizontal").forGetter(SensitivityConfig::hLookSensitivity),
 				Codec.FLOAT.fieldOf("vertical").forGetter(SensitivityConfig::vLookSensitivity),
+				Codec.BOOL.fieldOf("horizontal_invert").forGetter(SensitivityConfig::hLookInvert),
 				Codec.BOOL.fieldOf("vertical_invert").forGetter(SensitivityConfig::vLookInvert),
 				Codec.FLOAT.fieldOf("virtual_mouse").forGetter(SensitivityConfig::virtualMouseSensitivity),
 				Codec.BOOL.fieldOf("reduce_aiming").forGetter(SensitivityConfig::reduceAimingSensitivity),

@@ -16,3 +16,4 @@ This version has the following targets:
   you can add servers to the analogue whitelist in the Global Settings.
 - The server keyboard movement policy has been inverted to analogue movement, allowed by default
 - Fix chat keyboard not inputting into the chat edit box
+- Add option to invert the horizontal axis

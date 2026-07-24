@@ -319,6 +319,9 @@ public class InGameInputHandler {
 				ControlifyBindings.LOOK_DOWN.on(controller).analogueNow()
 						- ControlifyBindings.LOOK_UP.on(controller).analogueNow()
 		);
+		if (settings.sensitivity.hLookInvert) {
+			regularImpulse.x *= -1;
+		}
 		if (settings.sensitivity.vLookInvert) {
 			regularImpulse.y *= -1;
 		}

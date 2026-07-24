@@ -21,6 +21,7 @@
     "sensitivity": {
       "horizontal": 1.0,
       "vertical": 0.9,
+      "horizontal_invert": false,
       "vertical_invert": false,
       "virtual_mouse": 1.0,
       "reduce_aiming": true,
