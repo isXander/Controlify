@@ -293,6 +293,8 @@ publishMods {
 publishing {
     publications {
         register<MavenPublication>("mavenJava") {
+			artifactId = "controlify"
+
             from(components["java"])
             artifact(tasks.universalJar)
             artifact(tasks.universalSourcesJar)
