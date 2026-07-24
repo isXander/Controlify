@@ -27,14 +27,14 @@ jobs:
           cache-read-only: true
 
       - name: Build mod
-        run: ./gradlew build
+        run: ./gradlew build --stacktrace
 
       - uses: actions/attest@v4
         with:
           subject-path: versions/**/build/libs/*.jar
 
       - name: Publish mod
-        run: ./gradlew publishModrinth publishCurseforge announceDiscord publishAllPublicationsToXanderMavenRepository
+        run: ./gradlew publishModrinth publishCurseforge announceDiscord publishAllPublicationsToXanderMavenRepository --stacktrace
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
