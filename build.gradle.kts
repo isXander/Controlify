@@ -255,6 +255,7 @@ if (includeNatives) {
 
 publishMods {
     from(rootProject.publishMods)
+    dryRun = rootProject.publishMods.dryRun
 
     file = tasks.universalJar.flatMap { it.archiveFile }
     modLoaders.addAll("fabric", "neoforge")

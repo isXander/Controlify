@@ -34,7 +34,7 @@ jobs:
           subject-path: versions/**/build/libs/*.jar
 
       - name: Publish mod
-        run: ./gradlew publishModrinth publishCurseforge announceDiscord publishAllPublicationsToXanderMavenRepository --stacktrace
+        run: ./gradlew publishModrinth publishCurseforge announceDiscord publishAllPublicationsToXanderMavenRepository --stacktrace --no-configuration-cache
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}

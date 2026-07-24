@@ -41,6 +41,7 @@ val convertHidDBToSDL3 = tasks.register<Copy>("convertHidDBToSDL3") {
 }
 
 val modVersion = providers.gradleProperty("mod.version")
+val publishTargets = stonecutter.versions.joinToString(separator = "\n") { "- ${it.project}" }
 
 publishMods {
     dryRun = false
@@ -55,7 +56,7 @@ publishMods {
         .map { changelog ->
             changelog.replace(
                 "{targets}",
-                stonecutter.versions.joinToString(separator = "\n") { "- ${it.project}" }
+                publishTargets
             )
         }
 
