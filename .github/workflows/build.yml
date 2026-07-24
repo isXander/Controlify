@@ -1,4 +1,4 @@
-name: Gradle CI (new)
+name: Gradle CI
 
 on:
   push:
@@ -7,9 +7,14 @@ on:
       - 'LICENSE'
       - '.gitignore'
       - '.editorconfig'
-      - 'changelog.md'
+      - 'CHANGELOG.md'
       - 'docs'
   pull_request:
+
+permissions:
+  id-token: write
+  attestations: write
+  artifact-metadata: write
 
 jobs:
   generate-build-matrix:
@@ -41,32 +46,44 @@ jobs:
     continue-on-error: ${{ matrix.experimental == 'true' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Set up JDK
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: 25
           distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
       - name: Overwrite current version
         run: printf "%s" "${{ matrix.target }}" | cut -d':' -f1 | tr -d '\n' > ./versions/current
-      - name: Build ${{ matrix.target }}
-        run: |
-          ./gradlew "Refresh active project"
-          ./gradlew buildAndCollectActive --stacktrace
+
+      - name: Setup stonecutter
+        run: ./gradlew "Refresh active project"
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
 
-      - name: Sanitize artifact name
-        run: |
-          raw="${{ matrix.target }}"
-          clean="${raw%%:*}"
-          echo "ARTIFACT_NAME=$clean" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v4
+      - name: Check build
+        run: ./gradlew check
+        env:
+          CI_SINGLE_BUILD: ${{ matrix.target }}
+
+      - name: Build ${{ matrix.target }}
+        run: ./gradlew build --stacktrace
+        env:
+          CI_SINGLE_BUILD: ${{ matrix.target }}
+
+      - uses: actions/attest@v4
         with:
-          path: build/finalJars/*.jar
-          name: ${{ env.ARTIFACT_NAME }}
+          subject-path: versions/**build/libs/*.jar
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: versions/**/build/libs/*
+          name: ${{ matrix.target }}
 
 #  run:
 #    needs: build
