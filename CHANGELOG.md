@@ -10,7 +10,7 @@ This version has the following targets:
 ## Changes
 
 - Controlify now ships multi-loader jars. The same jar will work for Fabric and NeoForge
-- Use up-to-date SDL using the new Java 25 FFM API.
+- Use up-to-date SDL (3.4.12) using the new Java 25 FFM API.
 - Include a version of SDL for Windows on ARM
 - Keyboard-like movement is now enabled by default on servers; 
   you can add servers to the analogue whitelist in the Global Settings.
