@@ -25,7 +25,7 @@ jobs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Get potential versions
@@ -78,7 +78,7 @@ jobs:
 
       - uses: actions/attest@v4
         with:
-          subject-path: versions/**build/libs/*.jar
+          subject-path: versions/**/build/libs/*.jar
 
       - uses: actions/upload-artifact@v7
         with:
