@@ -257,6 +257,9 @@ publishMods {
     from(rootProject.publishMods)
     dryRun = rootProject.publishMods.dryRun
 
+	version = "$modVersion+mc$minecraftVersion"
+	displayName = version.map { "Controlify $it" }
+
     file = tasks.universalJar.flatMap { it.archiveFile }
     modLoaders.addAll("fabric", "neoforge")
 
