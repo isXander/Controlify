@@ -80,7 +80,7 @@ public final class DebugOverlayHelper {
 		return mc.gui.hud.getChat();
 		//?} else {
 		/*return mc.gui.getChat();
-		 *///?}
+		*///?}
 	}
 
 	public static void clearChat() {
