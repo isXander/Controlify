@@ -257,8 +257,6 @@ publishMods {
     from(rootProject.publishMods)
 
     file = tasks.universalJar.flatMap { it.archiveFile }
-    version = "$modVersion+mc$minecraftVersion"
-    displayName = commonManifest.displayName
     modLoaders.addAll("fabric", "neoforge")
 
     modrinth {
