@@ -18,7 +18,7 @@ public final class SnapUtils {
 	private SnapUtils() {
 	}
 
-	public static void addRecipeSnapPoints(RecipeBookComponent recipeBookComponent, Consumer<SnapPoint> consumer) {
+	public static void addRecipeSnapPoints(RecipeBookComponent<?> recipeBookComponent, Consumer<SnapPoint> consumer) {
 		if (recipeBookComponent.isVisible()) {
 			RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
 			componentAccessor.controlify$getTabButtons().forEach(button -> {

@@ -47,7 +47,7 @@ public class SteamDeckDriver implements Driver {
 	private BatteryLevelComponent batteryLevelComponent;
 	private TouchpadComponent touchpadComponent;
 
-	private ControlifyLogger logger;
+	private final ControlifyLogger logger;
 
 	private final AtomicBoolean runningPoller = new AtomicBoolean(false);
 

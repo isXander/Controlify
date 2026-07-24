@@ -27,7 +27,7 @@ public class OpenControlifySettingsAction extends Action {
 
 	@Override
 	public void execute(@Nullable String s) {
-		ControlifySettingsScreen.openScreen(MinecraftUtil.getScreen());
+		MinecraftUtil.setScreen(new ControlifySettingsScreen(MinecraftUtil.getScreen()));
 	}
 
 	@Override

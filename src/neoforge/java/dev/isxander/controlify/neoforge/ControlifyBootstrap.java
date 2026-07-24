@@ -7,7 +7,7 @@
 package dev.isxander.controlify.neoforge;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.gui.screen.ModConfigOpenerScreen;
+import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
 import dev.isxander.controlify.neoforge.platform.NeoforgePlatformMainImpl;
 import dev.isxander.controlify.neoforge.platform.client.NeoforgePlatformClientImpl;
 import dev.isxander.controlify.platform.Environment;
@@ -29,7 +29,7 @@ public class ControlifyBootstrap {
 
 			ModLoadingContext.get().registerExtensionPoint(
 				net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-				() -> (client, parent) -> new ModConfigOpenerScreen(parent)
+				() -> (client, parent) -> new ControlifySettingsScreen(parent)
 			);
 
 			Controlify.instance().preInitialiseControlify();

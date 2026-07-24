@@ -31,7 +31,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
-public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInteruptScreen {
+public class ControllerMappingMakerScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider, DontInterruptScreen {
 	private final InputComponent inputComponent;
 	private final ControllerMapping.Builder mappingBuilder = new ControllerMapping.Builder();
 	private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);

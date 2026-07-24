@@ -7,6 +7,7 @@
 package dev.isxander.controlify.mixins.feature.settingsbutton;
 
 import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
@@ -42,7 +43,8 @@ public abstract class ControlsScreenMixin extends OptionsSubScreen {
 		);
 	}
 
-	@Unique private void openControllerSettings() {
-		ControlifySettingsScreen.openScreen(this);
+	@Unique
+	private void openControllerSettings() {
+		MinecraftUtil.setScreen(new ControlifySettingsScreen(this));
 	}
 }

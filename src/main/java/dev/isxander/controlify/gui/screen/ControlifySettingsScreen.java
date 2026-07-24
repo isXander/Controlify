@@ -53,12 +53,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		this.parent = parent;
 	}
 
-	public static ControlifySettingsScreen openScreen(@Nullable Screen parent) {
-		var screen = new ControlifySettingsScreen(parent);
-		MinecraftUtil.setScreen(screen);
-		return screen;
-	}
-
 	@Override
 	protected void init() {
 		this.footerY = Mth.roundToward(this.height - 36 - 2, 2);

@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.gui;
+package dev.isxander.controlify.gui.screen;
 
-public record DrawSize(int width, int height) {
+public interface DontInterruptScreen {
 }

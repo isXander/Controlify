@@ -438,7 +438,7 @@ public class Controlify implements ControlifyApi {
 				currentSetupWizard = null;
 			}
 
-			if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInteruptScreen)) {
+			if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInterruptScreen)) {
 				currentSetupWizard = setupWizards.poll();
 				MinecraftUtil.setScreen(currentSetupWizard.start(MinecraftUtil.getScreen()));
 			}
