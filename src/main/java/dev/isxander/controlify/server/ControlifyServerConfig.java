@@ -22,5 +22,5 @@ public class ControlifyServerConfig {
 
 	@SerialEntry public boolean reachAroundPolicy = true;
 	@SerialEntry public boolean noFlyDriftPolicy = true;
-	@SerialEntry public boolean enforceKeyboardLikeMovement = false;
+	@SerialEntry public boolean allowAnalogueMovement = true;
 }

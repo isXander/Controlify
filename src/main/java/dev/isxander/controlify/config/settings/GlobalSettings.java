@@ -32,7 +32,7 @@ public class GlobalSettings {
 	public float ingameButtonGuideScale;
 	public boolean useEnhancedSteamDeckDriver;
 	public boolean alwaysKeyboardMovement;
-	public List<String> keyboardMovementWhitelist;
+	public List<String> analogueMovementWhitelist;
 	public final Set<String> seenServers;
 	public boolean showSplitscreenAd;
 
@@ -51,7 +51,7 @@ public class GlobalSettings {
 		this.ingameButtonGuideScale = 1f;
 		this.useEnhancedSteamDeckDriver = true;
 		this.alwaysKeyboardMovement = false;
-		this.keyboardMovementWhitelist = new ArrayList<>();
+		this.analogueMovementWhitelist = new ArrayList<>();
 		this.seenServers = new HashSet<>();
 		this.showSplitscreenAd = true;
 	}
@@ -67,7 +67,7 @@ public class GlobalSettings {
 			float ingameButtonGuideScale,
 			boolean useEnhancedSteamDeckDriver,
 			boolean alwaysKeyboardMovement,
-			List<String> keyboardMovementWhitelist,
+			List<String> analogueMovementWhitelist,
 			Set<String> seenServers,
 			boolean showSplitscreenAd
 	) {
@@ -81,16 +81,26 @@ public class GlobalSettings {
 		this.ingameButtonGuideScale = ingameButtonGuideScale;
 		this.useEnhancedSteamDeckDriver = useEnhancedSteamDeckDriver;
 		this.alwaysKeyboardMovement = alwaysKeyboardMovement;
-		this.keyboardMovementWhitelist = new ArrayList<>(keyboardMovementWhitelist);
+		this.analogueMovementWhitelist = new ArrayList<>(analogueMovementWhitelist);
 		this.seenServers = new HashSet<>(seenServers);
 		this.showSplitscreenAd = showSplitscreenAd;
 	}
 
 	public boolean shouldUseKeyboardMovement() {
+		if (alwaysKeyboardMovement) {
+			return true;
+		}
+
 		ServerData server = Minecraft.getInstance().getCurrentServer();
-		return alwaysKeyboardMovement
-			|| (server != null && keyboardMovementWhitelist.stream().anyMatch(server.ip::endsWith))
-			|| ServerPolicies.KEYBOARD_LIKE_MOVEMENT.get();
+		if (server == null) {
+			return false;
+		}
+
+		return switch (ServerPolicies.ANALOGUE_MOVEMENT.getPolicy()) {
+			case ALLOWED -> false;
+			case DISALLOWED -> true;
+			case UNSET -> analogueMovementWhitelist.stream().noneMatch(server.ip::endsWith);
+		};
 	}
 
 	public static GlobalSettings defaults() {
@@ -118,7 +128,7 @@ public class GlobalSettings {
 				dto.ingameButtonGuideScale(),
 				dto.useEnhancedSteamDeckDriver(),
 				dto.alwaysAllowKeyboardMovement(),
-				List.copyOf(dto.keyboardMovementWhitelist()),
+				List.copyOf(dto.analogueMovementWhitelist()),
 				Set.copyOf(dto.seenServers()),
 				dto.showSplitscreenAd()
 		);
@@ -139,7 +149,7 @@ public class GlobalSettings {
 				ingameButtonGuideScale,
 				useEnhancedSteamDeckDriver,
 				alwaysKeyboardMovement,
-				List.copyOf(keyboardMovementWhitelist),
+				List.copyOf(analogueMovementWhitelist),
 				List.copyOf(seenServers),
 				showSplitscreenAd
 		);

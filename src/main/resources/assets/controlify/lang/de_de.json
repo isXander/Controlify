@@ -16,8 +16,6 @@
   "controlify.gui.notify_low_battery.tooltip": "Blendet ein Toast ein, wenn der Akkustand deines kabellosen Kontrollers niedrig ist (EXPERIMENTELL)",
   "controlify.gui.out_of_focus_input": "Unfokussierte Eingabe",
   "controlify.gui.out_of_focus_input.tooltip": "Controlify registriert auch dann Kontroller-Eingaben, wenn das Spielfenster nicht im Fokus ist.",
-  "controlify.gui.keyboard_movement": "Tastaturähnliches Bewegen",
-  "controlify.gui.keyboard_movement.tooltip": "Macht Bewegungen abrupt, wie beim Nutzen einer Tastatur, anstelle der gleichmäßigen Bewegungen von Steuerknüppeln. Kann auf Servern mit strengen Anticheats helfen.",
   "controlify.gui.open_issue_tracker": "Öffne Issue Tracker",
   "controlify.gui.battery_level": "Der Akkustand ist %s.",
   "controlify.gui.custom_name": "Anzeigename",

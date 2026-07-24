@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 public class ControlifyHandshake {
 	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public static final int PROTOCOL_VERSION = 1;
+	public static final int PROTOCOL_VERSION = 2;
 	public static final Identifier HANDSHAKE_CHANNEL = CUtil.rl("handshake");
 
 	private static final StreamCodec<FriendlyByteBuf, HandshakePacket> handshakePacketCodec = StreamCodec.of(
@@ -54,7 +54,10 @@ public class ControlifyHandshake {
 				HANDSHAKE_CHANNEL,
 				handshakePacketCodec,
 				handshakePacketCodec,
-				inboundHandshake -> new HandshakePacket(PROTOCOL_VERSION)
+				inboundHandshake -> {
+					ServerPolicies.ANALOGUE_MOVEMENT.set(ServerPolicy.ALLOWED);
+					return new HandshakePacket(PROTOCOL_VERSION);
+				}
 		);
 	}
 

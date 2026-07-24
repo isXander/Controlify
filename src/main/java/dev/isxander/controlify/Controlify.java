@@ -165,7 +165,12 @@ public class Controlify implements ControlifyApi {
 		});
 		SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
 			CUtil.LOGGER.log("Connected server specified '{}' policy is {}.", packet.id(), packet.allowed() ? "ALLOWED" : "DISALLOWED");
-			ServerPolicies.getById(packet.id()).set(ServerPolicy.fromBoolean(packet.allowed()));
+			ServerPolicies policy = ServerPolicies.getById(packet.id());
+			if (policy == null) {
+				CUtil.LOGGER.warn("Connected server specified unknown '{}' policy; ignoring it.", packet.id());
+				return;
+			}
+			policy.set(ServerPolicy.fromBoolean(packet.allowed()));
 		});
 
 		PlatformClientUtil.registerClientDisconnected((client) -> {

@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class GlobalSettingsScreenFactory {
 	public static Screen createGlobalSettingsScreen(Screen parent) {
 		var globalSettings = Controlify.instance().config().getSettings().globalSettings();
-		AtomicReference<ListOption<String>> whitelist = new AtomicReference<>();
+		AtomicReference<ListOption<String>> analogueMovementWhitelist = new AtomicReference<>();
 
 		return YetAnotherConfigLib.createBuilder()
 				.title(Component.translatable("controlify.gui.global_settings.title"))
@@ -85,14 +85,14 @@ public class GlobalSettingsScreenFactory {
 										.controller(TickBoxControllerBuilder::create)
 										.build())
 								.option(ButtonOption.createBuilder()
-										.name(Component.translatable("controlify.gui.add_server_to_keyboard_move_whitelist"))
+										.name(Component.translatable("controlify.gui.add_server_to_analogue_move_whitelist"))
 										.description(OptionDescription.createBuilder()
-												.text(Component.translatable("controlify.gui.add_server_to_keyboard_move_whitelist.tooltip"))
+												.text(Component.translatable("controlify.gui.add_server_to_analogue_move_whitelist.tooltip"))
 												.build())
 										.action((screen, button) -> {
 											ServerData server = Minecraft.getInstance().getCurrentServer();
 											if (server != null) {
-												whitelist.get().insertNewEntry().requestSet(server.ip);
+												analogueMovementWhitelist.get().insertNewEntry().requestSet(server.ip);
 											}
 										})
 										.available(Minecraft.getInstance().getCurrentServer() != null)
@@ -100,15 +100,15 @@ public class GlobalSettingsScreenFactory {
 								.build())
 						.group(Util.make(() -> {
 							var list = ListOption.<String>createBuilder()
-									.name(Component.translatable("controlify.gui.keyboard_movement_whitelist"))
+									.name(Component.translatable("controlify.gui.analogue_movement_whitelist"))
 									.description(OptionDescription.createBuilder()
-											.text(Component.translatable("controlify.gui.keyboard_movement_whitelist.tooltip"))
+											.text(Component.translatable("controlify.gui.analogue_movement_whitelist.tooltip"))
 											.build())
-									.binding(GlobalSettings.defaults().keyboardMovementWhitelist, () -> globalSettings.keyboardMovementWhitelist, v -> globalSettings.keyboardMovementWhitelist = v)
+									.binding(GlobalSettings.defaults().analogueMovementWhitelist, () -> globalSettings.analogueMovementWhitelist, v -> globalSettings.analogueMovementWhitelist = v)
 									.controller(StringControllerBuilder::create)
 									.initial("Server IP here")
 									.build();
-							whitelist.set(list);
+							analogueMovementWhitelist.set(list);
 							return list;
 						}))
 						.group(OptionGroup.createBuilder()

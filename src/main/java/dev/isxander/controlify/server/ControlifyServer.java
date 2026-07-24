@@ -39,19 +39,20 @@ public class ControlifyServer {
 
 		CUtil.LOGGER.log("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
 		CUtil.LOGGER.log("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
-		CUtil.LOGGER.log("Enforce keyboard-like movement: {}", ControlifyServerConfig.HANDLER.instance().enforceKeyboardLikeMovement);
+		CUtil.LOGGER.log("Allow analogue movement: {}", ControlifyServerConfig.HANDLER.instance().allowAnalogueMovement);
 
 		ControlifyServerConfig config = ControlifyServerConfig.HANDLER.instance();
 		PlatformMainUtil.registerPlayerJoinedEvent(player -> {
 			setServerPolicy(ServerPolicies.REACH_AROUND, player, config.reachAroundPolicy);
 			setServerPolicy(ServerPolicies.DISABLE_FLY_DRIFTING, player, config.noFlyDriftPolicy);
-			setServerPolicy(ServerPolicies.KEYBOARD_LIKE_MOVEMENT, player, config.enforceKeyboardLikeMovement);
+			setServerPolicy(ServerPolicies.ANALOGUE_MOVEMENT, player, config.allowAnalogueMovement);
 		});
 	}
 
 	private void setServerPolicy(ServerPolicies policy, ServerPlayer player, boolean option) {
-		// only mandate something if it differs from the default
-		if (option == policy.getUnsetValue()) return;
+		// Movement must always be explicit so clients can distinguish Controlify servers
+		// from servers where keyboard-like movement is the compatibility default.
+		if (policy != ServerPolicies.ANALOGUE_MOVEMENT && option == policy.getUnsetValue()) return;
 
 		SidedNetworkApi.S2C().sendPacket(
 				player,

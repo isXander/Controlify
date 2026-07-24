@@ -23,7 +23,7 @@ public record GlobalConfig(
 		float ingameButtonGuideScale,
 		boolean useEnhancedSteamDeckDriver,
 		boolean alwaysAllowKeyboardMovement,
-		List<String> keyboardMovementWhitelist,
+		List<String> analogueMovementWhitelist,
 		List<String> seenServers,
 		boolean showSplitscreenAd
 ) {
@@ -38,7 +38,7 @@ public record GlobalConfig(
 			Codec.FLOAT.fieldOf("ingame_button_guide_scale").forGetter(GlobalConfig::ingameButtonGuideScale),
 			Codec.BOOL.fieldOf("use_enhanced_steam_deck_driver").forGetter(GlobalConfig::useEnhancedSteamDeckDriver),
 			Codec.BOOL.fieldOf("keyboard_movement").forGetter(GlobalConfig::alwaysAllowKeyboardMovement),
-			Codec.list(Codec.STRING).fieldOf("keyboard_movement_whitelist").forGetter(GlobalConfig::keyboardMovementWhitelist),
+			Codec.list(Codec.STRING).fieldOf("analogue_movement_whitelist").forGetter(GlobalConfig::analogueMovementWhitelist),
 			Codec.list(Codec.STRING).fieldOf("seen_servers").forGetter(GlobalConfig::seenServers),
 			Codec.BOOL.fieldOf("show_splitscreen_ad").forGetter(GlobalConfig::showSplitscreenAd)
 	).apply(instance, GlobalConfig::new));

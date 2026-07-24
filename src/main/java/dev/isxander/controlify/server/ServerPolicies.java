@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public enum ServerPolicies {
 	REACH_AROUND("reachAround", true),
 	DISABLE_FLY_DRIFTING("disableFlyDrifting", false),
-	KEYBOARD_LIKE_MOVEMENT("keyboardLikeMovement", false);
+	ANALOGUE_MOVEMENT("analogueMovement", true);
 
 	private static final Map<String, ServerPolicies> BY_ID = Arrays.stream(values())
 			.collect(Collectors.toMap(ServerPolicies::getId, e -> e));
