@@ -1,6 +1,5 @@
 {
   "controlify.gui.custom_natives_path.tooltip": "Specify a custom folder where Controlify will save and load its native libraries. This is an absolute path and is not relative to .minecraft. If you enter an invalid directory, this will be reset. Leave blank for default.",
   "controlify.gui.reach_around.tooltip.warning": "WARNING: This is an unfair advantage over other players without Controlify, and you will likely be flagged by many anti-cheats. This should only be used in situations where everyone playing recognizes that you have this ability and are okay with it.",
-  "controlify.gui.keyboard_movement.tooltip": "Emulates keyboard WASD when using analogue inputs like a thumbstick. This also applies to boat handling. This may be required on servers with harsh anti-cheats.\nEnabling this option bypasses the whitelist below and enables it for all servers.",
   "controlify.gui.is_lce.tooltip": "Makes the controller feeling similar to the Legacy Console Edition."
 }
