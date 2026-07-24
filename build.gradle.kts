@@ -52,7 +52,7 @@ dependencies {
     neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
 
 	ifPresent("dep.mod-menu") {
-		fabricImplementation("com.terraformersmc:modmenu:$it")
+		fabricImplementation("maven.modrinth:modmenu:$it")
 	}
 
     ifPresent("dep.sodium") {
