@@ -70,8 +70,11 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 
 	@ModifyArg(method = "setInitialFocus", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/ChatScreen;setInitialFocus(Lnet/minecraft/client/gui/components/events/GuiEventListener;)V"))
 	private GuiEventListener modifyInitialFocus(GuiEventListener editBox) {
-		editBox.setFocused(true);
-		return this.keyboard != null ? this.keyboard : editBox;
+		if (this.keyboard != null) {
+			editBox.setFocused(true);
+			return this.keyboard;
+		}
+		return editBox;
 	}
 
 	@Definition(id = "height", field = "Lnet/minecraft/client/gui/screens/ChatScreen;height:I")
