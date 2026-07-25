@@ -72,6 +72,9 @@ publishMods {
         webhookUrl = providers.environmentVariable("DISCORD_WEBHOOK_URL")
         setPlatformsAllFrom(*stonecutter.versions.map { project(it.project) }.toTypedArray())
         avatarUrl = providers.gradleProperty("discord.image-url")
+		content = changelog.zip(providers.gradleProperty("discord.ping")) { changelog, ping ->
+			"$changelog\n\n$ping"
+		}
 
         style {
             look = "MODERN"
