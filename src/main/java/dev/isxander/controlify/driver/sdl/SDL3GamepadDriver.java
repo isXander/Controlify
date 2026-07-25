@@ -23,6 +23,7 @@ import org.joml.Vector2f;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +56,14 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 		if (this.isGryoSupported) {
 			sdl.gamepad().SDL_SetGamepadSensorEnabled(ptrController, SDL_SENSOR_GYRO, true);
 
-			this.gyroMemory = this.arena.allocate(ValueLayout.JAVA_BYTE, GYRO_AXIS_COUNT);
+			this.gyroMemory = this.arena.allocate(ValueLayout.JAVA_FLOAT, GYRO_AXIS_COUNT);
 		} else {
 			this.gyroMemory = MemorySegment.NULL;
 		}
 
-		this.gyroBuffer = this.gyroMemory.asByteBuffer().asFloatBuffer();
+		this.gyroBuffer = this.gyroMemory.asByteBuffer()
+			.order(ByteOrder.nativeOrder())
+			.asFloatBuffer();
 	}
 
 	@Override
