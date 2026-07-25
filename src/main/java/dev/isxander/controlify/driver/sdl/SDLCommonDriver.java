@@ -125,7 +125,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 				for (SdlAudioDeviceId dev : sdl.audio().SDL_GetAudioPlaybackDevices()) {
 					String name = sdl.audio().SDL_GetAudioDeviceName(dev).toLowerCase();
 					if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
-						sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, null);
+						sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, new SdlRefs.IntRef());
 						if (devSpec.value.channels() == 4) {
 							dualsenseAudioDev = dev;
 							break;
@@ -488,7 +488,9 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		public static AudioStreamHandle createWithAudio(Sdl sdl, SdlAudioDeviceId device, SdlAudioSpec audioSpec, SdlAudioSpec devSpec, byte[] audio, int tickLength) {
 			SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(audioSpec, devSpec);
 
-			sdl.audio().SDL_BindAudioStream(device, stream);
+			if (!sdl.audio().SDL_BindAudioStream(device, stream)) {
+				throw SDLException.useSDLError(sdl, "binding audio stream");
+			}
 
 			int[] channelMap = switch (audioSpec.channels()) {
 				case 1 -> new int[]{ -1, -1, 0, 0 };
@@ -496,7 +498,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 				default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels());
 			};
 			if (!sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
-				System.out.println(sdl.error().SDL_GetError());
+				throw SDLException.useSDLError(sdl, "setting channel map");
 			}
 
 			var handle = new AudioStreamHandle(sdl, stream, audioSpec);
