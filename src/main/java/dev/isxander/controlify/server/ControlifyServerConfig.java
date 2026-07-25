@@ -16,7 +16,7 @@ public class ControlifyServerConfig {
 	public static final ConfigClassHandler<ControlifyServerConfig> HANDLER = ConfigClassHandler.createBuilder(ControlifyServerConfig.class)
 			.id(CUtil.rl("config"))
 			.serializer(config -> GsonConfigSerializerBuilder.create(config)
-					.setPath(PlatformMainUtil.getConfigDir().resolve("controlify.json"))
+					.setPath(PlatformMainUtil.getConfigDir().resolve("controlify/server.json"))
 					.build())
 			.build();
 

@@ -35,8 +35,7 @@ public class GlobalSettings {
 	public List<String> analogueMovementWhitelist;
 	public final Set<String> seenServers;
 	public boolean showSplitscreenAd;
-
-	private static final GlobalSettings DEFAULT = new GlobalSettings();
+	public int preferredProfile;
 
 	private GlobalSettings() {
 		this.virtualMouseScreens = Sets.newHashSet(
@@ -54,6 +53,7 @@ public class GlobalSettings {
 		this.analogueMovementWhitelist = new ArrayList<>();
 		this.seenServers = new HashSet<>();
 		this.showSplitscreenAd = true;
+		this.preferredProfile = 0;
 	}
 
 	public GlobalSettings(
@@ -69,7 +69,8 @@ public class GlobalSettings {
 			boolean alwaysKeyboardMovement,
 			List<String> analogueMovementWhitelist,
 			Set<String> seenServers,
-			boolean showSplitscreenAd
+			boolean showSplitscreenAd,
+			int preferredProfile
 	) {
 		this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
 		this.mixedInput = mixedInput;
@@ -84,6 +85,7 @@ public class GlobalSettings {
 		this.analogueMovementWhitelist = new ArrayList<>(analogueMovementWhitelist);
 		this.seenServers = new HashSet<>(seenServers);
 		this.showSplitscreenAd = showSplitscreenAd;
+		this.preferredProfile = Math.max(0, preferredProfile);
 	}
 
 	public boolean shouldUseKeyboardMovement() {
@@ -104,7 +106,7 @@ public class GlobalSettings {
 	}
 
 	public static GlobalSettings defaults() {
-		return DEFAULT;
+		return new GlobalSettings();
 	}
 
 	public static GlobalSettings fromDTO(GlobalConfig dto) {
@@ -130,7 +132,8 @@ public class GlobalSettings {
 				dto.alwaysAllowKeyboardMovement(),
 				List.copyOf(dto.analogueMovementWhitelist()),
 				Set.copyOf(dto.seenServers()),
-				dto.showSplitscreenAd()
+				dto.showSplitscreenAd(),
+				dto.preferredProfile()
 		);
 	}
 
@@ -151,7 +154,8 @@ public class GlobalSettings {
 				alwaysKeyboardMovement,
 				List.copyOf(analogueMovementWhitelist),
 				List.copyOf(seenServers),
-				showSplitscreenAd
+				showSplitscreenAd,
+				preferredProfile
 		);
 	}
 }

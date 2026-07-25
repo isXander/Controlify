@@ -32,6 +32,8 @@ public class DebugProperties {
 	public static final boolean MIXIN_AUDIT = boolProp("controlify.debug.mixin_audit", false, false);
 
 	public static final @Nullable String SDL_NATIVES_OVERRIDE = strProp("controlify.debug.sdl_natives_override", null, null);
+	/** Forces selection of a particular profile index and crashes if that profile is locked. */
+	public static final @Nullable Integer PROFILE = intProp("controlify.debug.profile", null, null);
 
 	public static void printProperties() {
 		if (properties.stream().noneMatch(prop -> prop.state() != prop.def()))
@@ -63,6 +65,17 @@ public class DebugProperties {
 		String enabled = System.getProperty(name, def);
 		properties.add(new DebugProperty<>(name, enabled, def, Function.identity()));
 		return enabled;
+	}
+
+	private static Integer intProp(String name, Integer defProd, Integer defDev) {
+		Integer def = PlatformMainUtil.isDevEnv() ? defDev : defProd;
+		String raw = System.getProperty(name);
+		Integer value = raw == null ? def : Integer.valueOf(raw);
+		if (value != null && value < 0) {
+			throw new IllegalArgumentException(name + " must be a non-negative integer");
+		}
+		properties.add(new DebugProperty<>(name, value, def, String::valueOf));
+		return value;
 	}
 
 	private record DebugProperty<T>(String name, T state, T def, Function<T, String> typeToString) {

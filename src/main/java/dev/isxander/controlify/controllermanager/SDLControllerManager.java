@@ -161,8 +161,8 @@ public class SDLControllerManager extends AbstractControllerManager {
 		ControllerEntity controller = new ControllerEntity(
 				info,
 				compoundDriver,
-				this.controlify.config().getSettings().getOrCreateProfileSettings(info.type().namespace()),
-				ProfileSettings.createDefault(info.type().namespace()),
+				this.controlify.config().getActiveProfile(),
+				ProfileSettings.createDefault(),
 				controllerLogger
 		);
 

@@ -8,10 +8,13 @@ package dev.isxander.controlify.config.settings.profile;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.dto.profile.ProfileConfig;
-import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class ProfileSettings {
+	public @Nullable String name;
+	public @Nullable String controllerUid;
 	public final GenericControllerSettings generic;
 	public final InputSettings input;
 	public final RumbleSettings rumble;
@@ -20,6 +23,8 @@ public class ProfileSettings {
 	public final BluetoothDeviceSettings bluetoothDevice;
 
 	public ProfileSettings(
+			@Nullable String name,
+			@Nullable String controllerUid,
 			GenericControllerSettings generic,
 			InputSettings input,
 			RumbleSettings rumble,
@@ -27,6 +32,8 @@ public class ProfileSettings {
 			GyroSettings gyro,
 			BluetoothDeviceSettings bluetoothDevice
 	) {
+		this.name = name;
+		this.controllerUid = controllerUid;
 		this.generic = generic;
 		this.input = input;
 		this.rumble = rumble;
@@ -37,6 +44,8 @@ public class ProfileSettings {
 
 	public static ProfileSettings fromDTO(ProfileConfig dto) {
 		return new ProfileSettings(
+				dto.name().orElse(null),
+				dto.controllerUid().orElse(null),
 				GenericControllerSettings.fromDTO(dto.generic()),
 				InputSettings.fromDTO(dto.input()),
 				RumbleSettings.fromDTO(dto.rumble()),
@@ -48,6 +57,8 @@ public class ProfileSettings {
 
 	public ProfileConfig toDTO() {
 		return new ProfileConfig(
+				Optional.ofNullable(name),
+				Optional.ofNullable(controllerUid),
 				generic.toDTO(),
 				input.toDTO(),
 				rumble.toDTO(),
@@ -57,10 +68,10 @@ public class ProfileSettings {
 		);
 	}
 
-	public static ProfileSettings createDefault(@Nullable Identifier controllerType) {
+	public static ProfileSettings createDefault() {
 		var dto = Controlify.instance()
 				.defaultConfigManager()
-				.getDefaultForNamespace(controllerType);
+				.getDefault();
 		return ProfileSettings.fromDTO(dto);
 	}
 }

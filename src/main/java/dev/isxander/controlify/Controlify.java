@@ -123,8 +123,14 @@ public class Controlify implements ControlifyApi {
 		}
 
 		this.config = new ConfigManager(
-				PlatformMainUtil.getConfigDir().resolve("controlify.json")
+				PlatformMainUtil.getConfigDir()
 		);
+		PlatformClientUtil.registerClientStopping(client -> {
+			this.config.close();
+			if (this.controllerManager != null) {
+				this.controllerManager.close();
+			}
+		});
 
 		this.inputFontMapper = new InputFontMapper();
 		this.defaultBindManager = new DefaultBindManager();
@@ -339,13 +345,7 @@ public class Controlify implements ControlifyApi {
 			CUtil.LOGGER.log("No controllers found.");
 		}
 
-		// if no controller is currently selected, pick the first one
-		if (this.getCurrentController().isEmpty()) {
-			Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-					.stream()
-					.findAny();
-			this.setCurrentController(firstController.orElse(null), false);
-		}
+		this.applyControllerSelection(false);
 
 		config().saveIfDirty();
 
@@ -367,6 +367,16 @@ public class Controlify implements ControlifyApi {
 	 */
 	private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
 		ControllerSetupWizard wizard = new ControllerSetupWizard();
+		DeviceSettings rememberedDevice = config().getSettings().getOrCreateDeviceSettings(controller.uid());
+		rememberedDevice.name = controller.driverName();
+		rememberedDevice.lastSeen = System.currentTimeMillis();
+		rememberedDevice.controllerType = controller.info().type().namespace();
+		config().markDirty();
+
+		String selectedUid = config().getActiveProfile().controllerUid;
+		if (selectedUid != null && selectedUid.equals(controller.uid())) {
+			this.setCurrentController(controller, true);
+		}
 
 		// wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
@@ -411,7 +421,11 @@ public class Controlify implements ControlifyApi {
 	 */
 	private void onControllerRemoved(ControllerEntity controller) {
 		if (this.getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
-			this.selectFirstConnectedController();
+			if (config().getActiveProfile().controllerUid == null) {
+				this.selectFirstConnectedController();
+			} else {
+				this.setCurrentController(null, true);
+			}
 		}
 
 		MinecraftUtil.sendToast(
@@ -543,6 +557,10 @@ public class Controlify implements ControlifyApi {
 	}
 
 	private void tickInactiveController(ControllerEntity controller) {
+		if (config().getActiveProfile().controllerUid != null) {
+			return;
+		}
+
 		InputComponent input = controller.input().orElseThrow();
 		ControllerStateView state = input.stateNow();
 
@@ -552,6 +570,16 @@ public class Controlify implements ControlifyApi {
 		if (thisControllerGivingInput && !activeControllerGivingInput) {
 			this.setCurrentController(controller, true);
 		}
+	}
+
+	public void applyControllerSelection(boolean changeInputMode) {
+		String selectedUid = config().getActiveProfile().controllerUid;
+		Optional<ControllerEntity> selected = controllerManager == null
+				? Optional.empty()
+				: controllerManager.getConnectedControllers().stream()
+						.filter(controller -> selectedUid == null || selectedUid.equals(controller.uid()))
+						.findFirst();
+		this.setCurrentController(selected.orElse(null), changeInputMode);
 	}
 
 	public ConfigManager config() {

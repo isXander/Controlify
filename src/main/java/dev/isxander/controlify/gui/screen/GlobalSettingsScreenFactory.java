@@ -113,6 +113,13 @@ public class GlobalSettingsScreenFactory {
 						}))
 						.group(OptionGroup.createBuilder()
 								.name(Component.translatable("controlify.gui.miscellaneous"))
+								.option(Option.<Integer>createBuilder()
+										.name(Component.translatable("controlify.gui.preferred_profile"))
+										.description(OptionDescription.of(Component.translatable("controlify.gui.preferred_profile.tooltip")))
+										.binding(GlobalSettings.defaults().preferredProfile, () -> globalSettings.preferredProfile, value ->
+												globalSettings.preferredProfile = Math.max(0, value))
+										.controller(option -> IntegerFieldControllerBuilder.create(option).min(0))
+										.build())
 								.option(Option.<Float>createBuilder()
 										.name(Component.translatable("controlify.gui.ingame_button_guide_scale"))
 										.description(val  -> OptionDescription.createBuilder()
