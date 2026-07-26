@@ -75,12 +75,7 @@ publishMods {
 		content = changelog.zip(providers.gradleProperty("discord.ping")) { changelog, ping ->
 			"$changelog\n\n$ping"
 		}
-
-        style {
-            look = "MODERN"
-            thumbnailUrl = avatarUrl
-            color = providers.gradleProperty("discord.color")
-        }
+		username = "Controlify"
     }
 }
 
