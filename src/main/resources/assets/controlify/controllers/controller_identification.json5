@@ -79,7 +79,19 @@
 
     "hids": [
       [0x28de, 0x1205],
-      [0x28de, 0x11ff]
+    ]
+  },
+  {
+    "name": "Steam Controller",
+    "namespace": "controlify:steam_controller",
+
+    "hids": [
+      [0x28de, 0x1302], // Wired
+      [0x28de, 0x1303], // BLE
+      [0x28de, 0x1304], // Proteus Dongle
+      [0x28de, 0x1305], // Nereid Dongle
+
+      [0x28de, 0x11ff], // Steam Input Virtual Gamepad
     ]
   },
   {
