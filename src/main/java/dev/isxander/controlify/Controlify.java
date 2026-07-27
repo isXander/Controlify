@@ -125,11 +125,8 @@ public class Controlify implements ControlifyApi {
 		this.config = new ConfigManager(
 				PlatformMainUtil.getConfigDir()
 		);
-		PlatformClientUtil.registerClientStopping(client -> {
+		PlatformClientUtil.registerClientStopping(_ -> {
 			this.config.close();
-			if (this.controllerManager != null) {
-				this.controllerManager.close();
-			}
 		});
 
 		this.inputFontMapper = new InputFontMapper();
