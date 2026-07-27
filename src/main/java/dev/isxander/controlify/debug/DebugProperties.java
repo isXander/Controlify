@@ -18,16 +18,18 @@ public class DebugProperties {
 	private static final List<DebugProperty<?>> properties = new ArrayList<>();
 
 	public static final boolean DEBUG_LOGGING = boolProp("controlify.debug.logging", false, true);
-	/** Renders debug overlay for vmouse snapping */
+	/// Renders debug overlay for vmouse snapping
 	public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
-	/** Forces all gamepads to be treated as a regular joystick */
+	/// Forces all gamepads to be treated as a regular joystick
 	public static final boolean FORCE_JOYSTICK = boolProp("controlify.debug.force_joystick", false, false);
-	/** Debug dumps after finishing init */
+	/// Debug dumps after finishing init
 	public static final boolean INIT_DUMP = boolProp("controlify.debug.init_dump", false, true);
-	/** Use a custom url to access CEF, you can use remote access here to receive control remotely. **/
+	/// Use a custom url to access CEF, you can use remote access here to receive control remotely.
 	public static final @Nullable String STEAM_DECK_CUSTOM_CEF_URL = strProp("controlify.debug.steam_deck_custom_cef_url", null, null);
-	/** Run a mixin audit - useful for last checks before releasing a mod version */
+	/// Run a mixin audit - useful for last checks before releasing a mod version
 	public static final boolean MIXIN_AUDIT = boolProp("controlify.debug.mixin_audit", false, false);
+	/// Forces selection of a particular profile index and crashes if that profile is locked.
+	public static final @Nullable Integer PROFILE = intProp("controlify.debug.profile", null, null);
 
 	public static void printProperties() {
 		if (properties.stream().noneMatch(prop -> prop.state() != prop.def()))
@@ -59,6 +61,17 @@ public class DebugProperties {
 		String enabled = System.getProperty(name, def);
 		properties.add(new DebugProperty<>(name, enabled, def, Function.identity()));
 		return enabled;
+	}
+
+	private static Integer intProp(String name, Integer defProd, Integer defDev) {
+		Integer def = PlatformMainUtil.isDevEnv() ? defDev : defProd;
+		String raw = System.getProperty(name);
+		Integer value = raw == null ? def : Integer.valueOf(raw);
+		if (value != null && value < 0) {
+			throw new IllegalArgumentException(name + " must be a non-negative integer");
+		}
+		properties.add(new DebugProperty<>(name, value, def, String::valueOf));
+		return value;
 	}
 
 	private record DebugProperty<T>(String name, T state, T def, Function<T, String> typeToString) {

@@ -9,7 +9,11 @@ package dev.isxander.controlify.config.dto.profile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import java.util.Optional;
+
 public record ProfileConfig(
+		Optional<String> name,
+		Optional<String> controllerUid,
 		GenericControllerConfig generic,
 		InputConfig input,
 		RumbleConfig rumble,
@@ -18,6 +22,8 @@ public record ProfileConfig(
 		BluetoothDeviceConfig bluetoothDevice
 ) {
 	public static final Codec<ProfileConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+			Codec.STRING.optionalFieldOf("name").forGetter(ProfileConfig::name),
+			Codec.STRING.optionalFieldOf("controller_uid").forGetter(ProfileConfig::controllerUid),
 			GenericControllerConfig.CODEC.fieldOf("generic").forGetter(ProfileConfig::generic),
 			InputConfig.CODEC.fieldOf("input").forGetter(ProfileConfig::input),
 			RumbleConfig.CODEC.fieldOf("rumble").forGetter(ProfileConfig::rumble),

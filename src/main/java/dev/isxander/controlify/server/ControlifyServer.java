@@ -12,6 +12,10 @@ import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.server.level.ServerPlayer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 public class ControlifyServer {
 	private static ControlifyServer INSTANCE;
 
@@ -34,6 +38,19 @@ public class ControlifyServer {
 	}
 
 	public void onInitializeServer() {
+		try {
+			Path configDirectory = PlatformMainUtil.getConfigDir();
+			Path controlifyDirectory = configDirectory.resolve("controlify");
+			Path serverConfig = controlifyDirectory.resolve("server.json");
+			Path legacyServerConfig = configDirectory.resolve("controlify.json");
+			Files.createDirectories(controlifyDirectory);
+			if (Files.notExists(serverConfig) && Files.exists(legacyServerConfig)) {
+				Files.move(legacyServerConfig, serverConfig);
+				CUtil.LOGGER.log("Migrated Controlify server config to {}.", serverConfig.toAbsolutePath());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create Controlify server config directory", e);
+		}
 		ControlifyServerConfig.HANDLER.load();
 		ControlifyServerConfig.HANDLER.save();
 

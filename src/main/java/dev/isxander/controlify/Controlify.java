@@ -20,6 +20,7 @@ import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
@@ -66,6 +67,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -123,8 +125,11 @@ public class Controlify implements ControlifyApi {
 		}
 
 		this.config = new ConfigManager(
-				PlatformMainUtil.getConfigDir().resolve("controlify.json")
+				PlatformMainUtil.getConfigDir()
 		);
+		PlatformClientUtil.registerClientStopping(_ -> {
+			this.config.close();
+		});
 
 		this.inputFontMapper = new InputFontMapper();
 		this.defaultBindManager = new DefaultBindManager();
@@ -339,13 +344,7 @@ public class Controlify implements ControlifyApi {
 			CUtil.LOGGER.log("No controllers found.");
 		}
 
-		// if no controller is currently selected, pick the first one
-		if (this.getCurrentController().isEmpty()) {
-			Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-					.stream()
-					.findAny();
-			this.setCurrentController(firstController.orElse(null), false);
-		}
+		this.applyControllerSelection(false);
 
 		config().saveIfDirty();
 
@@ -367,6 +366,16 @@ public class Controlify implements ControlifyApi {
 	 */
 	private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
 		ControllerSetupWizard wizard = new ControllerSetupWizard();
+		DeviceSettings rememberedDevice = config().getSettings().getOrCreateDeviceSettings(controller.uid());
+		rememberedDevice.name = controller.driverName();
+		rememberedDevice.lastSeen = System.currentTimeMillis();
+		rememberedDevice.controllerType = controller.info().type().namespace();
+		config().markDirty();
+
+		String selectedUid = config().getActiveProfile().controllerUid;
+		if (selectedUid != null && selectedUid.equals(controller.uid())) {
+			this.setCurrentController(controller, true);
+		}
 
 		// wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
 
@@ -411,7 +420,11 @@ public class Controlify implements ControlifyApi {
 	 */
 	private void onControllerRemoved(ControllerEntity controller) {
 		if (this.getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
-			this.selectFirstConnectedController();
+			if (config().getActiveProfile().controllerUid == null) {
+				this.selectFirstConnectedController();
+			} else {
+				this.setCurrentController(null, true);
+			}
 		}
 
 		MinecraftUtil.sendToast(
@@ -543,6 +556,10 @@ public class Controlify implements ControlifyApi {
 	}
 
 	private void tickInactiveController(ControllerEntity controller) {
+		if (config().getActiveProfile().controllerUid != null) {
+			return;
+		}
+
 		InputComponent input = controller.input().orElseThrow();
 		ControllerStateView state = input.stateNow();
 
@@ -552,6 +569,30 @@ public class Controlify implements ControlifyApi {
 		if (thisControllerGivingInput && !activeControllerGivingInput) {
 			this.setCurrentController(controller, true);
 		}
+	}
+
+	public void applyControllerSelection(boolean changeInputMode) {
+		String selectedUid = config().getActiveProfile().controllerUid;
+		Optional<ControllerEntity> selected = controllerManager == null
+				? Optional.empty()
+				: controllerManager.getConnectedControllers().stream()
+						.filter(controller -> selectedUid == null || selectedUid.equals(controller.uid()))
+						.findFirst();
+		this.setCurrentController(selected.orElse(null), changeInputMode);
+	}
+
+	public boolean switchProfile(int profileIndex, boolean remember) throws IOException {
+		if (!config().switchProfile(profileIndex, remember)) {
+			return false;
+		}
+
+		ProfileSettings profile = config().getActiveProfile();
+		if (controllerManager != null) {
+			controllerManager.getConnectedControllers().forEach(controller -> controller.setSettings(profile));
+		}
+		this.applyControllerSelection(true);
+		this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
+		return true;
 	}
 
 	public ConfigManager config() {

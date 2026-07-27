@@ -11,8 +11,10 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.gui.components.PlainTextWidget;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
@@ -40,6 +42,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 
 public class ControlifySettingsScreen extends Screen implements ScreenControllerEventListener {
 	private final @Nullable Screen parent;
@@ -123,25 +126,26 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			int slotPaddingX = 10;
 			int slotPaddingY = 10;
 
-			int playerSlotHeight = mainPaneHeight - (2 * slotPaddingY);
-			int playerSlotWidth = this.width - (2 * slotPaddingX);
+			int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
+			int profileSlotWidth = this.width - (2 * slotPaddingX);
+			int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
 			if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
 				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-						0,
-						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-						playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
 				);
 				this.addRenderableWidget(profileSlotEntry);
 				SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-						mainPaneX + slotPaddingX + playerSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
-						playerSlotWidth / 2 - (slotPaddingX / 2), playerSlotHeight
+					mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
 				);
 				this.addRenderableWidget(splitscreenAdEntry);
 			} else {
 				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-						0,
-						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-						playerSlotWidth, playerSlotHeight
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth, profileSlotHeight
 				);
 				this.addRenderableWidget(profileSlotEntry);
 			}
@@ -243,36 +247,54 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 	private class ProfileSlotEntry extends SlotEntry {
 		private static final Identifier KEYBOARD_MOUSE_SPRITE = CUtil.rl("keyboard_mouse");
 
-		private final int playerIndex;
-		private @Nullable ControllerEntity controller;
+		private final int profileIndex;
 
-		private final Button settingsButton;
+		private final Button settingsButton, swapProfileButton;
+		private final PlainTextWidget profileNameText;
 		private final PlainTextWidget controllerNameText;
 		private final ImageWidget controllerIcon;
 		private final GridLayout gridLayout;
 
 		private final ImmutableList<? extends GuiEventListener> children;
+		private Component displayedProfileName = Component.empty();
+		private Component displayedControllerName = Component.empty();
+		private Identifier displayedControllerIcon = KEYBOARD_MOUSE_SPRITE;
+		private boolean displayedControllerConnected = true;
 
 		public ProfileSlotEntry(
-				int playerIndex,
+				int profileIndex,
 				int x, int y, int width, int height
 		) {
 			super(x, y, width, height);
-			this.playerIndex = playerIndex;
+			this.profileIndex = profileIndex;
 
 			this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> onSettingsButtonPressed()).build();
+			this.swapProfileButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.swap_profile"), btn -> {
+				MinecraftUtil.setScreen(new ProfileSelectionScreen(ControlifySettingsScreen.this));
+			}).build();
+			this.profileNameText = new PlainTextWidget(Component.empty());
 			this.controllerNameText = new PlainTextWidget(Component.empty());
 			this.controllerIcon = ImageWidget.sprite(64, 64, KEYBOARD_MOUSE_SPRITE);
-			this.children = ImmutableList.of(this.settingsButton, this.controllerNameText, this.controllerIcon);
+			this.children = ImmutableList.of(
+					this.settingsButton,
+					this.swapProfileButton,
+					this.profileNameText,
+					this.controllerNameText,
+					this.controllerIcon
+			);
 
 			this.gridLayout = new GridLayout().spacing(10);
 			this.gridLayout.defaultCellSetting().alignHorizontallyCenter();
 			var rowHelper = this.gridLayout.createRowHelper(1);
+			rowHelper.addChild(this.profileNameText);
 			rowHelper.addChild(this.controllerIcon);
 			rowHelper.addChild(this.controllerNameText);
-			rowHelper.addChild(this.settingsButton);
+			GridLayout buttonGrid = rowHelper.addChild(new GridLayout().spacing(5));
+			var buttonRow = buttonGrid.createRowHelper(1);
+			buttonRow.addChild(this.swapProfileButton);
+			buttonRow.addChild(this.settingsButton);
 
-			updateControllerInfo(true);
+			updateProfileInfo(true);
 
 			this.gridLayout.arrangeElements();
 			FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
@@ -282,43 +304,76 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 			super.extractRenderState(graphics, mouseX, mouseY, a);
 
-			updateControllerInfo(false);
+			updateProfileInfo(false);
 
 			this.settingsButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.swapProfileButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.profileNameText.extractRenderState(graphics, mouseX, mouseY, a);
 			this.controllerNameText.extractRenderState(graphics, mouseX, mouseY, a);
 			this.controllerIcon.extractRenderState(graphics, mouseX, mouseY, a);
 		}
 
 		private void onSettingsButtonPressed() {
-			ProfileSettings profileSettings = Controlify.instance().config().getSettings().getProfileSettings(playerIndex);
-			ProfileSettings defaultSettings = ProfileSettings.createDefault(
-					this.controller != null ? this.controller.info().type().namespace() : null
-			);
+			ProfileSettings profileSettings = this.getProfileSettings();
+			ProfileSettings defaultSettings = ProfileSettings.createDefault();
 
 			var screen = ControllerConfigScreenFactory.generateConfigScreen(
 					ControlifySettingsScreen.this,
 					profileSettings,
 					defaultSettings,
-					this.controller
+					this.getController(profileSettings).orElse(null)
 			);
 			MinecraftUtil.setScreen(screen);
 		}
 
-		private void updateControllerInfo(boolean force) {
-			var currentController = getController();
-			if (this.controller == currentController && !force) {
+		private void updateProfileInfo(boolean force) {
+			ProfileSettings profileSettings = this.getProfileSettings();
+			int displayedProfileIndex = profileIndex + 1;
+			Component profileName = profileSettings.name == null
+					? Component.translatable("controlify.gui.carousel.entry.profile", displayedProfileIndex)
+					: Component.translatable("controlify.gui.carousel.entry.named_profile", displayedProfileIndex, profileSettings.name);
+
+			Optional<ControllerEntity> controller = this.getController(profileSettings);
+			Component controllerName;
+			Identifier controllerIcon;
+			boolean controllerConnected;
+			if (controller.isPresent()) {
+				ControllerEntity entity = controller.get();
+				controllerName = Component.literal(entity.name());
+				controllerIcon = entity.info().type().getIconSprite();
+				controllerConnected = true;
+			} else if (profileSettings.controllerUid != null) {
+				DeviceSettings device = Controlify.instance().config().getSettings().deviceSettings().get(profileSettings.controllerUid);
+				controllerName = Component.translatable(
+						"controlify.gui.carousel.entry.disconnected_controller",
+						device == null ? profileSettings.controllerUid : device.name
+				).withStyle(ChatFormatting.RED);
+				controllerIcon = device == null
+						? ControllerType.DEFAULT.getIconSprite()
+						: device.controllerType.withPrefix("controllers/");
+				controllerConnected = false;
+			} else {
+				controllerName = Component.translatable("controlify.gui.carousel.entry.keyboard_mouse");
+				controllerIcon = KEYBOARD_MOUSE_SPRITE;
+				controllerConnected = true;
+			}
+
+			if (!force
+					&& profileName.equals(displayedProfileName)
+					&& controllerName.equals(displayedControllerName)
+					&& controllerIcon.equals(displayedControllerIcon)
+					&& controllerConnected == displayedControllerConnected) {
 				return;
 			}
 
-			this.controller = currentController;
-			if (this.controller != null) {
-				this.controllerNameText.setMessage(Component.literal(this.controller.name()));
-				this.updateIcon(this.controller.info().type().getIconSprite());
-			} else {
-				this.controllerNameText.setMessage(Component.translatable("controlify.gui.carousel.entry.keyboard_mouse"));
-				this.updateIcon(KEYBOARD_MOUSE_SPRITE);
-			}
-
+			this.displayedProfileName = profileName;
+			this.displayedControllerName = controllerName;
+			this.displayedControllerIcon = controllerIcon;
+			this.displayedControllerConnected = controllerConnected;
+			this.profileNameText.setMessage(profileName);
+			this.controllerNameText.setMessage(controllerName);
+			this.updateIcon(controllerIcon);
+			this.controllerIcon.setAlpha(controllerConnected ? 1.0F : 0.4F);
 			this.gridLayout.arrangeElements();
 			FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
 		}
@@ -327,8 +382,23 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			this.controllerIcon.updateResource(iconSprite);
 		}
 
-		private @Nullable ControllerEntity getController() {
-			return Controlify.instance().getCurrentController().orElse(null);
+		private ProfileSettings getProfileSettings() {
+			ProfileSettings profile = Controlify.instance().config().getSettings().getProfileSettings(profileIndex);
+			if (profile == null) {
+				throw new IllegalStateException("Unknown profile index " + profileIndex);
+			}
+			return profile;
+		}
+
+		private Optional<ControllerEntity> getController(ProfileSettings profileSettings) {
+			if (profileSettings.controllerUid == null) {
+				return Controlify.instance().getCurrentController();
+			}
+			return Controlify.instance().getControllerManager().flatMap(manager ->
+					manager.getConnectedControllers().stream()
+							.filter(controller -> profileSettings.controllerUid.equals(controller.uid()))
+							.findFirst()
+			);
 		}
 
 		@Override
@@ -344,7 +414,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 		@Override
 		public void updateNarration(NarrationElementOutput narrationElementOutput) {
-			narrationElementOutput.add(NarratedElementType.TITLE, this.controllerNameText.getMessage());
+			narrationElementOutput.add(NarratedElementType.TITLE, this.profileNameText.getMessage());
+			narrationElementOutput.add(NarratedElementType.USAGE, this.controllerNameText.getMessage());
 		}
 	}
 

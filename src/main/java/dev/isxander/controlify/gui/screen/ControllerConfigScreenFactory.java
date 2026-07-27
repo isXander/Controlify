@@ -78,6 +78,7 @@ public class ControllerConfigScreenFactory {
 			ProfileSettings defaults,
 			Optional<ControllerEntity> controller
 	) {
+		String initialControllerUid = settings.controllerUid;
 		var advancedCategory = createAdvancedCategory(settings, defaults, controller);
 		var bindsCategory = makeBindsCategory(settings, defaults, controller);
 		var basicCategory = createBasicCategory(settings, defaults, controller); // must be last for new options
@@ -86,7 +87,12 @@ public class ControllerConfigScreenFactory {
 				.title(Component.literal("Controlify"))
 				.category(basicCategory)
 				.category(advancedCategory)
-				.save(() -> Controlify.instance().config().saveSafely());
+				.save(() -> {
+					if (!Objects.equals(initialControllerUid, settings.controllerUid)) {
+						Controlify.instance().applyControllerSelection(true);
+					}
+					Controlify.instance().config().saveSafely();
+				});
 
 		bindsCategory.ifPresent(yacl::category);
 
@@ -108,6 +114,7 @@ public class ControllerConfigScreenFactory {
 
 		ConfigCategory.Builder builder = ConfigCategory.createBuilder()
 				.name(Component.translatable("controlify.gui.config.category.basic"));
+		builder.group(makeProfileGroup(settings));
 		if (!newOptions.isEmpty()) {
 			builder.group(OptionGroup.createBuilder()
 					.name(Component.translatable("controlify.gui.new_options").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
@@ -122,6 +129,46 @@ public class ControllerConfigScreenFactory {
 		deadzoneGroup.ifPresent(builder::group);
 
 		return builder.build();
+	}
+
+	private OptionGroup makeProfileGroup(ProfileSettings settings) {
+		Map<String, DeviceSettings> devices = Controlify.instance().config().getSettings().deviceSettings();
+		List<String> controllerChoices = devices.entrySet().stream()
+				.sorted(Map.Entry.<String, DeviceSettings>comparingByValue(
+						Comparator.comparingLong(device -> device.lastSeen)
+				).reversed())
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toCollection(ArrayList::new));
+		if (settings.controllerUid != null && !controllerChoices.contains(settings.controllerUid)) {
+			controllerChoices.add(settings.controllerUid);
+		}
+		controllerChoices.addFirst("");
+
+		return OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.config.group.profile"))
+				.option(Option.<String>createBuilder()
+						.name(Component.translatable("controlify.gui.profile_name"))
+						.description(OptionDescription.of(Component.translatable("controlify.gui.profile_name.tooltip")))
+						.binding("", () -> Optional.ofNullable(settings.name).orElse(""), value ->
+								settings.name = value.isBlank() ? null : value)
+						.controller(StringControllerBuilder::create)
+						.build())
+				.option(Option.<String>createBuilder()
+						.name(Component.translatable("controlify.gui.controller_selection"))
+						.description(OptionDescription.of(Component.translatable("controlify.gui.controller_selection.tooltip")))
+						.binding("", () -> Optional.ofNullable(settings.controllerUid).orElse(""), value ->
+								settings.controllerUid = value.isEmpty() ? null : value)
+						.controller(option -> CyclingListControllerBuilder.create(option)
+								.values(controllerChoices)
+								.formatValue(uid -> {
+									if (uid.isEmpty()) {
+										return Component.translatable("controlify.gui.controller_selection.automatic");
+									}
+									DeviceSettings device = devices.get(uid);
+									return Component.literal(device == null || device.name.isBlank() ? uid : device.name);
+								}))
+						.build())
+				.build();
 	}
 
 	private Optional<OptionGroup> makeSensitivityGroup(
@@ -421,7 +468,7 @@ public class ControllerConfigScreenFactory {
 
 		DeviceSettings config = Controlify.instance().config().getSettings()
 				.getOrCreateDeviceSettings(controller.get().uid());
-		DeviceSettings def = DeviceSettings.defaults();
+		DeviceSettings def = DeviceSettings.defaults(controller.map(ControllerEntity::uid).orElse(""));
 
 		return Optional.of(OptionGroup.createBuilder()
 				.name(Component.translatable("controlify.gui.group.controller_mapping"))

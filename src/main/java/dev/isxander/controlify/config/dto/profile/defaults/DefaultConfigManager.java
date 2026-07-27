@@ -13,117 +13,70 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.config.dto.profile.ProfileConfig;
-import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.CrashReport;
 import net.minecraft.ReportedException;
-import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class DefaultConfigManager implements SimpleControlifyReloadListener<DefaultConfigManager.Preparations>, DefaultConfigProvider {
-
-	public static final String DIRECTORY = "controllers/default_config";
-	private static final FileToIdConverter converter = FileToIdConverter.json(DIRECTORY);
-
+public class DefaultConfigManager implements SimpleControlifyReloadListener<ProfileConfig>, DefaultConfigProvider {
+	public static final Identifier DEFAULT_RESOURCE = CUtil.rl("controllers/default_config.json");
 	private static final Logger LOGGER = LogUtils.getLogger();
 
-	private final Map<Identifier, ProfileConfig> defaultsByNamespace = new HashMap<>();
+	private ProfileConfig defaultConfig;
 
 	@Override
-	public ProfileConfig getDefaultForNamespace(@Nullable Identifier namespace) {
+	public ProfileConfig getDefault() {
 		if (!this.isReady()) {
 			throw new IllegalStateException("Attempted to fetch default config before DefaultConfigManager was ready!");
 		}
-		if (namespace == null) {
-			namespace = ControllerType.DEFAULT.namespace();
-		}
-		return Objects.requireNonNull(
-				this.defaultsByNamespace.getOrDefault(namespace, this.defaultsByNamespace.get(ControllerType.DEFAULT.namespace())),
-				"Could not fetch default config for default namespace! This should never happen."
-		);
+		return Objects.requireNonNull(defaultConfig);
 	}
 
 	@Override
 	public boolean isReady() {
-		return !defaultsByNamespace.isEmpty();
+		return defaultConfig != null;
 	}
 
 	@Override
-	public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
+	public CompletableFuture<ProfileConfig> load(ResourceManager manager, Executor executor) {
 		return CompletableFuture.supplyAsync(() -> {
-			Map<Identifier, List<Resource>> defaultFiles = converter.listMatchingResourceStacks(manager);
-
-			Map<Identifier, ProfileConfig> defaultsByNamespace = new HashMap<>();
-
-			Identifier defaultNamespaceFile = converter.idToFile(ControllerType.DEFAULT.namespace());
-			if (!defaultFiles.containsKey(defaultNamespaceFile)) {
-				var report = CrashReport.forThrowable(new Throwable(), "No default Controlify configs found! Cannot continue.");
+			List<Resource> resources = manager.getResourceStack(DEFAULT_RESOURCE);
+			if (resources.isEmpty()) {
+				var report = CrashReport.forThrowable(
+						new IllegalStateException("Missing " + DEFAULT_RESOURCE),
+						"No default Controlify config found"
+				);
 				throw new ReportedException(report);
 			}
 
-			JsonObject defaultNamespaceJson = this.readDefaults(
-					new JsonObject(),
-					defaultNamespaceFile,
-					defaultFiles.get(defaultNamespaceFile)
-			);
-			defaultsByNamespace.put(ControllerType.DEFAULT.namespace(), jsonToConfig(defaultNamespaceJson));
-
-			for (Map.Entry<Identifier, List<Resource>> stack : defaultFiles.entrySet()) {
-				Identifier fileId = stack.getKey();
-				if (fileId.equals(defaultNamespaceFile)) continue;
-
-				JsonObject combinedJson = this.readDefaults(
-						defaultNamespaceJson,
-						fileId,
-						stack.getValue()
-				);
-				defaultsByNamespace.put(converter.fileToId(fileId), jsonToConfig(combinedJson));
+			JsonObject combined = new JsonObject();
+			for (Resource resource : resources) {
+				try (var reader = resource.openAsReader()) {
+					JsonElement json = JsonParser.parseReader(reader);
+					mergeJsonObjects(combined, json.getAsJsonObject());
+				} catch (Exception e) {
+					LOGGER.error("Failed to read default config layer {} from pack {}", DEFAULT_RESOURCE, resource.sourcePackId(), e);
+				}
 			}
 
-			return new Preparations(defaultsByNamespace);
+			DataResult<ProfileConfig> result = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, combined);
+			return result.result().orElseThrow(() ->
+					new IllegalStateException("Failed to parse Controlify default config: " + result.error().orElse(null)));
 		}, executor);
-	}
-
-	private JsonObject readDefaults(JsonObject base, Identifier resourceId, List<Resource> resources) {
-		JsonObject combined = base.deepCopy();
-		for (Resource resource : resources) {
-			try (var reader = resource.openAsReader()) {
-				JsonElement json = JsonParser.parseReader(reader).getAsJsonObject();
-				// merge deeply
-				mergeJsonObjects(combined, json.getAsJsonObject());
-			} catch (Exception e) {
-				LOGGER.error("Failed to read default config file: {}", resourceId, e);
-			}
-		}
-
-		return combined;
-	}
-
-	private ProfileConfig jsonToConfig(JsonObject json) {
-		DataResult<ProfileConfig> result = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, json);
-		return result.result().orElseThrow(() -> new IllegalStateException("Failed to parse ControlifyConfig from JSON: " + result.error().orElse(null)));
 	}
 
 	@Override
-	public CompletableFuture<Void> apply(Preparations data, ResourceManager manager, Executor executor) {
-		return CompletableFuture.runAsync(() -> {
-			this.defaultsByNamespace.clear();
-			if (data != null) {
-				this.defaultsByNamespace.putAll(data.map);
-			}
-		}, executor);
+	public CompletableFuture<Void> apply(ProfileConfig data, ResourceManager manager, Executor executor) {
+		return CompletableFuture.runAsync(() -> this.defaultConfig = data, executor);
 	}
 
 	@Override
@@ -131,18 +84,11 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Defa
 		return CUtil.rl("default_config");
 	}
 
-	public record Preparations(Map<Identifier, ProfileConfig> map) {}
-
 	public static void mergeJsonObjects(JsonObject target, JsonObject source) {
 		for (String key : source.keySet()) {
 			JsonElement sourceElement = source.get(key);
-			if (target.has(key)) {
-				JsonElement targetElement = target.get(key);
-				if (sourceElement.isJsonObject() && targetElement.isJsonObject()) {
-					mergeJsonObjects(targetElement.getAsJsonObject(), sourceElement.getAsJsonObject());
-				} else {
-					target.add(key, sourceElement);
-				}
+			if (target.has(key) && sourceElement.isJsonObject() && target.get(key).isJsonObject()) {
+				mergeJsonObjects(target.getAsJsonObject(key), sourceElement.getAsJsonObject());
 			} else {
 				target.add(key, sourceElement);
 			}

@@ -17,24 +17,18 @@ public final class ControlifySchemas {
 	private ControlifySchemas() {
 	}
 
-	private static class ControlifySchema extends Schema {
-		public ControlifySchema(int versionKey, Schema parent) {
+	public static class V0 extends Schema {
+		public V0(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 
 		@Override
 		public void registerTypes(Schema schema, Map<String, Supplier<TypeTemplate>> entityTypes, Map<String, Supplier<TypeTemplate>> blockEntityTypes) {
 			schema.registerType(
-					true,
-					ControlifyTypeReferences.USER_STATE,
-					DSL::remainder
+				true,
+				ControlifyTypeReferences.USER_STATE,
+				DSL::remainder
 			);
-		}
-	}
-
-	public static class SchemaV0 extends ControlifySchema {
-		public SchemaV0(int versionKey, Schema parent) {
-			super(versionKey, parent);
 		}
 
 		@Override
@@ -48,15 +42,36 @@ public final class ControlifySchemas {
 		}
 	}
 
-	public static class SchemaV1 extends ControlifySchema {
-		public SchemaV1(int versionKey, Schema parent) {
+	public static class V1 extends Schema {
+		public V1(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 	}
 
-	public static class SchemaV2 extends ControlifySchema {
-		public SchemaV2(int versionKey, Schema parent) {
+	public static class V2 extends Schema {
+		public V2(int versionKey, Schema parent) {
 			super(versionKey, parent);
+		}
+	}
+
+	public static class V3 extends Schema {
+		public V3(int versionKey, Schema parent) {
+			super(versionKey, parent);
+		}
+
+		@Override
+		public void registerTypes(Schema schema, Map<String, Supplier<TypeTemplate>> entityTypes, Map<String, Supplier<TypeTemplate>> blockEntityTypes) {
+			super.registerTypes(schema, entityTypes, blockEntityTypes);
+			schema.registerType(
+					true,
+					ControlifyTypeReferences.SHARED_CONFIG,
+					DSL::remainder
+			);
+			schema.registerType(
+					true,
+					ControlifyTypeReferences.PROFILE_CONFIG,
+					DSL::remainder
+			);
 		}
 	}
 }

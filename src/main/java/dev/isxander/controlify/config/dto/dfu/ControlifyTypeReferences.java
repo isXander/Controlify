@@ -10,7 +10,12 @@ import com.mojang.datafixers.DSL;
 
 public final class ControlifyTypeReferences {
 
+	/** Legacy monolithic client configuration, retained for pre-v3 migration. */
 	public static final DSL.TypeReference USER_STATE = () -> "controlify:user_state";
+	/** Shared global and device configuration introduced in v3. */
+	public static final DSL.TypeReference SHARED_CONFIG = () -> "controlify:shared_config";
+	/** Per-profile configuration introduced in v3. */
+	public static final DSL.TypeReference PROFILE_CONFIG = () -> "controlify:profile_config";
 
 	private ControlifyTypeReferences() {
 	}

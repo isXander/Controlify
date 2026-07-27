@@ -7,34 +7,26 @@
 package dev.isxander.controlify.config.settings;
 
 import dev.isxander.controlify.config.dto.ControlifyConfig;
+import dev.isxander.controlify.config.dto.SharedConfig;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
-import net.minecraft.resources.Identifier;
+import it.unimi.dsi.fastutil.ints.Int2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectSortedMaps;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ControlifySettings {
-	private final List<ProfileSettings> profileSettings;
-	private final GlobalSettings globalSettings;
+	private final Int2ObjectSortedMap<ProfileSettings> profileSettings;
+	private GlobalSettings globalSettings;
 	private final Map<String, DeviceSettings> deviceSettings;
 
 	private ControlifySettings() {
-		this.profileSettings = new ArrayList<>();
+		this.profileSettings = new Int2ObjectAVLTreeMap<>();
 		this.globalSettings = GlobalSettings.defaults();
 		this.deviceSettings = new HashMap<>();
-	}
-
-	public ControlifySettings(
-			List<ProfileSettings> controllerSettings,
-			GlobalSettings globalSettings,
-			Map<String, DeviceSettings> deviceSettings
-	) {
-		this.profileSettings = new ArrayList<>(controllerSettings);
-		this.globalSettings = globalSettings;
-		this.deviceSettings = new HashMap<>(deviceSettings);
 	}
 
 	public static ControlifySettings defaults() {
@@ -45,61 +37,62 @@ public class ControlifySettings {
 		return this.globalSettings;
 	}
 
-	public ProfileSettings getProfileSettings(int profileIndex) {
-		if (profileIndex < 0 || profileIndex >= profileSettings.size()) {
-			return null;
+	public Map<String, DeviceSettings> deviceSettings() {
+		return Map.copyOf(this.deviceSettings);
+	}
+
+	public Int2ObjectSortedMap<ProfileSettings> profileSettings() {
+		return Int2ObjectSortedMaps.unmodifiable(this.profileSettings);
+	}
+
+	public @Nullable ProfileSettings getProfileSettings(int profileIndex) {
+		return this.profileSettings.get(profileIndex);
+	}
+
+	public void putProfileSettings(int profileIndex, ProfileSettings settings) {
+		if (profileIndex < 0) {
+			throw new IllegalArgumentException("Profile index must be non-negative");
 		}
-		return profileSettings.get(profileIndex);
+		this.profileSettings.put(profileIndex, settings);
 	}
 
-	public ProfileSettings getProfileSettings() {
-		return getProfileSettings(0);
+	public void removeProfileSettings(int profileIndex) {
+		this.profileSettings.remove(profileIndex);
 	}
 
-	public ProfileSettings getOrCreateProfileSettings(Identifier controllerType) {
-		var settings = this.getProfileSettings(0);
-		if (settings == null) {
-			settings = ProfileSettings.createDefault(controllerType);
-			this.profileSettings.add(settings);
+	public DeviceSettings getOrCreateDeviceSettings(String uid) {
+		return deviceSettings.computeIfAbsent(uid, DeviceSettings::defaults);
+	}
+
+	public static ControlifySettings fromLegacyDTO(ControlifyConfig dto) {
+		ControlifySettings settings = fromSharedDTO(new SharedConfig(dto.globalConfig(), dto.deviceConfig()));
+		for (int i = 0; i < dto.profileConfig().size(); i++) {
+			settings.putProfileSettings(i, ProfileSettings.fromDTO(dto.profileConfig().get(i)));
 		}
 		return settings;
 	}
 
-	public DeviceSettings getOrCreateDeviceSettings(String uid) {
-		return deviceSettings.computeIfAbsent(uid, id -> DeviceSettings.defaults());
+	public static ControlifySettings fromSharedDTO(SharedConfig dto) {
+		ControlifySettings settings = defaults();
+		settings.globalSettings = GlobalSettings.fromDTO(dto.globalConfig());
+		dto.deviceConfig().forEach((uid, config) -> {
+			DeviceSettings device = DeviceSettings.fromDTO(config);
+			if (device.name.isBlank()) {
+				device.name = uid;
+			}
+			settings.deviceSettings.put(uid, device);
+		});
+		return settings;
 	}
 
-	public static ControlifySettings fromDTO(ControlifyConfig dto) {
-		return new ControlifySettings(
-				dto.profileConfig()
-						.stream()
-						.map(ProfileSettings::fromDTO)
-						.toList(),
-				GlobalSettings.fromDTO(dto.globalConfig()),
-				dto.deviceConfig().entrySet()
-						.stream()
-						.collect(
-								HashMap::new,
-								(map, entry) -> map.put(entry.getKey(), DeviceSettings.fromDTO(entry.getValue())),
-								HashMap::putAll
-						)
-		);
-	}
-
-	public ControlifyConfig toDTO() {
-		return new ControlifyConfig(
-				profileSettings
-						.stream()
-						.map(ProfileSettings::toDTO)
-						.toList(),
+	public SharedConfig toSharedDTO() {
+		return new SharedConfig(
 				globalSettings.toDTO(),
-				deviceSettings.entrySet()
-						.stream()
-						.collect(
-								HashMap::new,
-								(map, entry) -> map.put(entry.getKey(), entry.getValue().toDTO()),
-								HashMap::putAll
-						)
+				deviceSettings.entrySet().stream().collect(
+						HashMap::new,
+						(map, entry) -> map.put(entry.getKey(), entry.getValue().toDTO()),
+						HashMap::putAll
+				)
 		);
 	}
 }

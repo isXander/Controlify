@@ -25,7 +25,8 @@ public record GlobalConfig(
 		boolean alwaysAllowKeyboardMovement,
 		List<String> analogueMovementWhitelist,
 		List<String> seenServers,
-		boolean showSplitscreenAd
+		boolean showSplitscreenAd,
+		int preferredProfile
 ) {
 	public static final Codec<GlobalConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.list(Codec.STRING).fieldOf("virtual_mouse_screens").forGetter(GlobalConfig::virtualMouseScreens),
@@ -40,6 +41,7 @@ public record GlobalConfig(
 			Codec.BOOL.fieldOf("keyboard_movement").forGetter(GlobalConfig::alwaysAllowKeyboardMovement),
 			Codec.list(Codec.STRING).fieldOf("analogue_movement_whitelist").forGetter(GlobalConfig::analogueMovementWhitelist),
 			Codec.list(Codec.STRING).fieldOf("seen_servers").forGetter(GlobalConfig::seenServers),
-			Codec.BOOL.fieldOf("show_splitscreen_ad").forGetter(GlobalConfig::showSplitscreenAd)
+			Codec.BOOL.fieldOf("show_splitscreen_ad").forGetter(GlobalConfig::showSplitscreenAd),
+			Codec.INT.optionalFieldOf("preferred_profile", 0).forGetter(GlobalConfig::preferredProfile)
 	).apply(instance, GlobalConfig::new));
 }

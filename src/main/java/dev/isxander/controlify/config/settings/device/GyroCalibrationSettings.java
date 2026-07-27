@@ -13,8 +13,6 @@ import dev.isxander.controlify.controller.gyro.GyroStateC;
 public class GyroCalibrationSettings {
 	public GyroStateC offset;
 
-	private static final GyroCalibrationSettings DEFAULT = new GyroCalibrationSettings();
-
 	private GyroCalibrationSettings() {
 		this.offset = new GyroState();
 	}
@@ -26,7 +24,7 @@ public class GyroCalibrationSettings {
 	}
 
 	public static GyroCalibrationSettings defaults() {
-		return DEFAULT;
+		return new GyroCalibrationSettings();
 	}
 
 	public static GyroCalibrationSettings fromDTO(GyroCalibrationConfig dto) {
