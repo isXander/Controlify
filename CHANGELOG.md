@@ -7,7 +7,7 @@ This version has the following targets:
 
 ## Changes
 
-- Add Steam Controller sprite
-- Detect Steam Controller explicitly
-- Attempt to load SDL3 from the system as a fallback, laying the groundwork for future Android compatibility
-- Fix detecting Android platform as Linux, leading to attempt to load incorrect native library of SDL
+- Add Profile switching
+  - Allow you to bind certain profiles to a specific controller
+  - Profiles have a locking feature, so subsequent concurrent instances of Minecraft
+    pick the next profile. This allows for makeshift splitscreen operation.
