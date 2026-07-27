@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class ControllerEntity extends ECSEntityImpl {
 	private final ControllerInfo info;
 	private final Driver driver;
-	private final ProfileSettings settings;
+	private ProfileSettings settings;
 	private final ProfileSettings defaultSettings;
 	private final ControlifyLogger logger;
 
@@ -87,6 +87,10 @@ public class ControllerEntity extends ECSEntityImpl {
 
 	public ProfileSettings settings() {
 		return settings;
+	}
+
+	public void setSettings(ProfileSettings settings) {
+		this.settings = settings;
 	}
 
 	public ProfileSettings defaultSettings() {

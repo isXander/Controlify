@@ -259,6 +259,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		private Component displayedProfileName = Component.empty();
 		private Component displayedControllerName = Component.empty();
 		private Identifier displayedControllerIcon = KEYBOARD_MOUSE_SPRITE;
+		private boolean displayedControllerConnected = true;
 
 		public ProfileSlotEntry(
 				int profileIndex,
@@ -269,6 +270,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 			this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> onSettingsButtonPressed()).build();
 			this.swapProfileButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.swap_profile"), btn -> {
+				MinecraftUtil.setScreen(new ProfileSelectionScreen(ControlifySettingsScreen.this));
 			}).build();
 			this.profileNameText = new PlainTextWidget(Component.empty());
 			this.controllerNameText = new PlainTextWidget(Component.empty());
@@ -334,34 +336,44 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			Optional<ControllerEntity> controller = this.getController(profileSettings);
 			Component controllerName;
 			Identifier controllerIcon;
+			boolean controllerConnected;
 			if (controller.isPresent()) {
 				ControllerEntity entity = controller.get();
 				controllerName = Component.literal(entity.name());
 				controllerIcon = entity.info().type().getIconSprite();
+				controllerConnected = true;
 			} else if (profileSettings.controllerUid != null) {
 				DeviceSettings device = Controlify.instance().config().getSettings().deviceSettings().get(profileSettings.controllerUid);
-				controllerName = Component.literal(device == null ? profileSettings.controllerUid : device.name);
+				controllerName = Component.translatable(
+						"controlify.gui.carousel.entry.disconnected_controller",
+						device == null ? profileSettings.controllerUid : device.name
+				).withStyle(ChatFormatting.RED);
 				controllerIcon = device == null
 						? ControllerType.DEFAULT.getIconSprite()
 						: device.controllerType.withPrefix("controllers/");
+				controllerConnected = false;
 			} else {
 				controllerName = Component.translatable("controlify.gui.carousel.entry.keyboard_mouse");
 				controllerIcon = KEYBOARD_MOUSE_SPRITE;
+				controllerConnected = true;
 			}
 
 			if (!force
 					&& profileName.equals(displayedProfileName)
 					&& controllerName.equals(displayedControllerName)
-					&& controllerIcon.equals(displayedControllerIcon)) {
+					&& controllerIcon.equals(displayedControllerIcon)
+					&& controllerConnected == displayedControllerConnected) {
 				return;
 			}
 
 			this.displayedProfileName = profileName;
 			this.displayedControllerName = controllerName;
 			this.displayedControllerIcon = controllerIcon;
+			this.displayedControllerConnected = controllerConnected;
 			this.profileNameText.setMessage(profileName);
 			this.controllerNameText.setMessage(controllerName);
 			this.updateIcon(controllerIcon);
+			this.controllerIcon.setAlpha(controllerConnected ? 1.0F : 0.4F);
 			this.gridLayout.arrangeElements();
 			FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
 		}

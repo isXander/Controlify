@@ -266,6 +266,122 @@ public class ConfigManager implements AutoCloseable {
 		return true;
 	}
 
+	public int createProfile() throws IOException {
+		int index = settings.profileSettings().isEmpty()
+				? 0
+				: Math.addExact(settings.profileSettings().lastIntKey(), 1);
+		while (true) {
+			LockHandle handle = tryLock(index);
+			if (handle != null) {
+				try (handle) {
+					if (!Files.exists(profilePath(index))) {
+						ProfileSettings profile = ProfileSettings.createDefault();
+						writeProfile(index, profile);
+						settings.putProfileSettings(index, profile);
+						LOGGER.info("Created Controlify profile {}", index);
+						return index;
+					}
+				}
+			}
+			index = Math.addExact(index, 1);
+		}
+	}
+
+	public boolean switchProfile(int index, boolean remember) throws IOException {
+		if (index < 0 || settings.getProfileSettings(index) == null) {
+			return false;
+		}
+		if (index == activeProfileIndex) {
+			if (remember && settings.globalSettings().preferredProfile != index) {
+				settings.globalSettings().preferredProfile = index;
+				writeShared();
+			}
+			return true;
+		}
+
+		writeProfile(activeProfileIndex, getActiveProfile());
+
+		LockHandle handle = tryLock(index);
+		if (handle == null) {
+			return false;
+		}
+
+		ProfileSettings profile = settings.getProfileSettings(index);
+		try {
+			Path profilePath = profilePath(index);
+			if (Files.exists(profilePath)) {
+				try {
+					ProfileLoad loaded = readProfile(profilePath);
+					profile = loaded.settings();
+					if (loaded.requiresSaving()) {
+						writeProfile(index, profile);
+					}
+				} catch (IOException e) {
+					makeBackup(profilePath);
+					profile = ProfileSettings.createDefault();
+					writeProfile(index, profile);
+				}
+			}
+
+			if (remember && settings.globalSettings().preferredProfile != index) {
+				int previousPreferred = settings.globalSettings().preferredProfile;
+				settings.globalSettings().preferredProfile = index;
+				try {
+					writeShared();
+				} catch (IOException e) {
+					settings.globalSettings().preferredProfile = previousPreferred;
+					throw e;
+				}
+			}
+		} catch (IOException | RuntimeException | Error t) {
+			try {
+				handle.close();
+			} catch (IOException closeError) {
+				t.addSuppressed(closeError);
+			}
+			throw t;
+		}
+
+		FileChannel previousChannel = activeLockChannel;
+		FileLock previousLock = activeLock;
+		settings.putProfileSettings(index, profile);
+		activeProfileIndex = index;
+		activeLockChannel = handle.channel();
+		activeLock = handle.lock();
+		closeLock(previousLock, previousChannel);
+		LOGGER.info("Selected and locked Controlify profile {}", index);
+		return true;
+	}
+
+	public boolean deleteProfile(int index) throws IOException {
+		if (index < 0 || index == activeProfileIndex || settings.getProfileSettings(index) == null) {
+			return false;
+		}
+
+		LockHandle handle = tryLock(index);
+		if (handle == null) {
+			return false;
+		}
+
+		try (handle) {
+			if (settings.globalSettings().preferredProfile == index) {
+				int previousPreferred = settings.globalSettings().preferredProfile;
+				settings.globalSettings().preferredProfile = activeProfileIndex;
+				try {
+					writeShared();
+				} catch (IOException e) {
+					settings.globalSettings().preferredProfile = previousPreferred;
+					throw e;
+				}
+			}
+			Files.deleteIfExists(profilePath(index));
+			settings.removeProfileSettings(index);
+		}
+
+		LOGGER.info("Deleted Controlify profile {}", index);
+		return true;
+	}
+
 	private @Nullable LockHandle tryLock(int index) throws IOException {
 		FileChannel channel = FileChannel.open(lockPath(index), CREATE, WRITE);
 		try {
@@ -437,26 +553,30 @@ public class ConfigManager implements AutoCloseable {
 		return Math.addExact(index, 1);
 	}
 
-	@Override
-	public void close() {
-		saveIfDirty();
+	private static void closeLock(@Nullable FileLock lock, @Nullable FileChannel channel) {
 		try {
-			if (activeLock != null && activeLock.isValid()) {
-				activeLock.release();
+			if (lock != null && lock.isValid()) {
+				lock.release();
 			}
 		} catch (IOException e) {
 			LOGGER.error("Failed to release Controlify profile lock", e);
 		} finally {
-			activeLock = null;
-			if (activeLockChannel != null) {
+			if (channel != null) {
 				try {
-					activeLockChannel.close();
+					channel.close();
 				} catch (IOException e) {
 					LOGGER.error("Failed to close Controlify profile lock channel", e);
 				}
-				activeLockChannel = null;
 			}
 		}
+	}
+
+	@Override
+	public void close() {
+		saveIfDirty();
+		closeLock(activeLock, activeLockChannel);
+		activeLock = null;
+		activeLockChannel = null;
 	}
 
 	private record LockHandle(FileChannel channel, FileLock lock) implements AutoCloseable {

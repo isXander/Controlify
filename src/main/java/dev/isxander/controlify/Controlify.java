@@ -20,6 +20,7 @@ import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
@@ -66,6 +67,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -577,6 +579,20 @@ public class Controlify implements ControlifyApi {
 						.filter(controller -> selectedUid == null || selectedUid.equals(controller.uid()))
 						.findFirst();
 		this.setCurrentController(selected.orElse(null), changeInputMode);
+	}
+
+	public boolean switchProfile(int profileIndex, boolean remember) throws IOException {
+		if (!config().switchProfile(profileIndex, remember)) {
+			return false;
+		}
+
+		ProfileSettings profile = config().getActiveProfile();
+		if (controllerManager != null) {
+			controllerManager.getConnectedControllers().forEach(controller -> controller.setSettings(profile));
+		}
+		this.applyControllerSelection(true);
+		this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
+		return true;
 	}
 
 	public ConfigManager config() {

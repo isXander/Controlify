@@ -56,6 +56,10 @@ public class ControlifySettings {
 		this.profileSettings.put(profileIndex, settings);
 	}
 
+	public void removeProfileSettings(int profileIndex) {
+		this.profileSettings.remove(profileIndex);
+	}
+
 	public DeviceSettings getOrCreateDeviceSettings(String uid) {
 		return deviceSettings.computeIfAbsent(uid, DeviceSettings::defaults);
 	}
