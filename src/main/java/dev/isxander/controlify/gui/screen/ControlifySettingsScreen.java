@@ -91,6 +91,9 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 						.build()
 		);
 		controllerNotDetectedButton.visible = !hasController();
+		FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, 0, this.width, this.mainPaneHeight);
+
+
 		// Footer
 		GridLayout grid = new GridLayout().columnSpacing(10);
 		GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
@@ -115,37 +118,38 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 
 		// Main Pane
-		int mainPaneX = 0;
-		int mainPaneY = 11;
-		int mainPaneHeight = this.mainPaneHeight - mainPaneY;
+		if (!this.controllerNotDetectedButton.visible) {
+			int mainPaneX = 0;
+			int mainPaneY = 11;
+			int mainPaneHeight = this.mainPaneHeight - mainPaneY;
 
-		int slotPaddingX = 10;
-		int slotPaddingY = 10;
+			int slotPaddingX = 10;
+			int slotPaddingY = 10;
 
-		int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
-		int profileSlotWidth = this.width - (2 * slotPaddingX);
-		int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
-		if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
-			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+			int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
+			int profileSlotWidth = this.width - (2 * slotPaddingX);
+			int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
+			if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
+				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
 					activeProfileIndex,
 					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
 					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
-			);
-			this.addRenderableWidget(profileSlotEntry);
-			SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
+				);
+				this.addRenderableWidget(profileSlotEntry);
+				SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
 					mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
 					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
-			);
-			this.addRenderableWidget(splitscreenAdEntry);
-		} else {
-			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+				);
+				this.addRenderableWidget(splitscreenAdEntry);
+			} else {
+				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
 					activeProfileIndex,
 					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
 					profileSlotWidth, profileSlotHeight
-			);
-			this.addRenderableWidget(profileSlotEntry);
+				);
+				this.addRenderableWidget(profileSlotEntry);
+			}
 		}
-		FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, this.mainPaneHeight - 30, this.width, 20);
 
 		ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
 		ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
@@ -283,8 +287,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			rowHelper.addChild(this.profileNameText);
 			rowHelper.addChild(this.controllerIcon);
 			rowHelper.addChild(this.controllerNameText);
-			GridLayout buttonGrid = rowHelper.addChild(new GridLayout().columnSpacing(10));
-			var buttonRow = buttonGrid.createRowHelper(2);
+			GridLayout buttonGrid = rowHelper.addChild(new GridLayout().spacing(5));
+			var buttonRow = buttonGrid.createRowHelper(1);
 			buttonRow.addChild(this.swapProfileButton);
 			buttonRow.addChild(this.settingsButton);
 
@@ -322,9 +326,10 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 		private void updateProfileInfo(boolean force) {
 			ProfileSettings profileSettings = this.getProfileSettings();
+			int displayedProfileIndex = profileIndex + 1;
 			Component profileName = profileSettings.name == null
-					? Component.translatable("controlify.gui.carousel.entry.profile", profileIndex)
-					: Component.translatable("controlify.gui.carousel.entry.named_profile", profileIndex, profileSettings.name);
+					? Component.translatable("controlify.gui.carousel.entry.profile", displayedProfileIndex)
+					: Component.translatable("controlify.gui.carousel.entry.named_profile", displayedProfileIndex, profileSettings.name);
 
 			Optional<ControllerEntity> controller = this.getController(profileSettings);
 			Component controllerName;

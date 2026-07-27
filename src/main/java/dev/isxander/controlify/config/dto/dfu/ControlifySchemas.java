@@ -17,8 +17,8 @@ public final class ControlifySchemas {
 	private ControlifySchemas() {
 	}
 
-	public static class SchemaV0 extends Schema {
-		public SchemaV0(int versionKey, Schema parent) {
+	public static class V0 extends Schema {
+		public V0(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 
@@ -42,20 +42,20 @@ public final class ControlifySchemas {
 		}
 	}
 
-	public static class SchemaV1 extends Schema {
-		public SchemaV1(int versionKey, Schema parent) {
+	public static class V1 extends Schema {
+		public V1(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 	}
 
-	public static class SchemaV2 extends Schema {
-		public SchemaV2(int versionKey, Schema parent) {
+	public static class V2 extends Schema {
+		public V2(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 	}
 
-	public static class SchemaV3 extends Schema {
-		public SchemaV3(int versionKey, Schema parent) {
+	public static class V3 extends Schema {
+		public V3(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
 
@@ -72,18 +72,6 @@ public final class ControlifySchemas {
 					ControlifyTypeReferences.PROFILE_CONFIG,
 					DSL::remainder
 			);
-		}
-	}
-
-	public static class SchemaV4 extends Schema {
-		public SchemaV4(int versionKey, Schema parent) {
-			super(versionKey, parent);
-		}
-	}
-
-	public static class SchemaV5 extends Schema {
-		public SchemaV5(int versionKey, Schema parent) {
-			super(versionKey, parent);
 		}
 	}
 }

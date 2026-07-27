@@ -158,13 +158,18 @@ public class ConfigManager implements AutoCloseable {
 					LOGGER.warn("Ignoring invalid Controlify profile filename {}", path.getFileName());
 					continue;
 				}
-				int index;
+				int serializedIndex;
 				try {
-					index = Integer.parseInt(matcher.group(1));
+					serializedIndex = Integer.parseInt(matcher.group(1));
 				} catch (NumberFormatException e) {
 					LOGGER.warn("Ignoring out-of-range Controlify profile filename {}", path.getFileName());
 					continue;
 				}
+				if (serializedIndex < 1) {
+					LOGGER.warn("Ignoring invalid Controlify profile filename {}", path.getFileName());
+					continue;
+				}
+				int index = serializedIndex - 1;
 				try {
 					settings.putProfileSettings(index, readProfile(path).settings());
 				} catch (IOException e) {
@@ -421,11 +426,15 @@ public class ConfigManager implements AutoCloseable {
 	}
 
 	private Path profilePath(int index) {
-		return configDirectory.resolve("profile-" + index + ".json");
+		return configDirectory.resolve("profile-" + serializedProfileIndex(index) + ".json");
 	}
 
 	private Path lockPath(int index) {
-		return configDirectory.resolve("profile-" + index + ".lock");
+		return configDirectory.resolve("profile-" + serializedProfileIndex(index) + ".lock");
+	}
+
+	private static int serializedProfileIndex(int index) {
+		return Math.addExact(index, 1);
 	}
 
 	@Override
