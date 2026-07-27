@@ -106,6 +106,7 @@ public class Controlify implements ControlifyApi {
 	private double lastInputSwitchTime = 0;
 
 	private int showMouseTicks = 0;
+	private boolean mouseUsedThisTick = false;
 
 	/**
 	 * Called at usual fabric client entrypoint and in NeoForge mod constructor
@@ -472,10 +473,7 @@ public class Controlify implements ControlifyApi {
 		if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
 			showMouseTicks--;
 			if (showMouseTicks == 0) {
-				hideMouse(true, false);
-				if (virtualMouseHandler().requiresVirtualMouse()) {
-					virtualMouseHandler().enableVirtualMouse();
-				}
+				restoreVirtualCursor();
 			}
 		}
 
@@ -497,6 +495,8 @@ public class Controlify implements ControlifyApi {
 					controller
 			);
 		}
+
+		mouseUsedThisTick = false;
 	}
 
 	/**
@@ -528,6 +528,10 @@ public class Controlify implements ControlifyApi {
 
 				return; // don't process input if this is changing mode.
 			}
+		}
+
+		if (showMouseTicks > 0 && !mouseUsedThisTick && state.isGivingInput()) {
+			this.endTemporaryCursor();
 		}
 
 		if (consecutiveInputSwitches > 100) {
@@ -726,11 +730,26 @@ public class Controlify implements ControlifyApi {
 
 	public void showCursorTemporarily() {
 		if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
+			mouseUsedThisTick = true;
 			hideMouse(false, false);
 			showMouseTicks = 20 * 2;
 			if (virtualMouseHandler().isVirtualMouseEnabled()) {
 				virtualMouseHandler().disableVirtualMouse();
 			}
+		}
+	}
+
+	public void endTemporaryCursor() {
+		if (currentInputMode() != InputMode.MIXED || showMouseTicks <= 0) return;
+
+		showMouseTicks = 0;
+		restoreVirtualCursor();
+	}
+
+	private void restoreVirtualCursor() {
+		hideMouse(true, false);
+		if (virtualMouseHandler().requiresVirtualMouse()) {
+			virtualMouseHandler().enableVirtualMouse();
 		}
 	}
 
