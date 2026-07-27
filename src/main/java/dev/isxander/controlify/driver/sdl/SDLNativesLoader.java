@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.driver.sdl;
 
-import com.sun.jna.Platform;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.Platform;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.Sdl;
 import dev.isxander.sdl.SdlLoader;
@@ -31,16 +31,19 @@ public class SDLNativesLoader {
 	private static final boolean NATIVES_IN_JAR = /*? if natives_in_jar {*/ true /*?} else {*/ /*false *//*?}*/;
 
 	private static final String NATIVE_SDL_NAME = System.mapLibraryName("SDL3");
-	private static final String NATIVE_SDL_PATH = Platform.RESOURCE_PREFIX + "/" + NATIVE_SDL_NAME;
+	private static final String NATIVE_SDL_PATH = Platform.getResourcePrefix() + "/" + NATIVE_SDL_NAME;
 
 	private static final ControlifyLogger LOGGER = CUtil.LOGGER.createSubLogger("SDLNativesLoader");
 
 	public static Sdl load() {
 		ServiceLoader<SdlLoader> serviceLoader = ServiceLoader.load(SdlLoader.class);
 
+		LOGGER.debugLog("Using in-jar SDL path {}", NATIVE_SDL_PATH);
+
 		Sdl sdl = loadFromControlifyNatives(serviceLoader)
 			.or(() -> loadFromLwjgl(serviceLoader))
 			.or(() -> loadFromNativesInJar(serviceLoader))
+			.or(() -> loadFromSystem(serviceLoader))
 			.orElseThrow(() -> new IllegalStateException("Could not load SDL natives"));
 
 		startSdl(sdl);
@@ -88,8 +91,12 @@ public class SDLNativesLoader {
 			return Optional.empty();
 		}
 
-		return PlatformMainUtil.getModFileInputStream("controlify", NATIVE_SDL_PATH)
+		Optional<Sdl> sdl =  PlatformMainUtil.getModFileInputStream("controlify", NATIVE_SDL_PATH)
 			.flatMap(path -> loadFromInputStream(sdlLoader, path));
+
+		sdl.ifPresent(_ -> LOGGER.log("Loaded SDL from controlify"));
+
+		return sdl;
 	}
 
 	private static Optional<Sdl> loadFromInputStream(SdlLoader sdlLoader, IOSupplier<InputStream> supplier) {
@@ -117,7 +124,34 @@ public class SDLNativesLoader {
 		}
 	}
 
+	private static Optional<Sdl> loadFromSystem(ServiceLoader<SdlLoader> serviceLoader) {
+		SdlLoader sdlLoader = serviceLoader.stream()
+			.map(ServiceLoader.Provider::get)
+			.filter(loader -> loader.name().equals("ffm"))
+			.findAny().orElse(null);
+
+		if (sdlLoader == null) {
+			return Optional.empty();
+		}
+
+		try {
+			Optional<Sdl> sdl = Optional.ofNullable(sdlLoader.create());
+			sdl.ifPresent(_ -> LOGGER.log("Loaded SDL from system"));
+			return sdl;
+		} catch (UnsatisfiedLinkError e) {
+			LOGGER.warn("System did not provide SDL", e);
+			return Optional.empty();
+		}
+	}
+
 	private static void startSdl(Sdl sdl) {
+		SdlVersion.SdlVersionNumber nativesVersion = SdlVersion.SdlVersionNumber.fromPacked(sdl.version().SDL_GetVersion());
+		SdlVersion.SdlVersionNumber javaVersion = sdl.version().SDL_GetJavaBindingsVersion();
+		LOGGER.log("Loading SDL3 version: {}. Java bindings targeting: {}", nativesVersion, javaVersion);
+		if (!nativesVersion.equals(javaVersion)) {
+			LOGGER.warn("SDL3 NATIVE LIBRARY VERSION MISMATCH! Java bindings are targeting a different version of SDL3 than the loaded native library. This may cause issues.");
+		}
+
 		sdl.hints().SDL_SetHint(SDL_HINT_WINDOWS_GAMEINPUT, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
@@ -125,13 +159,6 @@ public class SDLNativesLoader {
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_ROG_CHAKRAM, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1");
-
-		SdlVersion.SdlVersionNumber nativesVersion = SdlVersion.SdlVersionNumber.fromPacked(sdl.version().SDL_GetVersion());
-		SdlVersion.SdlVersionNumber javaVersion = sdl.version().SDL_GetJavaBindingsVersion();
-		LOGGER.log("Loading SDL3 version: {}. Java bindings targeting: {}", nativesVersion, javaVersion);
-		if (!nativesVersion.equals(javaVersion)) {
-			LOGGER.warn("SDL3 NATIVE LIBRARY VERSION MISMATCH! Java bindings are targeting a different version of SDL3 than the loaded native library. This may cause issues.");
-		}
 
 		// initialise SDL with just joystick and gamecontroller subsystems
 		if (!sdl.init().SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS)) {

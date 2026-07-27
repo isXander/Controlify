@@ -40,7 +40,7 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
 
 
 		Codec<T> typeCodec = ExtraCodecs.orCompressed(
-				CUtil.stringResolver(
+				CExtraCodecs.stringResolver(
 						StringRepresentable::getSerializedName,
 						CUtil.createNameLookup(types, Function.identity())
 				),
@@ -54,7 +54,7 @@ public record InputType<T extends Input>(String id, MapCodec<T> codec) implement
 		MapCodec<E> typedCodec = typeCodec.dispatchMap(typeFieldName, typeGetter, codecGetter);
 		MapCodec<E> eitherCodec = new StrictEitherMapCodec<>(typeFieldName, typedCodec, fuzzyCodec, false);
 
-		return CUtil.orCompressed(eitherCodec, typedCodec);
+		return CExtraCodecs.orCompressed(eitherCodec, typedCodec);
 	}
 
 	@Override
