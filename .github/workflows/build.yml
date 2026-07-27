@@ -11,6 +11,10 @@ on:
       - 'docs'
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write
   attestations: write
