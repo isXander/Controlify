@@ -26,7 +26,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.glfw.GLFW;
 
 /**
  * Represents a single key widget within a {@link KeyboardWidget}.
@@ -328,7 +327,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 		// Code points are used to represent characters that *may* be represented by surrogate pairs.
 		text.codePoints().forEach((codePoint) -> {
 			// guess the modifier based on the nature of the character
-			int modCapital = Character.isUpperCase(codePoint) ? GLFW.GLFW_MOD_SHIFT : 0;
+			int modCapital = Character.isUpperCase(codePoint) ? InputConstants.MOD_SHIFT : 0;
 			int modifiers = modCapital;
 
 			if (Character.isBmpCodePoint(codePoint)) {

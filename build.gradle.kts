@@ -19,7 +19,11 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     fabricLoader(libs.fabric.loader)
-    neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
+
+	ifPresent("dep.neoforge") {
+		neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
+	}
+
 
     implementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
 	fabricImplementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
@@ -112,8 +116,10 @@ stonecutter {
 
 /// Run configurations
 
-runs.register("neoforgeClient") {
-	runType("client")
+ifPresent("dep.neoforge") {
+	runs.register("neoforgeClient") {
+		runType("client")
+	}
 }
 
 /// Metadata file generation

@@ -16,10 +16,6 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
-import org.lwjgl.glfw.GLFWCursorPosCallbackI;
-import org.lwjgl.glfw.GLFWDropCallbackI;
-import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
-import org.lwjgl.glfw.GLFWScrollCallbackI;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,13 +24,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//? if <26.3 {
+/*import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import org.lwjgl.glfw.GLFWDropCallbackI;
+import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
+import org.lwjgl.glfw.GLFWScrollCallbackI;
+*///?}
+
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 	@Shadow @Final private Minecraft minecraft;
 
 	@Unique private boolean controlify$calledFromMinecraftSetScreen = false;
 
-	@WrapOperation(
+	//? if <26.3 {
+	/*@WrapOperation(
 			method = "setup",
 			at = @At(
 					value = "INVOKE",
@@ -78,15 +82,18 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 			});
 		}
 	}
+	*///?}
 
-	/**
-	 * Without this, mouse is left in the center of the screen that conflicts with controller focus.
-	 */
+	/// Without this, mouse is left in the center of the screen that conflicts with controller focus.
 	@Inject(
 			method = "releaseMouse",
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					//? if >=26.3 {
+					target = "Lcom/mojang/blaze3d/platform/InputConstants;releaseMouse(Lcom/mojang/blaze3d/platform/Window;DD)V"
+					//?} else {
+					/*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					*///?}
 			)
 	)
 	private void moveMouseIfNecessary(CallbackInfo ci) {

@@ -59,7 +59,7 @@ public abstract class MinecraftMixin {
 			method = "renderFrame",
 			at = @At(
 					value = "INVOKE",
-					target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V"
+					target = "Lnet/minecraft/client/renderer/GameRenderer;extract(Lnet/minecraft/client/DeltaTracker;Z)V"
 			)
 	)
 	private void tickAnimator(CallbackInfo ci) {

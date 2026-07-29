@@ -27,8 +27,8 @@ import static dev.isxander.sdl.SdlHints.*;
 import static dev.isxander.sdl.SdlInit.*;
 
 public class SDLNativesLoader {
-	private static final boolean LWJGL_SDL_AVAILABLE = /*? if >=26.3 {*/ /*true *//*?} else {*/ false /*?}*/;
-	private static final boolean NATIVES_IN_JAR = /*? if natives_in_jar {*/ true /*?} else {*/ /*false *//*?}*/;
+	private static final boolean LWJGL_SDL_AVAILABLE = /*? if >=26.3 {*/ true /*?} else {*/ /*false *//*?}*/;
+	private static final boolean NATIVES_IN_JAR = /*? if natives_in_jar {*/ /*true *//*?} else {*/ false /*?}*/;
 
 	private static final String NATIVE_SDL_NAME = System.mapLibraryName("SDL3");
 	private static final String NATIVE_SDL_PATH = Platform.getResourcePrefix() + "/" + NATIVE_SDL_NAME;

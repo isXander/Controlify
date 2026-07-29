@@ -8,11 +8,11 @@ package dev.isxander.controlify.compatibility.fancymenu;
 
 //? if fancy_menu {
 
-import de.keksuccino.fancymenu.customization.action.ActionRegistry;
+/*import de.keksuccino.fancymenu.customization.action.ActionRegistry;
 
 public final class FancyMenuCompat {
 	public static void registerActions() {
 		ActionRegistry.register(new OpenControlifySettingsAction());
 	}
 }
-//?}
+*///?}

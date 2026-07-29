@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+/*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.Controlify;
 import net.minecraft.client.InputType;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,4 +26,4 @@ public class AbstractWidgetMixin {
 		return type;
 	}
 }
-//?}
+*///?}

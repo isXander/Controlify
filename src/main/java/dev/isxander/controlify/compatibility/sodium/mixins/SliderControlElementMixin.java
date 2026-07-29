@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.compatibility.sodium.screenop.SliderControlProcessor;
+/*import dev.isxander.controlify.compatibility.sodium.screenop.SliderControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import net.caffeinemc.mods.sodium.client.config.structure.IntegerOption;
@@ -43,4 +43,4 @@ public abstract class SliderControlElementMixin extends ControlElement implement
 		));
 	}
 }
-//?}
+*///?}

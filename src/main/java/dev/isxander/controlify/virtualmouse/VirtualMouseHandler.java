@@ -34,7 +34,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.*;
-import org.lwjgl.glfw.GLFW;
 
 import java.lang.Math;
 import java.util.*;
@@ -202,8 +201,8 @@ public class VirtualMouseHandler {
 		}
 
 		if (ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).justPressed()) {
-			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, GLFW.GLFW_MOD_SHIFT);
-			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, GLFW.GLFW_MOD_SHIFT);
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, InputConstants.MOD_SHIFT);
+			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, InputConstants.MOD_SHIFT);
 		}
 	}
 
@@ -225,10 +224,15 @@ public class VirtualMouseHandler {
 		var windowHandle = minecraft.getWindow().handle();
 
 		if (Math.round(targetX * 100) / 100.0 != Math.round(currentX * 100) / 100.0 || Math.round(targetY * 100) / 100.0 != Math.round(currentY * 100) / 100.0) {
-			currentX = Mth.lerp(delta, currentX, targetX);
-			currentY = Mth.lerp(delta, currentY, targetY);
+			double newX = Mth.lerp(delta, currentX, targetX);
+			double newY = Mth.lerp(delta, currentY, targetY);
+			double relX = newX - currentX;
+			double relY = newY - currentY;
 
-			((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
+			((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, newX, newY /*? if >=26.3 {*/,relX, relY/*?}*/);
+
+			currentX = newX;
+			currentY = newY;
 		} else {
 			currentX = targetX;
 			currentY = targetY;
@@ -332,15 +336,20 @@ public class VirtualMouseHandler {
 	public void snapToPoint(SnapPoint snapPoint, Vector2dc scaleFactor) {
 		lastSnappedPoint = snapPoint;
 
-		targetX = currentX = snapPoint.position().x() / scaleFactor.x();
-		targetY = currentY = snapPoint.position().y() / scaleFactor.y();
+		double newX = snapPoint.position().x() / scaleFactor.x();
+		double newY = snapPoint.position().y() / scaleFactor.y();
+		double relX = newX - currentX;
+		double relY = newY - currentY;
 
 		var windowHandle = minecraft.getWindow().handle();
-		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, currentX, currentY);
+		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$invokeOnMove(windowHandle, newX, newY /*? if >=26.3 {*/,relX, relY/*?}*/);
+
+		currentX = targetX = newX;
+		currentY = targetY = newY;
 	}
 
 	public void onScreenChanged() {
-		var windowHandle = minecraft.getWindow().handle();
+		var window = minecraft.getWindow();
 
 		if (MinecraftUtil.getScreen() != null) {
 			if (requiresVirtualMouse()) {
@@ -348,8 +357,9 @@ public class VirtualMouseHandler {
 			} else {
 				disableVirtualMouse();
 			}
-			if (Controlify.instance().currentInputMode().isController())
-				GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
+			if (Controlify.instance().currentInputMode().isController()) {
+				CursorUtils.setVisibility(window, false);
+			}
 		} else if (virtualMouseEnabled) {
 			disableVirtualMouse();
 
@@ -400,9 +410,10 @@ public class VirtualMouseHandler {
 	public void enableVirtualMouse() {
 		if (virtualMouseEnabled) return;
 
-		var windowHandle = minecraft.getWindow().handle();
+		var window = minecraft.getWindow();
 
-		GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_DISABLED);
+		// TODO: verify that hiding the mouse is sufficient, pre-SDL this was GLFW_CURSOR_DISABLED
+		CursorUtils.setVisibility(window, false);
 		virtualMouseEnabled = true;
 
 		if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
@@ -423,13 +434,13 @@ public class VirtualMouseHandler {
 	public void disableVirtualMouse() {
 		if (!virtualMouseEnabled) return;
 
-		var windowHandle = minecraft.getWindow().handle();
+		var window = minecraft.getWindow();
 
 		// make sure minecraft doesn't think the mouse is grabbed when it isn't
 		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
 
 		Controlify.instance().hideMouse(true, true);
-		GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+		CursorUtils.setVisibility(window, true);
 		setMousePosition();
 		virtualMouseEnabled = false;
 		targetX = currentX = minecraft.mouseHandler.xpos();
@@ -442,11 +453,7 @@ public class VirtualMouseHandler {
 	}
 
 	private void setMousePosition() {
-		GLFW.glfwSetCursorPos(
-				minecraft.getWindow().handle(),
-				targetX,
-				targetY
-		);
+		CursorUtils.setPosition(minecraft.getWindow(), (float) targetX, (float) targetY);
 	}
 
 	public boolean requiresVirtualMouse() {

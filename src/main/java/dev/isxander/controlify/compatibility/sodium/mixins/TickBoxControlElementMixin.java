@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.compatibility.sodium.screenop.TickBoxControlProcessor;
+/*import dev.isxander.controlify.compatibility.sodium.screenop.TickBoxControlProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessorProvider;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,4 +28,4 @@ public abstract class TickBoxControlElementMixin implements ComponentProcessorPr
 		return controlify$componentProcessor;
 	}
 }
-//?}
+*///?}
