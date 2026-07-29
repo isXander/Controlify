@@ -1,8 +1,5 @@
 {
   "rules": [
-    /* ───────────────  LEFT-HAND BINDINGS ─────────────── */
-
-    /* ----- JUMP ----- */
     {
       "for": "controlify:jump",
       "where": "left",
@@ -40,7 +37,6 @@
       "then": { "translate": "controlify.guide.ingame.start_elytra" }
     },
 
-    /* ----- SNEAK ----- */
     {
       "for": "controlify:sneak",
       "where": "left",
@@ -61,14 +57,12 @@
       "then": { "translate": "controlify.guide.ingame.swim_down" }
     },
     {
-      /* toggle-sneak: stop */
       "for": "controlify:sneak",
       "where": "left",
       "when": ["controlify:is_toggle_sneak", "controlify:sneaking"],
       "then": { "translate": "controlify.guide.ingame.stop_sneaking" }
     },
     {
-      /* toggle-sneak: start */
       "for": "controlify:sneak",
       "where": "left",
       "when": ["controlify:is_toggle_sneak"],
@@ -76,14 +70,12 @@
       "then": { "translate": "controlify.guide.ingame.start_sneaking" }
     },
     {
-      /* hold-to-sneak */
       "for": "controlify:sneak",
       "where": "left",
       "forbid": ["controlify:is_toggle_sneak", "controlify:sneaking"],
       "then": { "translate": "controlify.guide.ingame.sneak" }
     },
 
-    /* ----- SPRINT ----- */
     {
       "for": "controlify:sprint",
       "where": "left",
@@ -111,23 +103,19 @@
       "then": { "translate": "controlify.guide.ingame.stop_sprinting" }
     },
 
-    /* ───────────────  RIGHT-HAND BINDINGS ─────────────── */
 
-    /* ----- INVENTORY ----- */
     {
       "for": "controlify:inventory",
       "where": "right",
       "then": { "translate": "controlify.guide.ingame.inventory" }
     },
 
-    /* ----- RADIAL MENU ----- */
     {
       "for": "controlify:radial_menu",
       "where": "right",
       "then": { "translate": "controlify.gui.radial_menu" }
     },
 
-    /* ----- ATTACK ----- */
     {
       "for": "controlify:attack",
       "where": "right",
@@ -148,7 +136,6 @@
       "then": { "translate": "controlify.guide.ingame.break" }
     },
 
-    /* ----- USE / INTERACT ----- */
     {
       "for": "controlify:use",
       "where": "right",
@@ -175,7 +162,6 @@
       "then": { "translate": "controlify.guide.ingame.use" }
     },
 
-    /* ----- DROP ONE ----- */
     {
       "for": "controlify:drop",
       "where": "right",
@@ -183,7 +169,6 @@
       "then": { "translate": "controlify.guide.ingame.drop" }
     },
 
-    /* ----- DROP STACK ----- */
     {
       "for": "controlify:drop_stack",
       "where": "right",
@@ -191,7 +176,6 @@
       "then": { "translate": "controlify.binding.controlify.drop_stack" }
     },
 
-    /* ----- SWAP HANDS ----- */
     {
       "for": "controlify:swap_hands",
       "where": "right",
@@ -199,7 +183,6 @@
       "then": { "translate": "controlify.guide.ingame.swap_hands" }
     },
 
-    /* ----- PICK BLOCK ----- */
     {
       "for": "controlify:pick_block",
       "where": "right",
@@ -207,7 +190,6 @@
       "then": { "translate": "controlify.guide.ingame.pick_block" }
     },
 
-    /* ----- PICK BLOCK (NBT) ----- */
     {
       "for": "controlify:pick_block_nbt",
       "where": "right",
