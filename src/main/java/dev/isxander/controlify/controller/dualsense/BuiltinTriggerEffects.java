@@ -38,5 +38,20 @@ public final class BuiltinTriggerEffects {
 			DataComponents.BLOCKS_ATTACKS,
 			new DualsenseTriggerEffect.Feedback((byte) 3, (byte) 3)
 		);
+
+		TriggerEffectApi.registerUseItemEffect(
+			DataComponents.EQUIPPABLE,
+			quickClick
+		);
+
+		TriggerEffectApi.registerUseItemEffect(
+			DataComponents.KINETIC_WEAPON,
+			new DualsenseTriggerEffect.Feedback((byte) 3, (byte) 3)
+		);
+
+		TriggerEffectApi.registerUseItemEffect(
+			DataComponents.INSTRUMENT,
+			new DualsenseTriggerEffect.Feedback((byte) 3, (byte) 3)
+		);
 	}
 }
