@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.mixins.feature.triggereffect;
 
 import dev.isxander.controlify.controller.dualsense.TriggerEffectHolder;
@@ -12,11 +18,9 @@ import java.util.Optional;
 
 @Mixin(Item.class)
 public class ItemMixin implements TriggerEffectHolder {
-	@Unique
-	private @Nullable DualsenseTriggerEffect controlify$useEffect = null;
+	@Unique private @Nullable DualsenseTriggerEffect controlify$useEffect = null;
 
-	@Unique
-	private @Nullable DualsenseTriggerEffect controlify$swingEffect = null;
+	@Unique private @Nullable DualsenseTriggerEffect controlify$swingEffect = null;
 
 	@Override
 	public Optional<DualsenseTriggerEffect> controlify$getUseTriggerEffect() {
