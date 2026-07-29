@@ -7,7 +7,4 @@ This version has the following targets:
 
 ## Changes
 
-- Add Profile switching
-  - Allow you to bind certain profiles to a specific controller
-  - Profiles have a locking feature, so subsequent concurrent instances of Minecraft
-    pick the next profile. This allows for makeshift splitscreen operation.
+- Fix in game button guides not working on the built-in resource pack
