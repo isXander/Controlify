@@ -12,7 +12,6 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.guide.*;
-import dev.isxander.controlify.api.triggereffect.TriggerEffectApi;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;

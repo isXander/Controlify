@@ -190,9 +190,9 @@
   "controlify.gui.test_vibration": "Test Vibration",
   "controlify.gui.test_vibration.tooltip": "Test the vibration of your controller.",
   "controlify.gui.group.trigger_effects": "Trigger Effects",
+  "controlify.gui.group.trigger_effects.no_dualsense.tooltip": "This controller does not support adaptive triggers. You must have a DualSense™ controller or other compatible controller to use this feature.",
   "controlify.gui.trigger_effects": "Trigger Effects",
   "controlify.gui.trigger_effects.tooltip": "Enable DualSense Adaptive Trigger effects for items in game.",
-
   "controlify.gui.show_keyboard.off": "Off",
   "controlify.gui.show_keyboard.controlify": "Controlify",
   "controlify.gui.show_keyboard.system": "System",

@@ -696,7 +696,7 @@ public class ControllerConfigScreenFactory {
 
 		if (controller.isPresent() && controller.get().dualSense().isEmpty()) {
 			group.collapsed(true);
-			group.option(LabelOption.create(Component.translatable("controlify.gui.group.gyro.no_dualsense.tooltip").withStyle(ChatFormatting.RED)));
+			group.option(LabelOption.create(Component.translatable("controlify.gui.group.trigger_effects.no_dualsense.tooltip").withStyle(ChatFormatting.RED)));
 		}
 
 		group.option(Option.<Boolean>createBuilder()
