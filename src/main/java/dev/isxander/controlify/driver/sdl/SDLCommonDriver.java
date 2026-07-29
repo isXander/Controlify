@@ -23,6 +23,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
+import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -190,6 +191,12 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	public void close() {
 		if (ptrController == null) {
 			throw new IllegalStateException("Tried to close controller when it's already closed.");
+		}
+
+		if (dualSenseComponent != null) {
+			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			updateDualSense();
 		}
 
 		SDL_CloseController(ptrController);

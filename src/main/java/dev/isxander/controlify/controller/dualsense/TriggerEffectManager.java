@@ -32,10 +32,10 @@ public class TriggerEffectManager {
 		this.swingItemComponentEffects = new LinkedHashMap<>();
 	}
 
-	public void applyTriggerEffects(ControllerEntity controller) {
+	public void applyTriggerEffects(ControllerEntity controller, boolean inputSuppressed) {
 		controller.dualSense().ifPresent(ds -> {
-			ds.setLeftTriggerEffect(this.getCurrentLeftTriggerEffect(controller));
-			ds.setRightTriggerEffect(this.getCurrentRightTriggerEffect(controller));
+			ds.setLeftTriggerEffect(this.getCurrentLeftTriggerEffect(controller, inputSuppressed));
+			ds.setRightTriggerEffect(this.getCurrentRightTriggerEffect(controller, inputSuppressed));
 		});
 	}
 
@@ -47,8 +47,8 @@ public class TriggerEffectManager {
 		this.swingItemComponentEffects.put(componentType, (Function<Object, DualsenseTriggerEffect>) effectFunction);
 	}
 
-	public DualsenseTriggerEffect getCurrentLeftTriggerEffect(ControllerEntity controller) {
-		if (!this.shouldUseTriggerEffects(controller)) {
+	public DualsenseTriggerEffect getCurrentLeftTriggerEffect(ControllerEntity controller, boolean inputSuppressed) {
+		if (!this.shouldUseTriggerEffects(controller, inputSuppressed)) {
 			return DualsenseTriggerEffect.Off.INSTANCE;
 		}
 
@@ -66,8 +66,8 @@ public class TriggerEffectManager {
 		return DualsenseTriggerEffect.Off.INSTANCE;
 	}
 
-	public DualsenseTriggerEffect getCurrentRightTriggerEffect(ControllerEntity controller) {
-		if (!this.shouldUseTriggerEffects(controller)) {
+	public DualsenseTriggerEffect getCurrentRightTriggerEffect(ControllerEntity controller, boolean inputSuppressed) {
+		if (!this.shouldUseTriggerEffects(controller, inputSuppressed)) {
 			return DualsenseTriggerEffect.Off.INSTANCE;
 		}
 
@@ -85,8 +85,9 @@ public class TriggerEffectManager {
 		return DualsenseTriggerEffect.Off.INSTANCE;
 	}
 
-	public boolean shouldUseTriggerEffects(ControllerEntity controller) {
-		return MinecraftUtil.getScreen() == null
+	public boolean shouldUseTriggerEffects(ControllerEntity controller, boolean inputSuppressed) {
+		return !inputSuppressed
+			&& MinecraftUtil.getScreen() == null
 			&& this.minecraft.player != null
 			&& controller.dualSense().map(ds -> ds.settings().triggerEffects).orElse(false);
 	}

@@ -528,7 +528,8 @@ public class Controlify implements ControlifyApi {
 			rumbleManager.ifPresent(RumbleManager::tick);
 		}
 
-		triggerEffectManager.applyTriggerEffects(controller);
+		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
+		triggerEffectManager.applyTriggerEffects(controller, controllerInputSuppressed);
 
 		if (state.isGivingInput()) {
 			minecraft.getFramerateLimitTracker().onInputReceived();
