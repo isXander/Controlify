@@ -150,6 +150,7 @@ manifests {
             "controlify:default_config",
             "controlify:controller_type",
             "controlify:default_binds",
+            "controlify:trigger_effect",
         )
     ))
 

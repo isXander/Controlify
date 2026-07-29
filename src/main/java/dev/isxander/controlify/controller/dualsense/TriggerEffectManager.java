@@ -13,23 +13,18 @@ import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.*;
-import java.util.function.Function;
 
 public class TriggerEffectManager {
 	private final Minecraft minecraft;
+	private final TriggerEffectRegistry registry;
 
-	private final Map<DataComponentType<?>, Function<Object, DualsenseTriggerEffect>> useItemComponentEffects;
-	private final Map<DataComponentType<?>, Function<Object, DualsenseTriggerEffect>> swingItemComponentEffects;
-
-	public TriggerEffectManager(Minecraft minecraft) {
+	public TriggerEffectManager(Minecraft minecraft, TriggerEffectRegistry registry) {
 		this.minecraft = minecraft;
-		this.useItemComponentEffects = new LinkedHashMap<>();
-		this.swingItemComponentEffects = new LinkedHashMap<>();
+		this.registry = registry;
 	}
 
 	public void applyTriggerEffects(ControllerEntity controller, boolean inputSuppressed) {
@@ -37,14 +32,6 @@ public class TriggerEffectManager {
 			ds.setLeftTriggerEffect(this.getCurrentLeftTriggerEffect(controller, inputSuppressed));
 			ds.setRightTriggerEffect(this.getCurrentRightTriggerEffect(controller, inputSuppressed));
 		});
-	}
-
-	public <T> void registerUseItemComponentEffect(DataComponentType<T> componentType, Function<? super T, DualsenseTriggerEffect> effectFunction) {
-		this.useItemComponentEffects.put(componentType, (Function<Object, DualsenseTriggerEffect>) effectFunction);
-	}
-
-	public <T> void registerSwingItemComponentEffect(DataComponentType<T> componentType, Function<? super T, DualsenseTriggerEffect> effectFunction) {
-		this.swingItemComponentEffects.put(componentType, (Function<Object, DualsenseTriggerEffect>) effectFunction);
 	}
 
 	public DualsenseTriggerEffect getCurrentLeftTriggerEffect(ControllerEntity controller, boolean inputSuppressed) {
@@ -122,18 +109,7 @@ public class TriggerEffectManager {
 	}
 
 	public Optional<DualsenseTriggerEffect> getUseItemTriggerEffect(ItemStack stack) {
-		for (var entry : this.useItemComponentEffects.entrySet()) {
-			if (stack.has(entry.getKey())) {
-				Function<Object, DualsenseTriggerEffect> effectFunction = entry.getValue();
-				DualsenseTriggerEffect effect = effectFunction.apply(stack.get(entry.getKey()));
-				if (effect != null) {
-					return Optional.of(effect);
-				}
-			}
-		}
-
-		var effectHolder = (TriggerEffectHolder) stack.getItem();
-		return effectHolder.controlify$getUseTriggerEffect();
+		return this.registry.getUseItemEffect(stack);
 	}
 
 	public Optional<DualsenseTriggerEffect> getSwingItemTriggerEffect(LocalPlayer player) {
@@ -141,18 +117,7 @@ public class TriggerEffectManager {
 	}
 
 	public Optional<DualsenseTriggerEffect> getSwingItemTriggerEffect(ItemStack stack) {
-		for (var entry : this.swingItemComponentEffects.entrySet()) {
-			if (stack.has(entry.getKey())) {
-				Function<Object, DualsenseTriggerEffect> effectFunction = entry.getValue();
-				DualsenseTriggerEffect effect = effectFunction.apply(stack.get(entry.getKey()));
-				if (effect != null) {
-					return Optional.of(effect);
-				}
-			}
-		}
-
-		var effectHolder = (TriggerEffectHolder) stack.getItem();
-		return effectHolder.controlify$getSwingTriggerEffect();
+		return this.registry.getSwingItemEffect(stack);
 	}
 
 

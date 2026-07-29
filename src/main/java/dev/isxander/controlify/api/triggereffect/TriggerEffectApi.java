@@ -7,7 +7,6 @@
 package dev.isxander.controlify.api.triggereffect;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.dualsense.TriggerEffectHolder;
 import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.world.item.Item;
@@ -21,7 +20,7 @@ public final class TriggerEffectApi {
 	}
 
 	public static <T> void registerUseItemEffect(DataComponentType<T> componentType, Function<? super T, @NotNull DualsenseTriggerEffect> effectFunction) {
-		Controlify.instance().triggerEffectManager().registerUseItemComponentEffect(componentType, effectFunction);
+		Controlify.instance().triggerEffectRegistry().registerUseItemComponentEffect(componentType, effectFunction);
 	}
 
 	public static void registerUseItemEffect(DataComponentType<?> componentType, @NotNull DualsenseTriggerEffect effect) {
@@ -29,7 +28,7 @@ public final class TriggerEffectApi {
 	}
 
 	public static <T> void registerSwingItemEffect(DataComponentType<T> componentType, Function<? super T, @NotNull DualsenseTriggerEffect> effectFunction) {
-		Controlify.instance().triggerEffectManager().registerSwingItemComponentEffect(componentType, effectFunction);
+		Controlify.instance().triggerEffectRegistry().registerSwingItemComponentEffect(componentType, effectFunction);
 	}
 
 	public static void registerSwingItemEffect(DataComponentType<?> componentType, @NotNull DualsenseTriggerEffect effect) {
@@ -37,10 +36,10 @@ public final class TriggerEffectApi {
 	}
 
 	public static void registerUseItemEffect(Item item, @NotNull DualsenseTriggerEffect effect) {
-		((TriggerEffectHolder) item).controlify$assignUseTriggerEffect(effect);
+		Controlify.instance().triggerEffectRegistry().registerUseItemEffect(item, effect);
 	}
 
 	public static void registerSwingItemEffect(Item item, @NotNull DualsenseTriggerEffect effect) {
-		((TriggerEffectHolder) item).controlify$assignSwingTriggerEffect(effect);
+		Controlify.instance().triggerEffectRegistry().registerSwingItemEffect(item, effect);
 	}
 }

@@ -1,0 +1,53 @@
+[
+  {
+    "forItem": "minecraft:bow",
+    "effect": {
+      "type": "feedback_slope",
+      "start_position": 3,
+      "end_position": 9,
+      "start_strength": 2,
+      "end_strength": 8
+    }
+  },
+  {
+    "forComponent": "minecraft:consumable",
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 1
+    }
+  },
+  {
+    "forComponent": "minecraft:blocks_attacks",
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  },
+  {
+    "forComponent": "minecraft:equippable",
+    "effect": {
+      "type": "weapon",
+      "start_position": 3,
+      "end_position": 5,
+      "strength": 1
+    }
+  },
+  {
+    "forComponent": "minecraft:kinetic_weapon",
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  },
+  {
+    "forComponent": "minecraft:instrument",
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  }
+]

@@ -3,5 +3,6 @@
   "default-binds.mdx": "Default Binds",
   "input-glyphs.mdx": "Input Glyphs",
   "guides.mdx": "Button Guides",
-  "keyboard-layouts.mdx": "Keyboard Layouts"
+  "keyboard-layouts.mdx": "Keyboard Layouts",
+  "adaptive-trigger-effects.mdx": "Adaptive Trigger Effects"
 }
