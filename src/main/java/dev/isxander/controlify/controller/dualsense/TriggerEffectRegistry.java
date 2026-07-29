@@ -73,7 +73,7 @@ public class TriggerEffectRegistry implements SimpleControlifyReloadListener<Tri
 	private List<Rule> loadResourceStack(ResourceManager manager, Identifier id) {
 		List<Rule> rules = new ArrayList<>();
 
-		for (Resource resource : manager.getResourceStack(id)) {
+		for (Resource resource : manager.getResourceStack(id).reversed()) {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = JsonParser.parseReader(reader);
 				List<SerializedRule> serializedRules = SERIALIZED_RULE_CODEC.listOf()
