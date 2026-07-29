@@ -122,5 +122,8 @@
     "feature.virtualmouse.snapping.RecipeBookPageAccessor",
     "feature.virtualmouse.snapping.ScreenMixin",
     "feature.virtualmouse.snapping.StonecutterScreenMixin"
+  ],
+  "mixins": [
+    "feature.triggereffect.ItemMixin"
   ]
 }

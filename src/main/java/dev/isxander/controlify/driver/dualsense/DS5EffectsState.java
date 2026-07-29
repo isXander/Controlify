@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.driver.dualsense;
 
 import org.intellij.lang.annotations.MagicConstant;
 

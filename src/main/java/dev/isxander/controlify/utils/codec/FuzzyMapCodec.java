@@ -31,7 +31,7 @@ public class FuzzyMapCodec<T> extends MapCodec<T> {
 			}
 		}
 
-		return DataResult.error(() -> "No matching codec found.");
+		return DataResult.error(() -> "No matching mapCodec found.");
 	}
 
 	@Override

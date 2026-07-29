@@ -4,13 +4,13 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.driver.dualsense;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public interface DualsenseTriggerEffect {
+public sealed interface DualsenseTriggerEffect {
 	DS5EffectsState.TriggerEffect createState();
 
 	/**
@@ -18,6 +18,8 @@ public interface DualsenseTriggerEffect {
 	 * This is an official effect and is expected to be present in future DualSense firmware versions.
 	 */
 	record Off() implements DualsenseTriggerEffect {
+		public static final Off INSTANCE = new Off();
+
 		@Override
 		public DS5EffectsState.TriggerEffect createState() {
 			return DS5EffectsState.TriggerEffect.OFF;

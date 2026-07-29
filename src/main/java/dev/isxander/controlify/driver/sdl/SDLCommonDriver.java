@@ -22,7 +22,7 @@ import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.driver.sdl.dualsense.DS5EffectsState;
+import dev.isxander.controlify.driver.dualsense.DS5EffectsState;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
@@ -113,8 +113,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		// open audio device for dualsense hd haptics
 		this.dualsenseAudioHandles = new ArrayList<>();
 
-		if (CUtil.rl("dualsense").equals(type.namespace())) {
-			this.isDualsense = true;
+		this.isDualsense = CUtil.rl("dualsense").equals(type.namespace());
+		if (this.isDualsense) {
 			logger.debugLog("DualSense controller detected.");
 
 			// macOS HD haptics are broken
@@ -141,8 +141,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 					logger.debugLog("DualSense HD Haptics audio device not found.");
 				}
 			}
-		} else {
-			this.isDualsense = false;
 		}
 	}
 

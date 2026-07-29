@@ -63,5 +63,8 @@
   },
   "bluetooth_device": {
     "dont_show_warning": false
+  },
+  "dualsense": {
+    "trigger_effects": true
   }
 }
