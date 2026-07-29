@@ -24,6 +24,7 @@ import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.BuiltinTriggerEffects;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
+import dev.isxander.controlify.controller.dualsense.TriggerEffectRegistry;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -97,6 +98,7 @@ public class Controlify implements ControlifyApi {
 	private DefaultConfigManager defaultConfigManager;
 	private ControllerTypeManager controllerTypeManager;
 	private KeyboardLayoutManager keyboardLayoutManager;
+	private TriggerEffectRegistry triggerEffectRegistry;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -142,11 +144,14 @@ public class Controlify implements ControlifyApi {
 		this.defaultConfigManager = new DefaultConfigManager();
 		this.controllerTypeManager = new ControllerTypeManager();
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
+		this.triggerEffectRegistry = new TriggerEffectRegistry();
+		BuiltinTriggerEffects.register();
 		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
 		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
 		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
 		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
+		PlatformClientUtil.registerAssetReloadListener(triggerEffectRegistry);
 		PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
 		PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
@@ -252,8 +257,7 @@ public class Controlify implements ControlifyApi {
 
 		this.inGameInputHandler = null; // set when the current controller changes
 		this.virtualMouseHandler = new VirtualMouseHandler();
-		this.triggerEffectManager = new TriggerEffectManager(this.minecraft);
-		BuiltinTriggerEffects.register();
+		this.triggerEffectManager = new TriggerEffectManager(this.minecraft, this.triggerEffectRegistry);
 
 		ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
 				event.controller(), event.hotplugged()));
@@ -767,6 +771,10 @@ public class Controlify implements ControlifyApi {
 
 	public TriggerEffectManager triggerEffectManager() {
 		return triggerEffectManager;
+	}
+
+	public TriggerEffectRegistry triggerEffectRegistry() {
+		return triggerEffectRegistry;
 	}
 
 	public Set<BindContext> thisTickBindContexts() {

@@ -1,0 +1,46 @@
+---
+title: Adaptive Trigger API
+---
+
+Resource packs should be used for fixed adaptive trigger effects. The Java API is available for effects
+that depend on the value stored in an item's data component.
+
+Register effects during Controlify pre-initialization:
+
+```java
+public final class MyControlifyEntrypoint implements ControlifyEntrypoint {
+    @Override
+    public void onControlifyPreInit(PreInitContext context) {
+        TriggerEffectApi.registerUseItemEffect(
+            DataComponents.CHARGED_PROJECTILES,
+            projectiles -> projectiles.isEmpty()
+                ? new DualsenseTriggerEffect.FeedbackSlope(
+                    (byte) 2, (byte) 9, (byte) 5, (byte) 8
+                )
+                : new DualsenseTriggerEffect.Weapon(
+                    (byte) 3, (byte) 5, (byte) 1
+                )
+        );
+    }
+}
+```
+
+`TriggerEffectApi` has use-item and swing-item overloads for:
+
+- A `DataComponentType<T>` and a `Function<? super T, DualsenseTriggerEffect>`, for effects computed from
+  the component value.
+- A `DataComponentType<?>` and a constant `DualsenseTriggerEffect`.
+- An `Item` and a constant `DualsenseTriggerEffect`.
+
+Use `registerUseItemEffect` for the input bound to **Use Item** and `registerSwingItemEffect` for the input
+bound to **Attack**.
+
+## Priority
+
+[Resource-pack rules](../resource-packs/adaptive-trigger-effects) are always evaluated before Java
+registrations, allowing users and pack authors to override mod-provided effects. Among Java registrations,
+component functions are checked in registration order before the exact-item fallback. Registering the same
+component or item again replaces its previous effect.
+
+Use a resource-pack `off` rule when an effect should be explicitly disabled. An `off` result returned from
+Java also disables the trigger, but is only reached when no resource rule matched.

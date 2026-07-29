@@ -3,5 +3,6 @@
   "controlify-entrypoint.mdx": "Controlify Entrypoint",
   "bindings-api.mdx": "Bindings API",
   "screen-operation-api.mdx": "Screen Operation API",
-  "guide-api.mdx": "Guides API"
+  "guide-api.mdx": "Guides API",
+  "adaptive-trigger-api.mdx": "Adaptive Trigger API"
 }
