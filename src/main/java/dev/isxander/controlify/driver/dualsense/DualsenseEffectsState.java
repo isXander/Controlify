@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
 
-public final class DS5EffectsState {
+public final class DualsenseEffectsState {
 	public static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
 		ValueLayout.JAVA_BYTE.withName("ucEnableBits1"),
 		ValueLayout.JAVA_BYTE.withName("ucEnableBits2"),

@@ -20,7 +20,7 @@ public record ProfileConfig(
 		HDHapticConfig hdHaptic,
 		GyroConfig gyro,
 		BluetoothDeviceConfig bluetoothDevice,
-		DualSenseConfig dualsense
+		DualsenseConfig dualsense
 ) {
 	public static final Codec<ProfileConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.STRING.optionalFieldOf("name").forGetter(ProfileConfig::name),
@@ -31,6 +31,6 @@ public record ProfileConfig(
 			HDHapticConfig.CODEC.fieldOf("hd_haptic").forGetter(ProfileConfig::hdHaptic),
 			GyroConfig.CODEC.fieldOf("gyro").forGetter(ProfileConfig::gyro),
 			BluetoothDeviceConfig.CODEC.fieldOf("bluetooth_device").forGetter(ProfileConfig::bluetoothDevice),
-			DualSenseConfig.CODEC.fieldOf("dualsense").forGetter(ProfileConfig::dualsense)
+			DualsenseConfig.CODEC.fieldOf("dualsense").forGetter(ProfileConfig::dualsense)
 	).apply(instance, ProfileConfig::new));
 }
