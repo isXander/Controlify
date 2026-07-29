@@ -4,23 +4,25 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.driver.dualsense;
 
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public interface DualsenseTriggerEffect {
-	DS5EffectsState.TriggerEffect createState();
+public sealed interface DualsenseTriggerEffect {
+	DualsenseEffectsState.TriggerEffect createState();
 
 	/**
 	 * Turn the trigger effect off and return the trigger stop to the neutral position.
 	 * This is an official effect and is expected to be present in future DualSense firmware versions.
 	 */
 	record Off() implements DualsenseTriggerEffect {
+		public static final Off INSTANCE = new Off();
+
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
-			return DS5EffectsState.TriggerEffect.OFF;
+		public DualsenseEffectsState.TriggerEffect createState() {
+			return DualsenseEffectsState.TriggerEffect.OFF;
 		}
 	}
 
@@ -42,7 +44,7 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			if (strength > 0) {
 				byte forceValue = (byte) ((strength - 1) & 0x07);
 				int forceZones = 0;
@@ -52,7 +54,7 @@ public interface DualsenseTriggerEffect {
 					activeZones |= (char) (1 << i);
 				}
 
-				return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
+				return new DualsenseEffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
 						(byte) (activeZones & 0xff),
 						(byte) ((activeZones >> 8) & 0xff),
 						(byte) (forceZones & 0xff),
@@ -61,7 +63,7 @@ public interface DualsenseTriggerEffect {
 						(byte) ((forceZones >> 24) & 0xff),
 				});
 			} else {
-				return DS5EffectsState.TriggerEffect.OFF;
+				return DualsenseEffectsState.TriggerEffect.OFF;
 			}
 		}
 	}
@@ -89,17 +91,17 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			if (strength > 0) {
 				char startAndStopZones = (char) ((1 << startPosition) | (1 << endPosition));
 
-				return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.WEAPON, new byte[]{
+				return new DualsenseEffectsState.TriggerEffect(DualsenseTriggerEffectTypes.WEAPON, new byte[]{
 						(byte) (startAndStopZones & 0xff),
 						(byte) ((startAndStopZones >> 8) & 0xff),
 						(byte) (strength - 1), // this is actually packed into 3 bits, but since it's only one why bother with the fancy code?
 				});
 			} else {
-				return DS5EffectsState.TriggerEffect.OFF;
+				return DualsenseEffectsState.TriggerEffect.OFF;
 			}
 		}
 	}
@@ -126,7 +128,7 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			if (amplitude > 0 && frequency > 0) {
 				byte strengthValue = (byte) ((amplitude - 1) & 0x07);
 				int amplitudeZones = 0;
@@ -137,7 +139,7 @@ public interface DualsenseTriggerEffect {
 					activeZones |= (char) (1 << i);
 				}
 
-				return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
+				return new DualsenseEffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
 						(byte) (activeZones & 0xff),
 						(byte) ((activeZones >> 8) & 0xff),
 						(byte) (amplitudeZones & 0xff),
@@ -148,7 +150,7 @@ public interface DualsenseTriggerEffect {
 						frequency,
 				});
 			} else {
-				return DS5EffectsState.TriggerEffect.OFF;
+				return DualsenseEffectsState.TriggerEffect.OFF;
 			}
 		}
 	}
@@ -171,7 +173,7 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			boolean allZero = true;
 			for (int i = 0; i < 10; i++) {
 				allZero &= strength[i] == 0;
@@ -191,7 +193,7 @@ public interface DualsenseTriggerEffect {
 					}
 				}
 
-				return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
+				return new DualsenseEffectsState.TriggerEffect(DualsenseTriggerEffectTypes.FEEDBACK, new byte[]{
 						(byte) (activeZones & 0xff),
 						(byte) ((activeZones >> 8) & 0xff),
 						(byte) (forceZones & 0xff),
@@ -200,7 +202,7 @@ public interface DualsenseTriggerEffect {
 						(byte) ((forceZones >> 24) & 0xff),
 				});
 			} else {
-				return DS5EffectsState.TriggerEffect.OFF;
+				return DualsenseEffectsState.TriggerEffect.OFF;
 			}
 		}
 	}
@@ -232,7 +234,7 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			byte[] strength = new byte[10];
 			float gradient = (endStrength - startStrength) / (float) (endPosition - startPosition);
 			for (int i = startPosition; i < 10; i++) {
@@ -264,7 +266,7 @@ public interface DualsenseTriggerEffect {
 		}
 
 		@Override
-		public DS5EffectsState.TriggerEffect createState() {
+		public DualsenseEffectsState.TriggerEffect createState() {
 			if (frequency > 0) {
 				boolean allZero = true;
 				for (int i = 0; i < 10; i++) {
@@ -286,7 +288,7 @@ public interface DualsenseTriggerEffect {
 						}
 					}
 
-					return new DS5EffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
+					return new DualsenseEffectsState.TriggerEffect(DualsenseTriggerEffectTypes.VIBRATION, new byte[]{
 							(byte) (activeZones & 0xff),
 							(byte) ((activeZones >> 8) & 0xff),
 							(byte) (strengthZones & 0xff),
@@ -299,7 +301,7 @@ public interface DualsenseTriggerEffect {
 				}
 			}
 
-			return DS5EffectsState.TriggerEffect.OFF;
+			return DualsenseEffectsState.TriggerEffect.OFF;
 		}
 	}
 }

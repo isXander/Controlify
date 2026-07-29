@@ -451,6 +451,7 @@ public class ControllerConfigScreenFactory {
 
 		makeVibrationGroup(settings, defaults, controller).ifPresent(builder::group);
 		makeGyroGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeTriggerEffectsGroup(settings, defaults, controller).ifPresent(builder::group);
 		makeControllerMappingGroup(settings, defaults, controller).ifPresent(builder::group);
 
 		return builder.build();
@@ -680,6 +681,32 @@ public class ControllerConfigScreenFactory {
 		}));
 
 		return Optional.of(gyroGroup.build());
+	}
+
+	private Optional<OptionGroup> makeTriggerEffectsGroup(
+		ProfileSettings settings,
+		ProfileSettings defaults,
+		Optional<ControllerEntity> controller
+	) {
+		var group = OptionGroup.createBuilder()
+			.name(Component.translatable("controlify.gui.group.trigger_effects"))
+			.description(OptionDescription.createBuilder()
+				.text(Component.translatable("controlify.gui.trigger_effects.tooltip"))
+				.build());
+
+		if (controller.isPresent() && controller.get().dualSense().isEmpty()) {
+			group.collapsed(true);
+			group.option(LabelOption.create(Component.translatable("controlify.gui.group.trigger_effects.no_dualsense.tooltip").withStyle(ChatFormatting.RED)));
+		}
+
+		group.option(Option.<Boolean>createBuilder()
+			.name(Component.translatable("controlify.gui.trigger_effects"))
+			.description(OptionDescription.of(Component.translatable("controlify.gui.trigger_effects.tooltip")))
+			.binding(defaults.dualsense.triggerEffects, () -> settings.dualsense.triggerEffects, v -> settings.dualsense.triggerEffects = v)
+			.controller(TickBoxControllerBuilder::create)
+			.build());
+
+		return Optional.of(group.build());
 	}
 
 	private Optional<ConfigCategory> makeBindsCategory(

@@ -22,6 +22,8 @@ import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.dualsense.BuiltinTriggerEffects;
+import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -29,6 +31,7 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
@@ -62,6 +65,7 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -93,6 +97,8 @@ public class Controlify implements ControlifyApi {
 	private DefaultConfigManager defaultConfigManager;
 	private ControllerTypeManager controllerTypeManager;
 	private KeyboardLayoutManager keyboardLayoutManager;
+
+	private TriggerEffectManager triggerEffectManager;
 
 	private Set<BindContext> thisTickContexts;
 
@@ -242,10 +248,12 @@ public class Controlify implements ControlifyApi {
 		CUtil.LOGGER.log("Initializing Controlify...");
 		this.minecraft = Minecraft.getInstance();
 
+		config().loadOrDefault();
+
 		this.inGameInputHandler = null; // set when the current controller changes
 		this.virtualMouseHandler = new VirtualMouseHandler();
-
-		config().loadOrDefault();
+		this.triggerEffectManager = new TriggerEffectManager(this.minecraft);
+		BuiltinTriggerEffects.register();
 
 		ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
 				event.controller(), event.hotplugged()));
@@ -520,6 +528,9 @@ public class Controlify implements ControlifyApi {
 			rumbleManager.ifPresent(RumbleManager::tick);
 		}
 
+		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
+		triggerEffectManager.applyTriggerEffects(controller, controllerInputSuppressed);
+
 		if (state.isGivingInput()) {
 			minecraft.getFramerateLimitTracker().onInputReceived();
 
@@ -752,6 +763,10 @@ public class Controlify implements ControlifyApi {
 
 	public KeyboardLayoutManager keyboardLayoutManager() {
 		return keyboardLayoutManager;
+	}
+
+	public TriggerEffectManager triggerEffectManager() {
+		return triggerEffectManager;
 	}
 
 	public Set<BindContext> thisTickBindContexts() {

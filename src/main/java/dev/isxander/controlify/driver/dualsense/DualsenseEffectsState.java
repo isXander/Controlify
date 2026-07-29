@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.driver.sdl.dualsense;
+package dev.isxander.controlify.driver.dualsense;
 
 import org.intellij.lang.annotations.MagicConstant;
 
@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import static java.lang.foreign.MemoryLayout.PathElement.groupElement;
 
-public final class DS5EffectsState {
+public final class DualsenseEffectsState {
 	public static final MemoryLayout LAYOUT = MemoryLayout.structLayout(
 		ValueLayout.JAVA_BYTE.withName("ucEnableBits1"),
 		ValueLayout.JAVA_BYTE.withName("ucEnableBits2"),

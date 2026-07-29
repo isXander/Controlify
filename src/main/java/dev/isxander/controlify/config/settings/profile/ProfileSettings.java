@@ -21,6 +21,7 @@ public class ProfileSettings {
 	public final HDHapticSettings hdHaptic;
 	public final GyroSettings gyro;
 	public final BluetoothDeviceSettings bluetoothDevice;
+	public final DualsenseSettings dualsense;
 
 	public ProfileSettings(
 			@Nullable String name,
@@ -30,7 +31,8 @@ public class ProfileSettings {
 			RumbleSettings rumble,
 			HDHapticSettings hdHaptic,
 			GyroSettings gyro,
-			BluetoothDeviceSettings bluetoothDevice
+			BluetoothDeviceSettings bluetoothDevice,
+			DualsenseSettings dualsense
 	) {
 		this.name = name;
 		this.controllerUid = controllerUid;
@@ -40,6 +42,7 @@ public class ProfileSettings {
 		this.hdHaptic = hdHaptic;
 		this.gyro = gyro;
 		this.bluetoothDevice = bluetoothDevice;
+		this.dualsense = dualsense;
 	}
 
 	public static ProfileSettings fromDTO(ProfileConfig dto) {
@@ -51,7 +54,8 @@ public class ProfileSettings {
 				RumbleSettings.fromDTO(dto.rumble()),
 				HDHapticSettings.fromDTO(dto.hdHaptic()),
 				GyroSettings.fromDTO(dto.gyro()),
-				BluetoothDeviceSettings.fromDTO(dto.bluetoothDevice())
+				BluetoothDeviceSettings.fromDTO(dto.bluetoothDevice()),
+				DualsenseSettings.fromDTO(dto.dualsense())
 		);
 	}
 
@@ -64,7 +68,8 @@ public class ProfileSettings {
 				rumble.toDTO(),
 				hdHaptic.toDTO(),
 				gyro.toDTO(),
-				bluetoothDevice.toDTO()
+				bluetoothDevice.toDTO(),
+				dualsense.toDTO()
 		);
 	}
 

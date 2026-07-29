@@ -8,6 +8,7 @@ package dev.isxander.controlify.utils.codec;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.*;
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -87,6 +88,27 @@ public final class CExtraCodecs {
 		return Codec.STRING.flatXmap(
 			name -> Optional.ofNullable(fromString.apply(name)).map(DataResult::success).orElseGet(() -> DataResult.error(() -> "Unknown element name:" + name)),
 			e -> Optional.ofNullable(toString.apply(e)).map(DataResult::success).orElseGet(() -> DataResult.error(() -> "Element with unknown name: " + e))
+		);
+	}
+
+	static <N extends Number & Comparable<N>> Function<N, DataResult<N>> checkRange(final N minInclusive, final N maxInclusive) {
+		return value -> {
+			if (value.compareTo(minInclusive) >= 0 && value.compareTo(maxInclusive) <= 0) {
+				return DataResult.success(value);
+			}
+			return DataResult.error(() -> "Value " + value + " outside of range [" + minInclusive + ":" + maxInclusive + "]");
+		};
+	}
+
+	public static Codec<Byte> byteRange(int minInclusive, int maxInclusive) {
+		final Function<Byte, DataResult<Byte>> checker = checkRange((byte) minInclusive, (byte) maxInclusive);
+		return Codec.BYTE.flatXmap(checker, checker);
+	}
+
+	public static Codec<byte[]> byteArray(Codec<List<Byte>> byteListCodec) {
+		return byteListCodec.xmap(
+			byteList -> new ByteArrayList(byteList).toByteArray(),
+			ByteArrayList::wrap
 		);
 	}
 
