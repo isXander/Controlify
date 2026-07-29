@@ -54,6 +54,7 @@ public final class TriggerEffectCodecs {
 				.forGetter(DualsenseTriggerEffect.Vibration::frequency)
 		).apply(instance, DualsenseTriggerEffect.Vibration::new));
 
+	public static final MapCodec<DualsenseTriggerEffect.FeedbackMultiplePosition> MAP_CODEC_FEEDBACK_MULTIPLE_POSITION =
 		RecordCodecBuilder.mapCodec(instance -> instance.group(
 			CExtraCodecs.byteArray(CExtraCodecs.byteRange(0, 8).listOf(10, 10)).fieldOf("strength")
 				.forGetter(DualsenseTriggerEffect.FeedbackMultiplePosition::strength)
