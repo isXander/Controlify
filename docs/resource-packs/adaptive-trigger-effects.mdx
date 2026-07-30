@@ -12,13 +12,15 @@ Create either or both of these files in your resource pack:
 - `assets/controlify/trigger_effect/use_item.json`
 - `assets/controlify/trigger_effect/swing_item.json`
 
-Each file contains an array of rules. A rule selects either one item with `forItem` or one data component
-with `forComponent`, then defines the effect to apply. Exactly one selector must be present.
+Each file contains an array of rules. Every rule has a `when` selector and the `effect` to apply. A selector
+can test items, data components, or both. When both are present, both must match.
 
 ```json
 [
   {
-    "forItem": "minecraft:bow",
+    "when": {
+      "items": "minecraft:bow"
+    },
     "effect": {
       "type": "feedback_slope",
       "start_position": 3,
@@ -28,7 +30,10 @@ with `forComponent`, then defines the effect to apply. Exactly one selector must
     }
   },
   {
-    "forComponent": "minecraft:consumable",
+    "when": {
+      "items": ["minecraft:apple", "#minecraft:fox_food"],
+      "components": ["minecraft:consumable"]
+    },
     "effect": {
       "type": "feedback",
       "position": 3,
@@ -38,15 +43,60 @@ with `forComponent`, then defines the effect to apply. Exactly one selector must
 ]
 ```
 
-Item rules match that exact item. Component rules match any item stack containing that data component.
+`items` accepts one item selector or an array of selectors. Plain identifiers select an exact item, while
+identifiers prefixed with `#` select an item tag. An item matches when it is selected by any entry.
+
+`components` can be an array of component identifiers. This form requires every listed component to be
+present, without inspecting its value:
+
+```json
+{
+  "when": {
+    "components": ["minecraft:weapon", "minecraft:damage"]
+  },
+  "effect": {
+    "type": "weapon",
+    "start_position": 3,
+    "end_position": 5,
+    "strength": 1
+  }
+}
+```
+
+To match component contents, use an object whose keys are component identifiers and whose values are NBT
+patterns:
+
+```json
+{
+  "when": {
+    "items": "minecraft:crossbow",
+    "components": {
+      "minecraft:charged_projectiles": [
+        { "id": "minecraft:firework_rocket" }
+      ]
+    }
+  },
+  "effect": {
+    "type": "weapon",
+    "start_position": 3,
+    "end_position": 5,
+    "strength": 4
+  }
+}
+```
+
+The component value is serialized through its data-component codec before matching. Objects are recursive
+subsets: fields omitted from the pattern may have any value. Lists are unordered subsets: every pattern
+element must match an element in the component value. Scalar values match exactly, and an empty list matches
+only an empty list.
+
 Use-item rules check the player's active item and then their offhand item. Swing-item rules check the
 main-hand item.
 
 ## Rule priority and stacking
 
 The files are additive across resource packs. Rules in the highest-priority pack are checked first, followed
-by lower-priority packs. Within each file, rules are checked from top to bottom. The first matching rule wins,
-whether it uses `forItem` or `forComponent`.
+by lower-priority packs. Within each file, rules are checked from top to bottom. The first matching rule wins.
 
 To remove an effect supplied by Controlify or a lower-priority pack, add a higher-priority rule with an
 `off` effect:
@@ -54,7 +104,9 @@ To remove an effect supplied by Controlify or a lower-priority pack, add a highe
 ```json
 [
   {
-    "forItem": "minecraft:bow",
+    "when": {
+      "items": "minecraft:bow"
+    },
     "effect": {
       "type": "off"
     }
@@ -65,8 +117,9 @@ To remove an effect supplied by Controlify or a lower-priority pack, add a highe
 A matching `off` rule stops evaluation, so rules from lower-priority packs and effects registered by mods
 will not be used.
 
-If a file has invalid JSON, an unknown item or component, an invalid effect, or a rule with both or neither
-selector, Controlify logs the error and skips that entire file layer. Other resource packs continue to work.
+If a file has invalid JSON, an unknown item or component, a transient component in a value matcher, an
+invalid effect, or a rule without any conditions, Controlify logs the error and skips that entire file layer.
+Other resource packs continue to work.
 
 ## Effect formats
 

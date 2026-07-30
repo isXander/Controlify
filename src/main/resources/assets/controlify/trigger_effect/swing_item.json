@@ -1,6 +1,8 @@
 [
   {
-    "forComponent": "minecraft:weapon",
+    "when": {
+      "components": ["minecraft:weapon"]
+    },
     "effect": {
       "type": "weapon",
       "start_position": 3,
