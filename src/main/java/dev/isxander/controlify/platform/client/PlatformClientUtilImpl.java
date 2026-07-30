@@ -31,6 +31,8 @@ public interface PlatformClientUtilImpl {
 
 	void registerClientDisconnected(DisconnectedEvent event);
 
+	void registerClientTagsUpdated(LifecycleEvent event);
+
 	void registerAssetReloadListener(ControlifyReloadListener reloadListener);
 
 	void registerBuiltinResourcePack(Identifier id, Component displayName);

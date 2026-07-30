@@ -27,7 +27,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:charged_projectiles"]
+      "predicates": {
+        "minecraft:charged_projectiles": {}
+      }
     },
     "effect": {
       "type": "weapon",
@@ -38,7 +40,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:consumable"]
+      "predicates": {
+        "minecraft:consumable": {}
+      }
     },
     "effect": {
       "type": "feedback",
@@ -48,7 +52,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:blocks_attacks"]
+      "predicates": {
+        "minecraft:blocks_attacks": {}
+      }
     },
     "effect": {
       "type": "feedback",
@@ -58,7 +64,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:equippable"]
+      "predicates": {
+        "minecraft:equippable": {}
+      }
     },
     "effect": {
       "type": "weapon",
@@ -69,7 +77,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:kinetic_weapon"]
+      "predicates": {
+        "minecraft:kinetic_weapon": {}
+      }
     },
     "effect": {
       "type": "feedback",
@@ -79,7 +89,9 @@
   },
   {
     "when": {
-      "components": ["minecraft:instrument"]
+      "predicates": {
+        "minecraft:instrument": {}
+      }
     },
     "effect": {
       "type": "feedback",

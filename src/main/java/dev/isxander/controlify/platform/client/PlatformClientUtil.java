@@ -44,6 +44,10 @@ public final class PlatformClientUtil {
 		IMPL.registerClientDisconnected(event);
 	}
 
+	public static void registerClientTagsUpdated(LifecycleEvent event) {
+		IMPL.registerClientTagsUpdated(event);
+	}
+
 	public static void registerAssetReloadListener(ControlifyReloadListener reloadListener) {
 		IMPL.registerAssetReloadListener(reloadListener);
 	}

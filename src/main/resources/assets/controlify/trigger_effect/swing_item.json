@@ -1,7 +1,9 @@
 [
   {
     "when": {
-      "components": ["minecraft:weapon"]
+      "predicates": {
+        "minecraft:weapon": {}
+      }
     },
     "effect": {
       "type": "weapon",

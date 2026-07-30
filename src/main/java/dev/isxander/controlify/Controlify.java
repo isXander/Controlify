@@ -190,8 +190,8 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerClientDisconnected((client) -> {
 			DebugLog.log("Disconnected from server, resetting server policies");
 			ServerPolicies.unsetAll();
-			triggerEffectRegistry.invalidateResourceRuleCaches();
 		});
+		PlatformClientUtil.registerClientTagsUpdated(client -> triggerEffectRegistry.invalidateResolvedResourceRules());
 
 		PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
 				inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
