@@ -22,7 +22,6 @@ import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.dualsense.BuiltinTriggerEffects;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectRegistry;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
@@ -145,7 +144,6 @@ public class Controlify implements ControlifyApi {
 		this.controllerTypeManager = new ControllerTypeManager();
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
 		this.triggerEffectRegistry = new TriggerEffectRegistry();
-		BuiltinTriggerEffects.register();
 		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
 		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
@@ -193,6 +191,7 @@ public class Controlify implements ControlifyApi {
 			DebugLog.log("Disconnected from server, resetting server policies");
 			ServerPolicies.unsetAll();
 		});
+		PlatformClientUtil.registerClientTagsUpdated(client -> triggerEffectRegistry.invalidateResolvedResourceRules());
 
 		PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
 				inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));

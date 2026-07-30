@@ -1,6 +1,10 @@
 [
   {
-    "forComponent": "minecraft:weapon",
+    "when": {
+      "predicates": {
+        "minecraft:weapon": {}
+      }
+    },
     "effect": {
       "type": "weapon",
       "start_position": 3,

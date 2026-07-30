@@ -2,8 +2,9 @@
 title: Adaptive Trigger API
 ---
 
-Resource packs should be used for fixed adaptive trigger effects. The Java API is available for effects
-that depend on the value stored in an item's data component.
+Resource packs should be used for adaptive trigger effects based on item identities, tags, or serialized
+data-component values. The Java API is available when an effect needs custom code or cannot be expressed
+with resource-pack matching.
 
 Register effects during Controlify pre-initialization:
 
@@ -13,13 +14,10 @@ public final class MyControlifyEntrypoint implements ControlifyEntrypoint {
     public void onControlifyPreInit(PreInitContext context) {
         TriggerEffectApi.registerUseItemEffect(
             DataComponents.CHARGED_PROJECTILES,
-            projectiles -> projectiles.isEmpty()
-                ? new DualsenseTriggerEffect.FeedbackSlope(
-                    (byte) 2, (byte) 9, (byte) 5, (byte) 8
-                )
-                : new DualsenseTriggerEffect.Weapon(
-                    (byte) 3, (byte) 5, (byte) 1
-                )
+            projectiles -> new DualsenseTriggerEffect.Feedback(
+                (byte) 3,
+                (byte) Math.min(8, projectiles.items().size() + 1)
+            )
         );
     }
 }
