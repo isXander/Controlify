@@ -371,6 +371,36 @@ public class ControllerConfigScreenFactory {
 						.binding(gDefaults.guide.showScreenGuides, () -> gSettings.guide.showScreenGuides, v -> gSettings.guide.showScreenGuides = v)
 						.controller(TickBoxControllerBuilder::create)
 						.build())
+				.option(Option.<Integer>createBuilder()
+						.name(Component.translatable("controlify.gui.ingame_guide_gui_scale"))
+						.description(OptionDescription.createBuilder()
+								.text(Component.translatable("controlify.gui.ingame_guide_gui_scale.tooltip"))
+						.build())
+						.binding(gDefaults.guide.ingameGuiScale, () -> gSettings.guide.ingameGuiScale, v -> gSettings.guide.ingameGuiScale = v)
+						.controller(opt -> IntegerSliderControllerBuilder.create(opt)
+								.range(-1, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()))
+								.step(1)
+								.formatValue(v -> switch (v) {
+									case -1 -> Component.translatable("controlify.gui.guide_gui_scale.unchanged");
+									case 0 -> Component.translatable("controlify.gui.guide_gui_scale.auto");
+									default -> Component.literal(String.valueOf(v));
+								}))
+						.build())
+				.option(Option.<Integer>createBuilder()
+						.name(Component.translatable("controlify.gui.screen_guide_gui_scale"))
+						.description(OptionDescription.createBuilder()
+								.text(Component.translatable("controlify.gui.screen_guide_gui_scale.tooltip"))
+								.build())
+						.binding(gDefaults.guide.screenGuiScale, () -> gSettings.guide.screenGuiScale, v -> gSettings.guide.screenGuiScale = v)
+						.controller(opt -> IntegerSliderControllerBuilder.create(opt)
+								.range(-1, Minecraft.getInstance().getWindow().calculateScale(0, Minecraft.getInstance().isEnforceUnicode()))
+								.step(1)
+								.formatValue(v -> switch (v) {
+									case -1 -> Component.translatable("controlify.gui.guide_gui_scale.unchanged");
+									case 0 -> Component.translatable("controlify.gui.guide_gui_scale.auto");
+									default -> Component.literal(String.valueOf(v));
+								}))
+						.build())
 				.option(Option.<Boolean>createBuilder()
 						.name(Component.translatable("controlify.gui.show_keyboard"))
 						.description(OptionDescription.createBuilder()

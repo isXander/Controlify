@@ -31,13 +31,17 @@ public record GenericControllerConfig(
 			GuideVerbosity verbosity,
 			boolean showIngameGuide,
 			boolean ingameGuideButtom,
-			boolean showScreenGuides
+			boolean showScreenGuides,
+			int ingameGuiScale,
+			int screenGuiScale
 	) {
 		public static final Codec<GuideConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				GuideVerbosity.CODEC.fieldOf("verbosity").forGetter(GuideConfig::verbosity),
 				Codec.BOOL.fieldOf("show_ingame_guide").forGetter(GuideConfig::showIngameGuide),
 				Codec.BOOL.fieldOf("ingame_guide_bottom").forGetter(GuideConfig::ingameGuideButtom),
-				Codec.BOOL.fieldOf("show_screen_guides").forGetter(GuideConfig::showScreenGuides)
+				Codec.BOOL.fieldOf("show_screen_guides").forGetter(GuideConfig::showScreenGuides),
+				Codec.intRange(-1, Integer.MAX_VALUE).fieldOf("ingame_gui_scale").forGetter(GuideConfig::ingameGuiScale),
+				Codec.intRange(-1, Integer.MAX_VALUE).fieldOf("screen_gui_scale").forGetter(GuideConfig::screenGuiScale)
 		).apply(instance, GuideConfig::new));
 	}
 

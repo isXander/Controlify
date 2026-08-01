@@ -8,7 +8,9 @@
       "verbosity": "full",
       "show_ingame_guide": true,
       "ingame_guide_bottom": false,
-      "show_screen_guides": true
+      "show_screen_guides": true,
+      "ingame_gui_scale": 0,
+      "screen_gui_scale": 0
     },
     "keyboard": {
       "show_on_screen_keyboard": true,

@@ -61,17 +61,25 @@ public class GuideInstanceImpl<T extends FactCtx> implements GuideInstance<T> {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast) {
-		GuideRenderer.extractRenderState(graphics, this, Minecraft.getInstance(), bottomAligned, textContrast);
+	public void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast, int guiScale) {
+		GuideRenderer.extractRenderState(
+			graphics,
+			this,
+			Minecraft.getInstance(),
+			bottomAligned,
+			textContrast,
+			guiScale
+		);
 	}
 
 	@Override
-	public Renderable renderable(boolean bottomAligned, boolean textContrast) {
+	public Renderable renderable(boolean bottomAligned, boolean textContrast, int guiScale) {
 		return new GuideRenderer.Renderable(
 				this,
 				Minecraft.getInstance(),
 				bottomAligned,
-				textContrast
+				textContrast,
+				guiScale
 		);
 	}
 
