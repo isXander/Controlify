@@ -60,17 +60,23 @@ public class GenericControllerSettings {
 		public boolean showIngameGuide;
 		public boolean ingameGuideBottom;
 		public boolean showScreenGuides;
+		public int ingameGuiScale;
+		public int screenGuiScale;
 
 		public GuideSettings(
 				GuideVerbosity verbosity,
 				boolean showIngameGuide,
 				boolean ingameGuideBottom,
-				boolean showScreenGuides
+				boolean showScreenGuides,
+				int ingameGuiScale,
+				int screenGuiScale
 		) {
 			this.verbosity = verbosity;
 			this.showIngameGuide = showIngameGuide;
 			this.ingameGuideBottom = ingameGuideBottom;
 			this.showScreenGuides = showScreenGuides;
+			this.ingameGuiScale = ingameGuiScale;
+			this.screenGuiScale = screenGuiScale;
 		}
 
 		public static GuideSettings fromDTO(GenericControllerConfig.GuideConfig dto) {
@@ -78,7 +84,9 @@ public class GenericControllerSettings {
 					dto.verbosity(),
 					dto.showIngameGuide(),
 					dto.ingameGuideButtom(),
-					dto.showScreenGuides()
+					dto.showScreenGuides(),
+					dto.ingameGuiScale(),
+					dto.screenGuiScale()
 			);
 		}
 
@@ -87,7 +95,9 @@ public class GenericControllerSettings {
 					verbosity,
 					showIngameGuide,
 					ingameGuideBottom,
-					showScreenGuides
+					showScreenGuides,
+					ingameGuiScale,
+					screenGuiScale
 			);
 		}
 	}

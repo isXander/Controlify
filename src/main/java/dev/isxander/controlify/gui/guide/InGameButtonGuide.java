@@ -37,7 +37,7 @@ public class InGameButtonGuide {
 		GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 
 		if (!debugOpen && !hideGui && !screenOpen && settings.showIngameGuide) {
-			this.guideInstance.extractRenderState(graphics, settings.ingameGuideBottom, true);
+			this.guideInstance.extractRenderState(graphics, settings.ingameGuideBottom, true, settings.ingameGuiScale);
 		}
 	}
 

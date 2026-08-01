@@ -15,6 +15,15 @@ public interface GuideInstance<T extends FactCtx> {
 
 	boolean update(T context, Font font);
 
-	void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast);
-	Renderable renderable(boolean bottomAligned, boolean textContrast);
+	void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast, int guiScale);
+
+	default void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast) {
+		extractRenderState(graphics, bottomAligned, textContrast, -1);
+	}
+
+	Renderable renderable(boolean bottomAligned, boolean textContrast, int guiScale);
+
+	default Renderable renderable(boolean bottomAligned, boolean textContrast) {
+		return renderable(bottomAligned, textContrast, -1);
+	}
 }
