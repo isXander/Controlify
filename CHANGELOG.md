@@ -38,3 +38,4 @@ Rather than a % scale slider, you can now choose a vanilla GUI scale number, def
 ## Bug Fixes
 
 - Fix Mixed Input leaving the virtual mouse unresponsive for 2 seconds (thank you [Ifbusta](https://github.com/isXander/Controlify/pull/939))
+- Fix Xbox Controllers not being detected when wired on Windows
