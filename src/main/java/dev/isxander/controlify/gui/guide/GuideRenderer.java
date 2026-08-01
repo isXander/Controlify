@@ -32,7 +32,7 @@ public final class GuideRenderer {
 		graphics.pose().pushMatrix();
 		int scaledWidth;
 		int scaledHeight;
-		if (guiScale < standardGuiScale && guiScale > 0) {
+		if (guiScale > 0 && guiScale != standardGuiScale) {
 			graphics.pose().scale((float) guiScale / standardGuiScale, (float) guiScale / standardGuiScale);
 			scaledWidth = window.getWidth() / guiScale;
 			scaledHeight = window.getHeight() / guiScale;
