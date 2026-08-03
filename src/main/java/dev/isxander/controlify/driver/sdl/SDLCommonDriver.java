@@ -30,6 +30,7 @@ import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.AudioFormat;
@@ -70,7 +71,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected final SdlGuid guid;
 	protected final String guidString;
 	protected final @Nullable String serial;
-	protected final String name;
+	protected final @NotNull String name;
 	protected final SdlPropertiesId props;
 	protected final short vendorId, productId;
 	protected final SDLJoystickConnectionState connectionState;
@@ -88,7 +89,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		this.props = SDL_GetControllerProperties(ptrController);
 
-		this.name = SDL_GetControllerName(ptrController);
+		this.name = Optional.ofNullable(SDL_GetControllerName(ptrController))
+			.orElse("SDL Controller");
 
 		this.guid = SDL_GetControllerGUIDForID(jid);
 		this.guidString = sdl.guid().SDL_GUIDToString(guid);

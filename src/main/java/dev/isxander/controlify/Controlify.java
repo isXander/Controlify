@@ -379,7 +379,7 @@ public class Controlify implements ControlifyApi {
 	private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
 		ControllerSetupWizard wizard = new ControllerSetupWizard();
 		DeviceSettings rememberedDevice = config().getSettings().getOrCreateDeviceSettings(controller.uid());
-		rememberedDevice.name = controller.driverName();
+		rememberedDevice.name = controller.name();
 		rememberedDevice.lastSeen = System.currentTimeMillis();
 		rememberedDevice.controllerType = controller.info().type().namespace();
 		config().markDirty();
