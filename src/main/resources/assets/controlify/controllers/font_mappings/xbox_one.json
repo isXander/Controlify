@@ -25,6 +25,10 @@
   "controlify:button/east": "\u0017",
   "controlify:button/south": "\u0018",
   "controlify:button/west": "\u0019",
-  "controlify:button/guide": "\u001A"
+  "controlify:button/guide": "\u001A",
+  "controlify:button/left_paddle_1": "\u001B",
+  "controlify:button/left_paddle_2": "\u001C",
+  "controlify:button/right_paddle_1": "\u001D",
+  "controlify:button/right_paddle_2": "\u001E"
 }
 
