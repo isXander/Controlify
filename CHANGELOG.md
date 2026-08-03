@@ -7,4 +7,4 @@ This version has the following targets:
 
 ## Bug Fixes
 
-- Fix crash when migrating config 3.1.x -> 3.3.x without first migrating to 3.2.x
+- Fix crash on startup when SDL returns null for the controller name
