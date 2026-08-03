@@ -20,6 +20,7 @@ import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadLi
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -119,26 +120,49 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		}
 
 		FontMap fontMap = getMappings(namespace);
+		MutableComponent component = Component.empty();
+		StringBuilder literal = new StringBuilder();
+		FontMap currentFontMap = null;
 
-		String literal = inputs.stream()
-				.map(input -> String.valueOf(getChar(fontMap, input)))
-				.collect(Collectors.joining("+"));
+		for (int i = 0; i < inputs.size(); i++) {
+			MappedChar mappedChar = getChar(fontMap, inputs.get(i));
+			if (currentFontMap != mappedChar.fontMap()) {
+				if (currentFontMap != null) {
+					component.append(createComponent(literal.toString(), currentFontMap));
+					literal.setLength(0);
+				}
+				currentFontMap = mappedChar.fontMap();
+			}
 
+			if (i > 0) {
+				literal.append('+');
+			}
+			literal.append(mappedChar.character());
+		}
+
+		return component.append(createComponent(literal.toString(), currentFontMap));
+	}
+
+	private Component createComponent(String literal, FontMap fontMap) {
 		return Component.literal(literal).withStyle(style -> style
 				.withFont(new FontDescription.Resource(fontMap.namespace().withPrefix("controller/")))
 				.withShadowColor(0x00000000) // remove shadow
 				.withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
 	}
 
-	private char getChar(FontMap fontMap, Identifier input) {
+	private MappedChar getChar(FontMap fontMap, Identifier input) {
 		Character ch = fontMap.inputToChar().get(input);
-
-		// fallback to default icon set if there is no mapping
-		if (ch == null) {
-			ch = defaultFontMap.inputToChar().getOrDefault(input, fontMap.unknown());
+		if (ch != null) {
+			return new MappedChar(ch, fontMap);
 		}
 
-		return ch;
+		// fallback to default icon set if there is no mapping
+		ch = defaultFontMap.inputToChar().get(input);
+		if (ch != null) {
+			return new MappedChar(ch, defaultFontMap);
+		}
+
+		return new MappedChar(fontMap.unknown(), fontMap);
 	}
 
 	@Override
@@ -150,5 +174,8 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 	}
 	public record FontMap(Identifier namespace, char unknown, Map<Identifier, Character> inputToChar) {
+	}
+
+	private record MappedChar(char character, FontMap fontMap) {
 	}
 }
