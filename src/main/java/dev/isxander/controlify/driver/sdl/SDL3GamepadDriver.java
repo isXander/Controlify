@@ -35,6 +35,44 @@ import static dev.isxander.sdl.SdlGamepad.*;
 public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	private static final int GYRO_AXIS_COUNT = 3;
+	private static final List<SDLGamepadInputMapping> INPUT_MAPPINGS = List.of(
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_RIGHT, SDL_GAMEPAD_AXIS_LEFTX, true),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_LEFT, SDL_GAMEPAD_AXIS_LEFTX, false),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_DOWN, SDL_GAMEPAD_AXIS_LEFTY, true),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_UP, SDL_GAMEPAD_AXIS_LEFTY, false),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, SDL_GAMEPAD_AXIS_RIGHTX, true),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_LEFT, SDL_GAMEPAD_AXIS_RIGHTX, false),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_DOWN, SDL_GAMEPAD_AXIS_RIGHTY, true),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_UP, SDL_GAMEPAD_AXIS_RIGHTY, false),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_TRIGGER_AXIS, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, true),
+		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_TRIGGER_AXIS, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, true),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.SOUTH_BUTTON, SDL_GAMEPAD_BUTTON_SOUTH),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.EAST_BUTTON, SDL_GAMEPAD_BUTTON_EAST),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.WEST_BUTTON, SDL_GAMEPAD_BUTTON_WEST),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.NORTH_BUTTON, SDL_GAMEPAD_BUTTON_NORTH),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_SHOULDER_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_SHOULDER_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.BACK_BUTTON, SDL_GAMEPAD_BUTTON_BACK),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.START_BUTTON, SDL_GAMEPAD_BUTTON_START),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.GUIDE_BUTTON, SDL_GAMEPAD_BUTTON_GUIDE),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_UP_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_UP),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_DOWN_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_DOWN),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_LEFT_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_LEFT),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_RIGHT_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_RIGHT),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_STICK_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_STICK),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_STICK_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_STICK),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_1_BUTTON, SDL_GAMEPAD_BUTTON_MISC1),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_2_BUTTON, SDL_GAMEPAD_BUTTON_MISC2),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_3_BUTTON, SDL_GAMEPAD_BUTTON_MISC3),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_4_BUTTON, SDL_GAMEPAD_BUTTON_MISC4),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_5_BUTTON, SDL_GAMEPAD_BUTTON_MISC5),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_6_BUTTON, SDL_GAMEPAD_BUTTON_MISC6),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_PADDLE_1_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_PADDLE1),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_PADDLE_2_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_PADDLE_1_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2),
+		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.TOUCHPAD_1_BUTTON, SDL_GAMEPAD_BUTTON_TOUCHPAD)
+	);
 
 	private InputComponent inputComponent;
 	private GyroComponent gyroComponent;
@@ -70,11 +108,20 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	public void addComponents(ControllerEntity controller) {
 		super.addComponents(controller);
 
+		int buttonCount = (int) INPUT_MAPPINGS.stream()
+				.filter(m -> m instanceof SDLGamepadInputMapping.ButtonMapping)
+				.filter(m -> m.hasInput(sdl.gamepad(), ptrController))
+				.count();
+		int axisCount = (int) INPUT_MAPPINGS.stream()
+				.filter(m -> m instanceof SDLGamepadInputMapping.AxisMapping)
+				.filter(m -> m.hasInput(sdl.gamepad(), ptrController))
+				.count();
+
 		controller.setComponent(
 				this.inputComponent = new InputComponent(
 						controller,
-						21,
-						10,
+						buttonCount,
+						axisCount,
 						0,
 						true,
 						GamepadInputs.DEADZONE_GROUPS,
@@ -111,55 +158,10 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	private void updateInput() {
 		ControllerStateImpl state = new ControllerStateImpl();
-		// Axis values are in the range [-32768, 32767] (short)
-		// https://wiki.libsdl.org/SDL3/SDL_GameControllerGetAxis
-		state.setAxis(GamepadInputs.LEFT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_LEFTX))));
-		state.setAxis(GamepadInputs.LEFT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_LEFTX))));
-		state.setAxis(GamepadInputs.LEFT_STICK_AXIS_UP, negativeAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_LEFTY))));
-		state.setAxis(GamepadInputs.LEFT_STICK_AXIS_DOWN, positiveAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_LEFTY))));
 
-		state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, positiveAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_RIGHTX))));
-		state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_LEFT, negativeAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_RIGHTX))));
-		state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_UP, negativeAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_RIGHTY))));
-		state.setAxis(GamepadInputs.RIGHT_STICK_AXIS_DOWN, positiveAxis(mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_RIGHTY))));
-
-		// Triggers are in the range [0, 32767] (thanks SDL!)
-		state.setAxis(GamepadInputs.LEFT_TRIGGER_AXIS, mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_LEFT_TRIGGER)));
-		state.setAxis(GamepadInputs.RIGHT_TRIGGER_AXIS, mapShortToFloat(sdl.gamepad().SDL_GetGamepadAxis(ptrController, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER)));
-
-		state.setButton(GamepadInputs.SOUTH_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_SOUTH));
-		state.setButton(GamepadInputs.EAST_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_EAST));
-		state.setButton(GamepadInputs.WEST_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_WEST));
-		state.setButton(GamepadInputs.NORTH_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_NORTH));
-
-		state.setButton(GamepadInputs.LEFT_SHOULDER_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER));
-		state.setButton(GamepadInputs.RIGHT_SHOULDER_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER));
-
-		state.setButton(GamepadInputs.BACK_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_BACK));
-		state.setButton(GamepadInputs.START_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_START));
-		state.setButton(GamepadInputs.GUIDE_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_GUIDE));
-
-		state.setButton(GamepadInputs.DPAD_UP_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_DPAD_UP));
-		state.setButton(GamepadInputs.DPAD_DOWN_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_DPAD_DOWN));
-		state.setButton(GamepadInputs.DPAD_LEFT_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_DPAD_LEFT));
-		state.setButton(GamepadInputs.DPAD_RIGHT_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_DPAD_RIGHT));
-
-		state.setButton(GamepadInputs.LEFT_STICK_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_LEFT_STICK));
-		state.setButton(GamepadInputs.RIGHT_STICK_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_RIGHT_STICK));
-
-		// Additional inputs
-		state.setButton(GamepadInputs.MISC_1_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC1));
-		state.setButton(GamepadInputs.MISC_2_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC2));
-		state.setButton(GamepadInputs.MISC_3_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC3));
-		state.setButton(GamepadInputs.MISC_4_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC4));
-		state.setButton(GamepadInputs.MISC_5_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC5));
-		state.setButton(GamepadInputs.MISC_6_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_MISC6));
-
-		state.setButton(GamepadInputs.LEFT_PADDLE_1_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_LEFT_PADDLE1));
-		state.setButton(GamepadInputs.LEFT_PADDLE_2_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2));
-		state.setButton(GamepadInputs.RIGHT_PADDLE_1_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1));
-		state.setButton(GamepadInputs.RIGHT_PADDLE_2_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2));
-		state.setButton(GamepadInputs.TOUCHPAD_1_BUTTON, sdl.gamepad().SDL_GetGamepadButton(ptrController, SDL_GAMEPAD_BUTTON_TOUCHPAD));
+		for (SDLGamepadInputMapping m : INPUT_MAPPINGS) {
+			m.applyState(sdl.gamepad(), ptrController, state);
+		}
 
 		this.inputComponent.pushState(state);
 	}
