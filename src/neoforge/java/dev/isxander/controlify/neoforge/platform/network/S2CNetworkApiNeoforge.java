@@ -48,7 +48,7 @@ public class S2CNetworkApiNeoforge implements S2CNetworkApi {
 		var packetCodec = NeoforgePacketWrapper.wrapCodec(channel, payloadCodec);
 
 		this.getModEventBus().addListener(RegisterPayloadHandlersEvent.class, event -> {
-			PayloadRegistrar registrar = event.registrar("1");
+			PayloadRegistrar registrar = event.registrar("1").optional();
 
 			registrar.playToClient(type, packetCodec);
 		});
