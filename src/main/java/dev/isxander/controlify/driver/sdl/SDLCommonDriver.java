@@ -10,7 +10,7 @@ import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.controller.battery.PowerState;
-import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
+import dev.isxander.controlify.controller.dualsense.DualsenseComponent;
 import dev.isxander.controlify.controller.haptic.CompleteSoundData;
 import dev.isxander.controlify.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.controller.id.ControllerType;
@@ -22,13 +22,15 @@ import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.driver.sdl.dualsense.DS5EffectsState;
+import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
+import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.util.Util;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.sound.sampled.AudioFormat;
@@ -60,7 +62,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected TriggerRumbleComponent triggerRumbleComponent;
 	protected HDHapticComponent hdHapticComponent;
 	protected LEDComponent ledComponent;
-	protected DualSenseComponent dualSenseComponent;
+	protected DualsenseComponent dualSenseComponent;
 
 	protected final boolean isRumbleSupported, isTriggerRumbleSupported;
 	protected final boolean isDualsense;
@@ -69,7 +71,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected final SdlGuid guid;
 	protected final String guidString;
 	protected final @Nullable String serial;
-	protected final String name;
+	protected final @NotNull String name;
 	protected final SdlPropertiesId props;
 	protected final short vendorId, productId;
 	protected final SDLJoystickConnectionState connectionState;
@@ -87,7 +89,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		this.props = SDL_GetControllerProperties(ptrController);
 
-		this.name = SDL_GetControllerName(ptrController);
+		this.name = Optional.ofNullable(SDL_GetControllerName(ptrController))
+			.orElse("SDL Controller");
 
 		this.guid = SDL_GetControllerGUIDForID(jid);
 		this.guidString = sdl.guid().SDL_GUIDToString(guid);
@@ -113,8 +116,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		// open audio device for dualsense hd haptics
 		this.dualsenseAudioHandles = new ArrayList<>();
 
-		if (CUtil.rl("dualsense").equals(type.namespace())) {
-			this.isDualsense = true;
+		this.isDualsense = CUtil.rl("dualsense").equals(type.namespace());
+		if (this.isDualsense) {
 			logger.debugLog("DualSense controller detected.");
 
 			// macOS HD haptics are broken
@@ -141,8 +144,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 					logger.debugLog("DualSense HD Haptics audio device not found.");
 				}
 			}
-		} else {
-			this.isDualsense = false;
 		}
 	}
 
@@ -163,7 +164,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			controller.setComponent(this.ledComponent = new LEDComponent(1));
 		}
 		if (this.isDualsense) {
-			controller.setComponent(this.dualSenseComponent = new DualSenseComponent());
+			controller.setComponent(this.dualSenseComponent = new DualsenseComponent());
 		}
 		if (this.dualsenseAudioDev != null) {
 			controller.setComponent(this.hdHapticComponent = new HDHapticComponent());
@@ -192,6 +193,12 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	public void close() {
 		if (ptrController == null) {
 			throw new IllegalStateException("Tried to close controller when it's already closed.");
+		}
+
+		if (dualSenseComponent != null) {
+			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			updateDualSense();
 		}
 
 		SDL_CloseController(ptrController);
@@ -268,26 +275,26 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (dualSenseComponent == null) return;
 
 		if (this.dualSenseComponent.consumeDirty()) {
-			DS5EffectsState effectsState = new DS5EffectsState();
+			DualsenseEffectsState effectsState = new DualsenseEffectsState();
 
 			// Left Trigger Effect
 			Optional.ofNullable(this.dualSenseComponent.getLeftTriggerEffect()).ifPresent(effect -> {
-				effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
+				effectsState.ucEnableBits1 |= DualsenseEffectsState.EnableBitFlags1.ALLOW_LEFT_TRIGGER_FFB;
 				effectsState.rgucLeftTriggerEffect = effect.createState();
 			});
 
 			// Right Trigger Effect
 			Optional.ofNullable(this.dualSenseComponent.getRightTriggerEffect()).ifPresent(effect -> {
-				effectsState.ucEnableBits1 |= DS5EffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
+				effectsState.ucEnableBits1 |= DualsenseEffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB;
 				effectsState.rgucRightTriggerEffect = effect.createState();
 			});
 
 			// Mute Light
-			effectsState.ucEnableBits2 |= DS5EffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
-			effectsState.ucMicLightMode = DS5EffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
+			effectsState.ucEnableBits2 |= DualsenseEffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
+			effectsState.ucMicLightMode = DualsenseEffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
 
 			try (Arena arena = Arena.ofConfined()) {
-				MemorySegment memory = arena.allocate(DS5EffectsState.LAYOUT);
+				MemorySegment memory = arena.allocate(DualsenseEffectsState.LAYOUT);
 				effectsState.writeTo(memory);
 				SDL_SendControllerEffect(ptrController, memory.asByteBuffer());
 			}

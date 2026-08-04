@@ -35,6 +35,7 @@ import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
+import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -70,6 +71,13 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 	public void registerClientDisconnected(DisconnectedEvent event) {
 		NeoForge.EVENT_BUS.<ClientPlayerNetworkEvent.LoggingOut>addListener(e -> {
 			event.onDisconnected(Minecraft.getInstance());
+		});
+	}
+
+	@Override
+	public void registerClientTagsUpdated(LifecycleEvent event) {
+		NeoForge.EVENT_BUS.<TagsUpdatedEvent.ClientPacketReceived>addListener(e -> {
+			event.onLifecycle(Minecraft.getInstance());
 		});
 	}
 

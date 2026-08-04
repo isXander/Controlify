@@ -21,11 +21,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -61,6 +63,15 @@ public class FabricPlatformClientImpl implements PlatformClientUtilImpl {
 	public void registerClientDisconnected(DisconnectedEvent event) {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			event.onDisconnected(client);
+		});
+	}
+
+	@Override
+	public void registerClientTagsUpdated(LifecycleEvent event) {
+		CommonLifecycleEvents.TAGS_LOADED.register((registries, client) -> {
+			if (client) {
+				event.onLifecycle(Minecraft.getInstance());
+			}
 		});
 	}
 

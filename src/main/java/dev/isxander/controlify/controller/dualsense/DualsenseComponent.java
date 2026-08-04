@@ -6,12 +6,15 @@
  */
 package dev.isxander.controlify.controller.dualsense;
 
+import dev.isxander.controlify.config.settings.profile.DualsenseSettings;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
-import dev.isxander.controlify.driver.sdl.dualsense.DualsenseTriggerEffect;
+import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-public class DualSenseComponent extends ECSComponentImpl {
+import java.util.Objects;
+
+public class DualsenseComponent extends ECSComponentImpl {
 	public static final Identifier ID = CUtil.rl("dualsense");
 
 	private boolean muteLight;
@@ -22,8 +25,10 @@ public class DualSenseComponent extends ECSComponentImpl {
 	private boolean dirty;
 
 	public void setLeftTriggerEffect(DualsenseTriggerEffect effect) {
+		if (!Objects.equals(effect, this.leftTriggerEffect)) {
+			this.setDirty();
+		}
 		this.leftTriggerEffect = effect;
-		this.setDirty();
 	}
 
 	public DualsenseTriggerEffect getLeftTriggerEffect() {
@@ -31,8 +36,10 @@ public class DualSenseComponent extends ECSComponentImpl {
 	}
 
 	public void setRightTriggerEffect(DualsenseTriggerEffect effect) {
+		if (!Objects.equals(effect, this.rightTriggerEffect)) {
+			this.setDirty();
+		}
 		this.rightTriggerEffect = effect;
-		this.setDirty();
 	}
 
 	public DualsenseTriggerEffect getRightTriggerEffect() {
@@ -58,6 +65,14 @@ public class DualSenseComponent extends ECSComponentImpl {
 		boolean old = this.dirty;
 		this.dirty = false;
 		return old;
+	}
+
+	public DualsenseSettings settings() {
+		return this.controller().settings().dualsense;
+	}
+
+	public DualsenseSettings defaultSettings() {
+		return this.controller().defaultSettings().dualsense;
 	}
 
 	@Override

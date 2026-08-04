@@ -24,10 +24,21 @@ public final class ControlifySchemas {
 
 		@Override
 		public void registerTypes(Schema schema, Map<String, Supplier<TypeTemplate>> entityTypes, Map<String, Supplier<TypeTemplate>> blockEntityTypes) {
+			// Keep independently migrated payload types addressable from every source version.
 			schema.registerType(
-				true,
-				ControlifyTypeReferences.USER_STATE,
-				DSL::remainder
+					true,
+					ControlifyTypeReferences.USER_STATE,
+					DSL::remainder
+			);
+			schema.registerType(
+					true,
+					ControlifyTypeReferences.SHARED_CONFIG,
+					DSL::remainder
+			);
+			schema.registerType(
+					true,
+					ControlifyTypeReferences.PROFILE_CONFIG,
+					DSL::remainder
 			);
 		}
 
@@ -58,20 +69,17 @@ public final class ControlifySchemas {
 		public V3(int versionKey, Schema parent) {
 			super(versionKey, parent);
 		}
+	}
 
-		@Override
-		public void registerTypes(Schema schema, Map<String, Supplier<TypeTemplate>> entityTypes, Map<String, Supplier<TypeTemplate>> blockEntityTypes) {
-			super.registerTypes(schema, entityTypes, blockEntityTypes);
-			schema.registerType(
-					true,
-					ControlifyTypeReferences.SHARED_CONFIG,
-					DSL::remainder
-			);
-			schema.registerType(
-					true,
-					ControlifyTypeReferences.PROFILE_CONFIG,
-					DSL::remainder
-			);
+	public static class V6 extends Schema {
+		public V6(int versionKey, Schema parent) {
+			super(versionKey, parent);
+		}
+	}
+
+	public static class V7 extends Schema {
+		public V7(int versionKey, Schema parent) {
+			super(versionKey, parent);
 		}
 	}
 }

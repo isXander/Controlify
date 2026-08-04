@@ -2,6 +2,8 @@ name: Gradle CI
 
 on:
   push:
+    branches:
+      - main
     paths-ignore:
       - 'README.md'
       - 'LICENSE'
@@ -10,10 +12,6 @@ on:
       - 'CHANGELOG.md'
       - 'docs'
   pull_request:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.head.repo.full_name == github.repository && github.head_ref || github.ref_name }}
-  cancel-in-progress: true
 
 permissions:
   id-token: write
@@ -80,7 +78,9 @@ jobs:
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
 
-      - uses: actions/attest@v4
+      - name: Attest build artifacts
+        if: github.event_name == 'push'
+        uses: actions/attest@v4
         with:
           subject-path: versions/**/build/libs/*.jar
 

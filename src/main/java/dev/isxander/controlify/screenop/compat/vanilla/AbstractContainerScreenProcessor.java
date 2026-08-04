@@ -14,6 +14,7 @@ import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.gui.guide.GuideDomains;
+import dev.isxander.controlify.gui.guide.GuideRenderer;
 import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -32,7 +33,7 @@ import net.minecraft.world.inventory.ContainerInput;
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
 	private final GuideInstance<ContainerCtx> guideInstance;
-	private final Renderable guideRenderable;
+	private GuideRenderer.Renderable guideRenderable;
 
 	private final Supplier<Slot> hoveredSlot;
 	private final ClickSlotFunction clickSlotFunction;
@@ -50,7 +51,6 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 		this.clickSlotFunction = clickSlotFunction;
 		this.doItemSlotActions = doItemSlotActions;
 		this.guideInstance = GuideDomains.CONTAINER.createInstance();
-		this.guideRenderable = guideInstance.renderable(true, false);
 	}
 
 	@Override
@@ -112,6 +112,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 
 	@Override
 	public void onWidgetRebuild() {
+		this.guideRenderable = (GuideRenderer.Renderable) guideInstance.renderable(true, false);
+
 		if (ControlifyApi.get().currentInputMode().isController()) {
 			setRenderGuide(true);
 		}
@@ -123,6 +125,9 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 	}
 
 	private void setRenderGuide(boolean render) {
+		ControlifyApi.get().getCurrentController()
+			.ifPresent(c -> this.guideRenderable.setGuiScale(c.settings().generic.guide.screenGuiScale));
+
 		render &= ControlifyApi.get().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false);
 
 		List<Renderable> renderables = ((ScreenAccessor) screen).controlify$getRenderables();

@@ -7,4 +7,7 @@ This version has the following targets:
 
 ## Changes
 
-- Fix in game button guides not working on the built-in resource pack
+- Fallback to default glyph set if the typed glyph set does not have that glyph
+- Implement packet networking for NeoForge (/vibratecontroller) works now
+- Add paddle textures to xbox glyph set for Elite controllers
+- Only apply gamepad inputs to state if the controller actually has the input

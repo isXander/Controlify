@@ -1,0 +1,102 @@
+[
+  {
+    "when": {
+      "items": "minecraft:bow"
+    },
+    "effect": {
+      "type": "feedback_slope",
+      "start_position": 3,
+      "end_position": 9,
+      "start_strength": 2,
+      "end_strength": 8
+    }
+  },
+  {
+    "when": {
+      "components": {
+        "minecraft:charged_projectiles": []
+      }
+    },
+    "effect": {
+      "type": "feedback_slope",
+      "start_position": 2,
+      "end_position": 9,
+      "start_strength": 5,
+      "end_strength": 8
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:charged_projectiles": {}
+      }
+    },
+    "effect": {
+      "type": "weapon",
+      "start_position": 3,
+      "end_position": 5,
+      "strength": 1
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:consumable": {}
+      }
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 1
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:blocks_attacks": {}
+      }
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:equippable": {}
+      }
+    },
+    "effect": {
+      "type": "weapon",
+      "start_position": 3,
+      "end_position": 5,
+      "strength": 1
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:kinetic_weapon": {}
+      }
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:instrument": {}
+      }
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 3
+    }
+  }
+]

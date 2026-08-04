@@ -13,7 +13,7 @@ import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 
 public final class ControlifyDataFixer {
-	public static final int CURRENT_VERSION = 5;
+	public static final int CURRENT_VERSION = 7;
 
 	private static final DataFixer FIXER = createFixer();
 
@@ -28,14 +28,24 @@ public final class ControlifyDataFixer {
 		var v1 = builder.addSchema(1, ControlifySchemas.V1::new);
 		var v2 = builder.addSchema(2, ControlifySchemas.V2::new);
 		var v3 = builder.addSchema(3, ControlifySchemas.V3::new);
+		var v6 = builder.addSchema(6, ControlifySchemas.V6::new);
+		var v7 = builder.addSchema(7, ControlifySchemas.V7::new);
 
-		builder.addFixer(new TheHolyMigrationFix(
-				v1,
-				GlobalSettings.defaults(),
-				ProfileSettings.createDefault()
-		));
+		var globalDefaults = GlobalSettings.defaults();
+		var profileDefaults = ProfileSettings.createDefault();
+
+		// v1
+		builder.addFixer(new TheHolyMigrationFix(v1, globalDefaults, profileDefaults));
+
+		// v2
 		builder.addFixer(new AnalogueMovementWhitelistFix(v2));
 		builder.addFixer(new HorizontalLookInvertFix(v2));
+
+		// v6
+		builder.addFixer(new DualsenseConfigFix(v6, profileDefaults));
+
+		// v7
+		builder.addFixer(new GuideGuiScaleFix(v7, profileDefaults));
 
 		return builder.build().fixer();
 	}

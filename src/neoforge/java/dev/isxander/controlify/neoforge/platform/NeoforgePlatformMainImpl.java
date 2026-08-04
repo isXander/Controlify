@@ -106,7 +106,7 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
 		return DeferredRegister.create(registry, id.getNamespace()).register(id.getPath(), registrant);
 	}
 
-	private IEventBus getModEventBus() {
+	private static IEventBus getModEventBus() {
 		return ModLoadingContext.get().getActiveContainer().getEventBus();
 	}
 

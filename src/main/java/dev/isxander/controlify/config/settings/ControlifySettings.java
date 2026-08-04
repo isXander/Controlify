@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.config.settings;
 
-import dev.isxander.controlify.config.dto.ControlifyConfig;
 import dev.isxander.controlify.config.dto.SharedConfig;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
@@ -62,14 +61,6 @@ public class ControlifySettings {
 
 	public DeviceSettings getOrCreateDeviceSettings(String uid) {
 		return deviceSettings.computeIfAbsent(uid, DeviceSettings::defaults);
-	}
-
-	public static ControlifySettings fromLegacyDTO(ControlifyConfig dto) {
-		ControlifySettings settings = fromSharedDTO(new SharedConfig(dto.globalConfig(), dto.deviceConfig()));
-		for (int i = 0; i < dto.profileConfig().size(); i++) {
-			settings.putProfileSettings(i, ProfileSettings.fromDTO(dto.profileConfig().get(i)));
-		}
-		return settings;
 	}
 
 	public static ControlifySettings fromSharedDTO(SharedConfig dto) {

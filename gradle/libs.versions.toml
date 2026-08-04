@@ -1,7 +1,7 @@
 [versions]
 fabric_loader = "0.19.3"
 sdl_natives = "release-3.4.12"
-sdl_java = "release-3.4.12-4"
+sdl_java = "release-3.4.12-5"
 steamdeck4j = "1.1.7"
 quilt_parsers = "0.3.0"
 

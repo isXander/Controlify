@@ -152,7 +152,7 @@ public class SDLNativesLoader {
 			LOGGER.warn("SDL3 NATIVE LIBRARY VERSION MISMATCH! Java bindings are targeting a different version of SDL3 than the loaded native library. This may cause issues.");
 		}
 
-		sdl.hints().SDL_SetHint(SDL_HINT_WINDOWS_GAMEINPUT, "1");
+		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_GAMEINPUT, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_ENHANCED_REPORTS, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_HIDAPI_STEAM, "1");

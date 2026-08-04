@@ -18,6 +18,10 @@ import java.util.function.Supplier;
  * This should be called every time a button is initialised, like in {@link Screen#init()}
  */
 public final class ButtonGuideApi {
+
+	private ButtonGuideApi() {
+	}
+
 	/**
 	 * Makes the button render the image of the binding specified.
 	 * This does not invoke the button press on binding trigger, only renders the guide.

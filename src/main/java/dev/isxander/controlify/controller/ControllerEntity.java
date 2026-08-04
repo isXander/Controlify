@@ -8,7 +8,7 @@ package dev.isxander.controlify.controller;
 
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.battery.BatteryLevelComponent;
-import dev.isxander.controlify.controller.dualsense.DualSenseComponent;
+import dev.isxander.controlify.controller.dualsense.DualsenseComponent;
 import dev.isxander.controlify.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.controller.info.ControllerInfo;
 import dev.isxander.controlify.controller.info.DriverNameComponent;
@@ -133,8 +133,8 @@ public class ControllerEntity extends ECSEntityImpl {
 	}
 
 	@Contract(pure = true)
-	public Optional<DualSenseComponent> dualSense() {
-		return this.getComponent(DualSenseComponent.ID);
+	public Optional<DualsenseComponent> dualSense() {
+		return this.getComponent(DualsenseComponent.ID);
 	}
 
 	@Contract(pure = true)

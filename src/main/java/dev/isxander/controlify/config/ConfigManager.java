@@ -13,7 +13,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.config.dto.ControlifyConfig;
 import dev.isxander.controlify.config.dto.SharedConfig;
 import dev.isxander.controlify.config.dto.dfu.ControlifyDataFixer;
 import dev.isxander.controlify.config.dto.dfu.ControlifyTypeReferences;
@@ -30,8 +29,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.*;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +37,6 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 public class ConfigManager implements AutoCloseable {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final int FIRST_SPLIT_SCHEMA_VERSION = 3;
 	private static final int LAST_LEGACY_SCHEMA_VERSION = 2;
 	private static final Pattern PROFILE_FILE = Pattern.compile("profile-(\\d+)\\.json");
 
@@ -123,28 +119,43 @@ public class ConfigManager implements AutoCloseable {
 			throw new IOException("Unsupported legacy Controlify config schema " + schemaVersion);
 		}
 
-		Dynamic<?> fixed = ControlifyDataFixer.getFixer().update(
-				ControlifyTypeReferences.USER_STATE,
-				new Dynamic<>(JsonOps.INSTANCE, root),
-				schemaVersion,
-				ControlifyDataFixer.CURRENT_VERSION
-		);
-		JsonObject fixedJson = (JsonObject) fixed.getValue();
-		ControlifyConfig legacy;
-		DataResult<ControlifyConfig> result = ControlifyConfig.CODEC.parse(JsonOps.INSTANCE, fixedJson);
-		if (result.isError()) {
-			JsonObject completed = completeLegacy(fixedJson);
-			legacy = decode(ControlifyConfig.CODEC, completed, "legacy config");
-		} else {
-			legacy = result.result().orElseThrow();
+		// Each payload is replayed from the original version. Fixes for other named types do not apply.
+		JsonObject fixedLegacy = fix(root, ControlifyTypeReferences.USER_STATE, schemaVersion);
+		JsonObject fixedShared = fix(fixedLegacy.deepCopy(), ControlifyTypeReferences.SHARED_CONFIG, schemaVersion);
+
+		DataResult<SharedConfig> sharedResult = SharedConfig.CODEC.parse(JsonOps.INSTANCE, fixedShared);
+		SharedConfig shared = sharedResult.isError()
+				? decode(SharedConfig.CODEC, completeShared(fixedShared), "legacy shared config")
+				: sharedResult.result().orElseThrow();
+		settings = ControlifySettings.fromSharedDTO(shared);
+
+		JsonElement profilesElement = fixedLegacy.get("profiles");
+		if (profilesElement != null && !profilesElement.isJsonArray()) {
+			throw new IOException("Failed to decode legacy config: profiles is not a list");
 		}
 
-		settings = ControlifySettings.fromLegacyDTO(legacy);
-		if (settings.getProfileSettings(0) == null) {
+		JsonArray profiles = profilesElement == null ? new JsonArray() : profilesElement.getAsJsonArray();
+		for (int index = 0; index < profiles.size(); index++) {
+			JsonElement profileElement = profiles.get(index);
+			if (!profileElement.isJsonObject()) {
+				throw new IOException("Failed to decode legacy config: profile " + index + " is not an object");
+			}
+
+			JsonObject fixedProfile = fix(profileElement.getAsJsonObject(), ControlifyTypeReferences.PROFILE_CONFIG, schemaVersion);
+			DataResult<ProfileConfig> profileResult = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, fixedProfile);
+			ProfileConfig profile = profileResult.isError()
+					? decode(ProfileConfig.CODEC, completeProfile(fixedProfile), "legacy profile " + index)
+					: profileResult.result().orElseThrow();
+			settings.putProfileSettings(index, ProfileSettings.fromDTO(profile));
+		}
+
+		if (settings.profileSettings().isEmpty()) {
 			settings.putProfileSettings(0, ProfileSettings.createDefault());
 		}
 
-		writeProfile(0, settings.getProfileSettings(0));
+		for (int index : settings.profileSettings().keySet()) {
+			writeProfile(index, settings.getProfileSettings(index));
+		}
 		writeShared();
 		archiveLegacy();
 		LOGGER.info("Migrated legacy Controlify client config into {}", configDirectory.toAbsolutePath());
@@ -456,20 +467,6 @@ public class ConfigManager implements AutoCloseable {
 		}
 	}
 
-	private JsonObject completeLegacy(JsonObject source) {
-		ControlifySettings defaults = ControlifySettings.defaults();
-		defaults.putProfileSettings(0, ProfileSettings.createDefault());
-		ControlifyConfig defaultDto = new ControlifyConfig(
-				List.of(defaults.getProfileSettings(0).toDTO()),
-				defaults.globalSettings().toDTO(),
-				Map.of()
-		);
-		JsonObject completed = ControlifyConfig.CODEC.encodeStart(JsonOps.INSTANCE, defaultDto)
-				.result().orElseThrow().getAsJsonObject();
-		DefaultConfigManager.mergeJsonObjects(completed, source);
-		return completed;
-	}
-
 	private JsonObject completeProfile(JsonObject source) {
 		JsonObject completed = ProfileConfig.CODEC.encodeStart(JsonOps.INSTANCE, ProfileSettings.createDefault().toDTO())
 				.result().orElseThrow().getAsJsonObject();
@@ -492,7 +489,7 @@ public class ConfigManager implements AutoCloseable {
 	}
 
 	private static void validateSplitSchemaVersion(int schemaVersion, Path path) throws IOException {
-		if (schemaVersion < FIRST_SPLIT_SCHEMA_VERSION || schemaVersion > ControlifyDataFixer.CURRENT_VERSION) {
+		if (schemaVersion <= LAST_LEGACY_SCHEMA_VERSION || schemaVersion > ControlifyDataFixer.CURRENT_VERSION) {
 			throw new IOException("Unsupported Controlify schema " + schemaVersion + " in " + path);
 		}
 	}
