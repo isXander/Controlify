@@ -25,7 +25,7 @@ public class ControlifyCompat {
 
 	public static void init() {
 		//? if simple_voice_chat {
-		try {
+		/*try {
 			wrapCompatCall(
 					SIMPLE_VOICE_CHAT,
 					dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat::init
@@ -33,7 +33,7 @@ public class ControlifyCompat {
 		} catch (NoClassDefFoundError e) {
 			disabledMods.add(SIMPLE_VOICE_CHAT);
 		}
-		//?}
+		*///?}
 
 		//? if fancy_menu {
 		/*try {

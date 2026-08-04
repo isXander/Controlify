@@ -113,8 +113,10 @@ public class InGameInputHandler {
 
 			if (!minecraft.player.isSpectator()) {
 				if (ControlifyBindings.DROP_STACK.on(controller).justPressed()) {
-					if (minecraft.player.drop(true)) {
-						minecraft.player.swing(InteractionHand.MAIN_HAND);
+					if (((DropWithResultInvoker) minecraft.player).controlify$drop(true)) {
+						// >=26.3 swings within the drop method
+						//? if <26.3
+						//minecraft.player.swing(InteractionHand.MAIN_HAND);
 					}
 				} else {
 					if (ControlifyBindings.DROP_INGAME.on(controller).justPressed()) {
@@ -124,9 +126,11 @@ public class InGameInputHandler {
 					}
 
 					if (dropRepeating && dropRepeatHelper.shouldAction(ControlifyBindings.DROP_INGAME.on(controller))) {
-						if (minecraft.player.drop(false)) {
+						if (((DropWithResultInvoker) minecraft.player).controlify$drop(true)) {
 							dropRepeatHelper.onNavigate();
-							minecraft.player.swing(InteractionHand.MAIN_HAND);
+							// >=26.3 swings within the drop method
+							//? if <26.3
+							//minecraft.player.swing(InteractionHand.MAIN_HAND);
 						}
 					}
 				}

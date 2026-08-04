@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.simplevoicechat.mixins;
 
 //? if simple_voice_chat {
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+/*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import dev.isxander.controlify.compatibility.simplevoicechat.SimpleVoiceChatCompat;
 import org.objectweb.asm.Opcodes;
@@ -47,4 +47,4 @@ public class PTTKeyHandlerMixin {
 		return keyDown || SimpleVoiceChatCompat.isWhisperDown();
 	}
 }
-//?}
+*///?}

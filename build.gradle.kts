@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("controlify-common")
 
@@ -16,6 +18,14 @@ base.archivesName = "controlify"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+val fabricModDependency = configurations.dependencyScope("fabricModDependency")
+configurations.fabricCompileOnly { extendsFrom(fabricModDependency) }
+configurations.fabricLocalRuntime { extendsFrom(fabricModDependency) }
+
+val neoforgeModDependency = configurations.dependencyScope("neoforgeModDependency")
+configurations.neoforgeCompileOnly { extendsFrom(neoforgeModDependency) }
+configurations.neoforgeLocalRuntime { extendsFrom(neoforgeModDependency) }
+
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     fabricLoader(libs.fabric.loader)
@@ -23,7 +33,6 @@ dependencies {
 	ifPresent("dep.neoforge") {
 		neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
 	}
-
 
     implementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
 	fabricImplementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
@@ -37,7 +46,7 @@ dependencies {
 	fabricImplementation("net.fabricmc.fabric-api:fabric-key-mapping-api-v1")
 	// this needs to be on main because fabric is shared with main jar
 	implementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1")
-    fabricRuntimeOnly("net.fabricmc.fabric-api:fabric-api")
+    fabricLocalRuntime("net.fabricmc.fabric-api:fabric-api")
 
     commonApi(libs.sdl.java.api)
     commonInclude(libs.sdl.java.api)
@@ -63,33 +72,33 @@ dependencies {
         compileOnly("net.caffeinemc:sodium-fabric:$it") {
 			exclude(group = "net.fabricmc.fabric-api")
 		}
-        fabricImplementation("net.caffeinemc:sodium-fabric:$it")
-        neoforgeImplementation("net.caffeinemc:sodium-neoforge:$it")
-        neoforgeImplementation("net.caffeinemc:sodium-neoforge-mod:$it")
+        fabricModDependency("net.caffeinemc:sodium-fabric:$it")
+        neoforgeModDependency("net.caffeinemc:sodium-neoforge:$it")
+		neoforgeModDependency("net.caffeinemc:sodium-neoforge-mod:$it")
     }
 
     ifPresent("dep.iris") {
         compileOnly("maven.modrinth:iris:$it")
-        fabricImplementation("maven.modrinth:iris:$it")
+		fabricModDependency("maven.modrinth:iris:$it")
     }
     ifPresent("dep.iris-neoforge") {
-        neoforgeImplementation("maven.modrinth:iris:$it")
+        neoforgeModDependency("maven.modrinth:iris:$it")
     }
 
     ifPresent("dep.rso") {
         compileOnly("maven.modrinth:reeses-sodium-options:$it")
-        fabricImplementation("maven.modrinth:reeses-sodium-options:$it")
+        fabricModDependency("maven.modrinth:reeses-sodium-options:$it")
     }
     ifPresent("dep.rso-neoforge") {
-        neoforgeImplementation("maven.modrinth:reeses-sodium-options:$it")
+        neoforgeModDependency("maven.modrinth:reeses-sodium-options:$it")
     }
 
     ifPresent("dep.svc") {
         compileOnly("maven.modrinth:simple-voice-chat:$it")
-        fabricImplementation("maven.modrinth:simple-voice-chat:$it")
+        fabricModDependency("maven.modrinth:simple-voice-chat:$it")
     }
     ifPresent("dep.svc-neoforge") {
-        neoforgeImplementation("maven.modrinth:simple-voice-chat:$it")
+        neoforgeModDependency("maven.modrinth:simple-voice-chat:$it")
     }
 
     ifPresent("dep.fancy-menu") {

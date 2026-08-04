@@ -45,6 +45,7 @@
     "feature.oofinput.MinecraftMixin",
     "feature.patches.analogueboat.AbstractBoatMixin",
     "feature.patches.analogueboat.LocalPlayerMixin",
+    "feature.patches.dropresult.LocalPlayerMixin",
     "feature.patches.keymessages.ClientPacketListenerMixin",
     "feature.patches.keymessages.MovementTutorialStepInstanceMixin",
     "feature.patches.keymessages.OpenInventoryTutorialStepMixin",
