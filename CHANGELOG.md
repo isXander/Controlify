@@ -5,6 +5,9 @@ This version has the following targets:
 
 **By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support and snapshot versions**
 
-## Bug Fixes
+## Changes
 
-- Fix crash on startup when SDL returns null for the controller name
+- Fallback to default glyph set if the typed glyph set does not have that glyph
+- Implement packet networking for NeoForge (/vibratecontroller) works now
+- Add paddle textures to xbox glyph set for Elite controllers
+- Only apply gamepad inputs to state if the controller actually has the input
