@@ -18,13 +18,29 @@ jobs:
           distribution: temurin
 
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-        with:
-          cache-read-only: true
+
+      - name: Read project version
+        id: version
+        shell: bash
+        run: |
+          set -o pipefail
+          
+          ./gradlew --quiet printVersion \
+            | grep '^CONTROLIFY_VERSION=' \
+            | cut -d= -f2- \
+            | sed 's/^/version=/' >> "$GITHUB_OUTPUT"
+
+      - name: Ensure tag does not already exist
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null 2>&1; then
+            echo "::error::Tag '$VERSION' already exists."
+            exit 1
+          fi
 
       - name: Build mod
         run: ./gradlew build --stacktrace
@@ -41,3 +57,13 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           ORG_GRADLE_PROJECT_XanderMavenUsername: ${{ secrets.XANDER_MAVEN_USER }}
           ORG_GRADLE_PROJECT_XanderMavenPassword: ${{ secrets.XANDER_MAVEN_PASS }}
+
+      - name: Create and push tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag --annotate "$VERSION" --message "Release $VERSION"
+          git push origin "refs/tags/$VERSION"

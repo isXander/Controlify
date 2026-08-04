@@ -11,6 +11,8 @@ plugins {
 
 stonecutter active file("versions/current")
 
+version = providers.gradleProperty("mod.version").get()
+
 repositories {
 	mavenCentral()
 }
@@ -38,6 +40,16 @@ val convertHidDBToSDL3 = tasks.register<Copy>("convertHidDBToSDL3") {
 
     rename { "gamecontrollerdb-sdl3.txt" }
     filter { it.replace("Mac OS X", "macOS") }
+}
+
+val printVersion = tasks.register("printVersion") {
+	group = "controlify/internal"
+
+	inputs.property("version", version)
+
+	doLast {
+		logger.quiet("CONTROLIFY_VERSION=${inputs.properties["version"]}")
+	}
 }
 
 val modVersion = providers.gradleProperty("mod.version")
