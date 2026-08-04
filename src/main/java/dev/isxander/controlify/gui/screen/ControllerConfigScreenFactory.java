@@ -585,10 +585,10 @@ public class ControllerConfigScreenFactory {
 						rumble.rumbleManager().play(
 								RumbleSource.MASTER,
 								BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-										.join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+										.seq(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
 										.repeat(3)
-										.join(BasicRumbleEffect.constant(1f, 0f, 5)
-												.join(BasicRumbleEffect.constant(0f, 1f, 5))
+										.seq(BasicRumbleEffect.constant(1f, 0f, 5)
+												.seq(BasicRumbleEffect.constant(0f, 1f, 5))
 												.repeat(10)
 										)
 										.earlyFinish(BasicRumbleEffect.finishOnScreenChange())
