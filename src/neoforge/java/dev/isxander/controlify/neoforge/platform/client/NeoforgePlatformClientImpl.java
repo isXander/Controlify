@@ -22,6 +22,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,6 +30,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.tags.TagKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.neoforge.client.event.*;
@@ -154,6 +156,12 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 	@Override
 	public void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement) {
 		graphics.submitGuiElementRenderState(guiElement);
+	}
+
+	@Override
+	public <T> boolean isInWithLocalFallback(TagKey<T> tagKey, Holder<T> holder) {
+		// NeoForge has no ClientTags api
+		return holder.is(tagKey);
 	}
 
 	private IEventBus getModEventBus() {

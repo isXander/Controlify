@@ -13,10 +13,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -55,4 +57,6 @@ public interface PlatformClientUtilImpl {
 	@Nullable ScreenRectangle peekScissorStack(GuiGraphicsExtractor graphics);
 
 	void submitGuiElement(GuiGraphicsExtractor graphics, GuiElementRenderState guiElement);
+
+	<T> boolean isInWithLocalFallback(TagKey<T> tagKey, Holder<T> holder);
 }

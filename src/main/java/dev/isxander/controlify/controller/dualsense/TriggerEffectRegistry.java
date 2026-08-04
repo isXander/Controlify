@@ -282,7 +282,14 @@ public class TriggerEffectRegistry implements SimpleControlifyReloadListener<Tri
 		DualsenseTriggerEffect effect
 	) {
 		public boolean matches(ItemStack stack) {
-			return this.when.test(stack);
+			// reimplement `ItemPredicate#matches` with ClientTags fallback, to allow `c:` tags with vanilla servers
+			// neoforge does not implement ClientTags api, but this is okay as nobody runs NeoForge client with vanilla
+			// servers anyway
+			if (when.items().isPresent() && !CUtil.isInWithLocalFallback(stack, when.items().get())) {
+				return false;
+			} else {
+				return when.count().matches(stack.count()) && when.components().test(stack);
+			}
 		}
 	}
 

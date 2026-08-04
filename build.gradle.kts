@@ -31,6 +31,8 @@ dependencies {
 	fabricImplementation("net.fabricmc.fabric-api:fabric-rendering-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-creative-tab-api-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-key-mapping-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-tag-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-convention-tags-v2")
 	// this needs to be on main because fabric is shared with main jar
 	implementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1")
     fabricRuntimeOnly("net.fabricmc.fabric-api:fabric-api")

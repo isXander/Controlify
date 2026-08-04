@@ -17,6 +17,10 @@ The `when` object uses Minecraft's standard
 [item predicate format](https://minecraft.wiki/w/Template:Nbt_inherit/conditions/item/template). When
 multiple conditions are present, all of them must match.
 
+On Fabric, you can reference the `c:` convention tags even when connected to a vanilla server.
+NeoForge does not provide this capability, but when on Singleplayer or connected to a NeoForge server,
+you are able to reference convention tags.
+
 For example, a bow can increase resistance as it is pulled:
 
 ```json

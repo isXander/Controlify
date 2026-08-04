@@ -1,7 +1,7 @@
 [
   {
     "when": {
-      "items": "minecraft:bow"
+      "items": "#c:tools/bow"
     },
     "effect": {
       "type": "feedback_slope",
@@ -97,6 +97,104 @@
       "type": "feedback",
       "position": 3,
       "strength": 3
+    }
+  },
+  {
+    "when": {
+      "items": "#c:tools/brush"
+    },
+    "effect": {
+      "type": "vibration",
+      "position": 2,
+      "amplitude": 2,
+      "frequency": 15
+    }
+  },
+  {
+    "when": {
+      "items": "minecraft:spyglass"
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 1
+    }
+  },
+  {
+    "when": {
+      "items": "#c:tools/trident"
+    },
+    "effect": {
+      "type": "feedback_slope",
+      "start_position": 2,
+      "end_position": 9,
+      "start_strength": 2,
+      "end_strength": 8
+    }
+  },
+  {
+    "when": {
+      "items": "#minecraft:eggs"
+    },
+    "effect": {
+      "type": "vibration",
+      "position": 3,
+      "amplitude": 6,
+      "frequency": 5
+    }
+  },
+  {
+    "when": {
+      "items": [
+        "minecraft:snowball",
+        "minecraft:splash_potion",
+        "minecraft:lingering_potion",
+        "minecraft:experience_bottle"
+      ]
+    },
+    "effect": {
+      "type": "vibration",
+      "position": 3,
+      "amplitude": 6,
+      "frequency": 5
+    }
+  },
+  {
+    "when": {
+      "items": "#c:tools/fishing_rod"
+    },
+    "effect": {
+      "type": "weapon",
+      "start_position": 3,
+      "end_position": 5,
+      "strength": 1
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:bundle_contents": {
+          "items": { "size": { "min": 1 } }
+        }
+      }
+    },
+    "effect": {
+      "type": "feedback",
+      "position": 3,
+      "strength": 6
+    }
+  },
+  {
+    "when": {
+      "predicates": {
+        "minecraft:use_cooldown": {}
+      }
+    },
+    "effect": {
+      "type": "weapon",
+      "start_position": 3,
+      "end_position": 5,
+      "strength": 1
     }
   }
 ]

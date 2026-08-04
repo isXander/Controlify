@@ -6,7 +6,10 @@
  */
 package dev.isxander.controlify.utils;
 
+import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.TypedInstance;
 import net.minecraft.util.Util;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -140,4 +143,9 @@ public class CUtil {
 			+ Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
 	}
 
+	public static <T> boolean isInWithLocalFallback(TypedInstance<T> type, HolderSet<T> items) {
+		return items.unwrapKey()
+			.map(tag -> PlatformClientUtil.isInWithLocalFallback(tag, type.typeHolder()))
+			.orElseGet(() -> type.is(items));
+	}
 }
