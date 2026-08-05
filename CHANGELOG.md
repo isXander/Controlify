@@ -5,6 +5,28 @@ This version has the following targets:
 
 **By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support and snapshot versions**
 
+## Overhauled Radial Menu
+
+The Radial Menu now has tabs!
+
+You can add an infinite amount of items to the Radial Menu on the all-new edit screen.
+Each page has maximum 8 items, adding more than 8 automatically creates more pages.
+
+### Data-driven Radial Icons
+
+The icons for each Radial Candidate are now data-driven. Specify either an item model or a texture.
+
+- Mods can use this to add custom icons without depending on Controlify in any way.
+- Resource pack creators can add custom icons to their favourite mods.
+
+[Check out the documentation!](https://moddedmc.wiki/en/project/controlify/latest/docs/resource-packs/radial-icons)
+
+### Game Mode Switcher
+
+This was already a feature, but it was a separate radial menu you had to bind to another button on your controller.
+
+The Game Mode Switcher will automatically appear as a tab to the left of the main tab if you have the necessary permissions.
+
 ## Rumble Improvements
 
 - Added new outgoing damage rumble
