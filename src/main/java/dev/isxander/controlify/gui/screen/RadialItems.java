@@ -6,43 +6,51 @@
  */
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.bindings.RadialIcons;
 import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.RadialIconManager;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
-import dev.isxander.controlify.utils.DebugOverlayHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.player.inventory.Hotbar;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.permissions.Permissions;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.server.commands.GameModeCommand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
 public final class RadialItems {
-	public static final RadialMenuScreen.RadialItem EMPTY_ACTION = new RadialItemRecord(Component.empty(), RadialIcon.EMPTY, () -> false, RadialIcons.EMPTY);
+	public static final RadialMenuScreen.RadialItem EMPTY_ACTION = new RadialItemRecord(Component.empty(), RadialIcon.EMPTY, () -> false, RadialIconManager.EMPTY);
 
 	public static RadialMenuScreen.RadialItem[] createBindings(ControllerEntity controller) {
-		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[8];
+		List<Identifier> actions = controller.settings().input.radialMenu.radialActions;
+		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[actions.size()];
 
-		for (int i = 0; i < 8; i++) {
-			Identifier bindingId = controller.settings().input.radialMenu.radialActions.get(i);
-
-			items[i] = getItemForBinding(bindingId, controller);
+		for (int i = 0; i < actions.size(); i++) {
+			items[i] = getItemForBinding(actions.get(i), controller);
 		}
 
 		return items;
 	}
 
-	public static RadialMenuScreen.RadialItem[] createGameModes() {
+	public static List<RadialMenuScreen.RadialItem[]> createBindingPages(ControllerEntity controller) {
+		RadialMenuScreen.RadialItem[] items = createBindings(controller);
+		return RadialMenuPages.partition(Arrays.asList(items)).stream()
+				.map(page -> page.toArray(RadialMenuScreen.RadialItem[]::new))
+				.toList();
+	}
+
+	public static RadialPage createGameModes() {
 		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[4];
 
 		items[0] = new GameModeItem(GameType.CREATIVE);
@@ -50,10 +58,13 @@ public final class RadialItems {
 		items[2] = new GameModeItem(GameType.ADVENTURE);
 		items[3] = new GameModeItem(GameType.SPECTATOR);
 
-		return items;
+		return new RadialPage(
+			Component.translatable("controlify.binding.controlify.game_mode_switcher"),
+			items
+		);
 	}
 
-	public static RadialMenuScreen.RadialItem[] createHotbarSave() {
+	public static RadialPage createHotbarSave() {
 		Minecraft mc = Minecraft.getInstance();
 		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
 
@@ -70,10 +81,13 @@ public final class RadialItems {
 			);
 		}
 
-		return items;
+		return new RadialPage(
+			Component.translatable("controlify.radial.hotbar_save_hint"),
+			items
+		);
 	}
 
-	public static RadialMenuScreen.RadialItem[] createHotbarLoad() {
+	public static RadialPage createHotbarLoad() {
 		Minecraft mc = Minecraft.getInstance();
 		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
 
@@ -90,7 +104,10 @@ public final class RadialItems {
 			);
 		}
 
-		return items;
+		return new RadialPage(
+			Component.translatable("controlify.radial.hotbar_load_hint"),
+			items
+		);
 	}
 
 	public static RadialMenuScreen.RadialItem[] createHotbarItemSelect() {
@@ -101,9 +118,7 @@ public final class RadialItems {
 			int j = i;
 			items[i] = new RadialItemRecord(
 					Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
-					(graphics, x, y, tickDelta) -> {
-						graphics.item(mc.player.getInventory().getItem(j), x, y);
-					},
+					getIconForItem(mc.player.getInventory().getItem(j)),
 					() -> {
 						mc.player.getInventory().setSelectedSlot(j);
 						return true;
@@ -115,134 +130,23 @@ public final class RadialItems {
 		return items;
 	}
 
-	public static RadialMenuScreen.RadialItem[] createDebug() {
-		var items = new RadialMenuScreen.RadialItem[]{
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.reload_chunks"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.COMPASS)),
-						() -> {
-							DebugOverlayHelper.reloadChunks();
-							return true;
-						},
-						CUtil.rl("debug/reload_chunks")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.chunk_borders"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.FILLED_MAP)),
-						() -> {
-							DebugOverlayHelper.toggleChunkBorders();
-							return true;
-						},
-						CUtil.rl("debug/chunk_borders")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.advanced_tooltips"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.WRITABLE_BOOK)),
-						() -> {
-							DebugOverlayHelper.toggleAdvancedTooltips();
-							return true;
-						},
-						CUtil.rl("debug/advanced_tooltips")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.entity_hitboxes"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.ZOMBIE_HEAD)),
-						() -> {
-							DebugOverlayHelper.toggleEntityHitboxes();
-							return true;
-						},
-						CUtil.rl("debug/entity_hitboxes")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.reload_packs"),
-						RadialIcons.getIcons().get(
-								//? if >=26.2 {
-								RadialIcons.getItem(Items.DYE.pink())
-								//?} else {
-								/*RadialIcons.getItem(Items.PINK_DYE)
-								*///?}
-						),
-						() -> {
-							DebugOverlayHelper.reloadResourcePacks();
-							return true;
-						},
-						CUtil.rl("debug/reload_packs")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.clear_chat"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.FLINT_AND_STEEL)),
-						() -> {
-							DebugOverlayHelper.clearChat();
-							return true;
-						},
-						CUtil.rl("debug/clear_chat")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.profile"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.STRUCTURE_BLOCK)),
-						() -> {
-							DebugOverlayHelper.startStopProfiling();
-							return true;
-						},
-						CUtil.rl("debug/profile")
-				)
-		};
-
-		boolean overlayEnabled = DebugOverlayHelper.isOverlayEnabled();
-		var overlayItems = !overlayEnabled ? new RadialMenuScreen.RadialItem[]{
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.overlay"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.DEBUG_STICK)),
-						() -> {
-							DebugOverlayHelper.toggleOverlay();
-							return true;
-						},
-						CUtil.rl("debug/overlay")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.overlay_fps"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.CLOCK)),
-						() -> {
-							DebugOverlayHelper.toggleFpsOverlay();
-							return true;
-						},
-						CUtil.rl("debug/fps")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.overlay_net"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.SCULK_SENSOR)),
-						() -> {
-							DebugOverlayHelper.toggleNetworkOverlay();
-							return true;
-						},
-						CUtil.rl("debug/fps")
-				),
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.overlay_prof"),
-						RadialIcons.getIcons().get(RadialIcons.getItem(Items.TARGET)),
-						() -> {
-							DebugOverlayHelper.toggleProfilerOverlay();
-							return true;
-						},
-						CUtil.rl("debug/fps")
-				),
-		} : new RadialMenuScreen.RadialItem[]{
-				new RadialItemRecord(
-						Component.translatable("controlify.radial.debug.hide_overlay"),
-						RadialIcons.getIcons().get(RadialIcons.getEffect(MobEffects.INVISIBILITY)),
-						() -> {
-							DebugOverlayHelper.toggleOverlay();
-							return true;
-						},
-						CUtil.rl("debug/reload_chunks")
-				)
-		};
-
-		RadialMenuScreen.RadialItem[] allItems = new RadialMenuScreen.RadialItem[items.length + overlayItems.length];
-		System.arraycopy(overlayItems, 0, allItems, 0, overlayItems.length);
-		System.arraycopy(items, 0, allItems, overlayItems.length, items.length);
-
-		return allItems;
+	public static RadialMenuScreen.RadialItem[] createDebug(ControllerEntity controller) {
+		return List.of(
+				ControlifyBindings.TOGGLE_DEBUG_MENU,
+				ControlifyBindings.TOGGLE_DEBUG_MENU_FPS,
+				ControlifyBindings.TOGGLE_DEBUG_MENU_NET,
+				ControlifyBindings.TOGGLE_DEBUG_MENU_PROF,
+				ControlifyBindings.DEBUG_RELOAD_CHUNKS,
+				ControlifyBindings.DEBUG_TOGGLE_CHUNK_BORDERS,
+				ControlifyBindings.DEBUG_TOGGLE_ADVANCED_TOOLTIPS,
+				ControlifyBindings.DEBUG_TOGGLE_ENTITY_HITBOXES,
+				ControlifyBindings.DEBUG_RELOAD_RESOURCE_PACKS,
+				ControlifyBindings.DEBUG_CLEAR_CHAT,
+				ControlifyBindings.DEBUG_START_STOP_PROFILING
+		).stream()
+				.map(InputBindingSupplier::bindId)
+				.map(id -> getItemForBinding(id, controller))
+				.toArray(RadialMenuScreen.RadialItem[]::new);
 	}
 
 	private static RadialIcon getIconForHotbar(int hotbarIndex, boolean showNumbers) {
@@ -255,41 +159,43 @@ public final class RadialItems {
 			ItemStack stack = hotbarItems.get(i);
 
 			if (!stack.is(Items.AIR)) {
-				return (graphics, x, y, tickDelta) -> {
-					graphics.item(stack, x, y);
-
-					if (showNumbers) {
-						graphics.text(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
-					}
-				};
+				RadialIcon icon = getIconForItem(stack);
+				return showNumbers
+						? icon.withOverlay(Component.literal(Integer.toString(hotbarIndex + 1)))
+						: icon;
 			}
 		}
 
-		return (graphics, x, y, tickDelta) -> {
-			if (showNumbers) {
-				graphics.text(mc.font, Integer.toString(hotbarIndex + 1), x, y, -1);
-			}
-		};
+		return showNumbers
+				? RadialIcon.EMPTY.withOverlay(Component.literal(Integer.toString(hotbarIndex + 1)))
+				: RadialIcon.EMPTY;
+	}
+
+	private static RadialIcon getIconForItem(ItemStack stack) {
+		Identifier model = stack.get(DataComponents.ITEM_MODEL);
+		return model != null ? RadialIcon.model(model) : RadialIcon.EMPTY;
 	}
 
 	private static RadialMenuScreen.RadialItem getItemForBinding(Identifier id, ControllerEntity controller) {
 		InputBinding binding = controller.input().orElseThrow().getBinding(id);
 
-		if (binding == null || binding.radialIcon().isEmpty()) {
+		if (binding == null || !RadialIconManager.INSTANCE.isRadialCandidate(binding)) {
 			CUtil.LOGGER.warn("Binding {} does not exist or is not a radial candidate", binding);
 			return EMPTY_ACTION;
 		}
 
-		RadialIcon icon = RadialIcons.getIcons().get(binding.radialIcon().get());
 		return new RadialItemRecord(
 				binding.name(),
-				icon,
+				RadialIconManager.INSTANCE.getIcon(binding),
 				() -> {
 					binding.fakePress();
 					return true;
 				},
 				id
 		);
+	}
+
+	public record RadialPage(Component name, RadialMenuScreen.RadialItem[] items) {
 	}
 
 	private record RadialItemRecord(Component name, RadialIcon icon, Supplier<Boolean> action, Identifier id) implements RadialMenuScreen.RadialItem {
@@ -318,12 +224,12 @@ public final class RadialItems {
 			this.gameType = gameType;
 			this.name = gameType.getShortDisplayName();
 			Identifier iconId = switch (gameType) {
-				case CREATIVE -> RadialIcons.getItem(Items.GRASS_BLOCK);
-				case SURVIVAL -> RadialIcons.getItem(Items.IRON_SWORD);
-				case ADVENTURE -> RadialIcons.getItem(Items.MAP);
-				case SPECTATOR -> RadialIcons.getItem(Items.ENDER_EYE);
+				case CREATIVE -> BuiltInRegistries.ITEM.getKey(Items.GRASS_BLOCK);
+				case SURVIVAL -> BuiltInRegistries.ITEM.getKey(Items.IRON_SWORD);
+				case ADVENTURE -> BuiltInRegistries.ITEM.getKey(Items.MAP);
+				case SPECTATOR -> BuiltInRegistries.ITEM.getKey(Items.ENDER_EYE);
 			};
-			this.icon = RadialIcons.getIcons().get(iconId);
+			this.icon = RadialIcon.model(iconId);
 			this.command = switch (gameType) {
 				case CREATIVE -> "gamemode creative";
 				case SURVIVAL -> "gamemode survival";
@@ -346,7 +252,8 @@ public final class RadialItems {
 		public boolean playAction() {
 			Minecraft client = Minecraft.getInstance();
 			if (client.gameMode != null && client.player != null) {
-				if (client.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)
+				if (client.canSwitchGameMode()
+					&& GameModeCommand.PERMISSION_CHECK.check(client.player.permissions())
 					&& client.gameMode.getPlayerMode() != gameType) {
 					client.player.connection.sendCommand(command);
 					return true;
@@ -357,30 +264,4 @@ public final class RadialItems {
 		}
 	}
 
-	public static class BindingEditMode implements RadialMenuScreen.EditMode {
-
-		private final ControllerEntity controller;
-
-		public BindingEditMode(ControllerEntity controller) {
-			this.controller = controller;
-		}
-
-		@Override
-		public void setRadialItem(int index, RadialMenuScreen.RadialItem item) {
-			controller.settings().input.radialMenu.radialActions.set(index, ((RadialItemRecord) item).id());
-		}
-
-		@Override
-		public List<RadialMenuScreen.RadialItem> getEditCandidates() {
-			List<RadialMenuScreen.RadialItem> items = new ArrayList<>();
-
-			controller.input().orElseThrow().getAllBindings().forEach(binding -> {
-				binding.radialIcon().ifPresent(icon -> {
-					items.add(new RadialItemRecord(binding.name(), RadialIcons.getIcons().get(icon), () -> false, binding.id()));
-				});
-			});
-
-			return items;
-		}
-	}
 }

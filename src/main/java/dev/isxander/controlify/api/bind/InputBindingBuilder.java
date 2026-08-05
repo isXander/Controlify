@@ -123,15 +123,6 @@ public interface InputBindingBuilder {
 	InputBindingBuilder allowedContexts(@NotNull BindContext @Nullable... contexts);
 
 	/**
-	 * Specifies an icon that can be used in the radial menu.
-	 * Also allows for this binding to be selected in the radial menu editor screen.
-	 *
-	 * @param icon the ID of the icon
-	 * @return this builder
-	 */
-	InputBindingBuilder radialCandidate(@Nullable Identifier icon);
-
-	/**
 	 * Adds a correlation between a vanilla key mapping and this binding.
 	 * A correlation means that an auto-generated binding for this vanilla key mapping will not be created.
 	 *

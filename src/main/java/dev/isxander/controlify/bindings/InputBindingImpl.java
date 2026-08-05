@@ -31,8 +31,6 @@ public class InputBindingImpl implements InputBinding {
 	private Input fallbackBoundInput;
 	private final Supplier<Input> defaultBindSupplier;
 	private final Set<BindContext> contexts;
-	private final @Nullable Identifier radialIcon;
-
 	private final @Nullable InputComponent inputComponent;
 	private final Identifier controllerType;
 
@@ -63,8 +61,7 @@ public class InputBindingImpl implements InputBinding {
 			Component description,
 			Component category,
 			Supplier<Input> defaultBindSupplier,
-			Set<BindContext> contexts,
-			@Nullable Identifier radialIcon
+			Set<BindContext> contexts
 	) {
 		this.inputComponent = inputComponent;
 		this.controllerType = controllerType;
@@ -76,7 +73,6 @@ public class InputBindingImpl implements InputBinding {
 		this.fallbackBoundInput = defaultBindSupplier.get();
 		this.defaultBindSupplier = defaultBindSupplier;
 		this.contexts = contexts;
-		this.radialIcon = radialIcon;
 		this.borrowedAccesses = new HashSet<>();
 
 		this.digitalOutputs = new HashMap<>();
@@ -227,11 +223,6 @@ public class InputBindingImpl implements InputBinding {
 	@Override
 	public Set<BindContext> contexts() {
 		return this.contexts;
-	}
-
-	@Override
-	public Optional<Identifier> radialIcon() {
-		return Optional.ofNullable(this.radialIcon);
 	}
 
 	@Override

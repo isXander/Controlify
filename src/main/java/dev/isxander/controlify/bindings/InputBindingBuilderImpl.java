@@ -31,8 +31,6 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 	private @Nullable Component customName, customDescription;
 	private @Nullable Input defaultInput;
 	private final Set<BindContext> allowedContexts = new HashSet<>();
-	private @Nullable Identifier radialCandidate;
-
 	private final Set<KeyMapping> keyCorrelations = new HashSet<>();
 	private KeyMapping keyEmulation = null;
 	private Function<ControllerEntity, Boolean> keyEmulationToggle = null;
@@ -94,14 +92,6 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 	}
 
 	@Override
-	public InputBindingBuilder radialCandidate(@Nullable Identifier icon) {
-		checkLocked();
-
-		this.radialCandidate = icon;
-		return this;
-	}
-
-	@Override
 	public InputBindingBuilder addKeyCorrelation(@NotNull KeyMapping keyMapping) {
 		checkLocked();
 
@@ -159,8 +149,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 				description,
 				category,
 				defaultSupplier,
-				allowedContexts,
-				radialCandidate
+				allowedContexts
 		);
 	}
 

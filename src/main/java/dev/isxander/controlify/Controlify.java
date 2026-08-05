@@ -15,6 +15,7 @@ import dev.isxander.controlify.api.guide.*;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.bindings.RadialIconManager;
 import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.ConfigManager;
@@ -151,6 +152,7 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
 		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
 		PlatformClientUtil.registerAssetReloadListener(triggerEffectRegistry);
+		PlatformClientUtil.registerAssetReloadListener(RadialIconManager.INSTANCE);
 		PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
 		PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
 
