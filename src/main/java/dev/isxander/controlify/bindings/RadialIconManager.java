@@ -50,10 +50,9 @@ public final class RadialIconManager implements SimpleControlifyReloadListener<M
 			Map<Identifier, RadialIcon> mappings = new HashMap<>();
 			List<Resource> resources = manager.getResourceStack(DEFINITIONS);
 
-			// Resource stacks are returned from highest to lowest priority.
-			// Apply them in reverse so higher packs overwrite individual bindings.
-			for (int i = resources.size() - 1; i >= 0; i--) {
-				Resource resource = resources.get(i);
+			// Resource stacks are returned from lowest to highest priority, so later
+			// packs overwrite individual bindings from earlier packs.
+			for (Resource resource : resources) {
 				try (BufferedReader reader = resource.openAsReader()) {
 					JsonElement json = JsonParser.parseReader(reader);
 					CODEC.parse(JsonOps.INSTANCE, json)

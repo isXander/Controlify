@@ -49,6 +49,7 @@ public final class ControlifyDataFixer {
 		builder.addFixer(new GuideGuiScaleFix(v7, profileDefaults));
 
 		// v8
+		builder.addFixer(new GeneratedBindingIdsFix(v8));
 		builder.addFixer(new RadialMenuActionsFix(v8));
 
 		return builder.build().fixer();
