@@ -40,7 +40,18 @@
         "controlify:swap_hands",
         "controlify:pick_block",
         "controlify:take_screenshot",
-        "controlify:show_player_list"
+        "controlify:show_player_list",
+        "controlify:toggle_debug_menu",
+        "controlify:toggle_debug_menu_fps",
+        "controlify:toggle_debug_menu_net",
+        "controlify:toggle_debug_menu_prof",
+        "controlify:debug_reload_chunks",
+        "controlify:debug_toggle_chunk_borders",
+        "controlify:debug_toggle_advanced_tooltips",
+        "controlify:debug_toggle_entity_hitboxes",
+        "controlify:debug_reload_resource_packs",
+        "controlify:debug_clear_chat",
+        "controlify:debug_start_stop_profiling"
       ],
       "button_focus_timeout_ticks": 20
     },

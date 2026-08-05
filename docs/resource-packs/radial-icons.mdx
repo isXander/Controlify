@@ -1,0 +1,156 @@
+---
+title: Radial Menu Icons
+---
+
+Radial menu candidates and their icons are defined by resource packs. Mods can provide an icon for one of
+their bindings by including resources in their own JAR; no Java call into Controlify is required.
+
+## Creating the mapping
+
+Create `assets/controlify/radial_icons.json`. The keys are binding IDs and each value defines either an item
+model or a GUI sprite:
+
+<CodeTabs>
+```json !!tabs assets/controlify/radial_icons.json
+{
+  "example:open_backpack": {
+    "model": "example:backpack"
+  },
+  "example:open_overlay": {
+    "model": "example:radial/open_overlay"
+  },
+  "example:mute_microphone": {
+    "texture": "example:radial/mute_microphone"
+  }
+}
+```
+</CodeTabs>
+
+An entry must contain exactly one of `model` or `texture`. Adding a binding to this file also makes it
+available in the radial menu editor. The binding itself must still be registered by Controlify or another
+mod.
+
+## Model icons
+
+The value of `model` is an **item model definition ID**. You do not normally need to create a model
+specifically for the radial menu. If an action already has an item that represents it, prefer reusing that
+item's existing model.
+
+For example, if the example mod registers a backpack item whose item model definition is
+`assets/example/items/backpack.json`, its Open Backpack binding can use that model directly:
+
+```json
+{
+  "example:open_backpack": {
+    "model": "example:backpack"
+  }
+}
+```
+
+Vanilla item models can be reused in the same way, such as `minecraft:chest` or `minecraft:spyglass`.
+
+### Creating an icon-only model
+
+When no existing item represents the action, create an item model definition specifically for the radial
+icon. For `"model": "example:radial/open_overlay"`, Minecraft loads:
+
+`assets/example/items/radial/open_overlay.json`
+
+For example, the item model definition can point at a regular generated model:
+
+<CodeTabs>
+```json !!tabs assets/example/items/radial/open_overlay.json
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "example:item/radial/open_overlay"
+  }
+}
+```
+
+```json !!tabs assets/example/models/item/radial/open_overlay.json
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "example:item/radial/open_overlay"
+  }
+}
+```
+</CodeTabs>
+
+The texture used by that example belongs at
+`assets/example/textures/item/radial/open_overlay.png`.
+
+The file under `items/` does not need to belong to a registered item. Minecraft discovers and bakes every
+item model definition supplied by loaded resource packs, so a mod can create definitions used only by
+Controlify's radial menu.
+
+Radial model icons are rendered in the GUI display context without the state of a real item stack. Prefer a
+plain model for these icons; item model conditions that depend on components or other stack data will not
+have that data available.
+
+## Texture icons
+
+The value of `texture` is a sprite ID in Minecraft's GUI atlas, rather than a direct path to an arbitrary PNG.
+The default GUI atlas discovers files below `textures/gui/sprites`, so
+`"texture": "example:radial/mute_microphone"` resolves to:
+
+`assets/example/textures/gui/sprites/radial/mute_microphone.png`
+
+Sprites added to the GUI atlas by other atlas sources can also be referenced. For example, Minecraft's
+Jump Boost effect sprite is `minecraft:mob_effect/jump_boost`.
+
+Texture icons are drawn into an 18 by 18 pixel area, matching the potion-effect icons used by Controlify.
+
+## Icons for automatically generated bindings
+
+Mods do not need a full Controlify integration to assign radial icons. On both Fabric and NeoForge,
+Controlify automatically creates controller bindings for modded key mappings that have not been correlated
+with an explicitly registered Controlify binding. These generated bindings are always radial candidates and
+use a book model when no mapping is provided.
+
+The generated binding ID uses the key mapping name returned by `KeyMapping#getName()`:
+
+`controlify_modded:<sanitized key mapping name>`
+
+Equivalent Java code for the generated ID is:
+
+```java
+String path = keyMapping.getName()
+        .toLowerCase()
+        .replaceAll("[^a-z0-9/._-]", "_")
+        .trim();
+Identifier id = Identifier.fromNamespaceAndPath("controlify_modded", path);
+```
+
+Controlify calculates the path by lowercasing the name, replacing every character outside
+`a-z`, `0-9`, `/`, `.`, `_`, and `-` with `_`, and then trimming it. This uses the key mapping's stable name
+or translation key, not its translated text. For example:
+
+`key.example.open_backpack` becomes `controlify_modded:key.example.open_backpack`.
+
+The mod can assign the generated binding an icon by including only this resource:
+
+<CodeTabs>
+```json !!tabs assets/controlify/radial_icons.json
+{
+  "controlify_modded:key.example.open_backpack": {
+    "model": "example:backpack"
+  }
+}
+```
+</CodeTabs>
+
+If the mod later registers and correlates an explicit Controlify binding for that key mapping, the automatic
+binding is not created. Its radial icon entry should then use the explicit binding's ID instead.
+
+## Resource-pack priority
+
+Controlify merges every loaded `assets/controlify/radial_icons.json` by binding ID. If the same binding is
+defined twice, the definition from the higher-priority resource pack—the pack shown earlier in the active
+resource-pack list—wins. Definitions for other bindings remain in place, so a pack can override a single icon
+without copying the entire built-in file.
+
+If one file contains invalid JSON, an invalid identifier, or an entry with both/neither icon fields,
+Controlify logs the error and skips that entire file layer. Definitions from other resource packs continue
+to load.

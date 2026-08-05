@@ -64,14 +64,6 @@ public interface ControlifyBindApi {
 	List<InputBindingSupplier> getKeyCorrelation(KeyMapping key);
 
 	/**
-	 * Registers a new radial icon that can be used in the radial menu.
-	 *
-	 * @param id the id of the icon
-	 * @param icon the icon object
-	 */
-	void registerRadialIcon(Identifier id, RadialIcon icon);
-
-	/**
 	 * Registers a new bind context that can be used to determine when a binding is active.
 	 *
 	 * @param context the bind context

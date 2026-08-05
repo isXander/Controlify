@@ -74,14 +74,8 @@ public record InputConfig(
 			int radialButtonFocusTimeoutTicks
 	) {
 		public static final Codec<RadialMenuConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				Identifier.CODEC.listOf(8, 8).fieldOf("actions").forGetter(RadialMenuConfig::radialActions),
+				Identifier.CODEC.listOf().fieldOf("actions").forGetter(RadialMenuConfig::radialActions),
 				Codec.INT.fieldOf("button_focus_timeout_ticks").forGetter(RadialMenuConfig::radialButtonFocusTimeoutTicks)
 		).apply(instance, RadialMenuConfig::new));
-
-		public RadialMenuConfig {
-			if (radialActions.size() != 8) {
-				throw new IllegalArgumentException("radialActions must have exactly 8 elements");
-			}
-		}
 	}
 }

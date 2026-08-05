@@ -13,7 +13,7 @@ import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 
 public final class ControlifyDataFixer {
-	public static final int CURRENT_VERSION = 7;
+	public static final int CURRENT_VERSION = 8;
 
 	private static final DataFixer FIXER = createFixer();
 
@@ -30,6 +30,7 @@ public final class ControlifyDataFixer {
 		var v3 = builder.addSchema(3, ControlifySchemas.V3::new);
 		var v6 = builder.addSchema(6, ControlifySchemas.V6::new);
 		var v7 = builder.addSchema(7, ControlifySchemas.V7::new);
+		var v8 = builder.addSchema(8, ControlifySchemas.V8::new);
 
 		var globalDefaults = GlobalSettings.defaults();
 		var profileDefaults = ProfileSettings.createDefault();
@@ -46,6 +47,10 @@ public final class ControlifyDataFixer {
 
 		// v7
 		builder.addFixer(new GuideGuiScaleFix(v7, profileDefaults));
+
+		// v8
+		builder.addFixer(new GeneratedBindingIdsFix(v8));
+		builder.addFixer(new RadialMenuActionsFix(v8));
 
 		return builder.build().fixer();
 	}

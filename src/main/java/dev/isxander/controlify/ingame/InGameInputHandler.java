@@ -19,6 +19,7 @@ import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.gui.screen.RadialItems;
+import dev.isxander.controlify.gui.screen.RadialItems.RadialPage;
 import dev.isxander.controlify.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.mixins.feature.steamdeck.ScreenshotAccessor;
 import dev.isxander.controlify.server.ServerPolicies;
@@ -38,6 +39,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
+import net.minecraft.server.commands.GameModeCommand;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,6 +50,8 @@ import org.joml.Vector2d;
 import org.joml.Vector2f;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InGameInputHandler {
 	private final ControllerEntity controller;
@@ -181,13 +185,34 @@ public class InGameInputHandler {
 		if (ControlifyBindings.TOGGLE_DEBUG_MENU_PROF.on(controller).justPressed()) {
 			DebugOverlayHelper.toggleProfilerOverlay();
 		}
+		if (ControlifyBindings.DEBUG_RELOAD_CHUNKS.on(controller).justPressed()) {
+			DebugOverlayHelper.reloadChunks();
+		}
+		if (ControlifyBindings.DEBUG_TOGGLE_CHUNK_BORDERS.on(controller).justPressed()) {
+			DebugOverlayHelper.toggleChunkBorders();
+		}
+		if (ControlifyBindings.DEBUG_TOGGLE_ADVANCED_TOOLTIPS.on(controller).justPressed()) {
+			DebugOverlayHelper.toggleAdvancedTooltips();
+		}
+		if (ControlifyBindings.DEBUG_TOGGLE_ENTITY_HITBOXES.on(controller).justPressed()) {
+			DebugOverlayHelper.toggleEntityHitboxes();
+		}
+		if (ControlifyBindings.DEBUG_RELOAD_RESOURCE_PACKS.on(controller).justPressed()) {
+			DebugOverlayHelper.reloadResourcePacks();
+		}
+		if (ControlifyBindings.DEBUG_CLEAR_CHAT.on(controller).justPressed()) {
+			DebugOverlayHelper.clearChat();
+		}
+		if (ControlifyBindings.DEBUG_START_STOP_PROFILING.on(controller).justPressed()) {
+			DebugOverlayHelper.startStopProfiling();
+		}
 		if (ControlifyBindings.DEBUG_RADIAL.on(controller).justPressed()) {
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyBindings.DEBUG_RADIAL.on(controller),
-					RadialItems.createDebug(),
+					RadialItems.createDebug(controller),
 					Component.empty(),
-					null, null
+					null
 			));
 		}
 
@@ -228,22 +253,28 @@ public class InGameInputHandler {
 		}
 
 		if (ControlifyBindings.RADIAL_MENU.on(controller).justPressed()) {
+			var bonusPages = new ArrayList<RadialPage>();
+			if (canSwitchGameMode()) {
+				bonusPages.add(RadialItems.createGameModes());
+			}
+
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyBindings.RADIAL_MENU.on(controller),
-					RadialItems.createBindings(controller),
+					RadialItems.createBindingPages(controller),
+					bonusPages,
 					Component.translatable("controlify.radial_menu.configure_hint"),
-					null, null
+					null
 			));
 		}
 
-		if (ControlifyBindings.GAME_MODE_SWITCHER.on(controller).justPressed()) {
+		if (ControlifyBindings.GAME_MODE_SWITCHER.on(controller).justPressed() && canSwitchGameMode()) {
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyBindings.GAME_MODE_SWITCHER.on(controller),
-					RadialItems.createGameModes(),
+					RadialItems.createGameModes().items(),
 					Component.empty(),
-					null, null)
+					null)
 			);
 		}
 
@@ -253,7 +284,7 @@ public class InGameInputHandler {
 					ControlifyBindings.HOTBAR_SLOT_SELECT.on(controller),
 					RadialItems.createHotbarItemSelect(),
 					Component.empty(),
-					null, null
+					null
 			));
 		}
 
@@ -262,21 +293,27 @@ public class InGameInputHandler {
 				MinecraftUtil.setScreen(new RadialMenuScreen(
 						controller,
 						ControlifyBindings.HOTBAR_LOAD_RADIAL.on(controller),
-						RadialItems.createHotbarLoad(),
+						RadialItems.createHotbarLoad().items(),
 						Component.translatable("controlify.radial.hotbar_load_hint"),
-						null, null
+						null
 				));
 			}
 			if (ControlifyBindings.HOTBAR_SAVE_RADIAL.on(controller).justPressed()) {
 				MinecraftUtil.setScreen(new RadialMenuScreen(
 						controller,
 						ControlifyBindings.HOTBAR_SAVE_RADIAL.on(controller),
-						RadialItems.createHotbarSave(),
+						RadialItems.createHotbarSave().items(),
 						Component.translatable("controlify.radial.hotbar_save_hint"),
-						null, null
+						null
 				));
 			}
 		}
+	}
+
+	private boolean canSwitchGameMode() {
+		return minecraft.canSwitchGameMode()
+				&& minecraft.player != null
+				&& GameModeCommand.PERMISSION_CHECK.check(minecraft.player.permissions());
 	}
 
 	protected void handlePlayerLookInput(boolean isController) {

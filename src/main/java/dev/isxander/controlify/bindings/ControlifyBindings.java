@@ -16,13 +16,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.item.Items;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class ControlifyBindings {
+	static final String MODDED_BIND_NAMESPACE = "controlify_modded";
+
 	private static final Options options = Minecraft.getInstance().options;
 
 	public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
@@ -80,8 +80,7 @@ public final class ControlifyBindings {
 	public static final InputBindingSupplier JUMP = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "jump")
 			.category(MOVEMENT_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getEffect(MobEffects.JUMP_BOOST)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier SPRINT = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "sprint")
 			.category(MOVEMENT_CATEGORY)
@@ -106,28 +105,23 @@ public final class ControlifyBindings {
 	public static final InputBindingSupplier DROP_INGAME = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "drop")
 			.category(GAMEPLAY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.BARRIER)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier DROP_STACK = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "drop_stack")
 			.category(GAMEPLAY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.TNT)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier PAUSE = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "pause")
 			.category(GAMEPLAY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME, BindContext.REGULAR_SCREEN)
-			.radialCandidate(RadialIcons.getItem(Items.STRUCTURE_VOID)));
+			.allowedContexts(BindContext.IN_GAME, BindContext.REGULAR_SCREEN));
 	public static final InputBindingSupplier CHANGE_PERSPECTIVE = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "change_perspective")
 			.category(GAMEPLAY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.PAINTING)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier SWAP_HANDS = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "swap_hands")
 			.category(GAMEPLAY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.BONE)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier NEXT_SLOT = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "next_slot")
 			.category(GAMEPLAY_CATEGORY)
@@ -148,8 +142,7 @@ public final class ControlifyBindings {
 	public static final InputBindingSupplier INVENTORY = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "inventory")
 			.category(INVENTORY_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.CHEST)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier INV_SELECT = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "inv_select")
 			.category(INVENTORY_CATEGORY)
@@ -170,13 +163,11 @@ public final class ControlifyBindings {
 	public static final InputBindingSupplier PICK_BLOCK = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "pick_block")
 			.category(CREATIVE_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.STICK)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier PICK_BLOCK_NBT = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "pick_block_nbt")
 			.category(CREATIVE_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier HOTBAR_LOAD_RADIAL = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "hotbar_load_radial")
 			.category(CREATIVE_CATEGORY)
@@ -190,23 +181,19 @@ public final class ControlifyBindings {
 			.id("controlify", "open_chat")
 			.category(MISC_CATEGORY)
 			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.WRITABLE_BOOK))
 			.keyEmulation(options.keyChat));
 	public static final InputBindingSupplier TOGGLE_HUD_VISIBILITY = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "toggle_hud_visibility")
 			.category(MISC_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getEffect(MobEffects.INVISIBILITY)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier SHOW_PLAYER_LIST = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "show_player_list")
 			.category(MISC_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.PLAYER_HEAD)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier TAKE_SCREENSHOT = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "take_screenshot")
 			.category(MISC_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.SPYGLASS)));
+			.allowedContexts(BindContext.IN_GAME));
 
 	public static final InputBindingSupplier DEBUG_RADIAL = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "debug_radial")
@@ -215,23 +202,54 @@ public final class ControlifyBindings {
 	public static final InputBindingSupplier TOGGLE_DEBUG_MENU = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "toggle_debug_menu")
 			.category(DEBUG_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier TOGGLE_DEBUG_MENU_FPS = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "toggle_debug_menu_fps")
 			.category(DEBUG_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier TOGGLE_DEBUG_MENU_NET = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "toggle_debug_menu_net")
 			.category(DEBUG_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier TOGGLE_DEBUG_MENU_PROF = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "toggle_debug_menu_prof")
 			.category(DEBUG_CATEGORY)
-			.allowedContexts(BindContext.IN_GAME)
-			.radialCandidate(RadialIcons.getItem(Items.DEBUG_STICK)));
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_RELOAD_CHUNKS = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_reload_chunks")
+			.name(Component.translatable("controlify.radial.debug.reload_chunks"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_TOGGLE_CHUNK_BORDERS = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_toggle_chunk_borders")
+			.name(Component.translatable("controlify.radial.debug.chunk_borders"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_TOGGLE_ADVANCED_TOOLTIPS = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_toggle_advanced_tooltips")
+			.name(Component.translatable("controlify.radial.debug.advanced_tooltips"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_TOGGLE_ENTITY_HITBOXES = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_toggle_entity_hitboxes")
+			.name(Component.translatable("controlify.radial.debug.entity_hitboxes"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_RELOAD_RESOURCE_PACKS = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_reload_resource_packs")
+			.name(Component.translatable("controlify.radial.debug.reload_packs"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_CLEAR_CHAT = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_clear_chat")
+			.name(Component.translatable("controlify.radial.debug.clear_chat"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier DEBUG_START_STOP_PROFILING = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "debug_start_stop_profiling")
+			.name(Component.translatable("controlify.radial.debug.profile"))
+			.category(DEBUG_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier GUI_PRESS = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "gui_press")
 			.category(GUI_CATEGORY)
@@ -408,14 +426,13 @@ public final class ControlifyBindings {
 						.replaceAll("[^a-z0-9/._-]", "_")
 						.trim();
 
-				var identifier = Identifier.fromNamespaceAndPath("fabric-key-binding-api-v1", idPath);
+				var identifier = Identifier.fromNamespaceAndPath(MODDED_BIND_NAMESPACE, idPath);
 
 				InputBindingSupplier binding = ControlifyBindApi.get().registerBinding(builder -> builder
 						.id(identifier)
 						.name(Component.translatable(keyMapping.getName()))
 						.description(Component.translatable("controlify.custom_binding.vanilla_description").withStyle(ChatFormatting.GRAY))
 						.category(keyMapping.getCategory().label())
-						.radialCandidate(RadialIcons.getModLoaderIcon())
 						.allowedContexts(BindContext.IN_GAME)
 						.keyEmulation(keyMapping));
 

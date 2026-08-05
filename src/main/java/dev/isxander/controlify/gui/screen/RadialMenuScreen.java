@@ -6,13 +6,13 @@
  */
 package dev.isxander.controlify.gui.screen;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.bindings.RadialIconExtractor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.screenop.ComponentProcessor;
+import dev.isxander.controlify.gui.screen.RadialItems.RadialPage;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -22,17 +22,14 @@ import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.controlify.utils.animation.api.Animation;
 import dev.isxander.controlify.utils.animation.api.EasingFunction;
 import dev.isxander.controlify.virtualmouse.VirtualMouseBehaviour;
-import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.narration.NarratedElementType;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -44,39 +41,59 @@ import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
-	public static final Identifier EMPTY_ACTION = CUtil.rl("empty_action");
-
 	private final ControllerEntity controller;
-	private final @Nullable EditMode editMode;
-	private final Screen parent;
-	private final Component text;
+	private final @Nullable Screen parent;
+	private final Component footerText;
+	private final List<RadialItem[]> userPages;
+	private final List<RadialPage> bonusPages;
+	private final @Nullable InputBinding openBind;
 
-	private final RadialItem[] items;
-	private final RadialButton[] buttons;
+	private RadialButton[] buttons = new RadialButton[0];
 	private float radialRadius;
-
-	private final InputBinding openBind;
-
+	private int pageIndex;
 	private int selectedButton = -1;
 	private int idleTicks;
 	private final int idleTicksTimeout;
-	private boolean isEditing;
-
-	private ActionSelectList actionSelectList;
 
 	private final Processor processor = new Processor(this);
 
-	public RadialMenuScreen(ControllerEntity controller, InputBinding openBind, RadialItem[] items, Component text, @Nullable EditMode editMode, Screen parent) {
+	/**
+	 * Creates a single-page radial menu. Existing special-purpose radial menus use this path.
+	 */
+	public RadialMenuScreen(ControllerEntity controller, InputBinding openBind, RadialItem[] items, Component text, @Nullable Screen parent) {
+		this(controller, openBind, Collections.singletonList(items), List.of(), text, parent);
+	}
+
+	/**
+	 * Creates a paged radial menu. Page boundaries are a presentation concern and are not persisted.
+	 */
+	public RadialMenuScreen(ControllerEntity controller, @Nullable InputBinding openBind, List<RadialItem[]> pages, Component text, @Nullable Screen parent) {
+		this(controller, openBind, pages, List.of(), text, parent);
+	}
+
+	public RadialMenuScreen(
+			ControllerEntity controller,
+			@Nullable InputBinding openBind,
+			List<RadialItem[]> userPages,
+			List<RadialPage> bonusPages,
+			Component text,
+			@Nullable Screen parent
+	) {
 		super(text);
-		this.text = text;
+		this.footerText = text;
 		this.controller = controller;
-		this.items = items;
-		this.buttons = new RadialButton[items.length];
-		this.editMode = editMode;
+		this.userPages = userPages.isEmpty()
+				? Collections.singletonList(new RadialItem[0])
+				: userPages.stream().map(RadialItem[]::clone).toList();
+		this.bonusPages = bonusPages.stream()
+				.map(page -> new RadialPage(page.name(), page.items().clone()))
+				.toList();
+		this.pageIndex = this.bonusPages.size();
 		this.parent = parent;
 		this.idleTicksTimeout = controller.input().orElseThrow().settings().radialMenu.radialButtonFocusTimeoutTicks;
 		this.openBind = openBind;
@@ -84,108 +101,99 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
 	@Override
 	protected void init() {
+		buildCurrentPage();
+	}
+
+	private void buildCurrentPage() {
+		Arrays.stream(buttons).forEach(this::removeWidget);
+		selectedButton = -1;
+		idleTicks = 0;
+		setFocused(null);
+
+		RadialItem[] items = getCurrentPageItems();
+		buttons = new RadialButton[items.length];
+		if (items.length == 0) {
+			return;
+		}
+
 		int centerX = this.width / 2;
 		int centerY = this.height / 2;
-
-		// get diameter of enclosing circle of a radial button
-		// w = 16, h = 16
-		// r = sqrt(w^2 + h^2) / 2
-		float buttonRadius = (float) Math.sqrt(32 * 32 + 32 * 32) + 8;
-		// add the amount of radii together to create the circumference of the circle they all fit around
-		float circumference = buttonRadius * items.length;
-		// c = 2 * pi * r
+		float buttonDiameter = (float)Math.sqrt(32 * 32 + 32 * 32) + 8;
+		float circumference = buttonDiameter * items.length;
 		radialRadius = Math.max(circumference / Mth.TWO_PI, 43);
 
-		Animation animation = Animation.of(5)
-				.easing(EasingFunction.EASE_OUT_QUAD);
+		Animation animation = Animation.of(5).easing(EasingFunction.EASE_OUT_QUAD);
 		for (int i = 0; i < items.length; i++) {
 			float angle = Mth.TWO_PI * i / items.length - (90 * Mth.DEG_TO_RAD);
 			float x = centerX + Mth.cos(angle) * radialRadius;
 			float y = centerY + Mth.sin(angle) * radialRadius;
 
 			RadialButton button = buttons[i] = new RadialButton(items[i], centerX - 16, centerY - 16);
-
 			animation
 					.consumerF(button::setX, centerX - 16, x - 16)
 					.consumerF(button::setY, centerY - 16, y - 16);
-
 			addRenderableWidget(button);
 		}
 		animation.play();
+	}
 
-		if (editMode != null) {
-//            var exitGuide = addRenderableWidget(new PositionedComponent<>(
-//                    new GuideActionRenderer(
-//                            new GuideAction(
-//                                    ControlifyBindings.GUI_BACK.on(controller),
-//                                    obj -> Optional.of(CommonComponents.GUI_DONE)
-//                            ),
-//                            false,
-//                            true
-//                    ),
-//                    AnchorPoint.BOTTOM_CENTER,
-//                    0, -10,
-//                    AnchorPoint.BOTTOM_CENTER
-//            ));
-//
-//            exitGuide.getComponent().updateName(null);
-//            exitGuide.updatePosition(width, height);
-		}
+	private void changePage(int direction) {
+		if (pageCount() <= 1) return;
+
+		pageIndex = Math.floorMod(pageIndex + direction, pageCount());
+		buildCurrentPage();
+		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+		controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 	}
 
 	@Override
 	public void onControllerInput(ControllerEntity controller) {
 		if (this.controller != controller) return;
 
-		if (editMode == null && !openBind.digitalNow()) {
-			if (selectedButton != -1 && buttons[selectedButton].invoke()) {
+		if (openBind == null) {
+			if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) onClose();
+			return;
+		}
+
+		if (!openBind.digitalNow()) {
+			if (selectedButton >= 0 && selectedButton < buttons.length && buttons[selectedButton].invoke()) {
 				playClickSound();
 			}
-
 			onClose();
+			return;
 		}
 
-		if (editMode != null && ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
-			playClickSound();
-			onClose();
-		}
+		if (buttons.length == 0) return;
 
-		if (!isEditing) {
-			float x = ControlifyBindings.RADIAL_AXIS_RIGHT.on(controller).analogueNow()
-					- ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
-			float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
-					- ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
-			float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
+		float x = ControlifyBindings.RADIAL_AXIS_RIGHT.on(controller).analogueNow()
+				- ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
+		float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
+				- ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
+		float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
 
-			if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
-				float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;
-				float each = 360f / buttons.length;
+		if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
+			float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float)Mth.atan2(y, x) - 90f) + 180f;
+			float each = 360f / buttons.length;
+			int newSelected = Mth.floor((angle + each / 2f) / each) % buttons.length;
 
-				int newSelected = Mth.floor((angle + each / 2f) / each) % buttons.length;
-				if (newSelected != selectedButton) {
-					selectedButton = newSelected;
-					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
-					controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
-				}
+			if (newSelected != selectedButton) {
+				selectedButton = newSelected;
+				minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
+				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+			}
 
-				for (int i = 0; i < buttons.length; i++) {
-					boolean selected = i == selectedButton;
-					buttons[i].setFocused(selected);
-					if (selected) {
-						this.setFocused(buttons[i]);
-					}
-				}
-
-				idleTicks = 0;
-			} else if (editMode == null) {
-				idleTicks++;
-				if (idleTicks >= idleTicksTimeout && selectedButton != -1) {
-					selectedButton = -1;
-					for (RadialButton button : buttons) {
-						button.setFocused(false);
-					}
-					controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
-				}
+			for (int i = 0; i < buttons.length; i++) {
+				boolean selected = i == selectedButton;
+				buttons[i].setFocused(selected);
+				if (selected) setFocused(buttons[i]);
+			}
+			idleTicks = 0;
+		} else {
+			idleTicks++;
+			if (idleTicks >= idleTicksTimeout && selectedButton != -1) {
+				selectedButton = -1;
+				for (RadialButton button : buttons) button.setFocused(false);
+				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 			}
 		}
 	}
@@ -194,49 +202,74 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
 		super.extractRenderState(graphics, mouseX, mouseY, delta);
 
-		if (editMode == null) {
-			graphics.centeredText(
-					font,
-					text,
-					width / 2,
-					height - 39,
-					-1
-			);
+		if (buttons.length == 0) {
+			graphics.centeredText(font, Component.translatable("controlify.radial_menu.empty"), width / 2, height / 2, -1);
+		}
+		graphics.centeredText(font, footerText, width / 2, height - 39, -1);
+
+		if (pageCount() > 1) {
+			Component page = getPageTitle();
+			graphics.centeredText(font, page, width / 2, height - 25, -1);
+			renderPageDots(graphics);
+
+			Component previous = ControlifyBindings.GUI_PREV_TAB.on(controller).inputGlyph();
+			Component next = ControlifyBindings.GUI_NEXT_TAB.on(controller).inputGlyph();
+			int pageWidth = font.width(page);
+			graphics.text(font, previous, width / 2 - pageWidth / 2 - font.width(previous) - 8, height - 25, -1);
+			graphics.text(font, next, width / 2 + pageWidth / 2 + 8, height - 25, -1);
 		}
 	}
 
-	@Override
-	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		if (editMode != null) {
-			super.extractBackground(graphics, mouseX, mouseY, a);
+	private RadialItem[] getCurrentPageItems() {
+		if (pageIndex < bonusPages.size()) return bonusPages.get(pageIndex).items();
+
+		return userPages.get(pageIndex - bonusPages.size());
+	}
+
+	private Component getPageTitle() {
+		if (pageIndex < bonusPages.size()) return bonusPages.get(pageIndex).name();
+
+		return Component.translatable(
+				"controlify.radial_menu.page",
+				pageIndex + 1 - bonusPages.size(),
+				userPages.size()
+		);
+	}
+
+	private int pageCount() {
+		return bonusPages.size() + userPages.size();
+	}
+
+	private void renderPageDots(GuiGraphicsExtractor graphics) {
+		int visibleCount = Math.min(pageCount(), 15);
+		int firstPage = Math.clamp(pageIndex - visibleCount / 2, 0, pageCount() - visibleCount);
+		int totalWidth = visibleCount * 5 - 2;
+		int startX = (width - totalWidth) / 2;
+
+		for (int index = 0; index < visibleCount; index++) {
+			int representedPage = firstPage + index;
+			int color = representedPage == pageIndex ? 0xffffffff : 0x80ffffff;
+			graphics.fill(startX + index * 5, height - 13, startX + index * 5 + 3, height - 10, color);
 		}
-	}
-
-	private void playClickSound() {
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
-	}
-
-	private void finishEditing() {
-		isEditing = false;
-		removeWidget(actionSelectList);
-		this.setFocused(null);
-		actionSelectList = null;
 	}
 
 	@Override
 	public void onClose() {
-		Controlify.instance().config().saveIfDirty();
 		MinecraftUtil.setScreen(parent);
 	}
 
 	@Override
 	public boolean isPauseScreen() {
-		return editMode != null;
+		return false;
 	}
 
 	@Override
 	public ScreenProcessor<?> screenProcessor() {
-		return this.processor;
+		return processor;
+	}
+
+	private void playClickSound() {
+		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
 	}
 
 	public interface RadialItem {
@@ -247,97 +280,55 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		boolean playAction();
 	}
 
-	public interface EditMode {
-		void setRadialItem(int index, RadialItem item);
-
-		List<RadialItem> getEditCandidates();
-	}
-
-	public class RadialButton implements Renderable, GuiEventListener, NarratableEntry, ComponentProcessor {
+	public class RadialButton implements Renderable, GuiEventListener, NarratableEntry {
 		public static final Identifier TEXTURE = CUtil.rl("textures/gui/radial-buttons.png");
 
 		private int x, y;
 		private float translateX, translateY;
 		private boolean focused;
-		private RadialItem item;
-		private MultiLineLabel name;
+		private final RadialItem item;
+		private final MultiLineLabel name;
 
 		private RadialButton(RadialItem item, float x, float y) {
-			this.setX(x);
-			this.setY(y);
-
-			this.setAction(item);
-		}
-
-		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-			var pose = graphics.pose().pushMatrix();
-			pose.translate(x + translateX, y + translateY);
-
-			pose.pushMatrix();
-			pose.scale(2, 2);
-
-			int textureX = focused ? 16 : 0;
-			graphics.blit(
-					RenderPipelines.GUI_TEXTURED,
-					TEXTURE,
-					0, 0,
-					textureX, 0,
-					16, 16,
-					32, 16
-			);
-
-			pose.popMatrix();
-
-			if (editMode == null || !focused) {
-				pose.pushMatrix();
-				pose.translate(4, 4);
-				pose.scale(1.5f, 1.5f);
-				this.item.icon().draw(graphics, 0, 0, a);
-				pose.popMatrix();
-			} else {
-				Component bind = ControlifyBindings.GUI_PRESS.on(controller).inputGlyph();
-				graphics.text(font, bind, 16 - font.width(bind) / 2, 16 - font.lineHeight / 2, -1);
-			}
-
-			pose.popMatrix();
-
-			if (focused) {
-				int anchorX = width / 2;
-				int topY = height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight);
-
-				name.visitLines(
-						TextAlignment.CENTER,
-						anchorX, topY, font.lineHeight,
-						graphics.textRenderer()
-				);
-			}
-		}
-
-		public boolean invoke() {
-			return this.item.playAction();
-		}
-
-		public void setAction(RadialItem item) {
+			setX(x);
+			setY(y);
 			this.item = item;
 			this.name = MultiLineLabel.create(font, item.name(), (int)(radialRadius * 2 - 32));
 		}
 
-		public int getX() {
-			return x;
+		@Override
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+			var pose = graphics.pose().pushMatrix();
+			pose.translate(x + translateX, y + translateY);
+			pose.pushMatrix();
+			pose.scale(2, 2);
+			graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, 0, 0, focused ? 16 : 0, 0, 16, 16, 32, 16);
+			pose.popMatrix();
+
+			pose.pushMatrix();
+			pose.translate(4, 4);
+			pose.scale(1.5f, 1.5f);
+			RadialIconExtractor.extract(graphics, item.icon(), 0, 0);
+			pose.popMatrix();
+			pose.popMatrix();
+
+			if (focused) {
+				int topY = height / 2 - font.lineHeight / 2 - ((name.getLineCount() - 1) * font.lineHeight);
+				name.visitLines(TextAlignment.CENTER, width / 2, topY, font.lineHeight, graphics.textRenderer());
+			}
 		}
 
-		public int getY() {
-			return y;
+		private boolean invoke() {
+			return item.playAction();
 		}
 
-		public void setX(float x) {
-			this.x = (int) x;
+		private void setX(float x) {
+			this.x = (int)x;
 			this.translateX = x - this.x;
 		}
 
-		public void setY(float y) {
-			this.y = (int) y;
+		private void setY(float y) {
+			this.y = (int)y;
 			this.translateY = y - this.y;
 		}
 
@@ -352,22 +343,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		}
 
 		@Override
-		public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-			if (editMode != null && controller == RadialMenuScreen.this.controller && ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
-				RadialButton button = buttons[selectedButton];
-				int x = button.x < width / 2 ? button.x - 110 : button.x + 42;
-				actionSelectList = new ActionSelectList(selectedButton, x, button.y, 250, 80);
-				addRenderableWidget(actionSelectList);
-				RadialMenuScreen.this.setFocused(actionSelectList);
-				isEditing = true;
-				return true;
-			}
-			return false;
-		}
-
-		@Override
 		public @NonNull NarrationPriority narrationPriority() {
-			return isFocused() ? NarrationPriority.FOCUSED : NarrationPriority.NONE;
+			return focused ? NarrationPriority.FOCUSED : NarrationPriority.NONE;
 		}
 
 		@Override
@@ -381,184 +358,18 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		}
 	}
 
-	public class ActionSelectList implements Renderable, ContainerEventHandler, NarratableEntry, ComponentProcessor {
-		private final int radialIndex;
-
-		private int x, y;
-		private int width, height;
-		private final int itemHeight = 10;
-		private int scrollOffset;
-
-		private boolean focused;
-		private ActionEntry focusedEntry;
-
-		private final List<ActionEntry> children = new ArrayList<>();
-
-		public ActionSelectList(int index, int x, int y, int width, int height) {
-			this.radialIndex = index;
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-
-			for (RadialItem item : editMode.getEditCandidates()) {
-				children.add(new ActionEntry(item));
-			}
-
-			RadialItem item = items[radialIndex];
-			children.stream()
-					.filter(action -> action.item.equals(item))
-					.findAny()
-					.ifPresent(this::setFocused);
-		}
-
-		@Override
-		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-			graphics.fill(x, y, x + width, y + height, 0x80000000);
-
-			graphics.enableScissor(x, y, x + width, y + height);
-			int y = this.y - scrollOffset;
-			for (ActionEntry child : children) {
-				child.render(graphics, x, y, width, itemHeight, mouseX, mouseY, a);
-				y += itemHeight;
-			}
-			graphics.disableScissor();
-
-			graphics.outline(x - 1, this.y - 1, width + 2, height + 2, 0x80ffffff);
-		}
-
-		@Override
-		public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-			if (controller == RadialMenuScreen.this.controller) {
-				if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
-					finishEditing();
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		@Override
-		public List<ActionEntry> children() {
-			return children;
-		}
-
-		@Override
-		public boolean isDragging() {
-			return false;
-		}
-
-		@Override
-		public void setDragging(boolean dragging) {
-
-		}
-
-		@Nullable @Override
-		public ActionEntry getFocused() {
-			return focusedEntry;
-		}
-
-		@Override
-		public void setFocused(@Nullable GuiEventListener child) {
-			ActionEntry focus = (ActionEntry) child;
-			this.focusedEntry = focus;
-
-			if (focus != null) {
-				int index = children().indexOf(child);
-				if (index != -1) {
-					int focusY = index * itemHeight - scrollOffset;
-					if (focusY < 0)
-						scrollOffset = Mth.clamp(index * itemHeight, 0, children().size() * itemHeight - height);
-					else if (focusY + itemHeight > height)
-						scrollOffset = Mth.clamp(index * itemHeight + itemHeight - height, 0, children().size() * itemHeight - height);
-				}
-			}
-		}
-
-		@Override
-		public void setFocused(boolean focused) {
-			this.focused = focused;
-		}
-
-		@Override
-		public boolean isFocused() {
-			return focused;
-		}
-
-		@Override
-		public @NonNull NarrationPriority narrationPriority() {
-			return focused ? NarrationPriority.FOCUSED : NarrationPriority.NONE;
-		}
-
-		@Override
-		public void updateNarration(@NonNull NarrationElementOutput builder) {
-			if (getFocused() != null) {
-				builder.add(NarratedElementType.TITLE, getFocused().item.name());
-			}
-		}
-
-		public class ActionEntry implements GuiEventListener, ComponentProcessor {
-			private int x, y;
-			private boolean focused;
-			private final RadialItem item;
-
-			public ActionEntry(RadialItem item) {
-				this.item = item;
-			}
-
-			public void render(GuiGraphicsExtractor graphics, int x, int y, int width, int itemHeight, int mouseX, int mouseY, float delta) {
-				this.x = x;
-				this.y = y;
-
-				if (focused)
-					graphics.fill(x, y, x + width, y + itemHeight, 0xff000000);
-				graphics.text(RadialMenuScreen.this.font, item.name(), x + 2, y + 1, focused ? -1 : 0xffa6a6a6);
-			}
-
-			@Override
-			public void setFocused(boolean focused) {
-				this.focused = focused;
-			}
-
-			@Override
-			public boolean isFocused() {
-				return focused;
-			}
-
-			@Nullable @Override
-			public ComponentPath nextFocusPath(FocusNavigationEvent event) {
-				return !focused ? ComponentPath.leaf(this) : null;
-			}
-
-			@Override
-			public ScreenRectangle getRectangle() {
-				return new ScreenRectangle(x, y, width, itemHeight);
-			}
-
-			@Override
-			public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-				if (controller == RadialMenuScreen.this.controller) {
-					if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
-						editMode.setRadialItem(radialIndex, item);
-						Controlify.instance().config().markDirty();
-
-						buttons[radialIndex].setAction(item);
-
-						playClickSound();
-						finishEditing();
-						return true;
-					}
-				}
-
-				return false;
-			}
-		}
-	}
-
 	public static class Processor extends ScreenProcessor<RadialMenuScreen> {
 		public Processor(RadialMenuScreen screen) {
 			super(screen);
+		}
+
+		@Override
+		protected void handleTabNavigation(ControllerEntity controller) {
+			if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
+				screen.changePage(1);
+			} else if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
+				screen.changePage(-1);
+			}
 		}
 
 		@Override

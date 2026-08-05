@@ -19,7 +19,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -144,14 +143,6 @@ public interface InputBinding {
 	 * @return the contexts
 	 */
 	Set<BindContext> contexts();
-
-	/**
-	 * Returns the radial icon's ID.
-	 * If the binding does not have a radial icon, this will return an empty optional.
-	 * If empty, consider this binding as not being a radial candidate. It can never be added to the radial menu.
-	 * @return the radial icon's ID or an empty optional
-	 */
-	Optional<Identifier> radialIcon();
 
 	/**
 	 * Equivalent to calling

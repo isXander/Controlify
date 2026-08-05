@@ -154,9 +154,6 @@ public class InputSettings {
 		public int radialButtonFocusTimeoutTicks;
 
 		public RadialMenuSettings(List<Identifier> radialActions, int radialButtonFocusTimeoutTicks) {
-			if (radialActions.size() != 8) {
-				throw new IllegalArgumentException("radialActions must have exactly 8 elements");
-			}
 			this.radialActions = new ArrayList<>(radialActions);
 			this.radialButtonFocusTimeoutTicks = radialButtonFocusTimeoutTicks;
 		}
