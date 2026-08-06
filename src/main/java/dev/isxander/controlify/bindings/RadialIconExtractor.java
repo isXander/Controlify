@@ -7,20 +7,18 @@
 package dev.isxander.controlify.bindings;
 
 import dev.isxander.controlify.api.bind.RadialIcon;
-import dev.isxander.controlify.mixins.feature.bind.GuiGraphicsExtractorAccessor;
-import dev.isxander.controlify.mixins.feature.bind.ItemStackRenderStateAccessor;
-import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.item.TrackingItemStackRenderState;
-import net.minecraft.client.renderer.state.gui.GuiItemRenderState;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix3x2f;
+import net.minecraft.world.item.Items;
 
 public final class RadialIconExtractor {
+
 	public static void extract(GuiGraphicsExtractor graphics, RadialIcon icon, int x, int y) {
 		switch (icon.content()) {
 			case RadialIcon.Empty _ -> {}
@@ -34,33 +32,17 @@ public final class RadialIconExtractor {
 	}
 
 	private static void extractModel(GuiGraphicsExtractor graphics, Identifier model, int x, int y) {
-		Minecraft minecraft = Minecraft.getInstance();
-		TrackingItemStackRenderState renderState = new TrackingItemStackRenderState();
-		ItemDisplayContext displayContext = ItemDisplayContext.GUI;
+		ItemStack stack = new ItemStack(Holder.direct(
+			Items.STICK,
+			DataComponentMap.builder()
+				.set(DataComponents.MAX_STACK_SIZE, 1)
+				.set(DataComponents.MAX_DAMAGE, 2)
+				.set(DataComponents.DAMAGE, 0)
+				.set(DataComponents.ITEM_MODEL, model)
+				.build()
+		));
 
-		((ItemStackRenderStateAccessor) renderState).controlify$setDisplayContext(displayContext);
-		renderState.setOversizedInGui(minecraft.getModelManager().getItemProperties(model).oversizedInGui());
-		minecraft.getModelManager().getItemModel(model).update(
-				renderState,
-				ItemStack.EMPTY,
-				minecraft.getItemModelResolver(),
-				displayContext,
-				minecraft.level,
-				minecraft.player,
-				0
-		);
-
-		if (!renderState.isEmpty()) {
-			((GuiGraphicsExtractorAccessor) graphics).controlify$getGuiRenderState().addItem(
-					new GuiItemRenderState(
-							new Matrix3x2f(graphics.pose()),
-							renderState,
-							x,
-							y,
-							PlatformClientUtil.peekScissorStack(graphics)
-					)
-			);
-		}
+		graphics.item(stack, x, y);
 	}
 
 	private static void extractTexture(GuiGraphicsExtractor graphics, Identifier texture, int x, int y) {

@@ -160,7 +160,8 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 				description,
 				category,
 				defaultSupplier,
-				allowedContexts
+				allowedContexts,
+				isRadialCandidate
 		);
 	}
 

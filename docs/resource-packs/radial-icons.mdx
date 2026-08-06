@@ -85,9 +85,10 @@ The file under `items/` does not need to belong to a registered item. Minecraft 
 item model definition supplied by loaded resource packs, so a mod can create definitions used only by
 Controlify's radial menu.
 
-Radial model icons are rendered in the GUI display context without the state of a real item stack. Prefer a
-plain model for these icons; item model conditions that depend on components or other stack data will not
-have that data available.
+Radial model icons are rendered in the GUI display context. When the model ID also identifies a registered
+item, Controlify uses a fresh default stack of that item, so its normal undamaged/default model is selected.
+For icon-only models, Controlify supplies a neutral undamaged model context. Prefer a plain model for these
+icons; custom components and other runtime stack state are not available.
 
 ## Texture icons
 
