@@ -34,7 +34,6 @@
   "controlify.gui.notify_low_battery.tooltip": "Egy értesítés jelenik meg ha a vezeték nélküli kontrollered akkumulátorszintje alacsony. (KÍSÉRLETI)",
   "controlify.gui.out_of_focus_input": "Fókusz Nélküli Bemenet",
   "controlify.gui.out_of_focus_input.tooltip": "Ha be van kapcsolva, a Controlify akkor is fogadja a bemenetet ha a játék ablaka nincs fókuszban.",
-  "controlify.gui.ingame_button_guide_scale": "Játékon Belüli Gomb Útmutató Mérete",
   "controlify.gui.open_issue_tracker": "Probléma Követő Megnyitása",
   "controlify.gui.new_options": "Új A Frissítésben",
   "controlify.gui.new_options.label": "Ez egy új beállítás!",
