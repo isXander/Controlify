@@ -115,15 +115,18 @@ public final class RadialItems {
 		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[9];
 
 		for (int i = 0; i < items.length; i++) {
-			int j = i;
+			int slot = i;
+
+			ItemStack stack = mc.player.getInventory().getItem(slot);
+
 			items[i] = new RadialItemRecord(
-					Component.translatable("controlify.radial.hotbar", Component.literal(Integer.toString(j + 1))),
-					getIconForItem(mc.player.getInventory().getItem(j)),
+					stack.getDisplayName(),
+					getIconForItem(mc.player.getInventory().getItem(slot)),
 					() -> {
-						mc.player.getInventory().setSelectedSlot(j);
+						mc.player.getInventory().setSelectedSlot(slot);
 						return true;
 					},
-					CUtil.rl("hotbar_item_select/" + j)
+					CUtil.rl("hotbar_item_select/" + slot)
 			);
 		}
 
