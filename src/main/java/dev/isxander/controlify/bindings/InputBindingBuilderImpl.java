@@ -35,6 +35,9 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 	private KeyMapping keyEmulation = null;
 	private Function<ControllerEntity, Boolean> keyEmulationToggle = null;
 
+	@Deprecated(forRemoval = true)
+	private boolean isRadialCandidate = false;
+
 	private boolean locked;
 
 	@Override
@@ -112,6 +115,14 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 	@Override
 	public InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping) {
 		return keyEmulation(keyMapping, null);
+	}
+
+	@Override
+	@Deprecated(forRemoval = true)
+	@SuppressWarnings("removal")
+	public InputBindingBuilder radialCandidate(boolean isCandidate) {
+		this.isRadialCandidate = isCandidate;
+		return this;
 	}
 
 	public InputBindingImpl build(@Nullable ControllerEntity controller) {

@@ -36,8 +36,10 @@ public final class RadialIconManager implements SimpleControlifyReloadListener<M
 	private volatile Map<Identifier, RadialIcon> iconsByBinding = Map.of();
 
 	public boolean isRadialCandidate(InputBinding binding) {
+		// noinspection removal
 		return iconsByBinding.containsKey(binding.id())
-				|| binding.id().getNamespace().equals(ControlifyBindings.MODDED_BIND_NAMESPACE);
+				|| binding.id().getNamespace().equals(ControlifyBindings.MODDED_BIND_NAMESPACE)
+				|| binding.isRadialCandidate();
 	}
 
 	public RadialIcon getIcon(InputBinding binding) {

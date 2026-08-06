@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 public class InputBindingImpl implements InputBinding {
 	private final Identifier id;
 	private final Component name, description, category;
+	private final boolean isRadialCandidate;
 	/**
 	 * Fallback bound input used only when inputComponent is null (i.e., bindings not attached to a controller).
 	 * When inputComponent is present, the bound input is read/written directly from the config.
@@ -61,7 +62,8 @@ public class InputBindingImpl implements InputBinding {
 			Component description,
 			Component category,
 			Supplier<Input> defaultBindSupplier,
-			Set<BindContext> contexts
+			Set<BindContext> contexts,
+			boolean isRadialCandidate
 	) {
 		this.inputComponent = inputComponent;
 		this.controllerType = controllerType;
@@ -69,6 +71,7 @@ public class InputBindingImpl implements InputBinding {
 		this.name = name;
 		this.description = description;
 		this.category = category;
+		this.isRadialCandidate = isRadialCandidate;
 		this.stateHistory = new ResizableRingBuffer<>(2, () -> 0f);
 		this.fallbackBoundInput = defaultBindSupplier.get();
 		this.defaultBindSupplier = defaultBindSupplier;
@@ -114,6 +117,13 @@ public class InputBindingImpl implements InputBinding {
 				controllerType,
 				boundInput().getRelevantInputs()
 		);
+	}
+
+	@Deprecated(forRemoval = true)
+	@SuppressWarnings("removal")
+	@Override
+	public boolean isRadialCandidate() {
+		return isRadialCandidate;
 	}
 
 	@Override

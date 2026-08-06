@@ -94,26 +94,6 @@ public interface InputBindingBuilder {
 	InputBindingBuilder category(@NotNull Component text);
 
 	/**
-	 * Sets the default input for the binding.
-	 * <strong>It is not recommended to use this method.</strong> Default inputs should be data-driven.
-	 * If specified, the default will be bottom-most layered with data-driven defaults.
-	 * To set the default input from data, specify it in:
-	 * <pre>assets/controlify/controllers/default_bind/default.json</pre>
-	 * <pre><code>
-	 *     {
-	 *         "defaults": {
-	 *             "your_binding_id": {
-	 *                 "button": "controlify:button/south"
-	 *             }
-	 *         }
-	 *     }
-	 * </code></pre>
-	 * @param input the default input
-	 * @return this builder
-	 */
-	InputBindingBuilder defaultInput(@Nullable Input input);
-
-	/**
 	 * Sets the contexts that the binding is allowed to be active in.
 	 * If the binding's predicate {@link BindContext#isApplicable()} returns false, all outputs will be disabled.
 	 *
@@ -141,4 +121,35 @@ public interface InputBindingBuilder {
 	InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping);
 
 	InputBindingBuilder keyEmulation(@NotNull KeyMapping keyMapping, @Nullable Function<ControllerEntity, Boolean> toggleCondition);
+
+	/**
+	 * Sets the default input for the binding.
+	 * <strong>It is not recommended to use this method.</strong> Default inputs should be data-driven.
+	 * If specified, the default will be bottom-most layered with data-driven defaults.
+	 * To set the default input from data, specify it in:
+	 * <pre>assets/controlify/controllers/default_bind/default.json</pre>
+	 * <pre><code>
+	 *     {
+	 *         "defaults": {
+	 *             "your_binding_id": {
+	 *                 "button": "controlify:button/south"
+	 *             }
+	 *         }
+	 *     }
+	 * </code></pre>
+	 * @param input the default input
+	 * @return this builder
+	 */
+	@Deprecated
+	InputBindingBuilder defaultInput(@Nullable Input input);
+
+	/// @deprecated Radial Menu candidates are now data driven.
+	/// [Check out the wiki](https://moddedmc.wiki/en/project/controlify/latest/docs/resource-packs/radial-icons)
+	@Deprecated(forRemoval = true)
+	default InputBindingBuilder radialCandidate(@Nullable Identifier icon) {
+		return radialCandidate(icon != null);
+	}
+
+	@Deprecated(forRemoval = true)
+	InputBindingBuilder radialCandidate(boolean isCandidate);
 }

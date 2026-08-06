@@ -68,6 +68,9 @@ public interface InputBinding {
 		return this.inputGlyph();
 	}
 
+	@Deprecated(forRemoval = true)
+	boolean isRadialCandidate();
+
 	/**
 	 * Create a new state access with the given history required.
 	 * Please use the minimum amount of history required.
