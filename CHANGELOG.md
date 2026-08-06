@@ -5,48 +5,9 @@ This version has the following targets:
 
 **By donating on my [Patreon](https://patreon.com/isxander), you will gain access to builds of Controlify for splitscreen support and snapshot versions**
 
-## Overhauled Radial Menu
+## Changes
 
-The Radial Menu now has tabs!
-
-You can add an infinite amount of items to the Radial Menu on the all-new edit screen.
-Each page has maximum 8 items, adding more than 8 automatically creates more pages.
-
-### Data-driven Radial Icons
-
-The icons for each Radial Candidate are now data-driven. Specify either an item model or a texture.
-
-- Mods can use this to add custom icons without depending on Controlify in any way.
-- Resource pack creators can add custom icons to their favourite mods.
-
-[Check out the documentation!](https://moddedmc.wiki/en/project/controlify/latest/docs/resource-packs/radial-icons)
-
-### Game Mode Switcher
-
-This was already a feature, but it was a separate radial menu you had to bind to another button on your controller.
-
-The Game Mode Switcher will automatically appear as a tab to the left of the main tab if you have the necessary permissions.
-
-## Rumble Improvements
-
-- Added new outgoing damage rumble
-  - Small rumble when you apply damage to other entities directly
-  - This works on vanilla servers, but not servers with proprietary protocol translation like Hypixel 1.8
-- Adjusted the nearby explosion rumble effect
-  - Intensity falloff is much quicker; distant explosions cause less rumble
-  - The power (radius) of the explosion is now taken into account for its rumble intensity
-
-## Adaptive Trigger Effect Improvements
-
-- Check client-sided tags on Fabric;
-  - Mods that provide tags (like Fabric API tag-conventions-v2) work in predicates, regardless of whether you are connecting to a vanilla server
-  - This allows you to target convention tags (`c:` tags), such as `c:tools/bow`, to gain better compatibility with modded bows for example.
-- Added a plethora of new trigger effects
-  - Subtle vibration with the Brush (any item with tag `#c:tools/brush`)
-  - Feedback when using the Spyglass (item `minecraft:spyglass`)
-  - Feedback when using Trident-like items (any item with tag `#c:tools/trident`)
-  - Feedback when throwing eggs (any item with tag `#minecraft:eggs`), snowballs, splash potions, lingering potions, experience bottles
-  - Feedback when deploying Fishing Rod (any item with tag `#c:tools/fishing_rod`)
-  - Feedback when emptying a Bundle (any item with non-empty `minecraft:bundle_contents`)
-  - Feedback when using Ender Pearls and Wind Charges (any item with `minecraft:use_cooldown`)
-- Updated Bow effect to target `#c:tools/bow` instead of `minecraft:bow`
+- Re-add and deprecate old code-based radial candidate api
+- Make the hotbar select radial page show the name of the item instead of the slot number
+- Fix item models that use range_dispatch on damage from using the fallback model
+- Fix binding categories being untranslated keys
