@@ -25,11 +25,11 @@ public final class ControlifyBindings {
 
 	private static final Options options = Minecraft.getInstance().options;
 
-	public static final Component MOVEMENT_CATEGORY = Component.translatable("key.categories.movement");
-	public static final Component GAMEPLAY_CATEGORY = Component.translatable("key.categories.gameplay");
-	public static final Component INVENTORY_CATEGORY = Component.translatable("key.categories.inventory");
-	public static final Component CREATIVE_CATEGORY = Component.translatable("key.categories.creative");
-	public static final Component MISC_CATEGORY = Component.translatable("key.categories.misc");
+	public static final Component MOVEMENT_CATEGORY = KeyMapping.Category.MOVEMENT.label();
+	public static final Component GAMEPLAY_CATEGORY = KeyMapping.Category.GAMEPLAY.label();
+	public static final Component INVENTORY_CATEGORY = KeyMapping.Category.INVENTORY.label();
+	public static final Component CREATIVE_CATEGORY = KeyMapping.Category.CREATIVE.label();
+	public static final Component MISC_CATEGORY = KeyMapping.Category.MISC.label();
 	public static final Component DEBUG_CATEGORY = Component.translatable("controlify.binding_category.debug");
 	public static final Component GUI_CATEGORY = Component.translatable("controlify.binding_category.gui");
 	public static final Component RADIAL_CATEGORY = Component.translatable("controlify.gui.radial_menu");
