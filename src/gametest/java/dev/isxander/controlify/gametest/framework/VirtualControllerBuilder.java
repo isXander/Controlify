@@ -6,10 +6,8 @@
  */
 package dev.isxander.controlify.gametest.framework;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.driver.sdl.SDLException;
-import dev.isxander.controlify.test.SdlVirtualJoystickDescBuilder;
+import dev.isxander.controlify.test.framework.SdlVirtualJoystickDescBuilder;
 import dev.isxander.sdl.*;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import org.jetbrains.annotations.Nullable;

@@ -97,7 +97,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.generate-build-matrix.outputs.matrix).include }}
+        target: ${{ fromJson(needs.generate-build-matrix.outputs.matrix).include.*.target }}
         graphics_backend:
           - opengl
           - vulkan
@@ -139,4 +139,4 @@ jobs:
         if: always()
         with:
           name: Test Screenshots (${{ matrix.target }}) (${{ matrix.graphics_backend }})
-          path: run/secreenshots
+          path: '**/run/clientGameTest/secreenshots'

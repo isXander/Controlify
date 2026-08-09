@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.test;
+package dev.isxander.controlify.test.framework;
 
 import dev.isxander.sdl.*;
 
