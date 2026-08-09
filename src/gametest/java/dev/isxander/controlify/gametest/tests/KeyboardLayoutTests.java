@@ -34,49 +34,59 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 				.create()) {
 			world.getClientLevel().waitForChunksRender();
 
-			try (var controller = controlify.virtualControllerBuilder()
-					.withXbox()
-					.attach()) {
-				try (var _ = CTestUtil.applyResourcePack(context, RESOURCE_PACK_ID)) {
-					// Test with default en_us language
+			runLocaleTest(context, controlify);
+		}
+	}
 
+	/// Ensures that the keyboard layout changes appropriately based on the
+	/// current language setting of the client.
+	///
+	/// Applies a resource pack that makes en_us and en_gb very clearly different,
+	/// and swaps locales, comparing screenshots.
+	private void runLocaleTest(ClientGameTestContext context, ControlifyGameTestContext controlify) {
+		try (var controller = controlify.virtualControllerBuilder()
+				.withXbox()
+				.attach()) {
+			try (var _ = CTestUtil.applyResourcePack(context, RESOURCE_PACK_ID)) {
+				// Test with default en_us language
+
+				// open on-screen keyboard
+				controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_DPAD_UP);
+				context.waitForScreen(ChatScreen.class);
+
+				// check american keyboard layout
+				context.assertScreenshotContains(TestScreenshotComparisonOptions
+					.of("keyboard_layout_en_us")
+					.save()
+					.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
+
+				// press back button to close on-screen keyboard
+				controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
+				context.waitForScreen(null);
+
+				// Test with en_gb language
+				try (var _ = CTestUtil.setLanguage(context, "en_gb")) {
 					// open on-screen keyboard
 					controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_DPAD_UP);
 					context.waitForScreen(ChatScreen.class);
 
-					// check american keyboard layout
+					// check british keyboard layout
 					context.assertScreenshotContains(TestScreenshotComparisonOptions
-							.of("keyboard_layout_en_us")
-							.save()
-							.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
-
-					// press back button to close on-screen keyboard
-					controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
-					context.waitForScreen(null);
-
-					// Test with en_gb language
-					try (var _ = CTestUtil.setLanguage(context, "en_gb")) {
-						// open on-screen keyboard
-						controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_DPAD_UP);
-						context.waitForScreen(ChatScreen.class);
-
-						// check british keyboard layout
-						context.assertScreenshotContains(TestScreenshotComparisonOptions
-							.of("keyboard_layout_en_gb")
-							.save()
-							.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
-					}
-					// change language without closing chat screen and check en_us loaded
-					context.assertScreenshotContains(TestScreenshotComparisonOptions
-						.of("keyboard_layout_en_us")
+						.of("keyboard_layout_en_gb")
 						.save()
 						.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
-
-					// press back button to close on-screen keyboard
-					controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
-					context.waitForScreen(null);
 				}
+				// change language without closing chat screen and check en_us loaded
+				context.assertScreenshotContains(TestScreenshotComparisonOptions
+					.of("keyboard_layout_en_us")
+					.save()
+					.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
+
+				// press back button to close on-screen keyboard
+				controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
+				context.waitForScreen(null);
 			}
 		}
+
 	}
 }

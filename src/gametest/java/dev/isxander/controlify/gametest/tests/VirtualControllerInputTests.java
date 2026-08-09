@@ -17,6 +17,11 @@ import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
+/// A regression test:
+///
+/// Tests the test framework's virtual button sending translates to the correct button IDs.
+/// Without explicit mapping from logical button indices, sometimes a button would appear as
+/// another on the mod side.
 @SuppressWarnings("UnstableApiUsage")
 public class VirtualControllerInputTests implements FabricClientGameTest {
 	private static final Map<Integer, Identifier> XINPUT_BUTTONS = Map.ofEntries(

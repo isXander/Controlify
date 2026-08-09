@@ -20,6 +20,18 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 
+/// Tests the various in-game ways that a controller would receive a rumble effect.
+/// To ensure all triggers are working properly.
+///
+/// Current untested rumble triggers are:
+/// - block breaking
+/// - fishing (fish biting)
+/// - item break
+/// - ender dragon death
+/// - wither death
+/// - walking across slow block (e.g. soul sand)
+/// - using items
+/// - landing in water from a height
 @SuppressWarnings("UnstableApiUsage")
 public class RumbleTests implements FabricClientGameTest {
 	@Override
@@ -42,6 +54,7 @@ public class RumbleTests implements FabricClientGameTest {
 		}
 	}
 
+	/// Summons lightning bolt near the player, which should cause a rumble effect.
 	private void testLightningBoltRumble(
 		ClientGameTestContext context,
 		ControlifyGameTestContext controlify,
@@ -61,6 +74,8 @@ public class RumbleTests implements FabricClientGameTest {
 		context.waitFor(_ -> controller.state().hasRumble(), 10);
 	}
 
+	/// Summons an explosion near the player, which should cause a rumble.
+	/// Summons a second, distant, explosion, which should cause a lesser rumble.
 	private void testExplosionRumble(
 		ClientGameTestContext context,
 		ControlifyGameTestContext controlify,
@@ -101,6 +116,7 @@ public class RumbleTests implements FabricClientGameTest {
 		}
 	}
 
+	/// Makes the player apply damage to a mob, which should cause a rumble.
 	private void testOutgoingDamage(
 		ClientGameTestContext context,
 		ControlifyGameTestContext controlify,
@@ -120,6 +136,7 @@ public class RumbleTests implements FabricClientGameTest {
 		context.waitFor(_ -> controller.state().hasRumble(), 10);
 	}
 
+	/// Makes a mob apply damage to the player, which should cause a rumble.
 	private void testIncomingDamage(
 		ClientGameTestContext context,
 		ControlifyGameTestContext controlify,
