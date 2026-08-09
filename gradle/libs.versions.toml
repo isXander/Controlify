@@ -17,6 +17,7 @@ mod_publish_plugin = "2.1.1"
 
 [libraries]
 fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
+fabric_loader_junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric_loader" }
 sdl_java_api = { module = "dev.isxander.sdl:sdl-api", version.ref = "sdl_java" }
 sdl_java_backend_ffm = { module = "dev.isxander.sdl:sdl-backend-ffm", version.ref = "sdl_java" }
 steamdeck4j = { module = "dev.isxander:steamdeck4j", version.ref = "steamdeck4j" }

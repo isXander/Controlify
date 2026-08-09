@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "controlify_test",
+  "version": "1.0.0",
+  "name": "Controlify Test",
+  "icon": "icon.png",
+  "mixins": [
+    "controlify_test.mixins.json"
+  ],
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "dev.isxander.controlify.gametest.tests.ResetControlifySettingsTests",
+      "dev.isxander.controlify.gametest.tests.VirtualControllerInputTests",
+      "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
+      "dev.isxander.controlify.gametest.tests.RumbleTests"
+    ],
+    "client": [
+      "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests"
+    ]
+  }
+}

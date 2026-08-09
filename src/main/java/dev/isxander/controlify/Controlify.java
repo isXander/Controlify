@@ -387,7 +387,7 @@ public class Controlify implements ControlifyApi {
 		config().markDirty();
 
 		String selectedUid = config().getActiveProfile().controllerUid;
-		if (selectedUid != null && selectedUid.equals(controller.uid())) {
+		if (selectedUid == null || selectedUid.equals(controller.uid())) {
 			this.setCurrentController(controller, true);
 		}
 
