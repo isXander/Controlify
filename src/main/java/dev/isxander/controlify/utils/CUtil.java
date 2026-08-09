@@ -143,6 +143,13 @@ public class CUtil {
 			+ Mth.clampedMap(value, 0, Short.MAX_VALUE, 0f, 1f);
 	}
 
+	public static short mapFloatToShort(float value) {
+		value = Mth.clamp(value, -1f, 1f);
+
+		float scale = 32767.5f - 0.5f * Math.signum(value);
+		return (short) Math.round(value * scale);
+	}
+
 	public static <T> boolean isInWithLocalFallback(TypedInstance<T> type, HolderSet<T> items) {
 		return items.unwrapKey()
 			.map(tag -> PlatformClientUtil.isInWithLocalFallback(tag, type.typeHolder()))

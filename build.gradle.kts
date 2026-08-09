@@ -16,13 +16,15 @@ base.archivesName = "controlify"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+val fabricApiBom = dependencies.platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}")
+
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     fabricLoader(libs.fabric.loader)
     neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
 
-    implementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
-	fabricImplementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
+    implementation(fabricApiBom)
+	fabricImplementation(fabricApiBom)
 	fabricImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-networking-api-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-command-api-v2")
@@ -54,40 +56,40 @@ dependencies {
     neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
 
 	ifPresent("dep.mod-menu") {
-		fabricImplementation("maven.modrinth:modmenu:$it")
+		fabricCompileOnly("maven.modrinth:modmenu:$it")
 	}
 
     ifPresent("dep.sodium") {
         compileOnly("net.caffeinemc:sodium-fabric:$it") {
 			exclude(group = "net.fabricmc.fabric-api")
 		}
-        fabricImplementation("net.caffeinemc:sodium-fabric:$it")
-        neoforgeImplementation("net.caffeinemc:sodium-neoforge:$it")
-        neoforgeImplementation("net.caffeinemc:sodium-neoforge-mod:$it")
+        fabricCompileOnly("net.caffeinemc:sodium-fabric:$it")
+        neoforgeCompileOnly("net.caffeinemc:sodium-neoforge:$it")
+        neoforgeCompileOnly("net.caffeinemc:sodium-neoforge-mod:$it")
     }
 
     ifPresent("dep.iris") {
         compileOnly("maven.modrinth:iris:$it")
-        fabricImplementation("maven.modrinth:iris:$it")
+        fabricCompileOnly("maven.modrinth:iris:$it")
     }
     ifPresent("dep.iris-neoforge") {
-        neoforgeImplementation("maven.modrinth:iris:$it")
+        neoforgeCompileOnly("maven.modrinth:iris:$it")
     }
 
     ifPresent("dep.rso") {
         compileOnly("maven.modrinth:reeses-sodium-options:$it")
-        fabricImplementation("maven.modrinth:reeses-sodium-options:$it")
+        fabricCompileOnly("maven.modrinth:reeses-sodium-options:$it")
     }
     ifPresent("dep.rso-neoforge") {
-        neoforgeImplementation("maven.modrinth:reeses-sodium-options:$it")
+        neoforgeCompileOnly("maven.modrinth:reeses-sodium-options:$it")
     }
 
     ifPresent("dep.svc") {
         compileOnly("maven.modrinth:simple-voice-chat:$it")
-        fabricImplementation("maven.modrinth:simple-voice-chat:$it")
+        fabricCompileOnly("maven.modrinth:simple-voice-chat:$it")
     }
     ifPresent("dep.svc-neoforge") {
-        neoforgeImplementation("maven.modrinth:simple-voice-chat:$it")
+        neoforgeCompileOnly("maven.modrinth:simple-voice-chat:$it")
     }
 
     ifPresent("dep.fancy-menu") {
@@ -253,6 +255,54 @@ if (includeNatives) {
     tasks.processResources {
         dependsOn(prepareNatives)
     }
+}
+
+/// Testing
+
+fabricApi {
+	@Suppress("UnstableApiUsage")
+	configureTests {
+		createSourceSet = true
+		modId = "controlify_test"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
+sourceSets.named { it in listOf("gametest", "test") }.configureEach {
+	compileClasspath += sourceSets.fabric.get().output
+	runtimeClasspath += sourceSets.fabric.get().output
+}
+sourceSets.named("gametest") {
+	compileClasspath += sourceSets.test.get().output
+	runtimeClasspath += sourceSets.test.get().output
+}
+configurations.named("testCompileClasspath") {
+	extendsFrom(configurations.named("fabricCompileClasspath"))
+}
+configurations.named("gametestCompileClasspath") {
+	extendsFrom(configurations.named("testCompileClasspath"))
+}
+configurations.named("testRuntimeClasspath") {
+	extendsFrom(configurations.named("fabricRuntimeClasspath"))
+}
+configurations.named("gametestRuntimeClasspath") {
+	extendsFrom(configurations.named("testRuntimeClasspath"))
+}
+
+val gametestImplementation = configurations.named("gametestImplementation")
+
+dependencies {
+	testImplementation(libs.fabric.loader.junit)
+
+	gametestImplementation(fabricApiBom)
+	gametestImplementation("net.fabricmc.fabric-api:fabric-gametest-api-v1")
+	gametestImplementation("net.fabricmc.fabric-api:fabric-client-gametest-api-v1")
+}
+
+tasks.test {
+	useJUnitPlatform()
 }
 
 /// Publishing

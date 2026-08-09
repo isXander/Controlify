@@ -53,7 +53,7 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: 25
-          distribution: temurin
+          distribution: microsoft
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -89,11 +89,54 @@ jobs:
           path: versions/**/build/libs/*
           name: ${{ matrix.target }}
 
-#  run:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    name: Run Minecraft
-#
-#    strategy:
-#      matrix:
-#        target: ${{ fromJson(needs.retrieve-targets.outputs.targets) }}
+  client_game_test:
+    needs: generate-build-matrix
+    runs-on: ubuntu-latest
+    name: Client test with gradle
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJson(needs.generate-build-matrix.outputs.matrix).include.*.target }}
+        graphics_backend:
+          - opengl
+          - vulkan
+
+    continue-on-error: ${{ contains(matrix.target, 'exp') }}
+
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          java-version: 25
+          distribution: microsoft
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Overwrite current version
+        run: printf "%s" "${{ matrix.target }}" | cut -d':' -f1 | tr -d '\n' > ./versions/current
+      - name: Install drivers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers xvfb
+
+      - name: Setup stonecutter
+        run: ./gradlew "Refresh active project"
+        env:
+          CI_SINGLE_BUILD: ${{ matrix.target }}
+
+      - name: Run client tests
+        run: ./gradlew runClientGameTest --stacktrace --args="--graphicsBackend ${{ matrix.graphics_backend }}"
+        env:
+          CI_SINGLE_BUILD: ${{ matrix.target }}
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: Test Screenshots (${{ matrix.target }}) (${{ matrix.graphics_backend }})
+          path: '**/run/clientGameTest/secreenshots'
