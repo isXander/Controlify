@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
+import dev.isxander.controlify.gametest.framework.CEntityTypes;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.framework.TestControllerContext;
@@ -15,11 +16,8 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContex
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.cow.Cow;
-import net.minecraft.world.entity.monster.cubemob.Slime;
 import net.minecraft.world.level.Level;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -54,7 +52,7 @@ public class RumbleTests implements FabricClientGameTest {
 			ServerPlayer player = CTestUtil.getPrincipalPlayer(server);
 			ServerLevel level = player.level();
 
-			LightningBolt bolt = EntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.COMMAND);
+			LightningBolt bolt = CEntityTypes.LIGHTNING_BOLT.create(level, EntitySpawnReason.COMMAND);
 			bolt.snapTo(player.position());
 			bolt.setVisualOnly(true);
 			level.addFreshEntity(bolt);
@@ -112,8 +110,8 @@ public class RumbleTests implements FabricClientGameTest {
 		// Attack cow and wait for rumble
 
 
-		Cow cow = world.getServer().computeOnServer(server ->
-			CTestUtil.summonEntityAtPlayer(server, EntityTypes.COW, c -> c.setNoAi(true)));
+		var cow = world.getServer().computeOnServer(server ->
+			CTestUtil.summonEntityAtPlayer(server, CEntityTypes.COW, c -> c.setNoAi(true)));
 
 		context.waitTick();
 
@@ -133,7 +131,7 @@ public class RumbleTests implements FabricClientGameTest {
 
 		world.getServer().runOnServer(server -> {
 			ServerPlayer player = CTestUtil.getPrincipalPlayer(server);
-			Slime slime = CTestUtil.summonEntityAtPlayer(server, EntityTypes.SLIME, c -> c.setNoAi(true));
+			var slime = CTestUtil.summonEntityAtPlayer(server, CEntityTypes.SLIME, c -> c.setNoAi(true));
 			slime.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(0.5);
 			slime.doHurtTarget(player.level(), player);
 		});

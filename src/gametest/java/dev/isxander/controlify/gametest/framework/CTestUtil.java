@@ -199,7 +199,11 @@ public final class CTestUtil {
 
 	public static void clearToasts(ClientGameTestContext context) {
 		context.runOnClient(minecraft -> {
+			//? if >=26.2 {
 			minecraft.gui.toastManager().clear();
+			//?} else {
+			/*minecraft.getToastManager().clear();
+			*///?}
 		});
 	}
 }
