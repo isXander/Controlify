@@ -1,0 +1,9 @@
+{
+  "pack": {
+    "description": "Adaptive trigger low-priority test pack",
+    "supported_formats": [34, 10000],
+    "pack_format": 64,
+    "min_format": 34,
+    "max_format": [10000, 0]
+  }
+}

@@ -7,17 +7,12 @@
 package dev.isxander.controlify.config;
 
 import com.google.gson.*;
-import com.mojang.datafixers.DSL;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.config.dto.SharedConfig;
 import dev.isxander.controlify.config.dto.dfu.ControlifyDataFixer;
-import dev.isxander.controlify.config.dto.dfu.ControlifyTypeReferences;
 import dev.isxander.controlify.config.dto.profile.ProfileConfig;
-import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.ControlifySettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.debug.DebugProperties;
@@ -37,12 +32,12 @@ import static java.nio.file.StandardOpenOption.WRITE;
 
 public class ConfigManager implements AutoCloseable {
 	private static final Logger LOGGER = LogUtils.getLogger();
-	private static final int LAST_LEGACY_SCHEMA_VERSION = 2;
 	private static final Pattern PROFILE_FILE = Pattern.compile("profile-(\\d+)\\.json");
 
 	private final Path configDirectory;
 	private final Path sharedPath;
 	private final Path legacyPath;
+	private @Nullable ConfigMigrator configMigrator;
 
 	private ControlifySettings settings = ControlifySettings.defaults();
 	private int activeProfileIndex = -1;
@@ -92,61 +87,19 @@ public class ConfigManager implements AutoCloseable {
 	}
 
 	private void loadShared() throws IOException {
-		JsonObject root = readJson(sharedPath);
-		int schemaVersion = getSchemaVersion(root);
-		validateSplitSchemaVersion(schemaVersion, sharedPath);
-		JsonObject fixed = fix(root, ControlifyTypeReferences.SHARED_CONFIG, schemaVersion);
-
-		DataResult<SharedConfig> result = SharedConfig.CODEC.parse(JsonOps.INSTANCE, fixed);
-		boolean requiresSaving = schemaVersion != ControlifyDataFixer.CURRENT_VERSION;
-		SharedConfig shared;
-		if (result.isError()) {
-			shared = decode(SharedConfig.CODEC, completeShared(fixed), "shared config");
-			requiresSaving = true;
-		} else {
-			shared = result.result().orElseThrow();
-		}
-		settings = ControlifySettings.fromSharedDTO(shared);
-		if (requiresSaving) {
+		var migrated = this.configMigrator().migrateShared(readJson(sharedPath));
+		settings = ControlifySettings.fromSharedDTO(migrated.config());
+		if (migrated.requiresSaving()) {
 			writeShared();
 		}
 	}
 
 	private void migrateLegacy() throws IOException {
-		JsonObject root = readJson(legacyPath);
-		int schemaVersion = getSchemaVersion(root);
-		if (schemaVersion > LAST_LEGACY_SCHEMA_VERSION) {
-			throw new IOException("Unsupported legacy Controlify config schema " + schemaVersion);
-		}
+		var migrated = this.configMigrator().migrateLegacy(readJson(legacyPath));
+		settings = ControlifySettings.fromSharedDTO(migrated.shared().config());
 
-		// Each payload is replayed from the original version. Fixes for other named types do not apply.
-		JsonObject fixedLegacy = fix(root, ControlifyTypeReferences.USER_STATE, schemaVersion);
-		JsonObject fixedShared = fix(fixedLegacy.deepCopy(), ControlifyTypeReferences.SHARED_CONFIG, schemaVersion);
-
-		DataResult<SharedConfig> sharedResult = SharedConfig.CODEC.parse(JsonOps.INSTANCE, fixedShared);
-		SharedConfig shared = sharedResult.isError()
-				? decode(SharedConfig.CODEC, completeShared(fixedShared), "legacy shared config")
-				: sharedResult.result().orElseThrow();
-		settings = ControlifySettings.fromSharedDTO(shared);
-
-		JsonElement profilesElement = fixedLegacy.get("profiles");
-		if (profilesElement != null && !profilesElement.isJsonArray()) {
-			throw new IOException("Failed to decode legacy config: profiles is not a list");
-		}
-
-		JsonArray profiles = profilesElement == null ? new JsonArray() : profilesElement.getAsJsonArray();
-		for (int index = 0; index < profiles.size(); index++) {
-			JsonElement profileElement = profiles.get(index);
-			if (!profileElement.isJsonObject()) {
-				throw new IOException("Failed to decode legacy config: profile " + index + " is not an object");
-			}
-
-			JsonObject fixedProfile = fix(profileElement.getAsJsonObject(), ControlifyTypeReferences.PROFILE_CONFIG, schemaVersion);
-			DataResult<ProfileConfig> profileResult = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, fixedProfile);
-			ProfileConfig profile = profileResult.isError()
-					? decode(ProfileConfig.CODEC, completeProfile(fixedProfile), "legacy profile " + index)
-					: profileResult.result().orElseThrow();
-			settings.putProfileSettings(index, ProfileSettings.fromDTO(profile));
+		for (int index = 0; index < migrated.profiles().size(); index++) {
+			settings.putProfileSettings(index, ProfileSettings.fromDTO(migrated.profiles().get(index).config()));
 		}
 
 		if (settings.profileSettings().isEmpty()) {
@@ -191,21 +144,8 @@ public class ConfigManager implements AutoCloseable {
 	}
 
 	private ProfileLoad readProfile(Path path) throws IOException {
-		JsonObject root = readJson(path);
-		int schemaVersion = getSchemaVersion(root);
-		validateSplitSchemaVersion(schemaVersion, path);
-		JsonObject fixed = fix(root, ControlifyTypeReferences.PROFILE_CONFIG, schemaVersion);
-
-		DataResult<ProfileConfig> result = ProfileConfig.CODEC.parse(JsonOps.INSTANCE, fixed);
-		boolean requiresSaving = schemaVersion != ControlifyDataFixer.CURRENT_VERSION;
-		ProfileConfig profile;
-		if (result.isError()) {
-			profile = decode(ProfileConfig.CODEC, completeProfile(fixed), "profile " + path.getFileName());
-			requiresSaving = true;
-		} else {
-			profile = result.result().orElseThrow();
-		}
-		return new ProfileLoad(ProfileSettings.fromDTO(profile), requiresSaving);
+		var migrated = this.configMigrator().migrateProfile(readJson(path));
+		return new ProfileLoad(ProfileSettings.fromDTO(migrated.config()), migrated.requiresSaving());
 	}
 
 	private void selectStartupProfile() throws IOException {
@@ -467,41 +407,14 @@ public class ConfigManager implements AutoCloseable {
 		}
 	}
 
-	private JsonObject completeProfile(JsonObject source) {
-		JsonObject completed = ProfileConfig.CODEC.encodeStart(JsonOps.INSTANCE, ProfileSettings.createDefault().toDTO())
-				.result().orElseThrow().getAsJsonObject();
-		DefaultConfigManager.mergeJsonObjects(completed, source);
-		return completed;
-	}
-
-	private JsonObject completeShared(JsonObject source) {
-		JsonObject completed = SharedConfig.CODEC.encodeStart(
-						JsonOps.INSTANCE,
-						ControlifySettings.defaults().toSharedDTO()
-				)
-				.result().orElseThrow().getAsJsonObject();
-		DefaultConfigManager.mergeJsonObjects(completed, source);
-		return completed;
-	}
-
-	private static int getSchemaVersion(JsonObject root) {
-		return root.has("schema_version") ? root.get("schema_version").getAsInt() : 0;
-	}
-
-	private static void validateSplitSchemaVersion(int schemaVersion, Path path) throws IOException {
-		if (schemaVersion <= LAST_LEGACY_SCHEMA_VERSION || schemaVersion > ControlifyDataFixer.CURRENT_VERSION) {
-			throw new IOException("Unsupported Controlify schema " + schemaVersion + " in " + path);
+	private ConfigMigrator configMigrator() {
+		if (this.configMigrator == null) {
+			this.configMigrator = new ConfigMigrator(
+				ProfileSettings.createDefault().toDTO(),
+				ControlifyDataFixer.getFixer()
+			);
 		}
-	}
-
-	private static JsonObject fix(JsonObject root, DSL.TypeReference type, int schemaVersion) {
-		Dynamic<?> fixed = ControlifyDataFixer.getFixer().update(
-				type,
-				new Dynamic<>(JsonOps.INSTANCE, root),
-				schemaVersion,
-				ControlifyDataFixer.CURRENT_VERSION
-		);
-		return (JsonObject) fixed.getValue();
+		return this.configMigrator;
 	}
 
 	private static JsonObject readJson(Path path) throws IOException {
@@ -510,12 +423,6 @@ public class ConfigManager implements AutoCloseable {
 		} catch (JsonParseException | IllegalStateException e) {
 			throw new IOException("Failed to parse " + path, e);
 		}
-	}
-
-	private static <T> T decode(Codec<T> codec, JsonObject json, String description) throws IOException {
-		DataResult<T> result = codec.parse(JsonOps.INSTANCE, json);
-		return result.result().orElseThrow(() ->
-				new IOException("Failed to decode " + description + ": " + result.error().map(DataResult.Error::message).orElse("unknown error")));
 	}
 
 	private void makeBackup(Path path) throws IOException {

@@ -7,7 +7,7 @@
 package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.gametest.framework.CTestUtil;
-import dev.isxander.controlify.gametest.framework.ControlifyGameTestContext;
+import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 

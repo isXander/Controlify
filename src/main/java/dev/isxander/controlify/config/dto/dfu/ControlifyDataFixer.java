@@ -15,13 +15,19 @@ import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 public final class ControlifyDataFixer {
 	public static final int CURRENT_VERSION = 8;
 
-	private static final DataFixer FIXER = createFixer();
-
 	public static DataFixer getFixer() {
-		return FIXER;
+		return ProductionFixerHolder.FIXER;
+	}
+
+	public static DataFixer createFixer(ProfileSettings profileDefaults) {
+		return createFixer(GlobalSettings.defaults(), profileDefaults);
 	}
 
 	private static DataFixer createFixer() {
+		return createFixer(GlobalSettings.defaults(), ProfileSettings.createDefault());
+	}
+
+	private static DataFixer createFixer(GlobalSettings globalDefaults, ProfileSettings profileDefaults) {
 		var builder = new DataFixerBuilder(CURRENT_VERSION);
 
 		var v0 = builder.addSchema(0, ControlifySchemas.V0::new);
@@ -31,9 +37,6 @@ public final class ControlifyDataFixer {
 		var v6 = builder.addSchema(6, ControlifySchemas.V6::new);
 		var v7 = builder.addSchema(7, ControlifySchemas.V7::new);
 		var v8 = builder.addSchema(8, ControlifySchemas.V8::new);
-
-		var globalDefaults = GlobalSettings.defaults();
-		var profileDefaults = ProfileSettings.createDefault();
 
 		// v1
 		builder.addFixer(new TheHolyMigrationFix(v1, globalDefaults, profileDefaults));
@@ -56,5 +59,9 @@ public final class ControlifyDataFixer {
 	}
 
 	private ControlifyDataFixer() {
+	}
+
+	private static final class ProductionFixerHolder {
+		private static final DataFixer FIXER = createFixer();
 	}
 }

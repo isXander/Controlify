@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.gametest.framework;
+package dev.isxander.controlify.gametest.framework.controller;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -97,7 +97,7 @@ public class TestControllerState<E> implements TestControllerStateView<E> {
 	}
 
 	@Override
-	public E getGamepadEffectState() {
+	public @Nullable E getGamepadEffectState() {
 		return effectState;
 	}
 
