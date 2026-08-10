@@ -54,10 +54,7 @@ public class ControlifyHandshake {
 				HANDSHAKE_CHANNEL,
 				handshakePacketCodec,
 				handshakePacketCodec,
-				inboundHandshake -> {
-					ServerPolicies.ANALOGUE_MOVEMENT.set(ServerPolicy.ALLOWED);
-					return new HandshakePacket(PROTOCOL_VERSION);
-				}
+				_ -> new HandshakePacket(PROTOCOL_VERSION)
 		);
 	}
 
