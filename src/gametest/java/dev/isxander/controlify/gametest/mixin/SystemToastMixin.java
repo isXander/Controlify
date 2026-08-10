@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.gametest.mixin;
 
 import dev.isxander.controlify.gametest.framework.SystemToastDuck;
@@ -11,11 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SystemToast.class)
 public class SystemToastMixin implements SystemToastDuck {
-	@Unique
-	private Component controlify_test$cachedTitle;
+	@Unique private Component controlify_test$cachedTitle;
 
-	@Unique
-	private Component controlify_test$cachedMessage;
+	@Unique private Component controlify_test$cachedMessage;
 
 	@Inject(method = "update(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V", at = @At("HEAD"))
 	private void cacheText(Component title, Component message, CallbackInfo ci) {
