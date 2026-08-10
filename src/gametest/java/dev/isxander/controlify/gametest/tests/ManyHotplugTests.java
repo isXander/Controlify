@@ -34,6 +34,6 @@ public class ManyHotplugTests implements FabricClientGameTest {
 			CTestUtil.clearToasts(context);
 		}
 
-		CTestUtil.resetControlifySettings(context);
+		controlify.resetSettings();
 	}
 }

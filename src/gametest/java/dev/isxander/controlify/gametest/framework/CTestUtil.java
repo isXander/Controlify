@@ -13,15 +13,19 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.gametest.mixin.ControlifySettingsAccessor;
+import dev.isxander.controlify.gametest.mixin.ToastInstanceAccessor;
+import dev.isxander.controlify.gametest.mixin.ToastManagerAccessor;
 import dev.isxander.controlify.utils.MinecraftUtil;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.LoadingOverlay;
 import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -36,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class CTestUtil {
@@ -45,58 +50,6 @@ public final class CTestUtil {
 
 	public static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath("controlify_test", path);
-	}
-
-	/// Resets Controlify's global, active-profile and device settings while
-	/// preserving the runtime invariants of the active profile and connected
-	/// controllers.
-	public static void resetControlifySettings(ClientGameTestContext context) {
-		context.runOnClient(_ -> {
-			Controlify controlify = Controlify.instance();
-			var config = controlify.config();
-			var settings = config.getSettings();
-			var settingsAccessor = (ControlifySettingsAccessor) settings;
-
-			int activeProfileIndex = config.getActiveProfileIndex();
-			if (activeProfileIndex < 0) {
-				throw new IllegalStateException("Controlify has no active profile");
-			}
-
-			GlobalSettings globalDefaults = GlobalSettings.defaults();
-			// The profile lock stays on the active index, so keep the preferred
-			// profile consistent with it rather than blindly restoring index zero.
-			globalDefaults.preferredProfile = activeProfileIndex;
-			settingsAccessor.controlify_test$setGlobalSettings(globalDefaults);
-
-			ProfileSettings profileDefaults = ProfileSettings.createDefault();
-			settingsAccessor.controlify_test$getProfileSettings().clear();
-			settings.putProfileSettings(activeProfileIndex, profileDefaults);
-
-			var connectedControllers = controlify.getControllerManager()
-				.map(ControllerManager::getConnectedControllers)
-				.orElseGet(List::of);
-			var connectedUids = connectedControllers.stream()
-				.map(ControllerEntity::uid)
-				.collect(Collectors.toSet());
-
-			// Keep the existing objects for connected devices because input
-			// components cache their DeviceSettings reference when attached.
-			var deviceSettings = settingsAccessor.controlify_test$getDeviceSettings();
-			deviceSettings.keySet().retainAll(connectedUids);
-			for (ControllerEntity controller : connectedControllers) {
-				var device = settings.getOrCreateDeviceSettings(controller.uid());
-				device.name = controller.name();
-				device.lastSeen = System.currentTimeMillis();
-				device.controllerType = controller.info().type().namespace();
-				device.gyroCalibration.offset = new GyroState();
-				device.mapping = null;
-
-				controller.setSettings(profileDefaults);
-			}
-
-			controlify.applyControllerSelection(false);
-			config.markDirty();
-		});
 	}
 
 	public static void registerBuiltinResourcePack(Identifier packId) {
@@ -205,5 +158,25 @@ public final class CTestUtil {
 			/*minecraft.getToastManager().clear();
 			*///?}
 		});
+	}
+
+	public static boolean isToastPresent(Minecraft minecraft, String translationKey) {
+		//? if >=26.2 {
+		var toastManager = minecraft.gui.toastManager();
+		//?} else {
+		/*var toastManager = minecraft.getToastManager();
+		*///?}
+
+		String text = Component.translatable(translationKey).getString();
+
+		var toastManagerAccessor = (ToastManagerAccessor) toastManager;
+		return Stream.concat(
+			toastManagerAccessor.controlify_test$getQueued().stream(),
+			toastManagerAccessor.controlify_test$getVisibleToasts().stream()
+				.map(instance -> ((ToastInstanceAccessor) instance).controlify_test$getToast())
+			)
+			.flatMap(toast -> toast instanceof SystemToastDuck duck ? Stream.of(duck) : Stream.empty())
+			.flatMap(duck -> Stream.of(duck.controlify_test$getMessage(), duck.controlify_test$getTitle()))
+			.anyMatch(component -> text.equals(component.getString()));
 	}
 }

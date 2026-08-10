@@ -11,6 +11,7 @@ import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.server.packets.*;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,17 +61,18 @@ public class ControlifyServer {
 
 		ControlifyServerConfig config = ControlifyServerConfig.HANDLER.instance();
 		PlatformMainUtil.registerPlayerJoinedEvent(player -> {
-			setServerPolicy(ServerPolicies.REACH_AROUND, player, config.reachAroundPolicy);
-			setServerPolicy(ServerPolicies.DISABLE_FLY_DRIFTING, player, config.noFlyDriftPolicy);
-			setServerPolicy(ServerPolicies.ANALOGUE_MOVEMENT, player, config.allowAnalogueMovement);
+			setServerPolicies(player, config);
 		});
 	}
 
-	private void setServerPolicy(ServerPolicies policy, ServerPlayer player, boolean option) {
-		// Movement must always be explicit so clients can distinguish Controlify servers
-		// from servers where keyboard-like movement is the compatibility default.
-		if (policy != ServerPolicies.ANALOGUE_MOVEMENT && option == policy.getUnsetValue()) return;
+	@VisibleForTesting
+	public static void setServerPolicies(ServerPlayer player, ControlifyServerConfig config) {
+		setServerPolicy(ServerPolicies.REACH_AROUND, player, config.reachAroundPolicy);
+		setServerPolicy(ServerPolicies.DISABLE_FLY_DRIFTING, player, config.noFlyDriftPolicy);
+		setServerPolicy(ServerPolicies.ANALOGUE_MOVEMENT, player, config.allowAnalogueMovement);
+	}
 
+	private static void setServerPolicy(ServerPolicies policy, ServerPlayer player, boolean option) {
 		SidedNetworkApi.S2C().sendPacket(
 				player,
 				ServerPolicyPacket.CHANNEL,

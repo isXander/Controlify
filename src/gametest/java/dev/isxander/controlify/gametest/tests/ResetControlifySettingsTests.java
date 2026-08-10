@@ -32,7 +32,7 @@ public class ResetControlifySettingsTests implements FabricClientGameTest {
 			cachedDeviceSettings.gyroCalibration.offset = new GyroState(1f, 2f, 3f);
 			settings.globalSettings().mixedInput = true;
 
-			CTestUtil.resetControlifySettings(context);
+			controlifyContext.resetSettings();
 
 			if (settings.globalSettings().mixedInput) {
 				throw new AssertionError("Global settings were not reset");

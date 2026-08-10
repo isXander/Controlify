@@ -68,7 +68,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 			}
 		}
 
-		CTestUtil.resetControlifySettings(context);
+		controlify.resetSettings();
 		CTestUtil.clearToasts(context);
 		context.setScreen(TitleScreen::new);
 	}

@@ -9,6 +9,7 @@
   ],
   "entrypoints": {
     "fabric-client-gametest": [
+      "dev.isxander.controlify.gametest.tests.ServerPolicyTests",
       "dev.isxander.controlify.gametest.tests.ManyHotplugTests",
       "dev.isxander.controlify.gametest.tests.ResetControlifySettingsTests",
       "dev.isxander.controlify.gametest.tests.VirtualControllerInputTests",

@@ -78,7 +78,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 			}
 		}
 
-		CTestUtil.resetControlifySettings(context);
+		controlify.resetSettings();
 	}
 
 	/// Tests that when the trigger effect option is disabled,

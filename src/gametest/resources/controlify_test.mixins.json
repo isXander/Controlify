@@ -16,5 +16,10 @@
     "ControlifySettingsAccessor",
     "SDLControllerManagerAccessor",
     "SDLControllerManagerMixin"
+  ],
+  "client": [
+    "SystemToastMixin",
+    "ToastInstanceAccessor",
+    "ToastManagerAccessor"
   ]
 }
