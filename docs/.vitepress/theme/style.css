@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --vp-font-family-base: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --vp-font-family-mono: 'SFMono-Regular', Consolas, monospace;
+  --vp-c-brand-1: #716f00;
+  --vp-c-brand-2: #8f8c00;
+  --vp-c-brand-3: #e4e83f;
+  --vp-c-brand-soft: rgba(218, 224, 49, 0.2);
+  --vp-c-tip-1: var(--vp-c-brand-1);
+  --vp-c-tip-2: var(--vp-c-brand-2);
+  --vp-c-tip-3: var(--vp-c-brand-3);
+  --vp-c-tip-soft: var(--vp-c-brand-soft);
+}
+
+.dark {
+  --vp-c-bg: #10100d;
+  --vp-c-bg-alt: #171711;
+  --vp-c-bg-soft: #1d1d16;
+  --vp-c-bg-elv: #24241b;
+  --vp-c-brand-1: #f3f67b;
+  --vp-c-brand-2: #e6ea50;
+  --vp-c-brand-3: #d5da31;
+  --vp-c-brand-soft: rgba(235, 239, 77, 0.16);
+}
+
+h1,
+h2,
+h3,
+.VPNavBarTitle {
+  font-family: 'Space Grotesk', var(--vp-font-family-base);
+  letter-spacing: -0.025em;
+}
+
+.VPNavBarTitle .logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}

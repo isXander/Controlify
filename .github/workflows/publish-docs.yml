@@ -1,0 +1,72 @@
+name: Publish Docs
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'docs/**'
+      - .github/workflows/publish-docs.yml
+  pull_request:
+    paths:
+      - 'docs/**'
+      - .github/workflows/publish-docs.yml
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./docs
+
+    if: >
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+
+      - run: bun install --frozen-lockfile
+
+      - name: Deploy Production Docs
+        if: github.event_name == 'push'
+        run: bun wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy Preview Docs
+        if: github.event_name == 'pull_request'
+        run: bun wrangler versions upload --preview-alias pr-${{ github.event.pull_request.number }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Find preview comment
+        if: success() && github.event_name == 'pull_request'
+        id: find-preview-comment
+        uses: peter-evans/find-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: '<!-- controlify-docs-preview -->'
+
+      - name: Comment preview URL
+        if: success() && github.event_name == 'pull_request'
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-preview-comment.outputs.comment-id }}
+          edit-mode: replace
+          body: |
+            <!-- controlify-docs-preview -->
+            ## 📖 Documentation preview
+            
+            Preview: https://pr-${{ github.event.pull_request.number }}-controlify.isxander.workers.dev
+            
+            Updated for `${{ github.event.pull_request.head.sha }}`

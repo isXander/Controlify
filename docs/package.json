@@ -1,0 +1,21 @@
+{
+  "name": "docs",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "vitepress": "^2.0.0-alpha.19",
+    "vue": "^3.5.41",
+    "wrangler": "^4.120.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "deploy": "wrangler deploy"
+  }
+}

@@ -1,4 +1,4 @@
-name: Gradle CI
+name: Build and Test
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - '.gitignore'
       - '.editorconfig'
       - 'CHANGELOG.md'
-      - 'docs'
+      - 'docs/**'
   pull_request:
 
 permissions:

@@ -54,23 +54,24 @@ val printVersion = tasks.register("printVersion") {
 
 val modVersion = providers.gradleProperty("mod.version")
 val publishTargets = stonecutter.versions.joinToString(separator = "\n") { "- ${it.project}" }
+val changelogContents = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md"))
+	.asText
+	.zip(modVersion) { changelog, version ->
+		changelog.replace("{version}", version)
+	}
+	.zip(provider { publishTargets }) { changelog, targets ->
+		changelog.replace(
+			"{targets}",
+			targets
+		)
+	}
 
 publishMods {
     dryRun = false
 
     version = modVersion
 
-    changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md"))
-        .asText
-        .zip(modVersion) { changelog, version ->
-            changelog.replace("{version}", version)
-        }
-        .map { changelog ->
-            changelog.replace(
-                "{targets}",
-                publishTargets
-            )
-        }
+    changelog = changelogContents
 
     type = modVersion.map { version ->
         when {
@@ -105,6 +106,21 @@ publishMods {
 		}
 		username = "Controlify"
     }
+}
+
+tasks.register("writeChangelogToDocs") {
+	group = "controlify/internal"
+	description = "Copies the templated CHANGELOG.md into /docs changelog archive"
+
+	val outputFile = layout.projectDirectory.file("docs/content/changelog/${version}.md")
+
+	inputs.property("contents", changelogContents)
+	outputs.file(outputFile)
+
+	doLast {
+		val contents = inputs.properties["contents"] as String
+		outputFile.asFile.writeText(contents)
+	}
 }
 
 spotless {
