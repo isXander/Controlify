@@ -1,0 +1,132 @@
+---
+title: Bindings API
+---
+
+# Bindings API
+
+_Learn how to register new controller bindings._
+
+## Registering a custom input binding
+
+::: info
+Register bindings inside the Controlify pre-init entrypoint. Read more in
+[Controlify Entrypoint](controlify-entrypoint#using-the-entrypoint).
+:::
+
+Controlify bindings let users assign controller inputs to actions in your mod. Register a binding through
+the `ControlifyBindApi` supplied by the pre-init context:
+
+```java
+private InputBindingSupplier action1Binding;
+
+@Override
+public void onControlifyPreInit(PreInitContext context) {
+    action1Binding = context.bindings().registerBinding(builder -> builder
+            .id("mymod", "action1")
+            .category(Component.translatable("mymod.binding.category"))
+            .allowedContexts(BindContext.IN_GAME)
+    );
+}
+```
+
+The ID and category are required. By default, the name and optional description use these language keys:
+
+- `controlify.binding.<namespace>.<path>`
+- `controlify.binding.<namespace>.<path>.desc`
+
+You can instead provide `.name(Component)` and `.description(Component)` explicitly.
+
+Registration returns an `InputBindingSupplier`. Once a controller exists, use
+`action1Binding.on(controller)` to obtain that controller's `InputBinding`. If you registered the binding
+with a controller filter, use `onOrNull(controller)` when the controller may not match it.
+
+## Integrating an existing key mapping
+
+On both Fabric and NeoForge, Controlify automatically converts otherwise unhandled modded `KeyMapping`s into
+controller bindings. These generated bindings are also radial menu candidates and use a book as their
+fallback radial icon. Mods that do not want a Java integration can still assign icons to these bindings; see
+[Icons for automatically generated bindings](../resource-packs/radial-icons#icons-for-automatically-generated-bindings).
+
+When explicitly registering a Controlify binding for an existing key mapping, correlate it so Controlify
+does not also create an automatic binding. Use `keyEmulation` if pressing the controller binding should press
+the key mapping:
+
+```java
+action1Binding = context.bindings().registerBinding(builder -> builder
+        .id("mymod", "action1")
+        .category(Component.translatable("mymod.binding.category"))
+        .allowedContexts(BindContext.IN_GAME)
+        .keyEmulation(MyMod.ACTION_1_KEY)
+);
+```
+
+`keyEmulation` automatically adds the key correlation. If your code handles the Controlify binding directly
+and should not emulate the key, use `.addKeyCorrelation(MyMod.ACTION_1_KEY)` instead.
+
+## Adding the binding to the radial menu
+
+Radial candidates and icons are data-driven. Add the binding ID to
+`assets/controlify/radial_icons.json` in your mod's resources:
+
+```json
+{
+  "mymod:action1": {
+    "model": "mymod:radial/action1"
+  }
+}
+```
+
+The Java bindings API does not register radial icons or mark radial candidates. See
+[Radial Menu Icons](../resource-packs/radial-icons) for model and texture icon definitions, file locations,
+and resource-pack override behavior.
+
+## Defining a default binding
+
+Default controller inputs are data-driven. To assign the south face button to the example binding for every
+controller, create:
+
+::: code-group
+```json [assets/controlify/controllers/default_bind/default.json]
+{
+  "defaults": {
+    "mymod:action1": {
+      "button": "controlify:button/south"
+    }
+  }
+}
+```
+:::
+
+Defaults for a specific controller namespace belong at
+`assets/<namespace>/controllers/default_bind/<path>.json`. For the full format, see
+[Default Binds](../resource-packs/default-binds).
+
+## Using the binding
+
+Once you have an `InputBinding`, its commonly used state accessors include:
+
+| Property             | Description                                                                                   |
+|----------------------|-----------------------------------------------------------------------------------------------|
+| `inputGlyph()`       | Returns the input glyph for this binding and controller.                                      |
+| `digitalNow()`       | Returns whether the binding is pressed this tick.                                             |
+| `digitalPrev()`      | Returns whether the binding was pressed during the previous tick.                             |
+| `analogueNow()`      | Returns the current analogue value, from 0 to 1.                                              |
+| `analoguePrev()`     | Returns the analogue value from the previous tick.                                            |
+| `justPressed()`      | Returns whether the binding became pressed this tick.                                         |
+| `justReleased()`     | Returns whether the binding became released this tick.                                        |
+| `justTapped()`       | Returns whether the binding was pressed and then released.                                    |
+| `guiPressed().get()` | Handles a GUI press that completes only if focus remains on the widget where the press began. |
+
+See `InputBinding` in the API sources for advanced state access and custom outputs.
+
+## Rendering binding glyphs
+
+Controller glyphs are text components backed by Controlify's input font. With a
+`GuiGraphicsExtractor`, render a binding glyph like any other component:
+
+```java
+graphics.text(Minecraft.getInstance().font, binding.inputGlyph(), x, y, -1);
+```
+
+`InputBindingSupplier.inputGlyph()` can be used when you want the glyph for the currently selected
+controller without first resolving a particular controller's binding.
