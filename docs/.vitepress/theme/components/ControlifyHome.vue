@@ -63,7 +63,7 @@ const featureMarquees = [
         </div>
 
         <div class="controller-display" role="img" aria-label="A connected pixel art DualSense controller">
-          <img :src="dualsenseController" alt="" class="controller-display__controller">
+          <img :src="steamController" alt="" class="controller-display__controller">
         </div>
       </div>
     </section>
