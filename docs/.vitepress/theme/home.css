@@ -236,7 +236,6 @@
   min-height: 54px;
   padding: 0 22px;
   border: 1px solid transparent;
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.03em;
