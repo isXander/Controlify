@@ -7,6 +7,9 @@
   "mixins": [
     "controlify_test.mixins.json"
   ],
+  "depends": {
+    "fabricloader": ">=0.19.3"
+  },
   "entrypoints": {
     "fabric-client-gametest": [
       "dev.isxander.controlify.gametest.tests.ServerPolicyTests",
