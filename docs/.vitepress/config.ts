@@ -41,7 +41,7 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/png', sizes: '256x256', href: '/icon-256-bg.png' }],
     ['meta', { name: 'theme-color', content: '#fafd9e' }],
-    ['meta', { property: 'og:image', content: '/controlify-banner.png' }]
+    ['meta', { property: 'og:image', content: '/icon-256-bg.png' }]
   ],
   themeConfig: {
     logo: '/icon-256-bg.png',
