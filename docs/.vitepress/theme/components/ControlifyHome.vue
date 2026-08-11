@@ -112,7 +112,7 @@ const featureMarquees = [
           <h2 id="integration-heading">Mod compatibility.</h2>
           <p>
             Controlify makes it easy for other mods to add enhanced support.
-            Sodium settings, JourneyMap, MiniMega and other modded experiences
+            Sodium settings, JourneyMap, Minimega and other modded experiences
             can be easily achieved!
           </p>
         </header>
@@ -124,8 +124,8 @@ const featureMarquees = [
           </figure>
 
           <figure class="game-shot game-shot--minimega-glide">
-            <img src="/images/minimega-glide.webp" alt="Playing MiniMega Glide with Controlify" width="2560" height="1372" loading="lazy">
-            <figcaption><strong><a href="https://modrinth.com/mod/minimega">MiniMega</a> Glide</strong><span>Custom actions and button guides</span></figcaption>
+            <img src="/images/minimega-glide.webp" alt="Playing Minimega Glide with Controlify" width="2560" height="1372" loading="lazy">
+            <figcaption><strong><a href="https://modrinth.com/mod/minimega">Minimega</a> Glide</strong><span>Custom actions and button guides</span></figcaption>
           </figure>
 
           <figure class="game-shot game-shot--journeymap-fullscreen">
