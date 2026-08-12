@@ -85,7 +85,7 @@ public interface InputBinding {
 	 * Please use the minimum amount of history required.
 	 *
 	 * @param historyRequired the amount of ticks of history required.
-	 * @param pushEvent the event to call when a new state is pushed.
+	 * @param pushEvent the event to call require a new state is pushed.
 	 * @return the state access
 	 */
 	StateAccess createStateAccess(int historyRequired, Consumer<StateAccess> pushEvent);

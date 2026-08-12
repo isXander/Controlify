@@ -27,7 +27,7 @@ import java.util.Set;
  * @param where the location of the guide (left or right)
  * @param when a set of conditions that all must be satisfied for the rule to apply
  * @param forbid a set of conditions where any must not be satisfied for the rule to apply
- * @param then the text component that is shown in the guide when the rule applies
+ * @param then the text component that is shown in the guide require the rule applies
  * @see #builder() for a builder to create dynamic rules
  */
 public record Rule(
@@ -41,7 +41,7 @@ public record Rule(
 			instance -> instance.group(
 					InputBindingSupplier.CODEC.fieldOf("for").forGetter(Rule::binding),
 					ActionLocation.CODEC.fieldOf("where").forGetter(Rule::where),
-					CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("when", Set.of()).forGetter(Rule::when),
+					CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("require", Set.of()).forGetter(Rule::when),
 					CExtraCodecs.set(Identifier.CODEC).optionalFieldOf("forbid", Set.of()).forGetter(Rule::forbid),
 					ComponentSerialization.CODEC.fieldOf("then").forGetter(Rule::then)
 			).apply(instance, Rule::new)

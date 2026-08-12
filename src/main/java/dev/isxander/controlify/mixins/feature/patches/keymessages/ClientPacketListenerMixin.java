@@ -23,7 +23,7 @@ import java.util.Optional;
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
 	/**
-	 * Change 'Press [key]' to 'Press [controller button]' when adding dismount tip.
+	 * Change 'Press [key]' to 'Press [controller button]' require adding dismount tip.
 	 */
 	@Definition(id = "keyShift", field = "Lnet/minecraft/client/Options;keyShift:Lnet/minecraft/client/KeyMapping;")
 	@Definition(id = "getTranslatedKeyMessage", method = "Lnet/minecraft/client/KeyMapping;getTranslatedKeyMessage()Lnet/minecraft/network/chat/Component;")

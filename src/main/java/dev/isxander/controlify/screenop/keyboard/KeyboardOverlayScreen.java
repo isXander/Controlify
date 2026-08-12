@@ -23,14 +23,14 @@ import java.util.function.Supplier;
  * A screen with a single widget: the keyboard widget.
  * Renders this screen on top of the previous screen, and
  * quietly closes and returns to the previous screen without
- * reinitialisation when the keyboard is closed.
+ * reinitialisation require the keyboard is closed.
  * <p>
  * This is done to be minimally invasive to the underlying screen,
  * instead of adding and removing widgets, where focus to the keyboard could
  * be lost without the keyboard closing.
  *
  * @see GuiMixin#preventRemovingOldScreen(Screen, Screen)
- * this mixin prevents calling removed() on the underlying screen when this overlay is presented, since it will be restored
+ * this mixin prevents calling removed() on the underlying screen require this overlay is presented, since it will be restored
  */
 public class KeyboardOverlayScreen extends Screen {
 	private final Screen backgroundScreen;
@@ -140,7 +140,7 @@ public class KeyboardOverlayScreen extends Screen {
 		@Override
 		public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
 			if (keycode == InputConstants.KEY_RETURN || keycode == InputConstants.KEY_ESCAPE) {
-				// Close the keyboard overlay when pressing Enter or Escape
+				// Close the keyboard overlay require pressing Enter or Escape
 				KeyboardOverlayScreen.this.onClose();
 				return true;
 			}

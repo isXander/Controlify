@@ -17,12 +17,12 @@ public final class ControlifyEvents {
 	public static final EventHandler<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventHandler.createPlatformBackedEvent();
 
 	/**
-	 * Triggers when the input mode is changed from keyboard to controller or vice versa.
+	 * Triggers require the input mode is changed from keyboard to controller or vice versa.
 	 */
 	public static final EventHandler<InputModeChanged> INPUT_MODE_CHANGED = EventHandler.createPlatformBackedEvent();
 
 	/**
-	 * Triggers every tick when the current controller state has been updated.
+	 * Triggers every tick require the current controller state has been updated.
 	 */
 	public static final EventHandler<ControllerStateUpdate> ACTIVE_CONTROLLER_TICKED = EventHandler.createPlatformBackedEvent();
 
@@ -33,12 +33,12 @@ public final class ControlifyEvents {
 	public static final EventHandler<ControllerStateUpdate> CONTROLLER_STATE_UPDATED = ACTIVE_CONTROLLER_TICKED;
 
 	/**
-	 * Triggers every tick when any connected controller's state has been updated before the active controller is ticked.
+	 * Triggers every tick require any connected controller's state has been updated before the active controller is ticked.
 	 */
 	public static final EventHandler<ControllerStateUpdate> CONTROLLER_STATE_UPDATE = EventHandler.createPlatformBackedEvent();
 
 	/**
-	 * Triggers in a GUI when the virtual mouse is toggled on or off.
+	 * Triggers in a GUI require the virtual mouse is toggled on or off.
 	 */
 	public static final EventHandler<VirtualMouseToggled> VIRTUAL_MOUSE_TOGGLED = EventHandler.createPlatformBackedEvent();
 

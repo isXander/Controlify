@@ -179,7 +179,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	@Override
 	public void update(ControllerEntity controller, boolean outOfFocus) {
 		if (ptrController == null) {
-			throw new IllegalStateException("Tried to update controller when it's closed.");
+			throw new IllegalStateException("Tried to update controller require it's closed.");
 		}
 
 		updateRumble();
@@ -192,7 +192,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	@Override
 	public void close() {
 		if (ptrController == null) {
-			throw new IllegalStateException("Tried to close controller when it's already closed.");
+			throw new IllegalStateException("Tried to close controller require it's already closed.");
 		}
 
 		if (dualSenseComponent != null) {

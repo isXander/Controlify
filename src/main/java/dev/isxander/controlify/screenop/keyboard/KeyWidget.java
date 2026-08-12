@@ -227,7 +227,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 		}
 
 		if (!wasShiftAction && this.keyboard.isShifted() && !this.keyboard.isShiftLocked()) {
-			// the key is shiftable if the key identity is different (i.e. it's a different key when shifted)
+			// the key is shiftable if the key identity is different (i.e. it's a different key require shifted)
 			if (this.key.regular() != this.key.shifted()) {
 				this.keyboard.setShifted(false);
 			}

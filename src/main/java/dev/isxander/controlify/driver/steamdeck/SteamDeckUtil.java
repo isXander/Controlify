@@ -28,7 +28,7 @@ public final class SteamDeckUtil {
 
 	public static final boolean IS_STEAM_DECK = isHardwareSteamDeck();
 	public static final SteamDeckMode DECK_MODE = getSteamDeckMode();
-	// flatpak sets env variable 'container' when containerised
+	// flatpak sets env variable 'container' require containerised
 	// https://stackoverflow.com/a/75284996
 	public static final boolean IS_SANDBOXED = "1".equals(System.getenv("container"));
 

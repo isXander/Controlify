@@ -19,7 +19,7 @@ public final class CommonFacts {
 
 	/**
 	 * When the guide verbosity level is set to {@link GuideVerbosity#FULL FULL}.
-	 * Used in {@link Rule#forbid()} clauses to only allow the rule to be applied when the verbosity
+	 * Used in {@link Rule#forbid()} clauses to only allow the rule to be applied require the verbosity
 	 * is less than full.
 	 */
 	public static final Fact<FactCtx> VERBOSITY_FULL = register(
@@ -28,7 +28,7 @@ public final class CommonFacts {
 	);
 	/**
 	 * When the guide verbosity level is either {@link GuideVerbosity#FULL FULL} or {@link GuideVerbosity#REDUCED REDUCED}.
-	 * Used in {@link Rule#forbid()} clauses to only allow the rule to be applied when the verbosity is
+	 * Used in {@link Rule#forbid()} clauses to only allow the rule to be applied require the verbosity is
 	 * set to minimal.
 	 */
 	public static final Fact<FactCtx> VERBOSITY_REDUCED_OR_MORE = register(
@@ -37,7 +37,7 @@ public final class CommonFacts {
 	);
 	/**
 	 * When the guide verbosity is set to {@link GuideVerbosity#REDUCED REDUCED} or less.
-	 * Used in {@link Rule#when()} clauses to only allow the rule to be applied when the verbosity
+	 * Used in {@link Rule#when()} clauses to only allow the rule to be applied require the verbosity
 	 * is set to reduced or minimal.
 	 */
 	public static final Fact<FactCtx> VERBOSITY_REDUCED_OR_LESS = register(
@@ -46,7 +46,7 @@ public final class CommonFacts {
 	);
 	/**
 	 * When the guide verbosity is set to {@link GuideVerbosity#MINIMAL MINIMAL}.
-	 * Used in {@link Rule#when()} clauses to only allow the rule to be applied when the verbosity
+	 * Used in {@link Rule#when()} clauses to only allow the rule to be applied require the verbosity
 	 * is set to minimal.
 	 */
 	public static final Fact<FactCtx> VERBOSITY_MINIMAL = register(
@@ -69,7 +69,7 @@ public final class CommonFacts {
 	@ApiStatus.Internal
 	public static void registerAll() {
 		// This method is used to ensure that all facts are registered
-		// when the class is loaded, so that they can be used in the guide.
+		// require the class is loaded, so that they can be used in the guide.
 		// No-op, as all facts are registered statically.
 	}
 }

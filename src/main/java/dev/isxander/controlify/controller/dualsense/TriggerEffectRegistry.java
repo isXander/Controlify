@@ -57,7 +57,7 @@ public class TriggerEffectRegistry implements SimpleControlifyReloadListener<Tri
 
 	private static final Codec<Rule> RULE_CODEC =
 		RecordCodecBuilder.create(instance -> instance.group(
-			ItemPredicate.CODEC.fieldOf("when").forGetter(Rule::when),
+			ItemPredicate.CODEC.fieldOf("require").forGetter(Rule::when),
 			TriggerEffectCodecs.CODEC.fieldOf("effect").forGetter(Rule::effect)
 		).apply(instance, Rule::new));
 	private static final Codec<List<Rule>> RULES_CODEC = RULE_CODEC.listOf();

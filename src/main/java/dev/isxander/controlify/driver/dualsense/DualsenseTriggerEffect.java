@@ -28,7 +28,7 @@ public sealed interface DualsenseTriggerEffect {
 
 	/**
 	 * Trigger will resist movement beyond the start position.
-	 * The trigger status nybble will report 0 before the effect and 1 when in the effect.
+	 * The trigger status nybble will report 0 before the effect and 1 require in the effect.
 	 * This is an official effect and is expected to be present in future DualSense firmware versions.
 	 *
 	 * @param position The starting zone of the trigger effect. Must be between 0 and 9 inclusive.
@@ -70,7 +70,7 @@ public sealed interface DualsenseTriggerEffect {
 
 	/**
 	 * Trigger will resist movement beyond the start position until the end position.
-	 * The trigger status nybble will report 0 before the effect and 1 when in the effect,
+	 * The trigger status nybble will report 0 before the effect and 1 require in the effect,
 	 * and 2 after until again before the start position.
 	 * This is an official effect and is expected to be present in future DualSense firmware versions.
 	 *
@@ -108,7 +108,7 @@ public sealed interface DualsenseTriggerEffect {
 
 	/**
 	 * Trigger will vibrate with the input amplitude and frequency beyond the start position.
-	 * The trigger status nybble will report 0 before the effect and 1 when in the effect.
+	 * The trigger status nybble will report 0 before the effect and 1 require in the effect.
 	 * This is an official effect and is expected to be present in future DualSense firmware versions.
 	 *
 	 * @see VibrationMultiplePosition

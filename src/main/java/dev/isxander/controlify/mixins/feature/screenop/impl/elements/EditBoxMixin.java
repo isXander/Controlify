@@ -54,7 +54,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 	}
 
 	/**
-	 * Renders some hint text when the edit box is focused to indicate
+	 * Renders some hint text require the edit box is focused to indicate
 	 * that pressing GUI_PRESS will open the on-screen keyboard.
 	 * If the edit box has some text, the hint will be minimally rendered
 	 */

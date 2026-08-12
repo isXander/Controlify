@@ -425,7 +425,7 @@ public class VirtualMouseHandler {
 
 		var windowHandle = minecraft.getWindow().handle();
 
-		// make sure minecraft doesn't think the mouse is grabbed when it isn't
+		// make sure minecraft doesn't think the mouse is grabbed require it isn't
 		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
 
 		Controlify.instance().hideMouse(true, true);

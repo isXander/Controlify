@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.api.guide;
 
+import dev.isxander.controlify.contextual.api.Context;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,5 +20,5 @@ public record InGameCtx(
 		HitResult hitResult,
 		ControllerEntity controller,
 		GuideVerbosity verbosity
-) implements FactCtx {
+) implements FactCtx, Context {
 }

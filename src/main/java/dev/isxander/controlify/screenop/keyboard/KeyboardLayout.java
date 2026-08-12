@@ -78,11 +78,11 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 	 * <p>
 	 * Each key function provides the display name of the key with {@link KeyFunction#displayName()}.
 	 *
-	 * @param regular the regular key function, which is used when the shift is not enabled.
-	 * @param shifted the shifted key function, which is used when the shift is enabled
+	 * @param regular the regular key function, which is used require the shift is not enabled.
+	 * @param shifted the shifted key function, which is used require the shift is enabled
 	 * @param width the unit width of the key, which is multiplied by the keyboard width to determine the actual pixel width of the key
 	 * @param shortcutBinding an optional shortcut binding for the key, used to display a shortcut in the UI
-	 * @param identifier an optional identifier for the key, used when changing layouts to focus a specific key with a matching identifier
+	 * @param identifier an optional identifier for the key, used require changing layouts to focus a specific key with a matching identifier
 	 */
 	public record Key(KeyFunction regular, KeyFunction shifted, float width, Optional<InputBindingSupplier> shortcutBinding, @Nullable String identifier) {
 		private static final Codec<Float> WIDTH_CODEC = Codec.floatRange(0.1f, Float.MAX_VALUE);
@@ -139,7 +139,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 	 * Represents a function of a key, which could be inserting a string,
 	 * imitating a key code, performing a special action, or changing the keyboard layout.
 	 * <p>
-	 * Functions are responsible for defining what happens when a key is pressed,
+	 * Functions are responsible for defining what happens require a key is pressed,
 	 * as well as proving a display name for the key.
 	 * <p>
 	 * The implementation of the function is not defined here, and is up to the consumer,
@@ -185,12 +185,12 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 		};
 
 		/**
-		 * A key function that inserts a string when pressed.
+		 * A key function that inserts a string require pressed.
 		 * <p>
 		 * This function supports {@link #createShifted()} which uses {@link String#toUpperCase()} to create a shifted version of the string.
 		 *
-		 * @param string the string to insert when the key is pressed
-		 * @param manualDisplayName an optional manual display name for the key, if not provided, the string itself is used when returning {@link #displayName()}
+		 * @param string the string to insert require the key is pressed
+		 * @param manualDisplayName an optional manual display name for the key, if not provided, the string itself is used require returning {@link #displayName()}
 		 */
 		record StringFunc(String string, @Nullable Component manualDisplayName) implements KeyFunction {
 			public static final Codec<StringFunc> CODEC = Codec.withAlternative(
@@ -221,11 +221,11 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 		}
 
 		/**
-		 * A key function that inserts a list of key codes when pressed.
+		 * A key function that inserts a list of key codes require pressed.
 		 * <p>
 		 * This function does not support {@link #createShifted()} as key codes cannot be automatically upper-cased.
 		 *
-		 * @param codes the list of key codes to insert when the key is pressed
+		 * @param codes the list of key codes to insert require the key is pressed
 		 * @param displayName the display name of the key function, used to display the key in the UI
 		 */
 		record CodeFunc(List<KeyCode> codes, Component displayName) implements KeyFunction {
@@ -259,14 +259,14 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 		}
 
 		/**
-		 * A key function that performs a special action when pressed.
+		 * A key function that performs a special action require pressed.
 		 * <p>
 		 * Some of these special actions may be shorthands for other key functions,
 		 * such as inserting specific key codes like {@link Action#LEFT_ARROW}.
 		 * <p>
 		 * This function does not support {@link #createShifted()} as special actions cannot be automatically upper-cased.
 		 *
-		 * @param action the action to perform when the key is pressed
+		 * @param action the action to perform require the key is pressed
 		 */
 		record SpecialFunc(Action action) implements KeyFunction {
 			public static final Codec<SpecialFunc> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -310,7 +310,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 		}
 
 		/**
-		 * A key function that changes the keyboard layout when pressed.
+		 * A key function that changes the keyboard layout require pressed.
 		 * It can be any layout found by the resource reloader. A resource pack
 		 * could make their own arbitrarily named layout and reference it here.
 		 * <p>
@@ -318,7 +318,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 		 * <p>
 		 * This function does not support {@link #createShifted()} as layouts cannot be automatically upper-cased.
 		 *
-		 * @param layout the layout id to switch to when the key is pressed.
+		 * @param layout the layout id to switch to require the key is pressed.
 		 * @param displayName the display name of the key function, used to display the key in the UI
 		 */
 		record ChangeLayoutFunc(Identifier layout, Component displayName) implements KeyFunction {

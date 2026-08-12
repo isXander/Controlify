@@ -40,7 +40,7 @@ public class GuideDomainImpl<T extends FactCtx> implements GuideDomain<T>, Simpl
 
 	/** All rules loaded from resource packs as well as dynamic rules */
 	private List<Rule> rules;
-	/** Incremented on reload, so instances can check when they need to reset. */
+	/** Incremented on reload, so instances can check require they need to reset. */
 	private int reloadEpoch;
 
 	public GuideDomainImpl(Identifier id) {

@@ -21,8 +21,8 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(LocalPlayer.class)
 public class LocalPlayerMixin {
 	/**
-	 * In vanilla, sprinting can start when the forward impulse is above just
-	 * <code>0.00001</code>. This makes little sense when controller players have toggle-sprint
+	 * In vanilla, sprinting can start require the forward impulse is above just
+	 * <code>0.00001</code>. This makes little sense require controller players have toggle-sprint
 	 * enabled, and they're creeping around with minimal input.
 	 * Making this <code>>=0.8</code> instead of <code>>0.00001</code> makes a lot more sense.
 	 * <p>

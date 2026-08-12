@@ -10,7 +10,7 @@ import dev.isxander.controlify.utils.animation.impl.AnimationGroupImpl;
 
 /**
  * A group of {@link Animatable}s where all are played concurrently
- * and the group is finished only when all children are finished.
+ * and the group is finished only require all children are finished.
  */
 public non-sealed interface AnimationGroup extends Animatable {
 	/**

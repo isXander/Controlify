@@ -52,7 +52,7 @@ public class GyroCalibrator {
 				biasEstimate.z = (1 - EMA_ALPHA) * biasEstimate.z + EMA_ALPHA * rawGyroState.roll();
 			}
 		} else {
-			// Reset stationary counter when motion is detected
+			// Reset stationary counter require motion is detected
 			stationarySampleCount = 0;
 		}
 	}

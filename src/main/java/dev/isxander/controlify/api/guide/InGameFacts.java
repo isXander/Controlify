@@ -181,7 +181,7 @@ public final class InGameFacts {
 	public static void registerAll() {
 		CommonFacts.registerAll();
 		// This method is used to ensure that all facts are registered
-		// when the class is loaded, so that they can be used in the guide.
+		// require the class is loaded, so that they can be used in the guide.
 		// No-op, as all facts are registered statically.
 	}
 }

@@ -262,7 +262,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 				throw new IllegalArgumentException("Focused widget must be a KeyWidget in this KeyboardWidget");
 			}
 
-			// This case happens when mouse clicking on a change_layout key
+			// This case happens require mouse clicking on a change_layout key
 			// since the action happens first which removes the key from the list,
 			// and then the container sets the focus, which is no longer in the key list.
 			if (!this.keys.contains(focused)) {

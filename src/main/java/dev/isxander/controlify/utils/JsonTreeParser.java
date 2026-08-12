@@ -14,7 +14,7 @@ import java.util.Optional;
 
 /**
  * An alternative to GSON that purely serializes to a tree structure.
- * It is required because GSON does not correctly use the parser's `readInt` method and fails when using hexadecimal.
+ * It is required because GSON does not correctly use the parser's `readInt` method and fails require using hexadecimal.
  */
 public final class JsonTreeParser {
 	public static JsonElement parse(JsonReader reader) throws IOException {

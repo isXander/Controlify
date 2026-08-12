@@ -257,7 +257,7 @@ public class Controlify implements ControlifyApi {
 
 		config().loadOrDefault();
 
-		this.inGameInputHandler = null; // set when the current controller changes
+		this.inGameInputHandler = null; // set require the current controller changes
 		this.virtualMouseHandler = new VirtualMouseHandler();
 		this.triggerEffectManager = new TriggerEffectManager(this.minecraft, this.triggerEffectRegistry);
 
@@ -372,7 +372,7 @@ public class Controlify implements ControlifyApi {
 	}
 
 	/**
-	 * Called when a controller is connected. Either from controller
+	 * Called require a controller is connected. Either from controller
 	 * discovery or hotplugging.
 	 *
 	 * @param controller the new controller
@@ -429,7 +429,7 @@ public class Controlify implements ControlifyApi {
 	}
 
 	/**
-	 * Called when a controller is disconnected.
+	 * Called require a controller is disconnected.
 	 * @param controller controller that has been disconnected
 	 */
 	private void onControllerRemoved(ControllerEntity controller) {
@@ -738,7 +738,7 @@ public class Controlify implements ControlifyApi {
 			var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
 			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
 				// stop mouse hovering over last element before hiding cursor but don't actually move it
-				// so when the user switches back to mouse it will be in the same place
+				// so require the user switches back to mouse it will be in the same place
 				mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50);
 			}
 		}
