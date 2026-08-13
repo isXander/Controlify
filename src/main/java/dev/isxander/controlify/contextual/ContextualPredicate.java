@@ -4,11 +4,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
+import dev.isxander.controlify.utils.predicates.ClientEntityPredicate;
 import net.minecraft.advancements.predicates.BlockPredicate;
 import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,30 +38,48 @@ public sealed interface ContextualPredicate {
 
 	boolean matches(ContextualState state);
 
-	record Compound(Set<ContextualPredicate> require, Set<ContextualPredicate> forbid) implements ContextualPredicate {
+	record Compound(
+			Optional<Set<ContextualPredicate>> allOf,
+			Optional<Set<ContextualPredicate>> noneOf,
+			Optional<Set<ContextualPredicate>> anyOf
+	) implements ContextualPredicate {
 		private static Codec<Compound> createCodec(Codec<ContextualPredicate> childCodec) {
 			Codec<Compound> codec = RecordCodecBuilder.create(instance -> instance.group(
-					CExtraCodecs.set(childCodec).optionalFieldOf("require", Set.of()).forGetter(Compound::require),
-					CExtraCodecs.set(childCodec).optionalFieldOf("forbid", Set.of()).forGetter(Compound::forbid)
+					CExtraCodecs.set(childCodec).optionalFieldOf("all_of").forGetter(Compound::allOf),
+					CExtraCodecs.set(childCodec).optionalFieldOf("none_of").forGetter(Compound::noneOf),
+					CExtraCodecs.set(childCodec).optionalFieldOf("any_of").forGetter(Compound::anyOf)
 			).apply(instance, Compound::new));
 
 			return codec.validate(compound -> {
-				if (compound.require().isEmpty() && compound.forbid().isEmpty()) {
-					return DataResult.error(() -> "Compound predicate must define at least one 'require' or 'forbid' predicate");
+				if (compound.allOf.isEmpty() && compound.noneOf.isEmpty() && compound.anyOf.isEmpty()) {
+					return DataResult.error(() -> "Compound predicate must define at least one selector: 'all_of', 'none_of', 'any_of'");
 				}
+
 				return DataResult.success(compound);
 			});
 		}
 
 		@Override
 		public boolean matches(ContextualState state) {
-			return require().stream().allMatch(predicate -> predicate.matches(state))
-					&& forbid().stream().noneMatch(predicate -> predicate.matches(state));
+			if (this.allOf.isPresent() && !this.allOf.get().stream().allMatch(predicate -> predicate.matches(state))) {
+				return false;
+			}
+
+			if (this.noneOf.isPresent() && this.noneOf.get().stream().anyMatch(predicate -> predicate.matches(state))) {
+				return false;
+			}
+
+			if (this.anyOf.isPresent() && this.anyOf.get().stream().noneMatch(predicate -> predicate.matches(state))) {
+				return false;
+			}
+
+			return true;
 		}
 
 		@Override
 		public Set<Identifier> factDependencies() {
-			return Stream.concat(require().stream(), forbid().stream())
+			return Stream.concat(Stream.concat(this.allOf.stream(), this.noneOf.stream()), this.anyOf.stream())
+					.flatMap(Collection::stream)
 					.flatMap(predicate -> predicate.factDependencies().stream())
 					.collect(Collectors.toUnmodifiableSet());
 		}
@@ -91,11 +113,11 @@ public sealed interface ContextualPredicate {
 
 		@Override
 		public boolean matches(ContextualState state) {
-			var stack = state.items().get(slot());
-			if (stack == null) {
+			var itemInstance = state.items().get(slot());
+			if (itemInstance == null) {
 				return false;
 			}
-			return item().test(stack);
+			return item().test(itemInstance);
 		}
 
 		@Override
@@ -137,7 +159,7 @@ public sealed interface ContextualPredicate {
 			if (entityInWorld == null) {
 				return false;
 			}
-			return entity().matches(entityInWorld);
+			return entity().matches(Minecraft.getInstance().player, entityInWorld);
 		}
 
 		@Override

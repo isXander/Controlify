@@ -4,21 +4,20 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.api.guide;
+package dev.isxander.controlify.api.contextual;
 
-import dev.isxander.controlify.contextual.api.Context;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.HitResult;
 
-public record InGameCtx(
+public record InGameContext(
 		Minecraft client,
 		LocalPlayer player,
 		ClientLevel level,
 		HitResult hitResult,
 		ControllerEntity controller,
 		GuideVerbosity verbosity
-) implements FactCtx, Context {
+) implements Context {
 }

@@ -8,7 +8,7 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.guide.ContainerCtx;
+import dev.isxander.controlify.api.contextual.ContainerContext;
 import dev.isxander.controlify.api.guide.GuideInstance;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
@@ -32,7 +32,7 @@ import net.minecraft.world.inventory.ContainerInput;
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
-	private final GuideInstance<ContainerCtx> guideInstance;
+	private final GuideInstance<ContainerContext> guideInstance;
 	private GuideRenderer.Renderable guideRenderable;
 
 	private final Supplier<Slot> hoveredSlot;
@@ -57,7 +57,8 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 	protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
 		var accessor = (AbstractContainerScreenAccessor) screen;
 
-		var ctx = new ContainerCtx(
+		var ctx = new ContainerContext(
+				minecraft.player,
 				hoveredSlot.get(),
 				screen.getMenu().getCarried(),
 				accessor.controlify$invokeHasClickedOutside(

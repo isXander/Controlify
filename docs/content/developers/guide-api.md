@@ -97,7 +97,7 @@ It is very simple to register your own domain.
 Once registered, Controlify handles resource reloading for you.
 
 Before registering a new domain, you need to decide whether it will use an existing fact context
-(either `InGameCtx` or `ContainerCtx`), or your own. This is the data you give to the guide instance
+(either `InGameContext` or `ContainerContext`), or your own. This is the data you give to the guide instance
 each update, which the facts use to resolve their state. Here is an example fact context.
 
 ```java

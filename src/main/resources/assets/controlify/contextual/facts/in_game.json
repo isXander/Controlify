@@ -1,0 +1,143 @@
+{
+  "controlify:on_ground": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_on_ground": true
+      }
+    }
+  },
+  "controlify:in_vehicle": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {}
+    }
+  },
+  "controlify:riding_saddled_horse": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": "#minecraft:can_equip_saddle",
+        "equipment": {
+          "saddle": {}
+        }
+      }
+    }
+  },
+  "controlify:riding_happy_ghast": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": "minecraft:happy_ghast"
+      }
+    }
+  },
+  "controlify:flying": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_flying": true
+      }
+    }
+  },
+  "controlify:elytra_flying": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_fall_flying": true
+      }
+    }
+  },
+  "controlify:in_water": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_in_water": true
+      }
+    }
+  },
+  "controlify:sneaking": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_sneaking": true
+      }
+    }
+  },
+  "controlify:sprinting": {
+    "slot": "controlify:self",
+    "entity": {
+      "flags": {
+        "is_sprinting": true
+      }
+    }
+  },
+  "controlify:is_spectator": {
+    "slot": "controlify:self",
+    "entity": {
+      "game_mode": "spectator"
+    }
+  },
+  "controlify:is_creative": {
+    "slot": "controlify:self",
+    "entity": {
+      "game_mode": "creative"
+    }
+  },
+  "controlify:is_survival": {
+    "slot": "controlify:self",
+    "entity": {
+      "game_mode": "survival"
+    }
+  },
+  "controlify:looking_at_entity": {
+    "slot": "controlify:hit_result",
+    "entity": {}
+  },
+  "controlify:looking_at_block": {
+    "slot": "controlify:hit_result",
+    "block": {}
+  },
+  "controlify:looking_at_air": {
+    "none_of": [
+      "controlify:looking_at_entity",
+      "controlify:looking_at_block"
+    ]
+  },
+  "controlify:looking_at_villager": {
+    "slot": "controlify:hit_result",
+    "entity": {
+      "type": "#minecraft:villager"
+    }
+  },
+  "controlify:has_item_in_main_hand": {
+    "slot": "controlify:main_hand",
+    "item": {
+      "count": {
+        "min": 1
+      }
+    }
+  },
+  "controlify:has_item_in_offhand": {
+    "slot": "controlify:off_hand",
+    "item": {
+      "count": {
+        "min": 1
+      }
+    }
+  },
+  "controlify:has_item_in_either_hand": {
+    "any_of": [
+      "controlify:has_item_in_main_hand",
+      "controlify:has_item_in_offhand"
+    ]
+  },
+  "controlify:has_multiple_items_in_main_hand": {
+    "slot": "controlify:main_hand",
+    "item": {
+      "count": {
+        "min": 2
+      }
+    }
+  }
+}

@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /// An ordered set of contextual rules for one output type.
 ///
@@ -49,12 +50,16 @@ public final class RuleEngine<K, R extends Rule<K>> {
 	}
 
 	/// Returns the winning rules in their original precedence order.
-	public List<R> evaluate(ContextualState state) {
+	public List<R> evaluate(ContextualState state, Predicate<R> shouldEvaluate) {
 		Objects.requireNonNull(state, "state");
 
 		List<R> matches = new ArrayList<>();
 		Set<K> consumedKeys = new HashSet<>();
 		for (R rule : this.rules) {
+			if (!shouldEvaluate.test(rule)) {
+				continue;
+			}
+
 			K key = rule.key();
 			if (!consumedKeys.contains(key) && rule.matches(state)) {
 				consumedKeys.add(key);
@@ -63,5 +68,9 @@ public final class RuleEngine<K, R extends Rule<K>> {
 		}
 
 		return List.copyOf(matches);
+	}
+
+	public List<R> evaluate(ContextualState state) {
+		return this.evaluate(state, _ -> true);
 	}
 }

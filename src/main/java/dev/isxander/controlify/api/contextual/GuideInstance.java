@@ -1,4 +1,4 @@
-package dev.isxander.controlify.contextual.api;
+package dev.isxander.controlify.api.contextual;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;

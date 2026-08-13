@@ -10,10 +10,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.contextual.api.Context;
-import dev.isxander.controlify.contextual.api.ContextualDomain;
-import dev.isxander.controlify.contextual.api.ContextualStateContributor;
-import dev.isxander.controlify.contextual.api.GuideInstance;
+import dev.isxander.controlify.api.contextual.*;
+import dev.isxander.controlify.controller.dualsense.TriggerEffectInstanceImpl;
+import dev.isxander.controlify.gui.guide.GuideInstanceImpl;
 import dev.isxander.controlify.platform.client.resource.SimpleControlifyReloadListener;
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.FileToIdConverter;
@@ -33,8 +32,8 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	private static final FileToIdConverter converter = FileToIdConverter.json(DIRECTORY);
 
 	private final Identifier id;
-	private volatile List<ContextualStateContributor<? super C>> contributors = List.of();
-	private volatile FactDependencyGraph factGraph = FactDependencyGraph.empty();
+	private ContextualStateContributor<C> contributor = ContextualStateContributor.noop();
+	private FactDependencyGraph factGraph = FactDependencyGraph.empty();
 
 	public ContextualDomainImpl(Identifier id) {
 		this.id = Objects.requireNonNull(id, "id");
@@ -47,19 +46,28 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	}
 
 	@Override
-	public synchronized void registerContributor(ContextualStateContributor<? super C> contributor) {
-		List<ContextualStateContributor<? super C>> replacement = new ArrayList<>(this.contributors);
-		replacement.add(Objects.requireNonNull(contributor, "contributor"));
-		this.contributors = List.copyOf(replacement);
+	public void registerContributor(ContextualStateContributor<? super C> contributor) {
+		Objects.requireNonNull(contributor, "contributor");
+
+		this.contributor = this.contributor.andThen(contributor);
 	}
 
 	@Override
 	public GuideInstance<C> createGuideInstance(Font font) {
-		RuleSetManager<GuideRule.Key, GuideRule> ruleSetManager = null; // TODO: get rule set manager from global state somewhere
+		RuleSetManager<GuideRule.Key, GuideRule> ruleSetManager = RuleSetManager.GUIDE_RULES;
 		RuleEngine<GuideRule.Key, GuideRule> ruleEngine = ruleSetManager.getRuleEngine(this.id)
 				.orElseThrow(() -> new IllegalCallerException("This contextual domain has no guide rules associated with it."));
 
 		return new GuideInstanceImpl<>(this, ruleEngine, font);
+	}
+
+	@Override
+	public TriggerEffectInstance<C> createTriggerEffectInstance() {
+		RuleSetManager<Identifier, TriggerEffectRule> ruleSetManager = RuleSetManager.TRIGGER_EFFECT_RULES;
+		RuleEngine<Identifier, TriggerEffectRule> ruleEngine = ruleSetManager.getRuleEngine(this.id)
+				.orElseThrow(() -> new IllegalCallerException("This contextual domain has no trigger effect rules associated with it."));
+
+		return new TriggerEffectInstanceImpl<>(this, ruleEngine);
 	}
 
 	@Override
@@ -106,9 +114,7 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 		Objects.requireNonNull(context, "context");
 
 		ContextualStateAccumulator state = new ContextualStateAccumulator();
-		for (ContextualStateContributor<? super C> contributor : this.contributors) {
-			contributor.contribute(context, state);
-		}
+		this.contributor.contribute(context, state);
 
 		FactDependencyGraph graph = this.factGraph;
 		return graph.evaluate(state, requiredFacts);

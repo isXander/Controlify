@@ -9,6 +9,9 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.contextual.ContainerContext;
+import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
+import dev.isxander.controlify.api.contextual.InGameContext;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
 import dev.isxander.controlify.api.guide.*;
@@ -22,6 +25,7 @@ import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectRegistry;
@@ -32,7 +36,6 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
@@ -66,7 +69,6 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -208,26 +210,8 @@ public class Controlify implements ControlifyApi {
 					}
 
 					@Override
-					public GuideDomainRegistry guides() {
-						return new GuideDomainRegistry() {
-							@Override
-							public GuideDomain<InGameCtx> inGame() {
-								return GuideDomains.IN_GAME;
-							}
-
-							@Override
-							public GuideDomain<ContainerCtx> container() {
-								return GuideDomains.CONTAINER;
-							}
-
-							@Override
-							public <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId) {
-								GuideDomainImpl<T> domain = new GuideDomainImpl<>(domainId);
-								GuideDomains.CUSTOM_DOMAINS.put(domainId, domain);
-								PlatformClientUtil.registerAssetReloadListener(domain);
-								return domain;
-							}
-						};
+					public ContextualDomainRegistry contextualDomains() {
+						return ContextualDomains.INSTANCE;
 					}
 				});
 			} catch (Throwable e) {

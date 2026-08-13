@@ -18,7 +18,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class RuleSetManager<K, R extends Rule<K>> implements SimpleControlifyReloadListener<RuleSetManager.Preparations<K, R>> {
-	public static final String DIRECTORY = "contextual/";
+	public static final RuleSetManager<GuideRule.Key, GuideRule> GUIDE_RULES =
+			new RuleSetManager<>(GuideRule.CODEC, "guide");
+	public static final RuleSetManager<Identifier, TriggerEffectRule> TRIGGER_EFFECT_RULES =
+			new RuleSetManager<>(TriggerEffectRule.CODEC, "trigger_effect");
+
+	private static final String DIRECTORY = "contextual/";
 
 	private final Codec<RuleSet<K, R>> ruleSetCodec;
 	private final String directory;

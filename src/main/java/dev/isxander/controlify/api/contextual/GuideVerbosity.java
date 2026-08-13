@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.api.guide;
+package dev.isxander.controlify.api.contextual;
 
 import com.mojang.serialization.Codec;
 import dev.isxander.yacl3.api.NameableEnum;

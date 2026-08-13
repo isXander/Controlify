@@ -1,5 +1,6 @@
-package dev.isxander.controlify.utils;
+package dev.isxander.controlify.utils.predicates;
 
+import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.advancements.predicates.SlotsPredicate;

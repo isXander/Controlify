@@ -1,18 +1,18 @@
-package dev.isxander.controlify.contextual;
+package dev.isxander.controlify.utils.predicates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.utils.ClientPredicateUtils;
 import net.minecraft.advancements.predicates.DistancePredicate;
+import net.minecraft.advancements.predicates.GameTypePredicate;
 import net.minecraft.advancements.predicates.MobEffectsPredicate;
 import net.minecraft.advancements.predicates.SlotsPredicate;
-import net.minecraft.advancements.predicates.entity.EntityEquipmentPredicate;
 import net.minecraft.advancements.predicates.entity.EntityFlagsPredicate;
 import net.minecraft.advancements.predicates.entity.EntityTypePredicate;
 import net.minecraft.advancements.predicates.entity.MovementPredicate;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +41,8 @@ public record ClientEntityPredicate(
 		Optional<ClientEntityPredicate> vehicle,
 		Optional<ClientEntityPredicate> passenger,
 		Optional<String> team,
-		Optional<SlotsPredicate> slots
+		Optional<SlotsPredicate> slots,
+		Optional<GameTypePredicate> gameMode
 ) {
 	public static final Codec<ClientEntityPredicate> CODEC = Codec.recursive(
 			"ClientEntityPredicate",
@@ -56,7 +57,8 @@ public record ClientEntityPredicate(
 					subCodec.optionalFieldOf("vehicle").forGetter(ClientEntityPredicate::vehicle),
 					subCodec.optionalFieldOf("passenger").forGetter(ClientEntityPredicate::passenger),
 					Codec.STRING.optionalFieldOf("team").forGetter(ClientEntityPredicate::team),
-					SlotsPredicate.CODEC.optionalFieldOf("slots").forGetter(ClientEntityPredicate::slots)
+					SlotsPredicate.CODEC.optionalFieldOf("slots").forGetter(ClientEntityPredicate::slots),
+					GameTypePredicate.CODEC.optionalFieldOf("game_mode").forGetter(ClientEntityPredicate::gameMode)
 			).apply(instance, ClientEntityPredicate::new))
 	);
 
@@ -122,6 +124,10 @@ public record ClientEntityPredicate(
 		}
 
 		if (this.slots.isPresent() && !ClientPredicateUtils.matches(this.slots.get(), entity)) {
+			return false;
+		}
+
+		if (this.gameMode.isPresent() && ((!(entity instanceof Player player) || !this.gameMode.get().matches(player.gameMode())))) {
 			return false;
 		}
 

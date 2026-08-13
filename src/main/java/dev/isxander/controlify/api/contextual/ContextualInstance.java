@@ -1,4 +1,4 @@
-package dev.isxander.controlify.contextual.api;
+package dev.isxander.controlify.api.contextual;
 
 public interface ContextualInstance<C extends Context> {
 	void update(C context);

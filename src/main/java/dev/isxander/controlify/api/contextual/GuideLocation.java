@@ -4,22 +4,20 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.api.guide;
+package dev.isxander.controlify.api.contextual;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Whether the action should be on the left or right list.
- */
-public enum ActionLocation implements StringRepresentable {
+/// Whether the action should be on the left or right list.
+public enum GuideLocation implements StringRepresentable {
 	LEFT("left"),
 	RIGHT("right");
 
 	private final String serialName;
 
-	ActionLocation(String serialName) {
+	GuideLocation(String serialName) {
 		this.serialName = serialName;
 	}
 
@@ -28,6 +26,6 @@ public enum ActionLocation implements StringRepresentable {
 		return this.serialName;
 	}
 
-	public static final Codec<ActionLocation> CODEC =
-			StringRepresentable.fromEnum(ActionLocation::values);
+	public static final Codec<GuideLocation> CODEC =
+			StringRepresentable.fromEnum(GuideLocation::values);
 }

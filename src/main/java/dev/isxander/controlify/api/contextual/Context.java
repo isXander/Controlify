@@ -1,6 +1,5 @@
-package dev.isxander.controlify.contextual.api;
+package dev.isxander.controlify.api.contextual;
 
-import dev.isxander.controlify.api.guide.GuideVerbosity;
 import dev.isxander.controlify.controller.ControllerEntity;
 
 public interface Context {
