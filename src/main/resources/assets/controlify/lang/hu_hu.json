@@ -252,6 +252,8 @@
   "controlify.guide.ingame.spectate": "Megfigyelés",
   "controlify.guide.ingame.interact": "Interakció",
   "controlify.guide.ingame.pick_block": "Blokk Kiválasztása",
+  "controlify.guide.ingame.toggle": "Átkapcsolás",
+  "controlify.guide.ingame.place": "Lerakás",
   "controlify.guide.container.place_all": "Összes Lerakása",
   "controlify.guide.container.place_one": "Lerakás",
   "controlify.guide.container.swap": "Csere",
