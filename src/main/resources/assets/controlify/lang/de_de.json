@@ -179,6 +179,8 @@
   "controlify.guide.ingame.spectate": "Zuschauen",
   "controlify.guide.ingame.interact": "Interagieren",
   "controlify.guide.ingame.pick_block": "Block auswählen",
+  "controlify.guide.ingame.toggle": "Umschalten",
+  "controlify.guide.ingame.place": "Ablegen",
   "controlify.guide.container.place_all": "Alle ablegen",
   "controlify.guide.container.place_one": "Ablegen",
   "controlify.guide.container.swap": "Tauschen",
