@@ -411,6 +411,8 @@
   "controlify.guide.ingame.spectate": "旁觀者",
   "controlify.guide.ingame.interact": "互動",
   "controlify.guide.ingame.pick_block": "選擇方塊",
+  "controlify.guide.ingame.toggle": "切換",
+  "controlify.guide.ingame.place": "放下",
   "controlify.guide.container.place_all": "放下全部",
   "controlify.guide.container.place_one": "放下",
   "controlify.guide.container.swap": "交換",
@@ -506,6 +508,5 @@
   "controlify.joystick_mapping.unmapped.hat": "方向鍵 #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "（負向）",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "（正向）",
-  "controlify.extra_pack.legacy_console.name": "舊版主機",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - 設定預設綁定/圖示。"
+  "controlify.extra_pack.legacy_console.name": "舊版主機"
 }
