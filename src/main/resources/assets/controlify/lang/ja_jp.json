@@ -408,6 +408,8 @@
   "controlify.guide.ingame.spectate": "スペクテイター",
   "controlify.guide.ingame.interact": "インタラクション",
   "controlify.guide.ingame.pick_block": "ブロックを選択",
+  "controlify.guide.ingame.toggle": "切り替え",
+  "controlify.guide.ingame.place": "一つ設置",
   "controlify.guide.container.place_all": "すべて設置",
   "controlify.guide.container.place_one": "一つ設置",
   "controlify.guide.container.swap": "入れ替え",
@@ -503,6 +505,5 @@
   "controlify.joystick_mapping.unmapped.hat": "帽子 #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "（負）",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "（正）",
-  "controlify.extra_pack.legacy_console.name": "レガシーコンソール",
-  "controlify.extra_pack.legacy_console.desc": "Contralify - デフォルト/グリフのバインドを設定します"
+  "controlify.extra_pack.legacy_console.name": "レガシーコンソール"
 }
