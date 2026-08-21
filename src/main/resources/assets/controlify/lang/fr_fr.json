@@ -293,6 +293,8 @@
   "controlify.guide.ingame.spectate": "Spectateur",
   "controlify.guide.ingame.interact": "Interagir",
   "controlify.guide.ingame.pick_block": "Sélectionner le bloc",
+  "controlify.guide.ingame.toggle": "Basculer",
+  "controlify.guide.ingame.place": "Placer",
   "controlify.guide.container.place_all": "Placer tout",
   "controlify.guide.container.place_one": "Placer",
   "controlify.guide.container.swap": "Échanger",
