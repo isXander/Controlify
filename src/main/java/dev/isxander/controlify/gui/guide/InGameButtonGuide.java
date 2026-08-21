@@ -6,10 +6,11 @@
  */
 package dev.isxander.controlify.gui.guide;
 
-import dev.isxander.controlify.api.guide.GuideInstance;
+import dev.isxander.controlify.api.contextual.GuideInstance;
 import dev.isxander.controlify.config.settings.profile.GenericControllerSettings;
+import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.api.guide.InGameCtx;
+import dev.isxander.controlify.api.contextual.InGameContext;
 import dev.isxander.controlify.mixins.feature.guide.ingame.MinecraftAccessor;
 import dev.isxander.controlify.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
@@ -18,12 +19,12 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 public class InGameButtonGuide {
 	private final ControllerEntity controller;
 	private final Minecraft minecraft;
-	private final GuideInstance<InGameCtx> guideInstance;
+	private final GuideInstance<InGameContext> guideInstance;
 
 	public InGameButtonGuide(ControllerEntity controller, Minecraft minecraft) {
 		this.controller = controller;
 		this.minecraft = minecraft;
-		this.guideInstance = GuideDomains.IN_GAME.createInstance();
+		this.guideInstance = ContextualDomains.INSTANCE.inGame().createGuideInstance(minecraft.font);
 	}
 
 	public void extractRenderState(GuiGraphicsExtractor graphics, float tickDelta) {
@@ -45,19 +46,8 @@ public class InGameButtonGuide {
 		GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 
 		if (settings.showIngameGuide) {
-			if (minecraft.hitResult == null) {
-				((MinecraftAccessor) minecraft).controlify$invokePick(1f);
-			}
 			this.guideInstance.update(
-					new InGameCtx(
-							minecraft,
-							minecraft.player,
-							minecraft.level,
-							minecraft.hitResult,
-							controller,
-							settings.verbosity
-					),
-					minecraft.font
+					InGameContext.create(minecraft, controller)
 			);
 		}
 	}

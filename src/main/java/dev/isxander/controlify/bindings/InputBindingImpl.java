@@ -217,7 +217,7 @@ public class InputBindingImpl implements InputBinding {
 			if (configInput != null) {
 				return configInput;
 			}
-			// Not in config means it's at the default (when keepDefaultBindings is false)
+			// Not in config means it's at the default (require keepDefaultBindings is false)
 			// Return the dynamic default so all controllers stay in sync
 			return defaultInput();
 		}

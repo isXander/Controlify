@@ -1,0 +1,321 @@
+{
+  "controlify:on_ground": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_on_ground": true } }
+  },
+  "controlify:in_vehicle": {
+    "slot": "controlify:self",
+    "entity": { "vehicle": {} }
+  },
+  "controlify:riding_saddled_horse": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": "#minecraft:can_equip_saddle",
+        "equipment": { "saddle": { "count": { "min": 1 } } }
+      }
+    }
+  },
+  "controlify:riding_saddled_equine": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": ["minecraft:horse", "minecraft:skeleton_horse", "minecraft:zombie_horse", "minecraft:donkey", "minecraft:mule"],
+        "equipment": { "saddle": { "count": { "min": 1 } } }
+      }
+    }
+  },
+  "controlify:riding_saddled_camel": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": ["minecraft:camel", "minecraft:camel_husk"],
+        "equipment": { "saddle": { "count": { "min": 1 } } }
+      }
+    }
+  },
+  "controlify:riding_saddled_nautilus": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": ["minecraft:nautilus", "minecraft:zombie_nautilus"],
+        "equipment": { "saddle": { "count": { "min": 1 } } }
+      }
+    }
+  },
+  "controlify:riding_happy_ghast": {
+    "slot": "controlify:self",
+    "entity": {
+      "vehicle": {
+        "type": "minecraft:happy_ghast",
+        "equipment": {
+          "body": {
+            "items": "#minecraft:harnesses",
+            "count": { "min": 1 }
+          }
+        }
+      }
+    }
+  },
+  "controlify:flying": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_flying": true } }
+  },
+  "controlify:elytra_flying": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_fall_flying": true } }
+  },
+  "controlify:creative_flying": {
+    "all_of": ["controlify:flying"],
+    "none_of": ["controlify:elytra_flying"]
+  },
+  "controlify:in_water": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_in_water": true } }
+  },
+  "controlify:sneaking": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_sneaking": true } }
+  },
+  "controlify:sprinting": {
+    "slot": "controlify:self",
+    "entity": { "flags": { "is_sprinting": true } }
+  },
+  "controlify:is_spectator": {
+    "slot": "controlify:self",
+    "entity": { "game_mode": ["spectator"] }
+  },
+  "controlify:is_creative": {
+    "slot": "controlify:self",
+    "entity": { "game_mode": ["creative"] }
+  },
+  "controlify:is_survival": {
+    "slot": "controlify:self",
+    "entity": { "game_mode": ["survival"] }
+  },
+  "controlify:looking_at_entity": {
+    "slot": "controlify:hit_result",
+    "entity": {}
+  },
+  "controlify:looking_at_block": {
+    "slot": "controlify:hit_result",
+    "block": {}
+  },
+  "controlify:looking_at_air": {
+    "none_of": ["controlify:looking_at_entity", "controlify:looking_at_block"]
+  },
+  "controlify:looking_at_villager": {
+    "slot": "controlify:hit_result",
+    "entity": { "type": "minecraft:villager" }
+  },
+  "controlify:looking_at_merchant": {
+    "slot": "controlify:hit_result",
+    "entity": { "type": ["minecraft:villager", "minecraft:wandering_trader"] }
+  },
+  "controlify:looking_at_chest_boat": {
+    "slot": "controlify:hit_result",
+    "entity": {
+      "type": [
+        "minecraft:acacia_chest_boat",
+        "minecraft:bamboo_chest_raft",
+        "minecraft:birch_chest_boat",
+        "minecraft:cherry_chest_boat",
+        "minecraft:dark_oak_chest_boat",
+        "minecraft:jungle_chest_boat",
+        "minecraft:mangrove_chest_boat",
+        "minecraft:oak_chest_boat",
+        "minecraft:pale_oak_chest_boat",
+        "minecraft:spruce_chest_boat"
+      ]
+    }
+  },
+  "controlify:looking_at_container_minecart": {
+    "slot": "controlify:hit_result",
+    "entity": { "type": ["minecraft:chest_minecart", "minecraft:hopper_minecart"] }
+  },
+  "controlify:looking_at_rideable": {
+    "any_of": [
+      {
+        "slot": "controlify:hit_result",
+        "entity": { "type": "#minecraft:boat" }
+      },
+      "controlify:looking_at_chest_boat",
+      {
+        "slot": "controlify:hit_result",
+        "entity": { "type": "minecraft:minecart" }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "entity": {
+          "type": "#minecraft:can_equip_saddle",
+          "equipment": { "saddle": { "count": { "min": 1 } } }
+        }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "entity": {
+          "type": "minecraft:happy_ghast",
+          "equipment": {
+            "body": {
+              "items": "#minecraft:harnesses",
+              "count": { "min": 1 }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "controlify:looking_at_closed_openable": {
+    "any_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:doors", "state": { "open": "false" } }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:trapdoors", "state": { "open": "false" } }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:fence_gates", "state": { "open": "false" } }
+      }
+    ],
+    "none_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": ["minecraft:iron_door", "minecraft:iron_trapdoor"] }
+      }
+    ]
+  },
+  "controlify:looking_at_open_openable": {
+    "any_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:doors", "state": { "open": "true" } }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:trapdoors", "state": { "open": "true" } }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:fence_gates", "state": { "open": "true" } }
+      }
+    ],
+    "none_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": ["minecraft:iron_door", "minecraft:iron_trapdoor"] }
+      }
+    ]
+  },
+  "controlify:looking_at_container": {
+    "any_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": {
+          "blocks": [
+            "minecraft:barrel",
+            "minecraft:chest",
+            "minecraft:dispenser",
+            "minecraft:dropper",
+            "minecraft:ender_chest",
+            "minecraft:hopper",
+            "minecraft:trapped_chest"
+          ]
+        }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:shulker_boxes" }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:copper_chests" }
+      }
+    ]
+  },
+  "controlify:looking_at_button": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "#minecraft:buttons" }
+  },
+  "controlify:looking_at_lever": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:lever" }
+  },
+  "controlify:looking_at_bell": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:bell" }
+  },
+  "controlify:looking_at_bed": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "#minecraft:beds" }
+  },
+  "controlify:looking_at_crafting_table": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:crafting_table" }
+  },
+  "controlify:looking_at_furnace": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": ["minecraft:furnace", "minecraft:blast_furnace"] }
+  },
+  "controlify:looking_at_smoker": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:smoker" }
+  },
+  "controlify:looking_at_brewing_stand": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:brewing_stand" }
+  },
+  "controlify:looking_at_enchanting_table": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:enchanting_table" }
+  },
+  "controlify:looking_at_smithing_table": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:smithing_table" }
+  },
+  "controlify:looking_at_repair_station": {
+    "any_of": [
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "#minecraft:anvil" }
+      },
+      {
+        "slot": "controlify:hit_result",
+        "block": { "blocks": "minecraft:grindstone" }
+      }
+    ]
+  },
+  "controlify:looking_at_stonecutter": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:stonecutter" }
+  },
+  "controlify:looking_at_loom": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:loom" }
+  },
+  "controlify:looking_at_cartography_table": {
+    "slot": "controlify:hit_result",
+    "block": { "blocks": "minecraft:cartography_table" }
+  },
+  "controlify:has_item_in_main_hand": {
+    "slot": "controlify:main_hand",
+    "item": { "count": { "min": 1 } }
+  },
+  "controlify:has_item_in_offhand": {
+    "slot": "controlify:off_hand",
+    "item": { "count": { "min": 1 } }
+  },
+  "controlify:has_item_in_either_hand": {
+    "any_of": ["controlify:has_item_in_main_hand", "controlify:has_item_in_offhand"]
+  },
+  "controlify:has_multiple_items_in_main_hand": {
+    "slot": "controlify:main_hand",
+    "item": { "count": { "min": 2 } }
+  },
+  "controlify:main_hand_is_tool": {
+    "slot": "controlify:main_hand",
+    "item": { "predicates": { "minecraft:tool": {} } }
+  }
+}

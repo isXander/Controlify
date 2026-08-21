@@ -10,7 +10,7 @@ import dev.isxander.controlify.utils.animation.impl.AnimationSequenceImpl;
 
 /**
  * A sequence of {@link Animatable}s where each animatable is played one
- * after the other, and is only finished when the last child finishes.
+ * after the other, and is only finishedwhenthe last child finishes.
  */
 public non-sealed interface AnimationSequence extends Animatable {
 	/**

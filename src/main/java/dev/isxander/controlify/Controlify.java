@@ -9,9 +9,9 @@ package dev.isxander.controlify;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
+import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
-import dev.isxander.controlify.api.guide.*;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
@@ -22,9 +22,10 @@ import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.contextual.ContextualDomains;
+import dev.isxander.controlify.contextual.RuleSetManager;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
-import dev.isxander.controlify.controller.dualsense.TriggerEffectRegistry;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
 import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.ControllerStateView;
@@ -32,13 +33,10 @@ import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerManager;
 import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
-import dev.isxander.controlify.gui.guide.GuideDomainImpl;
-import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
@@ -65,8 +63,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -98,7 +94,6 @@ public class Controlify implements ControlifyApi {
 	private DefaultConfigManager defaultConfigManager;
 	private ControllerTypeManager controllerTypeManager;
 	private KeyboardLayoutManager keyboardLayoutManager;
-	private TriggerEffectRegistry triggerEffectRegistry;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -145,16 +140,16 @@ public class Controlify implements ControlifyApi {
 		this.defaultConfigManager = new DefaultConfigManager();
 		this.controllerTypeManager = new ControllerTypeManager();
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
-		this.triggerEffectRegistry = new TriggerEffectRegistry();
+
 		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
 		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
 		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
 		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
-		PlatformClientUtil.registerAssetReloadListener(triggerEffectRegistry);
 		PlatformClientUtil.registerAssetReloadListener(RadialIconManager.INSTANCE);
-		PlatformClientUtil.registerAssetReloadListener(GuideDomains.IN_GAME);
-		PlatformClientUtil.registerAssetReloadListener(GuideDomains.CONTAINER);
+		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
+		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
+		ContextualDomains.touch();
 
 		registerBuiltinPack("legacy_console");
 
@@ -190,11 +185,15 @@ public class Controlify implements ControlifyApi {
 			policy.set(ServerPolicy.fromBoolean(packet.allowed()));
 		});
 
-		PlatformClientUtil.registerClientDisconnected((client) -> {
+		PlatformClientUtil.registerClientDisconnected(_ -> {
 			DebugLog.log("Disconnected from server, resetting server policies");
 			ServerPolicies.unsetAll();
 		});
-		PlatformClientUtil.registerClientTagsUpdated(client -> triggerEffectRegistry.invalidateResolvedResourceRules());
+		PlatformClientUtil.registerClientTagsUpdated(_ -> {
+			ContextualDomains.INSTANCE.invalidateResolvedFactGraphs();
+			RuleSetManager.GUIDE_RULES.invalidateResolvedRuleEngines();
+			RuleSetManager.TRIGGER_EFFECT_RULES.invalidateResolvedRuleEngines();
+		});
 
 		PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
 				inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
@@ -208,33 +207,14 @@ public class Controlify implements ControlifyApi {
 					}
 
 					@Override
-					public GuideDomainRegistry guides() {
-						return new GuideDomainRegistry() {
-							@Override
-							public GuideDomain<InGameCtx> inGame() {
-								return GuideDomains.IN_GAME;
-							}
-
-							@Override
-							public GuideDomain<ContainerCtx> container() {
-								return GuideDomains.CONTAINER;
-							}
-
-							@Override
-							public <T extends FactCtx> GuideDomain<T> registerCustom(Identifier domainId) {
-								GuideDomainImpl<T> domain = new GuideDomainImpl<>(domainId);
-								GuideDomains.CUSTOM_DOMAINS.put(domainId, domain);
-								PlatformClientUtil.registerAssetReloadListener(domain);
-								return domain;
-							}
-						};
+					public ContextualDomainRegistry contextualDomains() {
+						return ContextualDomains.INSTANCE;
 					}
 				});
 			} catch (Throwable e) {
 				CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
 			}
 		});
-		GuideDomains.freeze();
 	}
 
 	private void registerBuiltinPack(String id) {
@@ -259,7 +239,7 @@ public class Controlify implements ControlifyApi {
 
 		this.inGameInputHandler = null; // set when the current controller changes
 		this.virtualMouseHandler = new VirtualMouseHandler();
-		this.triggerEffectManager = new TriggerEffectManager(this.minecraft, this.triggerEffectRegistry);
+		this.triggerEffectManager = new TriggerEffectManager();
 
 		ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
 				event.controller(), event.hotplugged()));
@@ -534,7 +514,8 @@ public class Controlify implements ControlifyApi {
 		}
 
 		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
-		triggerEffectManager.applyTriggerEffects(controller, controllerInputSuppressed);
+		this.triggerEffectManager().tick(this.minecraft, controller);
+		this.triggerEffectManager().applyTriggerEffects(controller, controllerInputSuppressed);
 
 		if (state.isGivingInput()) {
 			minecraft.getFramerateLimitTracker().onInputReceived();
@@ -791,10 +772,6 @@ public class Controlify implements ControlifyApi {
 
 	public TriggerEffectManager triggerEffectManager() {
 		return triggerEffectManager;
-	}
-
-	public TriggerEffectRegistry triggerEffectRegistry() {
-		return triggerEffectRegistry;
 	}
 
 	public Set<BindContext> thisTickBindContexts() {

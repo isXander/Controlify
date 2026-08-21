@@ -1,0 +1,85 @@
+{
+  "rules": [
+    {
+      "for": "controlify:gui_back",
+      "where": "left",
+      "if": true,
+      "then": { "translate": "controlify.guide.container.exit" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "if": { "all_of": ["controlify:holding_many_items", "controlify:hovering_item", "controlify:can_place_held_item"] },
+      "then": { "translate": "controlify.guide.container.place_all" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "if": { "all_of": ["controlify:holding_item", "controlify:hovering_item", "controlify:can_place_held_item"] },
+      "then": { "translate": "controlify.guide.container.place_one" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "if": {
+        "all_of": ["controlify:holding_item", "controlify:hovering_item"],
+        "none_of": ["controlify:can_place_held_item"]
+      },
+      "then": { "translate": "controlify.guide.container.swap" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "if": { "all_of": ["controlify:cursor_outside_container", "controlify:holding_item"] },
+      "then": { "translate": "controlify.guide.container.drop" }
+    },
+    {
+      "for": "controlify:inv_select",
+      "where": "left",
+      "if": {
+        "all_of": ["controlify:hovering_item"],
+        "none_of": ["controlify:holding_item"]
+      },
+      "then": { "translate": "controlify.guide.container.take" }
+    },
+    {
+      "for": "controlify:drop_inventory",
+      "where": "right",
+      "if": "controlify:holding_item",
+      "then": { "translate": "controlify.guide.container.drop" }
+    },
+    {
+      "for": "controlify:inv_quick_move",
+      "where": "right",
+      "if": {
+        "all_of": ["controlify:hovering_item"],
+        "none_of": ["controlify:holding_item"]
+      },
+      "then": { "translate": "controlify.guide.container.quick_move" }
+    },
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "if": {
+        "all_of": ["controlify:hovering_item_is_bundle", "controlify:selected_bundle_slot"],
+        "none_of": ["controlify:holding_item"]
+      },
+      "then": { "translate": "controlify.guide.container.take_from_bundle" }
+    },
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "if": {
+        "all_of": ["controlify:hovering_many_items"],
+        "none_of": ["controlify:holding_item"]
+      },
+      "then": { "translate": "controlify.guide.container.take_half" }
+    },
+    {
+      "for": "controlify:inv_take_half",
+      "where": "right",
+      "if": { "all_of": ["controlify:hovering_slot", "controlify:holding_item", "controlify:can_place_held_item"] },
+      "then": { "translate": "controlify.guide.container.take_one" }
+    }
+  ]
+}
