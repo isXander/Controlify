@@ -73,6 +73,7 @@
   "controlify.binding.controlify.use": "Käytä",
   "controlify.binding.controlify.radial_menu": "Ympyrävalikko",
   "controlify.guide.ingame.use": "Käytä",
+  "controlify.guide.ingame.toggle": "Päälle/pois",
   "controlify.input_curves.linear": "Lineaarinen",
   "controlify.input_curves.s_curve": "S-Käyrä"
 }
