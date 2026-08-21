@@ -406,6 +406,8 @@
   "controlify.guide.ingame.spectate": "Tonton",
   "controlify.guide.ingame.interact": "Interaksi",
   "controlify.guide.ingame.pick_block": "Ambil Blok",
+  "controlify.guide.ingame.toggle": "Togol",
+  "controlify.guide.ingame.place": "Letak",
   "controlify.guide.container.place_all": "Letak Semua",
   "controlify.guide.container.place_one": "Letak",
   "controlify.guide.container.swap": "Tukar",
@@ -501,6 +503,5 @@
   "controlify.joystick_mapping.unmapped.hat": "Topi #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Negatif)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positif)",
-  "controlify.extra_pack.legacy_console.name": "Konsol Legasi",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - menetapkan kekunci lalai dan glif."
+  "controlify.extra_pack.legacy_console.name": "Konsol Legasi"
 }
