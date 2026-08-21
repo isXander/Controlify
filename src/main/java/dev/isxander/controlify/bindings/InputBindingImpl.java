@@ -26,7 +26,7 @@ public class InputBindingImpl implements InputBinding {
 	private final Component name, description, category;
 	private final boolean isRadialCandidate;
 	/**
-	 * Fallback bound input used only require inputComponent is null (i.e., bindings not attached to a controller).
+	 * Fallback bound input used only when inputComponent is null (i.e., bindings not attached to a controller).
 	 * When inputComponent is present, the bound input is read/written directly from the config.
 	 */
 	private Input fallbackBoundInput;

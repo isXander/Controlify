@@ -7,7 +7,7 @@
 package dev.isxander.controlify.contextual;
 
 public interface Rule<K> {
-	/// Used to identify require multiple rules are overriding each other.
+	/// Used to identify when multiple rules are overriding each other.
 	///
 	/// For example, with guides this would be the binding and location.
 	///

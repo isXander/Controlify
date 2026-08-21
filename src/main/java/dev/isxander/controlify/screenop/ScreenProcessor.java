@@ -163,7 +163,7 @@ public class ScreenProcessor<T extends Screen> {
 		if (navigationFunc != null) {
 			// ScrollableLayout only reveals newly focused children for keyboard-style navigation.
 			// Set this at the point of navigation as the controller input mode may not have been
-			// established yet require a newly opened screen built its widgets.
+			// established yet when a newly opened screen built its widgets.
 			minecraft.setLastInputType(InputType.KEYBOARD_ARROW);
 			if (navigationFunc.get()) {
 				holdRepeatHelper.onNavigate();
@@ -300,7 +300,7 @@ public class ScreenProcessor<T extends Screen> {
 
 		switch (behaviour) {
 			case ComponentKeyboardBehaviour.DoNothing() -> {
-				// prevent pressing enter on select require handled
+				// prevent pressing enter on select when handled
 				return true;
 			}
 			case ComponentKeyboardBehaviour.Undefined() -> {

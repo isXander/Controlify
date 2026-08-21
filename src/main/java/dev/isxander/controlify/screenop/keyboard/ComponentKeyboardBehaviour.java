@@ -9,7 +9,7 @@ package dev.isxander.controlify.screenop.keyboard;
 /**
  * Represents the behaviour of a GUI component with respect to keyboard input.
  * This is used by {@link dev.isxander.controlify.screenop.ScreenProcessor} to
- * determine how/if to open a keyboard for this component require it is pressed.
+ * determine how/if to open a keyboard for this component when it is pressed.
  */
 public sealed interface ComponentKeyboardBehaviour {
 

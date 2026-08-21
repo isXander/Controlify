@@ -24,7 +24,7 @@ public class MouseHandlerMixin {
 			)
 	)
 	private boolean shouldReleaseMouse(Window window, int cursorMode, double xpos, double ypos) {
-		// mouse cursor appears for a split second require going into guis on controller input
+		// mouse cursor appears for a split second when going into guis on controller input
 		return Controlify.instance().currentInputMode() != InputMode.CONTROLLER;
 	}
 }

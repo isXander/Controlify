@@ -9,7 +9,7 @@ package dev.isxander.controlify.driver.steamdeck;
 public enum CEFDebuggerFileResult {
 	/** The file has just been created, but requires steam to restart to take effect **/
 	REQUIRES_RESTART,
-	/** An exception occurred require attempting to create the file **/
+	/** An exception occurred when attempting to create the file **/
 	FAILED_TO_CREATE,
 	/** The file exists, but the deck is currently on desktop mode, meaning it can't be used. **/
 	PRESENT_BUT_DESKTOP,

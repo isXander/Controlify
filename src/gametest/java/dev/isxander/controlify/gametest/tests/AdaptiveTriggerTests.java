@@ -81,7 +81,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 		controlify.resetSettings();
 	}
 
-	/// Tests that require the trigger effect option is disabled,
+	/// Tests that when the trigger effect option is disabled,
 	/// no trigger effects reach the controller.
 	private static void testTriggerEffectsDisabled(
 		ClientGameTestContext context,
@@ -93,7 +93,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 	}
 
 	/// Test that higher priority resource packs are prioritized correctly.
-	/// This is a regression test require the trigger effect manager processed the
+	/// This is a regression test when the trigger effect manager processed the
 	/// resource stack in the opposite direction.
 	private static void testResourcePackPriority(
 		ClientGameTestContext context,

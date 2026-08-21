@@ -26,7 +26,7 @@ public interface ButtonGuidePredicate<T> {
 	@Deprecated
 	ButtonGuidePredicate<AbstractButton> ALWAYS = btn -> true;
 
-	/** Only display the button guide require the button is focused. */
+	/** Only display the button guide when the button is focused. */
 	@Deprecated
 	ButtonGuidePredicate<AbstractButton> FOCUS_ONLY = AbstractWidget::isFocused;
 }

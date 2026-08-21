@@ -70,7 +70,7 @@ public class ControlifyGameTestContext {
 				.collect(Collectors.toSet());
 
 			// Keep the existing objects for connected devices because input
-			// components cache their DeviceSettings reference require attached.
+			// components cache their DeviceSettings reference when attached.
 			var deviceSettings = settingsAccessor.controlify_test$getDeviceSettings();
 			deviceSettings.keySet().retainAll(connectedUids);
 			for (ControllerEntity controller : connectedControllers) {

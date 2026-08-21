@@ -778,7 +778,7 @@ public class ControllerConfigScreenFactory {
 
 		Collection<InputBinding> allBindings = controller.isPresent()
 				? controller.get().input().map(InputComponent::getAllBindings).orElse(List.of())
-				: ControlifyBindApiImpl.INSTANCE.provideBindsForController(null); // require giving null as controller, we get all binds
+				: ControlifyBindApiImpl.INSTANCE.provideBindsForController(null); // when giving null as controller, we get all binds
 
 		groupBindings(allBindings).forEach((categoryName, bindGroup) -> {
 			var controlsGroup = OptionGroup.createBuilder()

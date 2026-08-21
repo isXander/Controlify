@@ -107,7 +107,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 			if (data != null) {
 				this.defaultsByNamespace.putAll(data.map());
 			}
-			// No binding updates here: require keepDefaultBindings is true, defaults are serialized
+			// No binding updates here: when keepDefaultBindings is true, defaults are serialized
 			// and must not be changed by default provider reloads.
 		}, executor);
 	}
