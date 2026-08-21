@@ -285,6 +285,8 @@
   "controlify.guide.ingame.use": "Usar",
   "controlify.guide.ingame.interact": "Interagir",
   "controlify.guide.ingame.pick_block": "Escolher bloco",
+  "controlify.guide.ingame.toggle": "Alternar",
+  "controlify.guide.ingame.place": "Colocar",
   "controlify.guide.container.place_all": "Colocar todos",
   "controlify.guide.container.place_one": "Colocar",
   "controlify.guide.container.drop": "Largar",
