@@ -97,8 +97,7 @@ export default defineConfig({
           { text: 'Controlify Entrypoint', link: '/developers/controlify-entrypoint' },
           { text: 'Bindings API', link: '/developers/bindings-api' },
           { text: 'Screen Operation API', link: '/developers/screen-operation-api' },
-          { text: 'Guides API', link: '/developers/guide-api' },
-          { text: 'Adaptive Trigger API', link: '/developers/adaptive-trigger-api' }
+          { text: 'Contextual API', link: '/developers/contextual-api' }
         ]
       },
 			{

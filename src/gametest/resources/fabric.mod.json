@@ -18,7 +18,8 @@
       "dev.isxander.controlify.gametest.tests.VirtualControllerInputTests",
       "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
       "dev.isxander.controlify.gametest.tests.RumbleTests",
-      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests"
+      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests",
+      "dev.isxander.controlify.gametest.tests.ButtonGuideTests"
     ],
     "client": [
       "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",

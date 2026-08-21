@@ -4,52 +4,80 @@ title: Adaptive Trigger Effects
 
 # Adaptive Trigger Effects
 
-Controlify's DualSense adaptive trigger effects can be changed with a resource pack. Effects are applied
-to the controller input bound to either **Use Item** or **Attack**.
+Adaptive trigger effects are contextual rules. Each rule associates a Controlify binding with a contextual predicate
+and a DualSense trigger effect.
 
-## Creating trigger effect rules
+## Trigger-effect files
 
-Create either or both of these files in your resource pack:
+A domain's trigger rules are loaded from:
 
-- `assets/controlify/trigger_effect/use_item.json`
-- `assets/controlify/trigger_effect/swing_item.json`
+```text
+assets/<domain namespace>/contextual/trigger_effect/<domain path>.json
+```
 
-Each file contains an array of rules. Every rule has a `when` item predicate and the `effect` to apply.
-The `when` object uses Minecraft's standard
-[item predicate format](https://minecraft.wiki/w/Template:Nbt_inherit/conditions/item/template). When
-multiple conditions are present, all of them must match.
+The built-in in-game domain uses:
 
-On Fabric, you can reference the `c:` convention tags even when connected to a vanilla server.
-NeoForge does not provide this capability, but when on Singleplayer or connected to a NeoForge server,
-you are able to reference convention tags.
+```text
+assets/controlify/contextual/trigger_effect/in_game.json
+```
 
-For example, a bow can increase resistance as it is pulled:
+A rule set contains an optional `replace` flag and an ordered `rules` array:
 
 ```json
 {
-  "when": {
-    "items": "minecraft:bow"
-  },
-  "effect": {
-    "type": "feedback_slope",
-    "start_position": 3,
-    "end_position": 9,
-    "start_strength": 2,
-    "end_strength": 8
-  }
+  "replace": false,
+  "rules": [
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "minecraft:bow"
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 3,
+        "end_position": 9,
+        "start_strength": 2,
+        "end_strength": 8
+      }
+    }
+  ]
 }
 ```
 
-Component presence can give every weapon the same trigger stop:
+Each rule has:
+
+- `for`: the Controlify binding whose physical trigger receives the effect;
+- `if`: a [contextual predicate](./guides#contextual-predicates);
+- `then`: the trigger effect.
+
+The binding is not restricted to Use Item or Attack. A rule is considered when its binding is currently bound to the
+left or right trigger.
+
+## Matching in-game items
+
+The in-game domain provides these item slots:
+
+- `controlify:active_item`: the item currently being used;
+- `controlify:main_hand`;
+- `controlify:off_hand`.
+
+For an Attack effect, test the main hand:
 
 ```json
 {
-  "when": {
-    "predicates": {
-      "minecraft:weapon": {}
+  "for": "controlify:attack",
+  "if": {
+    "slot": "controlify:main_hand",
+    "item": {
+      "predicates": {
+        "minecraft:weapon": {}
+      }
     }
   },
-  "effect": {
+  "then": {
     "type": "weapon",
     "start_position": 3,
     "end_position": 5,
@@ -58,175 +86,19 @@ Component presence can give every weapon the same trigger stop:
 }
 ```
 
-Item tags and component conditions can be combined:
+To retain Controlify's Use Item fallback behavior, put all active-item rules first and then repeat them for the
+off-hand slot. This makes an active-item match win before any off-hand match.
+
+Item predicates use Minecraft's standard item predicate format and can match item IDs, tags, exact component values,
+component predicates, and stack counts:
 
 ```json
 {
-  "when": {
-    "items": "#minecraft:fox_food",
-    "predicates": {
-      "minecraft:consumable": {}
-    }
-  },
-  "effect": {
-    "type": "feedback",
-    "position": 3,
-    "strength": 1
-  }
-}
-```
-
-Stack counts can select a vibration effect:
-
-```json
-{
-  "when": {
-    "items": "minecraft:snowball",
-    "count": {
-      "min": 8
-    }
-  },
-  "effect": {
-    "type": "vibration",
-    "position": 3,
-    "amplitude": 4,
-    "frequency": 30
-  }
-}
-```
-
-Semantic component predicates can select a multi-zone effect:
-
-```json
-{
-  "when": {
-    "items": "minecraft:shield",
-    "predicates": {
-      "minecraft:damage": {
-        "damage": {
-          "min": 1
-        }
-      }
-    }
-  },
-  "effect": {
-    "type": "feedback_multiple_position",
-    "strength": [0, 0, 2, 2, 3, 4, 5, 6, 7, 8]
-  }
-}
-```
-
-Exact component values can distinguish an unloaded crossbow:
-
-```json
-{
-  "when": {
-    "items": "minecraft:crossbow",
-    "components": {
-      "minecraft:charged_projectiles": []
-    }
-  },
-  "effect": {
-    "type": "feedback_slope",
-    "start_position": 2,
-    "end_position": 9,
-    "start_strength": 5,
-    "end_strength": 8
-  }
-}
-```
-
-Use-item rules check the player's active item and then their offhand item. Swing-item rules check the
-main-hand item.
-
-## Rule priority and stacking
-
-The files are additive across resource packs. Rules in the highest-priority pack are checked first, followed
-by lower-priority packs. Within each file, rules are checked from top to bottom. The first matching rule wins.
-
-An empty `when` object matches every item and can be used as a final catch-all rule.
-
-To remove an effect supplied by Controlify or a lower-priority pack, add a higher-priority rule with an
-`off` effect:
-
-```json
-[
-  {
-    "when": {
-      "items": "minecraft:bow"
-    },
-    "effect": {
-      "type": "off"
-    }
-  }
-]
-```
-
-A matching `off` rule stops evaluation, so rules from lower-priority packs and effects registered by mods
-will not be used.
-
-If a file has invalid JSON, an unknown item, tag, component, or predicate, an invalid component or predicate
-value, or an invalid effect, Controlify logs the error and skips that entire file layer. Other resource packs
-continue to work.
-
-## Using trigger effects from a server
-
-A server can include trigger effect files in the resource pack it sends to players. The server itself does
-not need Controlify: clients with Controlify apply the rules, while other clients ignore the additional
-assets. This is useful for giving a server's custom items their own trigger effects.
-
-### Matching an item tag
-
-For example, a server datapack can define
-`data/example/tags/item/heavy_weapons.json`:
-
-```json
-{
-  "values": [
-    "minecraft:mace",
-    "minecraft:netherite_axe"
-  ]
-}
-```
-
-The server resource pack can then contain
-`assets/controlify/trigger_effect/swing_item.json`:
-
-```json
-[
-  {
-    "when": {
-      "items": "#example:heavy_weapons"
-    },
-    "effect": {
-      "type": "weapon",
-      "start_position": 2,
-      "end_position": 8,
-      "strength": 6
-    }
-  }
-]
-```
-
-The item tag is synchronized to clients when they join and whenever the server reloads its datapacks, so the
-resource-pack rule follows changes made with `/reload`.
-
-### Matching custom item data
-
-Items which share a vanilla item type can instead be distinguished by their `minecraft:custom_data`
-component. For example, a server can create a custom heavy weapon with:
-
-```mcfunction
-/give @s minecraft:carrot_on_a_stick[minecraft:custom_data={example:{trigger_effect:"heavy"}}]
-```
-
-Its server resource pack can match that data with the `minecraft:custom_data` component predicate:
-
-```json
-[
-  {
-    "when": {
-      "items": "minecraft:carrot_on_a_stick",
+  "for": "controlify:use",
+  "if": {
+    "slot": "controlify:off_hand",
+    "item": {
+      "items": "#example:heavy_tools",
       "predicates": {
         "minecraft:custom_data": {
           "example": {
@@ -234,17 +106,79 @@ Its server resource pack can match that data with the `minecraft:custom_data` co
           }
         }
       }
-    },
-    "effect": {
-      "type": "feedback_multiple_position",
-      "strength": [0, 0, 2, 3, 4, 5, 6, 7, 8, 8]
     }
+  },
+  "then": {
+    "type": "feedback_multiple_position",
+    "strength": [0, 0, 2, 3, 4, 5, 6, 7, 8, 8]
   }
-]
+}
 ```
 
-The custom-data predicate is a partial match. The item may contain other custom data in addition to the
-fields in the rule.
+Contextual predicates can also combine facts, items, blocks, and entities with `all_of`, `none_of`, and `any_of`.
+
+## Rule precedence and replacement
+
+Higher-priority resource packs are evaluated before lower-priority packs. Rules within a file are evaluated in array
+order. The first matching rule for a binding wins.
+
+Set `replace` to `true` to discard every lower-priority layer:
+
+```json
+{
+  "replace": true,
+  "rules": []
+}
+```
+
+Use an `off` effect when a condition should explicitly disable a lower rule for the same binding:
+
+```json
+{
+  "for": "controlify:use",
+  "if": {
+    "slot": "controlify:active_item",
+    "item": {
+      "items": "minecraft:bow"
+    }
+  },
+  "then": {
+    "type": "off"
+  }
+}
+```
+
+An invalid file layer is logged and skipped without aborting the resource reload.
+
+## Server-provided registries and tags
+
+Trigger and fact resources are decoded against the client's static registries, then remapped against the current
+world's registry access. This allows a server resource pack to reference tags supplied by the server's datapack:
+
+```json
+{
+  "rules": [
+    {
+      "for": "controlify:attack",
+      "if": {
+        "slot": "controlify:main_hand",
+        "item": {
+          "items": "#example:heavy_weapons"
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 2,
+        "end_position": 8,
+        "strength": 6
+      }
+    }
+  ]
+}
+```
+
+Resolved rules are invalidated whenever client tags update, so datapack `/reload` changes are reflected without a
+resource-pack reload.
 
 ## Effect formats
 
@@ -261,14 +195,15 @@ values use `0` for off and `8` for maximum.
 | `feedback_slope`              | `start_position`: 0–8; `end_position`: greater than the start and at most 9; `start_strength` and `end_strength`: 1–8. |
 | `vibration_multiple_position` | `frequency`: positive signed-byte frequency in hertz; `amplitude`: exactly 10 values, each 0–8.                        |
 
-For example, independent resistance in each trigger zone is written as:
+For example:
 
 ```json
 {
-  "type": "feedback_multiple_position",
-  "strength": [0, 0, 2, 2, 3, 4, 5, 6, 7, 8]
+  "type": "vibration_multiple_position",
+  "frequency": 20,
+  "amplitude": [0, 0, 2, 2, 3, 4, 5, 6, 7, 8]
 }
 ```
 
-An amplitude or strength of zero disables that zone. Effects whose entire amplitude/strength is zero, or
-whose vibration frequency is not positive, behave as `off`.
+Effects whose entire amplitude or strength is zero, and vibration effects whose frequency is not positive, behave as
+`off`.

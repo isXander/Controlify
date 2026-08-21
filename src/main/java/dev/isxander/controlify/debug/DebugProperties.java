@@ -18,6 +18,9 @@ public class DebugProperties {
 	private static final List<DebugProperty<?>> properties = new ArrayList<>();
 
 	public static final boolean DEBUG_LOGGING = boolProp("controlify.debug.logging", false, true);
+	/// Logs every contextual state contribution, derived fact evaluation, and rule evaluation.
+	/// This is intentionally separate from general debug logging because it is extremely verbose.
+	public static final boolean DEBUG_CONTEXTUAL_RULES = boolProp("controlify.debug.contextual_rules", false, false);
 	/// Renders debug overlay for vmouse snapping
 	public static final boolean DEBUG_SNAPPING = boolProp("controlify.debug.snapping", false, false);
 	/// Forces all gamepads to be treated as a regular joystick

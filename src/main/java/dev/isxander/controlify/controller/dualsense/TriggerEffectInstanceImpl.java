@@ -12,24 +12,26 @@ import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffectInstance<C> {
 	private final ContextualDomainImpl<C> domain;
-	private final RuleEngine<Identifier, TriggerEffectRule> ruleEngine;
+	private final Supplier<RuleEngine<Identifier, TriggerEffectRule>> ruleEngineSupplier;
 
 	private DualsenseTriggerEffect leftEffect = DualsenseTriggerEffect.Off.INSTANCE;
 	private DualsenseTriggerEffect rightEffect = DualsenseTriggerEffect.Off.INSTANCE;
 
 	public TriggerEffectInstanceImpl(
 			ContextualDomainImpl<C> domain,
-			RuleEngine<Identifier, TriggerEffectRule> ruleEngine
+			Supplier<RuleEngine<Identifier, TriggerEffectRule>> ruleEngineSupplier
 	) {
 		this.domain = domain;
-		this.ruleEngine = ruleEngine;
+		this.ruleEngineSupplier = ruleEngineSupplier;
 	}
 
 	@Override
 	public void update(C context) {
+		RuleEngine<Identifier, TriggerEffectRule> ruleEngine = this.ruleEngineSupplier.get();
 		boolean useTriggerEffects = context.controller().dualSense()
 				.map(ds -> ds.settings().triggerEffects)
 				.orElse(false);
@@ -39,10 +41,11 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 			return;
 		}
 
-		ContextualState state = this.domain.calculateState(context, this.ruleEngine.factDependencies());
-		List<TriggerEffectRule> passedRules = this.ruleEngine.evaluate(
+		ContextualState state = this.domain.calculateState(context, ruleEngine.factDependencies());
+		List<TriggerEffectRule> passedRules = ruleEngine.evaluate(
 				state,
-				rule -> getTrigger(context.controller(), rule) != Trigger.NEITHER
+				rule -> getTrigger(context.controller(), rule) != Trigger.NEITHER,
+				"trigger_effect/" + this.domain.id()
 		);
 
 		// there should only be one each

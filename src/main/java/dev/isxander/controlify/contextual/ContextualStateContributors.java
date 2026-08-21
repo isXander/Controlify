@@ -5,6 +5,7 @@ import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
@@ -18,6 +19,11 @@ public final class ContextualStateContributors {
 	private static final Identifier SLOT_MAIN_HAND = CUtil.rl("main_hand");
 	private static final Identifier SLOT_OFF_HAND = CUtil.rl("off_hand");
 	private static final Identifier SLOT_ACTIVE_ITEM = CUtil.rl("active_item");
+	private static final Identifier FACT_MAIN_HAND_IS_BLOCK_ITEM = CUtil.rl("main_hand_is_block_item");
+	private static final Identifier FACT_OFF_HAND_IS_BLOCK_ITEM = CUtil.rl("off_hand_is_block_item");
+	private static final Identifier FACT_FISHING_HOOK_CAST = CUtil.rl("fishing_hook_cast");
+	private static final Identifier FACT_ON_CLIMBABLE = CUtil.rl("on_climbable");
+
 	private static final Identifier SLOT_HOVERING_SLOT = CUtil.rl("hovering_slot");
 	private static final Identifier SLOT_HOLDING_ITEM = CUtil.rl("holding_item");
 	private static final Identifier SLOT_BUNDLE_SELECTED = CUtil.rl("bundle_selected");
@@ -59,6 +65,16 @@ public final class ContextualStateContributors {
 		sink.contributeItem(SLOT_MAIN_HAND, context.player().getMainHandItem());
 		sink.contributeItem(SLOT_OFF_HAND, context.player().getOffhandItem());
 		sink.contributeItem(SLOT_ACTIVE_ITEM, context.player().getActiveItem());
+		sink.contributeFact(
+				FACT_MAIN_HAND_IS_BLOCK_ITEM,
+				context.player().getMainHandItem().getItem() instanceof BlockItem
+		);
+		sink.contributeFact(
+				FACT_OFF_HAND_IS_BLOCK_ITEM,
+				context.player().getOffhandItem().getItem() instanceof BlockItem
+		);
+		sink.contributeFact(FACT_FISHING_HOOK_CAST, context.player().fishing != null);
+		sink.contributeFact(FACT_ON_CLIMBABLE, context.player().onClimbable());
 
 		sink.contributeFact(
 				CUtil.rl("can_elytra_fly"),
@@ -89,7 +105,7 @@ public final class ContextualStateContributors {
 		);
 		sink.contributeFact(
 				CUtil.rl("input_moving"),
-				context.player().input.getMoveVector().equals(Vec2.ZERO)
+				!context.player().input.getMoveVector().equals(Vec2.ZERO)
 		);
 
 		sink.contributeFact(

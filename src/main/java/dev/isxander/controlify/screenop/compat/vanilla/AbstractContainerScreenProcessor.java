@@ -9,11 +9,11 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.contextual.ContainerContext;
-import dev.isxander.controlify.api.guide.GuideInstance;
+import dev.isxander.controlify.api.contextual.GuideInstance;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.guide.GuideRenderer;
 import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
@@ -50,7 +50,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 		this.hoveredSlot = hoveredSlot;
 		this.clickSlotFunction = clickSlotFunction;
 		this.doItemSlotActions = doItemSlotActions;
-		this.guideInstance = GuideDomains.CONTAINER.createInstance();
+		this.guideInstance = ContextualDomains.INSTANCE.container().createGuideInstance(minecraft.font);
 	}
 
 	@Override
@@ -70,7 +70,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 				controller,
 				controller.settings().generic.guide.verbosity
 		);
-		this.guideInstance.update(ctx, minecraft.font);
+		this.guideInstance.update(ctx);
 
 		Slot hoveredSlot = this.hoveredSlot.get();
 		if (hoveredSlot != null) {

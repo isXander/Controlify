@@ -1,0 +1,19 @@
+{
+  "rules": [
+    {
+      "for": "controlify:attack",
+      "if": {
+        "slot": "controlify:main_hand",
+        "item": {
+          "items": "minecraft:diamond_sword"
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 1,
+        "amplitude": 4,
+        "frequency": 11
+      }
+    }
+  ]
+}

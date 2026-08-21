@@ -2,13 +2,12 @@ package dev.isxander.controlify.utils.predicates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.predicates.DistancePredicate;
-import net.minecraft.advancements.predicates.GameTypePredicate;
-import net.minecraft.advancements.predicates.MobEffectsPredicate;
-import net.minecraft.advancements.predicates.SlotsPredicate;
-import net.minecraft.advancements.predicates.entity.EntityFlagsPredicate;
-import net.minecraft.advancements.predicates.entity.EntityTypePredicate;
-import net.minecraft.advancements.predicates.entity.MovementPredicate;
+//? if >=26.2 {
+import net.minecraft.advancements.predicates.*;
+import net.minecraft.advancements.predicates.entity.*;
+//?} else {
+/*import net.minecraft.advancements.criterion.*;
+*///?}
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
@@ -19,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-/// A subset of {@link net.minecraft.advancements.predicates.entity.EntityPredicate} that works
+/// A subset of vanilla's entity predicate that works
 /// for all entities on the client. The vanilla one requires server-side-only data.
 ///
 /// This predicate also queries client-sided tags via {@link ClientPredicateUtils}.
@@ -30,6 +29,9 @@ import java.util.Optional;
 /// - `type_specific`
 /// - `targeted_entity`
 /// - data component matcher
+///
+/// This predicate has additional conditions which its server-sided counterpart doesn't have:
+/// - `game_mode`
 public record ClientEntityPredicate(
 		Optional<EntityTypePredicate> entityType,
 		Optional<DistancePredicate> distanceToPlayer,

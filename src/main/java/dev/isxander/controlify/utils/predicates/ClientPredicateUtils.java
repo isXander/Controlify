@@ -2,9 +2,12 @@ package dev.isxander.controlify.utils.predicates;
 
 import dev.isxander.controlify.utils.CUtil;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.advancements.predicates.ItemPredicate;
-import net.minecraft.advancements.predicates.SlotsPredicate;
-import net.minecraft.advancements.predicates.entity.EntityTypePredicate;
+//? if >=26.2 {
+import net.minecraft.advancements.predicates.*;
+import net.minecraft.advancements.predicates.entity.*;
+//?} else {
+/*import net.minecraft.advancements.criterion.*;
+*///?}
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SlotProvider;

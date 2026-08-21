@@ -46,18 +46,8 @@ public class InGameButtonGuide {
 		GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 
 		if (settings.showIngameGuide) {
-			if (minecraft.hitResult == null) {
-				((MinecraftAccessor) minecraft).controlify$invokePick(1f);
-			}
 			this.guideInstance.update(
-					new InGameContext(
-							minecraft,
-							minecraft.player,
-							minecraft.level,
-							minecraft.hitResult,
-							controller,
-							settings.verbosity
-					)
+					InGameContext.create(minecraft, controller)
 			);
 		}
 	}

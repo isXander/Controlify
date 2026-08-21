@@ -116,11 +116,25 @@ public final class FactDependencyGraph {
 
 	/// Resolves required data-defined facts on top of a source state.
 	public ContextualState evaluate(ContextualStateAccumulator state, @Nullable Collection<Identifier> requiredFacts) {
+		return this.evaluate(state, requiredFacts, null);
+	}
+
+	ContextualState evaluate(
+			ContextualStateAccumulator state,
+			@Nullable Collection<Identifier> requiredFacts,
+			@Nullable Identifier debugDomain
+	) {
 		ContextualState view = state.view();
 		for (Identifier id : this.evaluationOrder()) {
 			if (requiredFacts == null || requiredFacts.contains(id)) {
 				FactDefinition definition = this.definitions().get(id);
-				state.contributeFact(id, definition.predicate().matches(view));
+				if (ContextualDebug.enabled() && debugDomain != null) {
+					ContextualDebug.PredicateEvaluation evaluation = ContextualDebug.evaluatePredicate(definition.predicate(), view);
+					state.contributeFact(id, evaluation.result());
+					ContextualDebug.logFact(debugDomain, id, this.dependencies.get(id), evaluation);
+				} else {
+					state.contributeFact(id, definition.predicate().matches(view));
+				}
 			}
 		}
 		return state.snapshot();

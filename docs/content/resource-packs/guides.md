@@ -1,173 +1,194 @@
 ---
-title: Guides
+title: Button Guides
 ---
 
-# Guides
+# Button Guides
 
-## What are guides?
+Button guides show contextual binding hints on the HUD and container screens. The contextual system separates
+reusable facts from ordered guide rules.
 
-Guides are a feature of Controlify that shows hints to the player about what buttons to press to perform certain actions.
+## Guide rule files
 
-Since version `2.3.0`, guides are data-driven, meaning you can override the default guides with your own.
+A domain's guide rules are loaded from:
 
-<div class="wiki-image-grid">
+```text
+assets/<domain namespace>/contextual/guide/<domain path>.json
+```
 
-![The in-game button guide](/images/in-game-guide.webp)
+For Controlify's built-in domains, these are:
 
-![The container button guide](/images/container-guide.webp)
+- `assets/controlify/contextual/guide/in_game.json`
+- `assets/controlify/contextual/guide/container.json`
 
-</div>
+A rule set contains an optional `replace` flag and an ordered `rules` array:
 
-## Concepts
-
-There are three main concepts you need to understand to create your own guides.
-
-1. **Fact**
-   - A fact is a piece of information about the current game state.
-   - For example, the fact `controlify:on_ground` is true when the player is on the ground.
-2. **Rule**
-   - A rule contains a list of permitting facts, and a list of forbidding facts.
-   - If all permitting facts are true and no forbidding facts are true, the rule is applied if its binding is bound.
-   - For example, a rule for `controlify:jump` requires the fact `controlify:on_ground`, then show some text and the button glyph for the jump binding.
-3. **Domain**
-   - A domain contains all loaded facts and rules for a specific type of guide.
-   - `controlify:in_game` is a domain that has in-game specific facts, and rules to show when the player is in-game.
-   - `controlify:container` is a domain that has facts and rules for when the player is in a container GUI, like the inventory or a chest.
-   - For example, you wouldn't have a rule for `controlify:on_ground` in the `controlify:container` domain, since it's irrelevant in a container GUI.
-
-## Creating custom rules
-
-Controlify only allows resource packs to add and override _rules_, not _facts_ or _domains_.
-
-If Controlify does not have a _fact_ for your specific use case, you must create a mod that adds the _fact_ to Controlify,
-or submit a feature request to get it added to Controlify itself.
-
-
-::: code-group
-```json [assets/controlify/guides/in_game.json]
+```json
 {
-    "override": false,
-    "rules": [
-        {
-            "for": "controlify:jump",
-            "where": "left",
-            "when": ["controlify:on_ground"],
-            "forbid": [],
-            "then": "Jump"
-        }
-    ]
+  "replace": false,
+  "rules": [
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": "controlify:on_ground",
+      "then": { "translate": "key.jump" }
+    }
+  ]
 }
 ```
-:::
 
-This example shows a _rule_ that applies when the player is on the ground, and the `controlify:jump` binding is bound.
-When the _rule_ applies, it shows the text "Jump" and the glyph for the `controlify:jump` binding.
+Each guide rule has:
 
-As well as literal text such as `"Jump"`, Controlify supports the Minecraft
-[text component format](https://minecraft.wiki/w/Text_component_format) which allows you to use translations and styling.
-For example, you can use `"then": {"translate": "mypack.jump"}` to use a translation key sourced from your pack's language files.
+- `for`: the Controlify binding to display;
+- `where`: `left` or `right`;
+- `if`: a contextual predicate;
+- `then`: a literal string or Minecraft text component.
 
-A rule can be displayed either on the `left` or `right` side of the screen, this is defined by the `"where"` field.
+Use `true` for an unconditional rule.
 
-Because `"override": false`, this resource pack will not override the default rules, but instead add an additional rule.
-If you want to override the default rules, or any resource pack below yours, set `"override": true`.
+## Contextual predicates
 
-### Stacking rules
+A fact identifier directly tests a boolean fact:
 
-You can stack multiple rules for the same binding, the first rule that succeeds will be applied, the rest will be ignored.
-However, if the rules have different locations (e.g. `left` and `right`), they will both be applied.
+```json
+"if": "controlify:on_ground"
+```
 
-::: code-group
-```json [assets/controlify/guides/in_game.json]
-{
-    "override": false,
-    "rules": [
-        {
-            "for": "controlify:jump",
-            "where": "left",
-            "when": ["controlify:in_water"],
-            "forbid": [],
-            "then": "Swim Up"
-        },
-        {
-            "for": "controlify:jump",
-            "where": "left",
-            "when": ["controlify:on_ground"],
-            "forbid": [],
-            "then": "Jump"
-        }
-    ]
+Predicates can be combined. `all_of` requires every child, `none_of` rejects any matching child, and `any_of`
+requires at least one matching child:
+
+```json
+"if": {
+  "all_of": [
+    "controlify:in_water",
+    "controlify:input_moving"
+  ],
+  "none_of": [
+    "controlify:sprinting",
+    "controlify:in_vehicle"
+  ]
 }
 ```
-:::
 
-In this snippet, the first rule will apply when the player is in water,
-and the second rule will apply when the player is on the ground.
+Rules can also test named item, block, or entity slots with Minecraft's predicate formats:
 
-Even when the player is in water and touching the ground, only the first rule will apply,
-because it is the first rule that matches its conditions.
+```json
+"if": {
+  "slot": "controlify:main_hand",
+  "item": {
+    "items": "#minecraft:swords"
+  }
+}
+```
 
-## Facts
+```json
+"if": {
+  "slot": "controlify:hit_result",
+  "entity": {
+    "type": "#minecraft:villager"
+  }
+}
+```
 
-Controlify has a set of built-in facts that you can use in your rules.
+Replace `item` with `block` or `entity` to select the corresponding predicate type. A missing slot does not
+match.
 
-Below is a list of the built-in facts for each domain.
+## Rule precedence
 
-### Common facts
+Higher-priority resource packs are evaluated before lower-priority packs. Within a file, rules are evaluated in
+array order. For each binding and guide location, the first matching rule wins.
 
-These facts are available in all domains.
+Set `replace` to `true` to discard all guide-rule layers below that file:
 
-| ID                                     | Description                                               |
-|----------------------------------------|-----------------------------------------------------------|
-| `controlify:verbosity_full`            | When the guide verbosity level is set to full.            |
-| `controlify:verbosity_reduced_or_more` | When the guide verbosity level is either full or reduced. |
-| `controlify:verbosity_reduced_or_less` | When the guide verbosity is set to reduced or less.       |
-| `controlify:verbosity_minimal`         | When the guide verbosity is set to minimal.               |
+```json
+{
+  "replace": true,
+  "rules": []
+}
+```
 
+An invalid file layer is logged and skipped without aborting the resource reload.
 
-### `controlify:in_game`
+## Defining facts
 
-| ID                                      | Description                                                                                                                   |
-|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-| `controlify:on_ground`                  | When the player is on the ground.                                                                                             |
-| `controlify:in_vehicle`                 | When the player is in a vehicle.                                                                                              |
-| `controlify:riding_saddled_horse`       | When the currently ridden vehicle is a horse with a saddle.                                                                   |
-| `controlify:riding_happy_ghast`         | When the currently ridden vehicle is a Happy Ghast.                                                                           |
-| `controlify:flying`                     | When the player is currently in creative flight.                                                                              |
-| `controlify:elytra_flying`              | When the player is currently gliding with an elytra.                                                                          |
-| `controlify:can_elytra_fly`             | When the player is in a state where pressing jump will cause the elytra to deploy.                                            |
-| `controlify:in_liquid`                  | When the player is touching liquid, such as water or lava.                                                                    |
-| `controlify:in_water`                   | When the player is touching water.                                                                                            |
-| `controlify:under_water`                | When the player has their eyes underwater.                                                                                    |
-| `controlify:in_lava`                    | When the player is touching lava.                                                                                             |
-| `controlify:sneaking`                   | When the player is attempting to sneak (pressing the sneak key, or it is toggled on).                                         |
-| `controlify:is_toggle_sneak`            | When the player is using toggle sneak (does not mean it is currently toggled on).                                             |
-| `controlify:is_toggle_sprint`           | When the player is using toggle sprint (does not mean it is currently toggled on).                                            |
-| `controlify:sprinting`                  | When the player is attempting to sprint (pressing the sprint key, or it is toggled on).                                       |
-| `controlify:input_moving`               | When the player is applying movement input—even if the player is not physically moving, if they're trying to, this fact goes. |
-| `controlify:is_spectator`               | When the player is in spectator mode.                                                                                         |
-| `controlify:is_creative`                | When the player is in creative mode.                                                                                          |
-| `controlify:has_hearts`                 | When the player is not invulnerable.                                                                                          |
-| `controlify:is_adventure`               | When the player is in adventure mode.                                                                                         |
-| `controlify:is_survival`                | When the player is in survival mode.                                                                                          |
-| `controlify:looking_at_entity`          | When the player is currently looking at an entity and is in range to interact with it.                                        |
-| `controlify:looking_at_block`           | When the player is currently looking at a block and is in range to interact or destroy it.                                    |
-| `controlify:looking_at_air`             | When the player is neither looking at a block nor looking at an entity.                                                       |
-| `controlify:has_item_in_either_hand`    | When the player has an item in their main hand or their offhand.                                                              |
-| `controlify:has_item_in_mainhand`       | When the player has an item in their main hand.                                                                               |
-| `controlify:has_item_in_offhand`        | When the player has an item in their offhand.                                                                                 |
-| `controlify:has_multiple_items_in_hand` | When the player is holding an item stack with a count greater than one.                                                       |
+Data-defined facts for a domain use:
 
-### `controlify:container`
+```text
+assets/<domain namespace>/contextual/facts/<domain path>.json
+```
 
-| ID                                    | Description                                                                                                                |
-|---------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `controlify:hovering_slot`            | When the user is hovering their cursor over a slot.                                                                        |
-| `controlify:hovering_item`            | When the user is hovering their cursor over an occupied slot.                                                              |
-| `controlify:hovering_many_items`      | When the user is hovering their cursor over an occupied slot which has more than one item in it.                           |
-| `controlify:holding_item`             | When the user has grabbed an item and is moving it around with their cursor.                                               |
-| `controlify:holding_many_items`       | When the user has grabbed an item and is moving it around with their cursor, and that item has more than one in the stack. |
-| `controlify:can_place_held_item`      | When the container allows the player to place down their held item into the currently hovered slot.                        |
-| `controlify:cursor_outside_container` | When the user is hovering their cursor outside the container interface.                                                    |
-| `controlify:hovering_item_is_bundle`  | When the user is hovering their cursor over a slot which is occupied with an item tagged as a bundle.                      |
-| `controlify:selected_bundle_slot`     | When the user is currently selecting an item from within the bundle they're hovering.                                      |
+The file is a map from fact identifiers to contextual predicates:
+
+```json
+{
+  "example:holding_sword": {
+    "slot": "controlify:main_hand",
+    "item": {
+      "items": "#minecraft:swords"
+    }
+  },
+  "example:ready_to_attack": {
+    "all_of": [
+      "example:holding_sword",
+      "controlify:looking_at_entity"
+    ]
+  }
+}
+```
+
+Facts may reference other data-defined facts. Controlify orders their evaluation automatically and rejects cycles.
+Mods can expose additional source facts and slots through the [Contextual API](../developers/contextual-api).
+
+## Built-in domain state
+
+Every domain exposes these source facts:
+
+- `controlify:verbosity_full`
+- `controlify:verbosity_reduced`
+- `controlify:verbosity_minimal`
+
+The `controlify:in_game` domain exposes these slots:
+
+- entity `controlify:self`;
+- entity or block `controlify:hit_result`;
+- items `controlify:main_hand`, `controlify:off_hand`, and `controlify:active_item`.
+
+It also provides source or data-defined facts including:
+
+- `controlify:on_ground`, `controlify:in_vehicle`, `controlify:flying`, `controlify:creative_flying`,
+  `controlify:elytra_flying`;
+- `controlify:riding_saddled_horse`, `controlify:riding_saddled_equine`,
+  `controlify:riding_saddled_camel`, `controlify:riding_saddled_nautilus`, and
+  `controlify:riding_happy_ghast`;
+- `controlify:can_elytra_fly`, `controlify:in_liquid`, `controlify:in_water`, `controlify:under_water`;
+- `controlify:sneaking`, `controlify:sprinting`, `controlify:input_moving`, `controlify:on_climbable`;
+- `controlify:is_toggle_sneak`, `controlify:is_toggle_sprint`;
+- `controlify:is_spectator`, `controlify:is_creative`, `controlify:is_survival`;
+- `controlify:looking_at_entity`, `controlify:looking_at_block`, `controlify:looking_at_air`;
+- `controlify:looking_at_villager`, `controlify:looking_at_merchant`,
+  `controlify:looking_at_rideable`, `controlify:looking_at_chest_boat`, and
+  `controlify:looking_at_container_minecart`;
+- `controlify:looking_at_closed_openable`, `controlify:looking_at_open_openable`,
+  `controlify:looking_at_container`, `controlify:looking_at_button`, `controlify:looking_at_lever`,
+  `controlify:looking_at_bell`, and `controlify:looking_at_bed`;
+- workstation target facts named `controlify:looking_at_crafting_table`, `controlify:looking_at_furnace`,
+  `controlify:looking_at_smoker`, `controlify:looking_at_brewing_stand`,
+  `controlify:looking_at_enchanting_table`, `controlify:looking_at_smithing_table`,
+  `controlify:looking_at_repair_station`, `controlify:looking_at_stonecutter`,
+  `controlify:looking_at_loom`, and `controlify:looking_at_cartography_table`;
+- `controlify:has_item_in_main_hand`, `controlify:has_item_in_offhand`;
+- `controlify:has_item_in_either_hand`, `controlify:has_multiple_items_in_main_hand`,
+  `controlify:main_hand_is_tool`;
+- `controlify:main_hand_is_block_item`, `controlify:off_hand_is_block_item`, and
+  `controlify:fishing_hook_cast`.
+
+The built-in in-game guide uses the verbosity facts as tiers. Minimal includes movement and contextual attack/use
+actions, reduced adds sprint, inventory, drop, and swap-hands hints, and full additionally includes radial-menu,
+drop-stack, and pick-block hints.
+
+The `controlify:container` domain exposes item slots `controlify:hovering_slot`, `controlify:holding_item`, and
+`controlify:bundle_selected`. Its built-in facts include:
+
+- `controlify:hovering_slot`, `controlify:hovering_item`, `controlify:hovering_many_items`;
+- `controlify:holding_item`, `controlify:holding_many_items`;
+- `controlify:hovering_item_is_bundle`, `controlify:selected_bundle_slot`;
+- `controlify:can_place_held_item`, `controlify:can_pickup_slot`, `controlify:cursor_outside_container`.

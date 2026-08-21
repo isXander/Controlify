@@ -7,6 +7,7 @@
 package dev.isxander.controlify.contextual;
 
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,23 +52,54 @@ public final class RuleEngine<K, R extends Rule<K>> {
 
 	/// Returns the winning rules in their original precedence order.
 	public List<R> evaluate(ContextualState state, Predicate<R> shouldEvaluate) {
+		return this.evaluate(state, shouldEvaluate, null);
+	}
+
+	public List<R> evaluate(ContextualState state, Predicate<R> shouldEvaluate, @Nullable String debugContext) {
 		Objects.requireNonNull(state, "state");
 
 		List<R> matches = new ArrayList<>();
 		Set<K> consumedKeys = new HashSet<>();
-		for (R rule : this.rules) {
+		for (int index = 0; index < this.rules.size(); index++) {
+			R rule = this.rules.get(index);
 			if (!shouldEvaluate.test(rule)) {
+				ContextualDebug.logRule(debugContext, index, rule.key(), rule.predicate(), state, "FILTERED", null);
 				continue;
 			}
 
 			K key = rule.key();
-			if (!consumedKeys.contains(key) && rule.matches(state)) {
+			if (consumedKeys.contains(key)) {
+				ContextualDebug.logRule(debugContext, index, key, rule.predicate(), state, "SKIPPED (key already won)", null);
+				continue;
+			}
+
+			boolean matchesRule;
+			ContextualDebug.PredicateEvaluation evaluation = null;
+			if (ContextualDebug.enabled() && debugContext != null) {
+				evaluation = ContextualDebug.evaluatePredicate(rule.predicate(), state);
+				matchesRule = evaluation.result();
+			} else {
+				matchesRule = rule.matches(state);
+			}
+
+			if (matchesRule) {
 				consumedKeys.add(key);
 				matches.add(rule);
 			}
+			ContextualDebug.logRule(
+					debugContext,
+					index,
+					key,
+					rule.predicate(),
+					state,
+					matchesRule ? "MATCHED" : "DID NOT MATCH",
+					evaluation
+			);
 		}
 
-		return List.copyOf(matches);
+		List<R> result = List.copyOf(matches);
+		ContextualDebug.logRuleResult(debugContext, result);
+		return result;
 	}
 
 	public List<R> evaluate(ContextualState state) {

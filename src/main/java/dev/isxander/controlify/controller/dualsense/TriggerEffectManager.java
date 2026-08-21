@@ -6,7 +6,9 @@
  */
 package dev.isxander.controlify.controller.dualsense;
 
+import dev.isxander.controlify.api.contextual.InGameContext;
 import dev.isxander.controlify.api.contextual.TriggerEffectInstance;
+import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.utils.MinecraftUtil;
@@ -15,13 +17,31 @@ import net.minecraft.client.Minecraft;
 import java.util.*;
 
 public class TriggerEffectManager {
-	private final Minecraft minecraft;
 
-	public TriggerEffectManager(Minecraft minecraft) {
-		this.minecraft = minecraft;
+	private final TriggerEffectInstance<InGameContext> instance;
+
+	public TriggerEffectManager() {
+		this.instance = ContextualDomains.INSTANCE.inGame().createTriggerEffectInstance();
 	}
 
 	public void applyTriggerEffects(
+			ControllerEntity controller,
+			boolean inputSuppressed
+	) {
+		applyTriggerEffects(controller, instance, inputSuppressed);
+	}
+
+	public void tick(Minecraft minecraft, ControllerEntity controller) {
+		if (minecraft.player == null || minecraft.level == null) {
+			return;
+		}
+
+		this.instance.update(
+				InGameContext.create(minecraft, controller)
+		);
+	}
+
+	public static void applyTriggerEffects(
 			ControllerEntity controller,
 			TriggerEffectInstance<?> instance,
 			boolean inputSuppressed
@@ -38,10 +58,10 @@ public class TriggerEffectManager {
 		});
 	}
 
-	public boolean shouldUseTriggerEffects(ControllerEntity controller, boolean inputSuppressed) {
+	public static boolean shouldUseTriggerEffects(ControllerEntity controller, boolean inputSuppressed) {
 		return !inputSuppressed
 			&& MinecraftUtil.getScreen() == null
-			&& this.minecraft.player != null
+			&& Minecraft.getInstance().player != null
 			&& controller.dualSense().map(ds -> ds.settings().triggerEffects).orElse(false);
 	}
 }

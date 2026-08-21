@@ -10,16 +10,18 @@ import dev.isxander.controlify.contextual.GuideRule;
 import dev.isxander.controlify.contextual.RuleEngine;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.font.BindingFontHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 	private final ContextualDomainImpl<C> domain;
-	private final RuleEngine<GuideRule.Key, GuideRule> ruleEngine;
+	private final Supplier<RuleEngine<GuideRule.Key, GuideRule>> ruleEngineSupplier;
 	private final Font font;
 
 	private PrecomputedLines leftGuides = PrecomputedLines.EMPTY;
@@ -27,18 +29,19 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 
 	public GuideInstanceImpl(
 			ContextualDomainImpl<C> domain,
-			RuleEngine<GuideRule.Key, GuideRule> ruleEngine,
+			Supplier<RuleEngine<GuideRule.Key, GuideRule>> ruleEngineSupplier,
 			Font font
 	) {
 		this.domain = domain;
-		this.ruleEngine = ruleEngine;
+		this.ruleEngineSupplier = ruleEngineSupplier;
 		this.font = font;
 	}
 
 	@Override
 	public void update(C context) {
-		ContextualState state = this.domain.calculateState(context, this.ruleEngine.factDependencies());
-		List<GuideRule> guides = this.ruleEngine.evaluate(state);
+		RuleEngine<GuideRule.Key, GuideRule> ruleEngine = this.ruleEngineSupplier.get();
+		ContextualState state = this.domain.calculateState(context, ruleEngine.factDependencies());
+		List<GuideRule> guides = ruleEngine.evaluate(state, _ -> true, "guide/" + this.domain.id());
 
 		var leftBuilder = new PrecomputedLines.Builder();
 		var rightBuilder = new PrecomputedLines.Builder();
@@ -83,26 +86,25 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, boolean bottomAligned, boolean textContrast, int guiScale) {
-//		GuideRenderer.extractRenderState(
-//				graphics,
-//				this,
-//				Minecraft.getInstance(),
-//				bottomAligned,
-//				textContrast,
-//				guiScale
-//		);
+		GuideRenderer.extractRenderState(
+				graphics,
+				this,
+				Minecraft.getInstance(),
+				bottomAligned,
+				textContrast,
+				guiScale
+		);
 	}
 
 	@Override
 	public Renderable renderable(boolean bottomAligned, boolean textContrast, int guiScale) {
-//		return new GuideRenderer.Renderable(
-//				this,
-//				Minecraft.getInstance(),
-//				bottomAligned,
-//				textContrast,
-//				guiScale
-//		);
-		return null;
+		return new GuideRenderer.Renderable(
+				this,
+				Minecraft.getInstance(),
+				bottomAligned,
+				textContrast,
+				guiScale
+		);
 	}
 
 	public PrecomputedLines leftGuides() {

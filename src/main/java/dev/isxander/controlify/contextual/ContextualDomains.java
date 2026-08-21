@@ -9,10 +9,14 @@ import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class ContextualDomains implements ContextualDomainRegistry {
 
 	public static final ContextualDomains INSTANCE = new ContextualDomains();
 
+	private final List<ContextualDomainImpl<?>> domains = new ArrayList<>();
 	private final ContextualDomain<InGameContext> inGame = register(
 			CUtil.rl("in_game"),
 			ContextualStateContributors.IN_GAME
@@ -35,9 +39,16 @@ public final class ContextualDomains implements ContextualDomainRegistry {
 	@Override
 	public <C extends Context> ContextualDomain<C> register(Identifier domainId) {
 		var domain = new ContextualDomainImpl<C>(domainId);
+		this.domains.add(domain);
 		PlatformClientUtil.registerAssetReloadListener(domain);
 		return domain;
 	}
+
+	public void invalidateResolvedFactGraphs() {
+		this.domains.forEach(ContextualDomainImpl::invalidateResolvedFactGraph);
+	}
+
+	public static void touch() {}
 
 	private ContextualDomains() {
 	}
