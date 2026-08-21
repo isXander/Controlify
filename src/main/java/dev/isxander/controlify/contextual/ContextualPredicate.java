@@ -11,13 +11,11 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
 import dev.isxander.controlify.utils.predicates.ClientEntityPredicate;
-//? if >=26.2 {
 import dev.isxander.controlify.utils.predicates.ClientPredicateUtils;
-import net.minecraft.advancements.predicates.BlockPredicate;
-import net.minecraft.advancements.predicates.ItemPredicate;
+//? if >=26.2 {
+import net.minecraft.advancements.predicates.*;
 //?} else {
-/*import net.minecraft.advancements.criterion.BlockPredicate;
-import net.minecraft.advancements.criterion.ItemPredicate;
+/*import net.minecraft.advancements.criterion.*;
 *///?}
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
