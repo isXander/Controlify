@@ -32,8 +32,8 @@ public class ButtonGuideTests implements FabricClientGameTest {
 		var controlify = new ControlifyGameTestContext(context);
 
 		try (var controller = controlify.virtualControllerBuilder().withXbox().attach();
-			 var world = new TestUnitWorldContext(context);
-			 var region = world.allocateRegion(5, 5, 5)) {
+			var world = new TestUnitWorldContext(context);
+			var region = world.allocateRegion(5, 5, 5)) {
 			var villager = region.spawnWithNoFreeWill(CEntityTypes.VILLAGER, new BlockPos(1, 1, 3));
 			context.waitTicks(2);
 
