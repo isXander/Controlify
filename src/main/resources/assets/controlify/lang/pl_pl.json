@@ -365,6 +365,8 @@
   "controlify.guide.ingame.spectate": "Obserwuj",
   "controlify.guide.ingame.interact": "Interakcja",
   "controlify.guide.ingame.pick_block": "Wybierz blok",
+  "controlify.guide.ingame.toggle": "Przełącz",
+  "controlify.guide.ingame.place": "Umieść",
   "controlify.guide.container.place_all": "Umieść wszystko",
   "controlify.guide.container.place_one": "Umieść",
   "controlify.guide.container.swap": "Zamień",
@@ -437,6 +439,5 @@
   "controlify.compat.svc.toggle": "(Przełącz)",
   "controlify.joystick_mapping.unmapped.axis": "Oś #%s",
   "controlify.joystick_mapping.unmapped.button": "Przycisk #%s",
-  "controlify.extra_pack.legacy_console.name": "Starsza konsola",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - ustawia domyślne przypisania/glify."
+  "controlify.extra_pack.legacy_console.name": "Starsza konsola"
 }
