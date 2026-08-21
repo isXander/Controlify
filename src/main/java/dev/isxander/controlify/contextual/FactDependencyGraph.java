@@ -14,12 +14,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /// A compiled evaluation plan for data-defined facts.
 ///
@@ -33,6 +35,7 @@ public final class FactDependencyGraph {
 	private final Map<Identifier, Set<Identifier>> dependencies;
 	private final List<Identifier> evaluationOrder;
 	private final Set<Identifier> externalDependencies;
+	private final Map<Set<Identifier>, List<Identifier>> evaluationPlans = new ConcurrentHashMap<>();
 
 	private FactDependencyGraph(
 			Map<Identifier, FactDefinition> definitions,
@@ -114,7 +117,7 @@ public final class FactDependencyGraph {
 		return this.externalDependencies;
 	}
 
-	/// Resolves required data-defined facts on top of a source state.
+	/// Resolves required data-defined facts and their transitive dependencies on top of a source state.
 	public ContextualState evaluate(ContextualStateAccumulator state, @Nullable Collection<Identifier> requiredFacts) {
 		return this.evaluate(state, requiredFacts, null);
 	}
@@ -125,19 +128,42 @@ public final class FactDependencyGraph {
 			@Nullable Identifier debugDomain
 	) {
 		ContextualState view = state.view();
-		for (Identifier id : this.evaluationOrder()) {
-			if (requiredFacts == null || requiredFacts.contains(id)) {
-				FactDefinition definition = this.definitions().get(id);
-				if (ContextualDebug.enabled() && debugDomain != null) {
-					ContextualDebug.PredicateEvaluation evaluation = ContextualDebug.evaluatePredicate(definition.predicate(), view);
-					state.contributeFact(id, evaluation.result());
-					ContextualDebug.logFact(debugDomain, id, this.dependencies.get(id), evaluation);
-				} else {
-					state.contributeFact(id, definition.predicate().matches(view));
-				}
+		for (Identifier id : this.evaluationPlan(requiredFacts)) {
+			FactDefinition definition = this.definitions().get(id);
+			if (debugDomain != null && ContextualDebug.enabled()) {
+				ContextualDebug.PredicateEvaluation evaluation = ContextualDebug.evaluatePredicate(definition.predicate(), view);
+				state.contributeFact(id, evaluation.result());
+				ContextualDebug.logFact(debugDomain, id, this.dependencies.get(id), evaluation);
+			} else {
+				state.contributeFact(id, definition.predicate().matches(view));
 			}
 		}
 		return state.snapshot();
+	}
+
+	private List<Identifier> evaluationPlan(@Nullable Collection<Identifier> requiredFacts) {
+		if (requiredFacts == null) {
+			return this.evaluationOrder;
+		}
+		if (requiredFacts.isEmpty() || this.evaluationOrder.isEmpty()) {
+			return List.of();
+		}
+
+		return this.evaluationPlans.computeIfAbsent(Set.copyOf(requiredFacts), this::createEvaluationPlan);
+	}
+
+	private List<Identifier> createEvaluationPlan(Set<Identifier> requiredFacts) {
+		Set<Identifier> requiredClosure = new HashSet<>(requiredFacts);
+		for (int index = this.evaluationOrder.size() - 1; index >= 0; index--) {
+			Identifier id = this.evaluationOrder.get(index);
+			if (requiredClosure.contains(id)) {
+				requiredClosure.addAll(this.dependencies.get(id));
+			}
+		}
+
+		return this.evaluationOrder.stream()
+				.filter(requiredClosure::contains)
+				.toList();
 	}
 
 	private static final class Compiler {

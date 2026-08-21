@@ -12,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SlotProvider;
 import net.minecraft.world.inventory.SlotRange;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
@@ -25,11 +26,11 @@ public final class ClientPredicateUtils {
 		return CUtil.isInWithLocalFallback(entity, predicate.types());
 	}
 
-	public static boolean matches(ItemPredicate predicate, ItemStack stack) {
-		if (predicate.items().isPresent() && !CUtil.isInWithLocalFallback(stack, predicate.items().get())) {
+	public static boolean matches(ItemPredicate predicate, ItemInstance item) {
+		if (predicate.items().isPresent() && !CUtil.isInWithLocalFallback(item, predicate.items().get())) {
 			return false;
 		} else {
-			return predicate.count().matches(stack.count()) && predicate.components().test(stack);
+			return predicate.count().matches(item.count()) && predicate.components().test(item);
 		}
 	}
 

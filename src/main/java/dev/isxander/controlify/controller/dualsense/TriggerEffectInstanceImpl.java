@@ -1,5 +1,6 @@
 package dev.isxander.controlify.controller.dualsense;
 
+import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.contextual.Context;
 import dev.isxander.controlify.api.contextual.TriggerEffectInstance;
 import dev.isxander.controlify.contextual.ContextualDomainImpl;
@@ -72,7 +73,13 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 	}
 
 	private Trigger getTrigger(ControllerEntity controller, TriggerEffectRule rule) {
-		List<Identifier> relevantInputs = rule.binding().on(controller).boundInput().getRelevantInputs();
+		InputBinding binding = rule.binding().onOrNull(controller);
+
+		if (binding == null) {
+			return Trigger.NEITHER;
+		}
+
+		List<Identifier> relevantInputs = binding.boundInput().getRelevantInputs();
 
 		if (relevantInputs.contains(GamepadInputs.LEFT_TRIGGER_AXIS)) {
 			return Trigger.LEFT;

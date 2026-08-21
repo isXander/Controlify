@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.utils.codec.CExtraCodecs;
 import dev.isxander.controlify.utils.predicates.ClientEntityPredicate;
 //? if >=26.2 {
+import dev.isxander.controlify.utils.predicates.ClientPredicateUtils;
 import net.minecraft.advancements.predicates.BlockPredicate;
 import net.minecraft.advancements.predicates.ItemPredicate;
 //?} else {
@@ -122,7 +123,7 @@ public sealed interface ContextualPredicate {
 			if (itemInstance == null) {
 				return false;
 			}
-			return item().test(itemInstance);
+			return ClientPredicateUtils.matches(item(), itemInstance);
 		}
 
 		@Override

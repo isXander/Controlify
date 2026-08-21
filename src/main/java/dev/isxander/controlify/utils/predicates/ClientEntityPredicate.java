@@ -82,7 +82,7 @@ public record ClientEntityPredicate(
 				return false;
 			}
 		} else if (this.distanceToPlayer.isPresent()
-				&& this.distanceToPlayer.get().matches(position.x, position.y, position.z, entity.getX(), entity.getY(), entity.getZ())) {
+				&& !this.distanceToPlayer.get().matches(position.x, position.y, position.z, entity.getX(), entity.getY(), entity.getZ())) {
 			return false;
 		}
 
