@@ -375,6 +375,8 @@
   "controlify.guide.ingame.spectate": "İzle",
   "controlify.guide.ingame.interact": "Etkileşim",
   "controlify.guide.ingame.pick_block": "Blok Seç",
+  "controlify.guide.ingame.toggle": "Değiştir",
+  "controlify.guide.ingame.place": "Yerleştir",
   "controlify.guide.container.place_all": "Hepsini Yerleştir",
   "controlify.guide.container.place_one": "Yerleştir",
   "controlify.guide.container.swap": "Değiştir",
@@ -467,6 +469,5 @@
   "controlify.joystick_mapping.unmapped.hat": "Şapka #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Negatif)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Pozitif)",
-  "controlify.extra_pack.legacy_console.name": "Eski Konsol",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - bağlama varsayılanlarını/gliflerini ayarlar."
+  "controlify.extra_pack.legacy_console.name": "Eski Konsol"
 }
