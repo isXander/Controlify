@@ -384,6 +384,8 @@
   "controlify.guide.ingame.spectate": "Osserva",
   "controlify.guide.ingame.interact": "Interagisci",
   "controlify.guide.ingame.pick_block": "Seleziona Blocco",
+  "controlify.guide.ingame.toggle": "Alterna",
+  "controlify.guide.ingame.place": "Posiziona",
   "controlify.guide.container.place_all": "Posiziona Tutto",
   "controlify.guide.container.place_one": "Posiziona",
   "controlify.guide.container.swap": "Scambia",
@@ -471,6 +473,5 @@
   "controlify.joystick_mapping.unmapped.button": "Pulsante #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(Negativo)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(Positivo)",
-  "controlify.extra_pack.legacy_console.name": "Console Legacy",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - imposta associazioni di default/glyphs."
+  "controlify.extra_pack.legacy_console.name": "Console Legacy"
 }
