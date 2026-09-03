@@ -122,7 +122,7 @@ jobs:
       - name: Install drivers
         run: |
           sudo apt-get update
-          sudo apt-get install -y mesa-vulkan-drivers xvfb
+          sudo apt-get install -y mesa-vulkan-drivers xvfb libopenal1
 
       - name: Setup stonecutter
         run: ./gradlew "Refresh active project"
@@ -133,6 +133,7 @@ jobs:
         run: ./gradlew runClientGameTest --stacktrace --args="--graphicsBackend ${{ matrix.graphics_backend }}"
         env:
           CI_SINGLE_BUILD: ${{ matrix.target }}
+          ALSOFT_DRIVERS: 'null'
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v7
