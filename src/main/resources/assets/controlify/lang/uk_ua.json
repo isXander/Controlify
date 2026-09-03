@@ -36,9 +36,6 @@
   "controlify.gui.notify_low_battery.tooltip": "Коли заряд батареї бездротового контролера розрядиться, з’явиться сповіщення. (ЕКСПЕРИМЕНТАЛЬНО)",
   "controlify.gui.out_of_focus_input": "Введення поза фокусом",
   "controlify.gui.out_of_focus_input.tooltip": "Якщо увімкнено, Controlify отримуватиме вхідні дані, навіть якщо вікно гри не сфокусовано.",
-  "controlify.gui.ingame_button_guide_scale": "Розмір внутрішньоігрових підказок",
-  "controlify.gui.ingame_button_guide_scale.tooltip": "Наскільки великими є внутрішньоігрові підказки. Це відсоток від поточної вибраної шкали графічного інтерфейсу. 100% відповідатиме звичайному розміру.",
-  "controlify.gui.ingame_button_guide_scale.tooltip.warning": "Це може спричинити проблеми з масштабуванням, через які він виглядатиме погано на будь-яких рівнях, крім 100%.",
   "controlify.gui.open_issue_tracker": "Відкрити трекер проблем",
   "controlify.gui.copy_debug_dump": "Копіювати дамп налагодження до буфера обміну",
   "controlify.gui.copy_debug_dump.tooltip": "Копіює дамп налагодження Controlify до буфера обміну. Вас можуть попросити скористатися цим, якщо ви звернетеся за підтримкою.",
@@ -347,6 +344,8 @@
   "controlify.guide.ingame.spectate": "Спостерігати",
   "controlify.guide.ingame.interact": "Взаємодіяти",
   "controlify.guide.ingame.pick_block": "Вибрати блок",
+  "controlify.guide.ingame.toggle": "Перемикання",
+  "controlify.guide.ingame.place": "Розмістити",
   "controlify.guide.container.place_all": "Покласти все",
   "controlify.guide.container.place_one": "Розмістити",
   "controlify.guide.container.drop": "Викинути",
@@ -400,6 +399,5 @@
   "controlify.joystick_mapping.unmapped.hat": "Хрестовина #%s",
   "controlify.joystick_mapping.unmapped.axis_direction.negative": "(негативно)",
   "controlify.joystick_mapping.unmapped.axis_direction.positive": "(позитивно)",
-  "controlify.extra_pack.legacy_console.name": "Застарілі консолі",
-  "controlify.extra_pack.legacy_console.desc": "Controlify — встановлює усталені значення/гліфи для прив'язки."
+  "controlify.extra_pack.legacy_console.name": "Застарілі консолі"
 }
