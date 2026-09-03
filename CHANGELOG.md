@@ -7,7 +7,22 @@ This version has the following targets:
 
 ## Changes
 
-- Re-add and deprecate old code-based radial candidate api
-- Make the hotbar select radial page show the name of the item instead of the slot number
-- Fix item models that use range_dispatch on damage from using the fallback model
-- Fix binding categories being untranslated keys
+### Contextual API
+
+Button guides and DualSense adaptive trigger effects are now powered by a shared contextual system. Contextual domains collect facts and values from the game, derive additional facts from them, and evaluate ordered rules to decide which guide labels or trigger effects to use. This gives Controlify more precise built-in behaviour while providing one extensible system for both mods and resource packs.
+
+- Add built-in in-game and container domains covering player movement, vehicles, targeted blocks and entities, held and active items, and inventory state
+- Expand button guides with more specific actions such as trading, riding, opening, crafting, blocking, consuming, shooting, placing, and fishing
+- Allow resource packs to define reusable facts and guide or trigger-effect rules under `assets/<namespace>/contextual/`
+- Support combining facts with `all_of`, `any_of`, and `none_of`, as well as matching item, block, and entity slots using Minecraft's standard predicates
+- Allow mods to contribute state to the built-in domains, register custom domains, and create their own button-guide or trigger-effect instances
+- Replace the old guide and adaptive-trigger APIs and resource formats with the contextual API and `contextual` resource paths
+
+### Other changes
+
+- Update SDL to 3.4.14 and refresh the bundled controller mappings
+- Fix Controlify clients incorrectly enabling analogue movement merely because a server completed the Controlify handshake
+- Allow analogue movement on Realms without requiring an IP whitelist entry
+- Fix the DualSense mute light remaining on after the controller is closed or Minecraft exits
+- Launch the redesigned VitePress documentation site with expanded controller, resource-pack, and developer documentation
+- Update community translations
