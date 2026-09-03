@@ -1,5 +1,11 @@
 name: Publish Docs
 on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref containing the documentation to publish
+        required: true
+        type: string
   push:
     branches:
       - 'main'
@@ -25,16 +31,19 @@ jobs:
 
     if: >
       github.event_name == 'push' ||
+      inputs.ref != '' ||
       github.event.pull_request.head.repo.full_name == github.repository
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.ref }}
       - uses: oven-sh/setup-bun@v2
 
       - run: bun install --frozen-lockfile
 
       - name: Deploy Production Docs
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || inputs.ref != ''
         run: bun wrangler deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
