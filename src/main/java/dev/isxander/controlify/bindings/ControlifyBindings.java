@@ -134,6 +134,42 @@ public final class ControlifyBindings {
 			.id("controlify", "hotbar_item_select_radial")
 			.category(GAMEPLAY_CATEGORY)
 			.allowedContexts(BindContext.IN_GAME, BindContext.RADIAL_MENU));
+	public static final InputBindingSupplier HOTBAR_SLOT_1 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_1")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_2 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_2")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_3 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_3")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_4 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_4")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_5 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_5")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_6 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_6")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_7 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_7")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_8 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_8")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
+	public static final InputBindingSupplier HOTBAR_SLOT_9 = ControlifyBindApi.get().registerBinding(builder -> builder
+			.id("controlify", "hotbar_slot_9")
+			.category(GAMEPLAY_CATEGORY)
+			.allowedContexts(BindContext.IN_GAME));
 	public static final InputBindingSupplier GAME_MODE_SWITCHER = ControlifyBindApi.get().registerBinding(builder -> builder
 			.id("controlify", "game_mode_switcher")
 			.category(GAMEPLAY_CATEGORY)

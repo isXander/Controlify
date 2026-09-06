@@ -115,6 +115,23 @@ public class InGameInputHandler {
 				inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
 			}
 
+			var hotbarSlots = List.of(
+					ControlifyBindings.HOTBAR_SLOT_1,
+					ControlifyBindings.HOTBAR_SLOT_2,
+					ControlifyBindings.HOTBAR_SLOT_3,
+					ControlifyBindings.HOTBAR_SLOT_4,
+					ControlifyBindings.HOTBAR_SLOT_5,
+					ControlifyBindings.HOTBAR_SLOT_6,
+					ControlifyBindings.HOTBAR_SLOT_7,
+					ControlifyBindings.HOTBAR_SLOT_8,
+					ControlifyBindings.HOTBAR_SLOT_9
+			);
+			for (int i = 0; i < hotbarSlots.size(); i++) {
+				if (hotbarSlots.get(i).on(controller).justPressed()) {
+					inventory.setSelectedSlot(i);
+				}
+			}
+
 			if (!minecraft.player.isSpectator()) {
 				if (ControlifyBindings.DROP_STACK.on(controller).justPressed()) {
 					if (minecraft.player.drop(true)) {
