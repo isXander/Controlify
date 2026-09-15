@@ -61,7 +61,12 @@ public class SDLControllerManager extends AbstractControllerManager {
         logger.debugLog("Controller manager using SDL3");
         logger.validateIsTrue(SDLNativesLoader.isLoaded(), "SDL3 natives must be loaded before creating SDLControllerManager");
 
-        SDL_SetEventFilter(eventFilter = new EventFilter(), Pointer.NULL);
+        eventFilter = new EventFilter();
+        // Android delivers stick events on its UI thread. Avoid synchronous JNA
+        // callbacks into the game JVM there; tick() already ignores other events.
+        if (!CUtil.IS_POJAV_LAUNCHER) {
+            SDL_SetEventFilter(eventFilter, Pointer.NULL);
+        }
     }
 
     @Override
