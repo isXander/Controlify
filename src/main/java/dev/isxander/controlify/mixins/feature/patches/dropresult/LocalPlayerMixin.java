@@ -12,32 +12,30 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 //? if >=26.3 {
-import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.world.item.ItemStack;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 //?}
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin implements DropWithResultInvoker {
 
 	//? if >=26.3 {
-	@Unique private final ThreadLocal<Boolean> controlify$dropResult = ThreadLocal.withInitial(() -> false);
-
-	@Shadow
-	public abstract void drop(boolean all);
-
-	@Inject(method = "drop", at = @At("RETURN"))
-	private void setResultField(boolean all, CallbackInfo ci, @Local(name = "prediction") ItemStack prediction) {
-		controlify$dropResult.set(!prediction.isEmpty());
-	}
-
+	// 26.3 release moved LocalPlayer.drop(boolean) to
+	// MultiPlayerGameMode.dropItem(LocalPlayer, boolean), which drops the
+	// selected stack (and swings) exactly as LocalPlayer.drop used to.
 	@Override
 	public boolean controlify$drop(boolean all) {
-		this.drop(all);
-		return controlify$dropResult.get();
+		LocalPlayer self = (LocalPlayer) (Object) this;
+		MultiPlayerGameMode gameMode = Minecraft.getInstance().gameMode;
+		if (gameMode == null) {
+			return false;
+		}
+
+		// dropItem() drops inventory.removeFromSelected(all); it is a no-op
+		// when the selected slot is empty, which is what the result reports.
+		boolean dropped = !self.getInventory().getSelectedItem().isEmpty();
+		gameMode.dropItem(self, all);
+		return dropped;
 	}
 	//?} else {
 	/*@Shadow

@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.gui.screen;
 
+import com.mojang.blaze3d.Blaze3D;
+import java.net.URI;
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
@@ -37,7 +39,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -67,7 +68,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		Component donateText = Component.translatable("controlify.gui.carousel.donate")
 				.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
 		PlainTextButton donateBtn = this.addRenderableWidget(new PlainTextButton(3, 3, 100, 11, donateText, btn -> {
-			Util.getPlatform().openUri("https://patreon.com/isxander");
+			Blaze3D.openUri(URI.create("https://patreon.com/isxander"));
 		}, font));
 		donateBtn.setTabOrderGroup(2);
 
@@ -75,7 +76,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 				.withStyle(ChatFormatting.DARK_GRAY);
 		int artCreditTextWidth = font.width(artCreditText);
 		PlainTextButton artCreditBtn = this.addRenderableWidget(new PlainTextButton(width - artCreditTextWidth - 3, 3, artCreditTextWidth, 11, artCreditText, btn -> {
-			Util.getPlatform().openUri("https://github.com/Andrew6rant");
+			Blaze3D.openUri(URI.create("https://github.com/Andrew6rant"));
 		}, font));
 		artCreditBtn.setTabOrderGroup(2);
 
@@ -84,7 +85,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		controllerNotDetectedButton = this.addRenderableWidget(
 				Button.builder(
 								Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
-								btn -> Util.getPlatform().openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
+								btn -> Blaze3D.openUri(URI.create("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected"))
 				)
 						.pos(width / 2 - 75, (this.height - 36) / 2 + 10)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
@@ -437,7 +438,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			);
 			this.adButton = Button.builder(
 					Component.literal("Donate on Patreon"),
-					btn -> Util.getPlatform().openUri("https://patreon.com/isxander")
+					btn -> Blaze3D.openUri(URI.create("https://patreon.com/isxander"))
 			).build();
 			Component disableAdText = Component.literal("Don't show this again")
 					.withStyle(ChatFormatting.DARK_GRAY);

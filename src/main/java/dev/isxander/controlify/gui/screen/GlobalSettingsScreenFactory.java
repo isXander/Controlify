@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.gui.screen;
 
+import com.mojang.blaze3d.Blaze3D;
+import java.net.URI;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.config.settings.GlobalSettings;
@@ -41,7 +43,7 @@ public class GlobalSettingsScreenFactory {
 						.name(Component.translatable("controlify.gui.global_settings.title"))
 						.option(ButtonOption.createBuilder()
 								.name(Component.translatable("controlify.gui.open_issue_tracker"))
-								.action((screen, button) -> Util.getPlatform().openUri("https://github.com/isxander/controlify/issues"))
+								.action((screen, button) -> Blaze3D.openUri(URI.create("https://github.com/isxander/controlify/issues")))
 								.build())
 						.group(OptionGroup.createBuilder()
 								.name(Component.translatable("controlify.gui.server_options"))
