@@ -211,7 +211,8 @@ tasks.withType<JavaCompile>().configureEach {
 
 /// Natives in the jar
 
-val includeNatives = sc.current.parsed < "26.3"
+//val includeNatives = sc.current.parsed < "26.3"
+val includeNatives = true
 
 stonecutter.constants.put("natives_in_jar", includeNatives)
 
