@@ -86,7 +86,7 @@ dependencies {
 		fabricCompileOnly("maven.modrinth:iris:$it")
     }
     ifPresent("dep.iris-neoforge") {
-        fabricCompileOnly("maven.modrinth:iris:$it")
+        neoforgeCompileOnly("maven.modrinth:iris:$it")
     }
 
     ifPresent("dep.rso") {
