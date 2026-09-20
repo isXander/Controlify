@@ -8,12 +8,12 @@ package dev.isxander.controlify.screenop.compat.vanilla;
 
 import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.guide.ContainerCtx;
-import dev.isxander.controlify.api.guide.GuideInstance;
+import dev.isxander.controlify.api.contextual.ContainerContext;
+import dev.isxander.controlify.api.contextual.GuideInstance;
 import dev.isxander.controlify.bindings.ControlifyBindings;
+import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
-import dev.isxander.controlify.gui.guide.GuideDomains;
 import dev.isxander.controlify.gui.guide.GuideRenderer;
 import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
@@ -32,7 +32,7 @@ import net.minecraft.world.inventory.ContainerInput;
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
-	private final GuideInstance<ContainerCtx> guideInstance;
+	private final GuideInstance<ContainerContext> guideInstance;
 	private GuideRenderer.Renderable guideRenderable;
 
 	private final Supplier<Slot> hoveredSlot;
@@ -50,14 +50,15 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 		this.hoveredSlot = hoveredSlot;
 		this.clickSlotFunction = clickSlotFunction;
 		this.doItemSlotActions = doItemSlotActions;
-		this.guideInstance = GuideDomains.CONTAINER.createInstance();
+		this.guideInstance = ContextualDomains.INSTANCE.container().createGuideInstance(minecraft.font);
 	}
 
 	@Override
 	protected void handleScreenVMouse(ControllerEntity controller, VirtualMouseHandler vmouse) {
 		var accessor = (AbstractContainerScreenAccessor) screen;
 
-		var ctx = new ContainerCtx(
+		var ctx = new ContainerContext(
+				minecraft.player,
 				hoveredSlot.get(),
 				screen.getMenu().getCarried(),
 				accessor.controlify$invokeHasClickedOutside(
@@ -69,7 +70,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 				controller,
 				controller.settings().generic.guide.verbosity
 		);
-		this.guideInstance.update(ctx, minecraft.font);
+		this.guideInstance.update(ctx);
 
 		Slot hoveredSlot = this.hoveredSlot.get();
 		if (hoveredSlot != null) {

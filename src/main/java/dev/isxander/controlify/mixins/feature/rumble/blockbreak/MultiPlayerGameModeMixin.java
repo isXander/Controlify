@@ -33,7 +33,10 @@ public class MultiPlayerGameModeMixin {
 			method = "lambda$startDestroyBlock$1",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
 	)
-	private void onStartBreakingBlock(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
+	private void onStartBreakingBlock(
+		CallbackInfoReturnable<Packet<?>> cir,
+		@Local(argsOnly = true, name = "state") BlockState state
+	) {
 		startRumble(state);
 	}
 
@@ -41,7 +44,10 @@ public class MultiPlayerGameModeMixin {
 			method = "lambda$startDestroyBlock$1",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;destroyBlock(Lnet/minecraft/core/BlockPos;)Z")
 	)
-	private void onInstabreakBlockSurvival(CallbackInfoReturnable<Packet<?>> cir, @Local(argsOnly = true) BlockState state) {
+	private void onInstabreakBlockSurvival(
+		CallbackInfoReturnable<Packet<?>> cir,
+		@Local(argsOnly = true, name = "state") BlockState state
+	) {
 		startRumble(state);
 		// won't stop until 1 tick
 		stopRumble();

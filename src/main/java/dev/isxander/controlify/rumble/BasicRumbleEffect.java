@@ -92,8 +92,8 @@ public final class BasicRumbleEffect implements RumbleEffect {
 				"priority=" + this.priority() + ']';
 	}
 
-	public BasicRumbleEffect join(BasicRumbleEffect other) {
-		return BasicRumbleEffect.join(this, other);
+	public BasicRumbleEffect seq(BasicRumbleEffect other) {
+		return BasicRumbleEffect.seq(this, other);
 	}
 
 	public BasicRumbleEffect repeat(int count) {
@@ -103,7 +103,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
 
 		BasicRumbleEffect effect = this;
 		for (int i = 0; i < count - 1; i++) {
-			effect = BasicRumbleEffect.join(effect, this);
+			effect = BasicRumbleEffect.seq(effect, this);
 		}
 		return effect;
 	}
@@ -147,7 +147,7 @@ public final class BasicRumbleEffect implements RumbleEffect {
 		return BasicRumbleEffect.byTick(tick -> new RumbleState(0f, 0f), durationTicks);
 	}
 
-	public static BasicRumbleEffect join(BasicRumbleEffect... effects) {
+	public static BasicRumbleEffect seq(BasicRumbleEffect... effects) {
 		RumbleState[] states = Arrays.stream(effects)
 				.flatMap(effect -> Arrays.stream(effect.states()))
 				.toArray(RumbleState[]::new);

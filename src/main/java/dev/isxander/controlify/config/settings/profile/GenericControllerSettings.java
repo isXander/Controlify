@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.api.guide.GuideVerbosity;
+import dev.isxander.controlify.api.contextual.GuideVerbosity;
 import dev.isxander.controlify.config.dto.profile.GenericControllerConfig;
 
 public class GenericControllerSettings {

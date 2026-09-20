@@ -26,7 +26,7 @@ public class LevelEventHandlerMixin {
 		switch (eventId) {
 			case LevelEvent.SOUND_ANVIL_USED -> ControlifyApi.get().playRumbleEffect(
 					RumbleSource.GUI,
-					BasicRumbleEffect.join(
+					BasicRumbleEffect.seq(
 							BasicRumbleEffect.constant(1f, 0.5f, 2),
 							BasicRumbleEffect.empty(5)
 					).repeat(3)
@@ -39,7 +39,7 @@ public class LevelEventHandlerMixin {
 		switch (eventId) {
 			case LevelEvent.SOUND_DRAGON_DEATH -> ControlifyApi.get().playRumbleEffect(
 					RumbleSource.WORLD,
-					BasicRumbleEffect.join(
+					BasicRumbleEffect.seq(
 							BasicRumbleEffect.constant(1f, 1f, 194),
 							BasicRumbleEffect.byTime(t -> {
 								float easeOutQuad = (float) Easings.easeOutQuad(t);
@@ -49,7 +49,7 @@ public class LevelEventHandlerMixin {
 			);
 			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> ControlifyApi.get().playRumbleEffect(
 					RumbleSource.WORLD,
-					BasicRumbleEffect.join(
+					BasicRumbleEffect.seq(
 							BasicRumbleEffect.constant(1f, 1f, 9),
 							BasicRumbleEffect.constant(0.1f, 1f, 14),
 							BasicRumbleEffect.byTime(t -> {

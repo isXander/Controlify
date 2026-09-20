@@ -9,7 +9,6 @@ package dev.isxander.controlify.bindings;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.api.bind.RadialIcon;
 import dev.isxander.controlify.bindings.output.KeyMappingEmulationOutput;
 import dev.isxander.controlify.controller.ControllerEntity;
 import net.minecraft.client.KeyMapping;
@@ -59,13 +58,6 @@ public class ControlifyBindApiImpl implements ControlifyBindApi {
 	@Override
 	public List<InputBindingSupplier> getKeyCorrelation(KeyMapping key) {
 		return Optional.ofNullable(this.keyMappingCorrelations.get(key)).orElse(List.of());
-	}
-
-	@Override
-	public void registerRadialIcon(Identifier id, RadialIcon icon) {
-		checkLocked();
-
-		RadialIcons.registerIcon(id, icon);
 	}
 
 	@Override

@@ -1,0 +1,84 @@
+---
+title: Custom Controller Identification
+---
+
+# Custom Controller Identification
+
+## What is it?
+
+Controlify allows you to create custom definitions for your controller.
+
+Creating a custom definition allows you to define a **specific name** for your controller model,
+**a sprite texture** (like the ones you see in the controller select screen),
+[**default bindings**](default-binds) specific to your controller,
+an [**input glyph set**](input-glyphs),
+and special input mappings for controllers like flight sticks.
+
+## Creating the definition
+
+In your resource pack, create the file `/assets/controlify/controllers/controller_identification.json5`.
+Unlike most resources in Minecraft, this file is **additive** and **does not overwrite** the base definitions
+provided by Controlify. All resource packs are loaded and their definitions are *added* to the definition
+list.
+
+::: info
+Ensure the file extension is **.json5**, and NOT `.json`.
+If you don't know what JSON5 is, don't worry, it's compatible with regular json,
+so use it as you normally would JSON.
+:::
+
+Here is a definition for Switch Pro controllers.
+```json5
+[
+  {
+    "name": "Switch Controller",
+    "namespace": "my_resource_pack:switch",
+
+    "hids": [
+      [0x57e, 0x2009], // this array must contain exactly two elements: VID and PID
+    ]
+  }
+]
+```
+Here you can see that the name of the controller is defined as `Switch Controller`, and a namespace
+has been defined for this controller `my_resource_pack:switch`. This is used elsewhere in resource pack features
+so take note of what you call it. You should set `my_resource_pack` to a string that will be unique to your resource
+pack, to prevent conflicts with other resource packs.
+
+`"hids"` is the most important part. Each USB and Bluetooth device model have unique identifiers:
+**Vendor ID (VID)** and **Product ID (PID)**. Each manufacturer reserves a specific VID, and each of their
+devices have their own PID. In the case of a Switch Pro Controller, Nintendo's VID is `0x57e` and the
+controller's PID is `0x2009`. This is defined as a json array: `[0x57e, 0x2009]`.
+
+### Finding your controller's VID and PID
+
+Even without a custom definition, Controlify will still attempt to load your controller.
+When it does so, it adds the VID and PID information into a *debug dump* that you can retrieve from the
+**Global Settings** of Controlify. Inside, you will find the information you need.
+
+## Done!
+
+You have now successfully created a custom controller definition!
+Restart the game to see that your controller is now using your custom name!
+
+If you'd like to customise your custom controller further with features mentioned at the start of this page,
+check the sidebar for pages on how to do so.
+
+## Adding to built-in namespaces
+
+Your resource pack can extend these definitions and add additional VID and PIDs to them. Exclude the `"name"` property
+for the definition for Controlify to use the built-in name.
+
+```json5
+[
+  {
+    "namespace": "controlify:xbox_one",
+    "hids": [
+      [0x01, 0x10] // additional HID added to xbox_one
+    ]
+  }
+]
+```
+
+For a list of all the built-in definitions,
+see the [Built-in Controller Namespaces](../reference/builtin-controller-namespaces) page.

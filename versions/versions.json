@@ -1,5 +1,6 @@
 {
-  "$schema": "https://codeberg.org/stonecutter/stonecutter/raw/branch/0.7/tools/settings-schema.json",
+  "$schema": "https://stonecutter.kikugie.dev/settings-schema/0.9.json",
+  "vcs": "26.2",
   "branches": {
     "": [
       "26.1",

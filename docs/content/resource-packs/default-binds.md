@@ -1,0 +1,44 @@
+---
+title: Default Binds
+---
+
+# Default Binds
+
+## What is it?
+
+The default binding of the `Controls` found in controller settings is completely data-driven.
+You can override the defaults for all controllers or specific controller namespaces.
+
+For example, by default, the `Jump` action is bound to the south face button on all controllers.
+This is 'A' on Xbox, or 'Cross' on PlayStation. This is defined within the built-in mod resource pack.
+
+## Creating the definition
+
+Below is an example that sets 'Jump' to the south button, 'Walk Forward' to pushing the left stick upwards, and unbinding the 'Open Inventory' action.
+```json
+{
+  "defaults": {
+    "controlify:jump": {
+      "button": "controlify:button/south"
+    },
+    "controlify:walk_forward": {
+      "axis": "controlify:axis/left_stick_up"
+    },
+    "controlify:inventory": {
+      "type": "empty"
+    }
+  }
+}
+```
+
+- If you would like your definition to apply to all controllers, you would put the example in the file
+`/assets/controlify/controllers/default_bind/default.json`
+- If you would like your definition to apply to a [specific controller namespace](custom-controller-identification)
+(e.g. controlify:xbox_one), you would put the example in the file
+`/assets/controlify/controllers/default_bind/xbox_one.json`
+
+What is *not* data-driven is the bindings themselves, like `controlify:jump`. These are registered in code
+within the mod. Other mods can also register their own actions, like `generic_backpack_mod:open_backpack`.
+
+**For a reference of all built-in bindings, see the [Built-in Bindings](../reference/builtin-bindings) page.**
+

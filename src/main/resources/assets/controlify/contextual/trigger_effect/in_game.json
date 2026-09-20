@@ -1,0 +1,553 @@
+{
+  "rules": [
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "#c:tools/bow"
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 3,
+        "end_position": 9,
+        "start_strength": 2,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "components": {
+            "minecraft:charged_projectiles": []
+          }
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 2,
+        "end_position": 9,
+        "start_strength": 5,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:charged_projectiles": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:consumable": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:blocks_attacks": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:equippable": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:kinetic_weapon": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:instrument": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "#c:tools/brush"
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 2,
+        "amplitude": 2,
+        "frequency": 15
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "minecraft:spyglass"
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "#c:tools/trident"
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 2,
+        "end_position": 9,
+        "start_strength": 2,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "#minecraft:eggs"
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 3,
+        "amplitude": 6,
+        "frequency": 5
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": [
+            "minecraft:snowball",
+            "minecraft:splash_potion",
+            "minecraft:lingering_potion",
+            "minecraft:experience_bottle"
+          ]
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 3,
+        "amplitude": 6,
+        "frequency": 5
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "items": "#c:tools/fishing_rod"
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:bundle_contents": {
+              "items": {
+                "size": {
+                  "min": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 6
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:active_item",
+        "item": {
+          "predicates": {
+            "minecraft:use_cooldown": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "#c:tools/bow"
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 3,
+        "end_position": 9,
+        "start_strength": 2,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "components": {
+            "minecraft:charged_projectiles": []
+          }
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 2,
+        "end_position": 9,
+        "start_strength": 5,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:charged_projectiles": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:consumable": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:blocks_attacks": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:equippable": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:kinetic_weapon": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:instrument": {}
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 3
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "#c:tools/brush"
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 2,
+        "amplitude": 2,
+        "frequency": 15
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "minecraft:spyglass"
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "#c:tools/trident"
+        }
+      },
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 2,
+        "end_position": 9,
+        "start_strength": 2,
+        "end_strength": 8
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "#minecraft:eggs"
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 3,
+        "amplitude": 6,
+        "frequency": 5
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": [
+            "minecraft:snowball",
+            "minecraft:splash_potion",
+            "minecraft:lingering_potion",
+            "minecraft:experience_bottle"
+          ]
+        }
+      },
+      "then": {
+        "type": "vibration",
+        "position": 3,
+        "amplitude": 6,
+        "frequency": 5
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "items": "#c:tools/fishing_rod"
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:bundle_contents": {
+              "items": {
+                "size": {
+                  "min": 1
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 3,
+        "strength": 6
+      }
+    },
+    {
+      "for": "controlify:use",
+      "if": {
+        "slot": "controlify:off_hand",
+        "item": {
+          "predicates": {
+            "minecraft:use_cooldown": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "if": {
+        "slot": "controlify:main_hand",
+        "item": {
+          "predicates": {
+            "minecraft:weapon": {}
+          }
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 3,
+        "end_position": 5,
+        "strength": 1
+      }
+    }
+  ]
+}

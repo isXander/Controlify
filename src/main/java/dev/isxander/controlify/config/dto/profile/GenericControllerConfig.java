@@ -8,7 +8,7 @@ package dev.isxander.controlify.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.api.guide.GuideVerbosity;
+import dev.isxander.controlify.api.contextual.GuideVerbosity;
 
 public record GenericControllerConfig(
 		boolean autoJump,

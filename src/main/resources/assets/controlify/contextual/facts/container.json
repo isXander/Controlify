@@ -1,0 +1,50 @@
+{
+  "controlify:hovering_slot": {
+    "slot": "controlify:hovering_slot",
+    "item": {}
+  },
+  "controlify:hovering_item": {
+    "slot": "controlify:hovering_slot",
+    "item": {
+      "count": {
+        "min": 1
+      }
+    }
+  },
+  "controlify:hovering_many_items": {
+    "slot": "controlify:hovering_slot",
+    "item": {
+      "count": {
+        "min": 2
+      }
+    }
+  },
+  "controlify:holding_item": {
+    "slot": "controlify:holding_item",
+    "item": {
+      "count": {
+        "min": 1
+      }
+    }
+  },
+  "controlify:holding_many_items": {
+    "slot": "controlify:holding_item",
+    "item": {
+      "count": {
+        "min": 2
+      }
+    }
+  },
+  "controlify:hovering_item_is_bundle": {
+    "slot": "controlify:hovering_slot",
+    "item": {
+      "predicates": {
+        "minecraft:bundle_contents": {}
+      }
+    }
+  },
+  "controlify:selected_bundle_slot": {
+    "slot": "controlify:bundle_selected",
+    "item": {}
+  }
+}

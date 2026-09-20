@@ -13,15 +13,21 @@ import dev.isxander.controlify.config.settings.GlobalSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 
 public final class ControlifyDataFixer {
-	public static final int CURRENT_VERSION = 7;
-
-	private static final DataFixer FIXER = createFixer();
+	public static final int CURRENT_VERSION = 8;
 
 	public static DataFixer getFixer() {
-		return FIXER;
+		return ProductionFixerHolder.FIXER;
+	}
+
+	public static DataFixer createFixer(ProfileSettings profileDefaults) {
+		return createFixer(GlobalSettings.defaults(), profileDefaults);
 	}
 
 	private static DataFixer createFixer() {
+		return createFixer(GlobalSettings.defaults(), ProfileSettings.createDefault());
+	}
+
+	private static DataFixer createFixer(GlobalSettings globalDefaults, ProfileSettings profileDefaults) {
 		var builder = new DataFixerBuilder(CURRENT_VERSION);
 
 		var v0 = builder.addSchema(0, ControlifySchemas.V0::new);
@@ -30,9 +36,7 @@ public final class ControlifyDataFixer {
 		var v3 = builder.addSchema(3, ControlifySchemas.V3::new);
 		var v6 = builder.addSchema(6, ControlifySchemas.V6::new);
 		var v7 = builder.addSchema(7, ControlifySchemas.V7::new);
-
-		var globalDefaults = GlobalSettings.defaults();
-		var profileDefaults = ProfileSettings.createDefault();
+		var v8 = builder.addSchema(8, ControlifySchemas.V8::new);
 
 		// v1
 		builder.addFixer(new TheHolyMigrationFix(v1, globalDefaults, profileDefaults));
@@ -47,9 +51,17 @@ public final class ControlifyDataFixer {
 		// v7
 		builder.addFixer(new GuideGuiScaleFix(v7, profileDefaults));
 
+		// v8
+		builder.addFixer(new GeneratedBindingIdsFix(v8));
+		builder.addFixer(new RadialMenuActionsFix(v8));
+
 		return builder.build().fixer();
 	}
 
 	private ControlifyDataFixer() {
+	}
+
+	private static final class ProductionFixerHolder {
+		private static final DataFixer FIXER = createFixer();
 	}
 }

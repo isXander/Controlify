@@ -1,0 +1,18 @@
+{
+  "rules": [
+    {
+      "for": "controlify:attack",
+      "if": {
+        "slot": "controlify:main_hand",
+        "item": {
+          "items": "minecraft:diamond_sword"
+        }
+      },
+      "then": {
+        "type": "feedback",
+        "position": 2,
+        "strength": 2
+      }
+    }
+  ]
+}

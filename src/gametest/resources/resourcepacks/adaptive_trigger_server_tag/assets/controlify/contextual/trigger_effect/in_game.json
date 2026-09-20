@@ -1,0 +1,19 @@
+{
+  "rules": [
+    {
+      "for": "controlify:attack",
+      "if": {
+        "slot": "controlify:main_hand",
+        "item": {
+          "items": "#controlify_test:adaptive_trigger_test"
+        }
+      },
+      "then": {
+        "type": "weapon",
+        "start_position": 2,
+        "end_position": 8,
+        "strength": 6
+      }
+    }
+  ]
+}

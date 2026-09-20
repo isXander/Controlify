@@ -1,0 +1,1194 @@
+{
+  "replace": true,
+  "rules": [
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:riding_happy_ghast"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.fly_up"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "any_of": [
+              "controlify:riding_saddled_camel",
+              "controlify:riding_saddled_nautilus"
+            ]
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.dash"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:riding_saddled_equine"
+        ]
+      },
+      "then": {
+        "translate": "key.jump"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:creative_flying"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.fly_up"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:in_water"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.swim_up"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:on_climbable"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.climb_up"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:on_ground"
+        ]
+      },
+      "then": {
+        "translate": "key.jump"
+      }
+    },
+    {
+      "for": "controlify:jump",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:can_elytra_fly"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.start_elytra"
+      }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:in_vehicle"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.dismount"
+      }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:creative_flying"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.fly_down"
+      }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:in_water"
+        ],
+        "none_of": [
+          "controlify:on_ground"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.swim_down"
+      }
+    },
+    {
+      "for": "controlify:sneak",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:on_climbable"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.climb_down"
+      }
+    },
+    {
+      "for": "controlify:inventory",
+      "where": "right",
+      "if": "controlify:verbosity_reduced",
+      "then": {
+        "translate": "controlify.guide.ingame.inventory"
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_entity",
+          "controlify:is_spectator"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.spectate"
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_entity"
+        ],
+        "none_of": [
+          "controlify:is_spectator"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.attack"
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_block",
+          "controlify:main_hand_is_tool"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.mine"
+      }
+    },
+    {
+      "for": "controlify:attack",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_block"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.break"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_entity",
+          "controlify:is_spectator"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.spectate"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_merchant"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.trade"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_chest_boat",
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.open"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_container_minecart"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.open"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_rideable"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.ride"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_closed_openable"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.open"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_open_openable"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.close"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_container"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.open"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_button"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.press"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_lever"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.toggle"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_bell"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.ring"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_bed"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.sleep"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_crafting_table"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.craft"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_furnace"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.smelt"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_smoker"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.cook"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_brewing_stand"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.brew"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_enchanting_table"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.enchant"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_smithing_table"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.smith"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_repair_station"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.repair"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_stonecutter"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.cut_stone"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_loom"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.weave"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_cartography_table"
+        ],
+        "none_of": [
+          "controlify:sneaking"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.edit_map"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "#c:tools/bow"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.shoot"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "predicates": {
+                "minecraft:charged_projectiles": {}
+              }
+            }
+          }
+        ],
+        "none_of": [
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "components": {
+                "minecraft:charged_projectiles": []
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.shoot"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "minecraft:crossbow",
+              "components": {
+                "minecraft:charged_projectiles": []
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.load"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "predicates": {
+                "minecraft:blocks_attacks": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.block"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "predicates": {
+                "minecraft:consumable": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.consume"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "any_of": [
+              {
+                "slot": "controlify:main_hand",
+                "item": {
+                  "items": "#c:tools/trident"
+                }
+              },
+              {
+                "slot": "controlify:main_hand",
+                "item": {
+                  "items": "#minecraft:spears"
+                }
+              },
+              {
+                "slot": "controlify:main_hand",
+                "item": {
+                  "items": "#minecraft:eggs"
+                }
+              },
+              {
+                "slot": "controlify:main_hand",
+                "item": {
+                  "items": [
+                    "minecraft:snowball",
+                    "minecraft:splash_potion",
+                    "minecraft:lingering_potion",
+                    "minecraft:experience_bottle",
+                    "minecraft:ender_pearl",
+                    "minecraft:wind_charge"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.throw"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:fishing_hook_cast",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "#c:tools/fishing_rod"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.reel_in"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "#c:tools/fishing_rod"
+            }
+          }
+        ],
+        "none_of": [
+          "controlify:fishing_hook_cast"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.cast"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "#c:tools/brush"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.brush"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "items": "minecraft:spyglass"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.zoom"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "predicates": {
+                "minecraft:instrument": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.play"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:main_hand",
+            "item": {
+              "predicates": {
+                "minecraft:equippable": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.equip"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_block",
+          "controlify:main_hand_is_block_item"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.place"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "#c:tools/bow"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.shoot"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "predicates": {
+                "minecraft:charged_projectiles": {}
+              }
+            }
+          }
+        ],
+        "none_of": [
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "components": {
+                "minecraft:charged_projectiles": []
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.shoot"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "minecraft:crossbow",
+              "components": {
+                "minecraft:charged_projectiles": []
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.load"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "predicates": {
+                "minecraft:blocks_attacks": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.block"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "predicates": {
+                "minecraft:consumable": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.consume"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "any_of": [
+              {
+                "slot": "controlify:off_hand",
+                "item": {
+                  "items": "#c:tools/trident"
+                }
+              },
+              {
+                "slot": "controlify:off_hand",
+                "item": {
+                  "items": "#minecraft:spears"
+                }
+              },
+              {
+                "slot": "controlify:off_hand",
+                "item": {
+                  "items": "#minecraft:eggs"
+                }
+              },
+              {
+                "slot": "controlify:off_hand",
+                "item": {
+                  "items": [
+                    "minecraft:snowball",
+                    "minecraft:splash_potion",
+                    "minecraft:lingering_potion",
+                    "minecraft:experience_bottle",
+                    "minecraft:ender_pearl",
+                    "minecraft:wind_charge"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.throw"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:fishing_hook_cast",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "#c:tools/fishing_rod"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.reel_in"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "#c:tools/fishing_rod"
+            }
+          }
+        ],
+        "none_of": [
+          "controlify:fishing_hook_cast"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.cast"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "#c:tools/brush"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.brush"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "items": "minecraft:spyglass"
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.zoom"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "predicates": {
+                "minecraft:instrument": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.play"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          {
+            "slot": "controlify:off_hand",
+            "item": {
+              "predicates": {
+                "minecraft:equippable": {}
+              }
+            }
+          }
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.equip"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_block",
+          "controlify:off_hand_is_block_item"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.place"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_entity"
+        ],
+        "none_of": [
+          "controlify:is_spectator"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.interact"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:looking_at_block"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.use"
+      }
+    },
+    {
+      "for": "controlify:use",
+      "where": "right",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_minimal",
+          "controlify:has_item_in_either_hand"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.use"
+      }
+    },
+    {
+      "for": "controlify:drop",
+      "where": "left",
+      "if": {
+        "all_of": [
+          "controlify:verbosity_reduced",
+          "controlify:has_item_in_main_hand"
+        ]
+      },
+      "then": {
+        "translate": "controlify.guide.ingame.drop"
+      }
+    }
+  ]
+}

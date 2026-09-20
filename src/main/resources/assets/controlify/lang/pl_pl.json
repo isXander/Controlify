@@ -36,9 +36,6 @@
   "controlify.gui.notify_low_battery.tooltip": "Pojawi się powiadomienie, gdy bateria twojego bezprzewodowego kontrolera będzie miała niski poziom. (EKSPERYMENTALNE)",
   "controlify.gui.out_of_focus_input": "Wejście poza oknem",
   "controlify.gui.out_of_focus_input.tooltip": "Jeśli ta opcja jest włączona, Controlify będzie nadal odbierać wejścia, nawet jeśli okno gry nie jest aktywne.",
-  "controlify.gui.ingame_button_guide_scale": "Skala przewodnika przycisków w grze",
-  "controlify.gui.ingame_button_guide_scale.tooltip": "Jak duży jest przewodnik przycisków w grze. To jest procent aktualnie wybranej skali interfejsu. 100% odpowiada zwykłej skali.",
-  "controlify.gui.ingame_button_guide_scale.tooltip.warning": "Może to powodować problemy ze skalowaniem, które sprawią, że będzie to wyglądać źle w czymkolwiek innym niż 100%.",
   "controlify.gui.open_issue_tracker": "Otwórz śledzenie błędów",
   "controlify.gui.use_enhanced_steam_deck_driver": "Użyj ulepszonego sterownika Steam Deck",
   "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "Jeśli ta opcja jest włączona, Controlify użyje ulepszonego sterownika dla Steam Deck, aby poprawić kompatybilność i wydajność. To jest eksperymentalne i może mieć błędy. Ten sterownik wymaga zainstalowania Decky Loader na twoim Decku.",
@@ -368,6 +365,8 @@
   "controlify.guide.ingame.spectate": "Obserwuj",
   "controlify.guide.ingame.interact": "Interakcja",
   "controlify.guide.ingame.pick_block": "Wybierz blok",
+  "controlify.guide.ingame.toggle": "Przełącz",
+  "controlify.guide.ingame.place": "Umieść",
   "controlify.guide.container.place_all": "Umieść wszystko",
   "controlify.guide.container.place_one": "Umieść",
   "controlify.guide.container.swap": "Zamień",
@@ -440,6 +439,5 @@
   "controlify.compat.svc.toggle": "(Przełącz)",
   "controlify.joystick_mapping.unmapped.axis": "Oś #%s",
   "controlify.joystick_mapping.unmapped.button": "Przycisk #%s",
-  "controlify.extra_pack.legacy_console.name": "Starsza konsola",
-  "controlify.extra_pack.legacy_console.desc": "Controlify - ustawia domyślne przypisania/glify."
+  "controlify.extra_pack.legacy_console.name": "Starsza konsola"
 }

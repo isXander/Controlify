@@ -214,6 +214,58 @@ public final class DualsenseEffectsState {
 		structureSegment.set(ValueLayout.JAVA_BYTE, LED_BLUE_OFFSET, ucLedBlue);
 	}
 
+	/**
+	 * Decodes a DualSense effect packet into a state object.
+	 *
+	 * @param source a segment containing at least {@link #SIZE} bytes at its start
+	 */
+	public static DualsenseEffectsState readFrom(MemorySegment source) {
+		Objects.requireNonNull(source, "source");
+
+		if (source.byteSize() < SIZE) {
+			throw new IllegalArgumentException(
+				"Source segment is "
+				+ source.byteSize()
+				+ " bytes, but at least "
+				+ SIZE
+				+ " are required"
+			);
+		}
+
+		MemorySegment structureSegment = source.asSlice(0, SIZE);
+		DualsenseEffectsState state = new DualsenseEffectsState();
+
+		state.ucEnableBits1 = structureSegment.get(ValueLayout.JAVA_BYTE, ENABLE_BITS_1_OFFSET);
+		state.ucEnableBits2 = structureSegment.get(ValueLayout.JAVA_BYTE, ENABLE_BITS_2_OFFSET);
+		state.ucRumbleRight = structureSegment.get(ValueLayout.JAVA_BYTE, RUMBLE_RIGHT_OFFSET);
+		state.ucRumbleLeft = structureSegment.get(ValueLayout.JAVA_BYTE, RUMBLE_LEFT_OFFSET);
+		state.ucHeadphoneVolume = structureSegment.get(ValueLayout.JAVA_BYTE, HEADPHONE_VOLUME_OFFSET);
+		state.ucSpeakerVolume = structureSegment.get(ValueLayout.JAVA_BYTE, SPEAKER_VOLUME_OFFSET);
+		state.ucMicrophoneVolume = structureSegment.get(ValueLayout.JAVA_BYTE, MICROPHONE_VOLUME_OFFSET);
+		state.ucAudioEnableBits = structureSegment.get(ValueLayout.JAVA_BYTE, AUDIO_ENABLE_BITS_OFFSET);
+		state.ucMicLightMode = structureSegment.get(ValueLayout.JAVA_BYTE, MIC_LIGHT_MODE_OFFSET);
+		state.ucAudioMuteBits = structureSegment.get(ValueLayout.JAVA_BYTE, AUDIO_MUTE_BITS_OFFSET);
+		state.rgucRightTriggerEffect = TriggerEffect.readFrom(
+			structureSegment.asSlice(RIGHT_TRIGGER_EFFECT_OFFSET, TriggerEffect.SIZE)
+		);
+		state.rgucLeftTriggerEffect = TriggerEffect.readFrom(
+			structureSegment.asSlice(LEFT_TRIGGER_EFFECT_OFFSET, TriggerEffect.SIZE)
+		);
+		MemorySegment.ofArray(state.unknown1)
+			.copyFrom(structureSegment.asSlice(UNKNOWN_1_OFFSET, state.unknown1.length));
+		state.ucEnableBits3 = structureSegment.get(ValueLayout.JAVA_BYTE, ENABLE_BITS_3_OFFSET);
+		MemorySegment.ofArray(state.unknown2)
+			.copyFrom(structureSegment.asSlice(UNKNOWN_2_OFFSET, state.unknown2.length));
+		state.ucLedAnim = structureSegment.get(ValueLayout.JAVA_BYTE, LED_ANIM_OFFSET);
+		state.ucLedBrightness = structureSegment.get(ValueLayout.JAVA_BYTE, LED_BRIGHTNESS_OFFSET);
+		state.ucPadLights = structureSegment.get(ValueLayout.JAVA_BYTE, PAD_LIGHTS_OFFSET);
+		state.ucLedRed = structureSegment.get(ValueLayout.JAVA_BYTE, LED_RED_OFFSET);
+		state.ucLedGreen = structureSegment.get(ValueLayout.JAVA_BYTE, LED_GREEN_OFFSET);
+		state.ucLedBlue = structureSegment.get(ValueLayout.JAVA_BYTE, LED_BLUE_OFFSET);
+
+		return state;
+	}
+
 	private static long offsetOf(String fieldName) {
 		return LAYOUT.byteOffset(groupElement(fieldName));
 	}
@@ -281,6 +333,30 @@ public final class DualsenseEffectsState {
 			triggerSegment.set(ValueLayout.JAVA_BYTE, EFFECT_TYPE_OFFSET, effectType);
 			triggerSegment.asSlice(PARAMETERS_OFFSET, PARAMETER_COUNT)
 				.copyFrom(MemorySegment.ofArray(parameters));
+		}
+
+		public static TriggerEffect readFrom(MemorySegment source) {
+			Objects.requireNonNull(source, "source");
+
+			if (source.byteSize() < SIZE) {
+				throw new IllegalArgumentException(
+					"Trigger effect source is "
+					+ source.byteSize()
+					+ " bytes, but at least "
+					+ SIZE
+					+ " are required"
+				);
+			}
+
+			MemorySegment triggerSegment = source.asSlice(0, SIZE);
+			byte[] parameters = new byte[PARAMETER_COUNT];
+			MemorySegment.ofArray(parameters)
+				.copyFrom(triggerSegment.asSlice(PARAMETERS_OFFSET, PARAMETER_COUNT));
+
+			return new TriggerEffect(
+				triggerSegment.get(ValueLayout.JAVA_BYTE, EFFECT_TYPE_OFFSET),
+				parameters
+			);
 		}
 	}
 

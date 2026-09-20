@@ -7,7 +7,7 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.guide.GuideVerbosity;
+import dev.isxander.controlify.api.contextual.GuideVerbosity;
 import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.api.bind.InputBinding;
@@ -585,10 +585,10 @@ public class ControllerConfigScreenFactory {
 						rumble.rumbleManager().play(
 								RumbleSource.MASTER,
 								BasicRumbleEffect.byTime(t -> new RumbleState(0f, t), 20)
-										.join(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
+										.seq(BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t), 20))
 										.repeat(3)
-										.join(BasicRumbleEffect.constant(1f, 0f, 5)
-												.join(BasicRumbleEffect.constant(0f, 1f, 5))
+										.seq(BasicRumbleEffect.constant(1f, 0f, 5)
+												.seq(BasicRumbleEffect.constant(0f, 1f, 5))
 												.repeat(10)
 										)
 										.earlyFinish(BasicRumbleEffect.finishOnScreenChange())
@@ -760,15 +760,7 @@ public class ControllerConfigScreenFactory {
 								.text(Component.translatable("controlify.gui.radial_menu.tooltip"))
 								.build())
 						.action((screen, opt) -> {
-							if (Minecraft.getInstance().level == null) return;
-							MinecraftUtil.setScreen(new RadialMenuScreen(
-									controller.orElseThrow(),
-									null,
-									RadialItems.createBindings(controller.get()),
-									Component.empty(),
-									new RadialItems.BindingEditMode(controller.get()),
-									screen
-							));
+							MinecraftUtil.setScreen(new RadialMenuEditScreen(screen, controller.orElseThrow()));
 						})
 						.text(Component.translatable("controlify.gui.radial_menu.btn_text"))
 						.build())

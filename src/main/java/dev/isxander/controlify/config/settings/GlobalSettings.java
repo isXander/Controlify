@@ -101,7 +101,7 @@ public class GlobalSettings {
 		return switch (ServerPolicies.ANALOGUE_MOVEMENT.getPolicy()) {
 			case ALLOWED -> false;
 			case DISALLOWED -> true;
-			case UNSET -> analogueMovementWhitelist.stream().noneMatch(server.ip::endsWith);
+			case UNSET -> !server.isRealm() && analogueMovementWhitelist.stream().noneMatch(server.ip::endsWith);
 		};
 	}
 

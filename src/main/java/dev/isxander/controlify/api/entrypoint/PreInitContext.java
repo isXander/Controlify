@@ -7,10 +7,10 @@
 package dev.isxander.controlify.api.entrypoint;
 
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
-import dev.isxander.controlify.api.guide.GuideDomainRegistry;
+import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
 
 public interface PreInitContext {
 	ControlifyBindApi bindings();
 
-	GuideDomainRegistry guides();
+	ContextualDomainRegistry contextualDomains();
 }

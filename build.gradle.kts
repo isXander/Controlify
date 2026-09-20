@@ -26,6 +26,8 @@ val neoforgeModDependency = configurations.dependencyScope("neoforgeModDependenc
 configurations.neoforgeCompileOnly { extendsFrom(neoforgeModDependency) }
 configurations.neoforgeLocalRuntime { extendsFrom(neoforgeModDependency) }
 
+val fabricApiBom = dependencies.platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}")
+
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     fabricLoader(libs.fabric.loader)
@@ -34,8 +36,8 @@ dependencies {
 		neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
 	}
 
-    implementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
-	fabricImplementation(platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}"))
+    implementation(fabricApiBom)
+	fabricImplementation(fabricApiBom)
 	fabricImplementation("net.fabricmc.fabric-api:fabric-resource-loader-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-networking-api-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-command-api-v2")
@@ -44,6 +46,8 @@ dependencies {
 	fabricImplementation("net.fabricmc.fabric-api:fabric-rendering-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-creative-tab-api-v1")
 	fabricImplementation("net.fabricmc.fabric-api:fabric-key-mapping-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-tag-api-v1")
+	fabricImplementation("net.fabricmc.fabric-api:fabric-convention-tags-v2")
 	// this needs to be on main because fabric is shared with main jar
 	implementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1")
     fabricLocalRuntime("net.fabricmc.fabric-api:fabric-api")
@@ -65,7 +69,7 @@ dependencies {
     neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
 
 	ifPresent("dep.mod-menu") {
-		fabricImplementation("maven.modrinth:modmenu:$it")
+		fabricCompileOnly("maven.modrinth:modmenu:$it")
 	}
 
     ifPresent("dep.sodium") {
@@ -166,6 +170,7 @@ manifests {
             "controlify:controller_type",
             "controlify:default_binds",
             "controlify:trigger_effect",
+            "controlify:radial_icons",
         )
     ))
 
@@ -265,6 +270,54 @@ if (includeNatives) {
     tasks.processResources {
         dependsOn(prepareNatives)
     }
+}
+
+/// Testing
+
+fabricApi {
+	@Suppress("UnstableApiUsage")
+	configureTests {
+		createSourceSet = true
+		modId = "controlify_test"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
+sourceSets.named { it in listOf("gametest", "test") }.configureEach {
+	compileClasspath += sourceSets.fabric.get().output
+	runtimeClasspath += sourceSets.fabric.get().output
+}
+sourceSets.named("gametest") {
+	compileClasspath += sourceSets.test.get().output
+	runtimeClasspath += sourceSets.test.get().output
+}
+configurations.named("testCompileClasspath") {
+	extendsFrom(configurations.named("fabricCompileClasspath"))
+}
+configurations.named("gametestCompileClasspath") {
+	extendsFrom(configurations.named("testCompileClasspath"))
+}
+configurations.named("testRuntimeClasspath") {
+	extendsFrom(configurations.named("fabricRuntimeClasspath"))
+}
+configurations.named("gametestRuntimeClasspath") {
+	extendsFrom(configurations.named("testRuntimeClasspath"))
+}
+
+val gametestImplementation = configurations.named("gametestImplementation")
+
+dependencies {
+	testImplementation(libs.fabric.loader.junit)
+
+	gametestImplementation(fabricApiBom)
+	gametestImplementation("net.fabricmc.fabric-api:fabric-gametest-api-v1")
+	gametestImplementation("net.fabricmc.fabric-api:fabric-client-gametest-api-v1")
+}
+
+tasks.test {
+	useJUnitPlatform()
 }
 
 /// Publishing

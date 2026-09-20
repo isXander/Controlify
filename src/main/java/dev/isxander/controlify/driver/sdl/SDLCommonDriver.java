@@ -198,6 +198,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (dualSenseComponent != null) {
 			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
 			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			dualSenseComponent.setMuteLight(false);
 			updateDualSense();
 		}
 

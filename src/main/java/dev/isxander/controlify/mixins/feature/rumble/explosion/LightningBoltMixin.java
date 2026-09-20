@@ -22,7 +22,7 @@ public class LightningBoltMixin {
 		if (client) {
 			ControlifyApi.get().playRumbleEffect(
 					RumbleSource.WORLD,
-					BasicRumbleEffect.join(
+					BasicRumbleEffect.seq(
 							BasicRumbleEffect.constant(1f, 0.2f, 6), // initial boom
 							BasicRumbleEffect.byTime(t -> new RumbleState(0f, 1 - t*0.2f), 10) // explosion
 					)

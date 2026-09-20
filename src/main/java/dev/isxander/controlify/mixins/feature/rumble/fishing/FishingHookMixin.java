@@ -58,7 +58,7 @@ public class FishingHookMixin {
 	}
 
 	@Inject(method = "setOwner", at = @At("RETURN"))
-	private void onOwnerSet(@Nullable Entity entity, CallbackInfo ci) {
-		isLocalPlayerHook = entity instanceof LocalPlayer;
+	private void onOwnerSet(@Nullable Entity owner, CallbackInfo ci) {
+		isLocalPlayerHook = owner instanceof LocalPlayer;
 	}
 }

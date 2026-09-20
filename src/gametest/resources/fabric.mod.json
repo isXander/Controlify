@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "controlify_test",
+  "version": "1.0.0",
+  "name": "Controlify Test",
+  "icon": "icon.png",
+  "mixins": [
+    "controlify_test.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.3"
+  },
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "dev.isxander.controlify.gametest.tests.ServerPolicyTests",
+      "dev.isxander.controlify.gametest.tests.ManyHotplugTests",
+      "dev.isxander.controlify.gametest.tests.ResetControlifySettingsTests",
+      "dev.isxander.controlify.gametest.tests.VirtualControllerInputTests",
+      "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
+      "dev.isxander.controlify.gametest.tests.RumbleTests",
+      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests",
+      "dev.isxander.controlify.gametest.tests.ButtonGuideTests"
+    ],
+    "client": [
+      "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
+      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests"
+    ]
+  }
+}
