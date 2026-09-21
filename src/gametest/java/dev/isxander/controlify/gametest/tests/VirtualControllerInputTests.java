@@ -7,8 +7,10 @@
 package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
+import dev.isxander.controlify.gametest.framework.controller.TestControllerContext;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -55,7 +57,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 
 			for (var expected : XINPUT_BUTTONS.entrySet()) {
 				controller.holdButton(expected.getKey());
-				context.waitFor(_ -> input.rawStateNow().isButtonDown(expected.getValue()), 10);
+				waitForButton(context, controller, input, expected, true);
 
 				for (var other : XINPUT_BUTTONS.values()) {
 					if (!other.equals(expected.getValue()) && input.rawStateNow().isButtonDown(other)) {
@@ -66,7 +68,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 				}
 
 				controller.releaseButton(expected.getKey());
-				context.waitFor(_ -> !input.rawStateNow().isButtonDown(expected.getValue()), 10);
+				waitForButton(context, controller, input, expected, false);
 			}
 		}
 
@@ -74,4 +76,22 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 		CTestUtil.clearToasts(context);
 		context.setScreen(TitleScreen::new);
 	}
+	private static void waitForButton(
+		ClientGameTestContext context,
+		TestControllerContext<?> controller,
+		InputComponent input,
+		Map.Entry<Integer, Identifier> expected,
+		boolean down
+	) {
+		try {
+			context.waitFor(_ -> input.rawStateNow().isButtonDown(expected.getValue()) == down, 10);
+		} catch (AssertionError failure) {
+			var pressed = context.computeOnClient(_ -> input.rawStateNow().getButtons().stream()
+				.filter(input.rawStateNow()::isButtonDown).toList());
+			throw new AssertionError("Timed out waiting for " + expected.getValue()
+				+ " to be " + (down ? "pressed" : "released")
+				+ "; Controlify pressed=" + pressed + "; " + controller.describeButton(expected.getKey()), failure);
+		}
+	}
+
 }

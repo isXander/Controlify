@@ -69,11 +69,25 @@ public class TestControllerContext<E> implements AutoCloseable {
 	}
 
 	private void setButton(int button, boolean down) {
-		this.sdl.joystick().SDL_SetJoystickVirtualButton(
+		if (!this.sdl.joystick().SDL_SetJoystickVirtualButton(
 			this.joystickHandle,
 			this.inputs.joystickButton(button),
 			down
-		);
+		)) {
+			throw SDLException.useSDLError(this.sdl, "Failed to set virtual button " + button + " to " + down);
+		}
+	}
+
+	public String describeButton(int button) {
+		return this.context.computeOnClient(_ -> {
+			int rawButton = this.inputs.joystickButton(button);
+			var gamepad = this.sdl.gamepad().SDL_GetGamepadFromID(this.joystickId);
+			return "SDL button=" + button
+				+ ", joystick button=" + rawButton
+				+ ", joystick down=" + this.sdl.joystick().SDL_GetJoystickButton(this.joystickHandle, rawButton)
+				+ ", gamepad down=" + this.sdl.gamepad().SDL_GetGamepadButton(gamepad, button)
+				+ ", mapping=" + this.sdl.gamepad().SDL_GetGamepadMappingForID(this.joystickId);
+		});
 	}
 
 	public void holdAxis(int axis, float state) {

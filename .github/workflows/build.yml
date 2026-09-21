@@ -135,9 +135,12 @@ jobs:
           CI_SINGLE_BUILD: ${{ matrix.target }}
           ALSOFT_DRIVERS: 'null'
 
-      - name: Upload screenshots
+      - name: Upload client test diagnostics
         uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Test Screenshots (${{ matrix.target }}) (${{ matrix.graphics_backend }})
-          path: '**/run/clientGameTest/secreenshots'
+          path: |
+            **/run/clientGameTest/screenshots/**
+            **/run/clientGameTest/logs/**
+            **/run/clientGameTest/crash-reports/**

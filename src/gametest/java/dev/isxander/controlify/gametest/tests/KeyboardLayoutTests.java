@@ -14,12 +14,9 @@ import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
-import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotComparisonAlgorithm;
-import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotComparisonOptions;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.resources.Identifier;
 
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
@@ -51,7 +48,7 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 	/// current language setting of the client.
 	///
 	/// Applies a resource pack that makes en_us and en_gb very clearly different,
-	/// and swaps locales, comparing screenshots.
+	/// and swaps locales, checking the displayed keys.
 	private void runLocaleTest(ClientGameTestContext context, ControlifyGameTestContext controlify) {
 		try (var controller = controlify.virtualControllerBuilder()
 				.withXbox()
@@ -91,8 +88,10 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 	}
 
 	private static void assertKeyboard(ClientGameTestContext context, String keyString) {
-		context.computeOnClient(_ -> {
-			var chatScreen = (ChatScreen) MinecraftUtil.getScreen();
+		context.waitFor(_ -> {
+			if (!(MinecraftUtil.getScreen() instanceof ChatScreen chatScreen)) {
+				return false;
+			}
 			KeyboardWidget keyboard = chatScreen.children().stream()
 					.flatMap(child -> child instanceof KeyboardWidget k ? Stream.of(k) : Stream.empty())
 					.findAny()
