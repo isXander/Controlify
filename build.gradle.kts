@@ -208,6 +208,14 @@ tasks.withType<Jar>().configureEach {
 tasks.withType<JavaCompile>().configureEach {
 	options.compilerArgs.add("-parameters")
 }
+// Mixin 0.17.4 changed ModifyArg/ModifyVariable.at from At to At[]. Align the
+// compile APIs so common annotation encoding matches in the NeoForge check.
+// Existing Mixin runtimes accept both encodings; leave runtime dependencies unchanged.
+if (minecraftVersion == "26.3") {
+	configurations.named("neoforgeCompileClasspath") {
+		resolutionStrategy.force("net.fabricmc:sponge-mixin:0.17.4+mixin.0.8.7")
+	}
+}
 
 /// Natives in the jar
 
