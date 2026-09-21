@@ -43,7 +43,11 @@ public class TestUnitWorldContext implements ReversibleCallback {
 	public TestUnitWorldContext(ClientGameTestContext context) {
 		this.context = context;
 		this.world = context.worldBuilder().setUseConsistentSettings(true).create();
-		this.world.getClientLevel().waitForChunksDownload();
+		//? if >=26.2 {
+		this.world.getConnection().waitForChunksDownload();
+		//?} else {
+		/*this.world.getClientLevel().waitForChunksDownload();
+		*///?}
 		this.level = this.world.getServer().computeOnServer(server -> CTestUtil.getPrincipalPlayer(server).level());
 		this.floorY = this.world.getServer().computeOnServer(server -> {
 			var player = CTestUtil.getPrincipalPlayer(server);
@@ -67,7 +71,11 @@ public class TestUnitWorldContext implements ReversibleCallback {
 		context.waitTick();
 		region.teleportPlayer(new BlockPos(1, 1, 1));
 		context.waitTick();
-		getWorld().getClientLevel().waitForChunksRender();
+		//? if >=26.2 {
+		getWorld().getConnection().waitForChunksRender();
+		//?} else {
+		/*getWorld().getClientLevel().waitForChunksRender();
+		*///?}
 		return region;
 	}
 

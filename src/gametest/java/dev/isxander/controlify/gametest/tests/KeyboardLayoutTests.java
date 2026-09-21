@@ -32,7 +32,11 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 
 		try (var world = context.worldBuilder()
 				.create()) {
-			world.getClientLevel().waitForChunksRender();
+			//? if >=26.2 {
+			world.getConnection().waitForChunksRender();
+			//?} else {
+			/*world.getClientLevel().waitForChunksRender();
+			*///?}
 
 			runLocaleTest(context, controlify);
 		}

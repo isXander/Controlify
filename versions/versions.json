@@ -1,6 +1,6 @@
 {
   "$schema": "https://stonecutter.kikugie.dev/settings-schema/0.9.json",
-  "vcs": "26.2",
+  "vcs": "26.3",
   "branches": {
     "": [
       "26.1",
