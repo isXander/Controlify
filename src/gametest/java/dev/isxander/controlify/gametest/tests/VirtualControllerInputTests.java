@@ -19,6 +19,14 @@ import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
+//? if >=26.3 {
+import com.mojang.blaze3d.platform.SDLEventHandler;
+import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.gametest.mixin.SDLEventHandlerAccessor;
+import org.lwjgl.sdl.SDL_Event;
+//?}
+
 /// A regression test:
 ///
 /// Tests the test framework's virtual button sending translates to the correct button IDs.
@@ -52,6 +60,21 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 				.attach()) {
 			var controllerEntity = controller.getControllerEntity();
 			var input = controllerEntity.input().orElseThrow();
+
+			// Fabric cancels real mouse input during tests. Controlify must not
+			// change input mode before that cancellation takes effect.
+			//? if >=26.3 {
+			context.runOnClient(client -> {
+				Controlify.instance().setInputMode(InputMode.CONTROLLER);
+				try (var event = SDL_Event.calloc()) {
+					var handler = new SDLEventHandler(client, client.getWindow());
+					((SDLEventHandlerAccessor) handler).controlify_test$handleMouseMotionEvent(event);
+				}
+				if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER) {
+					throw new AssertionError("Cancelled SDL mouse input changed Controlify input mode");
+				}
+			});
+			//?}
 
 			context.waitTick();
 

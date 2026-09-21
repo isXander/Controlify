@@ -25,12 +25,17 @@ public class SDLEventHandlerMixin {
 	@Final
 	private Minecraft minecraft;
 
+	// React only once the event reaches vanilla dispatch. Fabric client tests
+	// cancel these handlers at HEAD to suppress real keyboard and mouse input.
 	@Inject(method = {
 		"handleKeyEvent",
 		"handleTextInputEvent",
 		"handleTextEditingEvent",
 		"handleTextEditingCandidatesEvent",
-	}, at = @At("HEAD"))
+	}, at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/client/Minecraft;execute(Ljava/lang/Runnable;)V"
+	))
 	private void onKeyboardInput(CallbackInfo ci) {
 		minecraft.execute(() -> {
 			if (Controlify.instance().currentInputMode() != InputMode.MIXED) {
@@ -43,7 +48,10 @@ public class SDLEventHandlerMixin {
 		"handleMouseMotionEvent",
 		"handleMouseButtonEvent",
 		"handleMouseWheelEvent",
-	}, at = @At("HEAD"))
+	}, at = @At(
+		value = "INVOKE",
+		target = "Lnet/minecraft/client/Minecraft;execute(Ljava/lang/Runnable;)V"
+	))
 	private void onMouseInput(CallbackInfo ci) {
 		minecraft.execute(() -> {
 			if (Controlify.instance().currentInputMode() != InputMode.MIXED) {

@@ -18,6 +18,7 @@
     "SDLControllerManagerMixin"
   ],
   "client": [
+    "SDLEventHandlerAccessor",
     "SystemToastMixin",
     "ToastInstanceAccessor",
     "ToastManagerAccessor"
