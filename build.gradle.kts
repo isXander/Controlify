@@ -99,10 +99,10 @@ dependencies {
 
     ifPresent("dep.svc") {
         compileOnly("maven.modrinth:simple-voice-chat:$it")
-        fabricModDependency("maven.modrinth:simple-voice-chat:$it")
+        fabricCompileOnly("maven.modrinth:simple-voice-chat:$it")
     }
     ifPresent("dep.svc-neoforge") {
-        neoforgeModDependency("maven.modrinth:simple-voice-chat:$it")
+        neoforgeCompileOnly("maven.modrinth:simple-voice-chat:$it")
     }
 
     ifPresent("dep.fancy-menu") {
