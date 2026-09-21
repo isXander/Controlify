@@ -51,6 +51,8 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 			var controllerEntity = controller.getControllerEntity();
 			var input = controllerEntity.input().orElseThrow();
 
+			context.waitTick();
+
 			for (var expected : XINPUT_BUTTONS.entrySet()) {
 				controller.holdButton(expected.getKey());
 				context.waitFor(_ -> input.rawStateNow().isButtonDown(expected.getValue()), 10);

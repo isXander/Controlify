@@ -13,7 +13,7 @@ import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestC
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 
-/// Ensures that {@link CTestUtil#resetControlifySettings(ClientGameTestContext)}
+/// Ensures that {@link ControlifyGameTestContext#resetSettings()}
 /// works appropriately, not leaving behind any stale references.
 @SuppressWarnings("UnstableApiUsage")
 public class ResetControlifySettingsTests implements FabricClientGameTest {

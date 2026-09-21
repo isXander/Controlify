@@ -12,7 +12,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +20,7 @@ public class InputConstantsMixin {
 	// must modify isKeyDown here because Screen.hasShiftDown has some instances that ask for this directly.
 	@ModifyReturnValue(method = "isKeyDown", at = @At("RETURN"))
 	private static boolean modifyIsKeyDown(boolean keyDown, @Local(argsOnly = true, name = "key") int key) {
-		if (key == GLFW.GLFW_KEY_LEFT_SHIFT) {
+		if (key == InputConstants.KEY_LSHIFT) {
 			ControllerEntity controller = Controlify.instance().getCurrentController().orElse(null);
 			if (controller == null) return keyDown;
 

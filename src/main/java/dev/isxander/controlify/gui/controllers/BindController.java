@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.gui.controllers;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.bindings.input.*;
@@ -28,7 +29,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
@@ -91,7 +91,7 @@ public class BindController implements Controller<Input> {
 
 		@Override
 		public boolean keyPressed(KeyEvent keyEvent) {
-			if (isFocused() && keyEvent.key() == GLFW.GLFW_KEY_ENTER) {
+			if (isFocused() && keyEvent.key() == InputConstants.KEY_RETURN) {
 				openConsumerScreen();
 				return true;
 			}

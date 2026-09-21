@@ -67,7 +67,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		Component donateText = Component.translatable("controlify.gui.carousel.donate")
 				.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
 		PlainTextButton donateBtn = this.addRenderableWidget(new PlainTextButton(3, 3, 100, 11, donateText, btn -> {
-			Util.getPlatform().openUri("https://patreon.com/isxander");
+			CUtil.openUri("https://patreon.com/isxander");
 		}, font));
 		donateBtn.setTabOrderGroup(2);
 
@@ -75,7 +75,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 				.withStyle(ChatFormatting.DARK_GRAY);
 		int artCreditTextWidth = font.width(artCreditText);
 		PlainTextButton artCreditBtn = this.addRenderableWidget(new PlainTextButton(width - artCreditTextWidth - 3, 3, artCreditTextWidth, 11, artCreditText, btn -> {
-			Util.getPlatform().openUri("https://github.com/Andrew6rant");
+			CUtil.openUri("https://github.com/Andrew6rant");
 		}, font));
 		artCreditBtn.setTabOrderGroup(2);
 
@@ -84,7 +84,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		controllerNotDetectedButton = this.addRenderableWidget(
 				Button.builder(
 								Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
-								btn -> Util.getPlatform().openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
+								btn -> CUtil.openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
 				)
 						.pos(width / 2 - 75, (this.height - 36) / 2 + 10)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
@@ -437,7 +437,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			);
 			this.adButton = Button.builder(
 					Component.literal("Donate on Patreon"),
-					btn -> Util.getPlatform().openUri("https://patreon.com/isxander")
+					btn -> CUtil.openUri("https://patreon.com/isxander")
 			).build();
 			Component disableAdText = Component.literal("Don't show this again")
 					.withStyle(ChatFormatting.DARK_GRAY);

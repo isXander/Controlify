@@ -16,7 +16,7 @@ public class ServerSelectionListEntryComponentProcessor implements ComponentProc
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
 		if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
-			screen.screen.setFocused(((JoinMultiplayerScreenAccessor) screen.screen).controlify$getSelectButton());
+			screen.screen.setFocused(((JoinMultiplayerScreenAccessor) screen.screen).controlify$getJoinButton());
 			return true;
 		}
 

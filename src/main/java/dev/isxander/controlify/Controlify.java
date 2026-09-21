@@ -65,7 +65,6 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.io.IOException;
@@ -706,21 +705,15 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public void hideMouse(boolean hide, boolean moveMouse) {
-		long handle = minecraft.getWindow().handle();
+		CursorUtils.setVisibility(minecraft.getWindow(), !hide);
 
-		GLFW.glfwSetInputMode(
-				handle,
-				GLFW.GLFW_CURSOR,
-				hide
-						? GLFW.GLFW_CURSOR_HIDDEN
-						: GLFW.GLFW_CURSOR_NORMAL
-		);
 		if (MinecraftUtil.getScreen() != null) {
 			var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
 			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
+				long handle = minecraft.getWindow().handle();
 				// stop mouse hovering over last element before hiding cursor but don't actually move it
 				// so when the user switches back to mouse it will be in the same place
-				mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50);
+				mouseHandlerAccessor.controlify$invokeOnMove(handle, -50, -50 /*? if >=26.3 {*/, 0, 0/*?}*/);
 			}
 		}
 	}

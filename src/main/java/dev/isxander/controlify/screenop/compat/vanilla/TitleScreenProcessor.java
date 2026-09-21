@@ -34,7 +34,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 
 		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
 			if (getWidget("menu.options").isPresent()) {
-				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, false));
+				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options /*? if <26.3 >>*//*,false*/ ));
 				playClackSound();
 			}
 		}

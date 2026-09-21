@@ -34,7 +34,7 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
 		super.handleButtons(controller);
 
 		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
-			MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options, true));
+			MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options /*? if <26.3 >>*//*,true*/ ));
 		}
 		if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
 			screen.setFocused(disconnectButtonSupplier.get());

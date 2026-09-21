@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.gui.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.RadialIcon;
@@ -43,7 +44,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -378,23 +378,23 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	@Override
 	public boolean keyPressed(@NonNull KeyEvent event) {
 		if (model.isCarrying()) {
-			if (event.key() == GLFW.GLFW_KEY_ENTER || event.key() == GLFW.GLFW_KEY_SPACE) {
+			if (event.key() == InputConstants.KEY_RETURN || event.key() == InputConstants.KEY_SPACE) {
 				dropCarried();
 				return true;
 			}
-			if (event.key() == GLFW.GLFW_KEY_LEFT) {
+			if (event.key() == InputConstants.KEY_LEFT) {
 				moveCarried(ScreenDirection.LEFT);
 				return true;
 			}
-			if (event.key() == GLFW.GLFW_KEY_RIGHT) {
+			if (event.key() == InputConstants.KEY_RIGHT) {
 				moveCarried(ScreenDirection.RIGHT);
 				return true;
 			}
-			if (event.key() == GLFW.GLFW_KEY_UP) {
+			if (event.key() == InputConstants.KEY_UP) {
 				moveCarried(ScreenDirection.UP);
 				return true;
 			}
-			if (event.key() == GLFW.GLFW_KEY_DOWN) {
+			if (event.key() == InputConstants.KEY_DOWN) {
 				moveCarried(ScreenDirection.DOWN);
 				return true;
 			}

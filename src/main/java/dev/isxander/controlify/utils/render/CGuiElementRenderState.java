@@ -9,11 +9,16 @@ package dev.isxander.controlify.utils.render;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import net.minecraft.client.gui.render.TextureSetup;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+//? if >=26.3 {
+import com.mojang.renderpearl.api.pipeline.RenderPipeline;
+//?} else {
+/*import com.mojang.blaze3d.pipeline.RenderPipeline;
+*///?}
 
 public interface CGuiElementRenderState extends GuiElementRenderState {
 

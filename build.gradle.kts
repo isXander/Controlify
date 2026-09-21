@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("controlify-common")
 
@@ -16,12 +18,23 @@ base.archivesName = "controlify"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+val fabricModDependency = configurations.dependencyScope("fabricModDependency")
+configurations.fabricCompileOnly { extendsFrom(fabricModDependency) }
+configurations.fabricLocalRuntime { extendsFrom(fabricModDependency) }
+
+val neoforgeModDependency = configurations.dependencyScope("neoforgeModDependency")
+configurations.neoforgeCompileOnly { extendsFrom(neoforgeModDependency) }
+configurations.neoforgeLocalRuntime { extendsFrom(neoforgeModDependency) }
+
 val fabricApiBom = dependencies.platform("net.fabricmc.fabric-api:fabric-api-bom:${property("dep.fapi")}")
 
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     fabricLoader(libs.fabric.loader)
-    neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
+
+	ifPresent("dep.neoforge") {
+		neoforgeImplementation("net.neoforged:neoforge:${property("dep.neoforge")}")
+	}
 
     implementation(fabricApiBom)
 	fabricImplementation(fabricApiBom)
@@ -37,7 +50,7 @@ dependencies {
 	fabricImplementation("net.fabricmc.fabric-api:fabric-convention-tags-v2")
 	// this needs to be on main because fabric is shared with main jar
 	implementation("net.fabricmc.fabric-api:fabric-transitive-access-wideners-v1")
-    fabricRuntimeOnly("net.fabricmc.fabric-api:fabric-api")
+    fabricLocalRuntime("net.fabricmc.fabric-api:fabric-api")
 
     commonApi(libs.sdl.java.api)
     commonInclude(libs.sdl.java.api)
@@ -63,14 +76,14 @@ dependencies {
         compileOnly("net.caffeinemc:sodium-fabric:$it") {
 			exclude(group = "net.fabricmc.fabric-api")
 		}
-        fabricCompileOnly("net.caffeinemc:sodium-fabric:$it")
-        neoforgeCompileOnly("net.caffeinemc:sodium-neoforge:$it")
-        neoforgeCompileOnly("net.caffeinemc:sodium-neoforge-mod:$it")
+        fabricModDependency("net.caffeinemc:sodium-fabric:$it")
+        neoforgeModDependency("net.caffeinemc:sodium-neoforge:$it")
+		neoforgeModDependency("net.caffeinemc:sodium-neoforge-mod:$it")
     }
 
     ifPresent("dep.iris") {
         compileOnly("maven.modrinth:iris:$it")
-        fabricCompileOnly("maven.modrinth:iris:$it")
+		fabricCompileOnly("maven.modrinth:iris:$it")
     }
     ifPresent("dep.iris-neoforge") {
         neoforgeCompileOnly("maven.modrinth:iris:$it")
@@ -78,10 +91,10 @@ dependencies {
 
     ifPresent("dep.rso") {
         compileOnly("maven.modrinth:reeses-sodium-options:$it")
-        fabricCompileOnly("maven.modrinth:reeses-sodium-options:$it")
+        fabricModDependency("maven.modrinth:reeses-sodium-options:$it")
     }
     ifPresent("dep.rso-neoforge") {
-        neoforgeCompileOnly("maven.modrinth:reeses-sodium-options:$it")
+        neoforgeModDependency("maven.modrinth:reeses-sodium-options:$it")
     }
 
     ifPresent("dep.svc") {
@@ -116,8 +129,10 @@ stonecutter {
 
 /// Run configurations
 
-runs.register("neoforgeClient") {
-	runType("client")
+ifPresent("dep.neoforge") {
+	runs.register("neoforgeClient") {
+		runType("client")
+	}
 }
 
 /// Metadata file generation
@@ -193,10 +208,19 @@ tasks.withType<Jar>().configureEach {
 tasks.withType<JavaCompile>().configureEach {
 	options.compilerArgs.add("-parameters")
 }
+// Mixin 0.17.4 changed ModifyArg/ModifyVariable.at from At to At[]. Align the
+// compile APIs so common annotation encoding matches in the NeoForge check.
+// Existing Mixin runtimes accept both encodings; leave runtime dependencies unchanged.
+if (minecraftVersion == "26.3") {
+	configurations.named("neoforgeCompileClasspath") {
+		resolutionStrategy.force("net.fabricmc:sponge-mixin:0.17.4+mixin.0.8.7")
+	}
+}
 
 /// Natives in the jar
 
-val includeNatives = sc.current.parsed < "26.3"
+//val includeNatives = sc.current.parsed < "26.3"
+val includeNatives = true
 
 stonecutter.constants.put("natives_in_jar", includeNatives)
 

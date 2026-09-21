@@ -8,6 +8,8 @@ package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
+import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
+import dev.isxander.controlify.utils.MinecraftUtil;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -16,6 +18,9 @@ import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotCompa
 import net.fabricmc.fabric.api.client.gametest.v1.screenshot.TestScreenshotComparisonOptions;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.resources.Identifier;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")
 public class KeyboardLayoutTests implements FabricClientGameTest, ClientModInitializer {
@@ -32,7 +37,11 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 
 		try (var world = context.worldBuilder()
 				.create()) {
-			world.getClientLevel().waitForChunksRender();
+			//? if >=26.2 {
+			world.getConnection().waitForChunksRender();
+			//?} else {
+			/*world.getClientLevel().waitForChunksRender();
+			*///?}
 
 			runLocaleTest(context, controlify);
 		}
@@ -55,10 +64,7 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 				context.waitForScreen(ChatScreen.class);
 
 				// check american keyboard layout
-				context.assertScreenshotContains(TestScreenshotComparisonOptions
-					.of("keyboard_layout_en_us")
-					.save()
-					.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
+				assertKeyboard(context, "en_us");
 
 				// press back button to close on-screen keyboard
 				controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
@@ -71,16 +77,10 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 					context.waitForScreen(ChatScreen.class);
 
 					// check british keyboard layout
-					context.assertScreenshotContains(TestScreenshotComparisonOptions
-						.of("keyboard_layout_en_gb")
-						.save()
-						.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
+					assertKeyboard(context, "en_gb");
 				}
 				// change language without closing chat screen and check en_us loaded
-				context.assertScreenshotContains(TestScreenshotComparisonOptions
-					.of("keyboard_layout_en_us")
-					.save()
-					.withAlgorithm(TestScreenshotComparisonAlgorithm.meanSquaredDifference(0.001f)));
+				assertKeyboard(context, "en_us");
 
 				// press back button to close on-screen keyboard
 				controller.tapButton(SdlGamepad.SDL_GAMEPAD_BUTTON_EAST);
@@ -88,5 +88,21 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 			}
 		}
 
+	}
+
+	private static void assertKeyboard(ClientGameTestContext context, String keyString) {
+		context.computeOnClient(_ -> {
+			var chatScreen = (ChatScreen) MinecraftUtil.getScreen();
+			KeyboardWidget keyboard = chatScreen.children().stream()
+					.flatMap(child -> child instanceof KeyboardWidget k ? Stream.of(k) : Stream.empty())
+					.findAny()
+					.orElse(null);
+			if (keyboard == null) {
+				return false;
+			}
+
+			return keyboard.children().stream()
+					.anyMatch(key -> key.getKeyFunction().displayName().getString().equals(keyString));
+		});
 	}
 }

@@ -33,7 +33,11 @@ public class ServerPolicyTests implements FabricClientGameTest {
 				try (var connection = world.connect()) {
 					context.waitFor(minecraft -> CTestUtil.isToastPresent(minecraft, "controlify.toast.new_server.title"));
 
-					connection.getClientLevel().waitForChunksDownload();
+					//? if >=26.2 {
+					connection.waitForChunksDownload();
+					//?} else {
+					/*connection.getClientLevel().waitForChunksDownload();
+					*///?}
 
 					assertKeyboardMovement(context, true);
 				}

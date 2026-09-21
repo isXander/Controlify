@@ -50,6 +50,7 @@ import org.joml.Vector2d;
 import org.joml.Vector2f;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,9 +135,7 @@ public class InGameInputHandler {
 
 			if (!minecraft.player.isSpectator()) {
 				if (ControlifyBindings.DROP_STACK.on(controller).justPressed()) {
-					if (minecraft.player.drop(true)) {
-						minecraft.player.swing(InteractionHand.MAIN_HAND);
-					}
+					dropItem(minecraft.player, true);
 				} else {
 					if (ControlifyBindings.DROP_INGAME.on(controller).justPressed()) {
 						dropRepeating = true;
@@ -145,9 +144,8 @@ public class InGameInputHandler {
 					}
 
 					if (dropRepeating && dropRepeatHelper.shouldAction(ControlifyBindings.DROP_INGAME.on(controller))) {
-						if (minecraft.player.drop(false)) {
+						if (dropItem(minecraft.player, false)) {
 							dropRepeatHelper.onNavigate();
-							minecraft.player.swing(InteractionHand.MAIN_HAND);
 						}
 					}
 				}
@@ -537,5 +535,18 @@ public class InGameInputHandler {
 
 	public static Vec2 getMoveVec(ClientInput input) {
 		return input.getMoveVector();
+	}
+
+	private static boolean dropItem(LocalPlayer player, boolean all) {
+		//? if >=26.3 {
+		Objects.requireNonNull(Minecraft.getInstance().gameMode).dropItem(player, all);
+		return !player.getInventory().getSelectedItem().isEmpty();
+		//?} else {
+		/*if (player.drop(all)) {
+			player.swing(InteractionHand.MAIN_HAND);
+			return true;
+		}
+		return false;
+		*///?}
 	}
 }

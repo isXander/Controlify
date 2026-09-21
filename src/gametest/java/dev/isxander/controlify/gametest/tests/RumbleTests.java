@@ -49,7 +49,11 @@ public class RumbleTests implements FabricClientGameTest {
 				.withXbox()
 				.attach()) {
 			try (var world = new TestUnitWorldContext(context)) {
-				world.getWorld().getClientLevel().waitForChunksRender();
+				//? if >=26.2 {
+				world.getWorld().getConnection().waitForChunksRender();
+				//?} else {
+				/*world.getWorld().getClientLevel().waitForChunksRender();
+				*///?}
 
 				runTest(context, controlify, controller, world, "Lightning bolt", this::testLightningBoltRumble);
 				runTest(context, controlify, controller, world, "Explosion", this::testExplosionRumble);

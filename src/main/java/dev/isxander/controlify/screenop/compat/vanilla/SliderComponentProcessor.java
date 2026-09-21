@@ -6,13 +6,13 @@
  */
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ComponentProcessor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.input.KeyEvent;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -40,14 +40,14 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
 		if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).digitalNow()) {
 			if (canSliderChange) {
-				component.keyPressed(new KeyEvent(GLFW.GLFW_KEY_RIGHT, 0, 0));
+				component.keyPressed(new KeyEvent(InputConstants.KEY_RIGHT, 0, 0));
 				lastSliderChange = 0;
 			}
 
 			return true;
 		} else if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).digitalNow()) {
 			if (canSliderChange) {
-				component.keyPressed(new KeyEvent(GLFW.GLFW_KEY_LEFT, 0, 0));
+				component.keyPressed(new KeyEvent(InputConstants.KEY_LEFT, 0, 0));
 				lastSliderChange = 0;
 			}
 

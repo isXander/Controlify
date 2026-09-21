@@ -6,7 +6,10 @@
  */
 package dev.isxander.controlify.mixins.core;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import org.spongepowered.asm.mixin.Mixin;
+
+//? if <26.3 {
+/*import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.Window;
 import dev.isxander.controlify.Controlify;
@@ -15,7 +18,6 @@ import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.*;
 import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -65,3 +67,8 @@ public class KeyboardHandlerMixin {
 		});
 	}
 }
+*///?} else {
+@Mixin(dev.isxander.controlify.utils.DummyMixinTarget.class)
+public class KeyboardHandlerMixin {
+}
+//?}

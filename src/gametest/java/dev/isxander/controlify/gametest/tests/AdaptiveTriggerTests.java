@@ -53,7 +53,11 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 				.withDualsense()
 				.attachWithDriver(new DualsenseEffectDriver())) {
 			try (var world = context.worldBuilder().create()) {
-				world.getClientLevel().waitForChunksRender();
+				//? if >=26.2 {
+				world.getConnection().waitForChunksRender();
+				//?} else {
+				/*world.getClientLevel().waitForChunksRender();
+				*///?}
 
 				setServerHands(world, new ItemStack(Items.DIAMOND_SWORD), new ItemStack(Items.SHIELD));
 				context.waitTick();

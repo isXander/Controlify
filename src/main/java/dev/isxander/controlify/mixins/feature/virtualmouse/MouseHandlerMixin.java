@@ -20,10 +20,14 @@ public class MouseHandlerMixin {
 			method = "releaseMouse",
 			at = @At(
 					value = "INVOKE",
-					target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					//? if >=26.3 {
+					target = "Lcom/mojang/blaze3d/platform/InputConstants;releaseMouse(Lcom/mojang/blaze3d/platform/Window;DD)V"
+					//?} else {
+					/*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					*///?}
 			)
 	)
-	private boolean shouldReleaseMouse(Window window, int cursorMode, double xpos, double ypos) {
+	private boolean shouldReleaseMouse(Window window, /*? if <26.3 {*//*int cursorMode,*//*?}*/ double xpos, double ypos) {
 		// mouse cursor appears for a split second when going into guis on controller input
 		return Controlify.instance().currentInputMode() != InputMode.CONTROLLER;
 	}
