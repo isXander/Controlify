@@ -6,7 +6,7 @@ steamdeck4j = "1.1.7"
 quilt_parsers = "0.3.0"
 
 modstitch_manifests = "0.1.5"
-modstitch_multiloader = "0.1.8"
+modstitch_multiloader = "0.1.9"
 modstitch_modrepos = "0.1.2"
 fabric_loom = "1.17.16"
 neoforged_gradle = "7.1.39"
