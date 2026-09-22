@@ -7,6 +7,4 @@ This version has the following targets:
 
 ## Changes
 
-- Add binds for hotbar slots
-- Update gamecontrollerdb
-- Port to 26.3
+- Fix maven publishing metadata
