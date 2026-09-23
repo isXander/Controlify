@@ -135,8 +135,17 @@ public record ClientEntityPredicate(
 			return false;
 		}
 
-		if (this.gameMode.isPresent() && ((!(entity instanceof Player player) || !this.gameMode.get().matches(player.gameMode())))) {
-			return false;
+		if (this.gameMode.isPresent()) {
+			if (!(entity instanceof Player player)) {
+				return false;
+			}
+			var gameType = player.gameMode();
+			if (gameType == null) {
+				return false;
+			}
+			if (!this.gameMode.get().matches(gameType)) {
+				return false;
+			}
 		}
 
 		return true;
