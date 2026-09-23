@@ -7,4 +7,5 @@ This version has the following targets:
 
 ## Changes
 
-- Fix maven publishing metadata
+- Fix virtual mouse cursor being glitchy
+- Fix crash when rendering button guide where the player's game mode is unknown to the client
