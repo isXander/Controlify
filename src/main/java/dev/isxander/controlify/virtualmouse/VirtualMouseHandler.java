@@ -349,8 +349,6 @@ public class VirtualMouseHandler {
 	}
 
 	public void onScreenChanged() {
-		var window = minecraft.getWindow();
-
 		if (MinecraftUtil.getScreen() != null) {
 			if (requiresVirtualMouse()) {
 				enableVirtualMouse();
@@ -358,11 +356,12 @@ public class VirtualMouseHandler {
 				disableVirtualMouse();
 			}
 			if (Controlify.instance().currentInputMode().isController()) {
-				CursorUtils.setVisibility(window, false);
+				Controlify.instance().hideMouse(true, !virtualMouseEnabled);
 			}
 		} else if (virtualMouseEnabled) {
 			disableVirtualMouse();
 
+			((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
 			minecraft.mouseHandler.grabMouse(); // re-grab mouse after vmouse disable
 		}
 	}
@@ -410,10 +409,6 @@ public class VirtualMouseHandler {
 	public void enableVirtualMouse() {
 		if (virtualMouseEnabled) return;
 
-		var window = minecraft.getWindow();
-
-		// TODO: verify that hiding the mouse is sufficient, pre-SDL this was GLFW_CURSOR_DISABLED
-		CursorUtils.setVisibility(window, false);
 		virtualMouseEnabled = true;
 
 		if (minecraft.mouseHandler.xpos() == -50 && minecraft.mouseHandler.ypos() == -50) {
@@ -423,7 +418,6 @@ public class VirtualMouseHandler {
 			targetX = currentX = minecraft.mouseHandler.xpos();
 			targetY = currentY = minecraft.mouseHandler.ypos();
 		}
-		setMousePosition();
 
 		ControlifyEvents.VIRTUAL_MOUSE_TOGGLED.invoke(new ControlifyEvents.VirtualMouseToggled(true));
 		if (MinecraftUtil.getScreen() != null) {
@@ -434,14 +428,6 @@ public class VirtualMouseHandler {
 	public void disableVirtualMouse() {
 		if (!virtualMouseEnabled) return;
 
-		var window = minecraft.getWindow();
-
-		// make sure minecraft doesn't think the mouse is grabbed when it isn't
-		((MouseHandlerAccessor) minecraft.mouseHandler).controlify$setMouseGrabbed(false);
-
-		Controlify.instance().hideMouse(true, true);
-		CursorUtils.setVisibility(window, true);
-		setMousePosition();
 		virtualMouseEnabled = false;
 		targetX = currentX = minecraft.mouseHandler.xpos();
 		targetY = currentY = minecraft.mouseHandler.ypos();
@@ -450,10 +436,6 @@ public class VirtualMouseHandler {
 		if (MinecraftUtil.getScreen() != null) {
 			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onVirtualMouseToggled(false);
 		}
-	}
-
-	private void setMousePosition() {
-		CursorUtils.setPosition(minecraft.getWindow(), (float) targetX, (float) targetY);
 	}
 
 	public boolean requiresVirtualMouse() {
@@ -493,7 +475,7 @@ public class VirtualMouseHandler {
 		if (screens.contains(screenClass)) {
 			screens.remove(screenClass);
 			disableVirtualMouse();
-			Controlify.instance().hideMouse(true, false);
+			Controlify.instance().hideMouse(true, true);
 
 			MinecraftUtil.sendToast(
 					Component.translatable("controlify.toast.vmouse_disabled.title"),

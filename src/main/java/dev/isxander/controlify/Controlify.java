@@ -640,6 +640,9 @@ public class Controlify implements ControlifyApi {
 		lastInputSwitchTime = Blaze3D.getTime();
 
 		if (!minecraft.mouseHandler.isMouseGrabbed()) {
+			if (newInputMode == InputMode.KEYBOARD_MOUSE && virtualMouseHandler().isVirtualMouseEnabled()) {
+				moveCursorToVirtualMouse();
+			}
 			hideMouse(newInputMode.isController(), true);
 		}
 
@@ -709,7 +712,7 @@ public class Controlify implements ControlifyApi {
 
 		if (MinecraftUtil.getScreen() != null) {
 			var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
-			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && moveMouse) {
+			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && !virtualMouseHandler().requiresVirtualMouse() && moveMouse) {
 				long handle = minecraft.getWindow().handle();
 				// stop mouse hovering over last element before hiding cursor but don't actually move it
 				// so when the user switches back to mouse it will be in the same place
@@ -721,12 +724,21 @@ public class Controlify implements ControlifyApi {
 	public void showCursorTemporarily() {
 		if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
 			mouseUsedThisTick = true;
-			hideMouse(false, false);
-			showMouseTicks = 20 * 2;
 			if (virtualMouseHandler().isVirtualMouseEnabled()) {
+				moveCursorToVirtualMouse();
 				virtualMouseHandler().disableVirtualMouse();
 			}
+			hideMouse(false, false);
+			showMouseTicks = 20 * 2;
 		}
+	}
+
+	private void moveCursorToVirtualMouse() {
+		CursorUtils.setPosition(
+			minecraft.getWindow(),
+			virtualMouseHandler().getCurrentX(0),
+			virtualMouseHandler().getCurrentY(0)
+		);
 	}
 
 	public void endTemporaryCursor() {
