@@ -18,6 +18,7 @@
     "SDLControllerManagerMixin"
   ],
   "client": [
+    "RecipeBookPageAccessor",
     "SDLEventHandlerAccessor",
     "SystemToastMixin",
     "ToastInstanceAccessor",

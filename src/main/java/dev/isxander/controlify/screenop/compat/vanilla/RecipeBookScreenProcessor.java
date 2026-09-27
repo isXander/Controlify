@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.screenop.compat.vanilla;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
@@ -76,7 +77,7 @@ public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 		if (button != null) {
 			recipeBookComponent.mouseClicked(new MouseButtonEvent(
 					button.getX(), button.getY(),
-					new MouseButtonInfo(0, 0)), false);
+					new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false);
 		}
 	}
 
