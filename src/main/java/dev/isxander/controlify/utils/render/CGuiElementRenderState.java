@@ -14,7 +14,7 @@ import net.minecraft.client.gui.navigation.ScreenRectangle;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-//? if >=26.3 {
+//? if =26.3 {
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?} else {
 /*import com.mojang.blaze3d.pipeline.RenderPipeline;

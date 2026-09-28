@@ -66,7 +66,9 @@ dependencies {
 		exclude(group = "net.fabricmc.fabric-api")
 	}
     fabricApi("dev.isxander:yet-another-config-lib:${property("dep.yacl")}")
-    neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
+	ifPresent("dep.yacl-neoforge") {
+		neoforgeApi("dev.isxander:yet-another-config-lib:${property("dep.yacl-neoforge")}")
+	}
 
 	ifPresent("dep.mod-menu") {
 		fabricCompileOnly("maven.modrinth:modmenu:$it")

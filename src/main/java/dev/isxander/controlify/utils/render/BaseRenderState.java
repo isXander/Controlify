@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3x2f;
 
-//? if >=26.3 {
+//? if =26.3 {
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?} else {
 /*import com.mojang.blaze3d.pipeline.RenderPipeline;
