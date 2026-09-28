@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.iris.screenop;
 
 //? if iris {
 
-import dev.isxander.controlify.screenop.compat.AbstractSliderComponentProcessor;
+/*import dev.isxander.controlify.screenop.compat.AbstractSliderComponentProcessor;
 
 import java.util.function.Consumer;
 
@@ -24,4 +24,4 @@ public class BaseOptionElementComponentProcessor extends AbstractSliderComponent
 		this.cycleMethod.accept(reverse);
 	}
 }
-//?}
+*///?}

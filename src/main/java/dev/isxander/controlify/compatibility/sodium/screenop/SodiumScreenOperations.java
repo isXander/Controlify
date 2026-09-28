@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.sodium.screenop;
 
 //? if sodium {
 
-import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
+/*import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 
 public interface SodiumScreenOperations {
 	void controlify$nextPage();
@@ -21,4 +21,4 @@ public interface SodiumScreenOperations {
 
 	FlatButtonWidget controlify$getUndoButton();
 }
-//?}
+*///?}

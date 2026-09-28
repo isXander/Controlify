@@ -8,7 +8,7 @@ package dev.isxander.controlify.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
+/*import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
 import dev.isxander.controlify.compatibility.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -33,10 +33,10 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenP
 	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
 	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
 	//?} else {
-	/*@Shadow private FlatButtonWidget applyButton;
+	/^@Shadow private FlatButtonWidget applyButton;
 	@Shadow private FlatButtonWidget closeButton;
 	@Shadow private FlatButtonWidget undoButton;
-	*///?}
+	^///?}
 	@Shadow private OptionListWidget optionList;
 
 	@Unique private Page controlify$currentPage = null;
@@ -106,4 +106,4 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenP
 		return undoButton;
 	}
 }
-//?}
+*///?}

@@ -12,7 +12,8 @@ plugins {
 
 val modVersion = providers.gradleProperty("mod.version").get()
 val minecraftVersion = property("dep.minecraft")!!.toString()
-version = "$modVersion+mc$minecraftVersion"
+val scProject = sc.current.project
+version = "$modVersion+mc$scProject"
 
 base.archivesName = "controlify"
 
