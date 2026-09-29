@@ -30,7 +30,14 @@ public class GuiMixin {
 	}
 
 	@WrapWithCondition(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))
-	private boolean preventRemovingOldScreen(Screen oldScreen, @Local(argsOnly = true, name = "screen") Screen screen) {
+	private boolean preventRemovingOldScreen(
+			Screen oldScreen,
+			//? if >=26.4 {
+			@Local(argsOnly = true, name = "newScreen") Screen screen
+			//?} else {
+			/*@Local(argsOnly = true, name = "screen") Screen screen
+			*///?}
+	) {
 		return !(screen instanceof KeyboardOverlayScreen);
 	}
 }

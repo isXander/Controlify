@@ -51,7 +51,7 @@ public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 		RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.controlify$getRecipeBookPage();
 		List<RecipeBookTabButton> tabs = componentAccessor
 				.controlify$getTabButtons()
-				.stream().filter(tab -> tab.visible)
+				.stream().filter(tab -> tab./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/)
 				.toList();
 		RecipeBookTabButton selectedTab = componentAccessor.controlify$getSelectedTab();
 

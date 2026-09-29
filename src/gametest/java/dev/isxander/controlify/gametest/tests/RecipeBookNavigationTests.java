@@ -66,7 +66,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			// cannot produce a misleading navigation failure.
 			context.waitFor(_ -> recipeBook.isVisible() && page.controlify_test$getTotalPages() > 1);
 			var tabs = context.computeOnClient(_ -> component.controlify$getTabButtons().stream()
-				.filter(tab -> tab.visible).toList());
+				.filter(tab -> tab./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/).toList());
 			context.runOnClient(_ -> {
 				if (tabs.size() < 2 || component.controlify$getSelectedTab() != tabs.getFirst()
 						|| page.controlify_test$getCurrentPage() != 0) {

@@ -90,7 +90,11 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
 						.build()
 		);
-		controllerNotDetectedButton.visible = !hasController();
+		//? if >=26.4 {
+		controllerNotDetectedButton.setVisible(!hasController());
+		//?} else {
+		/*controllerNotDetectedButton.visible = !hasController();
+		*///?}
 		FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, 0, this.width, this.mainPaneHeight);
 
 
@@ -118,7 +122,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 
 		// Main Pane
-		if (!this.controllerNotDetectedButton.visible) {
+		if (!this.controllerNotDetectedButton./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/) {
 			int mainPaneX = 0;
 			int mainPaneY = 11;
 			int mainPaneHeight = this.mainPaneHeight - mainPaneY;
@@ -157,7 +161,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 	@Override
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		if (this.controllerNotDetectedButton.visible == hasController()) {
+		if (this.controllerNotDetectedButton./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/ == hasController()) {
 			this.repositionElements();
 		}
 

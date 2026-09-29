@@ -18,7 +18,11 @@ public interface AbstractContainerScreenAccessor {
 	Slot controlify$getHoveredSlot();
 
 	@Invoker("hasClickedOutside")
-	boolean controlify$invokeHasClickedOutside(double mouseX, double mouseY, int left, int top);
+	boolean controlify$invokeHasClickedOutside(
+			double mouseX, double mouseY
+			//? if <26.4
+			//,int left, int top
+	);
 
 	@Accessor("leftPos")
 	int controlify$getLeftPos();

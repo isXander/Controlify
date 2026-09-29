@@ -63,9 +63,11 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 				screen.getMenu().getCarried(),
 				accessor.controlify$invokeHasClickedOutside(
 						vmouse.getCurrentX(1f),
-						vmouse.getCurrentY(1f),
-						accessor.controlify$getLeftPos(),
+						vmouse.getCurrentY(1f)
+						//? if <26.4 {
+						/*,accessor.controlify$getLeftPos(),
 						accessor.controlify$getTopPos()
+						*///?}
 				),
 				controller,
 				controller.settings().generic.guide.verbosity

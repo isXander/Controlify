@@ -28,7 +28,7 @@ public final class SnapUtils {
 			});
 
 			var filterButton = componentAccessor.controlify$getFilterButton();
-			if (filterButton.visible) {
+			if (filterButton./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/) {
 				int x = filterButton.getX() + filterButton.getWidth() / 2;
 				int y = filterButton.getY() + filterButton.getHeight() / 2;
 				consumer.accept(new SnapPoint(new Vector2i(x, y), 14));
@@ -42,14 +42,14 @@ public final class SnapUtils {
 			});
 
 			var forwardButton = pageAccessor.controlify$getForwardButton();
-			if (forwardButton.visible) {
+			if (forwardButton./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/) {
 				int x = forwardButton.getX() + forwardButton.getWidth() / 2 - 2;
 				int y = forwardButton.getY() + forwardButton.getHeight() / 2;
 				consumer.accept(new SnapPoint(new Vector2i(x, y), 10));
 			}
 
 			var backButton = pageAccessor.controlify$getBackButton();
-			if (backButton.visible) {
+			if (backButton./*? if >=26.4 {*/isVisible()/*?} else {*//*visible*//*?}*/) {
 				int x = backButton.getX() + backButton.getWidth() / 2 + 2;
 				int y = backButton.getY() + backButton.getHeight() / 2;
 				consumer.accept(new SnapPoint(new Vector2i(x, y), 10));
