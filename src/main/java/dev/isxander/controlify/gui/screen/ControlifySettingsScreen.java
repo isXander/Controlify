@@ -17,6 +17,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.gui.components.PlainTextWidget;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
+import dev.isxander.controlify.mixins.feature.ui.ScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.MinecraftUtil;
@@ -37,7 +38,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -167,7 +167,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 		super.extractRenderState(graphics, mouseX, mouseY, a);
 
-		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : ScreenAccessor.controlify$getInworldFooterSeparator();
 		graphics.blit(
 				RenderPipelines.GUI_TEXTURED,
 				texture,

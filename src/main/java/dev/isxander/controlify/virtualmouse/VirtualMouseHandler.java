@@ -145,8 +145,8 @@ public class VirtualMouseHandler {
 			targetY += impulse.y * 10f * sensitivity * windowSizeModifier;
 
 		}
-		targetX = Mth.clamp(targetX, 0, minecraft.getWindow().getWidth());
-		targetY = Mth.clamp(targetY, 0, minecraft.getWindow().getHeight());
+		targetX = Math.clamp(targetX, 0, minecraft.getWindow().getWidth());
+		targetY = Math.clamp(targetY, 0, minecraft.getWindow().getHeight());
 
 		if (holdRepeatHelper.shouldAction(ControlifyBindings.VMOUSE_SNAP_UP.on(controller))) {
 			snapInDirection(ScreenDirection.UP);

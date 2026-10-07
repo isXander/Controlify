@@ -106,6 +106,7 @@
     "feature.settingsbutton.ControlsScreenMixin",
     "feature.steamdeck.ScreenshotAccessor",
     "feature.ui.AbstractSelectionListAccessor",
+    "feature.ui.ScreenAccessor",
     "feature.util.ConnectScreenMixin",
     "feature.virtualmouse.GuiMixin",
     "feature.virtualmouse.InputConstantsMixin",

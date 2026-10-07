@@ -150,7 +150,7 @@ public class ContinuousRumbleEffect implements RumbleEffect {
 						return RumbleState.NONE;
 
 					float distanceSqr = (float) Minecraft.getInstance().getCameraEntity().distanceToSqr(sourceLocation.get());
-					float normalizedDistance = Mth.clamp(distanceSqr / (effectRange * effectRange), 0, 1);
+					float normalizedDistance = Math.clamp(distanceSqr / (effectRange * effectRange), 0, 1);
 					float multiplier = Mth.lerp(fallofFunction.apply(1f - normalizedDistance), minMagnitude, maxMagnitude);
 
 					return stateFunction.apply(tick).mul(multiplier);

@@ -14,6 +14,7 @@ import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
+import dev.isxander.controlify.mixins.feature.ui.ScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.MinecraftUtil;
@@ -179,7 +180,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-		Identifier headerTexture = this.minecraft.level == null ? Screen.HEADER_SEPARATOR : Screen.INWORLD_HEADER_SEPARATOR;
+		Identifier headerTexture = this.minecraft.level == null ? Screen.HEADER_SEPARATOR : ScreenAccessor.controlify$getInworldHeaderSeparator();
 		graphics.blit(
 				RenderPipelines.GUI_TEXTURED,
 				headerTexture,
@@ -188,7 +189,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 				this.width, 2,
 				32, 2
 		);
-		Identifier footerTexture = this.minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier footerTexture = this.minecraft.level == null ? Screen.FOOTER_SEPARATOR : ScreenAccessor.controlify$getInworldFooterSeparator();
 		graphics.blit(
 				RenderPipelines.GUI_TEXTURED,
 				footerTexture,

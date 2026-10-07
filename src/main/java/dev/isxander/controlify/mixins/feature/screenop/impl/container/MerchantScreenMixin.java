@@ -47,10 +47,17 @@ public class MerchantScreenMixin {
 		return canScroll;
 	}
 
-	@Definition(id = "clamp", method = "Lnet/minecraft/util/Mth;clamp(III)I")
+	@Definition(
+			id = "clamp",
+			//? if >=26.4 {
+			method = "Ljava/lang/Math;clamp(JII)I"
+			//?} else {
+			/*method = "Lnet/minecraft/util/Mth;clamp(III)I"
+			*///?}
+	)
 	@Definition(id = "scrollOff", field = "Lnet/minecraft/client/gui/screens/inventory/MerchantScreen;scrollOff:I")
 	@Definition(id = "scrollY", local = @Local(ordinal = 3, argsOnly = true, type = double.class))
-	@Expression("this.scrollOff = clamp((int) ((double) this.scrollOff - @(scrollY)), ?, ?)")
+	@Expression("this.scrollOff = clamp((long) (int) ((double) this.scrollOff - @(scrollY)), ?, ?)")
 	@ModifyExpressionValue(method = "mouseScrolled", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private double useAccumulatedScrollField(double scrollY) {
 		double prev = this.accumulatedScroll;

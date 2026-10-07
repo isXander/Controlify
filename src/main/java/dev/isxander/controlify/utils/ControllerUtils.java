@@ -84,7 +84,7 @@ public class ControllerUtils {
 		if (isSnap && hasCrossedOrigin) {
 			// t is the distance from the origin to the middle of the line
 			float t = (-x * (px - x) + -y * (py - y)) / distanceSquared;
-			t = Mth.clamp(t, 0, 1);
+			t = Math.clamp(t, 0, 1);
 
 			// Calculate the distance from the middle of the line to the origin
 			double distanceToMiddle = Math.sqrt(Math.pow(-t * x + t * px, 2)

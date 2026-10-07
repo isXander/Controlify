@@ -17,6 +17,7 @@ import dev.isxander.controlify.bindings.RadialIconExtractor;
 import dev.isxander.controlify.bindings.RadialIconManager;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
+import dev.isxander.controlify.mixins.feature.ui.ScreenAccessor;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.utils.MinecraftUtil;
@@ -355,7 +356,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
-		Identifier headerTexture = minecraft.level == null ? Screen.HEADER_SEPARATOR : Screen.INWORLD_HEADER_SEPARATOR;
+		Identifier headerTexture = minecraft.level == null ? Screen.HEADER_SEPARATOR : ScreenAccessor.controlify$getInworldHeaderSeparator();
 		graphics.blit(
 				RenderPipelines.GUI_TEXTURED,
 				headerTexture,
@@ -364,7 +365,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 				width, 2,
 				32, 2
 		);
-		Identifier footerTexture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		Identifier footerTexture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : ScreenAccessor.controlify$getInworldFooterSeparator();
 		graphics.blit(
 				RenderPipelines.GUI_TEXTURED,
 				footerTexture,

@@ -102,7 +102,7 @@ public class CUtil {
 	}
 
 	public static short mapFloatToShort(float value) {
-		value = Mth.clamp(value, -1f, 1f);
+		value = Math.clamp(value, -1f, 1f);
 
 		float scale = 32767.5f - 0.5f * Math.signum(value);
 		return (short) Math.round(value * scale);

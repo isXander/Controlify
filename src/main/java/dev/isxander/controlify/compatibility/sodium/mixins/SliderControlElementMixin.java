@@ -37,7 +37,7 @@ public abstract class SliderControlElementMixin extends ControlElement implement
 
 	@Unique private void controlify$incrementSlider(boolean reverse) {
 		var range = option.getSteppedValidator();
-		option.modifyValue(Mth.clamp(
+		option.modifyValue(Math.clamp(
 				option.getValidatedValue() + (reverse ? -range.step() : range.step()),
 				range.min(), range.max()
 		));
