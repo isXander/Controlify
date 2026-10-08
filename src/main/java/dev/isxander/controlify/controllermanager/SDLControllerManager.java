@@ -43,18 +43,12 @@ public class SDLControllerManager extends AbstractControllerManager {
 
 	private SdlEvent event = new SdlEvent();
 
-	// must keep a reference to prevent GC from collecting it and the callback failing
-	@SuppressWarnings({"FieldCanBeLocal", "unused"})
-	private final EventFilter eventFilter;
-
 	private boolean steamDeckConsumed = false;
 
 	public SDLControllerManager(Sdl sdl, ControlifyLogger logger) {
 		super(logger);
 		this.sdl = sdl;
 		logger.debugLog("Controller manager using SDL3");
-
-		sdl.events().SDL_SetEventFilter(eventFilter = new EventFilter(), SdlPointer.NULL);
 
 		this.loadGamepadMappings(minecraft.getResourceManager());
 	}
@@ -259,17 +253,6 @@ public class SDLControllerManager extends AbstractControllerManager {
 		@Override
 		public int hashCode() {
 			return Objects.hash(jid.value());
-		}
-	}
-
-	private static class EventFilter implements SdlCallbacks.EventFilter {
-		@Override
-		public boolean filter(SdlPointer userdata, SdlEvent event) {
-			return switch (event.type()) {
-				case SDL_EVENT_JOYSTICK_ADDED,
-					SDL_EVENT_JOYSTICK_REMOVED -> true;
-				default -> false;
-			};
 		}
 	}
 }
