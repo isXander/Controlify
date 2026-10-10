@@ -43,17 +43,22 @@ public class ToggleLatchActivator implements Activator {
 		}
 	}
 
-	public record ToggleLatchActivatorConfig(
-			ActivatorFactory<?> pulseBinding
-	) implements ActivatorFactory<ToggleLatchActivator> {
+	public record Config(
+			ActivatorConfig<?> pulseBinding
+	) implements ActivatorConfig<ToggleLatchActivator> {
 		public static final String TYPE_ID = "latch_toggle";
-		public static final MapCodec<ToggleLatchActivatorConfig> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				ActivatorSerialization.FACTORY_CODEC.fieldOf("source_pulse").forGetter(ToggleLatchActivatorConfig::pulseBinding)
-		).apply(instance, ToggleLatchActivatorConfig::new));
+		public static final MapCodec<Config> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				ActivatorConfig.CODEC.fieldOf("source_pulse").forGetter(Config::pulseBinding)
+		).apply(instance, Config::new));
 
 		@Override
 		public ToggleLatchActivator create(LogicalInput boundInput) {
 			return new ToggleLatchActivator(this.pulseBinding.create(boundInput));
+		}
+
+		@Override
+		public ActivatorConfigType<ToggleLatchActivator, Config> type() {
+			return ActivatorConfigType.TOGGLE_LATCH;
 		}
 	}
 }

@@ -75,22 +75,27 @@ public class RepeatLatchPulseActivator implements Activator {
 		}
 	}
 
-	public record RepeatLatchPulseActivatorConfig(
-			ActivatorFactory<?> latchBinding,
+	public record Config(
+			ActivatorConfig<?> latchBinding,
 			int initialDelayTicks, int repeatDelayTicks
-	) implements ActivatorFactory<RepeatLatchPulseActivator> {
+	) implements ActivatorConfig<RepeatLatchPulseActivator> {
 		public static final String TYPE_ID = "pulse_repeat_latch";
-		public static final MapCodec<RepeatLatchPulseActivatorConfig> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-				ActivatorSerialization.FACTORY_CODEC.fieldOf("source_latch").forGetter(RepeatLatchPulseActivatorConfig::latchBinding),
-				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ticks", 5).forGetter(RepeatLatchPulseActivatorConfig::initialDelayTicks),
-				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ticks", 1).forGetter(RepeatLatchPulseActivatorConfig::repeatDelayTicks)
-		).apply(instance, RepeatLatchPulseActivatorConfig::new));
+		public static final MapCodec<Config> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+				ActivatorConfig.CODEC.fieldOf("source_latch").forGetter(Config::latchBinding),
+				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ticks", 5).forGetter(Config::initialDelayTicks),
+				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ticks", 1).forGetter(Config::repeatDelayTicks)
+		).apply(instance, Config::new));
 
 		@Override
 		public RepeatLatchPulseActivator create(LogicalInput boundInput) {
 			long initialDelayNs = this.initialDelayTicks * 50_000_000L;
 			long repeatDelayNs = this.repeatDelayTicks * 50_000_000L;
 			return new RepeatLatchPulseActivator(this.latchBinding.create(boundInput), initialDelayNs, repeatDelayNs);
+		}
+
+		@Override
+		public ActivatorConfigType<RepeatLatchPulseActivator, Config> type() {
+			return ActivatorConfigType.REPEAT_LATCH_PULSE;
 		}
 	}
 }

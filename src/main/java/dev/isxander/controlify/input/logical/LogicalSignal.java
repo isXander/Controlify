@@ -15,10 +15,10 @@ public sealed interface LogicalSignal {
 		LogicalInput input();
 	}
 	/// When the button is pressed down
-	record ButtonDown(long timeNanos, LogicalInput input) implements InputSignal {}
+	record ButtonPress(long timeNanos, LogicalInput input) implements InputSignal {}
 
 	/// When the button is released
-	record ButtonUp(long timeNanos, LogicalInput input) implements InputSignal {}
+	record ButtonRelease(long timeNanos, LogicalInput input) implements InputSignal {}
 
 	/// When button is pressed and released in quick succession
 	record Tapped(long timeNanos, LogicalInput input) implements InputSignal {}

@@ -20,7 +20,7 @@ public sealed interface LogicalInput {
 	}
 
 	/// A logical input that triggers only after all modifiers are already pressed.
-	record Modified(Set<Identifier> modifiers, Identifier trigger) implements LogicalInput {
+	record ModifiedChord(Set<Identifier> modifiers, Identifier trigger) implements LogicalInput {
 
 	}
 }
