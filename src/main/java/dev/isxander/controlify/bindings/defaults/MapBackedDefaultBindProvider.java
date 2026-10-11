@@ -10,20 +10,20 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Keyable;
 import com.mojang.serialization.MapCodec;
 import dev.isxander.controlify.api.bind.ControlifyBindApi;
-import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.input.logical.LogicalInput;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
-public record MapBackedDefaultBindProvider(Map<Identifier, Input> map) implements DefaultBindProvider {
+public record MapBackedDefaultBindProvider(Map<Identifier, LogicalInput> map) implements DefaultBindProvider {
 	public static final MapCodec<MapBackedDefaultBindProvider> MAP_CODEC = Codec.simpleMap(
-			Identifier.CODEC, Input.CODEC,
+			Identifier.CODEC, LogicalInput.CODEC,
 			Keyable.forStrings(() -> ControlifyBindApi.get().getAllBindIds().map(Identifier::toString))
 	).xmap(MapBackedDefaultBindProvider::new, MapBackedDefaultBindProvider::map);
 
 	@Override
-	public @Nullable Input getDefaultBind(Identifier bindId) {
-		return map.get(bindId);
+	public @Nullable LogicalInput getDefaultInput(Identifier actionId) {
+		return map.get(actionId);
 	}
 }

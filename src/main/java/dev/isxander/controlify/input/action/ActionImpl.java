@@ -14,17 +14,26 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	private Activator activator;
 	private final ActivatorConfig<?> activatorConfig;
 
+	private final ActionGraph actionGraph;
+
 	public ActionImpl(
 			ActionSpec spec,
 			@Nullable LogicalInput boundInput,
 			@Nullable LogicalInput defaultInput,
-			ActivatorConfig<?> activator
+			ActivatorConfig<?> activator,
+			ActionGraph actionGraph
 	) {
 		this.spec = spec;
 		this.defaultInput = defaultInput;
 		this.activatorConfig = activator;
-		this.setBoundInput(boundInput);
 		this.state = new ActionState();
+		this.actionGraph = actionGraph;
+		this.boundInput = boundInput;
+	}
+
+	@Override
+	public ActionSpec spec() {
+		return this.spec;
 	}
 
 	@Override
@@ -35,9 +44,35 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	@Override
 	public void setBoundInput(@Nullable LogicalInput boundInput) {
 		this.boundInput = boundInput;
-		this.activator = boundInput != null
-				? this.activatorConfig.create(boundInput)
+		this.reset();
+		this.actionGraph.onActionBindingChange(this);
+	}
+
+	@Override
+	public @Nullable LogicalInput defaultInput() {
+		return this.defaultInput;
+	}
+
+	@Override
+	public Channel.Pulse pulse() {
+		return this.state();
+	}
+
+	@Override
+	public Channel.Latch latch() {
+		return this.state();
+	}
+
+	@Override
+	public Channel.Continuous continuous() {
+		return this.state();
+	}
+
+	public void reset() {
+		this.activator = this.boundInput() != null
+				? this.activatorConfig.create(this.boundInput())
 				: new NoopActivator();
+		this.state.reset();
 	}
 
 	public ActionState state() {

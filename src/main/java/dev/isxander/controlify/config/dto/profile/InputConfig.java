@@ -8,8 +8,8 @@ package dev.isxander.controlify.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.ingame.InputCurves;
+import dev.isxander.controlify.input.logical.LogicalInput;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
@@ -31,11 +31,11 @@ public record InputConfig(
 	).apply(instance, InputConfig::new));
 
 	public record BindingsConfig(
-			Map<Identifier, Input> bindings
+			Map<Identifier, LogicalInput> bindings
 	) {
 		public static final BindingsConfig EMPTY = new BindingsConfig(Map.of());
 
-		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, Input.CODEC)
+		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, LogicalInput.CODEC)
 				.xmap(BindingsConfig::new, BindingsConfig::bindings);
 
 		public BindingsConfig {

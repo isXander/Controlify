@@ -62,7 +62,7 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 	@Override
 	public void onEvent(PhysicalSignal event, EventSink<? super LogicalSignal> downstream) {
 		switch (event) {
-			case PhysicalSignal.Tick(long timeNanos, long deltaTimeNanos) -> {
+			case PhysicalSignal.Frame(long timeNanos, long deltaTimeNanos) -> {
 				this.sensorAccumulatorStage.onEvent(event, downstream);
 				// Holds must fire even without new input events, before downstream actions process this frame's tick.
 				this.activeButtons.forEach((input, state) -> {

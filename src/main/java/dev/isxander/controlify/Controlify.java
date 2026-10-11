@@ -40,6 +40,7 @@ import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.input.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
@@ -93,6 +94,8 @@ public class Controlify implements ControlifyApi {
 	private DefaultConfigManager defaultConfigManager;
 	private ControllerTypeManager controllerTypeManager;
 	private KeyboardLayoutManager keyboardLayoutManager;
+	private RadialIconManager radialIconManager;
+	private ActivatorConfigManager activatorConfigManager;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -139,13 +142,16 @@ public class Controlify implements ControlifyApi {
 		this.defaultConfigManager = new DefaultConfigManager();
 		this.controllerTypeManager = new ControllerTypeManager();
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
+		this.radialIconManager = new RadialIconManager();
+		this.activatorConfigManager = new ActivatorConfigManager();
 
-		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
-		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
-		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
-		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
-		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
-		PlatformClientUtil.registerAssetReloadListener(RadialIconManager.INSTANCE);
+		PlatformClientUtil.registerAssetReloadListener(this.inputFontMapper);
+		PlatformClientUtil.registerAssetReloadListener(this.defaultBindManager);
+		PlatformClientUtil.registerAssetReloadListener(this.defaultConfigManager);
+		PlatformClientUtil.registerAssetReloadListener(this.controllerTypeManager);
+		PlatformClientUtil.registerAssetReloadListener(this.keyboardLayoutManager);
+		PlatformClientUtil.registerAssetReloadListener(this.radialIconManager);
+		PlatformClientUtil.registerAssetReloadListener(this.activatorConfigManager);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
 		ContextualDomains.touch();
@@ -756,27 +762,35 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public InputFontMapper inputFontMapper() {
-		return inputFontMapper;
+		return this.inputFontMapper;
 	}
 
 	public DefaultBindManager defaultBindManager() {
-		return defaultBindManager;
+		return this.defaultBindManager;
 	}
 
 	public DefaultConfigManager defaultConfigManager() {
-		return defaultConfigManager;
+		return this.defaultConfigManager;
 	}
 
 	public ControllerTypeManager controllerTypeManager() {
-		return controllerTypeManager;
+		return this.controllerTypeManager;
 	}
 
 	public KeyboardLayoutManager keyboardLayoutManager() {
-		return keyboardLayoutManager;
+		return this.keyboardLayoutManager;
+	}
+
+	public RadialIconManager radialIconManager() {
+		return this.radialIconManager;
+	}
+
+	public ActivatorConfigManager activatorConfigManager() {
+		return this.activatorConfigManager;
 	}
 
 	public TriggerEffectManager triggerEffectManager() {
-		return triggerEffectManager;
+		return this.triggerEffectManager;
 	}
 
 	public Set<BindContext> thisTickBindContexts() {

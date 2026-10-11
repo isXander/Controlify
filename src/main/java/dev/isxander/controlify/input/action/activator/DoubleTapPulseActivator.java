@@ -23,7 +23,6 @@ public record DoubleTapPulseActivator(LogicalInput boundInput) implements Activa
 	public record Config() implements ActivatorConfig<DoubleTapPulseActivator> {
 		public static final String TYPE_ID = "pulse_double_tap";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public DoubleTapPulseActivator create(LogicalInput boundInput) {

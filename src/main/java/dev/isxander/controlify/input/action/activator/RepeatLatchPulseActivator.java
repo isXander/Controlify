@@ -77,19 +77,19 @@ public class RepeatLatchPulseActivator implements Activator {
 
 	public record Config(
 			ActivatorConfig<?> latchBinding,
-			int initialDelayTicks, int repeatDelayTicks
+			int initialDelayMs, int repeatDelayMs
 	) implements ActivatorConfig<RepeatLatchPulseActivator> {
 		public static final String TYPE_ID = "pulse_repeat_latch";
 		public static final MapCodec<Config> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				ActivatorConfig.CODEC.fieldOf("source_latch").forGetter(Config::latchBinding),
-				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ticks", 5).forGetter(Config::initialDelayTicks),
-				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ticks", 1).forGetter(Config::repeatDelayTicks)
+				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ms", 5).forGetter(Config::initialDelayMs),
+				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ms", 1).forGetter(Config::repeatDelayMs)
 		).apply(instance, Config::new));
 
 		@Override
 		public RepeatLatchPulseActivator create(LogicalInput boundInput) {
-			long initialDelayNs = this.initialDelayTicks * 50_000_000L;
-			long repeatDelayNs = this.repeatDelayTicks * 50_000_000L;
+			long initialDelayNs = this.initialDelayMs * 1_000_000L;
+			long repeatDelayNs = this.repeatDelayMs * 1_000_000L;
 			return new RepeatLatchPulseActivator(this.latchBinding.create(boundInput), initialDelayNs, repeatDelayNs);
 		}
 

@@ -43,4 +43,10 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
 	public void setContinuous(float value) {
 		this.continuousValue = Math.clamp(value, 0f, 1f);
 	}
+
+	public void reset() {
+		this.pulses = 0;
+		this.latchActive = false;
+		this.continuousValue = 0f;
+	}
 }

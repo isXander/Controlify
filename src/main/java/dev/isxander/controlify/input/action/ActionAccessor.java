@@ -1,7 +1,7 @@
 package dev.isxander.controlify.input.action;
 
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.input.InputComponent;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 

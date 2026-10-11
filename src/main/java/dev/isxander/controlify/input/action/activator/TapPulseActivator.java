@@ -24,7 +24,6 @@ public record TapPulseActivator(LogicalInput boundInput) implements Activator {
 	public record Config() implements ActivatorConfig<TapPulseActivator> {
 		public static final String TYPE_ID = "pulse_tap";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public TapPulseActivator create(LogicalInput boundInput) {

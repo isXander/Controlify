@@ -6,12 +6,12 @@
  */
 package dev.isxander.controlify.bindings.defaults;
 
-import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.input.logical.LogicalInput;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 public interface DefaultBindProvider {
-	@Nullable Input getDefaultBind(Identifier bindId);
+	@Nullable LogicalInput getDefaultInput(Identifier actionId);
 
 	DefaultBindProvider EMPTY = bind -> null;
 }

@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.config.settings.profile;
 
-import dev.isxander.controlify.bindings.input.Input;
 import dev.isxander.controlify.config.dto.profile.InputConfig;
 import dev.isxander.controlify.ingame.InputCurves;
+import dev.isxander.controlify.input.logical.LogicalInput;
 import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
@@ -59,9 +59,9 @@ public class InputSettings {
 	}
 
 	public static class BindingsSettings {
-		public Map<Identifier, Input> bindings;
+		public Map<Identifier, LogicalInput> bindings;
 
-		public BindingsSettings(Map<Identifier, Input> bindings) {
+		public BindingsSettings(Map<Identifier, LogicalInput> bindings) {
 			this.bindings = new HashMap<>(bindings);
 		}
 

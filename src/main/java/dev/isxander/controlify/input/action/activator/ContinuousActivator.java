@@ -22,7 +22,6 @@ public record ContinuousActivator(LogicalInput boundInput) implements Activator 
 	public record Config() implements ActivatorConfig<ContinuousActivator> {
 		public static final String TYPE_ID = "continuous";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public ContinuousActivator create(LogicalInput boundInput) {

@@ -82,7 +82,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		this.controller = controller;
 		this.model = new RadialMenuEditModel(controller.settings().input.radialMenu.radialActions);
 		this.candidates = controller.input().orElseThrow().getAllBindings().stream()
-				.filter(RadialIconManager.INSTANCE::isRadialCandidate)
+				.filter(Controlify.instance().radialIconManager()::isRadialCandidate)
 				.toList();
 		this.candidatesById = candidates.stream().collect(Collectors.toMap(
 				InputBinding::id,
@@ -548,7 +548,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			InputBinding binding = candidatesById.get(id);
 			this.icon = binding == null
 					? RadialIcon.EMPTY
-					: RadialIconManager.INSTANCE.getIcon(binding);
+					: Controlify.instance().radialIconManager().getIcon(binding);
 		}
 
 		@Override

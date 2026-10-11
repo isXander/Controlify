@@ -33,7 +33,6 @@ public record HoldLatchActivator(LogicalInput boundInput) implements Activator {
 	public record Config() implements ActivatorConfig<HoldLatchActivator> {
 		public static final String TYPE_ID = "latch_hold";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public HoldLatchActivator create(LogicalInput boundInput) {

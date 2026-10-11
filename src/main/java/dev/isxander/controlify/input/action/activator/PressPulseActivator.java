@@ -23,7 +23,6 @@ public record PressPulseActivator(LogicalInput boundInput) implements Activator 
 	public record Config() implements ActivatorConfig<PressPulseActivator> {
 		public static final String TYPE_ID = "pulse_press";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public PressPulseActivator create(LogicalInput boundInput) {

@@ -8,7 +8,7 @@ package dev.isxander.controlify.bindings.defaults;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.bindings.input.Input;
+import dev.isxander.controlify.input.logical.LogicalInput;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,9 +24,9 @@ public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultB
 	}
 
 	@Override
-	@Nullable public Input getDefaultBind(Identifier bindId) {
+	@Nullable public LogicalInput getDefaultInput(Identifier actionId) {
 		for (var layer : layers()) {
-			Input input = layer.provider().getDefaultBind(bindId);
+			var input = layer.provider().getDefaultInput(actionId);
 			if (input != null) return input;
 			if (layer.clearBelow()) return null;
 		}

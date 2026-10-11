@@ -10,7 +10,7 @@ import java.util.Set;
 /// Expands the domain of physical inputs.
 /// - Expands button presses and releases into axis moved events.
 /// - Expands axis moved events into button presses and releases when passing threshold.
-public class InputDomainExpansionStage implements UnaryEventStage<PhysicalInputSignal> {
+public class InputDomainExpansionStage implements UnaryEventStage<PhysicalSignal> {
 
 	private final Set<Identifier> pressedButtons;
 	private final float actuation, release, pressedValue, releasedValue;
@@ -24,17 +24,17 @@ public class InputDomainExpansionStage implements UnaryEventStage<PhysicalInputS
 	}
 
 	@Override
-	public void onEvent(PhysicalInputSignal event, EventSink<? super PhysicalInputSignal> downstream) {
+	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
 		downstream.accept(event);
 
 		switch (event) {
 			case PhysicalInputSignal.AxisMoved(long timeNanos, Identifier input, float value) -> {
 				if (value >= actuation) {
-					if (!this.pressedButtons.add(input)) {
+					if (this.pressedButtons.add(input)) {
 						downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, input, true));
 					}
 				} else if (value <= release) {
-					if (!this.pressedButtons.remove(input)) {
+					if (this.pressedButtons.remove(input)) {
 						downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, input, false));
 					}
 				}
@@ -42,6 +42,7 @@ public class InputDomainExpansionStage implements UnaryEventStage<PhysicalInputS
 			case PhysicalInputSignal.ButtonChanged(long timeNanos, Identifier input, boolean state) -> {
 				downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, input, state ? pressedValue : releasedValue));
 			}
+			default -> {}
 		}
 	}
 }

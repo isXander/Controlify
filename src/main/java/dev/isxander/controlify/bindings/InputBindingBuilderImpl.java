@@ -145,7 +145,7 @@ public class InputBindingBuilderImpl implements InputBindingBuilder {
 					controllerType
 			);
 
-			Input input = provider.getDefaultBind(id);
+			Input input = provider.getDefaultInput(id);
 			if (input == null) input = defaultInput;
 			if (input == null) input = EmptyInput.INSTANCE;
 

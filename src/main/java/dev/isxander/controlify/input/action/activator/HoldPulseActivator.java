@@ -23,7 +23,6 @@ public record HoldPulseActivator(LogicalInput boundInput) implements Activator {
 	public record Config() implements ActivatorConfig<HoldPulseActivator> {
 		public static final String TYPE_ID = "pulse_hold";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public HoldPulseActivator create(LogicalInput boundInput) {

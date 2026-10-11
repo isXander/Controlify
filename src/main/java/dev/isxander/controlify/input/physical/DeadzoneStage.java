@@ -12,13 +12,17 @@ import java.util.function.Function;
 /// Applies deadzones to physical axes.
 // TODO: radial deadzones
 public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
-	private final Function<Identifier, Float> deadzoneSupplier;
+	private Function<Identifier, Float> deadzoneSupplier;
 
 	private final Set<Identifier> axisWasZero;
 
-	public DeadzoneStage(Function<Identifier, Float> axisToDeadzoneSupplier) {
-		this.deadzoneSupplier = axisToDeadzoneSupplier;
+	public DeadzoneStage(Function<Identifier, Float> deadzoneSupplier) {
+		this.deadzoneSupplier = deadzoneSupplier;
 		this.axisWasZero = new HashSet<>();
+	}
+
+	public DeadzoneStage() {
+		this(_ -> 0f);
 	}
 
 	@Override
@@ -27,7 +31,6 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 			float deadzone = this.deadzoneSupplier.apply(input);
 
 			if (deadzone > 0) {
-				// TODO: prevent duplicate zeros passing downstream
 				float newValue = ControllerUtils.deadzone(value, deadzone);
 
 				if (newValue != 0 || this.axisWasZero.add(input)) {
@@ -43,5 +46,9 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 		}
 
 		downstream.accept(event);
+	}
+
+	public void setDeadzoneSupplier(Function<Identifier, Float> deadzoneSupplier) {
+		this.deadzoneSupplier = deadzoneSupplier;
 	}
 }

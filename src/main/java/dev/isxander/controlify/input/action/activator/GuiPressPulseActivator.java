@@ -23,7 +23,6 @@ public record GuiPressPulseActivator(LogicalInput boundInput) implements Activat
 	public record Config() implements ActivatorConfig<GuiPressPulseActivator> {
 		public static final String TYPE_ID = "pulse_gui_press";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public GuiPressPulseActivator create(LogicalInput boundInput) {

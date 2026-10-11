@@ -23,7 +23,6 @@ public record ReleasePulseActivator(LogicalInput boundInput) implements Activato
 	public record Config() implements ActivatorConfig<ReleasePulseActivator> {
 		public static final String TYPE_ID = "pulse_release";
 		public static final Config INSTANCE = new Config();
-		public static final MapCodec<Config> MAP_CODEC = MapCodec.unit(INSTANCE);
 
 		@Override
 		public ReleasePulseActivator create(LogicalInput boundInput) {

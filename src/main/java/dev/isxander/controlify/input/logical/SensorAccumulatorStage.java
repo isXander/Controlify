@@ -21,7 +21,7 @@ public class SensorAccumulatorStage implements EventStage<PhysicalSignal, Logica
 			EventSink<? super LogicalSignal.SensorInterval> downstream
 	) {
 		switch (event) {
-			case PhysicalSignal.Tick(long timeNanos, _) -> {
+			case PhysicalSignal.Frame(long timeNanos, _) -> {
 				this.accSensorValues.forEach((sensorType, acc) -> {
 					if (acc.lastNs == -1) {
 						return;

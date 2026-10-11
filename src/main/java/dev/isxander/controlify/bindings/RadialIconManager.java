@@ -25,8 +25,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public final class RadialIconManager implements SimpleControlifyReloadListener<Map<Identifier, RadialIcon>> {
-	public static final RadialIconManager INSTANCE = new RadialIconManager();
+public class RadialIconManager implements SimpleControlifyReloadListener<Map<Identifier, RadialIcon>> {
 	public static final Identifier EMPTY = CUtil.rl("empty");
 
 	private static final Identifier DEFINITIONS = CUtil.rl("radial_icons.json");
@@ -81,8 +80,5 @@ public final class RadialIconManager implements SimpleControlifyReloadListener<M
 	@Override
 	public Identifier getReloadId() {
 		return CUtil.rl("radial_icons");
-	}
-
-	private RadialIconManager() {
 	}
 }
