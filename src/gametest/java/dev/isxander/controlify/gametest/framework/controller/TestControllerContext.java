@@ -8,7 +8,7 @@ package dev.isxander.controlify.gametest.framework.controller;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.controllermanager.SDLUniqueControllerID;
 import dev.isxander.controlify.driver.sdl.SDLException;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.sdl.Sdl;
@@ -48,7 +48,7 @@ public class TestControllerContext<E> implements AutoCloseable {
 	public ControllerEntity getControllerEntity() {
 		return Controlify.instance().getControllerManager().orElseThrow()
 			.getConnectedControllers().stream()
-			.filter(c -> c.info().ucid().equals(new SDLControllerManager.SDLUniqueControllerID(this.joystickId)))
+			.filter(c -> c.info().ucid().equals(new SDLUniqueControllerID(this.joystickId)))
 			.findAny()
 			.orElseThrow();
 	}

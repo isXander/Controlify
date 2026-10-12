@@ -56,7 +56,7 @@ public class SensorAccumulatorStage implements EventStage<PhysicalSignal, Logica
 				});
 			}
 
-			case PhysicalSensorSignal(long timeNanos, SensorType sensorType, float x, float y, float z) -> {
+			case PhysicalSensorSignal(long timeNanos, _, SensorType sensorType, float x, float y, float z) -> {
 				Acc acc = this.accSensorValues.computeIfAbsent(sensorType, _ -> new Acc());
 
 				if (acc.lastNs != -1 && timeNanos <= acc.lastNs) {

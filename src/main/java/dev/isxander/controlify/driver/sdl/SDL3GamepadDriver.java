@@ -12,125 +12,98 @@ import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.impl.ControllerStateImpl;
-import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.input.InputComponent;
+import dev.isxander.controlify.input.SensorType;
+import dev.isxander.controlify.input.logical.LogicalSignal;
+import dev.isxander.controlify.utils.event.EventSource;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
-import org.joml.Vector2f;
+import net.minecraft.resources.Identifier;
 
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
-import static dev.isxander.controlify.utils.CUtil.*;
 import static dev.isxander.sdl.SdlGamepad.*;
 
 public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
-
-	private static final int GYRO_AXIS_COUNT = 3;
-	private static final List<SDLGamepadInputMapping> INPUT_MAPPINGS = List.of(
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_RIGHT, SDL_GAMEPAD_AXIS_LEFTX, true),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_LEFT, SDL_GAMEPAD_AXIS_LEFTX, false),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_DOWN, SDL_GAMEPAD_AXIS_LEFTY, true),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_STICK_AXIS_UP, SDL_GAMEPAD_AXIS_LEFTY, false),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_RIGHT, SDL_GAMEPAD_AXIS_RIGHTX, true),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_LEFT, SDL_GAMEPAD_AXIS_RIGHTX, false),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_DOWN, SDL_GAMEPAD_AXIS_RIGHTY, true),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_STICK_AXIS_UP, SDL_GAMEPAD_AXIS_RIGHTY, false),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.LEFT_TRIGGER_AXIS, SDL_GAMEPAD_AXIS_LEFT_TRIGGER, true),
-		new SDLGamepadInputMapping.AxisMapping(GamepadInputs.RIGHT_TRIGGER_AXIS, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, true),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.SOUTH_BUTTON, SDL_GAMEPAD_BUTTON_SOUTH),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.EAST_BUTTON, SDL_GAMEPAD_BUTTON_EAST),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.WEST_BUTTON, SDL_GAMEPAD_BUTTON_WEST),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.NORTH_BUTTON, SDL_GAMEPAD_BUTTON_NORTH),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_SHOULDER_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_SHOULDER),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_SHOULDER_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.BACK_BUTTON, SDL_GAMEPAD_BUTTON_BACK),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.START_BUTTON, SDL_GAMEPAD_BUTTON_START),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.GUIDE_BUTTON, SDL_GAMEPAD_BUTTON_GUIDE),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_UP_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_UP),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_DOWN_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_DOWN),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_LEFT_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_LEFT),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.DPAD_RIGHT_BUTTON, SDL_GAMEPAD_BUTTON_DPAD_RIGHT),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_STICK_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_STICK),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_STICK_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_STICK),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_1_BUTTON, SDL_GAMEPAD_BUTTON_MISC1),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_2_BUTTON, SDL_GAMEPAD_BUTTON_MISC2),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_3_BUTTON, SDL_GAMEPAD_BUTTON_MISC3),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_4_BUTTON, SDL_GAMEPAD_BUTTON_MISC4),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_5_BUTTON, SDL_GAMEPAD_BUTTON_MISC5),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.MISC_6_BUTTON, SDL_GAMEPAD_BUTTON_MISC6),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_PADDLE_1_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_PADDLE1),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.LEFT_PADDLE_2_BUTTON, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_PADDLE_1_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.RIGHT_PADDLE_2_BUTTON, SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2),
-		new SDLGamepadInputMapping.ButtonMapping(GamepadInputs.TOUCHPAD_1_BUTTON, SDL_GAMEPAD_BUTTON_TOUCHPAD)
-	);
 
 	private InputComponent inputComponent;
 	private GyroComponent gyroComponent;
 	private TouchpadComponent touchpadComponent;
 
+	private final Set<Identifier> supportedButtons;
+	private final Set<Identifier> supportedAxes;
+	private final Set<SensorType> supportedSensors;
+
 	private final boolean isGryoSupported;
 
 	private final int numTouchpads;
 
-	private final MemorySegment gyroMemory;
-	private final FloatBuffer gyroBuffer;
+	public SDL3GamepadDriver(Sdl sdl, SdlGamepadHandle ptrController, EventSource<SDLControllerEvent> eventSource, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
+		super(sdl, ptrController, jid, eventSource, type, logger);
 
-	public SDL3GamepadDriver(Sdl sdl, SdlGamepadHandle ptrController, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
-		super(sdl, ptrController, jid, type, logger);
+		this.supportedButtons = IntStream.range(0, SDL_GAMEPAD_BUTTON_COUNT)
+				.filter(i -> this.sdl.gamepad().SDL_GamepadHasButton(this.ptrController, i))
+				.mapToObj(SDLInputConversions::getGamepadButton)
+				.collect(Collectors.toSet());
+		this.supportedAxes = IntStream.range(0, SDL_GAMEPAD_AXIS_COUNT)
+				.filter(i -> this.sdl.gamepad().SDL_GamepadHasAxis(this.ptrController, i))
+				.boxed()
+				.flatMap(i -> Stream.of(SDLInputConversions.getGamepadAxis(i, true), SDLInputConversions.getGamepadAxis(i, false)))
+				.collect(Collectors.toSet());
+		this.supportedSensors = IntStream.range(0, SDL_SENSOR_COUNT)
+				.filter(i -> this.sdl.gamepad().SDL_GamepadHasSensor(this.ptrController, i))
+				.mapToObj(SDLInputConversions::getSensorType)
+				.collect(Collectors.toSet());
 
-		this.isGryoSupported = sdl.gamepad().SDL_GamepadHasSensor(ptrController, SDL_SENSOR_GYRO);
-		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
-
+		this.isGryoSupported = this.supportedSensors.contains(SensorType.GYROSCOPE);
 		if (this.isGryoSupported) {
 			sdl.gamepad().SDL_SetGamepadSensorEnabled(ptrController, SDL_SENSOR_GYRO, true);
-
-			this.gyroMemory = this.arena.allocate(ValueLayout.JAVA_FLOAT, GYRO_AXIS_COUNT);
-		} else {
-			this.gyroMemory = MemorySegment.NULL;
 		}
 
-		this.gyroBuffer = this.gyroMemory.asByteBuffer()
-			.order(ByteOrder.nativeOrder())
-			.asFloatBuffer();
+		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
 	}
 
 	@Override
 	public void addComponents(ControllerEntity controller) {
 		super.addComponents(controller);
 
-		int buttonCount = (int) INPUT_MAPPINGS.stream()
-				.filter(m -> m instanceof SDLGamepadInputMapping.ButtonMapping)
-				.filter(m -> m.hasInput(sdl.gamepad(), ptrController))
-				.count();
-		int axisCount = (int) INPUT_MAPPINGS.stream()
-				.filter(m -> m instanceof SDLGamepadInputMapping.AxisMapping)
-				.filter(m -> m.hasInput(sdl.gamepad(), ptrController))
-				.count();
-
 		controller.setComponent(
 				this.inputComponent = new InputComponent(
-						controller,
-						buttonCount,
-						axisCount,
-						0,
-						true,
+						this.controllerType.namespace(),
+						this.inputPipeline,
+						this.supportedButtons,
+						this.supportedAxes,
 						GamepadInputs.DEADZONE_GROUPS,
-						controller.info().type().mappingId()
+						true,
+						this.supportedSensors
 				)
 		);
 
 		if (this.isGryoSupported) {
 			controller.setComponent(this.gyroComponent = new GyroComponent());
+
+			// TODO: this is not the final way of doing this
+			// 		 but this is an idea of how gyro would be given to the GyroComponent instead of having everything
+			// 		 through InputComponent, potentially GyroComponent should further accumulate this until handled
+			// 		 although most of the time it would only have one sample, so maybe accumulation isn't necessary
+			// 		 this would be queried at the same time MouseHandler.handleAccumulatedMouseMovement
+			// 		 this subscription is also never closed atm, nor is deltaTime handled (does it need to be?)
+			//       EDIT: no, this is a bad idea, remember we are in SDL3GamepadDriver but we are purposefully listening
+			//             to the generic processed signals, this should probably be done elsewhere outside of the driver
+			//       EDIT2: we could give the same InputPipeline to GyroComponent similarly to how we give it to InputComponent
+			//              InputComponent subscribes the ActionGraph, while GyroComponent subscribes itself
+			this.inputPipeline.sourceLogicalSignals().subscribe(sig -> {
+				if (sig instanceof LogicalSignal.SensorInterval(long timeNanos, long deltaTimeNanos, SensorType sensorType, float x, float y, float z)) {
+					if (sensorType == SensorType.GYROSCOPE) {
+						this.gyroComponent.setState(new GyroState(x, y, z));
+					}
+				}
+			});
 		}
 
 		if (this.numTouchpads > 0) {
@@ -148,65 +121,27 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	}
 
 	@Override
+	protected void onEvent(SDLControllerEvent event) {
+		super.onEvent(event);
+
+		switch (event) {
+			case SDLControllerEvent.GamepadTouchpad touchpad ->
+				this.onTouchpadEvent(touchpad);
+
+			default -> {}
+		}
+	}
+
+	@Override
 	public void update(ControllerEntity controller, boolean outOfFocus) {
 		super.update(controller, outOfFocus);
-
-		this.updateInput();
-		this.updateGyro();
-		this.updateTouchpad();
 	}
 
-	private void updateInput() {
-		ControllerStateImpl state = new ControllerStateImpl();
-
-		for (SDLGamepadInputMapping m : INPUT_MAPPINGS) {
-			m.applyState(sdl.gamepad(), ptrController, state);
-		}
-
-		this.inputComponent.pushState(state);
-	}
-
-	private void updateGyro() {
-		if (!isGryoSupported) return;
-
-		if (sdl.gamepad().SDL_GetGamepadSensorData(ptrController, SDL_SENSOR_GYRO, gyroBuffer)) {
-			this.gyroComponent.setState(
-				new GyroState(gyroBuffer.get(0), gyroBuffer.get(1), gyroBuffer.get(2))
-			);
-		} else {
-			CUtil.LOGGER.error("Could not get gyro data: {}", sdl.error().SDL_GetError());
-		}
-	}
-
-	private void updateTouchpad() {
-		if (numTouchpads < 1) return;
-
-		for (int touchpadIdx = 0; touchpadIdx < numTouchpads; touchpadIdx++) {
-			Touchpads.Touchpad touchpad = this.touchpadComponent.touchpads()[touchpadIdx];
-
-			List<Touchpads.Finger> fingers = new ArrayList<>();
-			for (int fingerIdx = 0; fingerIdx < touchpad.maxFingers(); fingerIdx++) {
-				var fingerState = new SdlRefs.ByteRef();
-				var x = new SdlRefs.FloatRef();
-				var y = new SdlRefs.FloatRef();
-				var pressure = new SdlRefs.FloatRef();
-
-				if (!sdl.gamepad().SDL_GetGamepadTouchpadFinger(ptrController, touchpadIdx, fingerIdx, fingerState, x, y, pressure)) {
-					CUtil.LOGGER.error("Failed to fetch touchpad finger: {}", sdl.error().SDL_GetError());
-				} else if (fingerState.value == 1) {
-					fingers.add(
-							new Touchpads.Finger(
-									fingerIdx,
-									// SDL already returns the correct range for touchpad position and pressure
-									new Vector2f(x.value, y.value),
-									pressure.value
-							)
-					);
-				}
-			}
-
-			touchpad.pushFingers(fingers);
-		}
+	private void onTouchpadEvent(SDLControllerEvent.GamepadTouchpad event) {
+		// TODO: touchpad component probably needs redoing, it was designed to receive
+		//       complete snapshots of touchpad data, not continuous updates
+		// TODO: touchpad events should probably be fed down the physical input pipeline
+		//       so we can recognise gestures from finger swipes
 	}
 
 	@Override

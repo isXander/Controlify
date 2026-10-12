@@ -15,6 +15,7 @@ import dev.isxander.controlify.input.action.activator.ActivatorConfig;
 import dev.isxander.controlify.input.logical.LogicalInput;
 import dev.isxander.controlify.input.physical.SensorProcessorStage;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.event.EventSource;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.Nullable;
@@ -39,6 +40,8 @@ public class InputComponent extends ECSComponentImpl {
 	private final Map<Identifier, DeadzoneGroup> deadzoneGroups;
 	private final boolean isGamepad;
 	private final Set<SensorType> supportedSensors;
+
+	private EventSource.Subscription actionGraphSub;
 
 	public InputComponent(
 			Identifier controllerType,
@@ -74,7 +77,7 @@ public class InputComponent extends ECSComponentImpl {
 		// we need to wait for settings to load before getting current binding
 		this.reloadActions();
 
-		this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
+		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
 		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> {
 			DeadzoneGroup group = this.deadzoneGroups.get(axis);
 			if (group == null) {
@@ -150,6 +153,14 @@ public class InputComponent extends ECSComponentImpl {
 		return this.supportedSensors.stream().anyMatch(SensorType::isAccelerometer);
 	}
 
+	@Override
+	public void close() {
+		super.close();
+
+		this.actionGraphSub.close();
+		this.actionGraphSub = null;
+	}
+
 	private ActionImpl createAction(ActionSpec spec) {
 		DefaultBindProvider bindProvider = Controlify.instance().defaultBindManager()
 				.getDefaultBindProvider(this.controllerType);
@@ -157,7 +168,8 @@ public class InputComponent extends ECSComponentImpl {
 
 		LogicalInput currentBoundInput = settings().bindings.bindings.get(spec.id());
 
-		ActivatorConfig<?> activatorConfig = Controlify.instance().activatorConfigManager().getConfig(spec.id());
+		ActivatorConfig<?> activatorConfig = Controlify.instance().activatorConfigManager()
+				.getConfig(spec.id());
 
 		ActionImpl action = new ActionImpl(
 				spec,

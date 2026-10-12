@@ -17,12 +17,12 @@ import dev.isxander.controlify.controller.info.UIDComponent;
 import dev.isxander.controlify.controller.led.LEDComponent;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.impl.ECSEntityImpl;
-import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.driver.Driver;
+import dev.isxander.controlify.input.InputComponent;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Contract;
@@ -152,6 +152,7 @@ public class ControllerEntity extends ECSEntityImpl {
 	}
 
 	public void close() {
+		this.getAllComponents().values().forEach(ECSComponent::close);
 		this.driver.close();
 	}
 

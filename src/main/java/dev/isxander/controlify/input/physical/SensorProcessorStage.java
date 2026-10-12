@@ -36,16 +36,16 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 	@Override
 	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
 		switch (event) {
-			case PhysicalSensorSignal(long timeNanos, SensorType sensorType, float x, float y, float z)
+			case PhysicalSensorSignal(long timeNanos, long sensorTimeNanos, SensorType sensorType, float x, float y, float z)
 					when !this.processors.get(sensorType).isEmpty() -> {
 				var data = new Vector3f(x, y, z);
 
 				for (SensorProcessor processor : this.processors.get(sensorType)) {
-					processor.process(data, timeNanos);
+					processor.process(data, sensorTimeNanos);
 				}
 
-				// TODO: port GyroCalibrator here, and do other stuff like low pass
-				downstream.accept(new PhysicalSensorSignal(timeNanos, sensorType, data.x, data.y, data.z));
+				// TODO: port GyroCalibrator here
+				downstream.accept(new PhysicalSensorSignal(timeNanos, sensorTimeNanos, sensorType, data.x, data.y, data.z));
 			}
 			default -> downstream.accept(event);
 		}
