@@ -80,13 +80,13 @@ public class InputComponent extends ECSComponentImpl {
 			if (group == null) {
 				return 0f;
 			}
-			return this.controller().settings().input.sensitivity.getDeadzone(group.name());
+			return settings().sensitivity.getDeadzone(group.name());
 		});
 		this.inputPipeline.stageSensorProcessor().setProcessors(sensorType -> {
 			if (sensorType.isGyroscope()) {
 				return List.of(
 						new SensorProcessorStage.BiasCorrection(() -> this.deviceSettings.gyroCalibration.offset),
-						new SensorProcessorStage.LowPassFilter(() -> 15.0) // TODO: make this configurable
+						new SensorProcessorStage.LowPassFilter(() -> this.controller().settings().gyro.lowPassCutoffHz)
 				);
 			} else {
 				return List.of();

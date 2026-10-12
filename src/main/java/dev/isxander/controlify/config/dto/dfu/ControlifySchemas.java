@@ -88,4 +88,10 @@ public final class ControlifySchemas {
 			super(versionKey, parent);
 		}
 	}
+
+	public static class V9 extends Schema {
+		public V9(int versionKey, Schema parent) {
+			super(versionKey, parent);
+		}
+	}
 }

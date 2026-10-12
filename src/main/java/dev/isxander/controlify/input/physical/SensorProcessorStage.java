@@ -64,6 +64,8 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 
 	/// A first-order low-pass filter with a finite, positive cutoff frequency in Hz.
 	/// Lower frequencies smooth more strongly. The first sample passes through unchanged.
+	///
+	/// If the frequency is set to 0, the filter is bypassed.
 	public static class LowPassFilter implements SensorProcessor {
 		private final DoubleSupplier cutoffHz;
 		private @Nullable Vector3f previous;
@@ -75,7 +77,9 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 
 		@Override
 		public void process(Vector3f data, long timeNanos) {
-			if (this.previous == null) {
+			double cutoffHz = this.cutoffHz.getAsDouble();
+
+			if (cutoffHz == 0 || this.previous == null) {
 				this.previous = new Vector3f(data);
 				this.previousTimeNanos = timeNanos;
 			} else {
@@ -83,7 +87,7 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 				if (elapsedNanos > 0) {
 					// Exponential decay keeps the response consistent across sample rates.
 					// expm1 preserves precision for very short sample intervals.
-					double decayPerNano = 2.0 * Math.PI * this.cutoffHz.getAsDouble() * 1e-9;
+					double decayPerNano = 2.0 * Math.PI * cutoffHz * 1e-9;
 					float blend = (float) -Math.expm1(-elapsedNanos * decayPerNano);
 					this.previous.lerp(data, blend);
 					this.previousTimeNanos = timeNanos;
