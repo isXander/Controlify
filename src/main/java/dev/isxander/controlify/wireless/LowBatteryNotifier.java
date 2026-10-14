@@ -35,18 +35,18 @@ public class LowBatteryNotifier {
 		if (controllerManager == null)
 			return;
 
-		for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
+		for (ControllerEntity controller : controllerManager.getAllControllers()) {
 			PowerState batteryLevel = controller.batteryLevel()
 					.map(BatteryLevelComponent::getBatteryLevel)
 					.orElse(new PowerState.Unknown());
 
 			String uid = controller.uid();
 
-			if (batteryLevel instanceof PowerState.Depleting depleting && depleting.percent() <= 10) {
+			if (batteryLevel instanceof PowerState.Depleting(int percent) && percent <= 10) {
 				if (!notifiedControllers.contains(uid)) {
 					MinecraftUtil.sendToast(
 							Component.translatable("controlify.toast.low_battery.title"),
-							Component.translatable("controlify.toast.low_battery.message", controller.name(), depleting.percent() + "%"),
+							Component.translatable("controlify.toast.low_battery.message", controller.name(), percent + "%"),
 							true
 					);
 

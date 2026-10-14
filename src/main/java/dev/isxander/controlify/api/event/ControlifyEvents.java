@@ -48,7 +48,7 @@ public final class ControlifyEvents {
 	 */
 	public static final EventHandler<LookInputModifier> LOOK_INPUT_MODIFIER = EventHandler.createPlatformBackedEvent();
 
-	public record ControllerConnected(ControllerEntity controller, boolean hotplugged, @Deprecated boolean newController) {
+	public record ControllerConnected(ControllerEntity controller, boolean hotplugged) {
 	}
 
 	public record ControllerDisconnected(ControllerEntity controller) {

@@ -58,7 +58,7 @@ public class ScreenProcessor<T extends Screen> {
 		this.holdRepeatHelper = createHoldRepeatHelper();
 	}
 
-	public void onControllerUpdate(ControllerEntity controller) {
+	public void onControllerFixedUpdate(ControllerEntity controller) {
 		Controlify.instance().virtualMouseHandler().handleControllerInput(controller);
 
 		if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {

@@ -1,11 +1,10 @@
-package dev.isxander.controlify.controllermanager2;
+package dev.isxander.controlify.controllermanager;
 
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.info.ControllerInfo;
-import dev.isxander.controlify.controllermanager.SDLUniqueControllerID;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.sdl.*;
@@ -22,18 +21,17 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 
-public class SDLControllerManagerBackend implements ControllerManagerBackend {
+public class SDLControllerBackend extends ControllerBackend {
 	private final Sdl sdl;
-	private final ControllerManager controllerManager;
 	private final ControlifyLogger logger;
 	private final SDLControllerEventStage controllerEventStage;
 	private final EventTap<SDLControllerEvent> controllerEventTap;
 
 	private SdlEvent event;
 
-	public SDLControllerManagerBackend(Sdl sdl, ControllerManager controllerManager) {
+	public SDLControllerBackend(Sdl sdl, Controlify controlify, ControllerManager controllerManager) {
+		super(controlify, controllerManager);
 		this.sdl = sdl;
-		this.controllerManager = controllerManager;
 		this.logger = CUtil.LOGGER.createSubLogger("SDLControllerManagerBackend");
 		this.controllerEventStage = new SDLControllerEventStage();
 		this.controllerEventTap = new EventTap<>();
@@ -81,6 +79,16 @@ public class SDLControllerManagerBackend implements ControllerManagerBackend {
 	}
 
 	@Override
+	public void discoverControllers() {
+		this.logger.debugLog("Discovering controllers...");
+
+		SdlJoystickId[] joysticks = this.sdl.joystick().SDL_GetJoysticks();
+		for (SdlJoystickId jid : joysticks) {
+			this.tryCreateAndAddController(jid, false);
+		}
+	}
+
+	@Override
 	public void pollEvents() {
 		if (this.event == null) {
 			this.logger.warn("SDL_Event has somehow been set to null. Recreating...");
@@ -98,17 +106,7 @@ public class SDLControllerManagerBackend implements ControllerManagerBackend {
 		switch (event) {
 			case SDLControllerEvent.JoyDevice(SdlJoystickId which, _, SDLControllerEvent.DeviceEvent.Type eventType)
 					when eventType == SDLControllerEvent.DeviceEvent.Type.ADDED -> {
-				var ucid = new SDLUniqueControllerID(which);
-
-				var logger = this.logger.createSubLogger("Controller #" + ucid);
-				logger.debugLog("New controller detected!");
-
-				HIDID hidId = this.getJoystickHIDID(which);
-				ControllerType type = this.controllerManager.getControllerType(hidId);
-
-				if (this.controllerManager.canAddController(ucid, hidId, type, logger)) {
-					this.createAndAddController(ucid, hidId, type, logger);
-				}
+				this.tryCreateAndAddController(which, true);
 			}
 
 			case SDLControllerEvent.JoyDevice(SdlJoystickId which, _, SDLControllerEvent.DeviceEvent.Type type)
@@ -120,7 +118,27 @@ public class SDLControllerManagerBackend implements ControllerManagerBackend {
 		}
 	}
 
-	private void createAndAddController(SDLUniqueControllerID ucid, HIDID hidId, ControllerType type, ControlifyLogger controllerLogger) {
+	private void tryCreateAndAddController(SdlJoystickId jid, boolean hotplugged) {
+		var ucid = new SDLUniqueControllerID(jid);
+
+		var logger = this.logger.createSubLogger("Controller #" + ucid);
+		logger.debugLog("New controller detected!");
+
+		HIDID hidId = this.getJoystickHIDID(jid);
+		ControllerType type = this.getControllerType(hidId);
+
+		if (this.controllerManager.canAddController(ucid, hidId, type, logger)) {
+			this.createAndAddController(ucid, hidId, type, logger, hotplugged);
+		}
+	}
+
+	private void createAndAddController(
+			SDLUniqueControllerID ucid,
+			HIDID hidId,
+			ControllerType type,
+			ControlifyLogger controllerLogger,
+			boolean hotplugged
+	) {
 		SdlJoystickId jid = ucid.jid();
 		controllerLogger.debugLog("Creating controller: {}", jid.value());
 
@@ -131,7 +149,6 @@ public class SDLControllerManagerBackend implements ControllerManagerBackend {
 				.filter(event -> event.which().equals(jid));
 
 		Driver driver;
-
 		if (isGamepad) {
 			SdlGamepadHandle gamepadHandle = SDLUtil.openGamepad(this.sdl, jid);
 			driver = new SDL3GamepadDriver(this.sdl, gamepadHandle, controllerEventSource, jid, type, controllerLogger);
@@ -149,13 +166,7 @@ public class SDLControllerManagerBackend implements ControllerManagerBackend {
 				controllerLogger
 		);
 
-		this.controllerManager.addController(controller);
-
-	}
-
-	@Override
-	public void closeController(ControllerEntity controller) {
-
+		this.controllerManager.addController(controller, hotplugged);
 	}
 
 	private HIDID getJoystickHIDID(SdlJoystickId jid) {

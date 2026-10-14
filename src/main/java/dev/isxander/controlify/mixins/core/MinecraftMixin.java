@@ -39,8 +39,13 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	@Inject(method = "runTick", at = @At("HEAD"))
+	private void doPolling(CallbackInfo ci) {
+		Controlify.instance().update(getTickDelta());
+	}
+
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-	private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
+	private void doPlayerLook(CallbackInfo ci) {
 		Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
 	}
 

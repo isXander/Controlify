@@ -359,7 +359,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 		}
 
 		@Override
-		public void onControllerUpdate(ControllerEntity controller) {
+		public void onControllerFixedUpdate(ControllerEntity controller) {
 
 		}
 	}

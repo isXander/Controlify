@@ -24,7 +24,7 @@ public class ControllerUtils {
 		return String.format("'%s'#%s-%s (%s)",
 				controller.name(),
 				controller.info().ucid().toString(),
-				controller.info().hid().map(hid -> hid.hidid().toString()).orElse("hid"),
+				controller.info().hid().toString(),
 				controller.info().type().friendlyName()
 		);
 	}

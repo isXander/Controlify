@@ -41,7 +41,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.commands.GameModeCommand;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
@@ -83,7 +82,7 @@ public class InGameInputHandler {
 		this.gyroToggledOn = false;
 	}
 
-	public void inputTick() {
+	public void fixedUpdate() {
 		boolean isController = ControllerPlayerMovement.shouldBeControllerInput();
 
 		handlePlayerLookInput(isController);
