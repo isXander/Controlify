@@ -44,7 +44,6 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 					processor.process(data, sensorTimeNanos);
 				}
 
-				// TODO: port GyroCalibrator here
 				downstream.accept(new PhysicalSensorSignal(timeNanos, sensorTimeNanos, sensorType, data.x, data.y, data.z));
 			}
 			default -> downstream.accept(event);
@@ -64,9 +63,11 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 
 	/// A first-order low-pass filter with a finite, positive cutoff frequency in Hz.
 	/// Lower frequencies smooth more strongly. The first sample passes through unchanged.
+	/// History expires after a gap of 50ms or when the sensor clock moves backwards.
 	///
 	/// If the frequency is set to 0, the filter is bypassed.
 	public static class LowPassFilter implements SensorProcessor {
+		private static final long MAX_SAMPLE_AGE_NANOS = 50_000_000L;
 		private final DoubleSupplier cutoffHz;
 		private @Nullable Vector3f previous;
 		private long previousTimeNanos;
@@ -79,11 +80,12 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 		public void process(Vector3f data, long timeNanos) {
 			double cutoffHz = this.cutoffHz.getAsDouble();
 
-			if (cutoffHz == 0 || this.previous == null) {
+			long elapsedNanos = timeNanos - this.previousTimeNanos;
+			if (cutoffHz == 0 || this.previous == null
+					|| elapsedNanos > MAX_SAMPLE_AGE_NANOS || elapsedNanos < 0) {
 				this.previous = new Vector3f(data);
 				this.previousTimeNanos = timeNanos;
 			} else {
-				long elapsedNanos = timeNanos - this.previousTimeNanos;
 				if (elapsedNanos > 0) {
 					// Exponential decay keeps the response consistent across sample rates.
 					// expm1 preserves precision for very short sample intervals.

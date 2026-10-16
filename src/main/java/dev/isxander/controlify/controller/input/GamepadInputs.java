@@ -61,7 +61,6 @@ public final class GamepadInputs {
 	public static final Identifier MISC_5_BUTTON = button("misc_5");
 	public static final Identifier MISC_6_BUTTON = button("misc_6");
 
-
 	public static final Identifier RIGHT_PADDLE_1_BUTTON = button("right_paddle_1");
 	public static final Identifier RIGHT_PADDLE_2_BUTTON = button("right_paddle_2");
 	public static final Identifier LEFT_PADDLE_1_BUTTON = button("left_paddle_1");

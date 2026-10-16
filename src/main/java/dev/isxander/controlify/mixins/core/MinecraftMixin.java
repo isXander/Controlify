@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.CrashReport;
 import net.minecraft.client.DeltaTracker;
@@ -57,7 +57,7 @@ public abstract class MinecraftMixin {
 			)
 	)
 	private void onMinecraftClose(CallbackInfo ci) {
-		Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
+		Controlify.instance().getControllerCoordinator().ifPresent(ControllerCoordinator::close);
 	}
 
 	@Inject(

@@ -78,13 +78,7 @@ public class InputComponent extends ECSComponentImpl {
 		this.reloadActions();
 
 		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
-		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> {
-			DeadzoneGroup group = this.deadzoneGroups.get(axis);
-			if (group == null) {
-				return 0f;
-			}
-			return settings().sensitivity.getDeadzone(group.name());
-		});
+		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> settings().sensitivity.getDeadzone((Identifier) axis));
 		this.inputPipeline.stageSensorProcessor().setProcessors(sensorType -> {
 			if (sensorType.isGyroscope()) {
 				return List.of(
@@ -99,6 +93,14 @@ public class InputComponent extends ECSComponentImpl {
 
 	public @Nullable ActionImpl getAction(Identifier actionId) {
 		return this.actions.get(actionId);
+	}
+
+	public InputPipeline inputPipeline() {
+		return this.inputPipeline;
+	}
+
+	public void resetActions() {
+		this.actions.values().forEach(ActionImpl::reset);
 	}
 
 	public void reloadActions() {

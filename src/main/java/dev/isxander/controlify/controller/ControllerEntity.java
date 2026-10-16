@@ -37,6 +37,7 @@ public class ControllerEntity extends ECSEntityImpl {
 	private ProfileSettings settings;
 	private final ProfileSettings defaultSettings;
 	private final ControlifyLogger logger;
+	private boolean active;
 
 	public ControllerEntity(
 			ControllerInfo info,
@@ -151,7 +152,20 @@ public class ControllerEntity extends ECSEntityImpl {
 		this.driver.update(this, outOfFocus);
 	}
 
+	public boolean isActive() {
+		return this.active;
+	}
+
+	public void setActive(boolean active) {
+		if (this.active == active) {
+			return;
+		}
+		this.active = active;
+		this.driver.setActive(active);
+	}
+
 	public void close() {
+		this.setActive(false);
 		this.getAllComponents().values().forEach(ECSComponent::close);
 		this.driver.close();
 	}

@@ -23,6 +23,9 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 	@Override
 	public void onEvent(SDLControllerEvent event, EventSink<? super PhysicalSignal> downstream) {
 		switch (event) {
+			case SDLControllerEvent.Frame(long timeNanos, long deltaTimeNanos) ->
+					downstream.accept(new PhysicalSignal.Frame(timeNanos, deltaTimeNanos));
+
 			case SDLControllerEvent.JoyAxis(_, long timeNanos, byte axis, short value) -> {
 				float normalisedValue = normaliseAxis(value);
 

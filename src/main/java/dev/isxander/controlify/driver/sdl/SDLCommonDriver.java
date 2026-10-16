@@ -52,7 +52,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
 	protected final Sdl sdl;
-	private final ControlifyLogger logger;
+	protected final ControlifyLogger logger;
 
 	protected final Arena arena;
 
@@ -186,6 +186,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (isBluetooth()) {
 			controller.setComponent(new BluetoothDeviceComponent());
 		}
+
+		this.eventSubscription = this.sdlEventSource.subscribe(this::onEvent);
 	}
 
 	protected void onEvent(SDLControllerEvent event) {
@@ -426,7 +428,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		String nonDuplicateUid = uid;
 		int duplicateCount = (int) Controlify.instance().getControllerManager().orElseThrow()
-				.getConnectedControllers()
+				.getAllControllers()
 				.stream()
 				.filter(controller -> controller.uid().startsWith(nonDuplicateUid))
 				.count();

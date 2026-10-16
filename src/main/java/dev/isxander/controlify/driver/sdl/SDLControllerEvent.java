@@ -6,12 +6,18 @@ public sealed interface SDLControllerEvent {
 
 	long timeNanos();
 
-	SdlJoystickId which();
+	/// Emitted once after each backend poll and delivered to every controller.
+	/// Uses the same SDL clock as native event timestamps; the first frame has a zero delta.
+	record Frame(long timeNanos, long deltaTimeNanos) implements SDLControllerEvent {}
 
-	sealed interface JoystickEvent extends SDLControllerEvent {}
-	sealed interface GamepadEvent extends SDLControllerEvent {}
+	sealed interface DeviceScopedEvent extends SDLControllerEvent {
+		SdlJoystickId which();
+	}
 
-	sealed interface DeviceEvent extends SDLControllerEvent {
+	sealed interface JoystickEvent extends DeviceScopedEvent {}
+	sealed interface GamepadEvent extends DeviceScopedEvent {}
+
+	sealed interface DeviceEvent extends DeviceScopedEvent {
 		Type type();
 
 		enum Type {
@@ -25,7 +31,7 @@ public sealed interface SDLControllerEvent {
 		}
 	}
 
-	sealed interface AxisEvent extends SDLControllerEvent {
+	sealed interface AxisEvent extends DeviceScopedEvent {
 		/// The axis. It may be an index or a constant, depending on the event type.
 		byte axis();
 
@@ -33,7 +39,7 @@ public sealed interface SDLControllerEvent {
 		short value();
 	}
 
-	sealed interface ButtonEvent extends SDLControllerEvent {
+	sealed interface ButtonEvent extends DeviceScopedEvent {
 		/// The button. It may be an index or a constant, depending on the event type.
 		byte button();
 
@@ -85,7 +91,7 @@ public sealed interface SDLControllerEvent {
 			long timeNanos,
 			PowerState state,
 			int percent
-	) implements SDLControllerEvent {
+	) implements DeviceScopedEvent {
 		public enum PowerState {
 			ERROR,
 			UNKNOWN,

@@ -13,5 +13,9 @@ public interface Driver {
 
 	default void update(ControllerEntity controller, boolean outOfFocus) {}
 
+	/// Enables resources needed only by the active controller, such as sensor sampling.
+	/// Buttons and axes must remain available while inactive for controller selection.
+	default void setActive(boolean active) {}
+
 	default void close() {}
 }

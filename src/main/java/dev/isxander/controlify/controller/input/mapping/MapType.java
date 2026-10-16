@@ -12,9 +12,7 @@ import org.jspecify.annotations.NonNull;
 
 public enum MapType implements StringRepresentable {
 	BUTTON,
-	AXIS,
-	HAT,
-	NOTHING;
+	AXIS;
 
 	public static final Codec<MapType> CODEC = StringRepresentable.fromEnum(MapType::values);
 

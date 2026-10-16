@@ -7,22 +7,29 @@
 package dev.isxander.controlify.controller.input.mapping;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.controller.input.ControllerState;
 import dev.isxander.controlify.controller.input.DeadzoneGroup;
-import dev.isxander.controlify.controller.input.ModifiableControllerState;
-import dev.isxander.controlify.controller.impl.ControllerStateImpl;
+import dev.isxander.controlify.controller.input.GamepadInputs;
 import net.minecraft.resources.Identifier;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public record ControllerMapping(
 		List<MappingEntry> mappings,
 		LinkedHashMap<Identifier, DeadzoneGroup> deadzones
-) implements StateMapper {
+) {
 	public static final Codec<ControllerMapping> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			MappingEntry.codec()
 					.listOf()
+					.validate(entries -> {
+						if (!validateDistinctMappingSources(entries)) {
+							return DataResult.error(() -> "Every mapping entry must have a distinct `from` source input");
+						}
+						return DataResult.success(entries);
+					})
 					.fieldOf("mappings")
 					.forGetter(ControllerMapping::mappings),
 			Codec.unboundedMap(Identifier.CODEC, DeadzoneGroup.CODEC)
@@ -31,22 +38,33 @@ public record ControllerMapping(
 					.forGetter(ControllerMapping::deadzones)
 	).apply(instance, ControllerMapping::new));
 
-	@Override
-	public ControllerState mapState(ControllerState state) {
-		if (mappings.isEmpty()) {
-			return state;
+	public ControllerMapping {
+		if (!validateDistinctMappingSources(mappings)) {
+			throw new IllegalArgumentException("Every mapping entry must have a distinct source input");
 		}
+	}
 
-		ModifiableControllerState newState = new ControllerStateImpl();
-
-		for (MappingEntry mapping : mappings) {
-			mapping.apply(state, newState);
-		}
-
-		return newState;
+	public Map<Identifier, MappingEntry> createMappingEntryMap() {
+		return this.mappings.stream()
+				.collect(Collectors.toUnmodifiableMap(
+						MappingEntry::sourceInput,
+						Function.identity()
+				));
 	}
 
 	public static final ControllerMapping NO_MAPPING = new Builder().build();
+	public static final ControllerMapping GAMEPAD_DEADZONES_ONLY_MAPPING = new Builder()
+			.putDeadzoneGroups(GamepadInputs.DEADZONE_GROUPS)
+			.build();
+
+	private static boolean validateDistinctMappingSources(Collection<? extends MappingEntry> entries) {
+		long entryCount = entries.size();
+		long distinctSourceCount = entries.stream()
+				.map(MappingEntry::sourceInput)
+				.distinct()
+				.count();
+		return entryCount == distinctSourceCount;
+	}
 
 	public static class Builder {
 		private final List<MappingEntry> mappings = new ArrayList<>();
@@ -56,7 +74,7 @@ public record ControllerMapping(
 			if (mapping == null)
 				return this;
 
-			mappings.add(mapping);
+			this.mappings.add(mapping);
 			return this;
 		}
 

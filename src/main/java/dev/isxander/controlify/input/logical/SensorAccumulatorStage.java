@@ -22,6 +22,8 @@ public class SensorAccumulatorStage implements EventStage<PhysicalSignal, Logica
 	) {
 		switch (event) {
 			case PhysicalSignal.Frame(long timeNanos, _) -> {
+				this.accSensorValues.values().removeIf(acc ->
+						acc.lastSampleNanos != -1 && timeNanos - acc.lastSampleNanos > MAX_SAMPLE_AGE_NANOS);
 				this.accSensorValues.forEach((sensorType, acc) -> {
 					if (acc.lastNs == -1) {
 						return;
@@ -102,21 +104,19 @@ public class SensorAccumulatorStage implements EventStage<PhysicalSignal, Logica
 				return;
 			}
 
-			// Integrate only while the last sensor reading is considered valid.
-			long validUntilNanos = lastSampleNanos + MAX_SAMPLE_AGE_NANOS;
-			long integrationEndNanos = Math.min(timeNanos, validUntilNanos);
-
-			if (integrationEndNanos > lastNs) {
-				long integrationNanos = integrationEndNanos - lastNs;
-				float deltaSeconds = integrationNanos * 1e-9f;
-
-				x += velocityX * deltaSeconds;
-				y += velocityY * deltaSeconds;
-				z += velocityZ * deltaSeconds;
-
-				accumulatedNanos += integrationNanos;
+			if (lastSampleNanos == -1 || timeNanos - lastSampleNanos > MAX_SAMPLE_AGE_NANOS) {
+				// A gap invalidates both the held sample and any motion waiting for a frame.
+				resetAccumulation();
+				lastSampleNanos = -1;
+				lastNs = timeNanos;
+				return;
 			}
 
+			float deltaSeconds = deltaNanos * 1e-9f;
+			x += velocityX * deltaSeconds;
+			y += velocityY * deltaSeconds;
+			z += velocityZ * deltaSeconds;
+			accumulatedNanos += deltaNanos;
 			lastNs = timeNanos;
 		}
 

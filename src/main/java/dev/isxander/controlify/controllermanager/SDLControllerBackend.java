@@ -28,6 +28,7 @@ public class SDLControllerBackend extends ControllerBackend {
 	private final EventTap<SDLControllerEvent> controllerEventTap;
 
 	private SdlEvent event;
+	private long lastFrameTimeNanos = -1;
 
 	public SDLControllerBackend(Sdl sdl, Controlify controlify, ControllerManager controllerManager) {
 		super(controlify, controllerManager);
@@ -98,6 +99,11 @@ public class SDLControllerBackend extends ControllerBackend {
 		while (this.sdl.events().SDL_PollEvent(this.event)) {
 			this.controllerEventStage.onEvent(this.event, this::onControllerEvent);
 		}
+
+		long timeNanos = this.sdl.timer().SDL_GetTicksNS();
+		long deltaTimeNanos = this.lastFrameTimeNanos == -1 ? 0 : timeNanos - this.lastFrameTimeNanos;
+		this.lastFrameTimeNanos = timeNanos;
+		this.onControllerEvent(new SDLControllerEvent.Frame(timeNanos, deltaTimeNanos));
 	}
 
 	private void onControllerEvent(SDLControllerEvent event) {
@@ -146,7 +152,8 @@ public class SDLControllerBackend extends ControllerBackend {
 		controllerLogger.debugLog("Controller is gamepad: {}", isGamepad);
 
 		EventSource<SDLControllerEvent> controllerEventSource = this.controllerEventTap
-				.filter(event -> event.which().equals(jid));
+				.filter(event -> event instanceof SDLControllerEvent.Frame
+						|| event instanceof SDLControllerEvent.DeviceScopedEvent scoped && scoped.which().equals(jid));
 
 		Driver driver;
 		if (isGamepad) {

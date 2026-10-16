@@ -10,12 +10,10 @@ import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.input.GamepadInputs;
-import dev.isxander.controlify.controller.gyro.GyroState;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.input.InputComponent;
 import dev.isxander.controlify.input.SensorType;
-import dev.isxander.controlify.input.logical.LogicalSignal;
 import dev.isxander.controlify.utils.event.EventSource;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
@@ -32,14 +30,14 @@ import static dev.isxander.sdl.SdlGamepad.*;
 public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	private InputComponent inputComponent;
-	private GyroComponent gyroComponent;
 	private TouchpadComponent touchpadComponent;
 
 	private final Set<Identifier> supportedButtons;
 	private final Set<Identifier> supportedAxes;
 	private final Set<SensorType> supportedSensors;
 
-	private final boolean isGryoSupported;
+	private final boolean isGyroSupported;
+	private boolean active;
 
 	private final int numTouchpads;
 
@@ -60,10 +58,7 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				.mapToObj(SDLInputConversions::getSensorType)
 				.collect(Collectors.toSet());
 
-		this.isGryoSupported = this.supportedSensors.contains(SensorType.GYROSCOPE);
-		if (this.isGryoSupported) {
-			sdl.gamepad().SDL_SetGamepadSensorEnabled(ptrController, SDL_SENSOR_GYRO, true);
-		}
+		this.isGyroSupported = this.supportedSensors.contains(SensorType.GYROSCOPE);
 
 		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
 	}
@@ -84,26 +79,8 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				)
 		);
 
-		if (this.isGryoSupported) {
-			controller.setComponent(this.gyroComponent = new GyroComponent());
-
-			// TODO: this is not the final way of doing this
-			// 		 but this is an idea of how gyro would be given to the GyroComponent instead of having everything
-			// 		 through InputComponent, potentially GyroComponent should further accumulate this until handled
-			// 		 although most of the time it would only have one sample, so maybe accumulation isn't necessary
-			// 		 this would be queried at the same time MouseHandler.handleAccumulatedMouseMovement
-			// 		 this subscription is also never closed atm, nor is deltaTime handled (does it need to be?)
-			//       EDIT: no, this is a bad idea, remember we are in SDL3GamepadDriver but we are purposefully listening
-			//             to the generic processed signals, this should probably be done elsewhere outside of the driver
-			//       EDIT2: we could give the same InputPipeline to GyroComponent similarly to how we give it to InputComponent
-			//              InputComponent subscribes the ActionGraph, while GyroComponent subscribes itself
-			this.inputPipeline.sourceLogicalSignals().subscribe(sig -> {
-				if (sig instanceof LogicalSignal.SensorInterval(long timeNanos, long deltaTimeNanos, SensorType sensorType, float x, float y, float z)) {
-					if (sensorType == SensorType.GYROSCOPE) {
-						this.gyroComponent.setState(new GyroState(x, y, z));
-					}
-				}
-			});
+		if (this.isGyroSupported) {
+			controller.setComponent(new GyroComponent(this.inputPipeline));
 		}
 
 		if (this.numTouchpads > 0) {
@@ -121,7 +98,26 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	}
 
 	@Override
+	public void setActive(boolean active) {
+		if (this.ptrController == null) {
+			throw new IllegalStateException("Tried to activate or deactivate a closed controller.");
+		}
+		if (this.active == active) {
+			return;
+		}
+		this.active = active;
+		if (this.isGyroSupported
+				&& !this.sdl.gamepad().SDL_SetGamepadSensorEnabled(this.ptrController, SDL_SENSOR_GYRO, active)) {
+			this.logger.warn("Failed to {} gyro sensor: {}", active ? "enable" : "disable", this.sdl.error().SDL_GetError());
+		}
+	}
+
+	@Override
 	protected void onEvent(SDLControllerEvent event) {
+		// SDL may still have queued samples after the sensor has been disabled.
+		if (!this.active && event instanceof SDLControllerEvent.GamepadSensor) {
+			return;
+		}
 		super.onEvent(event);
 
 		switch (event) {
@@ -135,6 +131,12 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	@Override
 	public void update(ControllerEntity controller, boolean outOfFocus) {
 		super.update(controller, outOfFocus);
+	}
+
+	@Override
+	public void close() {
+		this.setActive(false);
+		super.close();
 	}
 
 	private void onTouchpadEvent(SDLControllerEvent.GamepadTouchpad event) {
