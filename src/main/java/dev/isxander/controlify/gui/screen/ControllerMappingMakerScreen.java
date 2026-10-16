@@ -9,10 +9,8 @@ package dev.isxander.controlify.gui.screen;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.input.*;
-import dev.isxander.controlify.controller.input.mapping.MapType;
-import dev.isxander.controlify.controller.input.mapping.MappingEntry;
-import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
+import dev.isxander.controlify.controller.input.mapping.*;
+import dev.isxander.controlify.input.mapping.*;
 import dev.isxander.controlify.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.screenop.ScreenProcessor;
 import dev.isxander.controlify.screenop.ScreenProcessorProvider;
@@ -154,11 +152,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 				MappingEntry mapping = switch (stage.outputType()) {
 					case BUTTON -> new MappingEntry.FromButton.ToButton(button, stage.originInput(), !now);
 					case AXIS -> new MappingEntry.FromButton.ToAxis(button, stage.originInput(), prev ? 1 : 0, now ? 1 : 0);
-					case HAT -> {
-						HatState state = now ? HatState.DOWN : HatState.UP;
-						yield new MappingEntry.FromButton.ToHat(button, stage.originInput(), HatState.CENTERED, state);
-					}
-					case NOTHING -> null;
 				};
 				mappingBuilder.putMapping(mapping);
 				stage.setSatisfied(true);
@@ -174,24 +167,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 				MappingEntry mapping = switch (stage.outputType()) {
 					case BUTTON -> new MappingEntry.FromAxis.ToButton(axis, stage.originInput(), 0.5f);
 					case AXIS -> new MappingEntry.FromAxis.ToAxis(axis, stage.originInput(), 0, 0, 1, 1);
-					case HAT -> new MappingEntry.FromAxis.ToHat(axis, stage.originInput(), 0.5f, diff > 0 ? HatState.UP : HatState.DOWN);
-					case NOTHING -> null;
-				};
-				mappingBuilder.putMapping(mapping);
-				stage.setSatisfied(true);
-				return;
-			}
-		}
-
-		for (Identifier hat : stateNow.getHats()) {
-			HatState now = stateNow.getHatState(hat);
-			HatState prev = stateThen.getHatState(hat);
-			if (now != prev) {
-				MappingEntry mapping = switch (stage.outputType()) {
-					case BUTTON -> new MappingEntry.FromHat.ToButton(hat, stage.originInput(), now);
-					case AXIS -> new MappingEntry.FromHat.ToAxis(hat, stage.originInput(), now, 0, 1);
-					case HAT -> new MappingEntry.FromHat.ToHat(hat, stage.originInput());
-					case NOTHING -> null;
 				};
 				mappingBuilder.putMapping(mapping);
 				stage.setSatisfied(true);
@@ -205,14 +180,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 	}
 
 	private void mapAsNone() {
-		MappingEntry mapping = switch (currentStage.outputType()) {
-			case BUTTON -> new MappingEntry.FromNothing.ToButton(currentStage.originInput(), false);
-			case AXIS -> new MappingEntry.FromNothing.ToAxis(currentStage.originInput(), 0f);
-			case HAT -> new MappingEntry.FromNothing.ToHat(currentStage.originInput());
-			case NOTHING -> null;
-		};
-		mappingBuilder.putMapping(mapping);
-
 		delayTillNextStage = 0;
 	}
 
@@ -359,7 +326,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenContro
 		}
 
 		@Override
-		public void onControllerUpdate(ControllerEntity controller) {
+		public void onControllerFixedUpdate(ControllerEntity controller) {
 
 		}
 	}

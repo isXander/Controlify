@@ -12,34 +12,30 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
-import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.RadialIconManager;
-import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
+import dev.isxander.controlify.action.radial.RadialIconManager;
+import dev.isxander.controlify.action.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
-import dev.isxander.controlify.config.settings.device.DeviceSettings;
-import dev.isxander.controlify.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.contextual.ContextualDomains;
 import dev.isxander.controlify.contextual.RuleSetManager;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
-import dev.isxander.controlify.controller.input.ControllerState;
-import dev.isxander.controlify.controller.input.ControllerStateView;
-import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.input.mapping.ControllerMappingManager;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
@@ -56,7 +52,6 @@ import dev.isxander.controlify.sound.ControlifyClientSounds;
 import dev.isxander.controlify.utils.*;
 import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.wireless.LowBatteryNotifier;
-import dev.isxander.sdl.Sdl;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -69,7 +64,6 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static dev.isxander.controlify.utils.ControllerUtils.wrapControllerError;
 
@@ -78,10 +72,10 @@ public class Controlify implements ControlifyApi {
 
 	private Minecraft minecraft = null;
 
-	private ControllerManager controllerManager;
-
-	private ControllerEntity currentController = null;
+	private ControllerCoordinator controllerCoordinator;
 	private InputMode currentInputMode = InputMode.KEYBOARD_MOUSE;
+
+	private ConfigManager config;
 
 	private @Nullable InGameInputHandler inGameInputHandler;
 	public @Nullable InGameButtonGuide inGameButtonGuide;
@@ -93,22 +87,19 @@ public class Controlify implements ControlifyApi {
 	private DefaultConfigManager defaultConfigManager;
 	private ControllerTypeManager controllerTypeManager;
 	private KeyboardLayoutManager keyboardLayoutManager;
+	private RadialIconManager radialIconManager;
+	private ActivatorConfigManager activatorConfigManager;
+	private ControllerMappingManager controllerMappingManager;
 
 	private TriggerEffectManager triggerEffectManager;
 
-	private Set<BindContext> thisTickContexts;
-
-	private ConfigManager config;
-
-	private final Queue<ControllerSetupWizard> setupWizards = new ArrayDeque<>();
-	private ControllerSetupWizard currentSetupWizard = null;
-	private boolean hasDiscoveredControllers = false;
+	private SetupWizardManager setupWizardManager;
 
 	private int consecutiveInputSwitches = 0;
 	private double lastInputSwitchTime = 0;
 
 	private int showMouseTicks = 0;
-	private boolean mouseUsedThisTick = false;
+	private boolean mouseUsedThisFrame = false;
 
 	/**
 	 * Called at usual fabric client entrypoint and in NeoForge mod constructor
@@ -131,21 +122,29 @@ public class Controlify implements ControlifyApi {
 				PlatformMainUtil.getConfigDir()
 		);
 		PlatformClientUtil.registerClientStopping(_ -> {
+			this.getControllerCoordinator().ifPresent(ControllerCoordinator::close);
 			this.config.close();
 		});
+
+		this.setupWizardManager = new SetupWizardManager();
 
 		this.inputFontMapper = new InputFontMapper();
 		this.defaultBindManager = new DefaultBindManager();
 		this.defaultConfigManager = new DefaultConfigManager();
 		this.controllerTypeManager = new ControllerTypeManager();
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
+		this.radialIconManager = new RadialIconManager();
+		this.activatorConfigManager = new ActivatorConfigManager();
+		this.controllerMappingManager = new ControllerMappingManager();
 
-		PlatformClientUtil.registerAssetReloadListener(inputFontMapper);
-		PlatformClientUtil.registerAssetReloadListener(defaultBindManager);
-		PlatformClientUtil.registerAssetReloadListener(defaultConfigManager);
-		PlatformClientUtil.registerAssetReloadListener(controllerTypeManager);
-		PlatformClientUtil.registerAssetReloadListener(keyboardLayoutManager);
-		PlatformClientUtil.registerAssetReloadListener(RadialIconManager.INSTANCE);
+		PlatformClientUtil.registerAssetReloadListener(this.inputFontMapper);
+		PlatformClientUtil.registerAssetReloadListener(this.defaultBindManager);
+		PlatformClientUtil.registerAssetReloadListener(this.defaultConfigManager);
+		PlatformClientUtil.registerAssetReloadListener(this.controllerTypeManager);
+		PlatformClientUtil.registerAssetReloadListener(this.keyboardLayoutManager);
+		PlatformClientUtil.registerAssetReloadListener(this.radialIconManager);
+		PlatformClientUtil.registerAssetReloadListener(this.activatorConfigManager);
+		PlatformClientUtil.registerAssetReloadListener(this.controllerMappingManager);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
 		ContextualDomains.touch();
@@ -240,10 +239,6 @@ public class Controlify implements ControlifyApi {
 		this.virtualMouseHandler = new VirtualMouseHandler();
 		this.triggerEffectManager = new TriggerEffectManager();
 
-		ControlifyEvents.CONTROLLER_CONNECTED.register(event -> this.onControllerAdded(
-				event.controller(), event.hotplugged()));
-		ControlifyEvents.CONTROLLER_DISCONNECTED.register(event -> this.onControllerRemoved(event.controller()));
-
 		ControlifyBindings.registerModdedBindings();
 
 		PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
@@ -252,15 +247,14 @@ public class Controlify implements ControlifyApi {
 					ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
 				}));
 
-		try {
-			Sdl sdl = SDLNativesLoader.load();
-			controllerManager = new SDLControllerManager(sdl, CUtil.LOGGER);
-		} catch (Throwable throwable) {
-			CUtil.LOGGER.error("Failed to initialize controller manager", throwable);
+		ControlifyEvents.CURRENT_CONTROLLER_CHANGED.register(event ->
+				this.onCurrentControllerChanged(event.controller(), event.changeInputMode()));
+		this.controllerCoordinator = new ControllerCoordinator(this, this.setupWizardManager);
+		if (!this.controllerCoordinator.initialize()) {
 			return;
 		}
 
-		PlatformClientUtil.registerClientTickStarted(this::tick);
+		PlatformClientUtil.registerClientTickStarted(this::fixedUpdate);
 
 		// initialise and compatability modules that controlify implements itself
 		// this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
@@ -317,151 +311,42 @@ public class Controlify implements ControlifyApi {
 		}
 	}
 
-	/**
-	 * Loops through every controller slot and initialises it if it is connected.
-	 * This is guaranteed to be called at most once. If no controllers are connected
-	 * in the whole game lifecycle, this is never ran.
-	 */
+	/// Discovers already-connected controllers once the backend is initialized.
 	public void discoverControllers() {
-		if (hasDiscoveredControllers) {
-			CUtil.LOGGER.warn("Attempted to discover controllers twice!");
+		this.getControllerCoordinator().ifPresent(ControllerCoordinator::discoverControllers);
+	}
+
+	/// Called once per frame, just after Minecraft has done its own SDL event polling.
+	public void update(float tickDelta) {
+		if (this.minecraft == null || this.controllerCoordinator == null || !this.controllerCoordinator.isReady()) {
 			return;
 		}
-		hasDiscoveredControllers = true;
 
-		DebugLog.log("Discovering and initializing controllers...");
+		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
+				&& !this.minecraft.isWindowActive();
+		boolean givingInput = this.controllerCoordinator.update(outOfFocus);
 
-		controllerManager.discoverControllers();
-
-		if (controllerManager.getConnectedControllers().isEmpty()) {
-			CUtil.LOGGER.log("No controllers found.");
-		}
-
-		this.applyControllerSelection(false);
-
-		config().saveIfDirty();
-
-		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-			try {
-				entrypoint.onControllersDiscovered(this);
-			} catch (Throwable e) {
-				CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-			}
-		});
-	}
-
-	/**
-	 * Called when a controller is connected. Either from controller
-	 * discovery or hotplugging.
-	 *
-	 * @param controller the new controller
-	 * @param hotplugged if this was a result of hotplugging
-	 */
-	private void onControllerAdded(ControllerEntity controller, boolean hotplugged) {
-		ControllerSetupWizard wizard = new ControllerSetupWizard();
-		DeviceSettings rememberedDevice = config().getSettings().getOrCreateDeviceSettings(controller.uid());
-		rememberedDevice.name = controller.name();
-		rememberedDevice.lastSeen = System.currentTimeMillis();
-		rememberedDevice.controllerType = controller.info().type().namespace();
-		config().markDirty();
-
-		String selectedUid = config().getActiveProfile().controllerUid;
-		if (selectedUid == null || selectedUid.equals(controller.uid())) {
-			this.setCurrentController(controller, true);
-		}
-
-		// wizard.addStage(() -> SubmitUnknownControllerScreen.canSubmit(controller), nextScreen -> new SubmitUnknownControllerScreen(controller, nextScreen));
-
-		// Calibration screen removed - gyro calibration is now automatic via rolling calibration
-
-		wizard.addStage(
-				() -> {
-					Optional<InputComponent> inputOpt = controller.input();
-					if (inputOpt.isPresent()) {
-						InputComponent input = inputOpt.get();
-						DeviceSettings deviceSettings = config().getSettings().getOrCreateDeviceSettings(controller.uid());
-						return !input.isDefinitelyGamepad() && deviceSettings.mapping == null;
-					}
-					return false;
-				},
-				nextScreen -> new AskToMapControllerScreen(controller, nextScreen)
-		);
-		wizard.addStage(
-				() -> controller.dualSense().isPresent() && controller.bluetooth().map(bt -> !bt.settings().dontShowWarning).orElse(false),
-				nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen)
-		);
-
-		if (hotplugged) {
-			MinecraftUtil.sendToast(
-					Component.translatable("controlify.toast.controller_connected.title"),
-					Component.translatable("controlify.toast.controller_connected.description", controller.name()),
-					false
-			);
-		}
-
-		// saved after discovery
-		if (hotplugged) {
-			config().saveIfDirty();
-		}
-
-		setupWizards.add(wizard);
-	}
-
-	/**
-	 * Called when a controller is disconnected.
-	 * @param controller controller that has been disconnected
-	 */
-	private void onControllerRemoved(ControllerEntity controller) {
-		if (this.getCurrentController().isPresent() && getCurrentController().get().equals(controller)) {
-			if (config().getActiveProfile().controllerUid == null) {
-				this.selectFirstConnectedController();
-			} else {
-				this.setCurrentController(null, true);
-			}
-		}
-
-		MinecraftUtil.sendToast(
-				Component.translatable("controlify.toast.controller_disconnected.title"),
-				Component.translatable("controlify.toast.controller_disconnected.description", controller.name()),
-				false
-		);
-	}
-
-	private void selectFirstConnectedController() {
-		Optional<ControllerEntity> firstController = controllerManager.getConnectedControllers()
-				.stream()
-				.findFirst();
-		this.setCurrentController(firstController.orElse(null), true);
-	}
-
-	/**
-	 * The main loop of Controlify.
-	 * Only the current controller ticks.
-	 */
-	public void tick(Minecraft client) {
-		if (MinecraftUtil.getOverlay() == null) {
-			if (currentSetupWizard != null && currentSetupWizard.isDone()) {
-				currentSetupWizard = null;
-			}
-
-			if (!setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInterruptScreen)) {
-				currentSetupWizard = setupWizards.poll();
-				MinecraftUtil.setScreen(currentSetupWizard.start(MinecraftUtil.getScreen()));
-			}
-		}
-
-		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput && !client.isWindowActive();
-
-		this.thisTickContexts = BindContext.CONTEXTS.values().stream()
-				.filter(ctx -> ctx.isApplicable().apply(minecraft))
-				.collect(Collectors.toUnmodifiableSet());
-
-		// handles updating state of all controllers
-		controllerManager.tick(outOfFocus);
+		this.setupWizardManager.tick();
 
 		// handle showing/hiding mouse whilst in mixed input mode
-		if (minecraft.mouseHandler.isMouseGrabbed())
+		if (this.minecraft.mouseHandler.isMouseGrabbed()) {
 			showMouseTicks = 0;
+		}
+		this.getCurrentController().ifPresent(currentController -> {
+			wrapControllerError(
+					() -> updateActiveController(currentController, givingInput),
+					"Updating current controller",
+					currentController
+			);
+		});
+
+		this.mouseUsedThisFrame = false;
+	}
+
+	/// Called at 20tps
+	public void fixedUpdate() {
+		LowBatteryNotifier.tick();
+
 		if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
 			showMouseTicks--;
 			if (showMouseTicks == 0) {
@@ -469,65 +354,31 @@ public class Controlify implements ControlifyApi {
 			}
 		}
 
-		LowBatteryNotifier.tick();
+		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
+							 && !this.minecraft.isWindowActive();
 
-		getCurrentController().ifPresent(currentController -> {
+		this.getCurrentController().ifPresent(currentController -> {
 			wrapControllerError(
-					() -> tickActiveController(currentController, outOfFocus),
-					"Ticking current controller",
+					() -> fixedUpdateActiveController(currentController, outOfFocus),
+					"Fixed-updating current controller",
 					currentController
 			);
 		});
-		for (ControllerEntity controller : controllerManager.getConnectedControllers()) {
-			if (controller.equals(getCurrentController().orElse(null))) continue;
-
-			wrapControllerError(
-					() -> tickInactiveController(controller),
-					"Ticking inactive controller",
-					controller
-			);
-		}
-
-		mouseUsedThisTick = false;
 	}
 
-	/**
-	 * Ticks a specific controller.
-	 *
-	 * @param controller controller to tick
-	 * @param outOfFocus if the window is out of focus
-	 */
-	private void tickActiveController(ControllerEntity controller, boolean outOfFocus) {
-		InputComponent input = controller.input().orElseThrow();
-		ControllerStateView state = input.stateNow();
-		Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
-
-		boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
-		boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
-
-		rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
-		if (outOfFocus) {
-			state = ControllerState.EMPTY;
-		} else {
-			rumbleManager.ifPresent(RumbleManager::tick);
-		}
-
-		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
-		this.triggerEffectManager().tick(this.minecraft, controller);
-		this.triggerEffectManager().applyTriggerEffects(controller, controllerInputSuppressed);
-
-		if (state.isGivingInput()) {
+	private void updateActiveController(ControllerEntity controller, boolean givingInput) {
+		if (givingInput) {
 			minecraft.getFramerateLimitTracker().onInputReceived();
+
+			if (showMouseTicks > 0 && !mouseUsedThisFrame) {
+				this.endTemporaryCursor();
+			}
 
 			if (!this.currentInputMode().isController()) {
 				this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
 
 				return; // don't process input if this is changing mode.
 			}
-		}
-
-		if (showMouseTicks > 0 && !mouseUsedThisTick && state.isGivingInput()) {
-			this.endTemporaryCursor();
 		}
 
 		if (consecutiveInputSwitches > 100) {
@@ -542,43 +393,38 @@ public class Controlify implements ControlifyApi {
 			return;
 		}
 
-		if (minecraft.level != null) {
-			this.inGameInputHandler().ifPresent(InGameInputHandler::inputTick);
-		}
-
 		if (this.currentInputMode().isController()) {
-			if (MinecraftUtil.getScreen() != null) {
-				ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerUpdate(controller);
-			}
-
 			ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
 		}
 	}
 
-	private void tickInactiveController(ControllerEntity controller) {
-		if (config().getActiveProfile().controllerUid != null) {
-			return;
+	private void fixedUpdateActiveController(ControllerEntity controller, boolean outOfFocus) {
+		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
+		this.triggerEffectManager().tick(this.minecraft, controller);
+		this.triggerEffectManager().applyTriggerEffects(controller, controllerInputSuppressed);
+
+		boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
+		boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
+
+		Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponent::rumbleManager);
+		rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
+		if (!outOfFocus) {
+			rumbleManager.ifPresent(RumbleManager::tick);
 		}
 
-		InputComponent input = controller.input().orElseThrow();
-		ControllerStateView state = input.stateNow();
+		if (minecraft.level != null) {
+			this.inGameInputHandler().ifPresent(InGameInputHandler::fixedUpdate);
+		}
 
-		boolean thisControllerGivingInput = state.isGivingInput();
-		boolean activeControllerGivingInput = getCurrentController().map(c -> c.input().orElseThrow().stateNow().isGivingInput()).orElse(false);
-
-		if (thisControllerGivingInput && !activeControllerGivingInput) {
-			this.setCurrentController(controller, true);
+		if (this.currentInputMode().isController()) {
+			if (MinecraftUtil.getScreen() != null) {
+				ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerFixedUpdate(controller);
+			}
 		}
 	}
 
 	public void applyControllerSelection(boolean changeInputMode) {
-		String selectedUid = config().getActiveProfile().controllerUid;
-		Optional<ControllerEntity> selected = controllerManager == null
-				? Optional.empty()
-				: controllerManager.getConnectedControllers().stream()
-						.filter(controller -> selectedUid == null || selectedUid.equals(controller.uid()))
-						.findFirst();
-		this.setCurrentController(selected.orElse(null), changeInputMode);
+		this.getControllerCoordinator().ifPresent(coordinator -> coordinator.applyControllerSelection(changeInputMode));
 	}
 
 	public boolean switchProfile(int profileIndex, boolean remember) throws IOException {
@@ -586,12 +432,8 @@ public class Controlify implements ControlifyApi {
 			return false;
 		}
 
-		ProfileSettings profile = config().getActiveProfile();
-		if (controllerManager != null) {
-			controllerManager.getConnectedControllers().forEach(controller -> controller.setSettings(profile));
-		}
-		this.applyControllerSelection(true);
-		this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
+		this.getControllerCoordinator().ifPresent(ControllerCoordinator::applyActiveProfile);
+		this.setupForController(this.currentInputMode.isController() ? this.getCurrentController().orElse(null) : null);
 		return true;
 	}
 
@@ -601,23 +443,22 @@ public class Controlify implements ControlifyApi {
 
 	@Override
 	public @NotNull Optional<ControllerEntity> getCurrentController() {
-		return Optional.ofNullable(currentController);
+		return this.getControllerCoordinator().flatMap(ControllerCoordinator::currentController);
 	}
 
 	public void setCurrentController(@Nullable ControllerEntity controller, boolean changeInputMode) {
-		if (this.currentController == controller) return;
-		this.currentController = controller;
+		this.getControllerCoordinator().ifPresent(coordinator -> coordinator.setCurrentController(controller, changeInputMode));
+	}
 
+	private void onCurrentControllerChanged(@Nullable ControllerEntity controller, boolean changeInputMode) {
 		boolean changedInputMode = false;
 		if (controller == null) {
 			changedInputMode = this.setInputMode(InputMode.KEYBOARD_MOUSE);
-			DebugLog.log("Cleared current controller.");
-		} else {
+		} else if (changeInputMode) {
 			changedInputMode = this.setInputMode(config().getSettings().globalSettings().mixedInput ? InputMode.MIXED : InputMode.CONTROLLER);
-			DebugLog.log("Updated current controller to {}({})", controller.name(), controller.uid());
 		}
 		if (!changedInputMode) {
-			this.setupForController(controller);
+			this.setupForController(this.currentInputMode.isController() ? controller : null);
 		}
 	}
 
@@ -646,7 +487,7 @@ public class Controlify implements ControlifyApi {
 			hideMouse(newInputMode.isController(), true);
 		}
 
-		this.setupForController(this.currentInputMode.isController() ? this.currentController : null);
+		this.setupForController(this.currentInputMode.isController() ? this.getCurrentController().orElse(null) : null);
 
 		KeyMapping.resetToggleKeys();
 
@@ -681,14 +522,15 @@ public class Controlify implements ControlifyApi {
 		this.inGameInputHandler = new InGameInputHandler(controller);
 		this.inGameButtonGuide = new InGameButtonGuide(controller, this.minecraft);
 
-		controller.input().ifPresent(input -> {
-			input.rawStateNow().clearState();
-			input.rawStateThen().clearState();
-		});
+		controller.input().ifPresent(InputComponent::resetActions);
 	}
 
 	public Optional<ControllerManager> getControllerManager() {
-		return Optional.ofNullable(controllerManager);
+		return this.getControllerCoordinator().map(ControllerCoordinator::controllerManager);
+	}
+
+	public Optional<ControllerCoordinator> getControllerCoordinator() {
+		return Optional.ofNullable(this.controllerCoordinator);
 	}
 
 	public Optional<InGameInputHandler> inGameInputHandler() {
@@ -723,7 +565,7 @@ public class Controlify implements ControlifyApi {
 
 	public void showCursorTemporarily() {
 		if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
-			mouseUsedThisTick = true;
+			mouseUsedThisFrame = true;
 			if (virtualMouseHandler().isVirtualMouseEnabled()) {
 				moveCursorToVirtualMouse();
 				virtualMouseHandler().disableVirtualMouse();
@@ -756,31 +598,39 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public InputFontMapper inputFontMapper() {
-		return inputFontMapper;
+		return this.inputFontMapper;
 	}
 
 	public DefaultBindManager defaultBindManager() {
-		return defaultBindManager;
+		return this.defaultBindManager;
 	}
 
 	public DefaultConfigManager defaultConfigManager() {
-		return defaultConfigManager;
+		return this.defaultConfigManager;
 	}
 
 	public ControllerTypeManager controllerTypeManager() {
-		return controllerTypeManager;
+		return this.controllerTypeManager;
 	}
 
 	public KeyboardLayoutManager keyboardLayoutManager() {
-		return keyboardLayoutManager;
+		return this.keyboardLayoutManager;
+	}
+
+	public RadialIconManager radialIconManager() {
+		return this.radialIconManager;
+	}
+
+	public ActivatorConfigManager activatorConfigManager() {
+		return this.activatorConfigManager;
+	}
+
+	public ControllerMappingManager controllerMappingManager() {
+		return this.controllerMappingManager;
 	}
 
 	public TriggerEffectManager triggerEffectManager() {
-		return triggerEffectManager;
-	}
-
-	public Set<BindContext> thisTickBindContexts() {
-		return this.thisTickContexts;
+		return this.triggerEffectManager;
 	}
 
 	public void notifyNewServer(ServerData data) {

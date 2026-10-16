@@ -14,7 +14,7 @@ import dev.isxander.controlify.contextual.ContextualState;
 import dev.isxander.controlify.contextual.RuleEngine;
 import dev.isxander.controlify.contextual.TriggerEffectRule;
 import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
 import net.minecraft.resources.Identifier;
 

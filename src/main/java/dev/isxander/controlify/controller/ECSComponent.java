@@ -14,4 +14,8 @@ public interface ECSComponent {
 	default void attach(ControllerEntity controller) {
 
 	}
+
+	default void close() {
+
+	}
 }

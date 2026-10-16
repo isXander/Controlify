@@ -34,6 +34,13 @@ public class CompoundDriver implements Driver {
 	}
 
 	@Override
+	public void setActive(boolean active) {
+		for (Driver driver : drivers) {
+			driver.setActive(active);
+		}
+	}
+
+	@Override
 	public void close() {
 		for (Driver driver : drivers) {
 			driver.close();

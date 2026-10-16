@@ -1,161 +1,134 @@
-/*
- * Copyright (C) 2026 isXander
- * This file is part of Controlify.
- *
- * SPDX-License-Identifier: LGPL-3.0-or-later
- */
 package dev.isxander.controlify.controller.input;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
-import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.action.defaults.DefaultBindProvider;
 import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.InputSettings;
-import dev.isxander.controlify.controller.*;
+import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
-import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
+import dev.isxander.controlify.input.LogicalInput;
+import dev.isxander.controlify.input.SensorType;
+import dev.isxander.controlify.input.mapping.ControllerMapping;
+import dev.isxander.controlify.input.mapping.ControllerMappingManager;
+import dev.isxander.controlify.action.ActionGraph;
+import dev.isxander.controlify.action.ActionImpl;
+import dev.isxander.controlify.action.ActionSpec;
+import dev.isxander.controlify.action.ActionSpecRegistryImpl;
+import dev.isxander.controlify.action.activator.ActivatorConfig;
+import dev.isxander.controlify.input.pipeline.InputPipeline;
+import dev.isxander.controlify.input.pipeline.SensorProcessorStage;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.event.EventSource;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class InputComponent extends ECSComponentImpl {
 	public static final Identifier ID = CUtil.rl("input");
 
-	private final ControllerEntity controller;
-	private DeviceSettings deviceSettings; // Cached reference
+	private final Identifier controllerType;
+	private DeviceSettings deviceSettings;
 
-	private ControllerState
-			stateNow = ControllerState.EMPTY,
-			stateThen = ControllerState.EMPTY;
-	private DeadzoneControllerStateView
-			deadzoneStateNow,
-			deadzoneStateThen;
+	private final InputPipeline inputPipeline;
+	private final ActionGraph actionGraph;
 
-	private final int buttonCount, axisCount, hatCount;
-	private final Map<Identifier, DeadzoneGroup> deadzoneAxes;
-	private final boolean definitelyGamepad;
+	private final Map<Identifier, ActionImpl> actions;
 
-	private final Map<Identifier, InputBinding> inputBindings;
+	private final Set<Identifier> physicalButtons, physicalAxes;
+	private final boolean isGamepad;
+	private final Set<SensorType> supportedSensors;
+
+	private EventSource.Subscription actionGraphSub;
 
 	public InputComponent(
-			ControllerEntity controller,
-			int buttonCount, int axisCount, int hatCount,
-			boolean definitelyGamepad,
-			Set<DeadzoneGroup> deadzoneAxes,
-			String mappingId
+			Identifier controllerType,
+			InputPipeline inputPipeline,
+			Set<Identifier> physicalButtons,
+			Set<Identifier> physicalAxes,
+			Set<SensorType> supportedSensors,
+			boolean isGamepad
 	) {
-		this.controller = controller;
-		this.buttonCount = buttonCount;
-		this.axisCount = axisCount;
-		this.hatCount = hatCount;
-		this.definitelyGamepad = definitelyGamepad;
-		this.deadzoneAxes = deadzoneAxes.stream()
-				.collect(Collectors.toMap(
-						DeadzoneGroup::name,
-						Function.identity(),
-						(x, y) -> y,
-						LinkedHashMap::new
-				));
-		this.inputBindings = new LinkedHashMap<>();
+		this.controllerType = controllerType;
+		this.inputPipeline = inputPipeline;
 
-		this.updateDeadzoneView();
-	}
+		this.physicalButtons = Set.copyOf(physicalButtons);
+		this.physicalAxes = Set.copyOf(physicalAxes);
+		this.supportedSensors = Set.copyOf(supportedSensors);
+		this.isGamepad = isGamepad;
 
-	public ControllerStateView stateNow() {
-		return this.deadzoneStateNow;
-	}
-	public ControllerStateView stateThen() {
-		return this.deadzoneStateThen;
-	}
-
-	public ControllerState rawStateNow() {
-		return this.stateNow;
-	}
-
-	public ControllerState rawStateThen() {
-		return this.stateThen;
-	}
-
-	public void pushState(ControllerState state) {
-		ControllerMapping mapping = getDeviceMapping();
-		if (mapping != null) {
-			state = mapping.mapState(state);
-		}
-
-		this.stateThen = this.stateNow;
-		this.stateNow = state;
-		this.updateDeadzoneView();
-
-		for (InputBinding binding : this.inputBindings.values()) {
-			binding.pushState(this.deadzoneStateNow);
-		}
-	}
-
-	public @Nullable InputBinding getBinding(Identifier id) {
-		return this.inputBindings.get(id);
-	}
-
-	public Collection<InputBinding> getAllBindings() {
-		return this.inputBindings.values();
-	}
-
-	public void notifyGuiPressOutputsOfNavigate() {
-		for (InputBinding binding : this.inputBindings.values()) {
-			binding.guiPressed().onNavigate();
-		}
+		this.actionGraph = new ActionGraph();
+		this.actions = new LinkedHashMap<>();
 	}
 
 	@Override
 	public void attach(ControllerEntity controller) {
 		super.attach(controller);
 
-		// Cache device settings reference
 		this.deviceSettings = Controlify.instance().config().getSettings()
 				.getOrCreateDeviceSettings(controller.uid());
 
-		// Populate bindings
-		for (InputBinding binding : ControlifyBindApiImpl.INSTANCE.provideBindsForController(controller)) {
-			this.inputBindings.put(binding.id(), binding);
+		ControllerMapping controllerMapping = this.deviceSettings.mapping;
+		if (controllerMapping == null) {
+			ControllerMappingManager controllerMappingManager = Controlify.instance().controllerMappingManager();
+			controllerMapping = controllerMappingManager
+					.getMappingById(controller.info().type().mappingId())
+					.orElse(null);
+		}
+		if (controllerMapping == null) {
+			controllerMapping = this.isGamepad
+					? ControllerMapping.GAMEPAD_DEADZONES_ONLY_MAPPING
+					: ControllerMapping.NO_MAPPING;
 		}
 
-		// Note: No need to copy bound inputs from config here since InputBindingImpl.boundInput()
-		// now reads directly from the config (via inputComponent.settings().bindings.bindings)
+		this.inputPipeline.stageMapping().setControllerMapping(controllerMapping);
+		this.inputPipeline.stageDeadzone().setDeadzoneGroups(controllerMapping.deadzones().values());
+		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> settings().sensitivity.getDeadzone((Identifier) axis));
+		this.inputPipeline.stageSensorProcessor().setProcessors(sensorType -> {
+			if (sensorType == SensorType.GYROSCOPE) {
+				return List.of(
+						new SensorProcessorStage.BiasCorrection(() -> this.deviceSettings.gyroCalibration.offset),
+						new SensorProcessorStage.LowPassFilter(() -> this.controller().settings().gyro.lowPassCutoffHz)
+				);
+			} else {
+				return List.of();
+			}
+		});
+
+		this.reloadActions();
+		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
 	}
 
-	public int buttonCount() {
-		return this.buttonCount;
-	}
-	public int axisCount() {
-		return this.axisCount;
-	}
-	public int hatCount() {
-		return this.hatCount;
+	public @Nullable ActionImpl getAction(Identifier actionId) {
+		return this.actions.get(actionId);
 	}
 
-	public boolean isDefinitelyGamepad() {
-		return this.definitelyGamepad;
+	public InputPipeline inputPipeline() {
+		return this.inputPipeline;
 	}
 
-	public Map<Identifier, DeadzoneGroup> getDeadzoneGroups() {
-		ControllerMapping mapping = getDeviceMapping();
-		if (mapping != null) {
-			return mapping.deadzones();
-		} else {
-			return this.deadzoneAxes;
+	public void resetActions() {
+		this.actions.values().forEach(ActionImpl::reset);
+	}
+
+	public void reloadActions() {
+		this.actions.clear();
+		this.actionGraph.clearActions();
+
+		for (ActionSpec spec : ActionSpecRegistryImpl.INSTANCE.getActionSpecs()) {
+			ActionImpl action = this.createAction(spec);
+			this.actions.put(spec.id(), action);
+			this.actionGraph.addAction(action);
 		}
 	}
 
-	private @Nullable ControllerMapping getDeviceMapping() {
-		// Use cached device settings to avoid repeated lookups
-		return deviceSettings.mapping;
+	public void onGuiNavigate() {
+		this.inputPipeline.stagePhysicalToLogical().onGuiNavigate();
 	}
 
-	public ControllerEntity getController() {
-		return controller();
+	@Override
+	public Identifier id() {
+		return ID;
 	}
 
 	public InputSettings settings() {
@@ -166,22 +139,57 @@ public class InputComponent extends ECSComponentImpl {
 		return this.controller().defaultSettings().input;
 	}
 
+	public boolean isGamepad() {
+		return this.isGamepad;
+	}
+
+	public Set<Identifier> physicalButtons() {
+		return this.physicalButtons;
+	}
+
+	public Set<Identifier> physicalAxes() {
+		return this.physicalAxes;
+	}
+
+	public boolean supportsSensor(SensorType type) {
+		return this.supportedSensors.contains(type);
+	}
+
+	public boolean supportsGyro() {
+		return this.supportedSensors.stream().anyMatch(SensorType::isGyroscope);
+	}
+
+	public boolean supportsAccelerometer() {
+		return this.supportedSensors.stream().anyMatch(SensorType::isAccelerometer);
+	}
+
 	@Override
-	public Identifier id() {
-		return ID;
+	public void close() {
+		super.close();
+
+		this.actionGraphSub.close();
+		this.actionGraphSub = null;
 	}
 
-	private void updateDeadzoneView() {
-		this.deadzoneStateNow = new DeadzoneControllerStateView(this.stateNow, this);
-		this.deadzoneStateThen = new DeadzoneControllerStateView(this.stateThen, this);
-	}
+	private ActionImpl createAction(ActionSpec spec) {
+		DefaultBindProvider bindProvider = Controlify.instance().defaultBindManager()
+				.getDefaultBindProvider(this.controllerType);
+		LogicalInput defaultBoundInput = bindProvider.getDefaultInput(spec.id());
 
-	Optional<Identifier> getDeadzoneForAxis(Identifier axis) {
-		for (DeadzoneGroup group : this.getDeadzoneGroups().values()) {
-			if (group.axes().contains(axis)) {
-				return Optional.of(group.name());
-			}
-		}
-		return Optional.empty();
+		LogicalInput currentBoundInput = settings().bindings.bindings.get(spec.id());
+
+		ActivatorConfig<?> activatorConfig = Controlify.instance().activatorConfigManager()
+				.getConfig(spec.id());
+
+		ActionImpl action = new ActionImpl(
+				spec,
+				currentBoundInput,
+				defaultBoundInput,
+				activatorConfig,
+				this.actionGraph
+		);
+		action.reset();
+
+		return action;
 	}
 }

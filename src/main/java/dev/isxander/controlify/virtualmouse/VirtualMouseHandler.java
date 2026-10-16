@@ -15,7 +15,7 @@ import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
 import dev.isxander.controlify.bindings.ControlifyBindings;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.debug.DebugProperties;

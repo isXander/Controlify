@@ -7,9 +7,9 @@
 package dev.isxander.controlify.gui;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.bind.InputBinding;
+import dev.isxander.controlify.action.Action;
+import dev.isxander.controlify.action.ActionAccessor;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -23,36 +23,36 @@ import java.util.function.Supplier;
 public interface ButtonGuideRenderer<T> {
 	void controlify$setButtonGuide(RenderData<T> renderData);
 
-	static <T> void registerBindingForButton(T button, Supplier<InputBindingSupplier> binding, ButtonGuidePredicate<T> renderPredicate) {
-		((ButtonGuideRenderer<T>) button).controlify$setButtonGuide(new RenderData<>(binding, renderPredicate));
+	static <T> void registerBindingForButton(T button, Supplier<ActionAccessor> action, ButtonGuidePredicate<T> renderPredicate) {
+		((ButtonGuideRenderer<T>) button).controlify$setButtonGuide(new RenderData<>(action, renderPredicate));
 	}
 
-	record RenderData<T>(Supplier<InputBindingSupplier> binding, ButtonGuidePredicate<T> renderPredicate) {
-		public Component getControllerMessage(InputBinding bind, Component actualLabel) {
+	record RenderData<T>(Supplier<ActionAccessor> action, ButtonGuidePredicate<T> renderPredicate) {
+		public Component getControllerMessage(Action action, Component actualLabel) {
 			var component = Component.empty();
 			if (!Minecraft.getInstance().font.isBidirectional()) {
-				component.append(bind.inputGlyph());
+				component.append(action.inputGlyph());
 				component.append(CommonComponents.SPACE);
 			}
 			component.append(actualLabel);
 			if (Minecraft.getInstance().font.isBidirectional()) {
 				component.append(CommonComponents.SPACE);
-				component.append(bind.inputGlyph());
+				component.append(action.inputGlyph());
 			}
 			return component;
 		}
 
 		public boolean shouldRender(T renderable) {
-			Optional<InputBinding> binding = getBind();
+			Optional<Action> binding = getAction();
 			return binding.isPresent()
 					&& Controlify.instance().currentInputMode().isController()
 					&& Controlify.instance().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false)
-					&& !binding.get().isUnbound()
+					&& binding.get().boundInput() != null
 					&& renderPredicate().shouldDisplay(renderable);
 		}
 
-		public Optional<InputBinding> getBind() {
-			return Controlify.instance().getCurrentController().map(c -> binding().get().on(c));
+		public Optional<Action> getAction() {
+			return Controlify.instance().getCurrentController().map(c -> action().get().on(c));
 		}
 	}
 }

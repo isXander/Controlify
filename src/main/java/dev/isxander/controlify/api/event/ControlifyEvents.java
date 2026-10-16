@@ -10,11 +10,18 @@ import dev.isxander.controlify.InputMode;
 import dev.isxander.controlify.api.ingameinput.LookInputModifier;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.platform.EventHandler;
+import org.jetbrains.annotations.Nullable;
 
 public final class ControlifyEvents {
 	public static final EventHandler<ControllerConnected> CONTROLLER_CONNECTED = EventHandler.createPlatformBackedEvent();
 
 	public static final EventHandler<ControllerDisconnected> CONTROLLER_DISCONNECTED = EventHandler.createPlatformBackedEvent();
+
+	/**
+	 * Triggers after the current controller changes and its activation has been updated.
+	 * The controller is null when the current selection is cleared.
+	 */
+	public static final EventHandler<CurrentControllerChanged> CURRENT_CONTROLLER_CHANGED = EventHandler.createPlatformBackedEvent();
 
 	/**
 	 * Triggers when the input mode is changed from keyboard to controller or vice versa.
@@ -48,10 +55,13 @@ public final class ControlifyEvents {
 	 */
 	public static final EventHandler<LookInputModifier> LOOK_INPUT_MODIFIER = EventHandler.createPlatformBackedEvent();
 
-	public record ControllerConnected(ControllerEntity controller, boolean hotplugged, @Deprecated boolean newController) {
+	public record ControllerConnected(ControllerEntity controller, boolean hotplugged) {
 	}
 
 	public record ControllerDisconnected(ControllerEntity controller) {
+	}
+
+	public record CurrentControllerChanged(@Nullable ControllerEntity controller, boolean changeInputMode) {
 	}
 
 	public record InputModeChanged(InputMode mode) {

@@ -9,12 +9,11 @@ package dev.isxander.controlify.gui.screen;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.action.radial.RadialIcon;
 import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
 import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.RadialIconExtractor;
-import dev.isxander.controlify.bindings.RadialIconManager;
+import dev.isxander.controlify.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.screenop.ScreenProcessor;
@@ -82,7 +81,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		this.controller = controller;
 		this.model = new RadialMenuEditModel(controller.settings().input.radialMenu.radialActions);
 		this.candidates = controller.input().orElseThrow().getAllBindings().stream()
-				.filter(RadialIconManager.INSTANCE::isRadialCandidate)
+				.filter(Controlify.instance().radialIconManager()::isRadialCandidate)
 				.toList();
 		this.candidatesById = candidates.stream().collect(Collectors.toMap(
 				InputBinding::id,
@@ -548,7 +547,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			InputBinding binding = candidatesById.get(id);
 			this.icon = binding == null
 					? RadialIcon.EMPTY
-					: RadialIconManager.INSTANCE.getIcon(binding);
+					: Controlify.instance().radialIconManager().getIcon(binding);
 		}
 
 		@Override

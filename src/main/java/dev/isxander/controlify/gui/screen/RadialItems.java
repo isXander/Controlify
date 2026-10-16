@@ -6,11 +6,12 @@
  */
 package dev.isxander.controlify.gui.screen;
 
+import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.action.radial.RadialIcon;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.RadialIconManager;
+import dev.isxander.controlify.action.radial.RadialIconManager;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.utils.CUtil;
 import net.minecraft.client.Minecraft;
@@ -181,15 +182,16 @@ public final class RadialItems {
 
 	private static RadialMenuScreen.RadialItem getItemForBinding(Identifier id, ControllerEntity controller) {
 		InputBinding binding = controller.input().orElseThrow().getBinding(id);
+		RadialIconManager radialIconManager = Controlify.instance().radialIconManager();
 
-		if (binding == null || !RadialIconManager.INSTANCE.isRadialCandidate(binding)) {
+		if (binding == null || !radialIconManager.isRadialCandidate(binding)) {
 			CUtil.LOGGER.warn("Binding {} does not exist or is not a radial candidate", binding);
 			return EMPTY_ACTION;
 		}
 
 		return new RadialItemRecord(
 				binding.name(),
-				RadialIconManager.INSTANCE.getIcon(binding),
+				radialIconManager.getIcon(binding),
 				() -> {
 					binding.fakePress();
 					return true;

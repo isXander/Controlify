@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;

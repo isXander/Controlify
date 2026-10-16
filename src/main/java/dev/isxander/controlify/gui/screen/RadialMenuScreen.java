@@ -7,9 +7,9 @@
 package dev.isxander.controlify.gui.screen;
 
 import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.api.bind.RadialIcon;
+import dev.isxander.controlify.action.radial.RadialIcon;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.RadialIconExtractor;
+import dev.isxander.controlify.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.gui.screen.RadialItems.RadialPage;

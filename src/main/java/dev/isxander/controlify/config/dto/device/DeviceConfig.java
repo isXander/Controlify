@@ -9,7 +9,7 @@ package dev.isxander.controlify.config.dto.device;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.controller.id.ControllerType;
-import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
+import dev.isxander.controlify.input.mapping.ControllerMapping;
 import net.minecraft.resources.Identifier;
 
 import java.util.Optional;

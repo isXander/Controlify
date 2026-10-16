@@ -150,7 +150,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
 		}
 
 		@Override
-		public void onControllerUpdate(ControllerEntity controller) {
+		public void onControllerFixedUpdate(ControllerEntity controller) {
 			// prevent all other controller input logic
 		}
 	}

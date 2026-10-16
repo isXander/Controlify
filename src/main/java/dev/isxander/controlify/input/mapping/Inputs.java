@@ -1,0 +1,36 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.input.mapping;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+
+import java.util.Collection;
+
+public final class Inputs {
+	private Inputs() {
+	}
+
+	public static MutableComponent getInputComponent(Identifier input) {
+		return Component.translatable("controlify.input." + input.getNamespace() + "." + input.getPath());
+	}
+
+	public static MutableComponent getInputComponentAnd(Collection<Identifier> inputs) {
+		if (inputs.isEmpty())
+			return Component.empty();
+
+		MutableComponent component = inputs.stream()
+				.map(Inputs::getInputComponent)
+				.reduce(Component.empty(), (a, b) -> a.append(b).append(" + "));
+
+		// remove the last ' + '
+		component.getSiblings().remove(component.getSiblings().size() - 1);
+
+		return component;
+	}
+}

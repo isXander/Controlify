@@ -18,6 +18,7 @@ public class GyroSettings {
 	public GyroButtonMode buttonMode;
 	public GyroYawMode yawMode;
 	public boolean flickStick;
+	public float lowPassCutoffHz;
 
 	public GyroSettings(
 			float lookSensitivity,
@@ -26,7 +27,8 @@ public class GyroSettings {
 			boolean invertYaw,
 			GyroButtonMode buttonMode,
 			GyroYawMode yawMode,
-			boolean flickStick
+			boolean flickStick,
+			float lowPassCutoffHz
 	) {
 		this.lookSensitivity = lookSensitivity;
 		this.relativeMode = relativeMode;
@@ -35,6 +37,7 @@ public class GyroSettings {
 		this.buttonMode = buttonMode;
 		this.yawMode = yawMode;
 		this.flickStick = flickStick;
+		this.lowPassCutoffHz = lowPassCutoffHz;
 	}
 
 	public static GyroSettings fromDTO(GyroConfig dto) {
@@ -45,7 +48,8 @@ public class GyroSettings {
 				dto.invertYaw(),
 				dto.buttonMode(),
 				dto.yawMode(),
-				dto.flickStick()
+				dto.flickStick(),
+				dto.lowPassCutoffHz()
 		);
 	}
 
@@ -57,7 +61,8 @@ public class GyroSettings {
 				invertYaw,
 				buttonMode,
 				yawMode,
-				flickStick
+				flickStick,
+				lowPassCutoffHz
 		);
 	}
 }

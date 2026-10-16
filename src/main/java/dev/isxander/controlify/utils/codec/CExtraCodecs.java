@@ -21,13 +21,15 @@ import java.util.stream.Stream;
 public final class CExtraCodecs {
 	public static <T> Codec<T> fuzzy(
 			List<Codec<? extends T>> codecs,
-			Function<T, Encoder<? extends T>> encoderGetter) {
+			Function<T, Encoder<? extends T>> encoderGetter
+	) {
 		return new FuzzyCodec<>(codecs, encoderGetter);
 	}
 
 	public static <T> MapCodec<T> fuzzyMap(
 			List<MapCodec<? extends T>> codecs,
-			Function<T, MapEncoder<? extends T>> encoderGetter) {
+			Function<T, MapEncoder<? extends T>> encoderGetter
+	) {
 		return new FuzzyMapCodec<>(codecs, encoderGetter);
 	}
 

@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.core;
 
 import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.utils.animation.impl.Animator;
 import net.minecraft.CrashReport;
 import net.minecraft.client.DeltaTracker;
@@ -39,8 +39,13 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	@Inject(method = "runTick", at = @At("HEAD"))
+	private void doPolling(CallbackInfo ci) {
+		Controlify.instance().update(getTickDelta());
+	}
+
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-	private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
+	private void doPlayerLook(CallbackInfo ci) {
 		Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
 	}
 
@@ -52,7 +57,7 @@ public abstract class MinecraftMixin {
 			)
 	)
 	private void onMinecraftClose(CallbackInfo ci) {
-		Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
+		Controlify.instance().getControllerCoordinator().ifPresent(ControllerCoordinator::close);
 	}
 
 	@Inject(

@@ -24,9 +24,11 @@ import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
 import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
+import dev.isxander.controlify.input.pipeline.InputPipeline;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.utils.event.EventSource;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.util.Util;
@@ -43,7 +45,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static dev.isxander.sdl.SdlAudio.*;
-import static dev.isxander.sdl.SdlGamepad.*;
 import static dev.isxander.sdl.SdlInit.*;
 import static dev.isxander.sdl.SdlProperties.*;
 
@@ -51,11 +52,16 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
 
 	protected final Sdl sdl;
-	private final ControlifyLogger logger;
+	protected final ControlifyLogger logger;
 
 	protected final Arena arena;
 
 	protected SdlController ptrController;
+
+	protected final EventSource<SDLControllerEvent> sdlEventSource;
+	protected final InputPipeline inputPipeline;
+	private final SDLToPhysicalStage sdlToPhysicalStage;
+	private EventSource.Subscription eventSubscription;
 
 	protected BatteryLevelComponent batteryLevelComponent;
 	protected RumbleComponent rumbleComponent;
@@ -75,19 +81,22 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected final SdlPropertiesId props;
 	protected final short vendorId, productId;
 	protected final SDLJoystickConnectionState connectionState;
+	protected final ControllerType controllerType;
 
 	@Nullable protected SdlAudioDeviceId dualsenseAudioDev;
 	@Nullable protected SdlAudioSpec dualsenseAudioSpec;
 	protected final List<AudioStreamHandle> dualsenseAudioHandles;
 
-	public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
+	public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, EventSource<SDLControllerEvent> eventSource, ControllerType type, ControlifyLogger logger) {
 		this.sdl = sdl;
 		this.arena = Arena.ofConfined();
 
 		this.ptrController = ptrController;
+		this.sdlEventSource = eventSource;
 		this.logger = logger;
 
 		this.props = SDL_GetControllerProperties(ptrController);
+		this.controllerType = type;
 
 		this.name = Optional.ofNullable(SDL_GetControllerName(ptrController))
 			.orElse("SDL Controller");
@@ -112,6 +121,9 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
 		logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
+
+		this.inputPipeline = new InputPipeline();
+		this.sdlToPhysicalStage = new SDLToPhysicalStage();
 
 		// open audio device for dualsense hd haptics
 		this.dualsenseAudioHandles = new ArrayList<>();
@@ -174,6 +186,31 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (isBluetooth()) {
 			controller.setComponent(new BluetoothDeviceComponent());
 		}
+
+		this.eventSubscription = this.sdlEventSource.subscribe(this::onEvent);
+	}
+
+	protected void onEvent(SDLControllerEvent event) {
+		this.sdlToPhysicalStage.onEvent(event, this.inputPipeline);
+
+		switch (event) {
+			case SDLControllerEvent.Battery battery ->
+					this.onBatteryEvent(battery);
+
+			default -> {}
+		}
+	}
+
+	private void onBatteryEvent(SDLControllerEvent.Battery event) {
+		PowerState level = switch (event.state()) {
+			case ERROR, UNKNOWN -> new PowerState.Unknown();
+			case ON_BATTERY -> new PowerState.Depleting(event.percent());
+			case NO_BATTERY -> new PowerState.WiredOnly();
+			case CHARGING -> new PowerState.Charging(event.percent());
+			case CHARGED -> new PowerState.Full();
+		};
+
+		this.batteryLevelComponent.setBatteryLevel(level);
 	}
 
 	@Override
@@ -183,37 +220,9 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		}
 
 		updateRumble();
-		updateBatteryLevel();
 		updateLED();
 		updateDualSense();
 		updateHDHaptic();
-	}
-
-	@Override
-	public void close() {
-		if (ptrController == null) {
-			throw new IllegalStateException("Tried to close controller when it's already closed.");
-		}
-
-		if (dualSenseComponent != null) {
-			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
-			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
-			dualSenseComponent.setMuteLight(false);
-			updateDualSense();
-		}
-
-		SDL_CloseController(ptrController);
-		ptrController = null;
-
-		if (dualsenseAudioDev != null) {
-			sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
-			dualsenseAudioDev = null;
-			for (AudioStreamHandle handle : dualsenseAudioHandles) {
-				handle.close();
-			}
-		}
-
-		arena.close();
 	}
 
 	protected void updateRumble() {
@@ -236,22 +245,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 				}
 			});
 		}
-	}
-
-	private void updateBatteryLevel() {
-		SdlRefs.IntRef percent = new SdlRefs.IntRef();
-		int powerState = SDL_GetControllerPowerInfo(ptrController, percent);
-
-		PowerState level = switch (powerState) {
-			case SDL_POWERSTATE_ERROR, SDL_POWERSTATE_UNKNOWN -> new PowerState.Unknown();
-			case SDL_POWERSTATE_ON_BATTERY -> new PowerState.Depleting(percent.value);
-			case SDL_POWERSTATE_NO_BATTERY -> new PowerState.WiredOnly();
-			case SDL_POWERSTATE_CHARGING -> new PowerState.Charging(percent.value);
-			case SDL_POWERSTATE_CHARGED -> new PowerState.Full();
-			default -> throw new IllegalStateException("Unexpected value");
-		};
-
-		this.batteryLevelComponent.setBatteryLevel(level);
 	}
 
 	private void updateLED() {
@@ -312,6 +305,38 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 				handle.tick();
 			}
 		}
+	}
+
+	@Override
+	public void close() {
+		if (ptrController == null) {
+			throw new IllegalStateException("Tried to close controller when it's already closed.");
+		}
+
+		if (this.eventSubscription != null) {
+			this.eventSubscription.close();
+			this.eventSubscription = null;
+		}
+
+		if (dualSenseComponent != null) {
+			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
+			dualSenseComponent.setMuteLight(false);
+			updateDualSense();
+		}
+
+		SDL_CloseController(ptrController);
+		ptrController = null;
+
+		if (dualsenseAudioDev != null) {
+			sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
+			dualsenseAudioDev = null;
+			for (AudioStreamHandle handle : dualsenseAudioHandles) {
+				handle.close();
+			}
+		}
+
+		arena.close();
 	}
 
 	private void playHaptic(CompleteSoundData sound) {
@@ -403,7 +428,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		String nonDuplicateUid = uid;
 		int duplicateCount = (int) Controlify.instance().getControllerManager().orElseThrow()
-				.getConnectedControllers()
+				.getAllControllers()
 				.stream()
 				.filter(controller -> controller.uid().startsWith(nonDuplicateUid))
 				.count();
