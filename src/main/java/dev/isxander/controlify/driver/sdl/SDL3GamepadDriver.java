@@ -9,7 +9,6 @@ package dev.isxander.controlify.driver.sdl;
 import dev.isxander.controlify.controller.id.ControllerType;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
-import dev.isxander.controlify.controller.input.GamepadInputs;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
 import dev.isxander.controlify.input.InputComponent;
@@ -73,9 +72,8 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 						this.inputPipeline,
 						this.supportedButtons,
 						this.supportedAxes,
-						GamepadInputs.DEADZONE_GROUPS,
-						true,
-						this.supportedSensors
+						this.supportedSensors,
+						true
 				)
 		);
 
@@ -114,10 +112,6 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	@Override
 	protected void onEvent(SDLControllerEvent event) {
-		// SDL may still have queued samples after the sensor has been disabled.
-		if (!this.active && event instanceof SDLControllerEvent.GamepadSensor) {
-			return;
-		}
 		super.onEvent(event);
 
 		switch (event) {

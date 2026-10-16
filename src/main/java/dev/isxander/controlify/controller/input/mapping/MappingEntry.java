@@ -7,13 +7,9 @@
 package dev.isxander.controlify.controller.input.mapping;
 
 import com.mojang.serialization.Codec;
-import dev.isxander.controlify.controller.input.ControllerState;
-import dev.isxander.controlify.controller.input.HatState;
-import dev.isxander.controlify.controller.input.ModifiableControllerState;
 import dev.isxander.controlify.input.physical.PhysicalInputSignal;
 import dev.isxander.controlify.utils.MthExt;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.Nullable;
 
 public sealed interface MappingEntry {
 	/// Transforms an input signal

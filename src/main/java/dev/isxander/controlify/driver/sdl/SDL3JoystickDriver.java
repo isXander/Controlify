@@ -54,8 +54,7 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SdlJoystickHandle> {
 				this.supportedButtons,
 				this.supportedAxes,
 				Set.of(),
-				false,
-				Set.of()
+				false
 		));
 	}
 

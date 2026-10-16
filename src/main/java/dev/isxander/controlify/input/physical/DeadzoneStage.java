@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,14 +16,36 @@ import java.util.stream.Collectors;
 /// Applies radial deadzones to physical axes.
 public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 
-	private final Map<Identifier, DeadzoneGroup> groupByAxis;
-	private final Map<DeadzoneGroup, RadialDeadzoneState> stateByGroup;
-
+	private Map<Identifier, RadialDeadzoneState> stateByAxis;
 	private Object2FloatFunction<Identifier> deadzoneByGroupName;
 
 	public DeadzoneStage(Set<DeadzoneGroup> deadzoneGroups) {
-		this.groupByAxis = deadzoneGroups.stream()
-				.flatMap(g -> g.axes().stream().map(a -> Map.entry(a, g)))
+		this.setDeadzoneGroups(deadzoneGroups);
+		this.deadzoneByGroupName = _ -> 0f;
+	}
+
+	public DeadzoneStage() {
+		this(Set.of());
+	}
+
+	@Override
+	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
+		if (event instanceof PhysicalInputSignal.AxisMoved axisMoved) {
+			RadialDeadzoneState state = this.stateByAxis.get(axisMoved.input());
+
+			if (state != null) {
+				state.onEvent(axisMoved, downstream);
+				return;
+			}
+		}
+
+		downstream.accept(event);
+	}
+
+	public void setDeadzoneGroups(Collection<DeadzoneGroup> deadzoneGroups) {
+		this.stateByAxis = deadzoneGroups.stream()
+				.map(RadialDeadzoneState::new)
+				.flatMap(state -> state.deadzoneGroup.axes().stream().map(axis -> Map.entry(axis, state)))
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
 						Map.Entry::getValue,
@@ -32,23 +54,6 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 						},
 						Object2ObjectOpenHashMap::new
 				));
-		this.stateByGroup = new Object2ObjectArrayMap<>();
-		this.deadzoneByGroupName = _ -> 0f;
-	}
-
-	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
-		if (event instanceof PhysicalInputSignal.AxisMoved axisMoved) {
-			DeadzoneGroup deadzoneGroup = this.groupByAxis.get(axisMoved.input());
-
-			if (deadzoneGroup != null) {
-				RadialDeadzoneState state = this.stateByGroup.computeIfAbsent(deadzoneGroup, RadialDeadzoneState::new);
-				state.onEvent(axisMoved, downstream);
-				return;
-			}
-		}
-
-		downstream.accept(event);
 	}
 
 	public void setDeadzoneSupplier(Object2FloatFunction<Identifier> deadzoneByGroupName) {

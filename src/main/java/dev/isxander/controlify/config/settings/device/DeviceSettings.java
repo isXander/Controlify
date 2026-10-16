@@ -19,6 +19,7 @@ public class DeviceSettings {
 	public long lastSeen;
 	public Identifier controllerType;
 	public final GyroCalibrationSettings gyroCalibration;
+	/// Controller must be re-initialized for a change in mapping to take effect.
 	public @Nullable ControllerMapping mapping;
 
 	private DeviceSettings(String uid) {

@@ -14,8 +14,6 @@ import dev.isxander.controlify.controller.input.GamepadInputs;
 import net.minecraft.resources.Identifier;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public record ControllerMapping(
 		List<MappingEntry> mappings,
@@ -42,14 +40,6 @@ public record ControllerMapping(
 		if (!validateDistinctMappingSources(mappings)) {
 			throw new IllegalArgumentException("Every mapping entry must have a distinct source input");
 		}
-	}
-
-	public Map<Identifier, MappingEntry> createMappingEntryMap() {
-		return this.mappings.stream()
-				.collect(Collectors.toUnmodifiableMap(
-						MappingEntry::sourceInput,
-						Function.identity()
-				));
 	}
 
 	public static final ControllerMapping NO_MAPPING = new Builder().build();

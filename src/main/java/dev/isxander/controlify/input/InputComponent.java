@@ -6,7 +6,7 @@ import dev.isxander.controlify.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.config.settings.profile.InputSettings;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.impl.ECSComponentImpl;
-import dev.isxander.controlify.controller.input.DeadzoneGroup;
+import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
 import dev.isxander.controlify.input.action.ActionGraph;
 import dev.isxander.controlify.input.action.ActionImpl;
 import dev.isxander.controlify.input.action.ActionSpec;
@@ -37,7 +37,6 @@ public class InputComponent extends ECSComponentImpl {
 	private final Map<Identifier, ActionImpl> actions;
 
 	private final Set<Identifier> physicalButtons, physicalAxes;
-	private final Map<Identifier, DeadzoneGroup> deadzoneGroups;
 	private final boolean isGamepad;
 	private final Set<SensorType> supportedSensors;
 
@@ -48,20 +47,16 @@ public class InputComponent extends ECSComponentImpl {
 			InputPipeline inputPipeline,
 			Set<Identifier> physicalButtons,
 			Set<Identifier> physicalAxes,
-			Set<DeadzoneGroup> deadzoneGroups,
-			boolean isGamepad,
-			Set<SensorType> supportedSensors
+			Set<SensorType> supportedSensors,
+			boolean isGamepad
 	) {
 		this.controllerType = controllerType;
 		this.inputPipeline = inputPipeline;
 
 		this.physicalButtons = Set.copyOf(physicalButtons);
 		this.physicalAxes = Set.copyOf(physicalAxes);
-		this.deadzoneGroups = deadzoneGroups.stream()
-				.flatMap(g -> g.axes().stream().map(a -> Map.entry(a, g)))
-				.collect(Util.toMap());
-		this.isGamepad = isGamepad;
 		this.supportedSensors = Set.copyOf(supportedSensors);
+		this.isGamepad = isGamepad;
 
 		this.actionGraph = new ActionGraph();
 		this.actions = new LinkedHashMap<>();
@@ -74,10 +69,15 @@ public class InputComponent extends ECSComponentImpl {
 		this.deviceSettings = Controlify.instance().config().getSettings()
 				.getOrCreateDeviceSettings(controller.uid());
 
-		// we need to wait for settings to load before getting current binding
-		this.reloadActions();
+		ControllerMapping controllerMapping = this.deviceSettings.mapping;
+		if (controllerMapping == null) {
+			controllerMapping = this.isGamepad
+					? ControllerMapping.GAMEPAD_DEADZONES_ONLY_MAPPING
+					: ControllerMapping.NO_MAPPING;
+		}
 
-		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
+		this.inputPipeline.stageMapping().setControllerMapping(controllerMapping);
+		this.inputPipeline.stageDeadzone().setDeadzoneGroups(controllerMapping.deadzones().values());
 		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> settings().sensitivity.getDeadzone((Identifier) axis));
 		this.inputPipeline.stageSensorProcessor().setProcessors(sensorType -> {
 			if (sensorType.isGyroscope()) {
@@ -89,6 +89,9 @@ public class InputComponent extends ECSComponentImpl {
 				return List.of();
 			}
 		});
+
+		this.reloadActions();
+		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(this.actionGraph);
 	}
 
 	public @Nullable ActionImpl getAction(Identifier actionId) {
