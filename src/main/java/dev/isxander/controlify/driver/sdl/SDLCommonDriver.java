@@ -24,7 +24,7 @@ import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.driver.Driver;
 import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
 import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
-import dev.isxander.controlify.input.InputPipeline;
+import dev.isxander.controlify.input.pipeline.InputPipeline;
 import dev.isxander.controlify.rumble.RumbleState;
 import dev.isxander.controlify.rumble.TriggerRumbleState;
 import dev.isxander.controlify.utils.CUtil;

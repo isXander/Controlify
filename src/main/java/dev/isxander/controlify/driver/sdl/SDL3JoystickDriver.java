@@ -7,9 +7,9 @@
 package dev.isxander.controlify.driver.sdl;
 
 import dev.isxander.controlify.controller.id.ControllerType;
-import dev.isxander.controlify.controller.input.JoystickInputs;
+import dev.isxander.controlify.input.mapping.JoystickInputs;
 import dev.isxander.controlify.controller.*;
-import dev.isxander.controlify.input.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.event.EventSource;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;

@@ -22,7 +22,7 @@ import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.driver.Driver;
-import dev.isxander.controlify.input.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.log.ControlifyLogger;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Contract;

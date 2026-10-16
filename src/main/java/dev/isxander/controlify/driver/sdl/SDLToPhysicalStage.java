@@ -1,10 +1,10 @@
 package dev.isxander.controlify.driver.sdl;
 
-import dev.isxander.controlify.controller.input.JoystickInputs;
+import dev.isxander.controlify.input.mapping.JoystickInputs;
 import dev.isxander.controlify.input.SensorType;
-import dev.isxander.controlify.input.physical.PhysicalInputSignal;
-import dev.isxander.controlify.input.physical.PhysicalSensorSignal;
-import dev.isxander.controlify.input.physical.PhysicalSignal;
+import dev.isxander.controlify.input.signal.PhysicalInputSignal;
+import dev.isxander.controlify.input.signal.PhysicalSensorSignal;
+import dev.isxander.controlify.input.signal.PhysicalSignal;
 import dev.isxander.controlify.utils.event.EventSink;
 import dev.isxander.controlify.utils.event.EventStage;
 import net.minecraft.resources.Identifier;

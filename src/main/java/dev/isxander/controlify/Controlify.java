@@ -12,11 +12,10 @@ import dev.isxander.controlify.api.bind.ControlifyBindApi;
 import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
 import dev.isxander.controlify.api.entrypoint.InitContext;
 import dev.isxander.controlify.api.entrypoint.PreInitContext;
-import dev.isxander.controlify.bindings.BindContext;
 import dev.isxander.controlify.bindings.ControlifyBindApiImpl;
 import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.bindings.RadialIconManager;
-import dev.isxander.controlify.bindings.defaults.DefaultBindManager;
+import dev.isxander.controlify.action.radial.RadialIconManager;
+import dev.isxander.controlify.action.defaults.DefaultBindManager;
 import dev.isxander.controlify.compatibility.ControlifyCompat;
 import dev.isxander.controlify.config.ConfigManager;
 import dev.isxander.controlify.config.dto.profile.defaults.DefaultConfigManager;
@@ -25,6 +24,7 @@ import dev.isxander.controlify.contextual.RuleSetManager;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.controller.id.ControllerTypeManager;
+import dev.isxander.controlify.input.mapping.ControllerMappingManager;
 import dev.isxander.controlify.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.controllermanager.ControllerManager;
@@ -34,8 +34,8 @@ import dev.isxander.controlify.font.InputFontMapper;
 import dev.isxander.controlify.gui.screen.*;
 import dev.isxander.controlify.debug.DebugProperties;
 import dev.isxander.controlify.ingame.ControllerPlayerMovement;
-import dev.isxander.controlify.input.InputComponent;
-import dev.isxander.controlify.input.action.activator.ActivatorConfigManager;
+import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.platform.network.SidedNetworkApi;
@@ -89,6 +89,7 @@ public class Controlify implements ControlifyApi {
 	private KeyboardLayoutManager keyboardLayoutManager;
 	private RadialIconManager radialIconManager;
 	private ActivatorConfigManager activatorConfigManager;
+	private ControllerMappingManager controllerMappingManager;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -134,6 +135,7 @@ public class Controlify implements ControlifyApi {
 		this.keyboardLayoutManager = new KeyboardLayoutManager();
 		this.radialIconManager = new RadialIconManager();
 		this.activatorConfigManager = new ActivatorConfigManager();
+		this.controllerMappingManager = new ControllerMappingManager();
 
 		PlatformClientUtil.registerAssetReloadListener(this.inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(this.defaultBindManager);
@@ -142,6 +144,7 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(this.keyboardLayoutManager);
 		PlatformClientUtil.registerAssetReloadListener(this.radialIconManager);
 		PlatformClientUtil.registerAssetReloadListener(this.activatorConfigManager);
+		PlatformClientUtil.registerAssetReloadListener(this.controllerMappingManager);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
 		ContextualDomains.touch();
@@ -622,12 +625,12 @@ public class Controlify implements ControlifyApi {
 		return this.activatorConfigManager;
 	}
 
-	public TriggerEffectManager triggerEffectManager() {
-		return this.triggerEffectManager;
+	public ControllerMappingManager controllerMappingManager() {
+		return this.controllerMappingManager;
 	}
 
-	public Set<BindContext> thisTickBindContexts() {
-		return this.thisTickContexts;
+	public TriggerEffectManager triggerEffectManager() {
+		return this.triggerEffectManager;
 	}
 
 	public void notifyNewServer(ServerData data) {

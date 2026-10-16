@@ -14,7 +14,7 @@ import dev.isxander.controlify.api.bind.InputBinding;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.haptic.HapticEffects;
 import dev.isxander.controlify.controller.input.ControllerStateView;
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.TabNavigationBarAccessor;

@@ -11,7 +11,7 @@ import dev.isxander.controlify.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.controller.gyro.GyroComponent;
 import dev.isxander.controlify.controller.*;
 import dev.isxander.controlify.controller.touchpad.Touchpads;
-import dev.isxander.controlify.input.InputComponent;
+import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.input.SensorType;
 import dev.isxander.controlify.utils.event.EventSource;
 import dev.isxander.controlify.utils.log.ControlifyLogger;

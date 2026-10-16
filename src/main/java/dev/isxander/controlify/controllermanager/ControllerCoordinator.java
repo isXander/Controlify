@@ -14,7 +14,7 @@ import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.gui.screen.AskToMapControllerScreen;
 import dev.isxander.controlify.gui.screen.BluetoothWarningScreen;
-import dev.isxander.controlify.input.physical.PhysicalInputSignal;
+import dev.isxander.controlify.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.utils.CUtil;
 import dev.isxander.controlify.utils.DebugLog;

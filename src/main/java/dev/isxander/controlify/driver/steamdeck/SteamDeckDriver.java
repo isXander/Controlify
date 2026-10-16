@@ -16,7 +16,7 @@ import dev.isxander.controlify.controller.impl.ControllerStateImpl;
 import dev.isxander.controlify.controller.info.DriverNameComponent;
 import dev.isxander.controlify.controller.info.GUIDComponent;
 import dev.isxander.controlify.controller.info.UIDComponent;
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.controller.touchpad.TouchpadComponent;

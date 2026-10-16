@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.api.buttonguide;
 
+import dev.isxander.controlify.action.ActionAccessor;
 import dev.isxander.controlify.api.bind.InputBindingSupplier;
 import dev.isxander.controlify.gui.ButtonGuideRenderer;
 import net.minecraft.client.gui.screens.Screen;
@@ -28,20 +29,20 @@ public final class ButtonGuideApi {
 	 * Custom behaviour should be handled inside a {@link dev.isxander.controlify.screenop.ScreenProcessor} or {@link dev.isxander.controlify.screenop.ComponentProcessor}
 	 *
 	 * @param button          button to render the guide for
-	 * @param binding         the custom binding to render
+	 * @param action          the action binding to render
 	 * @param renderPredicate whether the guide should be rendered
 	 */
 	public static <T> void addGuideToButton(
 			@NotNull T button,
-			@NotNull InputBindingSupplier binding,
+			@NotNull ActionAccessor action,
 			@NotNull ButtonGuidePredicate<T> renderPredicate) {
-		ButtonGuideRenderer.registerBindingForButton(button, () -> binding, renderPredicate);
+		ButtonGuideRenderer.registerBindingForButton(button, () -> action, renderPredicate);
 	}
 
 	public static <T> void addGuideToButton(
 			@NotNull T button,
-			@NotNull Supplier<InputBindingSupplier> binding,
+			@NotNull Supplier<ActionAccessor> action,
 			@NotNull ButtonGuidePredicate<T> renderPredicate) {
-		ButtonGuideRenderer.registerBindingForButton(button, binding, renderPredicate);
+		ButtonGuideRenderer.registerBindingForButton(button, action, renderPredicate);
 	}
 }

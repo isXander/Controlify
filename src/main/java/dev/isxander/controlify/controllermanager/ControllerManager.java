@@ -1,6 +1,5 @@
 package dev.isxander.controlify.controllermanager;
 
-import dev.isxander.controlify.Controlify;
 import dev.isxander.controlify.api.event.ControlifyEvents;
 import dev.isxander.controlify.controller.ControllerEntity;
 import dev.isxander.controlify.controller.id.ControllerType;
@@ -33,7 +32,7 @@ public class ControllerManager implements Closeable {
 			return false;
 		}
 
-		if (controllerType.dontLoad()) {
+		if (controllerType.preventLoading()) {
 			controllerLogger.debugLog("Preventing load of controller #" + ucid + " because its type prevents loading.");
 			return false;
 		}

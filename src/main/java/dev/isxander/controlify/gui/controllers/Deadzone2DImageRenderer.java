@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gui.controllers;
 
-import dev.isxander.controlify.controller.input.DeadzoneGroup;
+import dev.isxander.controlify.input.mapping.DeadzoneGroup;
 import dev.isxander.controlify.controller.input.InputComponent;
 import dev.isxander.controlify.utils.render.elements.CircleElementRenderState;
 import dev.isxander.yacl3.api.Option;

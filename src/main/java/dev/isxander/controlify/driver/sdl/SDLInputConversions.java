@@ -1,6 +1,6 @@
 package dev.isxander.controlify.driver.sdl;
 
-import dev.isxander.controlify.controller.input.GamepadInputs;
+import dev.isxander.controlify.input.mapping.GamepadInputs;
 import dev.isxander.controlify.input.SensorType;
 import dev.isxander.sdl.SdlEvents;
 import dev.isxander.sdl.SdlGamepad;

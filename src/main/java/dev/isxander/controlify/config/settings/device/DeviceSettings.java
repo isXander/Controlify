@@ -8,7 +8,7 @@ package dev.isxander.controlify.config.settings.device;
 
 import dev.isxander.controlify.config.dto.device.DeviceConfig;
 import dev.isxander.controlify.controller.id.ControllerType;
-import dev.isxander.controlify.controller.input.mapping.ControllerMapping;
+import dev.isxander.controlify.input.mapping.ControllerMapping;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 

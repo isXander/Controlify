@@ -8,7 +8,7 @@ package dev.isxander.controlify.config.settings.profile;
 
 import dev.isxander.controlify.config.dto.profile.InputConfig;
 import dev.isxander.controlify.ingame.InputCurves;
-import dev.isxander.controlify.input.logical.LogicalInput;
+import dev.isxander.controlify.input.LogicalInput;
 import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
