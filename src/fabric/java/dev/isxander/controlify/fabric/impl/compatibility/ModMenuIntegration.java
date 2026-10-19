@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.fabric.compatibility;
+package dev.isxander.controlify.fabric.impl.compatibility;
 
 //? if mod_menu {
 

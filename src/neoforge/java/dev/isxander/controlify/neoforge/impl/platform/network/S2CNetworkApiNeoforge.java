@@ -4,42 +4,39 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.neoforge.platform.network;
+package dev.isxander.controlify.neoforge.impl.platform.network;
 
-import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.platform.network.S2CNetworkApi;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class C2SNetworkApiNeoforge implements C2SNetworkApi {
+public class S2CNetworkApiNeoforge implements S2CNetworkApi {
 	private final Map<Identifier, PacketListener<?>> packetListeners = new HashMap<>();
 
 	@Override
-	public <T> void sendPacket(Identifier channel, T packet) {
-		ClientPacketDistributor.sendToServer(this.createPayload(channel, packet));
-	}
-
-	@Override
-	public <T> CustomPacketPayload createPayload(Identifier channel, T packet) {
-		return new NeoforgePacketWrapper<>(channel, packet);
+	public <T> void sendPacket(ServerPlayer recipient, Identifier channel, T packet) {
+		PacketDistributor.sendToPlayer(recipient, new NeoforgePacketWrapper<>(channel, packet));
 	}
 
 	@Override
 	public <T> void listenForPacket(Identifier channel, PacketListener<T> listener) {
 		PacketListener<T> existingListener = this.getPacketListener(channel);
-		PacketListener<T> chainedListener = (payload, sender) -> {
-			existingListener.listen(payload, sender);
-			listener.listen(payload, sender);
+		PacketListener<T> chainedListener = (payload) -> {
+			existingListener.listen(payload);
+			listener.listen(payload);
 		};
 		this.packetListeners.put(channel, chainedListener);
 	}
@@ -52,17 +49,21 @@ public class C2SNetworkApiNeoforge implements C2SNetworkApi {
 		this.getModEventBus().addListener(RegisterPayloadHandlersEvent.class, event -> {
 			PayloadRegistrar registrar = event.registrar("1").optional();
 
-			registrar.playToServer(
-				type, packetCodec, (packet, ctx) -> {
-					this.<T>getPacketListener(channel).listen(packet.payload(), (ServerPlayer) ctx.player());
-				}
-			);
+			registrar.playToClient(type, packetCodec);
 		});
+
+		if (PlatformMainUtil.getEnv() == Environment.CLIENT) {
+			this.getModEventBus().addListener(RegisterClientPayloadHandlersEvent.class, event -> {
+				event.register(type, (packet, _) -> {
+					this.<T>getPacketListener(channel).listen(packet.payload());
+				});
+			});
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> PacketListener<T> getPacketListener(Identifier channel) {
-		return (PacketListener<T>) this.packetListeners.getOrDefault(channel, (payload, sender) -> {});
+		return (PacketListener<T>) this.packetListeners.getOrDefault(channel, (payload) -> {});
 	}
 
 	private IEventBus getModEventBus() {

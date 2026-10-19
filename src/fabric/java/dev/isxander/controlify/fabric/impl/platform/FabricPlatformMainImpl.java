@@ -4,11 +4,11 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.fabric.platform;
+package dev.isxander.controlify.fabric.impl.platform;
 
 import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
-import dev.isxander.controlify.fabric.platform.network.C2SNetworkApiFabric;
-import dev.isxander.controlify.fabric.platform.network.S2CNetworkApiFabric;
+import dev.isxander.controlify.fabric.impl.platform.network.C2SNetworkApiFabric;
+import dev.isxander.controlify.fabric.impl.platform.network.S2CNetworkApiFabric;
 import dev.isxander.controlify.impl.platform.Environment;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtilImpl;
 import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;

@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.fabric.platform;
+package dev.isxander.controlify.fabric.impl.platform;
 
 import dev.isxander.controlify.impl.platform.EventHandler;
 import net.fabricmc.fabric.api.event.EventFactory;

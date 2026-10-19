@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.neoforge.mixins;
 
-import dev.isxander.controlify.neoforge.platform.VanillaKeyMappingHolder;
+import dev.isxander.controlify.neoforge.impl.platform.VanillaKeyMappingHolder;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
 import org.spongepowered.asm.mixin.Mixin;

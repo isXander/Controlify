@@ -177,10 +177,10 @@ manifests {
     fabricModJson(sourceSets.fabric.get()) {
         from(commonManifest)
 
-        entrypoint("modmenu", "dev.isxander.controlify.fabric.compatibility.ModMenuIntegration")
-        entrypoint("main", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("client", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("server", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        entrypoint("modmenu", "dev.isxander.controlify.fabric.impl.compatibility.ModMenuIntegration")
+        entrypoint("main", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("client", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("server", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
         dependency("fabricloader", REQUIRED, "[0.19,)")
 
         mixin("controlify-platform.fabric.mixins.json")

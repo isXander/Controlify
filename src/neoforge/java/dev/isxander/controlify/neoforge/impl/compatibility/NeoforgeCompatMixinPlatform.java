@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.neoforge.compatibility;
+package dev.isxander.controlify.neoforge.impl.compatibility;
 
 import dev.isxander.controlify.impl.compatibility.CompatMixinPlatform;
 import net.neoforged.fml.loading.FMLLoader;

@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.fabric.platform.client;
+package dev.isxander.controlify.fabric.impl.platform.client;
 
 import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen;

@@ -4,11 +4,11 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.neoforge.platform;
+package dev.isxander.controlify.neoforge.impl.platform;
 
 import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
-import dev.isxander.controlify.neoforge.platform.network.C2SNetworkApiNeoforge;
-import dev.isxander.controlify.neoforge.platform.network.S2CNetworkApiNeoforge;
+import dev.isxander.controlify.neoforge.impl.platform.network.C2SNetworkApiNeoforge;
+import dev.isxander.controlify.neoforge.impl.platform.network.S2CNetworkApiNeoforge;
 import dev.isxander.controlify.impl.platform.Environment;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtilImpl;
 import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;

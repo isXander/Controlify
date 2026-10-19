@@ -4,11 +4,11 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.fabric;
+package dev.isxander.controlify.fabric.impl;
 
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.fabric.platform.client.FabricPlatformClientImpl;
-import dev.isxander.controlify.fabric.platform.FabricPlatformMainImpl;
+import dev.isxander.controlify.fabric.impl.platform.client.FabricPlatformClientImpl;
+import dev.isxander.controlify.fabric.impl.platform.FabricPlatformMainImpl;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.impl.server.ControlifyServer;

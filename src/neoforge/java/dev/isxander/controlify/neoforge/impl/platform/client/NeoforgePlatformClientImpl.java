@@ -4,9 +4,9 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.neoforge.platform.client;
+package dev.isxander.controlify.neoforge.impl.platform.client;
 
-import dev.isxander.controlify.neoforge.platform.VanillaKeyMappingHolder;
+import dev.isxander.controlify.neoforge.impl.platform.VanillaKeyMappingHolder;
 import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.impl.platform.client.HudRenderLayer;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtilImpl;
