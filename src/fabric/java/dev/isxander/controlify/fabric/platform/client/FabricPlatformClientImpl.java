@@ -6,14 +6,14 @@
  */
 package dev.isxander.controlify.fabric.platform.client;
 
-import dev.isxander.controlify.platform.client.CreativeTabHelper;
-import dev.isxander.controlify.platform.client.HudRenderLayer;
-import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
-import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
-import dev.isxander.controlify.platform.client.events.LifecycleEvent;
-import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
-import dev.isxander.controlify.platform.client.events.TickEvent;
-import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
+import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.impl.platform.client.HudRenderLayer;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtilImpl;
+import dev.isxander.controlify.impl.platform.client.events.DisconnectedEvent;
+import dev.isxander.controlify.impl.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.impl.platform.client.events.ScreenRenderEvent;
+import dev.isxander.controlify.impl.platform.client.events.TickEvent;
+import dev.isxander.controlify.impl.platform.client.resource.ControlifyReloadListener;
 import dev.isxander.controlify.fabric.mixins.KeyBindingRegistryImplAccessor;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;

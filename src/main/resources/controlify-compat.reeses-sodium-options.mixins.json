@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.compatibility.rso.mixins",
+  "package": "dev.isxander.controlify.impl.compatibility.rso.mixins",
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
@@ -11,7 +11,7 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.compatibility.rso.RSOMixinPlugin",
+  "plugin": "dev.isxander.controlify.impl.compatibility.rso.RSOMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
     "SodiumVideoOptionsScreenMixin"

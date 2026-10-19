@@ -7,10 +7,10 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.SliderComponentProcessor;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.SliderComponentProcessor;
 import net.minecraft.client.InputType;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import org.spongepowered.asm.mixin.Mixin;

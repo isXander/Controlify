@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.effects.UseItemEffectHolder;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import dev.isxander.controlify.impl.controller.rumble.effects.UseItemEffectHolder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientPacketListenerMixin {
 	@Inject(method = "handleRespawn", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;player:Lnet/minecraft/client/player/LocalPlayer;", opcode = Opcodes.PUTFIELD))
 	private void clearUseItemRumble(ClientboundRespawnPacket packet, CallbackInfo ci) {
-		ContinuousRumbleEffect effect = ((UseItemEffectHolder) Minecraft.getInstance().player).controlify$getUseItemEffect();
+		RumbleEffectInstance effect = ((UseItemEffectHolder) Minecraft.getInstance().player).controlify$getUseItemEffect();
 		if (effect != null) effect.stop();
 	}
 

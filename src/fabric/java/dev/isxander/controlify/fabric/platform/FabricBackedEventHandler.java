@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.fabric.platform;
 
-import dev.isxander.controlify.platform.EventHandler;
+import dev.isxander.controlify.impl.platform.EventHandler;
 import net.fabricmc.fabric.api.event.EventFactory;
 
 public class FabricBackedEventHandler<T> implements EventHandler<T> {

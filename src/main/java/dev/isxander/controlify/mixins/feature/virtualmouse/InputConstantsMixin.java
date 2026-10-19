@@ -9,9 +9,9 @@ package dev.isxander.controlify.mixins.feature.virtualmouse;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +21,7 @@ public class InputConstantsMixin {
 	@ModifyReturnValue(method = "isKeyDown", at = @At("RETURN"))
 	private static boolean modifyIsKeyDown(boolean keyDown, @Local(argsOnly = true, name = "key") int key) {
 		if (key == InputConstants.KEY_LSHIFT) {
-			ControllerEntity controller = Controlify.instance().getCurrentController().orElse(null);
+			ControllerImpl controller = Controlify.instance().getCurrentController().orElse(null);
 			if (controller == null) return keyDown;
 
 			return keyDown

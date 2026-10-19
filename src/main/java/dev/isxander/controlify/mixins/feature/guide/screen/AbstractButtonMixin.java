@@ -7,8 +7,8 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.bind.InputBinding;
-import dev.isxander.controlify.gui.ButtonGuideRenderer;
+import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.impl.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;

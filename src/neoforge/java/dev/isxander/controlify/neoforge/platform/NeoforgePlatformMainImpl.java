@@ -6,16 +6,16 @@
  */
 package dev.isxander.controlify.neoforge.platform;
 
-import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.neoforge.platform.network.C2SNetworkApiNeoforge;
 import dev.isxander.controlify.neoforge.platform.network.S2CNetworkApiNeoforge;
-import dev.isxander.controlify.platform.Environment;
-import dev.isxander.controlify.platform.main.PlatformMainUtilImpl;
-import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
-import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
-import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
-import dev.isxander.controlify.platform.network.C2SNetworkApi;
-import dev.isxander.controlify.platform.network.S2CNetworkApi;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtilImpl;
+import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;
+import dev.isxander.controlify.impl.platform.main.events.HandshakeCompletionEvent;
+import dev.isxander.controlify.impl.platform.main.events.PlayerJoinedEvent;
+import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.network.S2CNetworkApi;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

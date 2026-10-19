@@ -6,11 +6,11 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controllermanager.SDLUniqueControllerID;
-import dev.isxander.controlify.driver.sdl.SDLException;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.SDLUniqueControllerID;
+import dev.isxander.controlify.impl.driver.sdl.SDLException;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.sdl.Sdl;
 import dev.isxander.sdl.SdlGamepad;
 import dev.isxander.sdl.SdlJoystickHandle;
@@ -45,7 +45,7 @@ public class TestControllerContext<E> implements AutoCloseable {
 		this.state = state;
 	}
 
-	public ControllerEntity getControllerEntity() {
+	public ControllerImpl getControllerImpl() {
 		return Controlify.instance().getControllerManager().orElseThrow()
 			.getConnectedControllers().stream()
 			.filter(c -> c.info().ucid().equals(new SDLUniqueControllerID(this.joystickId)))

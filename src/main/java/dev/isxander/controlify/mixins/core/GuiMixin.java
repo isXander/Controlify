@@ -8,11 +8,11 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.utils.InitialScreenRegistryDuck;
-import dev.isxander.controlify.utils.MinecraftUtil;
-import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
+import dev.isxander.controlify.impl.utils.InitialScreenRegistryDuck;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;

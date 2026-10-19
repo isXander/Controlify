@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.compatibility.sodium.mixins",
+  "package": "dev.isxander.controlify.impl.compatibility.sodium.mixins",
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
@@ -11,7 +11,7 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.compatibility.sodium.SodiumMixinPlugin",
+  "plugin": "dev.isxander.controlify.impl.compatibility.sodium.SodiumMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
     "VideoSettingsScreenMixin"

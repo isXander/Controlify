@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

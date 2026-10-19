@@ -7,10 +7,10 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.MouseButtonEvent;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,7 +29,7 @@ public class AbstractWidgetMixin {
 		assert MinecraftUtil.getScreen() != null;
 
 		Controlify controlify = Controlify.instance();
-		ControllerEntity controller = controlify.getCurrentController().orElse(null);
+		ControllerImpl controller = controlify.getCurrentController().orElse(null);
 
 		if (controller != null && controlify.virtualMouseHandler().isVirtualMouseEnabled()) {
 			var screenProcessor = ScreenProcessorProvider.provide(MinecraftUtil.getScreen());

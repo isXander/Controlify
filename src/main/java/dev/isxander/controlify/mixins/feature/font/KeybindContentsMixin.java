@@ -9,9 +9,9 @@ package dev.isxander.controlify.mixins.feature.font;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.font.BindingFontHelper;
+import dev.isxander.controlify.impl.font.BindingFontHelper;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.contents.KeybindContents;
@@ -40,7 +40,7 @@ public class KeybindContentsMixin {
 					.filter(c -> c.input().isPresent())
 					.map(c -> Controlify.instance().inputFontMapper()
 							.getComponentFromBinding(
-									c.info().type().namespace(),
+									c.info().type().id(),
 									c.input().get().getBinding(Identifier.tryParse(this.name))
 							)
 					);

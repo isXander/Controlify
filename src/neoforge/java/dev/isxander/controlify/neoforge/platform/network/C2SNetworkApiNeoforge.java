@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.neoforge.platform.network;
 
-import dev.isxander.controlify.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;

@@ -7,9 +7,9 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.screenop.keyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.screenop.compat.vanilla.ChatScreenProcessor;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.screenop.keyboard.ChatKeyboardDucky;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.ChatScreenProcessor;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.screens.ChatScreen;

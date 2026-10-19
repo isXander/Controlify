@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.fabric.platform.client;
 
-import dev.isxander.controlify.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
 import net.fabricmc.fabric.api.client.creativetab.v1.FabricCreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;

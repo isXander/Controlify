@@ -8,7 +8,7 @@ package dev.isxander.controlify.mixins.feature.font;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.font.BindingFontHelper;
+import dev.isxander.controlify.impl.font.BindingFontHelper;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;

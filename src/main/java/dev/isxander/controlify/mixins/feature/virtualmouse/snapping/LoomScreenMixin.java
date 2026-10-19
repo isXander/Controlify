@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
-import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
+import dev.isxander.controlify.impl.api.vmousesnapping.ISnapBehaviour;
+import dev.isxander.controlify.impl.api.vmousesnapping.SnapPoint;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
 import net.minecraft.core.Holder;
 import net.minecraft.world.inventory.LoomMenu;

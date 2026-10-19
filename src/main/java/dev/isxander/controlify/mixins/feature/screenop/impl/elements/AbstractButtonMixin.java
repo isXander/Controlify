@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 
-import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.AbstractButtonComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.AbstractButtonComponentProcessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

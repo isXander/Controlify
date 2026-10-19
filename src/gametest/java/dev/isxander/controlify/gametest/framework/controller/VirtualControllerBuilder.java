@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.driver.sdl.SDLException;
+import dev.isxander.controlify.impl.driver.sdl.SDLException;
 import dev.isxander.controlify.test.framework.SdlVirtualJoystickDescBuilder;
 import dev.isxander.sdl.*;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;

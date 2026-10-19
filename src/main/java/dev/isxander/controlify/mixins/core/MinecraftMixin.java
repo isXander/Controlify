@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.mixins.core;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controllermanager.ControllerCoordinator;
-import dev.isxander.controlify.utils.animation.impl.Animator;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
+import dev.isxander.controlify.impl.utils.animation.impl.Animator;
 import net.minecraft.CrashReport;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;

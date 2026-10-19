@@ -6,10 +6,9 @@
  */
 package dev.isxander.controlify.neoforge.platform.network;
 
-import dev.isxander.controlify.platform.Environment;
-import dev.isxander.controlify.platform.main.PlatformMainUtil;
-import dev.isxander.controlify.platform.network.C2SNetworkApi;
-import dev.isxander.controlify.platform.network.S2CNetworkApi;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.platform.network.S2CNetworkApi;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;

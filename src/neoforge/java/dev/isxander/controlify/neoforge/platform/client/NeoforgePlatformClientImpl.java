@@ -7,14 +7,14 @@
 package dev.isxander.controlify.neoforge.platform.client;
 
 import dev.isxander.controlify.neoforge.platform.VanillaKeyMappingHolder;
-import dev.isxander.controlify.platform.client.CreativeTabHelper;
-import dev.isxander.controlify.platform.client.HudRenderLayer;
-import dev.isxander.controlify.platform.client.PlatformClientUtilImpl;
-import dev.isxander.controlify.platform.client.events.DisconnectedEvent;
-import dev.isxander.controlify.platform.client.events.LifecycleEvent;
-import dev.isxander.controlify.platform.client.events.ScreenRenderEvent;
-import dev.isxander.controlify.platform.client.events.TickEvent;
-import dev.isxander.controlify.platform.client.resource.ControlifyReloadListener;
+import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.impl.platform.client.HudRenderLayer;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtilImpl;
+import dev.isxander.controlify.impl.platform.client.events.DisconnectedEvent;
+import dev.isxander.controlify.impl.platform.client.events.LifecycleEvent;
+import dev.isxander.controlify.impl.platform.client.events.ScreenRenderEvent;
+import dev.isxander.controlify.impl.platform.client.events.TickEvent;
+import dev.isxander.controlify.impl.platform.client.resource.ControlifyReloadListener;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;

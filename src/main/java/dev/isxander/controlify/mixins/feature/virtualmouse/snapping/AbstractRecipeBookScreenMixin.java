@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
-import dev.isxander.controlify.virtualmouse.SnapUtils;
+import dev.isxander.controlify.impl.api.vmousesnapping.SnapPoint;
+import dev.isxander.controlify.impl.virtualmouse.SnapUtils;
 import net.minecraft.client.gui.screens.inventory.*;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.world.inventory.AbstractContainerMenu;

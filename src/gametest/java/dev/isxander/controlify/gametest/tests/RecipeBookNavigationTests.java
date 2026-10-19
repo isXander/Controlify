@@ -6,14 +6,14 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.mixin.RecipeBookPageAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
-import dev.isxander.controlify.screenop.compat.vanilla.RecipeBookScreenProcessor;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.RecipeBookScreenProcessor;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -46,7 +46,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			context.runOnClient(client -> {
 				client.player.getRecipeBook().setOpen(RecipeBookType.CRAFTING, true);
 				client.player.getRecipeBook().setFiltering(RecipeBookType.CRAFTING, false);
-				Controlify.instance().setCurrentController(controller.getControllerEntity(), true);
+				Controlify.instance().setCurrentController(controller.getControllerImpl(), true);
 				Controlify.instance().setInputMode(InputMode.CONTROLLER);
 			});
 			region.runOnServer((level, player) -> {

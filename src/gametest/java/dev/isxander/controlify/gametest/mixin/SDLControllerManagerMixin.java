@@ -8,12 +8,12 @@ package dev.isxander.controlify.gametest.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.controllermanager.SDLUniqueControllerID;
-import dev.isxander.controlify.controllermanager.UniqueControllerID;
-import dev.isxander.controlify.hid.ControllerHIDInfo;
-import dev.isxander.controlify.utils.log.ControlifyLogger;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.impl.controllermanager.SDLUniqueControllerID;
+import dev.isxander.controlify.impl.controllermanager.UniqueControllerID;
+import dev.isxander.controlify.impl.hid.ControllerHIDInfo;
+import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.Sdl;
 import dev.isxander.sdl.SdlJoystickId;
 import org.spongepowered.asm.mixin.Final;
@@ -30,11 +30,11 @@ public class SDLControllerManagerMixin {
 
 	/// Only load virtual joysticks in test environments
 	@WrapMethod(method = "createController")
-	private Optional<ControllerEntity> preventNonVirtual(
+	private Optional<ControllerImpl> preventNonVirtual(
 		UniqueControllerID ucid,
 		ControllerHIDInfo hidInfo,
 		ControlifyLogger controllerLogger,
-		Operation<Optional<ControllerEntity>> original
+		Operation<Optional<ControllerImpl>> original
 	) {
 		SdlJoystickId jid = ((SDLUniqueControllerID) ucid).jid();
 

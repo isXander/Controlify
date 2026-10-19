@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
-import dev.isxander.controlify.screenop.ComponentProcessor;
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.WorldListEntryComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.WorldListEntryComponentProcessor;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

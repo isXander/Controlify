@@ -7,14 +7,14 @@
 package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.api.contextual.InGameContext;
-import dev.isxander.controlify.api.contextual.GuideLocation;
-import dev.isxander.controlify.contextual.*;
+import dev.isxander.controlify.impl.contextual.GuideLocation;
+import dev.isxander.controlify.impl.contextual.*;
 import dev.isxander.controlify.gametest.framework.CEntityTypes;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
-import dev.isxander.controlify.gui.guide.GuideInstanceImpl;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.impl.gui.guide.GuideInstanceImpl;
+import dev.isxander.controlify.impl.utils.CUtil;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
@@ -52,7 +52,7 @@ public class ButtonGuideTests implements FabricClientGameTest {
 						.orElseThrow();
 				assertRuleLocation(ruleEngine, "inventory", GuideLocation.LEFT);
 				assertRuleLocation(ruleEngine, "radial_menu", GuideLocation.LEFT);
-				var inGameContext = InGameContext.create(minecraft, controller.getControllerEntity());
+				var inGameContext = InGameContext.create(minecraft, controller.getControllerImpl());
 				var state = domain.calculateState(inGameContext, ruleEngine.factDependencies());
 				assertFact(state, "looking_at_entity");
 				assertFact(state, "looking_at_merchant");

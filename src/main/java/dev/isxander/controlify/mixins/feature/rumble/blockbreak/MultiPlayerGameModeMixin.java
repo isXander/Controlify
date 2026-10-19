@@ -9,10 +9,11 @@ package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
-import dev.isxander.controlify.utils.Easings;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.utils.Easings;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,9 +26,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {
-	@Unique private ContinuousRumbleEffect blockBreakRumble = null;
+	@Unique private RumbleEffectInstance blockBreakRumble = null;
+	@Unique private AtomicBoolean blockBreakStopped;
 
 	@Inject(
 			method = "lambda$startDestroyBlock$1",
@@ -74,21 +78,22 @@ public class MultiPlayerGameModeMixin {
 	@Unique private void startRumble(BlockState state) {
 		stopRumble();
 
-		var effect = ContinuousRumbleEffect.builder()
+		var stopped = new AtomicBoolean();
+		blockBreakStopped = stopped;
+		var effect = RumbleEffect.continuous()
 				.byTick(tick -> new RumbleState(
 						0.02f + (float)Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
 						0.01f
 				))
 				.minTime(1)
-				.build();
+				.stopCondition(stopped::get);
 
-		blockBreakRumble = effect;
-		ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
+		blockBreakRumble = ControlifyApi.get().playRumbleEffect(CUtil.rl("block_break"), effect).orElse(null);
 	}
 
 	@Unique private void stopRumble() {
 		if (blockBreakRumble != null) {
-			blockBreakRumble.stop();
+			blockBreakStopped.set(true);
 			blockBreakRumble = null;
 		}
 	}

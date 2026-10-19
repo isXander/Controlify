@@ -6,12 +6,11 @@
  */
 package dev.isxander.controlify.api;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.RumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import org.jetbrains.annotations.NotNull;
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
@@ -28,20 +27,20 @@ public interface ControlifyApi {
 	/**
 	 * The controller that is currently enabled and in use.
 	 * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
-	 * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
+	 * This is the controller that is used for {@link ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
 	 */
-	@NotNull Optional<ControllerEntity> getCurrentController();
+	Optional<Controller> getCurrentController();
 
 	/**
 	 * The last input received: a controller or keyboard/mouse.
 	 */
-	@NotNull InputMode currentInputMode();
-	boolean setInputMode(@NotNull InputMode mode);
+	InputMode currentInputMode();
+	boolean setInputMode(InputMode mode);
 
-	default void playRumbleEffect(@NotNull RumbleSource rumbleSource, @NotNull RumbleEffect rumbleEffect) {
-		getCurrentController()
-				.flatMap(ControllerEntity::rumble)
-				.ifPresent(r -> r.rumbleManager().play(rumbleSource, rumbleEffect));
+	default Optional<RumbleEffectInstance> playRumbleEffect(Identifier effectId, RumbleEffect rumbleEffect) {
+		return getCurrentController()
+				.flatMap(Controller::rumble)
+				.map(r -> r.playEffect(effectId, rumbleEffect));
 	}
 
 	static ControlifyApi get() {

@@ -6,12 +6,12 @@
  */
 package dev.isxander.controlify.fabric;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.fabric.platform.client.FabricPlatformClientImpl;
 import dev.isxander.controlify.fabric.platform.FabricPlatformMainImpl;
-import dev.isxander.controlify.platform.client.PlatformClientUtil;
-import dev.isxander.controlify.platform.main.PlatformMainUtil;
-import dev.isxander.controlify.server.ControlifyServer;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.server.ControlifyServer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.DedicatedServerModInitializer;
 import net.fabricmc.api.ModInitializer;

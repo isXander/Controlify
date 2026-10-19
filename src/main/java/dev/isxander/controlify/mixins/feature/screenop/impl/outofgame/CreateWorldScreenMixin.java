@@ -7,12 +7,12 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.buttonguide.ButtonGuideApi;
-import dev.isxander.controlify.api.buttonguide.ButtonGuidePredicate;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.CreateWorldScreenProcessor;
+import dev.isxander.controlify.api.gui.ButtonGuideApi;
+import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.CreateWorldScreenProcessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;

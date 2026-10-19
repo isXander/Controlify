@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.compatibility.yacl.screenop;
+
+import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.compatibility.yacl.mixins.ControllerWidgetAccessor;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.utils.HoldRepeatHelper;
+import dev.isxander.yacl3.gui.controllers.slider.SliderControllerElement;
+
+public class SliderControllerElementComponentProcessor implements ComponentProcessor {
+	private final SliderControllerElement slider;
+	private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(15, 3);
+
+	public SliderControllerElementComponentProcessor(SliderControllerElement element) {
+		this.slider = element;
+	}
+
+	@Override
+	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
+		var left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalNow();
+		var leftPrev = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalPrev();
+		var right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalNow();
+		var rightPrev = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalPrev();
+
+		if (!((ControllerWidgetAccessor) slider).getControl().option().available()) {
+			return false;
+		}
+
+		boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
+
+		if (left && (repeatEventAvailable || !leftPrev)) {
+			slider.incrementValue(-1);
+
+			if (!leftPrev)
+				holdRepeatHelper.reset();
+		} else if (right && (repeatEventAvailable || !rightPrev)) {
+			slider.incrementValue(1);
+
+			if (!rightPrev)
+				holdRepeatHelper.reset();
+		} else {
+			return false;
+		}
+
+		holdRepeatHelper.onNavigate();
+
+		return true;
+	}
+}

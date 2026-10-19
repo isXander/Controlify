@@ -7,9 +7,9 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.google.common.collect.ImmutableList;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -43,7 +43,7 @@ public class TabNavigationBarMixin {
 		}
 	}
 
-	@Unique private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, ControllerEntity controller) {
+	@Unique private void renderControllerButtonOverlay(GuiGraphicsExtractor graphics, ControllerImpl controller) {
 		if (tabButtons.size() <= 1) return; // no controls necessary
 
 		TabButton firstTab = tabButtons.get(0);

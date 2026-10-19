@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.TitleScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.TitleScreenProcessor;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;

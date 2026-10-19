@@ -68,7 +68,7 @@ public class KeyboardHandlerMixin {
 	}
 }
 *///?} else {
-@Mixin(dev.isxander.controlify.utils.DummyMixinTarget.class)
+@Mixin(dev.isxander.controlify.impl.utils.DummyMixinTarget.class)
 public class KeyboardHandlerMixin {
 }
 //?}

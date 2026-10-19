@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.fabric.platform.network;
 
-import dev.isxander.controlify.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

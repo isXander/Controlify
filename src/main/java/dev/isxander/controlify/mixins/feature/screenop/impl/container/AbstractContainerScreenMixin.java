@@ -9,12 +9,12 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.AbstractContainerScreenProcessor;
-import dev.isxander.controlify.screenop.compat.vanilla.ItemSlotControllerAction;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.AbstractContainerScreenProcessor;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.ItemSlotControllerAction;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.ItemSlotMouseAction;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -74,7 +74,7 @@ public abstract class AbstractContainerScreenMixin implements ScreenProcessorPro
 		}
 	}
 
-	@Unique protected boolean handleControllerItemSlotActions(ControllerEntity controller) {
+	@Unique protected boolean handleControllerItemSlotActions(ControllerImpl controller) {
 		for (ItemSlotMouseAction itemSlotMouseAction : this.itemSlotMouseActions) {
 			if (itemSlotMouseAction instanceof ItemSlotControllerAction itemSlotControllerAction
 					&& itemSlotMouseAction.matches(this.hoveredSlot)

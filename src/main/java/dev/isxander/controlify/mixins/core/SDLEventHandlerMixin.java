@@ -10,8 +10,8 @@ import org.spongepowered.asm.mixin.Mixin;
 
 //? if >=26.3 {
 import com.mojang.blaze3d.platform.SDLEventHandler;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;

@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.input.mapping.GamepadInputs;
-import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
+import dev.isxander.controlify.impl.controller.input.InputComponent;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.framework.controller.TestControllerContext;
@@ -21,8 +21,8 @@ import java.util.Map;
 
 //? if >=26.3 {
 import com.mojang.blaze3d.platform.SDLEventHandler;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.gametest.mixin.SDLEventHandlerAccessor;
 import org.lwjgl.sdl.SDL_Event;
 //?}
@@ -58,8 +58,8 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 		try (var controller = controlify.virtualControllerBuilder()
 				.withXbox()
 				.attach()) {
-			var controllerEntity = controller.getControllerEntity();
-			var input = controllerEntity.input().orElseThrow();
+			var ControllerImpl = controller.getControllerImpl();
+			var input = ControllerImpl.input().orElseThrow();
 
 			// Fabric cancels real mouse input during tests. Controlify must not
 			// change input mode before that cancellation takes effect.

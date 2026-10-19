@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.RecipeBookScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.RecipeBookScreenProcessor;
 import net.minecraft.client.gui.screens.inventory.*;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;

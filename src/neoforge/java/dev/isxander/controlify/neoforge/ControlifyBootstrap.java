@@ -6,14 +6,14 @@
  */
 package dev.isxander.controlify.neoforge;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.gui.screen.ControlifySettingsScreen;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.screen.ControlifySettingsScreen;
 import dev.isxander.controlify.neoforge.platform.NeoforgePlatformMainImpl;
 import dev.isxander.controlify.neoforge.platform.client.NeoforgePlatformClientImpl;
-import dev.isxander.controlify.platform.Environment;
-import dev.isxander.controlify.platform.client.PlatformClientUtil;
-import dev.isxander.controlify.platform.main.PlatformMainUtil;
-import dev.isxander.controlify.server.ControlifyServer;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.server.ControlifyServer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;

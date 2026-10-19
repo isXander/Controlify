@@ -1,0 +1,79 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.screenop.compat.vanilla;
+
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import net.minecraft.util.Mth;
+import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.ItemStack;
+
+public class BundleItemSlotControllerAction {
+	public static boolean onControllerInput(
+			ItemStack stack,
+			int hoveredSlotIndex,
+			ControllerImpl controller,
+			SelectedBundleItemConsumer consumer
+	) {
+		int uniqueItems = BundleItem.getNumberOfItemsToShow(stack);
+
+		if (uniqueItems > 0) {
+			Controlify.instance().virtualMouseHandler().preventScrollingThisTick();
+
+			boolean up = ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed();
+			boolean down = ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed();
+			boolean left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed();
+			boolean right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed();
+
+			int offsetX = 0, offsetY = 0;
+			if (up) offsetY--;
+			if (down) offsetY++;
+			if (left) offsetX--;
+			if (right) offsetX++;
+
+			if (offsetX != 0 || offsetY != 0) {
+				int currentIndex = BundleItem.getSelectedItemIndex(stack);
+
+				if (currentIndex == -1) {
+					consumer.accept(stack, hoveredSlotIndex, 0);
+					return true;
+				}
+
+				/*
+				Bundle grid is organised where the first row is the incomplete row and is RTL,
+				- - 0 1
+				2 3 4 5
+				 */
+				int rowSize = BundleItem.MAX_SHOWN_GRID_ITEMS_X;
+				int colSize = Math.min(Mth.ceil(uniqueItems / (float) rowSize), BundleItem.MAX_SHOWN_GRID_ITEMS_Y);
+				int incompleteRowSize = uniqueItems % rowSize;
+				int emptySlots = (rowSize - incompleteRowSize) % rowSize;
+
+				int gridX = (currentIndex + emptySlots) % rowSize;
+				int gridY = (currentIndex + emptySlots) / rowSize;
+
+				int newGridX = (gridX + offsetX + rowSize) % rowSize;
+				int newGridY = (gridY + offsetY + colSize) % colSize;
+
+				if (newGridY >= 0 && newGridY < colSize) {
+					int newIndex = Math.max(newGridX + newGridY * rowSize - emptySlots, 0);
+
+					consumer.accept(stack, hoveredSlotIndex, newIndex);
+				}
+
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public interface SelectedBundleItemConsumer {
+		void accept(ItemStack stack, int hoveredSlot, int selectedIndex);
+	}
+}

@@ -6,12 +6,12 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.container;
 
-import dev.isxander.controlify.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.CreativeModeInventoryScreenProcessor;
-import dev.isxander.controlify.screenop.compat.vanilla.EditBoxComponentProcessor;
-import dev.isxander.controlify.screenop.keyboard.InputTarget;
+import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.CreativeModeInventoryScreenProcessor;
+import dev.isxander.controlify.impl.screenop.compat.vanilla.EditBoxComponentProcessor;
+import dev.isxander.controlify.impl.screenop.keyboard.InputTarget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import org.spongepowered.asm.mixin.Mixin;

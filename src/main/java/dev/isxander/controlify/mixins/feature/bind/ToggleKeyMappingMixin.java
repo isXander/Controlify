@@ -7,9 +7,9 @@
 package dev.isxander.controlify.mixins.feature.bind;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.bindings.KeyMappingHandle;
-import dev.isxander.controlify.controller.ControllerEntity;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.bindings.KeyMappingHandle;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.client.ToggleKeyMapping;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +40,7 @@ public abstract class ToggleKeyMappingMixin extends KeyMappingMixin implements K
 	}
 
 	@Override
-	public void controlify$addToggleCondition(ControllerEntity controller, BooleanSupplier condition) {
+	public void controlify$addToggleCondition(ControllerImpl controller, BooleanSupplier condition) {
 		BooleanSupplier oldCondition = controlifyToggleSupplier;
 		controlifyToggleSupplier = () -> {
 			boolean thisToggle = condition.getAsBoolean()

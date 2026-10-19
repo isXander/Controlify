@@ -7,7 +7,7 @@
 package dev.isxander.controlify.neoforge.platform.client;
 
 import dev.isxander.controlify.neoforge.mixins.CreativeModeInventoryScreenAccessor;
-import dev.isxander.controlify.platform.client.CreativeTabHelper;
+import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.client.gui.CreativeTabsScreenPage;

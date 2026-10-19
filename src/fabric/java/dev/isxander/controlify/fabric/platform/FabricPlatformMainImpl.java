@@ -6,16 +6,16 @@
  */
 package dev.isxander.controlify.fabric.platform;
 
-import dev.isxander.controlify.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
 import dev.isxander.controlify.fabric.platform.network.C2SNetworkApiFabric;
 import dev.isxander.controlify.fabric.platform.network.S2CNetworkApiFabric;
-import dev.isxander.controlify.platform.Environment;
-import dev.isxander.controlify.platform.main.PlatformMainUtilImpl;
-import dev.isxander.controlify.platform.main.events.CommandRegistrationCallbackEvent;
-import dev.isxander.controlify.platform.main.events.HandshakeCompletionEvent;
-import dev.isxander.controlify.platform.main.events.PlayerJoinedEvent;
-import dev.isxander.controlify.platform.network.C2SNetworkApi;
-import dev.isxander.controlify.platform.network.S2CNetworkApi;
+import dev.isxander.controlify.impl.platform.Environment;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtilImpl;
+import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;
+import dev.isxander.controlify.impl.platform.main.events.HandshakeCompletionEvent;
+import dev.isxander.controlify.impl.platform.main.events.PlayerJoinedEvent;
+import dev.isxander.controlify.impl.platform.network.C2SNetworkApi;
+import dev.isxander.controlify.impl.platform.network.S2CNetworkApi;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.networking.v1.FriendlyByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerLoginConnectionEvents;

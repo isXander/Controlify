@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gametest.mixin;
 
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
+import dev.isxander.controlify.impl.controllermanager.SDLControllerManager;
 import dev.isxander.sdl.Sdl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
