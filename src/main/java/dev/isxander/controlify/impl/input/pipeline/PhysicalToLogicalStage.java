@@ -89,7 +89,7 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 					}
 				});
 				this.lastTaps.values().removeIf(time -> timeNanos - time > this.doubleTapMaxNanos);
-				downstream.accept(new LogicalSignal.Tick(timeNanos, deltaTimeNanos));
+				downstream.accept(new LogicalSignal.Frame(timeNanos, deltaTimeNanos));
 			}
 			case PhysicalSensorSignal sensorSignal ->
 					this.sensorAccumulatorStage.onEvent(sensorSignal, downstream);

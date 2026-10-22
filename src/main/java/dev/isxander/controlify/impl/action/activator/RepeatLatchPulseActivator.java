@@ -43,7 +43,7 @@ public class RepeatLatchPulseActivator implements Activator {
 
 		this.latchActivator.onSignal(signal, this.holdRepeatAccumulator);
 
-		if (signal instanceof LogicalSignal.Tick) {
+		if (signal instanceof LogicalSignal.Frame) {
 			while (down && signal.timeNanos() >= nextDue) {
 				acc.firePulse();
 				nextDue += repeatDelayNs;

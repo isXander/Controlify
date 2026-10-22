@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.elements;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -31,9 +31,9 @@ public class AbstractWidgetMixin {
 		Controlify controlify = Controlify.instance();
 		ControllerImpl controller = controlify.getCurrentController().orElse(null);
 
-		if (controller != null && controlify.virtualMouseHandler().isVirtualMouseEnabled()) {
-			var screenProcessor = ScreenProcessorProvider.provide(MinecraftUtil.getScreen());
-			return !screenProcessor.tryOpenKeyboard(controller, (AbstractWidget) (Object) this);
+		if (controller != null && ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false)) {
+			var context = ScreenRuntime.current();
+			return context == null || !context.tryOpenKeyboard(controller, (AbstractWidget) (Object) this);
 		}
 
 		return true;

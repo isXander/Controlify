@@ -6,26 +6,42 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
-import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.LanguageSelectionListComponentProcessor;
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(targets = "net.minecraft.client.gui.screens.options.LanguageSelectScreen$LanguageSelectionList$Entry")
-public class LanguageSelectionListEntryMixin implements ComponentProcessorProvider {
-	@Shadow @Final String code;
-
-	@Unique private LanguageSelectionListComponentProcessor controlify$componentProcessor = null;
+public class LanguageSelectionListEntryMixin implements ElementBehaviourFactory<GuiEventListener> {
+	@Shadow
+	@Final
+	String code;
 
 	@Override
-	public ComponentProcessor componentProcessor() {
-		// lazily create the component processor so `code` is defined
-		if (controlify$componentProcessor == null)
-			controlify$componentProcessor = new LanguageSelectionListComponentProcessor(code);
-
-		return controlify$componentProcessor;
+	public ElementBehaviour create(GuiEventListener element) {
+		return new ElementBehaviour() {
+			@Override
+			public void handleInteraction(ScreenContext<?> screen, Controller controller, Runnable next) {
+				if (!ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses()) {
+					next.run();
+					return;
+				}
+				var minecraft = Minecraft.getInstance();
+				var languages = minecraft.getLanguageManager();
+				if (!code.equals(languages.getSelected())) {
+					languages.setSelected(code);
+					minecraft.options.languageCode = code;
+					minecraft.reloadResourcePacks();
+					minecraft.options.save();
+				}
+				screen.playClickSound();
+				MinecraftUtil.setScreen(((OptionsSubScreenAccessor) screen.screen()).controlify$getLastScreen());
+			}
+		};
 	}
 }

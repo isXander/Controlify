@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.mixins.core;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.utils.animation.impl.Animator;
@@ -39,9 +41,11 @@ public abstract class MinecraftMixin {
 		}
 	}
 
-	@Inject(method = "runTick", at = @At("HEAD"))
-	private void doPolling(CallbackInfo ci) {
+	@WrapOperation(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;runTick(Z)V"))
+	private void wrapUpdate(Minecraft instance, boolean advanceGameTime, Operation<Void> original) {
 		Controlify.instance().update(getTickDelta());
+		original.call(instance, advanceGameTime);
+		Controlify.instance().postUpdate(getTickDelta());
 	}
 
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))

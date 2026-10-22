@@ -12,7 +12,7 @@ import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.mixin.RecipeBookPageAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.RecipeBookScreenProcessor;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.RecipeBookScreenBehaviour;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
@@ -56,7 +56,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 			context.waitForScreen(CraftingScreen.class);
 
 			var recipeBook = context.computeOnClient(_ ->
-				((RecipeBookScreenProcessor.RecipeBookScreenAccessor) MinecraftUtil.getScreen())
+				((RecipeBookScreenBehaviour.RecipeBookScreenAccessor) MinecraftUtil.getScreen())
 					.controlify$getRecipeBookComponent());
 			var component = (RecipeBookComponentAccessor) recipeBook;
 			var page = context.computeOnClient(_ ->

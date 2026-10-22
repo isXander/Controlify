@@ -431,7 +431,8 @@ public class ConfigManager implements AutoCloseable {
 		do {
 			backup = path.resolveSibling(path.getFileName() + ".backup" + (index == 0 ? "" : index));
 			index++;
-		} while (Files.exists(backup));
+		}
+		while (Files.exists(backup));
 		Files.copy(path, backup);
 	}
 
@@ -441,7 +442,8 @@ public class ConfigManager implements AutoCloseable {
 		do {
 			backup = legacyPath.resolveSibling(legacyPath.getFileName() + ".backup" + (index == 0 ? "" : index));
 			index++;
-		} while (Files.exists(backup));
+		}
+		while (Files.exists(backup));
 		Files.move(legacyPath, backup);
 	}
 

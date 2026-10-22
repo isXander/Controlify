@@ -17,7 +17,7 @@ public sealed interface LogicalSignal {
 
 	/// Submitted once per frame.
 	/// Allows bindings to accumulate state between ticks.
-	record Tick(long timeNanos, long deltaTimeNanos) implements LogicalSignal {}
+	record Frame(long timeNanos, long deltaTimeNanos) implements LogicalSignal {}
 
 	sealed interface InputSignal extends LogicalSignal {
 		LogicalInput input();

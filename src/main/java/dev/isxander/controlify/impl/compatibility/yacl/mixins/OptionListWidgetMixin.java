@@ -6,20 +6,18 @@
  */
 package dev.isxander.controlify.impl.compatibility.yacl.mixins;
 
-import dev.isxander.controlify.impl.compatibility.yacl.screenop.OptionListWidgetComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.compatibility.yacl.screenop.OptionListWidgetBehaviour;
 import dev.isxander.yacl3.gui.OptionListWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(OptionListWidget.class)
-public class OptionListWidgetMixin implements ComponentProcessorProvider {
-	@Unique private final OptionListWidgetComponentProcessor controlify$processor =
-			new OptionListWidgetComponentProcessor((OptionListWidget) (Object) this);
+public class OptionListWidgetMixin implements ElementBehaviourFactory<GuiEventListener> {
 
 	@Override
-	public ComponentProcessor componentProcessor() {
-		return this.controlify$processor;
+	public ElementBehaviour create(GuiEventListener element) {
+		return new OptionListWidgetBehaviour((OptionListWidget) (Object) this);
 	}
+
 }

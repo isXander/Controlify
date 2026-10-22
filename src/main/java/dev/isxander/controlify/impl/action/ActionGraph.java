@@ -79,15 +79,15 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 	@Override
 	public void accept(@NonNull LogicalSignal event) {
 		switch (event) {
-			case LogicalSignal.Tick tick -> this.processTick(tick);
+			case LogicalSignal.Frame frame -> this.processFrame(frame);
 			case LogicalSignal.InputSignal inputSignal -> this.processInput(inputSignal);
 			case LogicalSignal.SensorInterval _ -> {} // ignore sensor data
 		}
 	}
 
-	private void processTick(LogicalSignal.Tick tick) {
+	private void processFrame(LogicalSignal.Frame frame) {
 		for (ActionImpl action : this.allActions) {
-			action.activator().onSignal(tick, action.state());
+			action.activator().onSignal(frame, action.state());
 		}
 	}
 

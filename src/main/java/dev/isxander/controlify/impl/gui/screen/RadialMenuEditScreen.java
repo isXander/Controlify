@@ -8,18 +8,17 @@ package dev.isxander.controlify.impl.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.action.Action;
-import dev.isxander.controlify.api.gui.ButtonGuideApi;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.api.screenop.VirtualMouseMode;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.action.radial.RadialIcon;
 import dev.isxander.controlify.impl.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
-import dev.isxander.controlify.impl.virtualmouse.VirtualMouseBehaviour;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -51,7 +50,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvider {
+public class RadialMenuEditScreen extends Screen implements ScreenBehaviourFactory<RadialMenuEditScreen> {
 	private static final int COLUMN_GAP = 8;
 	private static final int COLUMN_PADDING = 4;
 	private static final int COLUMN_HEADER_HEIGHT = 24;
@@ -65,7 +64,6 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	private final RadialMenuEditModel model;
 	private final List<Action> candidates;
 	private final Map<Identifier, Action> candidatesById;
-	private final Processor processor = new Processor(this);
 
 	private HeaderAndFooterLayout layout;
 	private ContainerEventHandler availableContainer;
@@ -116,7 +114,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		Button done = footer.addChild(Button.builder(CommonComponents.GUI_DONE, _ -> commitAndClose())
 				.width(FOOTER_BUTTON_WIDTH)
 				.build());
-		ButtonGuideApi.addGuideToButton(done, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(done, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 		layout.addToFooter(footer);
 
 		layout.visitWidgets(this::addRenderableWidget);
@@ -246,7 +244,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		scrollable.setScrollbarSpacing(0);
 		//?} else {
 		/*ScrollableLayout scrollable = new ScrollableLayout(minecraft, content, height);
-		*///?}
+		 *///?}
 		scrollable.setMinWidth(width);
 		scrollable.setMaxHeight(height);
 		scrollable.setMinHeight(height);
@@ -430,8 +428,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return processor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends RadialMenuEditScreen> context) {
+		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
+		return new Behaviour(context);
 	}
 
 	private Component trim(Component text, int maxWidth) {
@@ -648,50 +647,55 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		}
 	}
 
-	public static class Processor extends ScreenProcessor<RadialMenuEditScreen> {
-		public Processor(RadialMenuEditScreen screen) {
-			super(screen);
+	private static final class Behaviour implements ScreenBehaviour {
+		private final RadialMenuEditScreen screen;
+		private final ScreenContext<? extends RadialMenuEditScreen> context;
+
+		private Behaviour(ScreenContext<? extends RadialMenuEditScreen> context) {
+			this.context = context;
+			this.screen = context.screen();
 		}
 
 		@Override
-		protected void handleComponentNavigation(ControllerImpl controller) {
+		public void handleNavigation(@NonNull Controller input, @NonNull Runnable next) {
+			var controller = (ControllerImpl) input;
 			if (!screen.model.isCarrying()) {
-				super.handleComponentNavigation(controller);
+				next.run();
 				return;
 			}
 
 			boolean moved = false;
-			if (ControlifyActions.GUI_NAVI_LEFT.on(controller).pulse().consumePulse()) {
-				moved = screen.moveCarried(ScreenDirection.LEFT);
-			} else if (ControlifyActions.GUI_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
-				moved = screen.moveCarried(ScreenDirection.RIGHT);
-			} else if (ControlifyActions.GUI_NAVI_UP.on(controller).pulse().consumePulse()) {
-				moved = screen.moveCarried(ScreenDirection.UP);
-			} else if (ControlifyActions.GUI_NAVI_DOWN.on(controller).pulse().consumePulse()) {
-				moved = screen.moveCarried(ScreenDirection.DOWN);
+			while (ControlifyActions.GUI_NAVI_LEFT.on(controller).pulse().consumePulse()) {
+				moved |= screen.moveCarried(ScreenDirection.LEFT);
+			}
+			while (ControlifyActions.GUI_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
+				moved |= screen.moveCarried(ScreenDirection.RIGHT);
+			}
+			while (ControlifyActions.GUI_NAVI_UP.on(controller).pulse().consumePulse()) {
+				moved |= screen.moveCarried(ScreenDirection.UP);
+			}
+			while (ControlifyActions.GUI_NAVI_DOWN.on(controller).pulse().consumePulse()) {
+				moved |= screen.moveCarried(ScreenDirection.DOWN);
 			}
 
 			if (moved) {
-				playFocusChangeSound();
+				context.playFocusChangeSound();
 				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 			}
 		}
 
 		@Override
-		protected void handleButtons(ControllerImpl controller) {
+		public void handleInteraction(@NonNull Controller input, @NonNull Runnable next) {
+			var controller = (ControllerImpl) input;
 			if (screen.model.isCarrying()) {
-				if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
+				if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses()) {
 					screen.dropCarried();
-					playClackSound();
+					context.playClickSound();
 					return;
 				}
 			}
-			super.handleButtons(controller);
+			next.run();
 		}
 
-		@Override
-		public VirtualMouseBehaviour virtualMouseBehaviour() {
-			return VirtualMouseBehaviour.DISABLED;
-		}
 	}
 }

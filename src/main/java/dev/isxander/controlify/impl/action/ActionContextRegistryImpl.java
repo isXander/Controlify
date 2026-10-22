@@ -10,10 +10,10 @@ import dev.isxander.controlify.api.action.ActionContextRegistry;
 import dev.isxander.controlify.api.action.BuiltinActionContexts;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.gui.screen.RadialMenuScreen;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.utils.event.EventBus;
-import dev.isxander.controlify.impl.virtualmouse.VirtualMouseBehaviour;
+import dev.isxander.controlify.api.screenop.VirtualMouseMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.Identifier;
@@ -63,17 +63,15 @@ public final class ActionContextRegistryImpl implements ActionContextRegistry {
 		this.register(BuiltinActionContexts.ANY_SCREEN, mc -> MinecraftUtil.getScreen() != null);
 		this.register(BuiltinActionContexts.REGULAR_SCREEN,
 				mc -> MinecraftUtil.getScreen() != null
-						&& !Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled());
+						&& !ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false));
 		this.register(BuiltinActionContexts.CONTAINER,
 				mc -> MinecraftUtil.getScreen() instanceof AbstractContainerScreen<?>);
 		this.register(BuiltinActionContexts.V_MOUSE_CURSOR,
 				mc -> MinecraftUtil.getScreen() != null
-						&& ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour().hasCursor()
-						&& Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled());
+						&& ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false));
 		this.register(BuiltinActionContexts.V_MOUSE_COMPAT,
 				mc -> MinecraftUtil.getScreen() != null
-						&& ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).virtualMouseBehaviour() == VirtualMouseBehaviour.ENABLED
-						&& Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled());
+						&& ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled() && mouse.mode().emulatesClicks()).orElse(false));
 		this.register(BuiltinActionContexts.RADIAL_MENU, mc -> MinecraftUtil.getScreen() instanceof RadialMenuScreen);
 	}
 

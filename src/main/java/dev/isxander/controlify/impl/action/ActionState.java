@@ -33,6 +33,15 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
 	}
 
 	@Override
+	public boolean consumeAllPulses() {
+		if (this.pulses > 0) {
+			this.pulses = 0;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public void toggleLatch() {
 		this.setLatch(!this.isLatchActive());
 	}

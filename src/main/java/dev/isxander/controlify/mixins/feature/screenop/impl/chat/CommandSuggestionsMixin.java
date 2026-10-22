@@ -7,9 +7,9 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.screenop.keyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.ChatScreenProcessor;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.screenop.impl.chat.ChatKeyboardDucky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -21,13 +21,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(CommandSuggestions.class)
-public class CommandSuggestionsMixin implements ChatScreenProcessor.CmdSuggestionsController {
+public class CommandSuggestionsMixin implements ChatScreenBehaviour.CmdSuggestionsController {
 	@Shadow
 	@Final
 	Minecraft minecraft;
 
 	@Shadow
-	@Nullable private CommandSuggestions.@Nullable SuggestionsList suggestions;
+	@Nullable
+	private CommandSuggestions.@Nullable SuggestionsList suggestions;
 
 	@ModifyExpressionValue(
 			method = {
@@ -35,7 +36,7 @@ public class CommandSuggestionsMixin implements ChatScreenProcessor.CmdSuggestio
 					"extractUsage",
 					//?} else {
 					/*"renderUsage",
-					*///?}
+					 *///?}
 					"showSuggestions"
 			},
 			at = @At(

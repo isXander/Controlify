@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -17,8 +19,6 @@ import dev.isxander.controlify.impl.input.mapping.MapType;
 import dev.isxander.controlify.impl.input.mapping.MappingEntry;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.ColorUtils;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ControllerMappingMakerScreen extends Screen implements ScreenProcessorProvider, DontInterruptScreen {
+public class ControllerMappingMakerScreen extends Screen implements ScreenBehaviourFactory<ControllerMappingMakerScreen>, DontInterruptScreen {
 	private static final float AXIS_PRESS_THRESHOLD = 0.5f;
 	private static final float AXIS_RELEASE_THRESHOLD = 0.25f;
 
@@ -47,7 +47,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenProces
 	private final Set<Identifier> activeInputs = new HashSet<>();
 	private EventSource.Subscription inputSubscription;
 	private final ControllerMapping.Builder mappingBuilder = new ControllerMapping.Builder();
-	private final ScreenProcessor<ControllerMappingMakerScreen> screenProcessor = new ScreenProcessorImpl(this);
 
 	private int delayTillNextStage = 20;
 
@@ -100,18 +99,18 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenProces
 	protected void init() {
 		addRenderableWidget(
 				this.goBackButton = Button.builder(
-						Component.translatable("controlify.gui.mapping_maker.go_back"),
-						button -> goBackStage()
-				)
+								Component.translatable("controlify.gui.mapping_maker.go_back"),
+								button -> goBackStage()
+						)
 						.bounds(width / 2 - 152, height - 60, 150, 20)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.mapping_maker.go_back.tooltip")))
 						.build()
 		);
 		addRenderableWidget(
 				Button.builder(
-						Component.translatable("controlify.gui.mapping_maker.no_map"),
-						button -> mapAsNone()
-				)
+								Component.translatable("controlify.gui.mapping_maker.no_map"),
+								button -> mapAsNone()
+						)
 						.bounds(width / 2 + 2, height - 60, 150, 20)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.mapping_maker.no_map.tooltip")))
 						.build()
@@ -183,7 +182,7 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenProces
 			return;
 		}
 		if (!this.activeInputs.add(input) || this.delayTillNextStage >= 0
-				|| this.currentStage == null || this.currentStage.isSatisfied()) {
+			|| this.currentStage == null || this.currentStage.isSatisfied()) {
 			return;
 		}
 		// MappingStage requires each physical source to have a single destination.
@@ -316,8 +315,19 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenProces
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends ControllerMappingMakerScreen> context) {
+		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
+		return new ScreenBehaviour() {
+			@Override
+			public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
+				// Physical input is captured by the screen's dedicated subscription.
+			}
+
+			@Override
+			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
+				// Do not also activate controls while capturing physical input.
+			}
+		};
 	}
 
 	public static class MappingStage {
@@ -374,14 +384,4 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenProces
 		}
 	}
 
-	private static class ScreenProcessorImpl extends ScreenProcessor<ControllerMappingMakerScreen> {
-		public ScreenProcessorImpl(ControllerMappingMakerScreen screen) {
-			super(screen);
-		}
-
-		@Override
-		public void onControllerFixedUpdate(ControllerImpl controller) {
-			// Captured physical inputs must not also activate screen controls.
-		}
-	}
 }

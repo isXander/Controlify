@@ -63,18 +63,18 @@ public class ControllerPlayerMovement extends ClientInput {
 
 		// this over-complication is so exiting a GUI with the button still held doesn't trigger a jump.
 		Action jump = ControlifyActions.JUMP.on(controller);
-		jumping = jump.pulse().consumePulse() || jump.latch().isLatchActive();
+		jumping = jump.pulse().consumeAllPulses() || jump.latch().isLatchActive();
 
 		Action sneak = ControlifyActions.SNEAK.on(controller);
 		if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.settings().generic.toggleSneak) {
-			if (sneak.pulse().consumePulse()) {
+			if (sneak.pulse().consumeAllPulses()) {
 				shiftKeyDown = true;
 			}
 			if (!sneak.latch().isLatchActive()) {
 				shiftKeyDown = false;
 			}
 		} else {
-			if (sneak.pulse().consumePulse()) {
+			while (sneak.pulse().consumePulse()) {
 				shiftKeyDown = !shiftKeyDown;
 			}
 		}

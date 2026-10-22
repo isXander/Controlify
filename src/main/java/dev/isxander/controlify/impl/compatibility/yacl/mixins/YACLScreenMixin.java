@@ -6,19 +6,16 @@
  */
 package dev.isxander.controlify.impl.compatibility.yacl.mixins;
 
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.compatibility.yacl.screenop.YACLScreenProcessor;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.compatibility.yacl.screenop.YACLScreenBehaviour;
 import dev.isxander.yacl3.gui.YACLScreen;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(YACLScreen.class)
-public class YACLScreenMixin implements ScreenProcessorProvider {
-	@Unique private final YACLScreenProcessor controlify$processor = new YACLScreenProcessor((YACLScreen) (Object) this);
-
+public class YACLScreenMixin implements ScreenBehaviourFactory<YACLScreen> {
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return controlify$processor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends YACLScreen> context) {
+		return new YACLScreenBehaviour(context);
 	}
 }

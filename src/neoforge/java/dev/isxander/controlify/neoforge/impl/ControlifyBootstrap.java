@@ -28,10 +28,11 @@ public class ControlifyBootstrap {
 			PlatformClientUtil.IMPL = new NeoforgePlatformClientImpl();
 
 			ModLoadingContext.get().registerExtensionPoint(
-				net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
-				() -> (client, parent) -> new ControlifySettingsScreen(parent)
+					net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+					() -> (client, parent) -> new ControlifySettingsScreen(parent)
 			);
 
+			dev.isxander.controlify.impl.screenop.BuiltinScreenBehaviours.initialize();
 			PlatformMainUtil.invokeControlifyEntrypoints();
 			Controlify.instance().preInitialiseControlify();
 		}

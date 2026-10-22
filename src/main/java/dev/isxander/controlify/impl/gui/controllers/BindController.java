@@ -8,13 +8,12 @@ package dev.isxander.controlify.impl.gui.controllers;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.screen.BindConsumerScreen;
-import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.Controller;
 import dev.isxander.yacl3.api.Option;
@@ -62,7 +61,7 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 		return new BindControllerElement(this, yaclScreen, dimension);
 	}
 
-	public static class BindControllerElement extends ControllerWidget<BindController> implements ComponentProcessor {
+	public static class BindControllerElement extends ControllerWidget<BindController> implements ElementBehaviour {
 		public boolean awaitingControllerInput = false;
 		private final Component awaitingText = Component.translatable("controlify.gui.bind_input_awaiting").withStyle(ChatFormatting.ITALIC);
 
@@ -73,7 +72,7 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 		@Override
 		protected void extractValueText(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 			if (awaitingControllerInput) {
-				graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
+				graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int) (getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
 			} else {
 				var bind = control.option().pendingValue();
 				if (bind == null) {
@@ -84,7 +83,7 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 						.getComponentFromInput((control.controller == null ? ControllerType.DEFAULT.id() : control.controller.info().type().id()), bind.orElse(null));
 				int width = textRenderer.width(text);
 
-				graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
+				graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int) (getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
 			}
 		}
 
@@ -117,17 +116,17 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 		}
 
 		@Override
-		public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
+		public void handleInteraction(ScreenContext<?> screen, dev.isxander.controlify.api.controller.Controller controller, Runnable next) {
 			if (controller != control.controller) {
-				return true;
+				return;
 			}
 
-			if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
+			if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses()) {
 				openConsumerScreen();
-				return true;
+				return;
 			}
 
-			return false;
+			next.run();
 		}
 
 		@Override

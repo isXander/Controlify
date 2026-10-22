@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.impl.action.ControlifyActions;
@@ -14,15 +16,12 @@ import dev.isxander.controlify.impl.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
 import dev.isxander.controlify.impl.gui.screen.RadialItems.RadialPage;
-import dev.isxander.controlify.impl.screenop.ScreenControllerEventListener;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.utils.animation.api.Animation;
 import dev.isxander.controlify.impl.utils.animation.api.EasingFunction;
-import dev.isxander.controlify.impl.virtualmouse.VirtualMouseBehaviour;
+import dev.isxander.controlify.api.screenop.VirtualMouseMode;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -46,7 +45,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class RadialMenuScreen extends Screen implements ScreenControllerEventListener, ScreenProcessorProvider {
+public class RadialMenuScreen extends Screen implements ScreenBehaviourFactory<RadialMenuScreen> {
 	private final ControllerImpl controller;
 	private final @Nullable Screen parent;
 	private final Component footerText;
@@ -60,8 +59,6 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	private int selectedButton = -1;
 	private int idleTicks;
 	private final int idleTicksTimeout;
-
-	private final Processor processor = new Processor(this);
 
 	/**
 	 * Creates a single-page radial menu. Existing special-purpose radial menus use this path.
@@ -119,7 +116,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
 		int centerX = this.width / 2;
 		int centerY = this.height / 2;
-		float buttonDiameter = (float)Math.sqrt(32 * 32 + 32 * 32) + 8;
+		float buttonDiameter = (float) Math.sqrt(32 * 32 + 32 * 32) + 8;
 		float circumference = buttonDiameter * items.length;
 		radialRadius = Math.max(circumference / Mth.TWO_PI, 43);
 
@@ -149,14 +146,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
 	}
 
-	@Override
-	public void onControllerInput(ControllerImpl controller) {
+	private void onControllerInput(ControllerImpl controller) {
 		if (this.controller != controller) {
 			return;
 		}
 
 		if (openAction == null) {
-			if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
+			if (ControlifyActions.GUI_BACK.on(controller).pulse().consumeAllPulses()) {
 				onClose();
 			}
 			return;
@@ -177,13 +173,13 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		}
 
 		float x = ControlifyActions.RADIAL_AXIS_RIGHT.on(controller).continuous().getContinuous()
-				- ControlifyActions.RADIAL_AXIS_LEFT.on(controller).continuous().getContinuous();
+				  - ControlifyActions.RADIAL_AXIS_LEFT.on(controller).continuous().getContinuous();
 		float y = ControlifyActions.RADIAL_AXIS_DOWN.on(controller).continuous().getContinuous()
-				- ControlifyActions.RADIAL_AXIS_UP.on(controller).continuous().getContinuous();
+				  - ControlifyActions.RADIAL_AXIS_UP.on(controller).continuous().getContinuous();
 		float threshold = controller.input().settings().buttonActivationThreshold;
 
 		if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
-			float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float)Mth.atan2(y, x) - 90f) + 180f;
+			float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float) Mth.atan2(y, x) - 90f) + 180f;
 			float each = 360f / buttons.length;
 			int newSelected = Mth.floor((angle + each / 2f) / each) % buttons.length;
 
@@ -281,8 +277,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return processor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends RadialMenuScreen> context) {
+		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
+		return new Behaviour(context);
 	}
 
 	private void playClickSound() {
@@ -310,7 +307,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 			setX(x);
 			setY(y);
 			this.item = item;
-			this.name = MultiLineLabel.create(font, item.name(), (int)(radialRadius * 2 - 32));
+			this.name = MultiLineLabel.create(font, item.name(), (int) (radialRadius * 2 - 32));
 		}
 
 		@Override
@@ -340,12 +337,12 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		}
 
 		private void setX(float x) {
-			this.x = (int)x;
+			this.x = (int) x;
 			this.translateX = x - this.x;
 		}
 
 		private void setY(float y) {
-			this.y = (int)y;
+			this.y = (int) y;
 			this.translateY = y - this.y;
 		}
 
@@ -375,23 +372,30 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 		}
 	}
 
-	public static class Processor extends ScreenProcessor<RadialMenuScreen> {
-		public Processor(RadialMenuScreen screen) {
-			super(screen);
+	private static final class Behaviour implements ScreenBehaviour {
+		private final RadialMenuScreen screen;
+		private final ScreenContext<? extends RadialMenuScreen> context;
+
+		private Behaviour(ScreenContext<? extends RadialMenuScreen> context) {
+			this.context = context;
+			this.screen = context.screen();
 		}
 
 		@Override
-		protected void handleTabNavigation(ControllerImpl controller) {
-			if (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
+		public void handleNavigation(@NonNull Controller input, @NonNull Runnable next) {
+			var controller = (ControllerImpl) input;
+			screen.onControllerInput(controller);
+			if (MinecraftUtil.getScreen() != screen) {
+				return;
+			}
+			while (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
 				screen.changePage(1);
-			} else if (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
+			}
+			while (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
 				screen.changePage(-1);
 			}
+			next.run();
 		}
 
-		@Override
-		public VirtualMouseBehaviour virtualMouseBehaviour() {
-			return VirtualMouseBehaviour.DISABLED;
-		}
 	}
 }

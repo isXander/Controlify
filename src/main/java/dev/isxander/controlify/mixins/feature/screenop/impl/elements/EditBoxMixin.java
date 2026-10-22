@@ -13,12 +13,9 @@ import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
-import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.EditBoxComponentProcessor;
-import dev.isxander.controlify.impl.screenop.keyboard.CommonKeyboardHints;
-import dev.isxander.controlify.impl.screenop.keyboard.ComponentKeyboardBehaviour;
-import dev.isxander.controlify.impl.screenop.keyboard.KeyboardOverlayScreen;
+import dev.isxander.controlify.impl.gui.keyboard.CommonKeyboardHints;
+import dev.isxander.controlify.api.screenop.ElementKeyboardBehaviour;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardOverlayScreen;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -35,20 +32,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(EditBox.class)
-public abstract class EditBoxMixin extends AbstractWidget implements ComponentProcessorProvider {
+public abstract class EditBoxMixin extends AbstractWidget {
 
-	@Shadow private @Nullable Component hint;
-	@Shadow private @Nullable String suggestion;
-	@Shadow @Final private Font font;
+	@Shadow
+	private @Nullable Component hint;
+	@Shadow
+	private @Nullable String suggestion;
+	@Shadow
+	@Final
+	private Font font;
 
 	@Shadow
 	public abstract boolean isBordered();
-
-	@Unique private final EditBoxComponentProcessor processor = new EditBoxComponentProcessor(
-			(EditBox) (Object) this,
-			Minecraft.getInstance().getWindow().getGuiScaledWidth(),
-			Minecraft.getInstance().getWindow().getGuiScaledHeight()
-	);
 
 	public EditBoxMixin(int x, int y, int width, int height, Component message) {
 		super(x, y, width, height, message);
@@ -73,7 +68,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 				&& controller.settings().generic.guide.showScreenGuides
 				&& Controlify.instance().currentInputMode().isController()
 				&& !(MinecraftUtil.getScreen() instanceof KeyboardOverlayScreen)
-				&& processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
+				&& controlify$hasKeyboardBehaviour()
 			) {
 				int textX = this.getX() + (this.isBordered() ? 2 : 0) + 2;
 				int textY = this.getY() + (this.isBordered() ? 2 : 0) + 4;
@@ -118,8 +113,15 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 		return cursorOnScreen && !renderHint.get();
 	}
 
-	@Override
-	public ComponentProcessor componentProcessor() {
-		return processor;
+	@Unique
+	private boolean controlify$hasKeyboardBehaviour() {
+		var screen = MinecraftUtil.getScreen();
+		if (screen == null) {
+			return false;
+		}
+		var context = dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(screen);
+		return context.elementBehaviour((EditBox) (Object) this).keyboardBehaviour(context)
+				.orElse(null) instanceof ElementKeyboardBehaviour.Handled;
 	}
+
 }

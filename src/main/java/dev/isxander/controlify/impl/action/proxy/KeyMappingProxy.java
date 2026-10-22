@@ -44,9 +44,7 @@ final class KeyMappingProxy implements EventSink<ControllerImpl> {
 				&& (minecraft.isWindowActive() || Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
 		if (!enabled || resolvedAction == null) {
 			if (resolvedAction != null) {
-				while (resolvedAction.pulse().consumePulse()) {
-					// Discard ineligible input instead of replaying it when the controller becomes active.
-				}
+				resolvedAction.pulse().consumeAllPulses();
 			}
 			this.release(controller);
 			return;

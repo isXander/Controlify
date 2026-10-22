@@ -9,32 +9,25 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.AddServerLikeScreenProcessor;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ServerAddressBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.DirectJoinServerScreen;
-import net.minecraft.client.gui.screens.Screen;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DirectJoinServerScreen.class)
-public class DirectJoinServerScreenMixin implements ScreenProcessorProvider {
+public class DirectJoinServerScreenMixin implements ScreenBehaviourFactory<DirectJoinServerScreen>, dev.isxander.controlify.impl.screenop.behaviours.vanilla.ServerAddressScreenAccess {
 	@Shadow
 	private EditBox ipEdit;
 	@Shadow
 	private Button selectButton;
-	@Unique private Button cancelButton;
-
-	@Unique private final AddServerLikeScreenProcessor screenProcessor = new AddServerLikeScreenProcessor(
-			(Screen) (Object) this,
-			() -> this.ipEdit,
-			() -> this.selectButton,
-			() -> this.cancelButton
-	);
+	@Unique
+	private Button cancelButton;
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "GUI_CANCEL", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;")
@@ -46,7 +39,16 @@ public class DirectJoinServerScreenMixin implements ScreenProcessorProvider {
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return this.screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends DirectJoinServerScreen> context) {
+		return new ServerAddressBehaviour(context,
+				() -> this.selectButton,
+				() -> this.cancelButton
+		);
 	}
+
+	@Override
+	public EditBox controlify$getAddressField() {
+		return this.ipEdit;
+	}
+
 }

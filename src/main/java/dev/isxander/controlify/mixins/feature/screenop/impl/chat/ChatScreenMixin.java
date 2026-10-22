@@ -6,15 +6,16 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
-import dev.isxander.controlify.impl.Controlify;
-
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.ChatScreenProcessor;
-import dev.isxander.controlify.impl.screenop.keyboard.*;
+import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
+import dev.isxander.controlify.mixins.feature.screenop.MixinInputTarget;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -23,6 +24,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,19 +37,17 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
+public abstract class ChatScreenMixin extends Screen implements ScreenBehaviourFactory<ChatScreen>, MixinInputTarget, ChatKeyboardDucky {
 
-	@Shadow protected EditBox input;
-	@Shadow private CommandSuggestions commandSuggestions;
+	@Shadow
+	protected EditBox input;
+	@Shadow
+	private CommandSuggestions commandSuggestions;
 
-	@Unique private KeyboardWidget keyboard;
-	@Unique private float shiftChatAmt = 0f;
-	@Unique private final ChatScreenProcessor screenProcessor = new ChatScreenProcessor(
-			(ChatScreen) (Object) this,
-			() -> this.input,
-			() -> this.keyboard,
-			() -> (ChatScreenProcessor.CmdSuggestionsController) this.commandSuggestions
-	);
+	@Unique
+	private KeyboardWidget keyboard;
+	@Unique
+	private float shiftChatAmt = 0f;
 
 	protected ChatScreenMixin(Component title) {
 		super(title);
@@ -65,7 +65,7 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 
 			this.shiftChatAmt = 0.5f;
 			int keyboardHeight = (int) (this.height * this.shiftChatAmt);
-			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.full(), this));
+			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, Controlify.instance().keyboardLayoutManager().getLayout(KeyboardLayouts.FULL), this));
 		});
 	}
 
@@ -171,8 +171,12 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 	}
 
 	@Override
-	public ChatScreenProcessor screenProcessor() {
-		return this.screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends ChatScreen> context) {
+		return new ChatScreenBehaviour(context,
+				() -> this.input,
+				() -> this.keyboard,
+				() -> (ChatScreenBehaviour.CmdSuggestionsController) this.commandSuggestions
+		);
 	}
 
 }

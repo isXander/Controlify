@@ -6,6 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.sign;
 
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.SignEditingBehaviour;
 import dev.isxander.controlify.impl.Controlify;
 
 import com.llamalad7.mixinextras.expression.Definition;
@@ -14,12 +16,9 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.AbstractSignEditScreenProcessor;
-import dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayouts;
-import dev.isxander.controlify.impl.screenop.keyboard.KeyboardWidget;
-import dev.isxander.controlify.impl.screenop.keyboard.MixinInputTarget;
+import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.mixins.feature.screenop.MixinInputTarget;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -31,6 +30,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,25 +40,25 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractSignEditScreen.class)
-public abstract class AbstractSignEditScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget {
+public abstract class AbstractSignEditScreenMixin extends Screen implements ScreenBehaviourFactory<AbstractSignEditScreen>, MixinInputTarget {
 
-	@Shadow private @Nullable TextFieldHelper signField;
-	@Shadow @Final private String[] messages;
-	@Shadow private int line;
-	@Shadow protected abstract void onDone();
-	@Shadow @Final protected SignBlockEntity sign;
+	@Shadow
+	private @Nullable TextFieldHelper signField;
+	@Shadow
+	@Final
+	private String[] messages;
+	@Shadow
+	private int line;
 
-	@Unique protected KeyboardWidget keyboard;
-	@Unique private final AbstractSignEditScreenProcessor screenProcessor = new AbstractSignEditScreenProcessor(
-			(AbstractSignEditScreen) (Object) this,
-			direction -> {
-				this.line = this.line + direction & 3;
-				this.signField.setCursorToEnd();
-			},
-			() -> this.sign,
-			() -> keyboard
-	);
+	@Shadow
+	protected abstract void onDone();
 
+	@Shadow
+	@Final
+	protected SignBlockEntity sign;
+
+	@Unique
+	protected KeyboardWidget keyboard;
 
 	protected AbstractSignEditScreenMixin(Component title) {
 		super(title);
@@ -76,7 +76,7 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 			if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
 			int keyboardHeight = (int) (this.height * 0.5f);
-			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.simple(), this));
+			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, Controlify.instance().keyboardLayoutManager().getLayout(KeyboardLayouts.SIMPLE), this));
 		});
 	}
 
@@ -161,7 +161,14 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends AbstractSignEditScreen> context) {
+		return new SignEditingBehaviour(context,
+				direction -> {
+					this.line = this.line + direction & 3;
+					this.signField.setCursorToEnd();
+				},
+				() -> this.sign,
+				() -> keyboard
+		);
 	}
 }

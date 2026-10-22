@@ -8,10 +8,10 @@ package dev.isxander.controlify.impl.compatibility.rso.mixins;
 
 //? if reeses_sodium_options {
 /*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
-import dev.isxander.controlify.compatibility.sodium.screenop.SodiumScreenOperations;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
+import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenBehaviour;
+import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.SodiumVideoOptionsScreen;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.Tab;
@@ -33,16 +33,13 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
 
 @Mixin(SodiumVideoOptionsScreen.class)
-public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
+public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenBehaviourFactory<Screen>, SodiumScreenOperations {
 	@Shadow
 	private FlatButtonWidget applyButton;
 	@Shadow
 	private FlatButtonWidget closeButton;
 	@Shadow
 	private FlatButtonWidget undoButton;
-
-	@Unique private final SodiumGuiScreenProcessor controlify$screenProcessor
-			= new SodiumGuiScreenProcessor((SodiumVideoOptionsScreen) (Object) this, this);
 
 	@Unique private TabFrame tabFrame;
 
@@ -52,7 +49,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 
 	@Inject(method = "init", at = @At("RETURN"))
 	private void notifyProcessorRebuild(CallbackInfo ci) {
-		controlify$screenProcessor.onRebuildGUI();
+		ScreenContextImpl.get(this).onWidgetRebuild();
 		focusOnFirstControl();
 	}
 
@@ -92,8 +89,8 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return controlify$screenProcessor;
+	public ScreenBehaviour create(ScreenContext<? extends Screen> context) {
+		return new SodiumScreenBehaviour(context, this);
 	}
 
 	@Override

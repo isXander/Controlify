@@ -6,13 +6,13 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
@@ -25,14 +25,13 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
-public class BindConsumerScreen extends Screen implements ScreenProcessorProvider {
+public class BindConsumerScreen extends Screen implements ScreenBehaviourFactory<BindConsumerScreen> {
 	private final ControllerImpl controller;
 	private EventSource.Subscription inputSubscription;
 	private LogicalInput capturedInput;
 	private final Option<Optional<LogicalInput>> option;
 	private final Screen backgroundScreen;
 	private final BindController.BindControllerElement widgetToFocus;
-	private final ScreenProcessorImpl screenProcessor = new ScreenProcessorImpl(this);
 
 	private int ticksTillClose;
 	private int ticksTillInput;
@@ -53,7 +52,7 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
 		}
 		inputSubscription = controller.input().inputPipeline().sourceLogicalSignals().subscribe(signal -> {
 			if (ticksTillInput == 0 && ticksTillClose == 0 && capturedInput == null
-					&& signal instanceof LogicalSignal.Tapped tap) {
+				&& signal instanceof LogicalSignal.Tapped tap) {
 				capturedInput = tap.input();
 			}
 		});
@@ -188,18 +187,19 @@ public class BindConsumerScreen extends Screen implements ScreenProcessorProvide
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends BindConsumerScreen> context) {
+		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
+		return new ScreenBehaviour() {
+			@Override
+			public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
+				// Physical input is captured by the screen's dedicated subscription.
+			}
+
+			@Override
+			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
+				// Do not also activate controls while capturing physical input.
+			}
+		};
 	}
 
-	private static class ScreenProcessorImpl extends ScreenProcessor<BindConsumerScreen> {
-		public ScreenProcessorImpl(BindConsumerScreen screen) {
-			super(screen);
-		}
-
-		@Override
-		public void onControllerFixedUpdate(ControllerImpl controller) {
-			// prevent all other controller input logic
-		}
-	}
 }

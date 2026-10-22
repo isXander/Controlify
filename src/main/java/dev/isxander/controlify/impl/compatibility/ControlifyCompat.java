@@ -23,6 +23,16 @@ public class ControlifyCompat {
 	public static final String SIMPLE_VOICE_CHAT = "voicechat";
 	public static final String FANCY_MENU = "fancymenu";
 
+	public static void initializeScreenBehaviours() {
+		dev.isxander.controlify.impl.compatibility.yacl.screenop.YACLScreenBehaviours.initialize();
+		//? if sodium {
+		wrapCompatCall("sodium", dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenBehaviours::initialize);
+		//?}
+		//? if iris {
+		wrapCompatCall("iris", dev.isxander.controlify.impl.compatibility.iris.screenop.IrisScreenBehaviours::initialize);
+		//?}
+	}
+
 	public static void init() {
 		//? if simple_voice_chat {
 		try {

@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.compatibility.yacl.mixins;
 
-import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.yacl3.gui.YACLScreen;
@@ -20,11 +19,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(YACLScreen.CategoryTab.class)
 public class YACLScreenCategoryTabMixin {
-	@Shadow @Final
+	@Shadow
+	@Final
 	public Button saveFinishedButton;
 
 	@Inject(method = "<init>", at = @At("RETURN"), require = 0)
 	private void onConstructCategory(CallbackInfo ci) {
-		ButtonGuideApi.addGuideToButton(saveFinishedButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.gui.ButtonGuideApiImpl.INSTANCE.addGuideToButton(saveFinishedButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
 	}
 }

@@ -9,23 +9,19 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.OptionsSubScreenProcessor;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.DoneButtonGuideBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(OptionsSubScreen.class)
-public class OptionsSubScreenMixin implements ScreenProcessorProvider {
-	@Unique private Button doneButton;
-
-	@Unique private final OptionsSubScreenProcessor<OptionsSubScreen> screenProcessor = new OptionsSubScreenProcessor<>(
-			(OptionsSubScreen) (Object) this,
-			() -> this.doneButton
-	);
+public class OptionsSubScreenMixin implements ScreenBehaviourFactory<OptionsSubScreen> {
+	@Unique
+	private Button doneButton;
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "GUI_DONE", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_DONE:Lnet/minecraft/network/chat/Component;")
@@ -38,7 +34,9 @@ public class OptionsSubScreenMixin implements ScreenProcessorProvider {
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends OptionsSubScreen> context) {
+		return new DoneButtonGuideBehaviour(context,
+				() -> this.doneButton
+		);
 	}
 }

@@ -63,6 +63,8 @@ public class ControllerCoordinator implements AutoCloseable {
 	private boolean hasDiscoveredControllers;
 	private boolean closed;
 
+	private boolean requireActionPulseConsume;
+
 	public ControllerCoordinator(Controlify controlify, SetupWizardManager setupWizardManager) {
 		this.controlify = controlify;
 		this.config = controlify.config();
@@ -143,6 +145,23 @@ public class ControllerCoordinator implements AutoCloseable {
 					"Selecting controller from input", controller));
 		}
 		return !outOfFocus && this.controllersWithInput.contains(this.currentController);
+	}
+
+	public void fixedUpdate() {
+		this.requireActionPulseConsume = true;
+	}
+
+	public void postUpdate() {
+		// after a FixedUpdate 
+		if (this.requireActionPulseConsume) {
+			this.requireActionPulseConsume = false;
+
+			for (var controller : this.controllerManager.getAllControllers()) {
+				for (var action : controller.input().getAllActions()) {
+					action.state().consumeAllPulses();
+				}
+			}
+		}
 	}
 
 	public void setCurrentController(@Nullable ControllerImpl controller, boolean changeInputMode) {

@@ -8,24 +8,20 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.impl.compatibility.sodium.screenop.TickBoxControlProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
+import dev.isxander.controlify.api.screenop.*;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.TickBoxControl$TickBoxControlElement")
-public abstract class TickBoxControlElementMixin implements ComponentProcessorProvider {
+public abstract class TickBoxControlElementMixin implements ElementBehaviourFactory<GuiEventListener> {
 	@Shadow
 	protected abstract void toggleControl();
 
-	@Unique private final ComponentProcessor controlify$componentProcessor
-			= new TickBoxControlProcessor(this::toggleControl);
-
 	@Override
-	public ComponentProcessor componentProcessor() {
-		return controlify$componentProcessor;
+	public ElementBehaviour create(GuiEventListener element) {
+		return ElementBehaviours.cycle((GuiEventListener widget, int direction) -> this.toggleControl()).create((GuiEventListener) (Object) this);
 	}
+
 }
 //?}

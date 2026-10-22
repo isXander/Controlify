@@ -95,16 +95,16 @@ public class InGameInputHandler {
 			return;
 		}
 
-		if (ControlifyActions.PAUSE.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.PAUSE.on(controller).pulse().consumeAllPulses()) {
 			minecraft.pauseGame(false);
 		}
 		if (minecraft.player != null) {
 			Inventory inventory = minecraft.player.getInventory();
 
-			if (ControlifyActions.NEXT_SLOT.on(controller).pulse().consumePulse()) {
+			while (ControlifyActions.NEXT_SLOT.on(controller).pulse().consumePulse()) {
 				inventory.setSelectedSlot((inventory.getSelectedSlot() + 1) % Inventory.getSelectionSize());
 			}
-			if (ControlifyActions.PREV_SLOT.on(controller).pulse().consumePulse()) {
+			while (ControlifyActions.PREV_SLOT.on(controller).pulse().consumePulse()) {
 				inventory.setSelectedSlot((inventory.getSelectedSlot() - 1 + Inventory.getSelectionSize()) % Inventory.getSelectionSize());
 			}
 
@@ -120,24 +120,27 @@ public class InGameInputHandler {
 					ControlifyActions.HOTBAR_SLOT_9
 			);
 			for (int i = 0; i < hotbarSlots.size(); i++) {
-				if (hotbarSlots.get(i).on(controller).pulse().consumePulse()) {
+				if (hotbarSlots.get(i).on(controller).pulse().consumeAllPulses()) {
 					inventory.setSelectedSlot(i);
 				}
 			}
 
 			if (!minecraft.player.isSpectator()) {
-				if (ControlifyActions.DROP_STACK.on(controller).pulse().consumePulse()) {
+				if (ControlifyActions.DROP_STACK.on(controller).pulse().consumeAllPulses()) {
 					dropItem(minecraft.player, true);
-				} else if (ControlifyActions.DROP_INGAME.on(controller).pulse().consumePulse()) {
-					dropItem(minecraft.player, false);
+					ControlifyActions.DROP_INGAME.on(controller).pulse().consumeAllPulses();
+				} else {
+					while (ControlifyActions.DROP_INGAME.on(controller).pulse().consumePulse()) {
+						dropItem(minecraft.player, false);
+					}
 				}
 
-				if (ControlifyActions.SWAP_HANDS.on(controller).pulse().consumePulse()) {
+				while (ControlifyActions.SWAP_HANDS.on(controller).pulse().consumePulse()) {
 					minecraft.player.connection.send(new ServerboundPlayerActionPacket(ServerboundPlayerActionPacket.Action.SWAP_ITEM_WITH_OFFHAND, BlockPos.ZERO, Direction.DOWN));
 				}
 			}
 
-			if (ControlifyActions.INVENTORY.on(controller).pulse().consumePulse()) {
+			if (ControlifyActions.INVENTORY.on(controller).pulse().consumeAllPulses()) {
 				if (minecraft.gameMode.isServerControlledInventory()) {
 					minecraft.player.sendOpenInventory();
 				} else {
@@ -146,7 +149,7 @@ public class InGameInputHandler {
 				}
 			}
 
-			if (ControlifyActions.CHANGE_PERSPECTIVE.on(controller).pulse().consumePulse()) {
+			while (ControlifyActions.CHANGE_PERSPECTIVE.on(controller).pulse().consumePulse()) {
 				CameraType cameraType = minecraft.options.getCameraType();
 				minecraft.options.setCameraType(minecraft.options.getCameraType().cycle());
 				if (cameraType.isFirstPerson() != minecraft.options.getCameraType().isFirstPerson()) {
@@ -157,7 +160,7 @@ public class InGameInputHandler {
 				//minecraft.levelRenderer.needsUpdate();
 			}
 		}
-		if (ControlifyActions.TOGGLE_HUD_VISIBILITY.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.TOGGLE_HUD_VISIBILITY.on(controller).pulse().consumePulse()) {
 			//? if >=26.2 {
 			minecraft.gui.hud.toggle();
 			//?} else {
@@ -165,44 +168,44 @@ public class InGameInputHandler {
 			*///?}
 		}
 
-		if (ControlifyActions.SHOW_PLAYER_LIST.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.SHOW_PLAYER_LIST.on(controller).pulse().consumePulse()) {
 			shouldShowPlayerList = !shouldShowPlayerList;
 		}
 
-		if (ControlifyActions.TOGGLE_DEBUG_MENU.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.TOGGLE_DEBUG_MENU.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleOverlay();
 		}
-		if (ControlifyActions.TOGGLE_DEBUG_MENU_FPS.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.TOGGLE_DEBUG_MENU_FPS.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleFpsOverlay();
 		}
-		if (ControlifyActions.TOGGLE_DEBUG_MENU_NET.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.TOGGLE_DEBUG_MENU_NET.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleNetworkOverlay();
 		}
-		if (ControlifyActions.TOGGLE_DEBUG_MENU_PROF.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.TOGGLE_DEBUG_MENU_PROF.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleProfilerOverlay();
 		}
-		if (ControlifyActions.DEBUG_RELOAD_CHUNKS.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.DEBUG_RELOAD_CHUNKS.on(controller).pulse().consumeAllPulses()) {
 			DebugOverlayHelper.reloadChunks();
 		}
-		if (ControlifyActions.DEBUG_TOGGLE_CHUNK_BORDERS.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.DEBUG_TOGGLE_CHUNK_BORDERS.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleChunkBorders();
 		}
-		if (ControlifyActions.DEBUG_TOGGLE_ADVANCED_TOOLTIPS.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.DEBUG_TOGGLE_ADVANCED_TOOLTIPS.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleAdvancedTooltips();
 		}
-		if (ControlifyActions.DEBUG_TOGGLE_ENTITY_HITBOXES.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.DEBUG_TOGGLE_ENTITY_HITBOXES.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.toggleEntityHitboxes();
 		}
-		if (ControlifyActions.DEBUG_RELOAD_RESOURCE_PACKS.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.DEBUG_RELOAD_RESOURCE_PACKS.on(controller).pulse().consumeAllPulses()) {
 			DebugOverlayHelper.reloadResourcePacks();
 		}
-		if (ControlifyActions.DEBUG_CLEAR_CHAT.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.DEBUG_CLEAR_CHAT.on(controller).pulse().consumeAllPulses()) {
 			DebugOverlayHelper.clearChat();
 		}
-		if (ControlifyActions.DEBUG_START_STOP_PROFILING.on(controller).pulse().consumePulse()) {
+		while (ControlifyActions.DEBUG_START_STOP_PROFILING.on(controller).pulse().consumePulse()) {
 			DebugOverlayHelper.startStopProfiling();
 		}
-		if (ControlifyActions.DEBUG_RADIAL.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.DEBUG_RADIAL.on(controller).pulse().consumeAllPulses()) {
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyActions.DEBUG_RADIAL,
@@ -212,7 +215,7 @@ public class InGameInputHandler {
 			));
 		}
 
-		if (ControlifyActions.TAKE_SCREENSHOT.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.TAKE_SCREENSHOT.on(controller).pulse().consumeAllPulses()) {
 			// get file before it takes and writes the screenshot (which changes the next name)
 			File screenshotFile = ScreenshotAccessor.controlify$invokeGetFile(
 					new File(minecraft.gameDirectory, "screenshots")
@@ -241,14 +244,14 @@ public class InGameInputHandler {
 			);
 		}
 
-		if (ControlifyActions.PICK_BLOCK.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.PICK_BLOCK.on(controller).pulse().consumeAllPulses()) {
 			((PickBlockAccessor) minecraft).controlify$pickBlock();
 		}
-		if (ControlifyActions.PICK_BLOCK_NBT.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.PICK_BLOCK_NBT.on(controller).pulse().consumeAllPulses()) {
 			((PickBlockAccessor) minecraft).controlify$pickBlockWithNbt();
 		}
 
-		if (ControlifyActions.RADIAL_MENU.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.RADIAL_MENU.on(controller).pulse().consumeAllPulses()) {
 			var bonusPages = new ArrayList<RadialPage>();
 			if (canSwitchGameMode()) {
 				bonusPages.add(RadialItems.createGameModes());
@@ -264,7 +267,7 @@ public class InGameInputHandler {
 			));
 		}
 
-		if (ControlifyActions.GAME_MODE_SWITCHER.on(controller).pulse().consumePulse() && canSwitchGameMode()) {
+		if (ControlifyActions.GAME_MODE_SWITCHER.on(controller).pulse().consumeAllPulses() && canSwitchGameMode()) {
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyActions.GAME_MODE_SWITCHER,
@@ -274,7 +277,7 @@ public class InGameInputHandler {
 			);
 		}
 
-		if (ControlifyActions.HOTBAR_SLOT_SELECT.on(controller).pulse().consumePulse()) {
+		if (ControlifyActions.HOTBAR_SLOT_SELECT.on(controller).pulse().consumeAllPulses()) {
 			MinecraftUtil.setScreen(new RadialMenuScreen(
 					controller,
 					ControlifyActions.HOTBAR_SLOT_SELECT,
@@ -285,7 +288,7 @@ public class InGameInputHandler {
 		}
 
 		if (minecraft.player != null && minecraft.player.hasInfiniteMaterials()) {
-			if (ControlifyActions.HOTBAR_LOAD_RADIAL.on(controller).pulse().consumePulse()) {
+			if (ControlifyActions.HOTBAR_LOAD_RADIAL.on(controller).pulse().consumeAllPulses()) {
 				MinecraftUtil.setScreen(new RadialMenuScreen(
 						controller,
 						ControlifyActions.HOTBAR_LOAD_RADIAL,
@@ -294,7 +297,7 @@ public class InGameInputHandler {
 						null
 				));
 			}
-			if (ControlifyActions.HOTBAR_SAVE_RADIAL.on(controller).pulse().consumePulse()) {
+			if (ControlifyActions.HOTBAR_SAVE_RADIAL.on(controller).pulse().consumeAllPulses()) {
 				MinecraftUtil.setScreen(new RadialMenuScreen(
 						controller,
 						ControlifyActions.HOTBAR_SAVE_RADIAL,
@@ -406,9 +409,10 @@ public class InGameInputHandler {
 			gyroInput.set(0);
 		}
 
-		boolean gyroPressed = gyroButton.pulse().consumePulse();
-		if (settings.buttonMode.equals(GyroButtonMode.TOGGLE) && gyroPressed) {
-			gyroToggledOn = !gyroToggledOn;
+		while (gyroButton.pulse().consumePulse()) {
+			if (settings.buttonMode.equals(GyroButtonMode.TOGGLE)) {
+				gyroToggledOn = !gyroToggledOn;
+			}
 		}
 
 		// The latest gyro sample is already accumulated over this frame, in radians.
@@ -432,10 +436,10 @@ public class InGameInputHandler {
 
 		float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
 
-		if (!ControlifyActions.LOOK_DOWN.on(controller).pulse().consumePulse()
-				& !ControlifyActions.LOOK_UP.on(controller).pulse().consumePulse()
-				& !ControlifyActions.LOOK_LEFT.on(controller).pulse().consumePulse()
-				& !ControlifyActions.LOOK_RIGHT.on(controller).pulse().consumePulse()
+		if (!ControlifyActions.LOOK_DOWN.on(controller).pulse().consumeAllPulses()
+				& !ControlifyActions.LOOK_UP.on(controller).pulse().consumeAllPulses()
+				& !ControlifyActions.LOOK_LEFT.on(controller).pulse().consumeAllPulses()
+				& !ControlifyActions.LOOK_RIGHT.on(controller).pulse().consumeAllPulses()
 		) {
 			return;
 		}

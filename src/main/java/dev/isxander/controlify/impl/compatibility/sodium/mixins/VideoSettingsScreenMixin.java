@@ -8,10 +8,9 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumGuiScreenProcessor;
+import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenBehaviour;
 import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.structure.Page;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
@@ -19,6 +18,7 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.gui.widgets.OptionListWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,21 +27,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(VideoSettingsScreen.class)
-public abstract class VideoSettingsScreenMixin extends Screen implements ScreenProcessorProvider, SodiumScreenOperations {
+public abstract class VideoSettingsScreenMixin extends Screen implements ScreenBehaviourFactory<Screen>, SodiumScreenOperations {
 	//? if >=26.2 {
-	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
-	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
-	@Shadow private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
+	@Shadow
+	private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
+	@Shadow
+	private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget closeButton;
+	@Shadow
+	private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget undoButton;
 	//?} else {
 	/*@Shadow private FlatButtonWidget applyButton;
 	@Shadow private FlatButtonWidget closeButton;
 	@Shadow private FlatButtonWidget undoButton;
 	*///?}
-	@Shadow private OptionListWidget optionList;
+	@Shadow
+	private OptionListWidget optionList;
 
-	@Unique private Page controlify$currentPage = null;
-	@Unique private final SodiumGuiScreenProcessor controlify$screenProcessor
-			= new SodiumGuiScreenProcessor((VideoSettingsScreen) (Object) this, this);
+	@Unique
+	private Page controlify$currentPage = null;
 
 	protected VideoSettingsScreenMixin(Component title) {
 		super(title);
@@ -52,7 +55,6 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenP
 		if (optionList != null && !optionList.getControls().isEmpty()) {
 			this.setInitialFocus(optionList.getControls().get(0));
 		}
-		controlify$screenProcessor.onRebuildGUI();
 	}
 
 	@Inject(method = "onSectionFocused", at = @At("HEAD"))
@@ -61,8 +63,8 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenP
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return controlify$screenProcessor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends Screen> context) {
+		return new SodiumScreenBehaviour(context, this);
 	}
 
 	@Override
@@ -83,13 +85,15 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenP
 		jumpToPage(pages.get(nextIndex));
 	}
 
-	@Unique private List<Page> controlify$getAllPages() {
+	@Unique
+	private List<Page> controlify$getAllPages() {
 		return ConfigManager.CONFIG.getModOptions().stream()
 				.flatMap(mod -> mod.pages().stream())
 				.toList();
 	}
 
-	@Shadow public abstract void jumpToPage(Page page);
+	@Shadow
+	public abstract void jumpToPage(Page page);
 
 	@Override
 	public FlatButtonWidget controlify$getApplyButton() {

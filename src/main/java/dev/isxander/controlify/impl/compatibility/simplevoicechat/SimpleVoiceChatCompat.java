@@ -89,8 +89,8 @@ public class SimpleVoiceChatCompat {
 		if (!controlify.currentInputMode().isController()
 				|| (!minecraft.isWindowActive() && !controlify.config().getSettings().globalSettings().outOfFocusInput)) {
 			// Discard ineligible toggle presses so they cannot replay when focus/input returns.
-			while (pttToggle.pulse().consumePulse()) {}
-			while (whisperToggle.pulse().consumePulse()) {}
+			pttToggle.pulse().consumeAllPulses();
+			whisperToggle.pulse().consumeAllPulses();
 			clearState();
 			return;
 		}

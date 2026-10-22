@@ -20,6 +20,7 @@ public class ControlifyBootstrap implements ClientModInitializer, ModInitializer
 	@Override
 	public void onInitializeClient() {
 		PlatformClientUtil.IMPL = new FabricPlatformClientImpl();
+		dev.isxander.controlify.impl.screenop.BuiltinScreenBehaviours.initialize();
 		PlatformMainUtil.invokeControlifyEntrypoints();
 		Controlify.instance().preInitialiseControlify();
 	}

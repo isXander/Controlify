@@ -7,8 +7,9 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import dev.isxander.controlify.api.gui.ButtonGuideApi;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -16,7 +17,6 @@ import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.components.PlainTextWidget;
-import dev.isxander.controlify.impl.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
@@ -43,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class ControlifySettingsScreen extends Screen implements ScreenControllerEventListener {
+public class ControlifySettingsScreen extends Screen implements ScreenBehaviourFactory<ControlifySettingsScreen> {
 	private final @Nullable Screen parent;
 
 	private Button globalSettingsButton, doneButton, controllerNotDetectedButton;
@@ -82,7 +82,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 				Button.builder(
 								Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
 								btn -> CUtil.openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
-				)
+						)
 						.pos(width / 2 - 75, (this.height - 36) / 2 + 10)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
 						.build()
@@ -126,28 +126,28 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
 			if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
 				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-					activeProfileIndex,
-					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+						activeProfileIndex,
+						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+						profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
 				);
 				this.addRenderableWidget(profileSlotEntry);
 				SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-					mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
-					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+						mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
+						profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
 				);
 				this.addRenderableWidget(splitscreenAdEntry);
 			} else {
 				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-					activeProfileIndex,
-					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-					profileSlotWidth, profileSlotHeight
+						activeProfileIndex,
+						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+						profileSlotWidth, profileSlotHeight
 				);
 				this.addRenderableWidget(profileSlotEntry);
 			}
 		}
 
-		ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 	}
 
 	@Override
@@ -187,11 +187,9 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		);
 	}
 
-	@Override
-	public void onControllerInput(ControllerImpl controller) {
-		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
-			// Button impl does not use NonNull parameter
-			globalSettingsButton.onPress(null);
+	private void onControllerInput(ControllerImpl controller) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
+						globalSettingsButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
 		}
 	}
 
@@ -354,10 +352,10 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			}
 
 			if (!force
-					&& profileName.equals(displayedProfileName)
-					&& controllerName.equals(displayedControllerName)
-					&& controllerIcon.equals(displayedControllerIcon)
-					&& controllerConnected == displayedControllerConnected) {
+				&& profileName.equals(displayedProfileName)
+				&& controllerName.equals(displayedControllerName)
+				&& controllerIcon.equals(displayedControllerIcon)
+				&& controllerConnected == displayedControllerConnected) {
 				return;
 			}
 
@@ -478,4 +476,16 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		public void updateNarration(@NonNull NarrationElementOutput narrationElementOutput) {
 		}
 	}
+
+	@Override
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends ControlifySettingsScreen> context) {
+		return new ScreenBehaviour() {
+			@Override
+			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
+				onControllerInput((ControllerImpl) controller);
+				next.run();
+			}
+		};
+	}
+
 }

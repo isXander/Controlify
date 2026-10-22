@@ -6,15 +6,15 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.api.gui.ButtonGuideApi;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
-import dev.isxander.controlify.impl.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.ChatFormatting;
@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileSelectionScreen extends Screen implements ScreenControllerEventListener {
+public class ProfileSelectionScreen extends Screen implements ScreenBehaviourFactory<ProfileSelectionScreen> {
 	private static final int CARD_WIDTH = 128;
 	private static final int CARD_HEIGHT = 104;
 	private static final int CARD_SPACING = 6;
@@ -100,7 +100,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		scrollable.setScrollbarSpacing(0);
 		//?} else {
 		/*ScrollableLayout scrollable = new ScrollableLayout(this.minecraft, scrollContent, this.layout.getContentHeight());
-		*///?}
+		 *///?}
 		scrollable.setMinWidth(columns * CARD_WIDTH + Math.max(0, columns - 1) * CARD_SPACING);
 		scrollable.setMaxHeight(this.layout.getContentHeight());
 		scrollable.setMinHeight(this.layout.getContentHeight());
@@ -146,10 +146,10 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		);
 		this.layout.addToFooter(footer);
 
-		ButtonGuideApi.addGuideToButton(this.rememberButton, ControlifyActions.GUI_PRESS, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(this.onceButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(this.deleteButton, ControlifyActions.GUI_ABSTRACT_ACTION_2, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(backButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(this.rememberButton, ControlifyActions.GUI_PRESS, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(this.onceButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(this.deleteButton, ControlifyActions.GUI_ABSTRACT_ACTION_2, ButtonGuidePredicate.always());
+		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(backButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 
 		this.layout.visitWidgets(this::addRenderableWidget);
 		this.repositionElements();
@@ -199,13 +199,12 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		);
 	}
 
-	@Override
-	public void onControllerInput(ControllerImpl controller) {
+	private void onControllerInput(ControllerImpl controller) {
 		if (this.selectedProfileIndex >= 0
-				&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
+			&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
 			this.switchProfile(this.selectedProfileIndex, false);
 		} else if (this.deleteButton.active
-				&& ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumePulse()) {
+				   && ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumeAllPulses()) {
 			this.confirmDeleteProfile();
 		}
 	}
@@ -239,7 +238,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		}
 		if (this.deleteButton != null) {
 			this.deleteButton.active = hasProfile
-					&& this.selectedProfileIndex != Controlify.instance().config().getActiveProfileIndex();
+									   && this.selectedProfileIndex != Controlify.instance().config().getActiveProfileIndex();
 		}
 	}
 
@@ -270,7 +269,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 
 	private void confirmDeleteProfile() {
 		if (this.selectedProfileIndex < 0
-				|| this.selectedProfileIndex == Controlify.instance().config().getActiveProfileIndex()) {
+			|| this.selectedProfileIndex == Controlify.instance().config().getActiveProfileIndex()) {
 			return;
 		}
 
@@ -487,4 +486,16 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 
 	private record ControllerDisplay(Component name, Identifier icon) {
 	}
+
+	@Override
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends ProfileSelectionScreen> context) {
+		return new ScreenBehaviour() {
+			@Override
+			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
+				onControllerInput((ControllerImpl) controller);
+				next.run();
+			}
+		};
+	}
+
 }

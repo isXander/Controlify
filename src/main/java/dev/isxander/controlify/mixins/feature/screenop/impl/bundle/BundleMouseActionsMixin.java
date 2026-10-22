@@ -7,8 +7,8 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.bundle;
 
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.BundleItemSlotControllerAction;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.ItemSlotControllerAction;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.BundleItemSlotControllerAction;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ItemSlotControllerAction;
 import net.minecraft.client.gui.BundleMouseActions;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;

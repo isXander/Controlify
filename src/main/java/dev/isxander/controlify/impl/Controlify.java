@@ -43,14 +43,14 @@ import dev.isxander.controlify.impl.input.mapping.ControllerMappingManager;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.impl.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayoutManager;
+import dev.isxander.controlify.impl.screenop.ScreenBehaviourRegistryImpl;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.impl.server.*;
 import dev.isxander.controlify.impl.server.packets.*;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
 import dev.isxander.controlify.impl.utils.*;
 import dev.isxander.controlify.impl.utils.event.EventBus;
-import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.impl.wireless.LowBatteryNotifier;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.yacl3.gui.YACLScreen;
@@ -63,6 +63,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+
 import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
 
 import java.io.IOException;
@@ -89,7 +90,6 @@ public class Controlify implements ControlifyApi {
 
 	private @Nullable InGameInputHandler inGameInputHandler;
 	public @Nullable InGameButtonGuide inGameButtonGuide;
-	private VirtualMouseHandler virtualMouseHandler;
 
 	// Asset reloaders / managers
 	private InputFontMapper inputFontMapper;
@@ -225,7 +225,7 @@ public class Controlify implements ControlifyApi {
 	/**
 	 * Called once Minecraft has completely loaded.
 	 * (When the loading overlay starts to fade).
-	 *
+	 * <p>
 	 * This is where controllers are usually initialised, as long
 	 * as one or more controllers are connected.
 	 */
@@ -236,7 +236,6 @@ public class Controlify implements ControlifyApi {
 		config().loadOrDefault();
 
 		this.inGameInputHandler = null; // set when the current controller changes
-		this.virtualMouseHandler = new VirtualMouseHandler();
 		this.triggerEffectManager = new TriggerEffectManager();
 
 		ActionContextRegistryImpl.INSTANCE.registerBuiltinContexts();
@@ -244,8 +243,10 @@ public class Controlify implements ControlifyApi {
 
 		PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
 				this.getCurrentController().ifPresent(controller -> {
-					virtualMouseHandler().renderVirtualMouse(graphics);
-					ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
+					var context = ScreenRuntime.current();
+					if (context != null && context.screen() == screen) {
+						context.extractRenderState(graphics, tickDelta, controller);
+					}
 				}));
 
 		this.controllerCoordinator = new ControllerCoordinator(this, this.setupWizardManager);
@@ -253,6 +254,8 @@ public class Controlify implements ControlifyApi {
 		// Built-in compatibility must subscribe before addon-facing lifecycle events.
 		ControlifyCompat.init();
 		Events.INITIALIZED.emit(this);
+		ScreenBehaviourRegistryImpl.INSTANCE.initialize();
+		ScreenRuntime.onScreenChanged();
 		try {
 			try {
 				ActionContextRegistryImpl.Events.REGISTER_CONTEXTS.emit(ActionContextRegistryImpl.INSTANCE);
@@ -319,7 +322,7 @@ public class Controlify implements ControlifyApi {
 		}
 
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
-				&& !this.minecraft.isWindowActive();
+							 && !this.minecraft.isWindowActive();
 		boolean givingInput = this.controllerCoordinator.update(outOfFocus);
 
 		this.setupWizardManager.tick();
@@ -339,6 +342,13 @@ public class Controlify implements ControlifyApi {
 		this.mouseUsedThisFrame = false;
 	}
 
+	/// Called once per frame, after minecraft has done its full tick
+	/// {@link fixedUpdate} may have been called multiple times between
+	/// {@link update} and {@link postUpdate}, or it may not have been called.
+	public void postUpdate(float tickDelta) {
+		this.controllerCoordinator.postUpdate();
+	}
+
 	/// Called at 20tps
 	public void fixedUpdate() {
 		LowBatteryNotifier.tick();
@@ -350,8 +360,10 @@ public class Controlify implements ControlifyApi {
 			}
 		}
 
+		this.controllerCoordinator.fixedUpdate();
+
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
-							&& !this.minecraft.isWindowActive();
+							 && !this.minecraft.isWindowActive();
 
 		this.getCurrentController().ifPresent(currentController -> {
 			wrapControllerError(
@@ -410,7 +422,10 @@ public class Controlify implements ControlifyApi {
 
 		if (this.currentInputMode().isController()) {
 			if (MinecraftUtil.getScreen() != null) {
-				ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onControllerFixedUpdate(controller);
+				var context = ScreenRuntime.current();
+				if (context != null) {
+					context.handleControllerInput(controller);
+				}
 			}
 		}
 	}
@@ -493,7 +508,7 @@ public class Controlify implements ControlifyApi {
 		lastInputSwitchTime = Blaze3D.getTime();
 
 		if (!minecraft.mouseHandler.isMouseGrabbed()) {
-			if (newInputMode == InputMode.KEYBOARD_MOUSE && virtualMouseHandler().isVirtualMouseEnabled()) {
+			if (newInputMode == InputMode.KEYBOARD_MOUSE && ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false)) {
 				moveCursorToVirtualMouse();
 			}
 			hideMouse(newInputMode.isController(), true);
@@ -511,12 +526,7 @@ public class Controlify implements ControlifyApi {
 			}
 		}
 
-		// notify current screen of input mode change
-		if (MinecraftUtil.getScreen() != null) {
-			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onInputModeChanged(newInputMode);
-		}
-
-		this.virtualMouseHandler.onInputModeChanged(newInputMode);
+		ScreenRuntime.virtualMouse().ifPresent(mouse -> mouse.synchronizeMode());
 
 		// notify event listeners of input mode change
 		Events.INPUT_MODE_CHANGED.emit(new ControlifyEvents.InputModeChanged(this, newInputMode));
@@ -555,10 +565,6 @@ public class Controlify implements ControlifyApi {
 		return Optional.ofNullable(inGameButtonGuide);
 	}
 
-	public VirtualMouseHandler virtualMouseHandler() {
-		return virtualMouseHandler;
-	}
-
 	public @NotNull InputMode currentInputMode() {
 		return currentInputMode;
 	}
@@ -568,7 +574,7 @@ public class Controlify implements ControlifyApi {
 
 		if (MinecraftUtil.getScreen() != null) {
 			var mouseHandlerAccessor = (MouseHandlerAccessor) minecraft.mouseHandler;
-			if (hide && !virtualMouseHandler().isVirtualMouseEnabled() && !virtualMouseHandler().requiresVirtualMouse() && moveMouse) {
+			if (hide && !ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false) && !ScreenRuntime.virtualMouse().map(mouse -> mouse.isRequired()).orElse(false) && moveMouse) {
 				long handle = minecraft.getWindow().handle();
 				// stop mouse hovering over last element before hiding cursor but don't actually move it
 				// so when the user switches back to mouse it will be in the same place
@@ -580,9 +586,9 @@ public class Controlify implements ControlifyApi {
 	public void showCursorTemporarily() {
 		if (currentInputMode() == InputMode.MIXED && !minecraft.mouseHandler.isMouseGrabbed()) {
 			mouseUsedThisFrame = true;
-			if (virtualMouseHandler().isVirtualMouseEnabled()) {
+			if (ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false)) {
 				moveCursorToVirtualMouse();
-				virtualMouseHandler().disableVirtualMouse();
+				ScreenRuntime.virtualMouse().ifPresent(mouse -> mouse.setSuspended(true));
 			}
 			hideMouse(false, false);
 			showMouseTicks = 20 * 2;
@@ -590,11 +596,8 @@ public class Controlify implements ControlifyApi {
 	}
 
 	private void moveCursorToVirtualMouse() {
-		CursorUtils.setPosition(
-			minecraft.getWindow(),
-			virtualMouseHandler().getCurrentX(0),
-			virtualMouseHandler().getCurrentY(0)
-		);
+		ScreenRuntime.virtualMouse().ifPresent(mouse -> CursorUtils.setPosition(
+				minecraft.getWindow(), mouse.getCurrentX(0), mouse.getCurrentY(0)));
 	}
 
 	public void endTemporaryCursor() {
@@ -608,9 +611,7 @@ public class Controlify implements ControlifyApi {
 
 	private void restoreVirtualCursor() {
 		hideMouse(true, false);
-		if (virtualMouseHandler().requiresVirtualMouse()) {
-			virtualMouseHandler().enableVirtualMouse();
-		}
+		ScreenRuntime.virtualMouse().ifPresent(mouse -> mouse.setSuspended(false));
 	}
 
 	public InputFontMapper inputFontMapper() {

@@ -7,26 +7,23 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.action.ControlifyActions;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.impl.screenop.compat.vanilla.CreateWorldScreenProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.CreateWorldScreenBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(CreateWorldScreen.class)
-public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider {
-	@Shadow protected abstract void onCreate();
-
-	@Unique private final ScreenProcessor<CreateWorldScreen> processor
-			= new CreateWorldScreenProcessor((CreateWorldScreen) (Object) this, this::onCreate);
+public abstract class CreateWorldScreenMixin implements ScreenBehaviourFactory<CreateWorldScreen> {
+	@Shadow
+	protected abstract void onCreate();
 
 	@ModifyExpressionValue(
 			method = "init()V",
@@ -43,7 +40,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
 			)
 	)
 	private Button modifyCreateButton(Button button) {
-		ButtonGuideApi.addGuideToButton(
+		ScreenContextImpl.get((net.minecraft.client.gui.screens.Screen) (Object) this).buttonGuide().addGuideToButton(
 				button,
 				ControlifyActions.GUI_ABSTRACT_ACTION_1,
 				ButtonGuidePredicate.always()
@@ -66,7 +63,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
 			)
 	)
 	private Button modifyCancelButton(Button button) {
-		ButtonGuideApi.addGuideToButton(
+		ScreenContextImpl.get((net.minecraft.client.gui.screens.Screen) (Object) this).buttonGuide().addGuideToButton(
 				button,
 				ControlifyActions.GUI_BACK,
 				ButtonGuidePredicate.always()
@@ -75,7 +72,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return processor;
+	public ScreenBehaviour create(@NonNull ScreenContext<? extends CreateWorldScreen> context) {
+		return new CreateWorldScreenBehaviour(context, this::onCreate);
 	}
 }
