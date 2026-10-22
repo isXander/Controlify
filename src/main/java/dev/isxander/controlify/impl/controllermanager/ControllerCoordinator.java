@@ -131,6 +131,10 @@ public class ControllerCoordinator implements AutoCloseable {
 
 		this.backend.pollEvents();
 
+		for (var controller : this.controllerManager.getAllControllers()) {
+			controller.update();
+		}
+
 		if (!outOfFocus && this.config.getActiveProfile().controllerUid == null
 				&& !this.controllersWithInput.contains(this.currentController)) {
 			// The active controller wins regardless of the order of events within the poll.
