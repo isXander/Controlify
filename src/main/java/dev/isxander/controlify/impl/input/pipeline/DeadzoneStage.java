@@ -1,13 +1,16 @@
 package dev.isxander.controlify.impl.input.pipeline;
 
+import dev.isxander.controlify.impl.debug.DebugProperties;
 import dev.isxander.controlify.impl.input.mapping.DeadzoneGroup;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.UnaryEventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.UnaryEventStage;
+import dev.isxander.controlify.impl.utils.CUtil;
 import it.unimi.dsi.fastutil.objects.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 import java.util.Map;
@@ -30,13 +33,16 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 	}
 
 	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
+	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super PhysicalSignal> downstream) {
 		if (event instanceof PhysicalInputSignal.AxisMoved axisMoved) {
 			RadialDeadzoneState state = this.stateByAxis.get(axisMoved.input());
 
 			if (state != null) {
 				state.onEvent(axisMoved, downstream);
 				return;
+			}
+			if (DebugProperties.DEBUG_DEADZONES) {
+				CUtil.LOGGER.log("[Deadzone] Unchanged (no group): {}", axisMoved);
 			}
 		}
 
@@ -76,7 +82,7 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 		}
 
 		@Override
-		public void onEvent(PhysicalInputSignal.AxisMoved event, EventSink<? super PhysicalInputSignal.AxisMoved> downstream) {
+		public void onEvent(PhysicalInputSignal.@NonNull AxisMoved event, @NonNull EventSink<? super PhysicalInputSignal.AxisMoved> downstream) {
 			this.rawAxes.put(event.input(), event.value());
 
 			float deadzone = DeadzoneStage.this.deadzoneByGroupName.getFloat(this.deadzoneGroup.name());
@@ -96,6 +102,11 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 						1.0f
 				);
 				scale = outputMagnitude / magnitude;
+			}
+
+			if (DebugProperties.DEBUG_DEADZONES) {
+				CUtil.LOGGER.log("[Deadzone] Input: {}; group={}; threshold={}; rawAxes={}; magnitude={}; scale={}",
+						event, this.deadzoneGroup.name(), deadzone, this.rawAxes, magnitude, scale);
 			}
 
 			for (var entry : Object2FloatMaps.fastIterable(this.rawAxes)) {

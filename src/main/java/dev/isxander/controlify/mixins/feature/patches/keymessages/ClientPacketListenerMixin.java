@@ -9,10 +9,9 @@ package dev.isxander.controlify.mixins.feature.patches.keymessages;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,10 +29,10 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyShift.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleSetEntityPassengersPacket", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useControllerTextForSneakTip(Component original) {
-		return ControlifyApi.get().getCurrentController()
-				.flatMap(c -> ControlifyApi.get().currentInputMode().isController() ? Optional.of(c) : Optional.empty())
-				.flatMap(c -> Optional.ofNullable(ControlifyBindings.SNEAK.on(c)))
-				.map(InputBinding::inputGlyph)
+		return Controlify.instance().getCurrentController()
+				.flatMap(c -> Controlify.instance().currentInputMode().isController() ? Optional.of(c) : Optional.empty())
+				.flatMap(c -> Optional.ofNullable(ControlifyActions.SNEAK.onOrNull(c)))
+				.map(a -> ActionGlyphs.action(a.spec().id()))
 				.orElse(original);
 	}
 
@@ -42,7 +41,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyUp.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialUpGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_FORWARD.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_FORWARD.actionId(), original);
 	}
 
 	@Definition(id = "keyLeft", field = "Lnet/minecraft/client/Options;keyLeft:Lnet/minecraft/client/KeyMapping;")
@@ -50,7 +49,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyLeft.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialLeftGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_LEFT.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_LEFT.actionId(), original);
 	}
 
 	@Definition(id = "keyDown", field = "Lnet/minecraft/client/Options;keyDown:Lnet/minecraft/client/KeyMapping;")
@@ -58,7 +57,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyDown.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialDownGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_BACKWARD.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_BACKWARD.actionId(), original);
 	}
 
 	@Definition(id = "keyRight", field = "Lnet/minecraft/client/Options;keyRight:Lnet/minecraft/client/KeyMapping;")
@@ -66,7 +65,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyRight.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialRightGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_RIGHT.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_RIGHT.actionId(), original);
 	}
 
 	@Definition(id = "keyJump", field = "Lnet/minecraft/client/Options;keyJump:Lnet/minecraft/client/KeyMapping;")
@@ -74,7 +73,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyJump.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialJumpGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.JUMP.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.JUMP.actionId(), original);
 	}
 
 	@Definition(id = "keyInventory", field = "Lnet/minecraft/client/Options;keyInventory:Lnet/minecraft/client/KeyMapping;")
@@ -82,7 +81,7 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyInventory.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialInventoryGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.INVENTORY.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.INVENTORY.actionId(), original);
 	}
 
 	@Definition(id = "keyScreenshot", field = "Lnet/minecraft/client/Options;keyScreenshot:Lnet/minecraft/client/KeyMapping;")
@@ -90,6 +89,6 @@ public class ClientPacketListenerMixin {
 	@Expression("?.keyScreenshot.getTranslatedKeyMessage()")
 	@ModifyExpressionValue(method = "handleGameEvent", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private Component useTutorialScreenshotGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.TAKE_SCREENSHOT.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.TAKE_SCREENSHOT.actionId(), original);
 	}
 }

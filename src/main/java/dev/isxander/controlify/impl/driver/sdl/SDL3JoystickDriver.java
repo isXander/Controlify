@@ -6,10 +6,11 @@
  */
 package dev.isxander.controlify.impl.driver.sdl;
 
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.input.mapping.JoystickInputs;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
-import dev.isxander.controlify.impl.utils.event.EventSource;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.resources.Identifier;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
 
 public class SDL3JoystickDriver extends SDLCommonDriver<SdlJoystickHandle> {
 
-	private InputComponent inputComponent;
+	private InputComponentImpl inputComponent;
 
 	private final int numAxes, numButtons;
 	private final Set<Identifier> supportedAxes;
@@ -47,19 +48,18 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SdlJoystickHandle> {
 	public void addComponents(ControllerImpl controller) {
 		super.addComponents(controller);
 
-		controller.setComponent(this.inputComponent = new InputComponent(
+		controller.addComponent(this.inputComponent = new InputComponentImpl(
 				this.controllerType.id(),
 				this.inputPipeline,
 				this.supportedButtons,
 				this.supportedAxes,
-				Set.of(),
 				false
 		));
 	}
 
 	@Override
-	public void update(ControllerImpl controller, boolean outOfFocus) {
-		super.update(controller, outOfFocus);
+	public void update(ControllerImpl controller) {
+		super.update(controller);
 	}
 
 	@Override

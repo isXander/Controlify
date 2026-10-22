@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.impl.config.settings.GlobalSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
@@ -71,7 +70,7 @@ public class GlobalSettingsScreenFactory {
 										.binding(GlobalSettings.defaults().allowServerRumble, () -> globalSettings.allowServerRumble, v -> globalSettings.allowServerRumble = v)
 										.controller(TickBoxControllerBuilder::create)
 										.addListener((opt, val) -> {
-											ControlifyApi.get().getCurrentController()
+											Controlify.instance().getCurrentController()
 													.flatMap(ControllerImpl::rumble)
 													.ifPresent(rumble -> rumble.rumbleManager().clearEffects());
 										})

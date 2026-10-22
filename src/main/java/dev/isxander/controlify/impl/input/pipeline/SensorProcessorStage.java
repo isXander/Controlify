@@ -3,10 +3,11 @@ package dev.isxander.controlify.impl.input.pipeline;
 import dev.isxander.controlify.impl.input.SensorType;
 import dev.isxander.controlify.impl.input.signal.PhysicalSensorSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.UnaryEventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.UnaryEventStage;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -35,8 +36,13 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 		}
 	}
 
+	/// Configures one sensor without replacing processing owned by other components.
+	public void setProcessors(SensorType sensorType, List<SensorProcessor> processors) {
+		this.processors.put(sensorType, List.copyOf(processors));
+	}
+
 	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
+	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super PhysicalSignal> downstream) {
 		switch (event) {
 			case PhysicalSensorSignal(long timeNanos, long sensorTimeNanos, SensorType sensorType, float x, float y, float z)
 					when !this.processors.get(sensorType).isEmpty() -> {

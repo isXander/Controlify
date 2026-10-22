@@ -2,8 +2,9 @@ package dev.isxander.controlify.impl.action;
 
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventSink;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 
@@ -70,7 +71,7 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 	}
 
 	@Override
-	public void accept(LogicalSignal event) {
+	public void accept(@NonNull LogicalSignal event) {
 		switch (event) {
 			case LogicalSignal.Tick tick -> this.processTick(tick);
 			case LogicalSignal.InputSignal inputSignal -> this.processInput(inputSignal);

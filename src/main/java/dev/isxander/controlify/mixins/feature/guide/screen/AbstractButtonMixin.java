@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.impl.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Mixin(AbstractButton.class)
 public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements ButtonGuideRenderer<AbstractButton> {
 	@Unique private RenderData<AbstractButton> renderData = null;
-	@Unique private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
+	@Unique private final Map<Action, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
 	@ModifyExpressionValue(method = "extractDefaultLabel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/AbstractButton;getMessage()Lnet/minecraft/network/chat/Component;"))
 	protected Component modifyRenderedLabel(Component originalMessage) {
@@ -42,8 +42,9 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
 	}
 
 	@Unique private Component getControllerMessage(Component actualLabel) {
-		if (!shouldRender())
+		if (!shouldRender()) {
 			return actualLabel;
+		}
 
 		return getBind().map(bind -> controllerMessages
 						.computeIfAbsent(bind, b -> renderData.getControllerMessage(b, actualLabel)))
@@ -56,8 +57,10 @@ public abstract class AbstractButtonMixin extends AbstractWidgetMixin implements
 				&& renderData.shouldRender((AbstractButton) (Object) this);
 	}
 
-	@Unique private Optional<InputBinding> getBind() {
-		if (renderData == null) return Optional.empty();
-		return renderData.getBind();
+	@Unique private Optional<Action> getBind() {
+		if (renderData == null) {
+			return Optional.empty();
+		}
+		return renderData.getAction();
 	}
 }

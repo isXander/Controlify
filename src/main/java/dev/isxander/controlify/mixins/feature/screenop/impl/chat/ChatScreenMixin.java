@@ -6,11 +6,12 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
+import dev.isxander.controlify.impl.Controlify;
+
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.screenop.compat.vanilla.ChatScreenProcessor;
 import dev.isxander.controlify.impl.screenop.keyboard.*;
@@ -56,10 +57,10 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 	private void addKeyboard(CallbackInfo ci) {
 		this.shiftChatAmt = 0f;
 
-		ControlifyApi.get().getCurrentController().ifPresent(c -> {
+		Controlify.instance().getCurrentController().ifPresent(c -> {
 			// if the keyboard is already present, re-add it even if we're in kb/m mode since
 			// setting fullscreen will turn it to that mode
-			if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
+			if (!Controlify.instance().currentInputMode().isController() && this.keyboard == null) return;
 			if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
 			this.shiftChatAmt = 0.5f;

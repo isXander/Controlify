@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
@@ -31,7 +31,7 @@ public class OptionsSubScreenProcessor<T extends OptionsSubScreen> extends Scree
 		if (doneButton != null) {
 			ButtonGuideApi.addGuideToButton(
 					doneButton,
-					ControlifyBindings.GUI_BACK,
+					ControlifyActions.GUI_BACK,
 					ButtonGuidePredicate.always()
 			);
 		}

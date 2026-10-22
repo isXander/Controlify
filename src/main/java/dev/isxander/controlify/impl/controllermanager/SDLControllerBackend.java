@@ -9,8 +9,8 @@ import dev.isxander.controlify.impl.driver.Driver;
 import dev.isxander.controlify.impl.driver.sdl.*;
 import dev.isxander.controlify.impl.hid.HIDID;
 import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.event.EventSource;
-import dev.isxander.controlify.impl.utils.event.EventTap;
+import dev.isxander.controlify.impl.utils.event.EventBus;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.client.Minecraft;
@@ -24,7 +24,7 @@ public class SDLControllerBackend extends ControllerBackend {
 	private final Sdl sdl;
 	private final ControlifyLogger logger;
 	private final SDLControllerEventStage controllerEventStage;
-	private final EventTap<SDLControllerEvent> controllerEventTap;
+	private final EventBus<SDLControllerEvent> controllerEventBus;
 
 	private SdlEvent event;
 	private long lastFrameTimeNanos = -1;
@@ -32,9 +32,9 @@ public class SDLControllerBackend extends ControllerBackend {
 	public SDLControllerBackend(Sdl sdl, Controlify controlify, ControllerManager controllerManager) {
 		super(controlify, controllerManager);
 		this.sdl = sdl;
-		this.logger = CUtil.LOGGER.createSubLogger("SDLControllerManagerBackend");
+		this.logger = CUtil.LOGGER.createSubLogger("SDLControllerBackend");
 		this.controllerEventStage = new SDLControllerEventStage();
-		this.controllerEventTap = new EventTap<>();
+		this.controllerEventBus = new EventBus<>();
 		this.event = new SdlEvent();
 	}
 
@@ -43,7 +43,7 @@ public class SDLControllerBackend extends ControllerBackend {
 		this.logger.debugLog("Loading gamepad mappings...");
 
 		Optional<Resource> resourceOpt = Minecraft.getInstance().getResourceManager()
-				.getResource(CUtil.rl("controllers/gamecontrollerdb-sdl3.txt"));
+				.getResource(CUtil.rl("controller/gamecontrollerdb-sdl3.txt"));
 		if (resourceOpt.isEmpty()) {
 			this.logger.error("Failed to find game controller database.");
 			return;
@@ -58,7 +58,9 @@ public class SDLControllerBackend extends ControllerBackend {
 			SdlIoStreamHandle stream = null;
 			try {
 				stream = this.sdl.ioStream().SDL_IOFromConstMem(byteBuffer);
-				if (stream.isNull()) throw new IllegalStateException("Failed to open stream");
+				if (stream.isNull()) {
+					throw new IllegalStateException("Failed to open stream");
+				}
 
 				int count = this.sdl.gamepad().SDL_AddGamepadMappingsFromIO(stream, true);
 				if (count < 0) {
@@ -70,7 +72,9 @@ public class SDLControllerBackend extends ControllerBackend {
 				}
 			} finally {
 				if (stream != null) {
-					this.sdl.ioStream().SDL_CloseIO(stream);
+					// I think SDL_AddGamepadMappingsFromIO closes this stream
+					// as it JVM crashes if I call this
+					//this.sdl.ioStream().SDL_CloseIO(stream);
 				}
 			}
 		} catch (Throwable e) {
@@ -106,7 +110,7 @@ public class SDLControllerBackend extends ControllerBackend {
 	}
 
 	private void onControllerEvent(SDLControllerEvent event) {
-		this.controllerEventTap.emit(event);
+		this.controllerEventBus.emit(event);
 
 		switch (event) {
 			case SDLControllerEvent.JoyDevice(SdlJoystickId which, _, SDLControllerEvent.DeviceEvent.Type eventType)
@@ -116,7 +120,8 @@ public class SDLControllerBackend extends ControllerBackend {
 
 			case SDLControllerEvent.JoyDevice(SdlJoystickId which, _, SDLControllerEvent.DeviceEvent.Type type)
 					when type == SDLControllerEvent.DeviceEvent.Type.REMOVED -> {
-				this.controllerManager.removeController(new SDLUniqueControllerID(which));
+				this.controllerManager.getControllerByUcid(new SDLUniqueControllerID(which))
+						.ifPresent(controller -> this.controllerManager.removeController(controller.info().ucid()));
 			}
 
 			default -> {}
@@ -124,16 +129,19 @@ public class SDLControllerBackend extends ControllerBackend {
 	}
 
 	private void tryCreateAndAddController(SdlJoystickId jid, boolean hotplugged) {
-		var ucid = new SDLUniqueControllerID(jid);
-
-		var logger = this.logger.createSubLogger("Controller #" + ucid);
-		logger.debugLog("New controller detected!");
-
 		HIDID hidId = this.getJoystickHIDID(jid);
 		ControllerType type = this.getControllerType(hidId);
+		this.createAndAddController(new ControllerInfo(new SDLUniqueControllerID(jid), type, hidId), hotplugged);
+	}
 
-		if (this.controllerManager.canAddController(ucid, hidId, type, logger)) {
-			this.createAndAddController(ucid, hidId, type, logger, hotplugged);
+	@Override
+	public void createAndAddController(ControllerInfo info, boolean hotplugged) {
+		if (!(info.ucid() instanceof SDLUniqueControllerID ucid)) {
+			throw new IllegalArgumentException("SDL backend requires an SDL controller ID");
+		}
+		var logger = this.logger.createSubLogger("Controller #" + ucid);
+		if (this.controllerManager.canAddController(ucid, info.hid(), info.type(), logger)) {
+			this.createAndAddController(ucid, info.hid(), info.type(), logger, hotplugged);
 		}
 	}
 
@@ -150,7 +158,7 @@ public class SDLControllerBackend extends ControllerBackend {
 		boolean isGamepad = this.sdl.gamepad().SDL_IsGamepad(jid) && !DebugProperties.FORCE_JOYSTICK;
 		controllerLogger.debugLog("Controller is gamepad: {}", isGamepad);
 
-		EventSource<SDLControllerEvent> controllerEventSource = this.controllerEventTap
+		EventSource<SDLControllerEvent> controllerEventSource = this.controllerEventBus
 				.filter(event -> event instanceof SDLControllerEvent.Frame
 						|| event instanceof SDLControllerEvent.DeviceScopedEvent scoped && scoped.which().equals(jid));
 
@@ -167,9 +175,9 @@ public class SDLControllerBackend extends ControllerBackend {
 		var controller = new ControllerImpl(
 				controllerInfo,
 				driver,
+				controllerLogger,
 				Controlify.instance().config().getActiveProfile(),
-				ProfileSettings.createDefault(),
-				controllerLogger
+				ProfileSettings.createDefault()
 		);
 
 		this.controllerManager.addController(controller, hotplugged);

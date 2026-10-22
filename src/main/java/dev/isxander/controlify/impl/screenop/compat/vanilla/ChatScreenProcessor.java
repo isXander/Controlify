@@ -6,15 +6,15 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
+import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
-import dev.isxander.controlify.impl.screenop.keyboard.ComponentKeyboardBehaviour;
-import dev.isxander.controlify.impl.screenop.keyboard.CommonKeyboardHints;
-import dev.isxander.controlify.impl.screenop.keyboard.KeyboardWidget;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.utils.HoldRepeatHelper;
+import dev.isxander.controlify.impl.screenop.keyboard.CommonKeyboardHints;
+import dev.isxander.controlify.impl.screenop.keyboard.ComponentKeyboardBehaviour;
+import dev.isxander.controlify.impl.screenop.keyboard.KeyboardWidget;
 import dev.isxander.controlify.impl.utils.LazyComponentDims;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -27,8 +27,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
-	private final HoldRepeatHelper suggestionsFwdHoldRepeatHelper = new HoldRepeatHelper(10, 4);
-	private final HoldRepeatHelper suggestionsBwdHoldRepeatHelper = new HoldRepeatHelper(10, 4);
 
 	private final Supplier<EditBox> inputSupplier;
 	private final Supplier<@Nullable KeyboardWidget> keyboardSupplier;
@@ -36,9 +34,9 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
 
 	private final LazyComponentDims commandSuggesterHint = new LazyComponentDims(
 			Component.translatable("controlify.hint.command_suggester",
-					ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.inputGlyph(),
-					ControlifyBindings.GUI_SECONDARY_NAVI_UP.inputGlyph(),
-					ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.inputGlyph())
+					ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_DOWN.actionId()),
+					ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_UP.actionId()),
+					ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.actionId()))
 	);
 
 	public ChatScreenProcessor(
@@ -59,30 +57,24 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
 
 		CmdSuggestionsController suggestionsController = this.suggestionsController.get();
 		if (suggestionsController != null) {
-			if (this.suggestionsFwdHoldRepeatHelper.shouldAction(ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller))) {
+			if (ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse()) {
 				if (suggestionsController.controlify$cycle(1)) {
-					this.suggestionsFwdHoldRepeatHelper.onNavigate();
-					this.suggestionsBwdHoldRepeatHelper.reset();
 
 					playFocusChangeSound();
 
 					this.clearCommandSuggesterHint(controller);
 				}
 			}
-			if (this.suggestionsBwdHoldRepeatHelper.shouldAction(ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller))) {
+			if (ControlifyActions.GUI_SECONDARY_NAVI_UP.on(controller).pulse().consumePulse()) {
 				if (suggestionsController.controlify$cycle(-1)) {
-					this.suggestionsBwdHoldRepeatHelper.onNavigate();
-					this.suggestionsFwdHoldRepeatHelper.reset();
 
 					playFocusChangeSound();
 
 					this.clearCommandSuggesterHint(controller);
 				}
 			}
-			if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed()) {
+			if (ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
 				if (suggestionsController.controlify$useSuggestion()) {
-					this.suggestionsFwdHoldRepeatHelper.reset();
-					this.suggestionsBwdHoldRepeatHelper.reset();
 
 					playClackSound();
 
@@ -139,12 +131,6 @@ public class ChatScreenProcessor extends ScreenProcessor<ChatScreen> {
 			settings.keyboard.hintCommandSuggester = false;
 			Controlify.instance().config().saveSafely();
 		}
-	}
-
-	@Override
-	protected HoldRepeatHelper createHoldRepeatHelper() {
-		// make the initial delay way less
-		return new HoldRepeatHelper(5, 4);
 	}
 
 	public interface CmdSuggestionsController {

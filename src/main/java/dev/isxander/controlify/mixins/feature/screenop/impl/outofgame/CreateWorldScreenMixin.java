@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.screenop.compat.vanilla.CreateWorldScreenProcessor;
@@ -45,7 +45,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
 	private Button modifyCreateButton(Button button) {
 		ButtonGuideApi.addGuideToButton(
 				button,
-				ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+				ControlifyActions.GUI_ABSTRACT_ACTION_1,
 				ButtonGuidePredicate.always()
 		);
 		return button;
@@ -68,7 +68,7 @@ public abstract class CreateWorldScreenMixin implements ScreenProcessorProvider 
 	private Button modifyCancelButton(Button button) {
 		ButtonGuideApi.addGuideToButton(
 				button,
-				ControlifyBindings.GUI_BACK,
+				ControlifyActions.GUI_BACK,
 				ButtonGuidePredicate.always()
 		);
 		return button;

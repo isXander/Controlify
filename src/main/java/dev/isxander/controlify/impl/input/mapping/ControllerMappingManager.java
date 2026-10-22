@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.FileToIdConverter;
@@ -57,6 +58,11 @@ public class ControllerMappingManager implements SimpleControlifyReloadListener<
 		return CompletableFuture.runAsync(() -> {
 			this.mappingById.clear();
 			this.mappingById.putAll(data.mappingById);
+			Controlify.instance().getControllerManager().ifPresent(controllerManager -> {
+				for (var controller : controllerManager.getAllControllers()) {
+					controller.input().reloadControllerMapping();
+				}
+			});
 		}, executor);
 	}
 

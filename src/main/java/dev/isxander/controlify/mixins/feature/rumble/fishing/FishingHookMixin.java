@@ -6,8 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.fishing;
 
+import dev.isxander.controlify.impl.Controlify;
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -37,7 +38,7 @@ public class FishingHookMixin {
 				var effect = RumbleEffect.continuous()
 						.constant(0f, 0.05f);
 
-				this.bitingRumble = ControlifyApi.get().playRumbleEffect(CUtil.rl("fishing_bite"), effect).orElse(null);
+				this.bitingRumble = Controlify.instance().playRumbleEffect(CUtil.rl("fishing_bite"), effect).orElse(null);
 			} else if (!biting && this.biting) {
 				stopBitingRumble();
 			}

@@ -13,7 +13,7 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	private final ActionSpec spec;
 	private final ActionState state;
 	private @Nullable LogicalInput boundInput;
-	private final @Nullable LogicalInput defaultInput;
+	private @Nullable LogicalInput defaultInput;
 	private Activator activator;
 	private final ActivatorConfig<?> activatorConfig;
 
@@ -54,6 +54,11 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	@Override
 	public @Nullable LogicalInput defaultInput() {
 		return this.defaultInput;
+	}
+
+	/// Refreshes resource-defined defaults without changing the current binding or activator state.
+	public void setDefaultInput(@Nullable LogicalInput defaultInput) {
+		this.defaultInput = defaultInput;
 	}
 
 	@Override

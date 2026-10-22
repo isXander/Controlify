@@ -6,16 +6,17 @@
  */
 package dev.isxander.controlify.impl.gui.guide;
 
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.contextual.GuideLocation;
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.contextual.Context;
 import dev.isxander.controlify.api.contextual.GuideInstance;
+import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.impl.contextual.ContextualDomainImpl;
 import dev.isxander.controlify.impl.contextual.ContextualState;
+import dev.isxander.controlify.impl.contextual.GuideLocation;
 import dev.isxander.controlify.impl.contextual.GuideRule;
 import dev.isxander.controlify.impl.contextual.RuleEngine;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
+import dev.isxander.controlify.impl.font.ComponentFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -53,12 +54,12 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 		var leftBuilder = new PrecomputedLines.Builder();
 		var rightBuilder = new PrecomputedLines.Builder();
 
-		ControllerImpl controller = context.controller();
+		var controller = (ControllerImpl) context.controller();
 
 		for (GuideRule guide : guides) {
-			InputBinding binding = guide.binding().onOrNull(controller);
-			if (binding == null || binding.isUnbound()) {
-				// skip this rule if the binding is not bound
+			Action action = guide.action().onOrNull(controller);
+			if (action == null || action.boundInput() == null) {
+				// skip this rule if the action is not bound
 				continue;
 			}
 
@@ -67,14 +68,14 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 				case RIGHT -> rightBuilder;
 			};
 
-			// put the glyph after or before the binding glyph based on the rule's location and font direction
+			// put the glyph after or before the action glyph based on the rule's location and font direction
 			boolean glyphAfter = font.isBidirectional() ^ (guide.location() == GuideLocation.RIGHT);
 
 			// formulate the text to display
 			Component text = Component.empty()
-					.append(glyphAfter ? guide.text() : binding.inputGlyph())
+					.append(glyphAfter ? guide.text() : ActionGlyphs.action(action.spec().id()))
 					.append(" ")
-					.append(glyphAfter ? binding.inputGlyph() : guide.text());
+					.append(glyphAfter ? ActionGlyphs.action(action.spec().id()) : guide.text());
 
 			// precompute the width and height of the text
 			int ruleNameWidth = font.width(guide.text());
@@ -83,7 +84,7 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 			int backgroundLeft = glyphAfter ? 0 : glyphWidth;
 			int backgroundRight = backgroundLeft + ruleNameWidth;
 
-			int height = BindingFontHelper.getComponentHeight(font, binding.inputGlyph()); // use input glyph height only as it's bound to be the tallest
+			int height = ComponentFontHelper.getComponentHeight(font, ActionGlyphs.action(action.spec().id())); // use input glyph height only as it's bound to be the tallest
 
 			builder.addLine(text, width, height, backgroundLeft, backgroundRight);
 		}

@@ -8,15 +8,15 @@ package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.PauseScreenAccessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.PauseScreenAccessor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
@@ -33,10 +33,10 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
 	protected void handleButtons(ControllerImpl controller) {
 		super.handleButtons(controller);
 
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options /*? if <26.3 >>*//*,true*/ ));
 		}
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumePulse()) {
 			screen.setFocused(disconnectButtonSupplier.get());
 		}
 	}
@@ -49,14 +49,14 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
 			getWidget("menu.returnToGame").ifPresent(widget -> {
 				ButtonGuideApi.addGuideToButton(
 						(AbstractButton) widget,
-						ControlifyBindings.GUI_BACK,
+						ControlifyActions.GUI_BACK,
 						ButtonGuidePredicate.always()
 				);
 			});
 			getWidget("menu.options").ifPresent( widget -> {
 				ButtonGuideApi.addGuideToButton(
 						(AbstractButton) widget,
-						ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+						ControlifyActions.GUI_ABSTRACT_ACTION_1,
 						ButtonGuidePredicate.always()
 				);
 			});
@@ -66,8 +66,8 @@ public class PauseScreenProcessor extends ScreenProcessor<PauseScreen> {
 				ButtonGuideApi.addGuideToButton(
 						disconnectButton,
 						() -> disconnectButton.isFocused()
-								? ControlifyBindings.GUI_PRESS
-								: ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+								? ControlifyActions.GUI_PRESS
+								: ControlifyActions.GUI_ABSTRACT_ACTION_2,
 						ButtonGuidePredicate.always()
 				);
 			}

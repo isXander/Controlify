@@ -10,8 +10,9 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.impl.screenop.compat.vanilla.EditBoxComponentProcessor;
@@ -66,11 +67,11 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 	) {
 		renderHint.set(false);
 
-		ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+		Controlify.instance().getCurrentController().ifPresent(controller -> {
 			if (this.isFocused()
 				&& controller.settings().generic.keyboard.showOnScreenKeyboard
 				&& controller.settings().generic.guide.showScreenGuides
-				&& ControlifyApi.get().currentInputMode().isController()
+				&& Controlify.instance().currentInputMode().isController()
 				&& !(MinecraftUtil.getScreen() instanceof KeyboardOverlayScreen)
 				&& processor.getKeyboardBehaviour() instanceof ComponentKeyboardBehaviour.Handled
 			) {
@@ -96,7 +97,7 @@ public abstract class EditBoxMixin extends AbstractWidget implements ComponentPr
 
 					pose.popMatrix();
 				} else {
-					var component = ControlifyBindings.GUI_PRESS.inputGlyph();
+					var component = ActionGlyphs.action(ControlifyActions.GUI_PRESS.actionId());
 					int width = font.width(component);
 
 					graphics.text(

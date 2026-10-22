@@ -3,9 +3,10 @@ package dev.isxander.controlify.impl.input.pipeline;
 import dev.isxander.controlify.impl.input.mapping.ControllerMapping;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.EventSource;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.event.EventTap;
+import org.jspecify.annotations.NonNull;
 
 public class InputPipeline implements EventSink<PhysicalSignal> {
 	private final EventTap<PhysicalSignal> tapRawPhysicalSignals;
@@ -46,8 +47,17 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 				.discardDownstream();
 	}
 
+	/// Applies a new physical mapping without reopening the driver or replacing event sources.
+	/// The caller must reset actions to release outputs based on the previous mapping.
+	public void setControllerMapping(ControllerMapping mapping) {
+		this.stageMapping.setControllerMapping(mapping);
+		this.stageDeadzone.setDeadzoneGroups(mapping.deadzones().values());
+		this.stageInputDomainExpansion.resetInputState();
+		this.stagePhysicalToLogical.resetInputState();
+	}
+
 	@Override
-	public void accept(PhysicalSignal event) {
+	public void accept(@NonNull PhysicalSignal event) {
 		this.fullPipeline.accept(event);
 	}
 

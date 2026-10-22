@@ -1,6 +1,5 @@
 package dev.isxander.controlify.impl.controllermanager;
 
-import dev.isxander.controlify.api.ControlifyEvents;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.hid.HIDID;
@@ -10,12 +9,19 @@ import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 
 import java.io.Closeable;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ControllerManager implements Closeable {
 	private final Map<String, ControllerImpl> controllersByUid;
 	private final Map<UniqueControllerID, ControllerImpl> controllersByUcid;
 
-	public ControllerManager() {
+	private final BiConsumer<ControllerImpl, Boolean> onAdded;
+	private final Consumer<ControllerImpl> onRemoved;
+
+	public ControllerManager(BiConsumer<ControllerImpl, Boolean> onAdded, Consumer<ControllerImpl> onRemoved) {
+		this.onAdded = onAdded;
+		this.onRemoved = onRemoved;
 		this.controllersByUid = new HashMap<>();
 		this.controllersByUcid = new HashMap<>();
 	}
@@ -53,7 +59,7 @@ public class ControllerManager implements Closeable {
 		CUtil.LOGGER.log("Controller connected: {}", ControllerUtils.createControllerString(controller));
 
 		ControllerUtils.wrapControllerError(
-				() -> ControlifyEvents.CONTROLLER_CONNECTED.invoke(new ControlifyEvents.ControllerConnected(controller, hotplugged)),
+				() -> this.onAdded.accept(controller, hotplugged),
 				"Connecting controller",
 				controller
 		);
@@ -62,8 +68,6 @@ public class ControllerManager implements Closeable {
 	public void removeController(UniqueControllerID controllerUcid) {
 		ControllerImpl controller = this.controllersByUcid.get(controllerUcid);
 
-		ControlifyEvents.CONTROLLER_DISCONNECTED.invoke(new ControlifyEvents.ControllerDisconnected(controller));
-
 		if (controller == null) {
 			throw new IllegalArgumentException("The given ucid is not associated with any connected controller");
 		}
@@ -71,7 +75,11 @@ public class ControllerManager implements Closeable {
 		this.controllersByUcid.remove(controllerUcid, controller);
 		this.controllersByUid.remove(controller.uid(), controller);
 
-		controller.close();
+		try {
+			this.onRemoved.accept(controller);
+		} finally {
+			controller.close();
+		}
 	}
 
 	public Optional<ControllerImpl> getControllerByUcid(UniqueControllerID ucid) {
@@ -89,5 +97,7 @@ public class ControllerManager implements Closeable {
 	@Override
 	public void close() {
 		this.controllersByUcid.values().forEach(ControllerImpl::close);
+		this.controllersByUcid.clear();
+		this.controllersByUid.clear();
 	}
 }

@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessorProvider;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -54,8 +54,8 @@ public class AddServerLikeScreenProcessor extends ScreenProcessor<Screen> {
 			ButtonGuideApi.addGuideToButton(
 					doneButton,
 					() -> doneButton.isFocused()
-							? ControlifyBindings.GUI_PRESS
-							: ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+							? ControlifyActions.GUI_PRESS
+							: ControlifyActions.GUI_ABSTRACT_ACTION_1,
 					ButtonGuidePredicate.always()
 			);
 		}
@@ -63,7 +63,7 @@ public class AddServerLikeScreenProcessor extends ScreenProcessor<Screen> {
 		if (backButton != null) {
 			ButtonGuideApi.addGuideToButton(
 					backButton,
-					() -> ControlifyBindings.GUI_BACK,
+					() -> ControlifyActions.GUI_BACK,
 					ButtonGuidePredicate.always()
 			);
 		}
@@ -71,7 +71,7 @@ public class AddServerLikeScreenProcessor extends ScreenProcessor<Screen> {
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).guiPressed().get()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			Button doneButton = doneButtonSupplier.get();
 			if (doneButton != null && !doneButton.isFocused()) {
 				playClackSound();

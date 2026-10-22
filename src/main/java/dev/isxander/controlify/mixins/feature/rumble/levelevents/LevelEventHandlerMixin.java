@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.levelevents;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -24,7 +25,7 @@ public class LevelEventHandlerMixin {
 	@Inject(method = "levelEvent", at = @At("HEAD"))
 	private void onLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
 		switch (eventId) {
-			case LevelEvent.SOUND_ANVIL_USED -> ControlifyApi.get().playRumbleEffect(
+			case LevelEvent.SOUND_ANVIL_USED -> Controlify.instance().playRumbleEffect(
 					CUtil.rl("anvil"),
 					RumbleEffect.finite().constant(1f, 0.5f, 2)
 							.then(RumbleEffect.finite().constant(0f, 0f, 5)).repeat(3)
@@ -35,7 +36,7 @@ public class LevelEventHandlerMixin {
 	@Inject(method = "globalLevelEvent", at = @At("HEAD"))
 	private void onGlobalLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
 		switch (eventId) {
-			case LevelEvent.SOUND_DRAGON_DEATH -> ControlifyApi.get().playRumbleEffect(
+			case LevelEvent.SOUND_DRAGON_DEATH -> Controlify.instance().playRumbleEffect(
 					CUtil.rl("dragon_death"),
 					RumbleEffect.finite().constant(1f, 1f, 194)
 							.then(RumbleEffect.finite().byTime(t -> {
@@ -43,7 +44,7 @@ public class LevelEventHandlerMixin {
 								return new RumbleState(1 - easeOutQuad, 1 - easeOutQuad);
 							}, 63))
 			);
-			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> ControlifyApi.get().playRumbleEffect(
+			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> Controlify.instance().playRumbleEffect(
 					CUtil.rl("wither_spawn"),
 					RumbleEffect.finite().constant(1f, 1f, 9)
 							.then(RumbleEffect.finite().constant(0.1f, 1f, 14))

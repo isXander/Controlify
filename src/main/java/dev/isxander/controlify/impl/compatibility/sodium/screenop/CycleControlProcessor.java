@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.compatibility.sodium.screenop;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -22,13 +22,13 @@ public class CycleControlProcessor implements ComponentProcessor {
 
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed()
-				|| ControlifyBindings.GUI_PRESS.on(controller).justPressed()
+		if (ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.on(controller).pulse().consumePulse()
+				|| ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()
 		) {
 			cycleMethod.accept(false);
 			return true;
 		}
-		if (ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_SECONDARY_NAVI_LEFT.on(controller).pulse().consumePulse()) {
 			cycleMethod.accept(true);
 			return true;
 		}

@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.api.gui;
 
-import dev.isxander.controlify.impl.action.ActionAccessor;
+import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.impl.gui.ButtonGuideRenderer;
 import net.minecraft.client.gui.screens.Screen;
 
@@ -34,13 +34,13 @@ public final class ButtonGuideApi {
 			T button,
 			ActionAccessor action,
 			ButtonGuidePredicate<T> renderPredicate) {
-		ButtonGuideRenderer.registerBindingForButton(button, () -> action, renderPredicate);
+		ButtonGuideRenderer.registerActionForButton(button, () -> action, renderPredicate);
 	}
 
 	public static <T> void addGuideToButton(
 			T button,
 			Supplier<ActionAccessor> action,
 			ButtonGuidePredicate<T> renderPredicate) {
-		ButtonGuideRenderer.registerBindingForButton(button, action, renderPredicate);
+		ButtonGuideRenderer.registerActionForButton(button, action, renderPredicate);
 	}
 }

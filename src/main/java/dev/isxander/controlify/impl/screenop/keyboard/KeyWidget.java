@@ -7,11 +7,11 @@
 package dev.isxander.controlify.impl.screenop.keyboard;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -41,10 +41,12 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 	private final Component regularLabel, shiftedLabel;
 	private final boolean supportsRegular, supportsShifted;
 
+	private boolean mousePressed;
+	private boolean buttonPressed;
 	private boolean shortcutPressed;
-	private final HoldRepeatHelper holdRepeatHelper;
-
-	private boolean buttonPressed, mousePressed;
+	private boolean ignoreHeldPress;
+	private final HoldRepeatHelper focusedRepeatHelper = new HoldRepeatHelper(10, 2);
+	private final HoldRepeatHelper shortcutRepeatHelper = new HoldRepeatHelper(10, 2);
 
 	private final int renderScale;
 	private final int renderWidth, renderHeight;
@@ -53,7 +55,6 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 		super(x, y, width, height, Component.literal("Key"));
 		this.keyboard = keyboard;
 		this.key = key;
-		this.holdRepeatHelper = new HoldRepeatHelper(10, 2);
 
 		this.regularLabel = createLabel(key, false);
 		this.shiftedLabel = createLabel(key, true);
@@ -67,9 +68,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
 	public void extractKeyBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
 		this.active = this.supportsAction();
-
 		if (!this.isFocused()) {
-			// the call in overrideControllerButtons won't be triggered to un-press if the key is not focused
 			this.buttonPressed = false;
 		}
 
@@ -86,8 +85,6 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
 			if (isHoveredOrFocused()) {
 				graphics.outline(getX() - 1, getY() - 1, renderWidth + 2, renderHeight + 2, 0x80FFFFFF);
-			} else if (!shortcutPressed) {
-				this.holdRepeatHelper.reset();
 			}
 
 			if (!this.active) {
@@ -116,37 +113,38 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 	}
 
 	@Override
+	public void onFocusGained(ScreenProcessor<?> screen, ControllerImpl controller) {
+		this.ignoreHeldPress = ControlifyActions.GUI_PRESS.on(controller).latch().isLatchActive();
+		this.buttonPressed = false;
+		this.focusedRepeatHelper.reset();
+	}
+
+	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		var guiPress = ControlifyBindings.GUI_PRESS.on(controller);
-
-		// this means if you were holding the button down and navigated to this key,
-		// it would not show as pressed until you release and press again
-		if (guiPress.justPressed()) {
-			this.buttonPressed = true;
-		} else if (guiPress.justReleased()) {
-			this.buttonPressed = false;
+		Action guiPress = ControlifyActions.GUI_PRESS.on(controller);
+		boolean held = guiPress.latch().isLatchActive();
+		if (!held) {
+			this.ignoreHeldPress = false;
 		}
-
-		// prevent the press action if the button was navigated to whilst holding the button down
-		// the above visual state will not be pressed, so this should not trigger either
-		if (this.buttonPressed && holdRepeatHelper.shouldAction(guiPress)) {
+		this.buttonPressed = held && !this.ignoreHeldPress;
+		if (this.focusedRepeatHelper.shouldAction(this.buttonPressed)) {
 			onPress();
-			holdRepeatHelper.onNavigate();
 		}
-
+		while (guiPress.pulse().consumePulse()) {
+			// The keyboard handles this action through its latch, including local repetition.
+		}
 		return false;
 	}
 
 	@Override
 	public void onControllerInput(ControllerImpl controller) {
-		this.key.shortcutBinding().ifPresent(supplier -> {
-			InputBinding shortcutBinding = supplier.on(controller);
-
-			this.shortcutPressed = shortcutBinding.digitalNow();
-
-			if (this.holdRepeatHelper.shouldAction(shortcutBinding)) {
+		this.key.shortcutBinding().ifPresent(accessor -> {
+			Action shortcut = accessor.on(controller);
+			this.shortcutPressed = shortcut.latch().isLatchActive();
+			boolean repeat = this.shortcutRepeatHelper.shouldAction(this.shortcutPressed);
+			boolean pressed = shortcut.pulse().consumePulse();
+			if (pressed || repeat) {
 				onPress();
-				this.holdRepeatHelper.onNavigate();
 			}
 		});
 	}
@@ -257,9 +255,9 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 	}
 
 	public boolean isVisuallyPressed() {
-		return this.buttonPressed
+		return this.mousePressed
+				|| this.buttonPressed
 				|| this.shortcutPressed
-				|| this.mousePressed
 				|| this.isShiftKeyAndShifting()
 				|| this.isShiftLockKeyAndShiftLocked();
 	}
@@ -306,7 +304,6 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
 	}
 
 	private void doScaledExtraction(GuiGraphicsExtractor graphics, Runnable runnable) {
@@ -343,7 +340,7 @@ public class KeyWidget extends AbstractWidget implements ComponentProcessor, Scr
 		KeyboardLayout.KeyFunction keyFunction = key.getFunction(shift);
 
 		return key.shortcutBinding()
-				.map(b -> BindingFontHelper.binding(b.bindId()))
+				.map(b -> ActionGlyphs.action(b.actionId()))
 				.<Component>map(glyph -> Component.empty()
 						.append(glyph)
 						.append(" ")

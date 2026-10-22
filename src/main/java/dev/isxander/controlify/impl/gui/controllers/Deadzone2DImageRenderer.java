@@ -6,29 +6,35 @@
  */
 package dev.isxander.controlify.impl.gui.controllers;
 
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.input.mapping.DeadzoneGroup;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
+import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import dev.isxander.controlify.impl.utils.render.elements.CircleElementRenderState;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.gui.image.ImageRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
 
 import java.text.DecimalFormat;
-import java.util.List;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 public class Deadzone2DImageRenderer implements ImageRenderer {
-	private final InputComponent input;
 	private final DeadzoneGroup deadzoneGroup;
 	private final Supplier<Option<Float>> deadzoneOption;
 
-	public Deadzone2DImageRenderer(InputComponent input, DeadzoneGroup deadzoneGroup, Supplier<Option<Float>> deadzoneOption) {
-		this.input = input;
+	private final float[] directions;
+	private final EventSource.Subscription pipelineSubscription;
+
+	public Deadzone2DImageRenderer(InputComponentImpl input, DeadzoneGroup deadzoneGroup, Supplier<Option<Float>> deadzoneOption) {
 		this.deadzoneGroup = deadzoneGroup;
 		this.deadzoneOption = deadzoneOption;
+		this.directions = new float[4];
+		Arrays.fill(this.directions, 0f);
+		this.pipelineSubscription = input.inputPipeline().sourceRawPhysicalSignals().subscribe(this::onSignal);
 	}
 
 	@Override
@@ -37,11 +43,10 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 		int renderHeight = (int) (radius * 2f);
 
 		// axes go up -> down -> left -> right
-		List<Identifier> deadzones = deadzoneGroup.axes();
-		float up = input.rawStateNow().getAxisState(deadzones.get(0));
-		float down = input.rawStateNow().getAxisState(deadzones.get(1));
-		float left = input.rawStateNow().getAxisState(deadzones.get(2));
-		float right = input.rawStateNow().getAxisState(deadzones.get(3));
+		float up = this.directions[0];
+		float down = this.directions[1];
+		float left = this.directions[2];
+		float right = this.directions[3];
 		float currentX = right - left;
 		float currentY = down - up;
 
@@ -82,8 +87,17 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 		return renderHeight;
 	}
 
+	private void onSignal(PhysicalSignal signal) {
+		if (signal instanceof PhysicalInputSignal.AxisMoved axisMoved) {
+			int index = this.deadzoneGroup.axes().indexOf(axisMoved.input());
+			if (index != -1) {
+				this.directions[index] = axisMoved.value();
+			}
+		}
+	}
+
 	@Override
 	public void close() {
-
+		this.pipelineSubscription.close();
 	}
 }

@@ -6,9 +6,10 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 
+import dev.isxander.controlify.impl.Controlify;
+
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
@@ -88,7 +89,7 @@ public class MultiPlayerGameModeMixin {
 				.minTime(1)
 				.stopCondition(stopped::get);
 
-		blockBreakRumble = ControlifyApi.get().playRumbleEffect(CUtil.rl("block_break"), effect).orElse(null);
+		blockBreakRumble = Controlify.instance().playRumbleEffect(CUtil.rl("block_break"), effect).orElse(null);
 	}
 
 	@Unique private void stopRumble() {

@@ -2,9 +2,10 @@ package dev.isxander.controlify.impl.input.pipeline;
 
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.UnaryEventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.UnaryEventStage;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,8 +26,12 @@ public class InputDomainExpansionStage implements UnaryEventStage<PhysicalSignal
 		this.releasedValue = releasedValue;
 	}
 
+	public void resetInputState() {
+		this.pressedButtons.clear();
+	}
+
 	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
+	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super PhysicalSignal> downstream) {
 		downstream.accept(event);
 
 		switch (event) {

@@ -1,6 +1,7 @@
 package dev.isxander.controlify.impl.controllermanager;
 
 import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controller.ControllerInfo;
 import dev.isxander.controlify.impl.hid.HIDID;
 
 /// A controller backend is responsible for listening to controller events
@@ -21,6 +22,10 @@ public abstract class ControllerBackend {
 	/// Called once after {@link setup}, discovers already-connected
 	/// controllers before ever polling events.
 	public abstract void discoverControllers();
+
+	/// Opens a controller with an already identified type and adds it to the manager.
+	/// Also used after closing a controller whose resource-defined type changed.
+	public abstract void createAndAddController(ControllerInfo info, boolean hotplugged);
 
 	/// Called once per frame, polls events from the backend and processes
 	/// them, potentially creating controllers and adding them to {@link ControllerManager}.

@@ -5,9 +5,10 @@ import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSensorSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.EventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventStage;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -56,13 +57,21 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		this.holdNanos = holdNanos;
 	}
 
+	/// Clears pending gestures and axis values after the physical mapping changes.
+	public void resetInputState() {
+		this.pressedButtons.clear();
+		this.activeButtons.clear();
+		this.lastTaps.clear();
+		this.axisValues.clear();
+	}
+
 	/// Cancels GUI presses for buttons already held; subsequent presses remain eligible.
 	public void onGuiNavigate() {
 		this.activeButtons.values().forEach(state -> state.guiPressEligible = false);
 	}
 
 	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super LogicalSignal> downstream) {
+	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super LogicalSignal> downstream) {
 		switch (event) {
 			case PhysicalSignal.Frame(long timeNanos, long deltaTimeNanos) -> {
 				this.sensorAccumulatorStage.onEvent(event, downstream);

@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.explosion;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -31,7 +32,7 @@ public class ClientPacketListenerMixin {
 			return;
 		}
 
-		ControlifyApi.get().playRumbleEffect(
+		Controlify.instance().playRumbleEffect(
 				CUtil.rl("explosion"),
 				RumbleEffect.finite().constant(magnitude, magnitude, 2) // initial boom
 						.then(RumbleEffect.finite().byTime(t -> {

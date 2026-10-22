@@ -4,13 +4,13 @@ import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponent;
+import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.impl.controller.led.LEDComponent;
 import dev.isxander.controlify.impl.controller.misc.BluetoothDeviceComponent;
 import dev.isxander.controlify.impl.controller.misc.DriverNameComponent;
 import dev.isxander.controlify.impl.controller.misc.UIDComponent;
-import dev.isxander.controlify.impl.controller.gyro.GyroComponent;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
-import dev.isxander.controlify.impl.controller.led.LEDComponent;
 import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
 import dev.isxander.controlify.impl.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.impl.controller.steamdeck.SteamDeckComponent;
@@ -34,7 +34,7 @@ public final class ControllerImpl implements Controller {
 	private final Map<Identifier, ControllerComponent> components;
 
 	private ProfileSettings settings;
-	private final ProfileSettings defaultSettings;
+	private ProfileSettings defaultSettings;
 
 	private boolean active;
 
@@ -78,7 +78,7 @@ public final class ControllerImpl implements Controller {
 
 	@Override
 	public @NonNull String name() {
-		return Optional.ofNullable(this.info.type().friendlyName())
+		return this.info.type().friendlyName()
 				.orElse(this.driverReportedName());
 	}
 
@@ -103,13 +103,18 @@ public final class ControllerImpl implements Controller {
 		this.settings = settings;
 	}
 
+	public void reloadDefaultSettings() {
+		this.defaultSettings = ProfileSettings.createDefault();
+	}
+
 	public @NonNull ProfileSettings defaultSettings() {
 		return this.defaultSettings;
 	}
 
-	public @NonNull InputComponent input() {
-		// assert that all controllers must have InputComponent
-		return this.<InputComponent>getComponent(InputComponent.ID).orElseThrow();
+	@Override
+	public @NonNull InputComponentImpl input() {
+		// assert that all controllers must have InputComponentImpl
+		return this.<InputComponentImpl>getComponent(InputComponentImpl.ID).orElseThrow();
 	}
 
 	@Override
@@ -121,8 +126,9 @@ public final class ControllerImpl implements Controller {
 		return this.getComponent(TriggerRumbleComponent.ID);
 	}
 
-	public @NonNull Optional<GyroComponent> gyro() {
-		return this.getComponent(GyroComponent.ID);
+	@Override
+	public @NonNull Optional<GyroComponentImpl> gyro() {
+		return this.getComponent(GyroComponentImpl.ID);
 	}
 
 	public @NonNull Optional<LEDComponent> led() {
@@ -141,7 +147,7 @@ public final class ControllerImpl implements Controller {
 		return this.getComponent(DualsenseComponent.ID);
 	}
 
-	public @NonNull Optional<HDHapticComponent> hdHaptic() {
+	public @NonNull Optional<HDHapticComponent> hdHaptics() {
 		return this.getComponent(HDHapticComponent.ID);
 	}
 
@@ -167,6 +173,9 @@ public final class ControllerImpl implements Controller {
 		}
 		this.active = active;
 		this.driver.setActive(active);
+		if (!active) {
+			this.input().resetActions();
+		}
 	}
 
 	public void close() {

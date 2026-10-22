@@ -5,9 +5,10 @@ import dev.isxander.controlify.impl.input.SensorType;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSensorSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.EventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventStage;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
@@ -21,7 +22,7 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 	}
 
 	@Override
-	public void onEvent(SDLControllerEvent event, EventSink<? super PhysicalSignal> downstream) {
+	public void onEvent(@NonNull SDLControllerEvent event, @NonNull EventSink<? super PhysicalSignal> downstream) {
 		switch (event) {
 			case SDLControllerEvent.Frame(long timeNanos, long deltaTimeNanos) ->
 					downstream.accept(new PhysicalSignal.Frame(timeNanos, deltaTimeNanos));

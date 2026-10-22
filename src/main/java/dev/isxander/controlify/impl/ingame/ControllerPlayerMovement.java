@@ -6,18 +6,18 @@
  */
 package dev.isxander.controlify.impl.ingame;
 
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.KeyboardInput;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.phys.Vec2;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.client.player.ClientInput;
-import net.minecraft.world.entity.player.Input;
 
 public class ControllerPlayerMovement extends ClientInput {
 	private final ControllerImpl controller;
@@ -39,13 +39,13 @@ public class ControllerPlayerMovement extends ClientInput {
 			return;
 		}
 
-		float forwardImpulse = ControlifyBindings.WALK_FORWARD.on(controller).analogueNow()
-				- ControlifyBindings.WALK_BACKWARD.on(controller).analogueNow();
-		float leftImpulse = ControlifyBindings.WALK_LEFT.on(controller).analogueNow()
-				- ControlifyBindings.WALK_RIGHT.on(controller).analogueNow();
+		float forwardImpulse = ControlifyActions.WALK_FORWARD.on(controller).continuous().getContinuous()
+				- ControlifyActions.WALK_BACKWARD.on(controller).continuous().getContinuous();
+		float leftImpulse = ControlifyActions.WALK_LEFT.on(controller).continuous().getContinuous()
+				- ControlifyActions.WALK_RIGHT.on(controller).continuous().getContinuous();
 
 		if (Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
-			float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
+			float threshold = controller.input().settings().buttonActivationThreshold;
 
 			forwardImpulse = Math.abs(forwardImpulse) >= threshold ? Math.copySign(1, forwardImpulse) : 0;
 			leftImpulse = Math.abs(leftImpulse) >= threshold ? Math.copySign(1, leftImpulse) : 0;
@@ -62,20 +62,19 @@ public class ControllerPlayerMovement extends ClientInput {
 		this.setMoveVec(forwardImpulse, leftImpulse);
 
 		// this over-complication is so exiting a GUI with the button still held doesn't trigger a jump.
-		InputBinding jump = ControlifyBindings.JUMP.on(controller);
-		if (jump.justPressed())
-			jumping = true;
-		if (!jump.digitalNow())
-			jumping = false;
+		Action jump = ControlifyActions.JUMP.on(controller);
+		jumping = jump.pulse().consumePulse() || jump.latch().isLatchActive();
 
-		InputBinding sneak = ControlifyBindings.SNEAK.on(controller);
+		Action sneak = ControlifyActions.SNEAK.on(controller);
 		if (player.getAbilities().flying || (player.isInWater() && !player.onGround()) || player.getVehicle() != null || !controller.settings().generic.toggleSneak) {
-			if (sneak.justPressed())
+			if (sneak.pulse().consumePulse()) {
 				shiftKeyDown = true;
-			if (!sneak.digitalNow())
+			}
+			if (!sneak.latch().isLatchActive()) {
 				shiftKeyDown = false;
+			}
 		} else {
-			if (sneak.justPressed()) {
+			if (sneak.pulse().consumePulse()) {
 				shiftKeyDown = !shiftKeyDown;
 			}
 		}
@@ -83,7 +82,7 @@ public class ControllerPlayerMovement extends ClientInput {
 			shiftKeyDown = false;
 		}
 
-		boolean sprinting = ControlifyBindings.SPRINT.on(controller).digitalNow();
+		boolean sprinting = ControlifyActions.SPRINT.on(controller).latch().isLatchActive();
 
 		this.keyPresses = new Input(up, down, left, right, jumping, shiftKeyDown, sprinting);
 
@@ -108,8 +107,9 @@ public class ControllerPlayerMovement extends ClientInput {
 	}
 
 	public static void updatePlayerInput(@Nullable LocalPlayer player) {
-		if (player == null)
+		if (player == null) {
 			return;
+		}
 
 		if (shouldBeControllerInput()) {
 			player.input = new DualInput(
@@ -122,8 +122,9 @@ public class ControllerPlayerMovement extends ClientInput {
 	}
 
 	public static void ensureCorrectInput(@Nullable LocalPlayer player) {
-		if (player == null)
+		if (player == null) {
 			return;
+		}
 
 		if (shouldBeControllerInput() && player.input.getClass() == KeyboardInput.class) {
 			updatePlayerInput(player);

@@ -6,9 +6,10 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.action.radial.RadialIcon;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
 import dev.isxander.controlify.impl.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
@@ -51,7 +52,7 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	private final Component footerText;
 	private final List<RadialItem[]> userPages;
 	private final List<RadialPage> bonusPages;
-	private final @Nullable InputBinding openBind;
+	private final @Nullable ActionAccessor openAction;
 
 	private RadialButton[] buttons = new RadialButton[0];
 	private float radialRadius;
@@ -65,20 +66,20 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	/**
 	 * Creates a single-page radial menu. Existing special-purpose radial menus use this path.
 	 */
-	public RadialMenuScreen(ControllerImpl controller, InputBinding openBind, RadialItem[] items, Component text, @Nullable Screen parent) {
-		this(controller, openBind, Collections.singletonList(items), List.of(), text, parent);
+	public RadialMenuScreen(ControllerImpl controller, ActionAccessor openAction, RadialItem[] items, Component text, @Nullable Screen parent) {
+		this(controller, openAction, Collections.singletonList(items), List.of(), text, parent);
 	}
 
 	/**
 	 * Creates a paged radial menu. Page boundaries are a presentation concern and are not persisted.
 	 */
-	public RadialMenuScreen(ControllerImpl controller, @Nullable InputBinding openBind, List<RadialItem[]> pages, Component text, @Nullable Screen parent) {
-		this(controller, openBind, pages, List.of(), text, parent);
+	public RadialMenuScreen(ControllerImpl controller, @Nullable ActionAccessor openAction, List<RadialItem[]> pages, Component text, @Nullable Screen parent) {
+		this(controller, openAction, pages, List.of(), text, parent);
 	}
 
 	public RadialMenuScreen(
 			ControllerImpl controller,
-			@Nullable InputBinding openBind,
+			@Nullable ActionAccessor openAction,
 			List<RadialItem[]> userPages,
 			List<RadialPage> bonusPages,
 			Component text,
@@ -95,8 +96,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 				.toList();
 		this.pageIndex = this.bonusPages.size();
 		this.parent = parent;
-		this.idleTicksTimeout = controller.input().orElseThrow().settings().radialMenu.radialButtonFocusTimeoutTicks;
-		this.openBind = openBind;
+		this.idleTicksTimeout = controller.input().settings().radialMenu.radialButtonFocusTimeoutTicks;
+		this.openAction = openAction;
 	}
 
 	@Override
@@ -138,7 +139,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	}
 
 	private void changePage(int direction) {
-		if (pageCount() <= 1) return;
+		if (pageCount() <= 1) {
+			return;
+		}
 
 		pageIndex = Math.floorMod(pageIndex + direction, pageCount());
 		buildCurrentPage();
@@ -148,14 +151,18 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
 	@Override
 	public void onControllerInput(ControllerImpl controller) {
-		if (this.controller != controller) return;
-
-		if (openBind == null) {
-			if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) onClose();
+		if (this.controller != controller) {
 			return;
 		}
 
-		if (!openBind.digitalNow()) {
+		if (openAction == null) {
+			if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
+				onClose();
+			}
+			return;
+		}
+
+		if (!openAction.on(controller).latch().isLatchActive()) {
 			if (selectedButton >= 0 && selectedButton < buttons.length && buttons[selectedButton].invoke()) {
 				playClickSound();
 			}
@@ -163,13 +170,17 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 			return;
 		}
 
-		if (buttons.length == 0) return;
+		if (buttons.length == 0) {
 
-		float x = ControlifyBindings.RADIAL_AXIS_RIGHT.on(controller).analogueNow()
-				- ControlifyBindings.RADIAL_AXIS_LEFT.on(controller).analogueNow();
-		float y = ControlifyBindings.RADIAL_AXIS_DOWN.on(controller).analogueNow()
-				- ControlifyBindings.RADIAL_AXIS_UP.on(controller).analogueNow();
-		float threshold = controller.input().orElseThrow().settings().buttonActivationThreshold;
+			return;
+
+		}
+
+		float x = ControlifyActions.RADIAL_AXIS_RIGHT.on(controller).continuous().getContinuous()
+				- ControlifyActions.RADIAL_AXIS_LEFT.on(controller).continuous().getContinuous();
+		float y = ControlifyActions.RADIAL_AXIS_DOWN.on(controller).continuous().getContinuous()
+				- ControlifyActions.RADIAL_AXIS_UP.on(controller).continuous().getContinuous();
+		float threshold = controller.input().settings().buttonActivationThreshold;
 
 		if (Math.abs(x) >= threshold || Math.abs(y) >= threshold) {
 			float angle = Mth.wrapDegrees(Mth.RAD_TO_DEG * (float)Mth.atan2(y, x) - 90f) + 180f;
@@ -185,7 +196,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 			for (int i = 0; i < buttons.length; i++) {
 				boolean selected = i == selectedButton;
 				buttons[i].setFocused(selected);
-				if (selected) setFocused(buttons[i]);
+				if (selected) {
+					setFocused(buttons[i]);
+				}
 			}
 			idleTicks = 0;
 		} else {
@@ -212,8 +225,8 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 			graphics.centeredText(font, page, width / 2, height - 25, -1);
 			renderPageDots(graphics);
 
-			Component previous = ControlifyBindings.GUI_PREV_TAB.on(controller).inputGlyph();
-			Component next = ControlifyBindings.GUI_NEXT_TAB.on(controller).inputGlyph();
+			Component previous = ActionGlyphs.action(ControlifyActions.GUI_PREV_TAB.actionId());
+			Component next = ActionGlyphs.action(ControlifyActions.GUI_NEXT_TAB.actionId());
 			int pageWidth = font.width(page);
 			graphics.text(font, previous, width / 2 - pageWidth / 2 - font.width(previous) - 8, height - 25, -1);
 			graphics.text(font, next, width / 2 + pageWidth / 2 + 8, height - 25, -1);
@@ -221,13 +234,17 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 	}
 
 	private RadialItem[] getCurrentPageItems() {
-		if (pageIndex < bonusPages.size()) return bonusPages.get(pageIndex).items();
+		if (pageIndex < bonusPages.size()) {
+			return bonusPages.get(pageIndex).items();
+		}
 
 		return userPages.get(pageIndex - bonusPages.size());
 	}
 
 	private Component getPageTitle() {
-		if (pageIndex < bonusPages.size()) return bonusPages.get(pageIndex).name();
+		if (pageIndex < bonusPages.size()) {
+			return bonusPages.get(pageIndex).name();
+		}
 
 		return Component.translatable(
 				"controlify.radial_menu.page",
@@ -365,9 +382,9 @@ public class RadialMenuScreen extends Screen implements ScreenControllerEventLis
 
 		@Override
 		protected void handleTabNavigation(ControllerImpl controller) {
-			if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
+			if (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
 				screen.changePage(1);
-			} else if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
+			} else if (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
 				screen.changePage(-1);
 			}
 		}

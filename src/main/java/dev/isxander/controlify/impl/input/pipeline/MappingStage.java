@@ -4,9 +4,10 @@ import dev.isxander.controlify.impl.input.mapping.ControllerMapping;
 import dev.isxander.controlify.impl.input.mapping.MappingEntry;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.UnaryEventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.UnaryEventStage;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -20,7 +21,7 @@ public class MappingStage implements UnaryEventStage<PhysicalSignal> {
 	}
 
 	@Override
-	public void onEvent(PhysicalSignal event, EventSink<? super PhysicalSignal> downstream) {
+	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super PhysicalSignal> downstream) {
 		if (event instanceof PhysicalInputSignal inputSignal) {
 			MappingEntry mapping = this.mappingByInput.get(inputSignal.input());
 

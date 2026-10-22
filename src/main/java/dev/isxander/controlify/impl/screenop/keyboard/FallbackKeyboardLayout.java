@@ -6,17 +6,16 @@
  */
 package dev.isxander.controlify.impl.screenop.keyboard;
 
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
+import static dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayout.Key;
+import static dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayout.KeyFunction.*;
 
 import java.util.List;
 import java.util.Optional;
-
-import static dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayout.Key;
-import static dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayout.KeyFunction.*;
 
 /**
  * A code-defined fallback keyboard layout if the resource-pack driven ones
@@ -38,7 +37,7 @@ public final class FallbackKeyboardLayout {
 					k("i"),
 					k("o"),
 					k("p"),
-					k(SpecialFunc.Action.BACKSPACE, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_1)
+					k(SpecialFunc.Action.BACKSPACE, 2.0f, ControlifyActions.GUI_ABSTRACT_ACTION_1)
 			),
 			List.of(
 					k(SpecialFunc.Action.TAB, 1f, null),
@@ -52,10 +51,10 @@ public final class FallbackKeyboardLayout {
 					k("k"),
 					k("l"),
 					k("'", "\""),
-					k(SpecialFunc.Action.ENTER, 2.0f, ControlifyBindings.GUI_ABSTRACT_ACTION_2)
+					k(SpecialFunc.Action.ENTER, 2.0f, ControlifyActions.GUI_ABSTRACT_ACTION_2)
 			),
 			List.of(
-					k(SpecialFunc.Action.SHIFT, 2f, ControlifyBindings.GUI_ABSTRACT_ACTION_3),
+					k(SpecialFunc.Action.SHIFT, 2f, ControlifyActions.GUI_ABSTRACT_ACTION_3),
 					k("z"),
 					k("x"),
 					k("c"),
@@ -75,7 +74,7 @@ public final class FallbackKeyboardLayout {
 			)
 	);
 
-	private static Key k(SpecialFunc.Action action, float width, @Nullable InputBindingSupplier shortcutBinding) {
+	private static Key k(SpecialFunc.Action action, float width, @Nullable ActionAccessor shortcutBinding) {
 		return new Key(new SpecialFunc(action), width, Optional.ofNullable(shortcutBinding));
 	}
 	private static Key k(String string) {

@@ -1,7 +1,7 @@
 [
   {
-    "name": "Xbox Controller",
-    "namespace": "controlify:xbox_one",
+    "friendly_name": "Xbox Controller",
+    "id": "controlify:xbox_one",
 
     "hids": [
       [0x45e, 0x202], // Xbox Controller
@@ -29,8 +29,8 @@
     ]
   },
   {
-    "name": "DualShock 4 Controller",
-    "namespace": "controlify:dualshock4",
+    "friendly_name": "DualShock 4 Controller",
+    "id": "controlify:dualshock4",
 
     "hids": [
       [0x54c, 0x5c4],
@@ -39,16 +39,16 @@
     ]
   },
   {
-    "name": "DualShock 3 Controller",
-    "namespace": "controlify:dualshock3",
+    "friendly_name": "DualShock 3 Controller",
+    "id": "controlify:dualshock3",
 
     "hids": [
       [0x54c, 0x0268]
     ]
   },
   {
-    "name": "DualSense Controller",
-    "namespace": "controlify:dualsense",
+    "friendly_name": "DualSense Controller",
+    "id": "controlify:dualsense",
 
     "hids": [
       [0x54c, 0x0ce6],
@@ -56,16 +56,16 @@
     ]
   },
   {
-    "name": "PlayStation Portable",
-    "namespace": "controlify:psp",
+    "friendly_name": "PlayStation Portable",
+    "id": "controlify:psp",
 
     "hids": [
       [0x0ff, 0x1cb],
     ]
   },
   {
-    "name": "Switch Controller",
-    "namespace": "controlify:switch",
+    "friendly_name": "Switch Controller",
+    "id": "controlify:switch",
 
     "hids": [
       [0x57e, 0x2009], // Many other switch controllers spoof this ID
@@ -73,16 +73,16 @@
     ]
   },
   {
-    "name": "Steam Deck",
-    "namespace": "controlify:steam_deck",
+    "friendly_name": "Steam Deck",
+    "id": "controlify:steam_deck",
 
     "hids": [
       [0x28de, 0x1205],
     ]
   },
   {
-    "name": "Steam Controller",
-    "namespace": "controlify:steam_controller",
+    "friendly_name": "Steam Controller",
+    "id": "controlify:steam_controller",
 
     "hids": [
       [0x28de, 0x1302], // Wired
@@ -94,23 +94,23 @@
     ]
   },
   {
-    "name": "Stadia Controller",
-    "namespace": "controlify:stadia",
+    "friendly_name": "Stadia Controller",
+    "id": "controlify:stadia",
 
     "hids": [
       [0x18d1, 0x9400],
     ]
   },
   {
-    "name": "8BitDo Controller",
-    "namespace": "controlify:switch",
+    "friendly_name": "8BitDo Controller",
+    "id": "controlify:switch",
 
     "hids": [
       [0x2DC8, 0x6001], // SN30 Pro - DInput Mode
     ]
   },
   {
-    "name": "Thrustmaster T16000M",
+    "friendly_name": "Thrustmaster T16000M",
 
     "hids": [
       [0x044f, 0xb10a]

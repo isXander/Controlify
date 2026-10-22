@@ -6,10 +6,11 @@
  */
 package dev.isxander.controlify.impl.gui;
 
-import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.action.Action;
-import dev.isxander.controlify.impl.action.ActionAccessor;
+import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.impl.Controlify;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -23,7 +24,7 @@ import java.util.function.Supplier;
 public interface ButtonGuideRenderer<T> {
 	void controlify$setButtonGuide(RenderData<T> renderData);
 
-	static <T> void registerBindingForButton(T button, Supplier<ActionAccessor> action, ButtonGuidePredicate<T> renderPredicate) {
+	static <T> void registerActionForButton(T button, Supplier<ActionAccessor> action, ButtonGuidePredicate<T> renderPredicate) {
 		((ButtonGuideRenderer<T>) button).controlify$setButtonGuide(new RenderData<>(action, renderPredicate));
 	}
 
@@ -31,13 +32,13 @@ public interface ButtonGuideRenderer<T> {
 		public Component getControllerMessage(Action action, Component actualLabel) {
 			var component = Component.empty();
 			if (!Minecraft.getInstance().font.isBidirectional()) {
-				component.append(action.inputGlyph());
+				component.append(ActionGlyphs.action(action.spec().id()));
 				component.append(CommonComponents.SPACE);
 			}
 			component.append(actualLabel);
 			if (Minecraft.getInstance().font.isBidirectional()) {
 				component.append(CommonComponents.SPACE);
-				component.append(action.inputGlyph());
+				component.append(ActionGlyphs.action(action.spec().id()));
 			}
 			return component;
 		}

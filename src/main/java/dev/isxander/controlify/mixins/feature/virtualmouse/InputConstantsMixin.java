@@ -10,7 +10,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,11 +22,13 @@ public class InputConstantsMixin {
 	private static boolean modifyIsKeyDown(boolean keyDown, @Local(argsOnly = true, name = "key") int key) {
 		if (key == InputConstants.KEY_LSHIFT) {
 			ControllerImpl controller = Controlify.instance().getCurrentController().orElse(null);
-			if (controller == null) return keyDown;
+			if (controller == null) {
+				return keyDown;
+			}
 
 			return keyDown
-					|| ControlifyBindings.VMOUSE_SHIFT_CLICK.on(controller).digitalNow()
-					|| ControlifyBindings.VMOUSE_SHIFT.on(controller).digitalNow();
+					|| ControlifyActions.VMOUSE_SHIFT_CLICK.on(controller).latch().isLatchActive()
+					|| ControlifyActions.VMOUSE_SHIFT.on(controller).latch().isLatchActive();
 		}
 
 		return keyDown;

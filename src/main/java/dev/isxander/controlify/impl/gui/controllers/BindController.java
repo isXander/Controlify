@@ -7,12 +7,11 @@
 package dev.isxander.controlify.impl.gui.controllers;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.bindings.input.*;
-import dev.isxander.controlify.impl.controller.input.ControllerStateView;
-import dev.isxander.controlify.impl.controller.input.HatState;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.screen.BindConsumerScreen;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -27,22 +26,21 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
 
-public class BindController implements Controller<Input> {
-	private final Option<Input> option;
+public class BindController implements Controller<Optional<LogicalInput>> {
+	private final Option<Optional<LogicalInput>> option;
 	public final ControllerImpl controller;
 	private boolean conflicting;
 
-	public BindController(Option<Input> option, ControllerImpl controller) {
+	public BindController(Option<Optional<LogicalInput>> option, ControllerImpl controller) {
 		this.option = option;
 		this.controller = controller;
 	}
 
 	@Override
-	public Option<Input> option() {
+	public Option<Optional<LogicalInput>> option() {
 		return this.option;
 	}
 
@@ -78,10 +76,12 @@ public class BindController implements Controller<Input> {
 				graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int)(getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
 			} else {
 				var bind = control.option().pendingValue();
-				if (EmptyInput.equals(bind)) return;
+				if (bind == null) {
+					return;
+				}
 
 				Component text = Controlify.instance().inputFontMapper()
-						.getComponentFromBind(control.controller.info().type().id(), bind);
+						.getComponentFromInput((control.controller == null ? ControllerType.DEFAULT.id() : control.controller.info().type().id()), bind.orElse(null));
 				int width = textRenderer.width(text);
 
 				graphics.text(textRenderer, text, getDimension().xLimit() - width - 1, (int)(getDimension().centerY() - textRenderer.lineHeight / 2f + 1), -1, false);
@@ -109,15 +109,20 @@ public class BindController implements Controller<Input> {
 		}
 
 		private void openConsumerScreen() {
+			if (control.controller == null) {
+				return;
+			}
 			awaitingControllerInput = true;
-			MinecraftUtil.setScreen(new BindConsumerScreen(this::getPressedBind, control.option(), this, MinecraftUtil.getScreen()));
+			MinecraftUtil.setScreen(new BindConsumerScreen(control.controller, control.option(), this, MinecraftUtil.getScreen()));
 		}
 
 		@Override
 		public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-			if (controller != control.controller) return true;
+			if (controller != control.controller) {
+				return true;
+			}
 
-			if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+			if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
 				openConsumerScreen();
 				return true;
 			}
@@ -132,11 +137,12 @@ public class BindController implements Controller<Input> {
 
 		@Override
 		protected int getUnhoveredControlWidth() {
-			if (awaitingControllerInput)
+			if (awaitingControllerInput) {
 				return textRenderer.width(awaitingText);
+			}
 
 			Component text = Controlify.instance().inputFontMapper()
-					.getComponentFromBind(control.controller.info().type().id(), control.option().pendingValue());
+					.getComponentFromInput((control.controller == null ? ControllerType.DEFAULT.id() : control.controller.info().type().id()), control.option().pendingValue().orElse(null));
 			return textRenderer.width(text);
 		}
 
@@ -145,31 +151,5 @@ public class BindController implements Controller<Input> {
 			return control.conflicting ? 0xFFFF5555 : super.getValueColor();
 		}
 
-		public Optional<Input> getPressedBind() {
-			InputComponent input = control.controller.input().orElseThrow();
-			ControllerStateView state = input.stateNow();
-			ControllerStateView prevState = input.stateThen();
-
-			for (Identifier button : state.getButtons()) {
-				if (state.isButtonDown(button) && !prevState.isButtonDown(button)) {
-					return Optional.of(new ButtonInput(button));
-				}
-			}
-
-			for (Identifier axis : state.getAxes()) {
-				if (state.getAxisState(axis) > 0.5f && prevState.getAxisState(axis) <= 0.5f) {
-					return Optional.of(new AxisInput(axis));
-				}
-			}
-
-			for (Identifier hat : state.getHats()) {
-				HatState hatState = state.getHatState(hat);
-				if (hatState != HatState.CENTERED && prevState.getHatState(hat) == HatState.CENTERED) {
-					return Optional.of(new HatInput(hat, hatState));
-				}
-			}
-
-			return Optional.empty();
-		}
 	}
 }

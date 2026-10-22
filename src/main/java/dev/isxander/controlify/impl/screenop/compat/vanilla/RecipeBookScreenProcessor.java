@@ -7,22 +7,22 @@
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookPageAccessor;
-import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
 import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.MouseButtonInfo;
+import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.input.MouseButtonInfo;
-import net.minecraft.world.inventory.Slot;
 
 public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 		extends AbstractContainerScreenProcessor<T> {
@@ -46,7 +46,11 @@ public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 
 		RecipeBookComponent<?> recipeBookComponent = recipeBookScreenAccessor.controlify$getRecipeBookComponent();
 
-		if (!recipeBookComponent.isVisible()) return;
+		if (!recipeBookComponent.isVisible()) {
+
+			return;
+
+		}
 		RecipeBookComponentAccessor componentAccessor = (RecipeBookComponentAccessor) recipeBookComponent;
 		RecipeBookPageAccessor pageAccessor = (RecipeBookPageAccessor) componentAccessor.controlify$getRecipeBookPage();
 		List<RecipeBookTabButton> tabs = componentAccessor
@@ -56,19 +60,19 @@ public class RecipeBookScreenProcessor<T extends AbstractRecipeBookScreen<?>>
 		RecipeBookTabButton selectedTab = componentAccessor.controlify$getSelectedTab();
 
 		ImageButton button = null;
-		if (ControlifyBindings.VMOUSE_PAGE_NEXT.on(controller).justPressed()) {
+		if (ControlifyActions.VMOUSE_PAGE_NEXT.on(controller).pulse().consumePulse()) {
 			button = pageAccessor.controlify$getForwardButton();
 		}
-		if (ControlifyBindings.VMOUSE_PAGE_PREV.on(controller).justPressed()) {
+		if (ControlifyActions.VMOUSE_PAGE_PREV.on(controller).pulse().consumePulse()) {
 			button = pageAccessor.controlify$getBackButton();
 		}
-		if (ControlifyBindings.VMOUSE_PAGE_DOWN.on(controller).justPressed()) {
+		if (ControlifyActions.VMOUSE_PAGE_DOWN.on(controller).pulse().consumePulse()) {
 			int index = tabs.indexOf(selectedTab);
 			if (index != tabs.size() - 1) {
 				button = tabs.get(index + 1);
 			}
 		}
-		if (ControlifyBindings.VMOUSE_PAGE_UP.on(controller).justPressed()) {
+		if (ControlifyActions.VMOUSE_PAGE_UP.on(controller).pulse().consumePulse()) {
 			int index = tabs.indexOf(selectedTab);
 			if (index != 0) {
 				button = tabs.get(index - 1);

@@ -9,6 +9,9 @@ package dev.isxander.controlify.impl.utils;
 import com.sun.jna.Platform;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.impl.controllermanager.ControllerBackend;
+import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
 import dev.isxander.controlify.impl.platform.Environment;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
@@ -43,50 +46,50 @@ public class DebugDump {
 		dump.line("Platform: ", Platform.RESOURCE_PREFIX);
 		dump.line();
 
-		Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
-		if (controllerManagerOpt.isPresent()) {
-			ControllerManager controllerManager = controllerManagerOpt.get();
-			dump.line("Controller-manager: ", controllerManager.getClass().getName());
+		Optional<ControllerCoordinator> controllerCoordinatorOpt = Controlify.instance().getControllerCoordinator();
+		if (controllerCoordinatorOpt.isPresent()) {
+			ControllerCoordinator controllerCoordinator = controllerCoordinatorOpt.get();
+			ControllerBackend backend = controllerCoordinator.backend();
+			dump.line("Controller backend: ", backend != null ? backend.getClass().getName() : "null");
 
-			dump.line("Connected Controllers:").pushIndent();
-			for (ControllerImpl controller : controllerManager.getConnectedControllers()) {
-				dump.line("Name: ", controller.name());
-				dump.line("Identified type: ", controller.info().type());
-				dump.line("GUID: ", controller.guid());
-				dump.line("UID: ", controller.uid());
-				dump.line("UCID: ", controller.info().ucid());
-				controller.info().hid().ifPresent(hid -> dump.line("HID: ", hid.hidid()));
+			Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
+			if (controllerManagerOpt.isPresent()) {
+				ControllerManager controllerManager = controllerManagerOpt.get();
 
-				controller.input().ifPresentOrElse(input -> {
+				dump.line("Connected Controllers:").pushIndent();
+				for (ControllerImpl controller : controllerManager.getAllControllers()) {
+					dump.line("Name: ", controller.name());
+					dump.line("Identified type: ", controller.info().type());
+					dump.line("UID: ", controller.uid());
+					dump.line("UCID: ", controller.info().ucid());
+					dump.line("HID: ", controller.info().hid());
+
+					InputComponentImpl input = controller.input();
 					dump.line("Input Component:").pushIndent();
-
-					dump.line("Definitely gamepad: ", input.isDefinitelyGamepad());
+					dump.line("Definitely gamepad: ", input.isGamepad());
 					dump.line("Available inputs:").pushIndent();
-					for (Identifier button : input.stateNow().getButtons()) {
+					for (Identifier button : input.physicalButtons()) {
 						dump.line("BTN ", button);
 					}
-					for (Identifier axis : input.stateNow().getAxes()) {
+					for (Identifier axis : input.physicalAxes()) {
 						dump.line("AXS ", axis);
-					}
-					for (Identifier hat : input.stateNow().getHats()) {
-						dump.line("HAT ", hat);
 					}
 					dump.popIndent(); // available inputs
 
 					dump.popIndent(); // input component
-				}, () -> dump.line("Input Component: UNSUPPORTED"));
 
-				dump.line("Rumble supported: ", controller.rumble().isPresent());
-				dump.line("Trigger rumble supported: ", controller.triggerRumble().isPresent());
-				dump.line("Battery level: ", controller.batteryLevel().map(b -> b.getBatteryLevel().toString()).orElse("UNSUPPORTED"));
-				dump.line("Gyro supported: ", controller.gyro().isPresent());
-				dump.line("Touchpads supported: ", controller.touchpad().map(touchpad -> touchpad.touchpads().length).orElse(0));
-				dump.line("HD haptics supported: ", controller.hdHaptics().isPresent());
-				dump.line("Log:").pushIndent().line(controller.getLogger().export()).popIndent();
+					dump.line("Rumble supported: ", controller.rumble().isPresent());
+					dump.line("Trigger rumble supported: ", controller.triggerRumble().isPresent());
+					dump.line("Battery level: ", controller.batteryLevel().map(b -> b.getBatteryLevel().toString()).orElse("UNSUPPORTED"));
+					dump.line("Gyro supported: ", controller.gyro().isPresent());
+					dump.line("Touchpads supported: ", controller.touchpad().map(touchpad -> touchpad.touchpads().length).orElse(0));
+					dump.line("HD haptics supported: ", controller.hdHaptics().isPresent());
+					dump.line("Log:").pushIndent().line(controller.logger().export()).popIndent();
 
-				dump.line();
+					dump.line();
+				}
+				dump.popIndent(); // connected controllers
 			}
-			dump.popIndent(); // connected controllers
 		}
 	}
 

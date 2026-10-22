@@ -1,11 +1,16 @@
 package dev.isxander.controlify.api.input;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /// A reference to a logical button or axis.
@@ -24,6 +29,12 @@ public sealed interface LogicalInput {
 				case Single _ -> Single.CODEC;
 				case ModifiedChord _ -> ModifiedChord.CODEC;
 			}
+	);
+
+	/// Codec allowing a null LogicalInput represented by an empty map `{}`
+	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, MapCodec.unitCodec(() -> Unit.INSTANCE)).xmap(
+			either -> either.left(),
+			optional -> optional.isPresent() ? Either.left(optional.get()) : Either.right(Unit.INSTANCE)
 	);
 
 	/// A logical input with a direct relationship with a physical input.

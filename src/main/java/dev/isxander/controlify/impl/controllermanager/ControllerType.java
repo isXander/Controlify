@@ -15,19 +15,21 @@ import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public record ControllerType(
 		Identifier id,
-		@Nullable String friendlyName,
-		@Nullable Identifier mappingId,
+		Optional<String> friendlyName,
+		Optional<Identifier> mappingId,
 		boolean forceJoystick,
 		boolean preventLoading
 ) {
 	public static final ControllerType DEFAULT = new ControllerType(CUtil.rl("default"), null, null, false, false);
 
 	public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-			Identifier.CODEC.optionalFieldOf("namespace", DEFAULT.id()).forGetter(ControllerType::id),
-			CExtraCodecs.nullableField(Codec.STRING, "name").forGetter(ControllerType::friendlyName),
-			CExtraCodecs.nullableField(Identifier.CODEC, "mapping").forGetter(ControllerType::mappingId),
+			Identifier.CODEC.optionalFieldOf("id", DEFAULT.id()).forGetter(ControllerType::id),
+			Codec.STRING.optionalFieldOf("friendly_name").forGetter(ControllerType::friendlyName),
+			Identifier.CODEC.optionalFieldOf("mapping_id").forGetter(ControllerType::mappingId),
 			Codec.BOOL.optionalFieldOf("force_joystick", false).forGetter(ControllerType::forceJoystick),
 			Codec.BOOL.optionalFieldOf("prevent_loading", false).forGetter(ControllerType::preventLoading)
 	).apply(instance, ControllerType::new));

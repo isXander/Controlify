@@ -1,44 +1,28 @@
 package dev.isxander.controlify.impl.utils.event;
 
-import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventSource;
+import dev.isxander.controlify.api.utils.event.UnaryEventStage;
+import org.jspecify.annotations.NonNull;
 
 /// Notifies listeners synchronously on the emitting thread before forwarding an event.
 /// Each emission uses a snapshot of subscriptions; changes made during a callback
 /// apply to subsequent emissions. Listener exceptions propagate to the caller.
 public class EventTap<T> implements EventSource<T>, UnaryEventStage<T> {
-	private final CopyOnWriteArrayList<Registration> listeners = new CopyOnWriteArrayList<>();
+	private final EventBus<T> bus = new EventBus<>();
 
 	@Override
-	public void onEvent(T event, EventSink<? super T> downstream) {
+	public void onEvent(@NonNull T event, @NonNull EventSink<? super T> downstream) {
 		this.emit(event);
 		downstream.accept(event);
 	}
 
-	/// Notifies subscribers without forwarding to another stage.
 	public void emit(T event) {
-		for (Registration registration : this.listeners) {
-			registration.listener.accept(event);
-		}
+		this.bus.emit(event);
 	}
 
 	@Override
-	public Subscription subscribe(EventSink<? super T> listener) {
-		Registration registration = new Registration(Objects.requireNonNull(listener, "listener"));
-		this.listeners.add(registration);
-		return registration;
-	}
-
-	private final class Registration implements Subscription {
-		private final EventSink<? super T> listener;
-
-		private Registration(EventSink<? super T> listener) {
-			this.listener = listener;
-		}
-
-		@Override
-		public void close() {
-			EventTap.this.listeners.remove(this);
-		}
+	public @NonNull Subscription subscribe(@NonNull EventSink<? super T> listener) {
+		return this.bus.subscribe(listener);
 	}
 }

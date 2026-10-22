@@ -7,12 +7,12 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.action.radial.RadialIcon;
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.action.radial.RadialIcon;
 import dev.isxander.controlify.impl.action.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
@@ -32,8 +32,8 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.Layout;
 import net.minecraft.client.gui.layouts.LayoutSettings;
 import net.minecraft.client.gui.layouts.LinearLayout;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.InputWithModifiers;
@@ -63,8 +63,8 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	private final Screen parent;
 	private final ControllerImpl controller;
 	private final RadialMenuEditModel model;
-	private final List<InputBinding> candidates;
-	private final Map<Identifier, InputBinding> candidatesById;
+	private final List<Action> candidates;
+	private final Map<Identifier, Action> candidatesById;
 	private final Processor processor = new Processor(this);
 
 	private HeaderAndFooterLayout layout;
@@ -80,11 +80,13 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		this.parent = parent;
 		this.controller = controller;
 		this.model = new RadialMenuEditModel(controller.settings().input.radialMenu.radialActions);
-		this.candidates = controller.input().orElseThrow().getAllBindings().stream()
-				.filter(Controlify.instance().radialIconManager()::isRadialCandidate)
+		this.candidates = controller.input().getAllActions().stream()
+				.<Action>map(action -> action)
+				.filter(action -> action.spec().shouldExpose().test(controller))
+				.filter(action -> Controlify.instance().radialIconManager().isRadialCandidate(action.spec().id()))
 				.toList();
 		this.candidatesById = candidates.stream().collect(Collectors.toMap(
-				InputBinding::id,
+				a -> a.spec().id(),
 				Function.identity(),
 				(first, ignored) -> first,
 				LinkedHashMap::new
@@ -114,7 +116,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		Button done = footer.addChild(Button.builder(CommonComponents.GUI_DONE, _ -> commitAndClose())
 				.width(FOOTER_BUTTON_WIDTH)
 				.build());
-		ButtonGuideApi.addGuideToButton(done, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(done, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 		layout.addToFooter(footer);
 
 		layout.visitWidgets(this::addRenderableWidget);
@@ -123,7 +125,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 
 	private LinearLayout createAvailableColumn(int width) {
 		LinearLayout column = LinearLayout.vertical().spacing(4);
-		long availableCount = candidates.stream().filter(binding -> !model.actions().contains(binding.id())).count();
+		long availableCount = candidates.stream().filter(action -> !model.actions().contains(action.spec().id())).count();
 		column.addChild(new ColumnHeader(
 				width,
 				Component.translatable("controlify.radial_menu.editor.available"),
@@ -141,14 +143,14 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			));
 		}
 
-		Map<Component, List<InputBinding>> grouped = candidates.stream()
-				.filter(binding -> !model.actions().contains(binding.id()))
-				.collect(Collectors.groupingBy(InputBinding::category, LinkedHashMap::new, Collectors.toList()));
+		Map<Component, List<Action>> grouped = candidates.stream()
+				.filter(action -> !model.actions().contains(action.spec().id()))
+				.collect(Collectors.groupingBy(a -> a.spec().category(), LinkedHashMap::new, Collectors.toList()));
 		grouped.forEach((category, bindings) -> {
 			content.addChild(new SectionDivider(entryWidth, category, false));
-			for (InputBinding binding : bindings) {
-				ActionEntry entry = new ActionEntry(binding.id(), binding.name(), false, -1, entryWidth);
-				availableEntries.put(binding.id(), entry);
+			for (Action action : bindings) {
+				ActionEntry entry = new ActionEntry(action.spec().id(), action.spec().name(), false, -1, entryWidth);
+				availableEntries.put(action.spec().id(), entry);
 				content.addChild(entry);
 			}
 		});
@@ -161,7 +163,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 
 		ScrollableLayout scrollable = createScrollable(padded(content), width);
 		scrollable.visitWidgets(widget -> {
-			if (widget instanceof ContainerEventHandler container) availableContainer = container;
+			if (widget instanceof ContainerEventHandler container) {
+				availableContainer = container;
+			}
 		});
 		column.addChild(scrollable);
 		return column;
@@ -189,10 +193,10 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			}
 
 			Identifier id = actions.get(index);
-			InputBinding binding = candidatesById.get(id);
-			Component name = binding == null
+			Action action = candidatesById.get(id);
+			Component name = action == null
 					? Component.translatable("controlify.radial_menu.editor.missing", id.toString()).withStyle(ChatFormatting.RED)
-					: binding.name();
+					: action.spec().name();
 			ActionEntry entry = new ActionEntry(id, name, true, index, entryWidth);
 			equippedEntries.put(id, entry);
 			content.addChild(entry);
@@ -215,7 +219,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 
 		ScrollableLayout scrollable = createScrollable(padded(content), width);
 		scrollable.visitWidgets(widget -> {
-			if (widget instanceof ContainerEventHandler container) equippedContainer = container;
+			if (widget instanceof ContainerEventHandler container) {
+				equippedContainer = container;
+			}
 		});
 		column.addChild(scrollable);
 		return column;
@@ -250,7 +256,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 	private void activate(Identifier id, boolean equipped) {
 		if (!model.isCarrying()) {
 			model.pickUp(id);
-			if (equipped) equippedInsertionIndex = model.actions().indexOf(id);
+			if (equipped) {
+				equippedInsertionIndex = model.actions().indexOf(id);
+			}
 			focusAfterRebuild = id;
 			rebuildWidgets();
 		} else if (Objects.equals(id, model.carried())) {
@@ -277,7 +285,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 
 	private boolean moveCarried(ScreenDirection direction) {
 		Identifier carried = model.carried();
-		if (carried == null) return false;
+		if (carried == null) {
+			return false;
+		}
 
 		boolean changed = switch (direction) {
 			case LEFT -> {
@@ -293,7 +303,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		};
 
 		if (changed) {
-			if (model.carriedIsEquipped()) equippedInsertionIndex = model.actions().indexOf(carried);
+			if (model.carriedIsEquipped()) {
+				equippedInsertionIndex = model.actions().indexOf(carried);
+			}
 			focusAfterRebuild = carried;
 			rebuildWidgets();
 		}
@@ -424,7 +436,9 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 
 	private Component trim(Component text, int maxWidth) {
 		String value = text.getString();
-		if (font.width(value) <= maxWidth) return text;
+		if (font.width(value) <= maxWidth) {
+			return text;
+		}
 
 		int ellipsisWidth = font.width("...");
 		return Component.literal(font.plainSubstrByWidth(value, Math.max(0, maxWidth - ellipsisWidth)) + "...");
@@ -544,10 +558,10 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			this.equipped = equipped;
 			this.position = position;
 
-			InputBinding binding = candidatesById.get(id);
-			this.icon = binding == null
+			Action action = candidatesById.get(id);
+			this.icon = action == null
 					? RadialIcon.EMPTY
-					: Controlify.instance().radialIconManager().getIcon(binding);
+					: Controlify.instance().radialIconManager().getIcon(action.spec().id());
 		}
 
 		@Override
@@ -647,13 +661,13 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 			}
 
 			boolean moved = false;
-			if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).justPressed()) {
+			if (ControlifyActions.GUI_NAVI_LEFT.on(controller).pulse().consumePulse()) {
 				moved = screen.moveCarried(ScreenDirection.LEFT);
-			} else if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).justPressed()) {
+			} else if (ControlifyActions.GUI_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
 				moved = screen.moveCarried(ScreenDirection.RIGHT);
-			} else if (ControlifyBindings.GUI_NAVI_UP.on(controller).justPressed()) {
+			} else if (ControlifyActions.GUI_NAVI_UP.on(controller).pulse().consumePulse()) {
 				moved = screen.moveCarried(ScreenDirection.UP);
-			} else if (ControlifyBindings.GUI_NAVI_DOWN.on(controller).justPressed()) {
+			} else if (ControlifyActions.GUI_NAVI_DOWN.on(controller).pulse().consumePulse()) {
 				moved = screen.moveCarried(ScreenDirection.DOWN);
 			}
 
@@ -666,7 +680,7 @@ public class RadialMenuEditScreen extends Screen implements ScreenProcessorProvi
 		@Override
 		protected void handleButtons(ControllerImpl controller) {
 			if (screen.model.isCarrying()) {
-				if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
+				if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
 					screen.dropCarried();
 					playClackSound();
 					return;

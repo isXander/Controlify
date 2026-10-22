@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.waterland;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
@@ -33,7 +34,7 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 			return;
 		}
 
-		ControlifyApi.get().getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble -> {
+		Controlify.instance().getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble -> {
 			Entity entity = Objects.requireNonNullElse(this.getControllingPassenger(), this);
 			float f = entity == this ? 0.2F : 0.9F;
 			Vec3 vec3 = entity.getDeltaMovement();

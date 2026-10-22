@@ -1,3 +1,262 @@
 {
-
+  "controlify:walk_forward": "continuous",
+  "controlify:walk_backward": "continuous",
+  "controlify:strafe_left": "continuous",
+  "controlify:strafe_right": "continuous",
+  "controlify:look_up": [
+    "continuous",
+    "pulse_press"
+  ],
+  "controlify:look_down": [
+    "continuous",
+    "pulse_press"
+  ],
+  "controlify:look_left": [
+    "continuous",
+    "pulse_press"
+  ],
+  "controlify:look_right": [
+    "continuous",
+    "pulse_press"
+  ],
+  "controlify:gyro_button": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:jump": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:sprint": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:sneak": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:attack": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:use": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:drop": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 1000,
+    "repeat_delay_ms": 50
+  },
+  "controlify:drop_stack": "pulse_press",
+  "controlify:pause": "pulse_press",
+  "controlify:change_perspective": "pulse_press",
+  "controlify:swap_hands": "pulse_press",
+  "controlify:next_slot": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 200
+  },
+  "controlify:prev_slot": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 200
+  },
+  "controlify:hotbar_item_select_radial": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:hotbar_slot_1": "pulse_press",
+  "controlify:hotbar_slot_2": "pulse_press",
+  "controlify:hotbar_slot_3": "pulse_press",
+  "controlify:hotbar_slot_4": "pulse_press",
+  "controlify:hotbar_slot_5": "pulse_press",
+  "controlify:hotbar_slot_6": "pulse_press",
+  "controlify:hotbar_slot_7": "pulse_press",
+  "controlify:hotbar_slot_8": "pulse_press",
+  "controlify:hotbar_slot_9": "pulse_press",
+  "controlify:game_mode_switcher": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:inventory": "pulse_press",
+  "controlify:inv_select": "pulse_press",
+  "controlify:inv_quick_move": "pulse_press",
+  "controlify:inv_take_half": "pulse_press",
+  "controlify:drop_inventory": "pulse_press",
+  "controlify:pick_block": "pulse_press",
+  "controlify:pick_block_nbt": "pulse_press",
+  "controlify:hotbar_load_radial": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:hotbar_save_radial": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:open_chat": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:toggle_hud_visibility": "pulse_press",
+  "controlify:show_player_list": "pulse_press",
+  "controlify:take_screenshot": "pulse_press",
+  "controlify:debug_radial": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:toggle_debug_menu": "pulse_press",
+  "controlify:toggle_debug_menu_fps": "pulse_press",
+  "controlify:toggle_debug_menu_net": "pulse_press",
+  "controlify:toggle_debug_menu_prof": "pulse_press",
+  "controlify:debug_reload_chunks": "pulse_press",
+  "controlify:debug_toggle_chunk_borders": "pulse_press",
+  "controlify:debug_toggle_advanced_tooltips": "pulse_press",
+  "controlify:debug_toggle_entity_hitboxes": "pulse_press",
+  "controlify:debug_reload_resource_packs": "pulse_press",
+  "controlify:debug_clear_chat": "pulse_press",
+  "controlify:debug_start_stop_profiling": "pulse_press",
+  "controlify:gui_press": [
+    "latch_hold",
+    "pulse_gui_press"
+  ],
+  "controlify:gui_back": [
+    "latch_hold",
+    "pulse_gui_press"
+  ],
+  "controlify:gui_next_tab": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:gui_prev_tab": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:gui_abstract_action_1": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:gui_abstract_action_2": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:gui_abstract_action_3": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:gui_navi_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:radial_menu": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:radial_axis_up": "continuous",
+  "controlify:radial_axis_down": "continuous",
+  "controlify:radial_axis_left": "continuous",
+  "controlify:radial_axis_right": "continuous",
+  "controlify:vmouse_move_up": "continuous",
+  "controlify:vmouse_move_down": "continuous",
+  "controlify:vmouse_move_left": "continuous",
+  "controlify:vmouse_move_right": "continuous",
+  "controlify:vmouse_snap_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "latch_hold",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_lclick": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:vmouse_rclick": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:vmouse_shift_click": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:vmouse_scroll_down": "continuous",
+  "controlify:vmouse_scroll_up": "continuous",
+  "controlify:vmouse_shift": [
+    "latch_hold",
+    "pulse_press"
+  ],
+  "controlify:vmouse_page_next": "pulse_press",
+  "controlify:vmouse_page_prev": "pulse_press",
+  "controlify:vmouse_page_down": "pulse_press",
+  "controlify:vmouse_page_up": "pulse_press",
+  "controlify:vmouse_toggle": "pulse_press",
+  "voicechat:ptt_hold": "latch_hold",
+  "voicechat:ptt_toggle": "pulse_press",
+  "voicechat:whisper_hold": "latch_hold",
+  "voicechat:whisper_toggle": "pulse_press",
+  "voicechat:mute_microphone": "pulse_press"
 }

@@ -26,7 +26,6 @@
     "feature.bind.GuiMixin",
     "feature.bind.HudMixin",
     "feature.bind.KeyMappingMixin",
-    "feature.bind.ToggleKeyMappingMixin",
     "feature.font.FontAccessor",
     "feature.font.KeybindContentsMixin",
     "feature.font.TranslatableContentsMixin",

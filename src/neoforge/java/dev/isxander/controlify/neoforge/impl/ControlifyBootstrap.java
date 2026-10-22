@@ -32,6 +32,7 @@ public class ControlifyBootstrap {
 				() -> (client, parent) -> new ControlifySettingsScreen(parent)
 			);
 
+			PlatformMainUtil.invokeControlifyEntrypoints();
 			Controlify.instance().preInitialiseControlify();
 		}
 		if (PlatformMainUtil.getEnv() == Environment.SERVER) {

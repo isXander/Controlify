@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.compatibility.yacl.screenop;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.compatibility.yacl.mixins.GroupSeparatorEntryAccessor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
@@ -28,8 +28,8 @@ public class OptionListWidgetComponentProcessor implements ComponentProcessor {
 	 */
 	@Override
 	public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerImpl controller) {
-		boolean up = ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed();
-		boolean down = ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed();
+		boolean up = ControlifyActions.GUI_SECONDARY_NAVI_UP.on(controller).pulse().consumePulse();
+		boolean down = ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse();
 		if (up || down) {
 			OptionListWidget.GroupSeparatorEntry nextGroup = findNextGroup(optionListWidget, up ? -1 : 1);
 			if (nextGroup != null) {
@@ -57,8 +57,12 @@ public class OptionListWidgetComponentProcessor implements ComponentProcessor {
 		List<OptionListWidget.Entry> entries = optionList.children();
 		OptionListWidget.Entry focusedEntry = optionList.getFocused();
 		int currentIndex = entries.indexOf(focusedEntry);
-		if (direction < 0) currentIndex -= 2;
-		if (currentIndex < 0) currentIndex = 0;
+		if (direction < 0) {
+			currentIndex -= 2;
+		}
+		if (currentIndex < 0) {
+			currentIndex = 0;
+		}
 
 		for (int i = currentIndex; i >= 0 && i < entries.size(); i += direction) {
 			OptionListWidget.Entry entry = entries.get(i);

@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.impl.platform.main;
 
-import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.platform.Environment;
 import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.impl.platform.main.events.HandshakeCompletionEvent;
@@ -22,12 +23,15 @@ import org.apache.commons.io.function.IOSupplier;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class PlatformMainUtil {
 
 	public static PlatformMainUtilImpl IMPL = null;
+	private static boolean invokedControlifyEntrypoints;
 
 	public static void registerCommandRegistrationCallback(CommandRegistrationCallbackEvent callback) {
 		IMPL.registerCommandRegistrationCallback(callback);
@@ -43,6 +47,25 @@ public final class PlatformMainUtil {
 
 	public static Optional<IOSupplier<InputStream>> getModFileInputStream(String modId, String path) {
 		return IMPL.getModFileInputStream(modId, path);
+	}
+
+	/// Called by client bootstraps after installing both platform implementations.
+	public static void invokeControlifyEntrypoints() {
+		if (getEnv() != Environment.CLIENT || invokedControlifyEntrypoints) {
+			return;
+		}
+		invokedControlifyEntrypoints = true;
+		Set<Class<?>> invoked = new HashSet<>();
+		applyToControlifyEntrypoint(entrypoint -> {
+			if (!invoked.add(entrypoint.getClass())) {
+				return;
+			}
+			try {
+				entrypoint.onControlifyInitialize();
+			} catch (Throwable throwable) {
+				CUtil.LOGGER.error("Failed to initialize Controlify addon: {}", entrypoint.getClass().getName(), throwable);
+			}
+		});
 	}
 
 	public static void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {

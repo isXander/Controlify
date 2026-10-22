@@ -3,12 +3,14 @@ package dev.isxander.controlify.impl.action.activator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.action.Accumulator;
 import dev.isxander.controlify.impl.action.Activator;
-import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 
-/// Accepts another latch binding, and sends repeat pulses out while the latch is active.
+/// Emits a pulse immediately when the source latch becomes active, then repeats while held.
+/// initialDelayMs delays the first repeat, not the initial pulse.
+/// Do not combine with a press-pulse activator unless two initial pulses are intended.
 public class RepeatLatchPulseActivator implements Activator {
 
 	private final Activator latchActivator;

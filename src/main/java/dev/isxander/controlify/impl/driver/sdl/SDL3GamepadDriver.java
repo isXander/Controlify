@@ -6,13 +6,13 @@
  */
 package dev.isxander.controlify.impl.driver.sdl;
 
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.controller.touchpad.TouchpadComponent;
-import dev.isxander.controlify.impl.controller.gyro.GyroComponent;
+import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.touchpad.Touchpads;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
-import dev.isxander.controlify.impl.input.SensorType;
-import dev.isxander.controlify.impl.utils.event.EventSource;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.resources.Identifier;
@@ -27,12 +27,11 @@ import static dev.isxander.sdl.SdlGamepad.*;
 
 public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
-	private InputComponent inputComponent;
+	private InputComponentImpl inputComponent;
 	private TouchpadComponent touchpadComponent;
 
 	private final Set<Identifier> supportedButtons;
 	private final Set<Identifier> supportedAxes;
-	private final Set<SensorType> supportedSensors;
 
 	private final boolean isGyroSupported;
 	private boolean active;
@@ -51,12 +50,7 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				.boxed()
 				.flatMap(i -> Stream.of(SDLInputConversions.getGamepadAxis(i, true), SDLInputConversions.getGamepadAxis(i, false)))
 				.collect(Collectors.toSet());
-		this.supportedSensors = IntStream.range(0, SDL_SENSOR_COUNT)
-				.filter(i -> this.sdl.gamepad().SDL_GamepadHasSensor(this.ptrController, i))
-				.mapToObj(SDLInputConversions::getSensorType)
-				.collect(Collectors.toSet());
-
-		this.isGyroSupported = this.supportedSensors.contains(SensorType.GYROSCOPE);
+		this.isGyroSupported = this.sdl.gamepad().SDL_GamepadHasSensor(this.ptrController, SDL_SENSOR_GYRO);
 
 		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
 	}
@@ -65,23 +59,22 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	public void addComponents(ControllerImpl controller) {
 		super.addComponents(controller);
 
-		controller.setComponent(
-				this.inputComponent = new InputComponent(
+		controller.addComponent(
+				this.inputComponent = new InputComponentImpl(
 						this.controllerType.id(),
 						this.inputPipeline,
 						this.supportedButtons,
 						this.supportedAxes,
-						this.supportedSensors,
 						true
 				)
 		);
 
 		if (this.isGyroSupported) {
-			controller.setComponent(new GyroComponent(this.inputPipeline));
+			controller.addComponent(new GyroComponentImpl(this.inputPipeline));
 		}
 
 		if (this.numTouchpads > 0) {
-			controller.setComponent(this.touchpadComponent = new TouchpadComponent(
+			controller.addComponent(this.touchpadComponent = new TouchpadComponent(
 					new Touchpads(
 							IntStream.range(0, numTouchpads)
 								.mapToObj(i ->
@@ -111,6 +104,11 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	@Override
 	protected void onEvent(SDLControllerEvent event) {
+		// filter out joystick input events if we are a gamepad
+		if (event instanceof SDLControllerEvent.JoystickEvent && !(event instanceof SDLControllerEvent.DeviceEvent)) {
+			return;
+		}
+
 		super.onEvent(event);
 
 		switch (event) {
@@ -122,8 +120,8 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	}
 
 	@Override
-	public void update(ControllerImpl controller, boolean outOfFocus) {
-		super.update(controller, outOfFocus);
+	public void update(ControllerImpl controller) {
+		super.update(controller);
 	}
 
 	@Override

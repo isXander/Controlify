@@ -72,7 +72,8 @@
     "invert_yaw": false,
     "button_mode": "on",
     "yaw_mode": "yaw",
-    "flick_stick": false
+    "flick_stick": false,
+    "low_pass_cutoff_hz": 0
   },
   "bluetooth_device": {
     "dont_show_warning": false

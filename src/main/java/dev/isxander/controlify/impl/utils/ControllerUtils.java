@@ -25,7 +25,7 @@ public class ControllerUtils {
 				controller.name(),
 				controller.info().ucid().toString(),
 				controller.info().hid().toString(),
-				controller.info().type().friendlyName()
+				controller.info().type().friendlyName().orElse(null)
 		);
 	}
 
@@ -36,21 +36,10 @@ public class ControllerUtils {
 			CrashReport crashReport = CrashReport.forThrowable(e, errorTitle);
 			CrashReportCategory category = crashReport.addCategory("Affected controller");
 			category.setDetail("Controller name", controller.name());
-			category.setDetail("Controller identification", controller.driverName());
+			category.setDetail("Controller identification", controller.driverReportedName());
 			category.setDetail("Controller type", controller.getClass().getCanonicalName());
 			throw new ReportedException(crashReport);
 		}
-	}
-
-	public static float deadzone(float value, float deadzone) {
-		return (value - Math.copySign(Math.min(deadzone, Math.abs(value)), value)) / (1 - deadzone);
-	}
-
-	public static float applyCircularityX(float x, float y) {
-		return (float) (x * Math.sqrt(1 - (y * y) / 2));
-	}
-	public static float applyCircularityY(float x, float y) {
-		return (float) (y * Math.sqrt(1 - (x * x) / 2));
 	}
 
 	public static Vector2d applyEasingToLength(double x, double y, Function<Double, Double> easing) {

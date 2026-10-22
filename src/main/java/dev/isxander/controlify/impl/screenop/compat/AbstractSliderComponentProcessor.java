@@ -6,43 +6,29 @@
  */
 package dev.isxander.controlify.impl.screenop.compat;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.impl.utils.HoldRepeatHelper;
 
 /**
  * A component processor that handles incrementing and decrementing a slider.
- * This uses {@link dev.isxander.controlify.impl.bindings.ControllerBindings#CYCLE_OPT_FORWARD} and {@link dev.isxander.controlify.impl.bindings.ControllerBindings#CYCLE_OPT_BACKWARD} to increment and decrement the slider.
+ * This uses {@link dev.isxander.controlify.impl.action.ControlifyActions#GUI_SECONDARY_NAVI_RIGHT} and {@link dev.isxander.controlify.impl.action.ControlifyActions#GUI_SECONDARY_NAVI_LEFT} to increment and decrement the slider.
  */
 public abstract class AbstractSliderComponentProcessor implements ComponentProcessor {
-	private final HoldRepeatHelper holdRepeatHelper = new HoldRepeatHelper(15, 3);
 
 	@Override
 	public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerImpl controller) {
-		var left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalNow();
-		var leftPrev = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).digitalPrev();
-		var right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalNow();
-		var rightPrev = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).digitalPrev();
+		var left = ControlifyActions.GUI_SECONDARY_NAVI_LEFT.on(controller).pulse().consumePulse();
+		var right = ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.on(controller).pulse().consumePulse();
 
-		boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
-
-		if (left && (repeatEventAvailable || !leftPrev)) {
+		if (left) {
 			incrementSlider(true);
-
-			if (!leftPrev)
-				holdRepeatHelper.reset();
-		} else if (right && (repeatEventAvailable || !rightPrev)) {
+		} else if (right) {
 			incrementSlider(false);
-
-			if (!rightPrev)
-				holdRepeatHelper.reset();
 		} else {
 			return false;
 		}
-
-		holdRepeatHelper.onNavigate();
 
 		return true;
 	}

@@ -57,7 +57,7 @@ public class NeoforgePlatformClientImpl implements PlatformClientUtilImpl {
 
 	@Override
 	public void registerClientTickEnded(TickEvent event) {
-		NeoForge.EVENT_BUS.<ClientTickEvent.Pre>addListener(e -> {
+		NeoForge.EVENT_BUS.<ClientTickEvent.Post>addListener(e -> {
 			event.onTick(Minecraft.getInstance());
 		});
 	}

@@ -44,7 +44,7 @@ public class TriggerEffectManager {
 			TriggerEffectInstance<?> instance,
 			boolean inputSuppressed
 	) {
-		controller.dualSense().ifPresent(ds -> {
+		controller.dualsense().ifPresent(ds -> {
 			if (!shouldUseTriggerEffects(controller, inputSuppressed)) {
 				ds.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
 				ds.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
@@ -60,6 +60,6 @@ public class TriggerEffectManager {
 		return !inputSuppressed
 			&& MinecraftUtil.getScreen() == null
 			&& Minecraft.getInstance().player != null
-			&& controller.dualSense().map(ds -> ds.settings().triggerEffects).orElse(false);
+			&& controller.dualsense().map(ds -> ds.settings().triggerEffects).orElse(false);
 	}
 }

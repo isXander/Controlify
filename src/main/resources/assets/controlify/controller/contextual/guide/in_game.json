@@ -631,7 +631,7 @@
       "for": "controlify:drop_stack",
       "where": "right",
       "if": { "all_of": ["controlify:verbosity_full", "controlify:has_multiple_items_in_main_hand"] },
-      "then": { "translate": "controlify.binding.controlify.drop_stack" }
+      "then": { "translate": "controlify.action.controlify.drop_stack" }
     },
     {
       "for": "controlify:swap_hands",
@@ -649,7 +649,7 @@
       "for": "controlify:pick_block_nbt",
       "where": "right",
       "if": { "all_of": ["controlify:verbosity_full", "controlify:looking_at_block", "controlify:is_creative"] },
-      "then": { "translate": "controlify.binding.controlify.pick_block_nbt" }
+      "then": { "translate": "controlify.action.controlify.pick_block_nbt" }
     }
   ]
 }

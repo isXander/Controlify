@@ -6,8 +6,9 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.slowblock;
 
+import dev.isxander.controlify.impl.Controlify;
+
 import com.mojang.authlib.GameProfile;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
@@ -61,7 +62,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 						return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
 					})
 					.timeout(100);
-			slowBlockRumble = ControlifyApi.get().playRumbleEffect(CUtil.rl("slow_block"), effect).orElse(null);
+			slowBlockRumble = Controlify.instance().playRumbleEffect(CUtil.rl("slow_block"), effect).orElse(null);
 		} else {
 			slowBlockRumble.keepAlive();
 		}

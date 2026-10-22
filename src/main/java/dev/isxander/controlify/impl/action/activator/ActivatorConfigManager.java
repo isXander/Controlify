@@ -11,7 +11,9 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
+import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
+import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
@@ -28,12 +30,19 @@ import java.util.concurrent.Executor;
 public class ActivatorConfigManager implements SimpleControlifyReloadListener<Map<Identifier, ActivatorConfig<?>>> {
 	private static final Identifier DEFINITIONS = CUtil.rl("controller/activators.json");
 	private static final Codec<Map<Identifier, ActivatorConfig<?>>> CODEC = Codec.unboundedMap(Identifier.CODEC, ActivatorConfig.CODEC);
-	private static final ActivatorConfig<?> FALLBACK = new CompoundActivator.Config(List.of());
+
+	private static final ActivatorConfig<?> FALLBACK =
+			new CompoundActivator.Config(List.of());
+	private static final ActivatorConfig<?> PROXY_ACTIVATOR =
+			new CompoundActivator.Config(List.of(HoldLatchActivator.Config.INSTANCE, PressPulseActivator.Config.INSTANCE));
 
 	private volatile Map<Identifier, ActivatorConfig<?>> configsByAction = Map.of();
 
 	public ActivatorConfig<?> getConfig(Identifier actionId) {
-		return configsByAction.getOrDefault(actionId, FALLBACK);
+		return configsByAction.getOrDefault(
+				actionId,
+				ActionProxyManagerImpl.INSTANCE.isKeyMappingProxy(actionId) ? PROXY_ACTIVATOR : FALLBACK
+		);
 	}
 
 	@Override
@@ -67,11 +76,8 @@ public class ActivatorConfigManager implements SimpleControlifyReloadListener<Ma
 		return CompletableFuture.runAsync(() -> {
 			configsByAction = data;
 			Controlify.instance().getControllerManager().ifPresent(controllerManager -> {
-				for (var controller : controllerManager.getConnectedControllers()) {
-					// TODO
-					if (controller.getAllComponents().get(InputComponent.ID) instanceof InputComponent input) {
-						input.reloadActions();
-					}
+				for (var controller : controllerManager.getAllControllers()) {
+					controller.input().reloadActions();
 				}
 			});
 		}, executor);

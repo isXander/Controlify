@@ -11,8 +11,10 @@ import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -62,8 +64,9 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 				Identifier id = stack.getKey();
 				List<Resource> files = stack.getValue();
 
-				if (id.equals(defaultNamespaceFile))
+				if (id.equals(defaultNamespaceFile)) {
 					continue; // already processed
+				}
 
 				Pair<Identifier, List<LayeredDefaultBindProvider.Layer>> defaults = this.readDefaults(id, files);
 				// add the default id to the bottom
@@ -85,10 +88,18 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 		for (Resource resource : files) {
 			try (BufferedReader reader = resource.openAsReader()) {
 				JsonElement json = JsonParser.parseReader(reader);
-				ControllerDefault def = ControllerDefault.CODEC.parse(JsonOps.INSTANCE, json).result().orElseThrow();
+				DataResult<ControllerDefault> data = ControllerDefault.CODEC.parse(JsonOps.INSTANCE, json);
+
+				var error = data.error();
+				if (error.isPresent()) {
+					LOGGER.error("Failed to parse for id {}: {}", id, error.get().message());
+					continue;
+				}
+
+				ControllerDefault def = data.getOrThrow();
 
 				// add to top takes priority
-				defaults.add(0, new LayeredDefaultBindProvider.Layer(def.provider(), def.clearBelow()));
+				defaults.addFirst(new LayeredDefaultBindProvider.Layer(def.provider(), def.clearBelow()));
 			} catch (IOException | IllegalStateException e) {
 				LOGGER.error("Failed to parse {}", id, e);
 			}
@@ -107,17 +118,23 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 			if (data != null) {
 				this.defaultsByNamespace.putAll(data.map());
 			}
-			// No binding updates here: when keepDefaultBindings is true, defaults are serialized
-			// and must not be changed by default provider reloads.
+			// Refresh action defaults from the new providers without rewriting saved bindings.
+			Controlify.instance().getControllerManager().ifPresent(controllerManager -> {
+				for (var controller : controllerManager.getAllControllers()) {
+					controller.input().reloadDefaultInputs();
+				}
+			});
 		}, executor);
 	}
 
 	public DefaultBindProvider getDefaultBindProvider(Identifier namespace) {
 		DefaultBindProvider provider = this.defaultsByNamespace.get(namespace);
-		if (provider == null)
+		if (provider == null) {
 			provider = this.defaultsByNamespace.get(ControllerType.DEFAULT.id());
-		if (provider == null)
+		}
+		if (provider == null) {
 			provider = DefaultBindProvider.EMPTY;
+		}
 		return provider;
 	}
 

@@ -9,8 +9,8 @@ package dev.isxander.controlify.mixins.feature.patches.keymessages;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.tutorial.MovementTutorialStepInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,35 +23,35 @@ public class MovementTutorialStepInstanceMixin {
 	@Expression("key('forward')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useForwardGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_FORWARD.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_FORWARD.actionId(), original);
 	}
 
 	@Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
 	@Expression("key('left')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useLeftGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_LEFT.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_LEFT.actionId(), original);
 	}
 
 	@Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
 	@Expression("key('back')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useBackGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_BACKWARD.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_BACKWARD.actionId(), original);
 	}
 
 	@Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
 	@Expression("key('right')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useRightGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.WALK_RIGHT.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.WALK_RIGHT.actionId(), original);
 	}
 
 	@Definition(id = "key", method = "Lnet/minecraft/client/tutorial/Tutorial;key(Ljava/lang/String;)Lnet/minecraft/network/chat/Component;")
 	@Expression("key('jump')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useJumpGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.JUMP.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.JUMP.actionId(), original);
 	}
 
 	@Definition(id = "translatable", method = "Lnet/minecraft/network/chat/Component;translatable(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;")

@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Manages and loads all keyboard layouts from resource packs.
@@ -46,14 +48,14 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
 					.toList();
 
 			var map = Util.sequence(futures)
-					.thenApply(listOfEntries -> listOfEntries.stream()
+					.thenApply(listOfEntries -> listOfEntries.stream().flatMap(Function.identity())
 							.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a)));
 
 			return map.thenApply(Preparations::new);
 		});
 	}
 
-	private CompletableFuture<Map.Entry<KeyboardLayoutKey, KeyboardLayout>> loadLayout(
+	private CompletableFuture<Stream<Map.Entry<KeyboardLayoutKey, KeyboardLayout>>> loadLayout(
 			Identifier file, Resource resource, Executor executor
 	) {
 		return CompletableFuture.supplyAsync(() -> {
@@ -64,9 +66,10 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
 				KeyboardLayout layout = KeyboardLayout.CODEC.parse(JsonOps.INSTANCE, json)
 						.getOrThrow(reason -> new RuntimeException("Failed to parse keyboard layout " + key + ": " + reason));
 
-				return Map.entry(key, layout);
+				return Stream.of(Map.entry(key, layout));
 			} catch (Exception e) {
-				throw new RuntimeException("Failed to read keyboard layout " + key + ": " + e.getMessage(), e);
+				LOGGER.error("Failed to read keyboard layout {}", e, key);
+				return Stream.empty();
 			}
 		}, executor);
 	}
@@ -105,8 +108,8 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
 	private static KeyboardLayoutKey fileToKey(Identifier file) {
 		try {
 			var components = file.getPath().split("/");
-			var layoutPath = components[1];
-			var languageCodeWithExt = components[2];
+			var layoutPath = components[2];
+			var languageCodeWithExt = components[3];
 			var languageCode = languageCodeWithExt.substring(0, languageCodeWithExt.lastIndexOf('.'));
 			var layoutId = file.withPath(layoutPath);
 

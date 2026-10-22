@@ -6,17 +6,19 @@
  */
 package dev.isxander.controlify.impl.controller.dualsense;
 
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.contextual.Context;
 import dev.isxander.controlify.api.contextual.TriggerEffectInstance;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.contextual.ContextualDomainImpl;
 import dev.isxander.controlify.impl.contextual.ContextualState;
 import dev.isxander.controlify.impl.contextual.RuleEngine;
 import dev.isxander.controlify.impl.contextual.TriggerEffectRule;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
 import dev.isxander.controlify.impl.driver.dualsense.DualsenseTriggerEffect;
+import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -38,8 +40,10 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 
 	@Override
 	public void update(C context) {
+		var controller = (ControllerImpl) context.controller();
+
 		RuleEngine<Identifier, TriggerEffectRule> ruleEngine = this.ruleEngineSupplier.get();
-		boolean useTriggerEffects = context.controller().dualSense()
+		boolean useTriggerEffects = controller.dualsense()
 				.map(ds -> ds.settings().triggerEffects)
 				.orElse(false);
 		if (!useTriggerEffects) {
@@ -51,46 +55,46 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 		ContextualState state = this.domain.calculateState(context, ruleEngine.factDependencies());
 		List<TriggerEffectRule> passedRules = ruleEngine.evaluate(
 				state,
-				rule -> getTrigger(context.controller(), rule) != Trigger.NEITHER,
+				rule -> getTrigger(controller, rule) != Trigger.NEITHER,
 				"trigger_effect/" + this.domain.id()
 		);
 
 		// there should only be one each
 		this.leftEffect = passedRules.stream()
-				.filter(rule -> getTrigger(context.controller(), rule) == Trigger.LEFT)
+				.filter(rule -> getTrigger(controller, rule) == Trigger.LEFT)
 				.map(TriggerEffectRule::effect)
 				.findAny()
 				.orElse(DualsenseTriggerEffect.Off.INSTANCE);
 		this.rightEffect = passedRules.stream()
-				.filter(rule -> getTrigger(context.controller(), rule) == Trigger.RIGHT)
+				.filter(rule -> getTrigger(controller, rule) == Trigger.RIGHT)
 				.map(TriggerEffectRule::effect)
 				.findAny()
 				.orElse(DualsenseTriggerEffect.Off.INSTANCE);
 	}
 
 	@Override
-	public DualsenseTriggerEffect getLeftTriggerEffect() {
+	public @NonNull DualsenseTriggerEffect getLeftTriggerEffect() {
 		return this.leftEffect;
 	}
 
 	@Override
-	public DualsenseTriggerEffect getRightTriggerEffect() {
+	public @NonNull DualsenseTriggerEffect getRightTriggerEffect() {
 		return this.rightEffect;
 	}
 
 	private Trigger getTrigger(ControllerImpl controller, TriggerEffectRule rule) {
-		InputBinding binding = rule.binding().onOrNull(controller);
+		Action action = rule.action().onOrNull(controller);
 
-		if (binding == null) {
+		if (action == null) {
 			return Trigger.NEITHER;
 		}
 
-		List<Identifier> relevantInputs = binding.boundInput().getRelevantInputs();
-
-		if (relevantInputs.contains(GamepadInputs.LEFT_TRIGGER_AXIS)) {
-			return Trigger.LEFT;
-		} else if (relevantInputs.contains(GamepadInputs.RIGHT_TRIGGER_AXIS)) {
-			return Trigger.RIGHT;
+		if (action.boundInput() instanceof LogicalInput.Single(Identifier physicalInput)) {
+			if (GamepadInputs.LEFT_TRIGGER_AXIS.equals(physicalInput)) {
+				return Trigger.LEFT;
+			} else if (GamepadInputs.RIGHT_TRIGGER_AXIS.equals(physicalInput)) {
+				return Trigger.RIGHT;
+			}
 		}
 
 		return Trigger.NEITHER;

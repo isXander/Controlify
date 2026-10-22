@@ -7,19 +7,19 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import com.google.common.collect.ImmutableList;
-import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.components.PlainTextWidget;
-import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import dev.isxander.controlify.impl.screenop.ScreenControllerEventListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.*;
@@ -61,7 +61,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		this.footerHeight = this.height - this.footerY;
 		this.mainPaneHeight = this.footerY;
 
-
 		// Top Links
 		Component donateText = Component.translatable("controlify.gui.carousel.donate")
 				.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
@@ -78,7 +77,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		}, font));
 		artCreditBtn.setTabOrderGroup(2);
 
-
 		// Controller Not Detected Button
 		controllerNotDetectedButton = this.addRenderableWidget(
 				Button.builder(
@@ -91,7 +89,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		);
 		controllerNotDetectedButton.visible = !hasController();
 		FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, 0, this.width, this.mainPaneHeight);
-
 
 		// Footer
 		GridLayout grid = new GridLayout().columnSpacing(10);
@@ -114,7 +111,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		});
 		grid.arrangeElements();
 		FrameLayout.centerInRectangle(grid, 0, this.footerY, this.width, this.footerHeight);
-
 
 		// Main Pane
 		if (!this.controllerNotDetectedButton.visible) {
@@ -150,8 +146,8 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			}
 		}
 
-		ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(doneButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 	}
 
 	@Override
@@ -193,7 +189,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 	@Override
 	public void onControllerInput(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			// Button impl does not use NonNull parameter
 			globalSettingsButton.onPress(null);
 		}
@@ -206,7 +202,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 	private boolean hasController() {
 		return Controlify.instance().getControllerManager()
-				.map(c -> !c.getConnectedControllers().isEmpty())
+				.map(c -> !c.getAllControllers().isEmpty())
 				.orElse(false);
 	}
 
@@ -394,9 +390,7 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 				return Controlify.instance().getCurrentController();
 			}
 			return Controlify.instance().getControllerManager().flatMap(manager ->
-					manager.getConnectedControllers().stream()
-							.filter(controller -> profileSettings.controllerUid.equals(controller.uid()))
-							.findFirst()
+					manager.getControllerByUid(profileSettings.controllerUid)
 			);
 		}
 
@@ -409,7 +403,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 		public @NonNull NarrationPriority narrationPriority() {
 			return NarrationPriority.NONE;
 		}
-
 
 		@Override
 		public void updateNarration(NarrationElementOutput narrationElementOutput) {
@@ -476,7 +469,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 			return this.children;
 		}
 
-
 		@Override
 		public @NonNull NarrationPriority narrationPriority() {
 			return NarrationPriority.NONE;
@@ -484,7 +476,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenController
 
 		@Override
 		public void updateNarration(@NonNull NarrationElementOutput narrationElementOutput) {
-
 		}
 	}
 }

@@ -13,8 +13,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.bindings.input.Input;
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -28,7 +28,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -99,51 +98,58 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		return mappings.getOrDefault(namespace, defaultFontMap);
 	}
 
-	public Component getComponentFromBinding(Identifier namespace, @Nullable InputBinding binding) {
-		if (binding == null) {
+	public Component getComponentFromAction(Identifier namespace, @Nullable Action action) {
+		if (action == null || action.boundInput() == null) {
 			// TODO: implement some sort of "unbound" character
 			return Component.literal("?");
 		}
 
-		List<Identifier> relevantInputs = binding.boundInput().getRelevantInputs();
-		return getComponentFromInputs(namespace, relevantInputs);
+		return getComponentFromInput(namespace, action.boundInput());
 	}
 
-	public Component getComponentFromBind(Identifier namespace, Input input) {
-		List<Identifier> relevantInputs = input.getRelevantInputs();
-		return getComponentFromInputs(namespace, relevantInputs);
-	}
-
-	public Component getComponentFromInputs(Identifier namespace, List<Identifier> inputs) {
-		if (inputs.isEmpty()) {
+	public Component getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {
+		if (input == null) {
 			return Component.literal("<unbound>");
 		}
 
 		FontMap fontMap = getMappings(namespace);
-		MutableComponent component = Component.empty();
-		StringBuilder literal = new StringBuilder();
-		FontMap currentFontMap = null;
+		return switch (input) {
+			case LogicalInput.Single(var physicalInput) -> {
+				MappedChar mappedChar = getChar(fontMap, physicalInput);
+				yield createComponent(String.valueOf(mappedChar.character()), mappedChar.fontMap());
+			}
+			case LogicalInput.ModifiedChord(var modifiers, var trigger) -> {
+				MutableComponent component = Component.empty();
+				StringBuilder literal = new StringBuilder();
+				FontMap currentFontMap = null;
 
-		for (int i = 0; i < inputs.size(); i++) {
-			MappedChar mappedChar = getChar(fontMap, inputs.get(i));
-			if (currentFontMap != mappedChar.fontMap()) {
-				if (currentFontMap != null) {
-					component.append(createComponent(literal.toString(), currentFontMap));
-					literal.setLength(0);
+				// Coalesce adjacent modifiers using the same font into a single literal.
+				for (Identifier modifier : modifiers) {
+					MappedChar mappedChar = getChar(fontMap, modifier);
+					if (currentFontMap != null && currentFontMap != mappedChar.fontMap()) {
+						MutableComponent run = createComponent(literal.toString(), currentFontMap);
+						component.append(run);
+						literal.setLength(0);
+					}
+					currentFontMap = mappedChar.fontMap();
+					literal.append(mappedChar.character());
 				}
-				currentFontMap = mappedChar.fontMap();
-			}
 
-			if (i > 0) {
-				literal.append('+');
-			}
-			literal.append(mappedChar.character());
-		}
+				if (currentFontMap != null) {
+					MutableComponent run = createComponent(literal.toString(), currentFontMap);
+					// Use the first run as the root to avoid an empty wrapper component.
+					component.append(run);
+					component.append(Component.literal("+").withStyle(style -> style.withFont(FontDescription.DEFAULT)));
+				}
 
-		return component.append(createComponent(literal.toString(), currentFontMap));
+				MappedChar mappedTrigger = getChar(fontMap, trigger);
+				MutableComponent triggerComponent = createComponent(String.valueOf(mappedTrigger.character()), mappedTrigger.fontMap());
+				yield component.append(triggerComponent);
+			}
+		};
 	}
 
-	private Component createComponent(String literal, FontMap fontMap) {
+	private MutableComponent createComponent(String literal, FontMap fontMap) {
 		return Component.literal(literal).withStyle(style -> style
 				.withFont(new FontDescription.Resource(fontMap.namespace().withPrefix("controller/")))
 				.withShadowColor(0x00000000) // remove shadow
@@ -171,7 +177,6 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 	}
 
 	public record Preparations(Map<Identifier, FontMap> mappings) {
-
 	}
 	public record FontMap(Identifier namespace, char unknown, Map<Identifier, Character> inputToChar) {
 	}

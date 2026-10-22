@@ -15,7 +15,6 @@ import dev.isxander.controlify.impl.controller.haptic.CompleteSoundData;
 import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.controller.misc.DriverNameComponent;
-import dev.isxander.controlify.impl.controller.misc.GUIDComponent;
 import dev.isxander.controlify.impl.controller.misc.UIDComponent;
 import dev.isxander.controlify.impl.controller.led.LEDComponent;
 import dev.isxander.controlify.impl.controller.misc.BluetoothDeviceComponent;
@@ -28,7 +27,7 @@ import dev.isxander.controlify.impl.input.pipeline.InputPipeline;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.api.controller.rumble.TriggerRumbleState;
 import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.event.EventSource;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.util.Util;
@@ -161,30 +160,29 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 	@Override
 	public void addComponents(ControllerImpl controller) {
-		controller.setComponent(new DriverNameComponent(this.name));
-		controller.setComponent(new GUIDComponent(this.guidString));
-		controller.setComponent(new UIDComponent(createUid()));
+		controller.addComponent(new DriverNameComponent(this.name));
+		controller.addComponent(new UIDComponent(createUid()));
 
-		controller.setComponent(this.batteryLevelComponent = new BatteryLevelComponent());
+		controller.addComponent(this.batteryLevelComponent = new BatteryLevelComponent());
 		if (this.isRumbleSupported) {
-			controller.setComponent(this.rumbleComponent = new RumbleComponentImpl());
+			controller.addComponent(this.rumbleComponent = new RumbleComponentImpl());
 		}
 		if (this.isTriggerRumbleSupported) {
-			controller.setComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
+			controller.addComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
 		}
 		if (this.isRGBLedSupported) {
-			controller.setComponent(this.ledComponent = new LEDComponent(1));
+			controller.addComponent(this.ledComponent = new LEDComponent(1));
 		}
 		if (this.isDualsense) {
-			controller.setComponent(this.dualSenseComponent = new DualsenseComponent());
+			controller.addComponent(this.dualSenseComponent = new DualsenseComponent());
 		}
 		if (this.dualsenseAudioDev != null) {
-			controller.setComponent(this.hdHapticComponent = new HDHapticComponent());
+			controller.addComponent(this.hdHapticComponent = new HDHapticComponent());
 			this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
 		}
 
 		if (isBluetooth()) {
-			controller.setComponent(new BluetoothDeviceComponent());
+			controller.addComponent(new BluetoothDeviceComponent());
 		}
 
 		this.eventSubscription = this.sdlEventSource.subscribe(this::onEvent);

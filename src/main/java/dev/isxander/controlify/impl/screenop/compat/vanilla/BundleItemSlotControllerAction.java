@@ -7,7 +7,7 @@
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.BundleItem;
@@ -25,16 +25,24 @@ public class BundleItemSlotControllerAction {
 		if (uniqueItems > 0) {
 			Controlify.instance().virtualMouseHandler().preventScrollingThisTick();
 
-			boolean up = ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed();
-			boolean down = ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed();
-			boolean left = ControlifyBindings.GUI_SECONDARY_NAVI_LEFT.on(controller).justPressed();
-			boolean right = ControlifyBindings.GUI_SECONDARY_NAVI_RIGHT.on(controller).justPressed();
+			boolean up = ControlifyActions.GUI_SECONDARY_NAVI_UP.on(controller).pulse().consumePulse();
+			boolean down = ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse();
+			boolean left = ControlifyActions.GUI_SECONDARY_NAVI_LEFT.on(controller).pulse().consumePulse();
+			boolean right = ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.on(controller).pulse().consumePulse();
 
 			int offsetX = 0, offsetY = 0;
-			if (up) offsetY--;
-			if (down) offsetY++;
-			if (left) offsetX--;
-			if (right) offsetX++;
+			if (up) {
+				offsetY--;
+			}
+			if (down) {
+				offsetY++;
+			}
+			if (left) {
+				offsetX--;
+			}
+			if (right) {
+				offsetX++;
+			}
 
 			if (offsetX != 0 || offsetY != 0) {
 				int currentIndex = BundleItem.getSelectedItemIndex(stack);

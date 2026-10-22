@@ -6,9 +6,9 @@
  */
 package dev.isxander.controlify.impl.compatibility.yacl.screenop;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.compatibility.yacl.mixins.YACLScreenCategoryTabAccessor;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.yacl3.gui.OptionListWidget;
 import dev.isxander.yacl3.gui.WidgetAndType;
@@ -21,7 +21,7 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
 				((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(null);
 			}
@@ -40,8 +40,9 @@ public class YACLScreenProcessor extends ScreenProcessor<YACLScreen> {
 
 			screen.setFocused(optionListHolder.getWidget());
 
-			if (optionList.children().isEmpty())
+			if (optionList.children().isEmpty()) {
 				return;
+			}
 
 			for (OptionListWidget.Entry entry : optionList.children()) {
 				entry.setFocused(false);

@@ -7,7 +7,7 @@
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.platform.client.CreativeTabHelper;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
@@ -38,14 +38,15 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
 	@Override
 	protected void handleScreenVMouse(ControllerImpl controller, VirtualMouseHandler vmouse) {
 		List<CreativeModeTab> tabs = tabHelper.getTabsForPage(tabHelper.getCurrentPage());
-		if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
 			int newIndex = tabs.indexOf(tabHelper.getSelectedTab()) + 1;
 			if (newIndex >= tabs.size()) {
 				newIndex = 0;
 
 				int newPage = tabHelper.getCurrentPage() + 1;
-				if (newPage >= tabHelper.getPageCount())
+				if (newPage >= tabHelper.getPageCount()) {
 					newPage = 0;
+				}
 
 				tabHelper.setCurrentPage(newPage);
 				tabs = tabHelper.getTabsForPage(newPage);
@@ -53,12 +54,13 @@ public class CreativeModeInventoryScreenProcessor extends AbstractContainerScree
 
 			tabHelper.setSelectedTab(tabs.get(newIndex));
 		}
-		if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
 			int newIndex = tabs.indexOf(tabHelper.getSelectedTab()) - 1;
 			if (newIndex < 0) {
 				int newPage = tabHelper.getCurrentPage() - 1;
-				if (newPage < 0)
+				if (newPage < 0) {
 					newPage = tabHelper.getPageCount() - 1;
+				}
 
 				tabHelper.setCurrentPage(newPage);
 				tabs = tabHelper.getTabsForPage(newPage);

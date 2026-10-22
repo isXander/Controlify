@@ -8,13 +8,13 @@ package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.options.OptionsScreen;
 
 public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 	public TitleScreenProcessor(TitleScreen screen) {
@@ -23,7 +23,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
 			getWidget("menu.quit").ifPresent(widget -> {
 				screen.setFocused(widget);
 				playClackSound();
@@ -32,7 +32,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 
 		super.handleButtons(controller);
 
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			if (getWidget("menu.options").isPresent()) {
 				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options /*? if <26.3 >>*//*,false*/ ));
 				playClackSound();
@@ -48,7 +48,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 			var button = (AbstractButton) widget;
 			ButtonGuideApi.addGuideToButton(
 					button,
-					() -> button.isFocused() ? ControlifyBindings.GUI_PRESS : ControlifyBindings.GUI_BACK,
+					() -> button.isFocused() ? ControlifyActions.GUI_PRESS : ControlifyActions.GUI_BACK,
 					ButtonGuidePredicate.always()
 			);
 		});
@@ -57,7 +57,7 @@ public class TitleScreenProcessor extends ScreenProcessor<TitleScreen> {
 			var button = (AbstractButton) widget;
 			ButtonGuideApi.addGuideToButton(
 					button,
-					ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+					ControlifyActions.GUI_ABSTRACT_ACTION_1,
 					ButtonGuidePredicate.always()
 			);
 		});

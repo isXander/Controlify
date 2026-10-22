@@ -10,81 +10,124 @@ package dev.isxander.controlify.impl.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
-import dev.isxander.controlify.api.ControlifyEvents;
-import dev.isxander.controlify.impl.api.bind.ControlifyBindApi;
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.api.action.ActionEvents;
+import dev.isxander.controlify.api.action.ActionProxyManager;
+import dev.isxander.controlify.api.action.ActionSpec;
+import dev.isxander.controlify.api.action.ActionSpecRegistry;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
-import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 
 public class SimpleVoiceChatCompat {
-	private static InputBindingSupplier pttHoldSupplier, pttToggleSupplier;
-	private static InputBindingSupplier whisperHoldSupplier, whisperToggleSupplier;
+	private static ActionAccessor pttHoldSupplier, pttToggleSupplier;
+	private static ActionAccessor whisperHoldSupplier, whisperToggleSupplier;
+	private static ActionAccessor muteMicrophoneSupplier;
 
 	private static boolean pttDown, whisperDown;
+	private static boolean pttToggleDown, whisperToggleDown;
+	private static boolean previousPttHold, previousWhisperHold;
+	private static Action previousPttAction, previousWhisperAction;
 
 	public static void init() {
+		ActionEvents.REGISTER_ACTIONS.subscribe(SimpleVoiceChatCompat::registerActions);
+		ActionEvents.REGISTER_PROXIES.subscribe(SimpleVoiceChatCompat::registerProxies);
+		PlatformClientUtil.registerClientTickEnded(SimpleVoiceChatCompat::tick);
+	}
+
+	private static void registerActions(ActionSpecRegistry registry) {
 		Component category = Component.translatable("key.categories.voicechat");
-		pttHoldSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
-				.id("voicechat", "ptt_hold")
-				.category(category)
-				.addKeyCorrelation(KeyEvents.KEY_PTT));
-		pttToggleSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
-				.id("voicechat", "ptt_toggle")
-				.category(category)
-				.addKeyCorrelation(KeyEvents.KEY_PTT));
-		whisperHoldSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
-				.name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")))
-				.id("voicechat", "whisper_hold")
-				.category(category)
-				.addKeyCorrelation(KeyEvents.KEY_WHISPER));
-		whisperToggleSupplier = ControlifyBindApi.get().registerBinding(builder -> builder
-				.name(Component.translatable("key.whisper").append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")))
-				.id("voicechat", "whisper_toggle")
-				.category(category)
-				.addKeyCorrelation(KeyEvents.KEY_WHISPER));
-		ControlifyBindApi.get().registerBinding(builder -> builder
-				.id("voicechat", "mute_microphone")
-				.category(category)
-				.keyEmulation(KeyEvents.KEY_MUTE));
+		pttHoldSupplier = register(registry, category, "ptt_hold", Component.translatable("controlify.action.voicechat.ptt_hold"));
+		pttToggleSupplier = register(registry, category, "ptt_toggle", Component.translatable("controlify.action.voicechat.ptt_toggle"));
+		whisperHoldSupplier = register(registry, category, "whisper_hold", Component.translatable("key.whisper")
+				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")));
+		whisperToggleSupplier = register(registry, category, "whisper_toggle", Component.translatable("key.whisper")
+				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")));
+		muteMicrophoneSupplier = register(registry, category, "mute_microphone", Component.translatable("controlify.action.voicechat.mute_microphone"));
+	}
 
-		ControlifyEvents.ACTIVE_CONTROLLER_TICKED.register(event -> {
-			ControllerImpl controller = event.controller();
+	private static ActionAccessor register(ActionSpecRegistry registry, Component category, String path, Component name) {
+		return registry.register(ActionSpec.builder()
+				.id(Identifier.fromNamespaceAndPath("voicechat", path))
+				.name(name)
+				.category(category)
+				.context(CUtil.rl("unknown"))
+				.build());
+	}
 
-			var pttHold = pttHoldSupplier.on(controller);
-			var pttToggle = pttToggleSupplier.on(controller);
-			var whisperHold = whisperHoldSupplier.on(controller);
-			var whisperToggle = whisperToggleSupplier.on(controller);
+	private static void registerProxies(ActionProxyManager proxies) {
+		proxies.dontAutoProxyKeyMapping(KeyEvents.KEY_PTT);
+		proxies.dontAutoProxyKeyMapping(KeyEvents.KEY_WHISPER);
+		proxies.proxyKeyMapping(muteMicrophoneSupplier, KeyEvents.KEY_MUTE);
+	}
 
-			if (pttToggle.justPressed()) {
-				pttDown = !pttDown;
-				checkConnected();
-			}
-			if (whisperToggle.justPressed()) {
-				whisperDown = !whisperDown;
-				checkConnected();
-			}
+	private static void tick(Minecraft minecraft) {
+		Controlify controlify = Controlify.instance();
+		var controller = controlify.getCurrentController().orElse(null);
+		if (controller == null || pttHoldSupplier == null || pttToggleSupplier == null
+				|| whisperHoldSupplier == null || whisperToggleSupplier == null) {
+			clearState();
+			return;
+		}
 
-			if (pttHold.justPressed() || whisperHold.justPressed()) {
-				checkConnected();
-			}
-			if (pttHold.digitalNow()) {
-				pttDown = true;
-			} else if (pttHold.justReleased()) {
-				pttDown = false;
-			}
-			if (whisperHold.digitalNow()) {
-				whisperDown = true;
-			} else if (whisperHold.justReleased()) {
-				whisperDown = false;
-			}
+		// Resolve on each tick: profile changes may replace action instances.
+		Action pttHold = pttHoldSupplier.onOrNull(controller);
+		Action pttToggle = pttToggleSupplier.onOrNull(controller);
+		Action whisperHold = whisperHoldSupplier.onOrNull(controller);
+		Action whisperToggle = whisperToggleSupplier.onOrNull(controller);
+		if (pttHold == null || pttToggle == null || whisperHold == null || whisperToggle == null) {
+			clearState();
+			return;
+		}
+		if (!controlify.currentInputMode().isController()
+				|| (!minecraft.isWindowActive() && !controlify.config().getSettings().globalSettings().outOfFocusInput)) {
+			// Discard ineligible toggle presses so they cannot replay when focus/input returns.
+			while (pttToggle.pulse().consumePulse()) {}
+			while (whisperToggle.pulse().consumePulse()) {}
+			clearState();
+			return;
+		}
+		if (pttToggle != previousPttAction || whisperToggle != previousWhisperAction) {
+			clearState();
+			previousPttAction = pttToggle;
+			previousWhisperAction = whisperToggle;
+		}
 
-			controller.dualSense().ifPresent(ds -> {
-				ds.setMuteLight(ClientManager.getPlayerStateManager().isMuted());
-			});
-		});
+		// Pulses accumulate independently of frame/tick cadence; consume each pulse once.
+		while (pttToggle.pulse().consumePulse()) {
+			pttToggleDown = !pttToggleDown;
+			checkConnected();
+		}
+		while (whisperToggle.pulse().consumePulse()) {
+			whisperToggleDown = !whisperToggleDown;
+			checkConnected();
+		}
+		boolean pttHeld = pttHold.latch().isLatchActive();
+		boolean whisperHeld = whisperHold.latch().isLatchActive();
+		if ((pttHeld && !previousPttHold) || (whisperHeld && !previousWhisperHold)) {
+			checkConnected();
+		}
+		previousPttHold = pttHeld;
+		previousWhisperHold = whisperHeld;
+		pttDown = pttHeld || pttToggleDown;
+		whisperDown = whisperHeld || whisperToggleDown;
+
+		controller.dualsense().ifPresent(ds ->
+				ds.setMuteLight(ClientManager.getPlayerStateManager().isMuted()));
+	}
+
+	private static void clearState() {
+		pttDown = whisperDown = false;
+		pttToggleDown = whisperToggleDown = false;
+		previousPttHold = previousWhisperHold = false;
+		previousPttAction = previousWhisperAction = null;
 	}
 
 	public static boolean isPTTDown() {

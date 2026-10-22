@@ -6,16 +6,16 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.JoinMultiplayerScreenAccessor;
 
 public class ServerSelectionListEntryComponentProcessor implements ComponentProcessor {
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
+		if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
 			screen.screen.setFocused(((JoinMultiplayerScreenAccessor) screen.screen).controlify$getJoinButton());
 			return true;
 		}

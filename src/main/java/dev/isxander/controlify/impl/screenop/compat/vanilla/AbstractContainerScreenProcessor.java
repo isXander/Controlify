@@ -7,28 +7,27 @@
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.InputMode;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.contextual.ContainerContext;
 import dev.isxander.controlify.api.contextual.GuideInstance;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.contextual.ContextualDomains;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
 import dev.isxander.controlify.impl.gui.guide.GuideRenderer;
-import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
-import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.mixins.feature.guide.screen.AbstractContainerScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import net.minecraft.world.inventory.ContainerInput;
 
 public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<?>> extends ScreenProcessor<T> {
 
@@ -80,22 +79,22 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 				}
 			}
 
-			if (ControlifyBindings.INV_SELECT.on(controller).justPressed()) {
+			if (ControlifyActions.INV_SELECT.on(controller).pulse().consumePulse()) {
 				clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ContainerInput.PICKUP);
 				hapticNavigate();
 			}
 
-			if (ControlifyBindings.INV_QUICK_MOVE.on(controller).justPressed()) {
+			if (ControlifyActions.INV_QUICK_MOVE.on(controller).pulse().consumePulse()) {
 				clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 0, ContainerInput.QUICK_MOVE);
 				hapticNavigate();
 			}
 
-			if (ControlifyBindings.INV_TAKE_HALF.on(controller).justPressed()) {
+			if (ControlifyActions.INV_TAKE_HALF.on(controller).pulse().consumePulse()) {
 				clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 1, ContainerInput.PICKUP);
 				hapticNavigate();
 			}
 
-//            if (ControlifyBindings.SWAP_HANDS.on(controller).justPressed()) {
+//            if (ControlifyActions.SWAP_HANDS.on(controller).pulse().consumePulse()) {
 //                clickSlotFunction.clickSlot(hoveredSlot, hoveredSlot.index, 40, ContainerInput.SWAP);
 //                hapticNavigate();
 //            }
@@ -104,7 +103,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 		}
 
 		if (!screen.getMenu().getCarried().isEmpty()) {
-			if (ControlifyBindings.DROP_INVENTORY.on(controller).justPressed()) {
+			if (ControlifyActions.DROP_INVENTORY.on(controller).pulse().consumePulse()) {
 				clickSlotFunction.clickSlot(null, -999, 0, ContainerInput.PICKUP);
 				hapticNavigate();
 			}
@@ -115,7 +114,7 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 	public void onWidgetRebuild() {
 		this.guideRenderable = (GuideRenderer.Renderable) guideInstance.renderable(true, false);
 
-		if (ControlifyApi.get().currentInputMode().isController()) {
+		if (Controlify.instance().currentInputMode().isController()) {
 			setRenderGuide(true);
 		}
 	}
@@ -126,10 +125,10 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 	}
 
 	private void setRenderGuide(boolean render) {
-		ControlifyApi.get().getCurrentController()
+		Controlify.instance().getCurrentController()
 			.ifPresent(c -> this.guideRenderable.setGuiScale(c.settings().generic.guide.screenGuiScale));
 
-		render &= ControlifyApi.get().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false);
+		render &= Controlify.instance().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false);
 
 		List<Renderable> renderables = ((ScreenAccessor) screen).controlify$getRenderables();
 
@@ -141,13 +140,13 @@ public class AbstractContainerScreenProcessor<T extends AbstractContainerScreen<
 	}
 
 	public void onHoveredSlotChanged(Slot newSlot, Slot oldSlot) {
-		if (ControlifyApi.get().currentInputMode().isController()) {
+		if (Controlify.instance().currentInputMode().isController()) {
 			hapticNavigate();
 		}
 	}
 
 	private void hapticNavigate() {
-		ControlifyApi.get().getCurrentController().flatMap(ControllerImpl::hdHaptics).ifPresent(hh -> {
+		Controlify.instance().getCurrentController().flatMap(ControllerImpl::hdHaptics).ifPresent(hh -> {
 			hh.playHaptic(HapticEffects.NAVIGATE);
 		});
 	}

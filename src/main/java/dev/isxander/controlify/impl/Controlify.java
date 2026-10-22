@@ -7,16 +7,17 @@
 package dev.isxander.controlify.impl;
 
 import com.mojang.blaze3d.Blaze3D;
-import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.impl.api.bind.ControlifyBindApi;
-import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
-import dev.isxander.controlify.impl.api.entrypoint.InitContext;
-import dev.isxander.controlify.impl.api.entrypoint.PreInitContext;
-import dev.isxander.controlify.impl.bindings.ControlifyBindApiImpl;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.action.radial.RadialIconManager;
+import dev.isxander.controlify.api.ControlifyEvents;
+import dev.isxander.controlify.api.InputMode;
+import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
+import dev.isxander.controlify.impl.action.ActionContextRegistryImpl;
+import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.impl.action.defaults.DefaultBindManager;
+import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
+import dev.isxander.controlify.impl.action.radial.RadialIconManager;
 import dev.isxander.controlify.impl.compatibility.ControlifyCompat;
 import dev.isxander.controlify.impl.config.ConfigManager;
 import dev.isxander.controlify.impl.config.dto.profile.defaults.DefaultConfigManager;
@@ -24,35 +25,34 @@ import dev.isxander.controlify.impl.contextual.ContextualDomains;
 import dev.isxander.controlify.impl.contextual.RuleSetManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectManager;
-import dev.isxander.controlify.impl.controllermanager.ControllerTypeManager;
-import dev.isxander.controlify.impl.input.mapping.ControllerMappingManager;
 import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
+import dev.isxander.controlify.impl.controller.rumble.RumbleManager;
+import dev.isxander.controlify.impl.controller.rumble.RumbleSourceManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
+import dev.isxander.controlify.impl.controllermanager.ControllerTypeManager;
+import dev.isxander.controlify.impl.debug.DebugProperties;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.font.InputFontMapper;
+import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.impl.gui.screen.*;
-import dev.isxander.controlify.impl.debug.DebugProperties;
 import dev.isxander.controlify.impl.ingame.ControllerPlayerMovement;
-import dev.isxander.controlify.impl.action.activator.ActivatorConfigManager;
+import dev.isxander.controlify.impl.ingame.InGameInputHandler;
+import dev.isxander.controlify.impl.input.mapping.ControllerMappingManager;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.impl.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.impl.controller.rumble.RumbleManager;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSourceManager;
+import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
 import dev.isxander.controlify.impl.screenop.keyboard.KeyboardLayoutManager;
 import dev.isxander.controlify.impl.server.*;
-import dev.isxander.controlify.impl.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.api.ControlifyEvents;
-import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
-import dev.isxander.controlify.impl.ingame.InGameInputHandler;
-import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.controlify.impl.server.packets.*;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
 import dev.isxander.controlify.impl.utils.*;
+import dev.isxander.controlify.impl.utils.event.EventBus;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
 import dev.isxander.controlify.impl.wireless.LowBatteryNotifier;
+import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -61,14 +61,23 @@ import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.MixinEnvironment;
+import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
 
 import java.io.IOException;
 import java.util.*;
 
-import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
-
 public class Controlify implements ControlifyApi {
+	/// This holder can initialize before the Controlify singleton or any managers.
+	public static final class Events {
+		public static final EventBus<ControlifyApi> INITIALIZED = new EventBus<>();
+		public static final EventBus<ControlifyEvents.InputModeChanged> INPUT_MODE_CHANGED = new EventBus<>();
+
+		private Events() {
+		}
+	}
+
 	private static Controlify instance = null;
 
 	private Minecraft minecraft = null;
@@ -152,6 +161,11 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
 		ContextualDomains.touch();
+		try {
+			ContextualDomains.Events.REGISTER_DOMAINS.emit(ContextualDomains.INSTANCE);
+		} finally {
+			ContextualDomains.INSTANCE.lock();
+		}
 
 		registerBuiltinPack("legacy_console");
 
@@ -199,24 +213,6 @@ public class Controlify implements ControlifyApi {
 
 		PlatformClientUtil.addHudLayer(CUtil.rl("button_guide"), (graphics, deltaTracker) ->
 				inGameButtonGuide().ifPresent(guide -> guide.extractRenderState(graphics, deltaTracker.getGameTimeDeltaPartialTick(false))));
-
-		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-			try {
-				entrypoint.onControlifyPreInit(new PreInitContext() {
-					@Override
-					public ControlifyBindApi bindings() {
-						return ControlifyBindApiImpl.INSTANCE;
-					}
-
-					@Override
-					public ContextualDomainRegistry contextualDomains() {
-						return ContextualDomains.INSTANCE;
-					}
-				});
-			} catch (Throwable e) {
-				CUtil.LOGGER.error("Failed to run `onControlifyPreInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-			}
-		});
 	}
 
 	private void registerBuiltinPack(String id) {
@@ -243,29 +239,38 @@ public class Controlify implements ControlifyApi {
 		this.virtualMouseHandler = new VirtualMouseHandler();
 		this.triggerEffectManager = new TriggerEffectManager();
 
-		ControlifyBindings.registerModdedBindings();
+		ActionContextRegistryImpl.INSTANCE.registerBuiltinContexts();
+		ControlifyActions.init();
 
 		PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
-				ControlifyApi.get().getCurrentController().ifPresent(controller -> {
+				this.getCurrentController().ifPresent(controller -> {
 					virtualMouseHandler().renderVirtualMouse(graphics);
 					ScreenProcessorProvider.provide(screen).render(controller, graphics, tickDelta);
 				}));
 
-		ControlifyEvents.CURRENT_CONTROLLER_CHANGED.register(event ->
-				this.onCurrentControllerChanged(event.controller(), event.changeInputMode()));
 		this.controllerCoordinator = new ControllerCoordinator(this, this.setupWizardManager);
+
+		// Built-in compatibility must subscribe before addon-facing lifecycle events.
+		ControlifyCompat.init();
+		Events.INITIALIZED.emit(this);
+		try {
+			try {
+				ActionContextRegistryImpl.Events.REGISTER_CONTEXTS.emit(ActionContextRegistryImpl.INSTANCE);
+			} finally {
+				ActionContextRegistryImpl.INSTANCE.lock();
+			}
+			ActionSpecRegistryImpl.Events.REGISTER_ACTIONS.emit(ActionSpecRegistryImpl.INSTANCE);
+			ActionProxyManagerImpl.Events.REGISTER_PROXIES.emit(ActionProxyManagerImpl.INSTANCE);
+			ControlifyActions.registerModdedActions();
+		} finally {
+			ActionSpecRegistryImpl.INSTANCE.lock();
+			ActionProxyManagerImpl.INSTANCE.lock();
+		}
+
 		if (!this.controllerCoordinator.initialize()) {
 			return;
 		}
-
-		PlatformClientUtil.registerClientTickStarted(this::fixedUpdate);
-
-		// initialise and compatability modules that controlify implements itself
-		// this does NOT invoke any entrypoints. this is done in the pre-initialisation phase
-		ControlifyCompat.init();
-
-		// make sure people don't someone add binds after controllers could have been created
-		ControlifyBindApiImpl.INSTANCE.lock();
+		PlatformClientUtil.registerClientTickStarted(_ -> this.fixedUpdate());
 
 		discoverControllers();
 
@@ -276,19 +281,6 @@ public class Controlify implements ControlifyApi {
 		if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
 			doSteamDeckChecks();
 		}
-
-		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-			try {
-				entrypoint.onControlifyInit(new InitContext() {
-					@Override
-					public ControlifyApi controlify() {
-						return Controlify.this;
-					}
-				});
-			} catch (Throwable e) {
-				CUtil.LOGGER.error("Failed to run `onControlifyInit` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-			}
-		});
 	}
 
 	private void doSteamDeckChecks() {
@@ -396,10 +388,6 @@ public class Controlify implements ControlifyApi {
 			consecutiveInputSwitches = 0;
 			return;
 		}
-
-		if (this.currentInputMode().isController()) {
-			ControlifyEvents.ACTIVE_CONTROLLER_TICKED.invoke(new ControlifyEvents.ControllerStateUpdate(controller));
-		}
 	}
 
 	private void fixedUpdateActiveController(ControllerImpl controller, boolean outOfFocus) {
@@ -450,11 +438,29 @@ public class Controlify implements ControlifyApi {
 		return this.getControllerCoordinator().flatMap(ControllerCoordinator::currentController);
 	}
 
+	@Override
+	public Collection<ControllerImpl> getConnectedControllers() {
+		return this.getControllerManager()
+				.map(manager -> List.copyOf(manager.getAllControllers()))
+				.orElseGet(List::of);
+	}
+
+	@Override
+	public Optional<ControllerImpl> getControllerByUid(@NonNull String uid) {
+		return this.getControllerManager().flatMap(manager -> manager.getControllerByUid(uid));
+	}
+
+	@Override
+	public BuiltinContextualDomains contextualDomains() {
+		return ContextualDomains.INSTANCE;
+	}
+
 	public void setCurrentController(@Nullable ControllerImpl controller, boolean changeInputMode) {
 		this.getControllerCoordinator().ifPresent(coordinator -> coordinator.setCurrentController(controller, changeInputMode));
 	}
 
-	private void onCurrentControllerChanged(@Nullable ControllerImpl controller, boolean changeInputMode) {
+	/// Internal selection callback; invoked before public selection notification.
+	public void onCurrentControllerChanged(@Nullable ControllerImpl controller, boolean changeInputMode) {
 		boolean changedInputMode = false;
 		if (controller == null) {
 			changedInputMode = this.setInputMode(InputMode.KEYBOARD_MOUSE);
@@ -468,7 +474,9 @@ public class Controlify implements ControlifyApi {
 
 	@Override
 	public boolean setInputMode(@NotNull InputMode newInputMode) {
-		if (this.currentInputMode == newInputMode) return false;
+		if (this.currentInputMode == newInputMode) {
+			return false;
+		}
 		if (newInputMode.isController() && this.getCurrentController().isEmpty()) {
 			DebugLog.log("Attempted to switch to controller input mode with no current controller set.");
 			return false;
@@ -508,8 +516,10 @@ public class Controlify implements ControlifyApi {
 			ScreenProcessorProvider.provide(MinecraftUtil.getScreen()).onInputModeChanged(newInputMode);
 		}
 
+		this.virtualMouseHandler.onInputModeChanged(newInputMode);
+
 		// notify event listeners of input mode change
-		ControlifyEvents.INPUT_MODE_CHANGED.invoke(new ControlifyEvents.InputModeChanged(newInputMode));
+		Events.INPUT_MODE_CHANGED.emit(new ControlifyEvents.InputModeChanged(this, newInputMode));
 
 		return true;
 	}
@@ -588,7 +598,9 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public void endTemporaryCursor() {
-		if (currentInputMode() != InputMode.MIXED || showMouseTicks <= 0) return;
+		if (currentInputMode() != InputMode.MIXED || showMouseTicks <= 0) {
+			return;
+		}
 
 		showMouseTicks = 0;
 		restoreVirtualCursor();
@@ -642,8 +654,9 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public void notifyNewServer(ServerData data) {
-		if (!currentInputMode().isController())
+		if (!currentInputMode().isController()) {
 			return;
+		}
 
 		if (config().getSettings().globalSettings().seenServers.add(data.ip)) {
 			MinecraftUtil.sendToast(
@@ -656,7 +669,9 @@ public class Controlify implements ControlifyApi {
 	}
 
 	public static Controlify instance() {
-		if (instance == null) instance = new Controlify();
+		if (instance == null) {
+			instance = new Controlify();
+		}
 		return instance;
 	}
 }

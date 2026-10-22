@@ -6,11 +6,11 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.api.InputMode;
+import dev.isxander.controlify.api.font.ActionGlyphs;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.keyboard.CommonKeyboardHints;
@@ -34,8 +34,8 @@ import java.util.function.Supplier;
 public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSignEditScreen> {
 
 	private static final Component signLineHint = Component.translatable("controlify.hint.sign_line_change",
-			ControlifyBindings.GUI_SECONDARY_NAVI_UP.inputGlyph(),
-			ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.inputGlyph());
+			ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_UP.actionId()),
+			ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_DOWN.actionId()));
 
 	private final Consumer<Integer> moveCursorFunc;
 	private final Supplier<SignBlockEntity> signSupplier;
@@ -62,7 +62,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
 		var config = controller.settings().generic;
 
 		// move cursor down a line
-		if (ControlifyBindings.GUI_SECONDARY_NAVI_DOWN.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse()) {
 			this.moveCursorFunc.accept(1);
 
 			if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
@@ -74,7 +74,7 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
 		}
 
 		// move cursor up a line
-		if (ControlifyBindings.GUI_SECONDARY_NAVI_UP.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_SECONDARY_NAVI_UP.on(controller).pulse().consumePulse()) {
 			this.moveCursorFunc.accept(-1);
 
 			if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
@@ -119,14 +119,10 @@ public class AbstractSignEditScreenProcessor extends ScreenProcessor<AbstractSig
 	public void onWidgetRebuild() {
 		super.onWidgetRebuild();
 
-		if (Controlify.instance().currentInputMode() == InputMode.MIXED) {
-			holdRepeatHelper.clearDelay();
-		}
-
 		getWidget(CommonComponents.GUI_DONE).ifPresent(doneButton ->
 				ButtonGuideApi.addGuideToButton(
 						(AbstractButton) doneButton,
-						ControlifyBindings.GUI_BACK,
+						ControlifyActions.GUI_BACK,
 						ButtonGuidePredicate.always()
 				));
 

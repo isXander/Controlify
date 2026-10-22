@@ -6,10 +6,10 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
@@ -146,10 +146,10 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		);
 		this.layout.addToFooter(footer);
 
-		ButtonGuideApi.addGuideToButton(this.rememberButton, ControlifyBindings.GUI_PRESS, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(this.onceButton, ControlifyBindings.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(this.deleteButton, ControlifyBindings.GUI_ABSTRACT_ACTION_2, ButtonGuidePredicate.always());
-		ButtonGuideApi.addGuideToButton(backButton, ControlifyBindings.GUI_BACK, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(this.rememberButton, ControlifyActions.GUI_PRESS, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(this.onceButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(this.deleteButton, ControlifyActions.GUI_ABSTRACT_ACTION_2, ButtonGuidePredicate.always());
+		ButtonGuideApi.addGuideToButton(backButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 
 		this.layout.visitWidgets(this::addRenderableWidget);
 		this.repositionElements();
@@ -202,10 +202,10 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 	@Override
 	public void onControllerInput(ControllerImpl controller) {
 		if (this.selectedProfileIndex >= 0
-				&& ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+				&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			this.switchProfile(this.selectedProfileIndex, false);
 		} else if (this.deleteButton.active
-				&& ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
+				&& ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumePulse()) {
 			this.confirmDeleteProfile();
 		}
 	}
@@ -327,9 +327,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenControllerEv
 		}
 
 		ControllerImpl connected = Controlify.instance().getControllerManager()
-				.flatMap(manager -> manager.getConnectedControllers().stream()
-						.filter(controller -> profile.controllerUid.equals(controller.uid()))
-						.findFirst())
+				.flatMap(manager -> manager.getControllerByUid(profile.controllerUid))
 				.orElse(null);
 		if (connected != null) {
 			return new ControllerDisplay(

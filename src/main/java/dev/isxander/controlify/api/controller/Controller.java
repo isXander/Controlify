@@ -1,6 +1,8 @@
 package dev.isxander.controlify.api.controller;
 
 import dev.isxander.controlify.api.controller.rumble.RumbleComponent;
+import dev.isxander.controlify.api.controller.input.InputComponent;
+import dev.isxander.controlify.api.controller.gyro.GyroComponent;
 import net.minecraft.resources.Identifier;
 
 import java.util.Optional;
@@ -33,6 +35,12 @@ public interface Controller {
 	/// The identifier of this controller's type.
 	/// This is the same ID defined by `controller_identification.json5`.
 	Identifier typeId();
+
+	/// Input capabilities and current actions.
+	InputComponent input();
+
+	/// Present if this controller supports gyroscope input.
+	Optional<? extends GyroComponent> gyro();
 
 	/// Get the rumble component that may be attached to this controller.
 	/// If the returned optional is empty, then the controller is not capable of rumble.

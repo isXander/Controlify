@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.platform.main;
 
-import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.ControlifyEntrypoint;
 import dev.isxander.controlify.impl.platform.Environment;
 import dev.isxander.controlify.impl.platform.main.events.CommandRegistrationCallbackEvent;
 import dev.isxander.controlify.impl.platform.main.events.HandshakeCompletionEvent;

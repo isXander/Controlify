@@ -6,24 +6,30 @@
  */
 package dev.isxander.controlify.impl.controllermanager;
 
+import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.api.InputMode;
+import dev.isxander.controlify.api.controllermanager.ControllerEvents;
+import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.api.ControlifyEvents;
+import dev.isxander.controlify.impl.action.ActionContextRegistryImpl;
 import dev.isxander.controlify.impl.config.ConfigManager;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controller.ControllerInfo;
 import dev.isxander.controlify.impl.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.impl.gui.screen.AskToMapControllerScreen;
 import dev.isxander.controlify.impl.gui.screen.BluetoothWarningScreen;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
-import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.DebugLog;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.utils.SetupWizard;
 import dev.isxander.controlify.impl.utils.SetupWizardManager;
-import dev.isxander.controlify.impl.utils.event.EventSource;
+import dev.isxander.controlify.impl.utils.event.EventBus;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
+import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -31,15 +37,24 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
-
 /// Owns controller discovery, selection, activation and activity subscriptions.
-/// Publishes selection changes through {@link ControlifyEvents#CURRENT_CONTROLLER_CHANGED}.
+/// Publishes selection changes through {@link ControllerEvents#CURRENT_CONTROLLER_CHANGED}.
 public class ControllerCoordinator implements AutoCloseable {
+	/// Does not initialize a coordinator, backend or any manager when addons subscribe.
+	public static final class Events {
+		public static final EventBus<ControlifyApi> DISCOVERY_COMPLETED = new EventBus<>();
+		public static final EventBus<ControllerEvents.ControllerConnected> CONTROLLER_CONNECTED = new EventBus<>();
+		public static final EventBus<ControllerEvents.ControllerDisconnected> CONTROLLER_DISCONNECTED = new EventBus<>();
+		public static final EventBus<ControllerEvents.CurrentControllerChanged> CURRENT_CONTROLLER_CHANGED = new EventBus<>();
+
+		private Events() {
+		}
+	}
+
 	private final Controlify controlify;
 	private final ConfigManager config;
 	private final SetupWizardManager setupWizardManager;
-	private final ControllerManager controllerManager = new ControllerManager();
+	private final ControllerManager controllerManager;
 	private final Map<ControllerImpl, EventSource.Subscription> inputSubscriptions = new HashMap<>();
 	private final Set<ControllerImpl> controllersWithInput = new LinkedHashSet<>();
 
@@ -53,20 +68,18 @@ public class ControllerCoordinator implements AutoCloseable {
 		this.config = controlify.config();
 		this.setupWizardManager = setupWizardManager;
 
-		ControlifyEvents.CONTROLLER_CONNECTED.register(event ->
-				this.onControllerAdded(event.controller(), event.hotplugged()));
-		ControlifyEvents.CONTROLLER_DISCONNECTED.register(event ->
-				this.onControllerRemoved(event.controller()));
+		this.controllerManager = new ControllerManager(this::onControllerAdded, this::onControllerRemoved);
 	}
 
 	public boolean initialize() {
 		try {
 			this.backend = new SDLControllerBackend(SDLNativesLoader.load(), this.controlify, this.controllerManager);
+			this.backend.setup();
 		} catch (Throwable throwable) {
 			CUtil.LOGGER.error("Failed to initialize controller backend", throwable);
+			this.backend = null;
 			return false;
 		}
-		this.backend.setup();
 		return true;
 	}
 
@@ -99,13 +112,7 @@ public class ControllerCoordinator implements AutoCloseable {
 		this.applyControllerSelection(false);
 		this.config.saveIfDirty();
 
-		PlatformMainUtil.applyToControlifyEntrypoint(entrypoint -> {
-			try {
-				entrypoint.onControllersDiscovered(this.controlify);
-			} catch (Throwable e) {
-				CUtil.LOGGER.error("Failed to run `onControllersDiscovered` on Controlify entrypoint: {}", entrypoint.getClass().getName(), e);
-			}
-		});
+		Events.DISCOVERY_COMPLETED.emit(this.controlify);
 	}
 
 	/// Polls every controller and resolves selection after all events have been received.
@@ -115,6 +122,11 @@ public class ControllerCoordinator implements AutoCloseable {
 
 		if (!this.isReady()) {
 			return false;
+		}
+
+		var contexts = ActionContextRegistryImpl.INSTANCE.getApplicableContexts(Minecraft.getInstance());
+		for (var controller : this.controllerManager.getAllControllers()) {
+			controller.input().actionGraph().setCurrentContexts(outOfFocus ? Set.of() : contexts);
 		}
 
 		this.backend.pollEvents();
@@ -143,8 +155,8 @@ public class ControllerCoordinator implements AutoCloseable {
 		} else {
 			DebugLog.log("Cleared current controller.");
 		}
-		ControlifyEvents.CURRENT_CONTROLLER_CHANGED.invoke(
-				new ControlifyEvents.CurrentControllerChanged(controller, changeInputMode));
+		this.controlify.onCurrentControllerChanged(controller, changeInputMode);
+		Events.CURRENT_CONTROLLER_CHANGED.emit(new ControllerEvents.CurrentControllerChanged(this.controlify, controller));
 	}
 
 	public void applyControllerSelection(boolean changeInputMode) {
@@ -153,6 +165,32 @@ public class ControllerCoordinator implements AutoCloseable {
 				.filter(controller -> selectedUid == null || selectedUid.equals(controller.uid()))
 				.findFirst().orElse(null);
 		this.setCurrentController(selected, changeInputMode);
+	}
+
+	/// Recreates type-dependent drivers and components through the normal remove/add lifecycle.
+	public void reinitController(ControllerImpl controller, ControllerType newType) {
+		if (!this.isReady()) {
+			return;
+		}
+		var info = controller.info();
+		if (this.controllerManager.getControllerByUcid(info.ucid()).orElse(null) != controller) {
+			throw new IllegalArgumentException("Controller is not registered with this coordinator");
+		}
+		ControllerImpl previousSelection = this.currentController;
+		InputMode previousInputMode = this.controlify.currentInputMode();
+		this.controllerManager.removeController(info.ucid());
+		try {
+			this.backend.createAndAddController(new ControllerInfo(info.ucid(), newType, info.hid()), false);
+		} finally {
+			// Adding an auto-selected controller must not steal selection from another device.
+			if (previousSelection == controller) {
+				this.controllerManager.getControllerByUcid(info.ucid())
+						.ifPresent(replacement -> this.setCurrentController(replacement, false));
+			} else {
+				this.setCurrentController(previousSelection, false);
+			}
+			this.controlify.setInputMode(previousInputMode);
+		}
 	}
 
 	public void applyActiveProfile() {
@@ -165,15 +203,16 @@ public class ControllerCoordinator implements AutoCloseable {
 		if (this.closed) {
 			return;
 		}
-		controller.input().ifPresent(input -> {
-			EventSource.Subscription previous = this.inputSubscriptions.remove(controller);
-			if (previous != null) {
-				previous.close();
-			}
-			this.inputSubscriptions.put(controller, input.inputPipeline().sourceProcessedPhysicalSignals()
-					.filter(signal -> signal instanceof PhysicalInputSignal)
-					.subscribe(_ -> this.controllersWithInput.add(controller)));
-		});
+		EventSource.Subscription previous = this.inputSubscriptions.remove(controller);
+		if (previous != null) {
+			previous.close();
+		}
+		this.inputSubscriptions.put(controller, controller.input().inputPipeline().sourceProcessedPhysicalSignals()
+				.filter(signal -> signal instanceof PhysicalInputSignal)
+				.subscribe(s -> {
+					this.controllersWithInput.add(controller);
+					System.out.println(s);
+				}));
 
 		DeviceSettings rememberedDevice = this.config.getSettings().getOrCreateDeviceSettings(controller.uid());
 		rememberedDevice.name = controller.name();
@@ -188,14 +227,13 @@ public class ControllerCoordinator implements AutoCloseable {
 
 		SetupWizard wizard = new SetupWizard();
 		wizard.addStage(
-				() -> controller.input().map(input -> !input.isGamepad()
-						&& this.config.getSettings().getOrCreateDeviceSettings(controller.uid()).mapping == null)
-						.orElse(false),
+				() -> !controller.input().isGamepad()
+						&& this.config.getSettings().getOrCreateDeviceSettings(controller.uid()).mapping == null,
 				nextScreen -> new AskToMapControllerScreen(controller, nextScreen));
 		wizard.addStage(
-				() -> controller.dualSense().isPresent()
-						&& controller.bluetooth().map(bt -> !bt.settings().dontShowWarning).orElse(false),
-				nextScreen -> new BluetoothWarningScreen(controller.bluetooth().orElseThrow(), nextScreen));
+				() -> controller.dualsense().isPresent()
+						&& controller.bluetoothDevice().map(bt -> !bt.settings().dontShowWarning).orElse(false),
+				nextScreen -> new BluetoothWarningScreen(controller.bluetoothDevice().orElseThrow(), nextScreen));
 		if (hotplugged) {
 			MinecraftUtil.sendToast(
 					Component.translatable("controlify.toast.controller_connected.title"),
@@ -203,6 +241,7 @@ public class ControllerCoordinator implements AutoCloseable {
 			this.config.saveIfDirty();
 		}
 		this.setupWizardManager.push(wizard);
+		Events.CONTROLLER_CONNECTED.emit(new ControllerEvents.ControllerConnected(this.controlify, controller, hotplugged));
 	}
 
 	private void onControllerRemoved(ControllerImpl controller) {
@@ -224,6 +263,7 @@ public class ControllerCoordinator implements AutoCloseable {
 		MinecraftUtil.sendToast(
 				Component.translatable("controlify.toast.controller_disconnected.title"),
 				Component.translatable("controlify.toast.controller_disconnected.description", controller.name()), false);
+		Events.CONTROLLER_DISCONNECTED.emit(new ControllerEvents.ControllerDisconnected(this.controlify, controller));
 	}
 
 	@Override
@@ -237,5 +277,9 @@ public class ControllerCoordinator implements AutoCloseable {
 		this.controllersWithInput.clear();
 		this.currentController = null;
 		this.controllerManager.close();
+	}
+
+	public @Nullable ControllerBackend backend() {
+		return this.backend;
 	}
 }

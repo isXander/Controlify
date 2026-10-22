@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.itembreak;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -19,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class LocalPlayerMixin extends LivingEntityMixin {
 	@Override
 	protected void onBreakItemParticles(ItemStack stack, CallbackInfo ci) {
-		ControlifyApi.get().playRumbleEffect(
+		Controlify.instance().playRumbleEffect(
 				CUtil.rl("item_break"),
 				RumbleEffect.finite().byTick(tick -> new RumbleState(tick <= 4 ? 1f : 0f, 1f), 10)
 		);

@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.utils;
 
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
+import dev.isxander.controlify.impl.font.ComponentFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
@@ -49,7 +49,7 @@ public class LazyComponentDims {
 		int newCacheKey = getCacheKey();
 		if (this.height == -1 || this.cacheKey != newCacheKey) {
 			this.cacheKey = newCacheKey;
-			this.height = BindingFontHelper.getComponentHeight(this.font, this.component);
+			this.height = ComponentFontHelper.getComponentHeight(this.font, this.component);
 		}
 		return this.height;
 	}

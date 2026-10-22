@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.neoforge.impl.platform;
 
-import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.neoforge.impl.platform.network.C2SNetworkApiNeoforge;
 import dev.isxander.controlify.neoforge.impl.platform.network.S2CNetworkApiNeoforge;
 import dev.isxander.controlify.impl.platform.Environment;
@@ -93,7 +94,13 @@ public class NeoforgePlatformMainImpl implements PlatformMainUtilImpl {
 
 	@Override
 	public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-		ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
+		ServiceLoader.load(ControlifyEntrypoint.class).stream().forEach(provider -> {
+			try {
+				entrypointConsumer.accept(provider.get());
+			} catch (Throwable throwable) {
+				CUtil.LOGGER.error("Failed to load Controlify addon provider: {}", provider.type().getName(), throwable);
+			}
+		});
 	}
 
 	@Override

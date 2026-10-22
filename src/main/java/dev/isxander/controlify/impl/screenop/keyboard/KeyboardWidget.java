@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.screenop.keyboard;
 
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -51,8 +51,8 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 	private @Nullable KeyWidget focused;
 	private boolean isDragging;
 
-	private final HoldRepeatHelper fwdCursorHelper = new HoldRepeatHelper(10, 2);
-	private final HoldRepeatHelper bwdCursorHelper = new HoldRepeatHelper(10, 2);
+	private final HoldRepeatHelper forwardCursorRepeat = new HoldRepeatHelper(10, 2);
+	private final HoldRepeatHelper backwardCursorRepeat = new HoldRepeatHelper(10, 2);
 
 	public KeyboardWidget(int x, int y, int width, int height, KeyboardLayoutWithId layout, InputTarget inputConsumer) {
 		super(x, y, width, height, Component.literal("On-Screen Keyboard"));
@@ -150,42 +150,38 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
 		InputTarget inputTarget = this.getInputTarget();
 		var settings = controller.settings().generic;
-
-		if (inputTarget.supportsCursorMovement()) {
-			if (this.fwdCursorHelper.shouldAction(ControlifyBindings.GUI_NEXT_TAB.on(controller))) {
-				if (inputTarget.moveCursor(1)) {
-					ScreenProcessor.playFocusChangeSound();
-					this.fwdCursorHelper.onNavigate();
-					this.bwdCursorHelper.reset();
-
-					if (settings.keyboard.hintCursor && settings.guide.showScreenGuides) {
-						settings.keyboard.hintCursor = false;
-						Controlify.instance().config().saveSafely();
-					}
-
-					return true;
-				}
+		boolean supportsCursor = inputTarget.supportsCursorMovement();
+		boolean forward = this.forwardCursorRepeat.shouldAction(supportsCursor
+				&& ControlifyActions.GUI_NEXT_TAB.on(controller).latch().isLatchActive());
+		boolean backward = this.backwardCursorRepeat.shouldAction(supportsCursor
+				&& ControlifyActions.GUI_PREV_TAB.on(controller).latch().isLatchActive());
+		boolean movedCursor = false;
+		if (supportsCursor) {
+			while (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
+				// Cursor movement uses held state so tab pulses must not also navigate the screen.
 			}
-			if (this.bwdCursorHelper.shouldAction(ControlifyBindings.GUI_PREV_TAB.on(controller))) {
-				if (inputTarget.moveCursor(-1)) {
-					ScreenProcessor.playFocusChangeSound();
-					this.bwdCursorHelper.onNavigate();
-					this.fwdCursorHelper.reset();
-
-					if (settings.keyboard.hintCursor && settings.guide.showScreenGuides) {
-						settings.keyboard.hintCursor = false;
-						Controlify.instance().config().saveSafely();
-					}
-
-					return true;
-				}
+			while (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
+				// Cursor movement uses held state so tab pulses must not also navigate the screen.
+			}
+			if (forward) {
+				movedCursor = inputTarget.moveCursor(1);
+			} else if (backward) {
+				movedCursor = inputTarget.moveCursor(-1);
+			}
+		}
+		if (movedCursor) {
+			ScreenProcessor.playFocusChangeSound();
+			if (settings.keyboard.hintCursor && settings.guide.showScreenGuides) {
+				settings.keyboard.hintCursor = false;
+				Controlify.instance().config().saveSafely();
 			}
 		}
 
-		this.keys.forEach(k -> k.onControllerInput(controller));
+		this.keys.forEach(key -> key.onControllerInput(controller));
 
-		// prevent default button handling for gui press which would send enter which is most likely submit
-		return ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get();
+		// Suppress default Enter handling while the keyboard processes the shared GUI action.
+		boolean pressed = ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse();
+		return movedCursor || pressed;
 	}
 
 	public void setShifted(boolean shifted) {
@@ -237,7 +233,6 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
 	@Override
 	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
 	}
 
 	@Override

@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -21,7 +21,7 @@ public class CreateWorldScreenProcessor extends ScreenProcessor<CreateWorldScree
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			playClackSound();
 			this.onCreateButton.run();
 		}

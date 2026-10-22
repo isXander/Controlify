@@ -1,12 +1,13 @@
 package dev.isxander.controlify.impl.driver.sdl;
 
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.EventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventStage;
 import dev.isxander.sdl.*;
+import org.jspecify.annotations.NonNull;
 
 public class SDLControllerEventStage implements EventStage<SdlEvent, SDLControllerEvent> {
 	@Override
-	public void onEvent(SdlEvent event, EventSink<? super SDLControllerEvent> downstream) {
+	public void onEvent(@NonNull SdlEvent event, @NonNull EventSink<? super SDLControllerEvent> downstream) {
 		long timeNanos = event.timestamp();
 
 		switch (event.data()) {

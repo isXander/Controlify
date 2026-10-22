@@ -6,14 +6,14 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import com.mojang.blaze3d.platform.InputConstants;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractButton;
-import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.KeyEvent;
 
 public class AbstractButtonComponentProcessor implements ComponentProcessor {
@@ -25,7 +25,7 @@ public class AbstractButtonComponentProcessor implements ComponentProcessor {
 
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get()) {
+		if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
 			controller.hdHaptics().ifPresent(hh -> hh.playHaptic(HapticEffects.NAVIGATE));
 			button.playDownSound(Minecraft.getInstance().getSoundManager());
 			button.onPress(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));

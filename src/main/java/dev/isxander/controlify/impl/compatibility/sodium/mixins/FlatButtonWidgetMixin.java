@@ -9,9 +9,10 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 //? if sodium {
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.impl.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.network.chat.Component;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,8 +23,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import java.util.Map;
 import java.util.Optional;
 
-import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
-
 @Mixin(FlatButtonWidget.class)
 public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidget> {
 	@Shadow
@@ -32,7 +31,7 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
 	private boolean visible;
 
 	@Unique private RenderData<FlatButtonWidget> renderData = null;
-	@Unique private final Map<InputBinding, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
+	@Unique private final Map<Action, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
 	@ModifyExpressionValue(
 			method = "extractRenderState",
@@ -47,8 +46,9 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
 	}
 
 	@Unique private Component getControllerMessage(Component actualLabel) {
-		if (!shouldRender())
+		if (!shouldRender()) {
 			return actualLabel;
+		}
 
 		return getBind().map(bind -> controllerMessages
 				.computeIfAbsent(bind, b -> renderData.getControllerMessage(b, actualLabel)))
@@ -62,9 +62,11 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
 				&& renderData.shouldRender((FlatButtonWidget) (Object) this);
 	}
 
-	@Unique private Optional<InputBinding> getBind() {
-		if (renderData == null) return Optional.empty();
-		return renderData.getBind();
+	@Unique private Optional<Action> getBind() {
+		if (renderData == null) {
+			return Optional.empty();
+		}
+		return renderData.getAction();
 	}
 
 	@Override

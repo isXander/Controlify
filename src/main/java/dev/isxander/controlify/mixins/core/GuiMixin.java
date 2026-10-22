@@ -9,7 +9,6 @@ package dev.isxander.controlify.mixins.core;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.impl.utils.InitialScreenRegistryDuck;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.utils.MouseMinecraftCallNotifier;
@@ -59,7 +58,7 @@ public class GuiMixin implements InitialScreenRegistryDuck {
 			)
 	)
 	private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
-		if (ControlifyApi.get().currentInputMode().isController()) {
+		if (Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);
 		}
 	}

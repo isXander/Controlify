@@ -36,14 +36,14 @@ public abstract class CompatMixinPlugin implements IMixinConfigPlugin {
 					Loader.FABRIC,
 					loadPlatformImpl(
 							mixinService,
-							"dev.isxander.controlify.fabric.compatibility.FabricCompatMixinPlatform"
+							"dev.isxander.controlify.fabric.impl.compatibility.FabricCompatMixinPlatform"
 					)
 			);
 			case "FML" -> new Platform(
 					Loader.NEOFORGE,
 					loadPlatformImpl(
 							mixinService,
-							"dev.isxander.controlify.neoforge.compatibility.NeoforgeCompatMixinPlatform"
+							"dev.isxander.controlify.neoforge.impl.compatibility.NeoforgeCompatMixinPlatform"
 					)
 			);
 			default -> throw new IllegalStateException("Unsupported Mixin service: " + mixinService.getName());

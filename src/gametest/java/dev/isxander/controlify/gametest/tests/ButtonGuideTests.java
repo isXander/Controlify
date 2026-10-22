@@ -76,7 +76,7 @@ public class ButtonGuideTests implements FabricClientGameTest {
 
 					Set<String> expectedBindings = Set.of("jump", "sneak", "drop", "inventory", "attack", "use");
 					Set<String> actualBindings = ruleEngine.rules().stream()
-							.map(rule -> rule.binding().bindId())
+							.map(rule -> rule.binding().actionId())
 							.map(id -> id.getPath())
 							.collect(Collectors.toSet());
 					if (!actualBindings.equals(expectedBindings)) {
@@ -108,7 +108,7 @@ public class ButtonGuideTests implements FabricClientGameTest {
 			String bindingPath
 	) {
 		var bindingId = CUtil.rl(bindingPath);
-		if (rules.stream().noneMatch(rule -> rule.binding().bindId().equals(bindingId))) {
+		if (rules.stream().noneMatch(rule -> rule.binding().actionId().equals(bindingId))) {
 			throw new AssertionError("Expected a matching guide rule for '" + bindingId + "': " + rules);
 		}
 	}
@@ -120,7 +120,7 @@ public class ButtonGuideTests implements FabricClientGameTest {
 	) {
 		var bindingId = CUtil.rl(bindingPath);
 		List<GuideRule> rules = ruleEngine.rules().stream()
-				.filter(rule -> rule.binding().bindId().equals(bindingId))
+				.filter(rule -> rule.binding().actionId().equals(bindingId))
 				.toList();
 		if (rules.isEmpty() || rules.stream().anyMatch(rule -> rule.location() != expectedLocation)) {
 			throw new AssertionError(

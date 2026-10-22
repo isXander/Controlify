@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.Button;
@@ -40,13 +40,13 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
 		if (screen.getFocused() != null && screen.getFocused() instanceof Button) {
-			if (ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
+			if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
 				screen.setFocused(listSupplier.get());
 				return;
 			}
 		}
 
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).guiPressed().get()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			Button directConnectButton = this.directConnectButtonSupplier.get();
 			if (directConnectButton != null) {
 				playClackSound();
@@ -54,7 +54,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
 			}
 		}
 
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).guiPressed().get()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumePulse()) {
 			Button addServerButton = this.addServerButtonSupplier.get();
 			if (addServerButton != null) {
 				playClackSound();
@@ -74,7 +74,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
 		if (backButton != null) {
 			ButtonGuideApi.addGuideToButton(
 					backButton,
-					ControlifyBindings.GUI_BACK,
+					ControlifyActions.GUI_BACK,
 					ButtonGuidePredicate.always()
 			);
 		}
@@ -82,7 +82,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
 		if (directConnectButton != null) {
 			ButtonGuideApi.addGuideToButton(
 					directConnectButton,
-					ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+					ControlifyActions.GUI_ABSTRACT_ACTION_1,
 					ButtonGuidePredicate.always()
 			);
 		}
@@ -90,7 +90,7 @@ public class JoinMultiplayerScreenProcessor extends ScreenProcessor<JoinMultipla
 		if (addServerButton != null) {
 			ButtonGuideApi.addGuideToButton(
 					addServerButton,
-					ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+					ControlifyActions.GUI_ABSTRACT_ACTION_2,
 					ButtonGuidePredicate.always()
 			);
 		}

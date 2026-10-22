@@ -12,6 +12,7 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.config.dto.profile.ProfileConfig;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -28,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public class DefaultConfigManager implements SimpleControlifyReloadListener<ProfileConfig>, DefaultConfigProvider {
-	public static final Identifier DEFAULT_RESOURCE = CUtil.rl("controllers/default_config.json");
+	public static final Identifier DEFAULT_RESOURCE = CUtil.rl("controller/default_config.json");
 	private static final Logger LOGGER = LogUtils.getLogger();
 
 	private ProfileConfig defaultConfig;
@@ -76,7 +77,14 @@ public class DefaultConfigManager implements SimpleControlifyReloadListener<Prof
 
 	@Override
 	public CompletableFuture<Void> apply(ProfileConfig data, ResourceManager manager, Executor executor) {
-		return CompletableFuture.runAsync(() -> this.defaultConfig = data, executor);
+		return CompletableFuture.runAsync(() -> {
+			this.defaultConfig = data;
+			Controlify.instance().getControllerManager().ifPresent(controllerManager -> {
+				for (var controller : controllerManager.getAllControllers()) {
+					controller.reloadDefaultSettings();
+				}
+			});
+		}, executor);
 	}
 
 	@Override

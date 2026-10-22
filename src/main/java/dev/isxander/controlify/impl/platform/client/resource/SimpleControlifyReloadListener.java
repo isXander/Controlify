@@ -21,18 +21,9 @@ public interface SimpleControlifyReloadListener<T> extends ControlifyReloadListe
 			@NonNull PreparationBarrier preparationBarrier,
 			@NonNull Executor applyExecutor
 	) {
-		return reload0(preparationBarrier, sharedState.resourceManager(), loadExecutor, applyExecutor);
-	}
-
-	default @NotNull CompletableFuture<Void> reload0(
-			PreparationBarrier preparationBarrier,
-			ResourceManager resourceManager,
-			Executor loadExecutor,
-			Executor applyExecutor
-	) {
-		return load(resourceManager, loadExecutor)
+		return load(sharedState.resourceManager(), loadExecutor)
 				.thenCompose(preparationBarrier::wait)
-				.thenCompose(data -> apply(data, resourceManager, applyExecutor));
+				.thenCompose(data -> apply(data, sharedState.resourceManager(), applyExecutor));
 	}
 
 	/**

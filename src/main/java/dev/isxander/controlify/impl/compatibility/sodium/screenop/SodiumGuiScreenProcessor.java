@@ -10,7 +10,7 @@ package dev.isxander.controlify.impl.compatibility.sodium.screenop;
 
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.compatibility.sodium.mixins.FlatButtonWidgetAccessor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
@@ -31,18 +31,18 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			((FlatButtonWidgetAccessor) operations.controlify$getApplyButton()).invokeDoAction();
 		}
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumePulse()) {
 			((FlatButtonWidgetAccessor) operations.controlify$getUndoButton()).invokeDoAction();
 		}
 
-		if (ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse()) {
 			operations.controlify$nextPage();
 		}
 
-		if (ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse()) {
 			operations.controlify$prevPage();
 		}
 
@@ -52,18 +52,18 @@ public class SodiumGuiScreenProcessor extends ScreenProcessor<Screen> {
 	public void onRebuildGUI() {
 		ButtonGuideApi.addGuideToButton(
 				operations.controlify$getApplyButton(),
-				ControlifyBindings.GUI_ABSTRACT_ACTION_1,
+				ControlifyActions.GUI_ABSTRACT_ACTION_1,
 				ButtonGuidePredicate.always()
 		);
 		ButtonGuideApi.addGuideToButton(
 				operations.controlify$getUndoButton(),
-				ControlifyBindings.GUI_ABSTRACT_ACTION_2,
+				ControlifyActions.GUI_ABSTRACT_ACTION_2,
 				ButtonGuidePredicate.always()
 		);
 
 		ButtonGuideApi.addGuideToButton(
 				operations.controlify$getCloseButton(),
-				ControlifyBindings.GUI_BACK,
+				ControlifyActions.GUI_BACK,
 				ButtonGuidePredicate.always()
 		);
 

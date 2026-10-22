@@ -7,7 +7,7 @@
 package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.framework.controller.TestControllerContext;
@@ -102,7 +102,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 	private static void waitForButton(
 		ClientGameTestContext context,
 		TestControllerContext<?> controller,
-		InputComponent input,
+		InputComponentImpl input,
 		Map.Entry<Integer, Identifier> expected,
 		boolean down
 	) {

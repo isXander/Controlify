@@ -6,39 +6,35 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.contextual.GuideVerbosity;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
-import dev.isxander.controlify.impl.bindings.BindContext;
-import dev.isxander.controlify.impl.bindings.ControlifyBindApiImpl;
-import dev.isxander.controlify.impl.bindings.input.EmptyInput;
-import dev.isxander.controlify.impl.bindings.input.Input;
+import dev.isxander.controlify.impl.action.ActionGraph;
+import dev.isxander.controlify.impl.action.ActionImpl;
+import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.config.settings.profile.GenericControllerSettings;
 import dev.isxander.controlify.impl.config.settings.profile.InputSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
 import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
+import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.gui.controllers.Deadzone2DImageRenderer;
 import dev.isxander.controlify.impl.ingame.InputCurves;
 import dev.isxander.controlify.impl.input.mapping.DeadzoneGroup;
-import dev.isxander.controlify.impl.input.mapping.Inputs;
 import dev.isxander.controlify.impl.server.ServerPolicies;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -48,6 +44,11 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class ControllerConfigScreenFactory {
 	private static final ValueFormatter<Float> percentFormatter = v -> Component.literal(String.format("%.0f%%", v*100));
@@ -177,10 +178,6 @@ public class ControllerConfigScreenFactory {
 		var builder = OptionGroup.createBuilder()
 				.name(Component.translatable("controlify.gui.config.group.sensitivity"));
 
-		if (controller.isPresent() && controller.get().input().isEmpty()) {
-			builder.option(LabelOption.create(Component.literal("TODO warning no input component")));
-		}
-
 		InputSettings.SensitivitySettings sens = settings.input.sensitivity;
 		InputSettings.SensitivitySettings def = defaults.input.sensitivity;
 
@@ -268,8 +265,9 @@ public class ControllerConfigScreenFactory {
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
-		if (controller.isEmpty())
+		if (controller.isEmpty()) {
 			return Optional.empty();
+		}
 
 		ValueFormatter<Boolean> holdToggleFormatter = v -> Component.translatable("controlify.gui.format.hold_toggle." + (v ? "toggle" : "hold"));
 
@@ -415,11 +413,11 @@ public class ControllerConfigScreenFactory {
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
-		Optional<InputComponent> inputOpt = controller.flatMap(ControllerImpl::input);
-		if (inputOpt.isEmpty())
+		if (controller.isEmpty()) {
 			return Optional.empty();
+		}
 
-		InputComponent input = inputOpt.get();
+		InputComponentImpl input = controller.get().input();
 		InputSettings config = settings.input;
 		InputSettings def = defaults.input;
 
@@ -430,7 +428,7 @@ public class ControllerConfigScreenFactory {
 
 		group.option(LabelOption.create(Component.translatable("controlify.gui.stickdrift_warning").withStyle(ChatFormatting.RED)));
 
-		for (DeadzoneGroup deadzoneGroup : input.getDeadzoneGroups().values()) {
+		for (DeadzoneGroup deadzoneGroup : input.controllerMapping().deadzones().values()) {
 			Identifier groupName = deadzoneGroup.name();
 			Component name = Component.translatable("controlify.deadzone_group." + groupName.getNamespace() + "." + groupName.getPath());
 
@@ -488,16 +486,16 @@ public class ControllerConfigScreenFactory {
 	private Optional<OptionGroup> makeControllerMappingGroup(
 			ProfileSettings settings,
 			ProfileSettings defaults,
-			Optional<ControllerImpl> controller
+			Optional<ControllerImpl> controllerOpt
 	) {
-		Optional<InputComponent> inputOpt = controller.flatMap(ControllerImpl::input);
-		if (inputOpt.isEmpty())
+		if (controllerOpt.isEmpty()) {
 			return Optional.empty();
-		InputComponent input = inputOpt.get();
+		}
+		ControllerImpl controller = controllerOpt.get();
 
 		DeviceSettings config = Controlify.instance().config().getSettings()
-				.getOrCreateDeviceSettings(controller.get().uid());
-		DeviceSettings def = DeviceSettings.defaults(controller.map(ControllerImpl::uid).orElse(""));
+				.getOrCreateDeviceSettings(controller.uid());
+		DeviceSettings def = DeviceSettings.defaults(controller.uid());
 
 		return Optional.of(OptionGroup.createBuilder()
 				.name(Component.translatable("controlify.gui.group.controller_mapping"))
@@ -505,7 +503,7 @@ public class ControllerConfigScreenFactory {
 				.option(ButtonOption.createBuilder()
 						.name(Component.translatable("controlify.gui.create_gamepad_mapping"))
 						.description(OptionDescription.of(Component.translatable("controlify.gui.create_gamepad_mapping.tooltip")))
-						.action((screen, button) -> MinecraftUtil.setScreen(ControllerMappingMakerScreen.createGamepadMapping(input, screen)))
+						.action((screen, button) -> MinecraftUtil.setScreen(ControllerMappingMakerScreen.createGamepadMapping(controller, screen)))
 						.build())
 				.option(ButtonOption.createBuilder()
 						.name(Component.translatable("controlify.gui.clear_mapping"))
@@ -722,7 +720,7 @@ public class ControllerConfigScreenFactory {
 				.text(Component.translatable("controlify.gui.trigger_effects.tooltip"))
 				.build());
 
-		if (controller.isPresent() && controller.get().dualSense().isEmpty()) {
+		if (controller.isPresent() && controller.get().dualsense().isEmpty()) {
 			group.collapsed(true);
 			group.option(LabelOption.create(Component.translatable("controlify.gui.group.trigger_effects.no_dualsense.tooltip").withStyle(ChatFormatting.RED)));
 		}
@@ -749,7 +747,7 @@ public class ControllerConfigScreenFactory {
 		InputSettings.RadialMenuSettings radialConfig = settings.input.radialMenu;
 		InputSettings.RadialMenuSettings radialDef = defaults.input.radialMenu;
 
-		List<OptionBindPair> optionBinds = new ArrayList<>();
+		List<OptionActionPair> optionActions = new ArrayList<>();
 
 		category
 				.optionIf(controller.isPresent(), ButtonOption.createBuilder()
@@ -774,26 +772,36 @@ public class ControllerConfigScreenFactory {
 								.range(2, 40).step(1).formatValue(ticksToMillisFormatter))
 						.build());
 
-		Collection<InputBinding> allBindings = controller.isPresent()
-				? controller.get().input().map(InputComponent::getAllBindings).orElse(List.of())
-				: ControlifyBindApiImpl.INSTANCE.provideBindsForController(null); // when giving null as controller, we get all binds
+		Collection<Action> allActions = controller
+				.<Collection<Action>>map(c -> c.input().getAllActions().stream()
+						.filter(action -> action.spec().shouldExpose().test(c))
+						.map(action -> (Action) action).toList())
+				.orElseGet(() -> ActionSpecRegistryImpl.INSTANCE.getActionSpecs().stream()
+						.map(spec -> {
+							var action = new ActionImpl(spec,
+									settings.input.bindings.bindings.get(spec.id()), null,
+									Controlify.instance().activatorConfigManager().getConfig(spec.id()),
+									new ActionGraph());
+							action.reset();
+							return (Action) action;
+						}).toList());
 
-		groupBindings(allBindings).forEach((categoryName, bindGroup) -> {
+		groupActions(allActions).forEach((categoryName, bindGroup) -> {
 			var controlsGroup = OptionGroup.createBuilder()
 					.name(categoryName);
 
 			controlsGroup.options(bindGroup.stream().map(binding -> {
-				Option.Builder<?> option = createBindingOpt(binding, controller.orElse(null))
-						.addListener((opt, val) -> updateConflictingBinds(optionBinds));
+				Option.Builder<Optional<LogicalInput>> option = createActionOpt(binding, controller.orElse(null), settings)
+						.addListener((opt, val) -> updateConflictingActions(optionActions));
 
-				Option<?> built = option.build();
-				optionBinds.add(new OptionBindPair(built, binding));
+				Option<Optional<LogicalInput>> built = option.build();
+				optionActions.add(new OptionActionPair(built, binding));
 				return built;
 			}).toList());
 
 			category.group(controlsGroup.build());
 		});
-		updateConflictingBinds(optionBinds);
+		updateConflictingActions(optionActions);
 
 		category.option(ButtonOption.createBuilder()
 				.name(Component.translatable("controlify.gui.reset_all_binds"))
@@ -801,10 +809,8 @@ public class ControllerConfigScreenFactory {
 						.text(Component.translatable("controlify.gui.reset_all_binds.tooltip"))
 						.build())
 				.action((screen, opt) -> {
-					for (OptionBindPair pair : optionBinds) {
-						// who needs a type system?
-						// noinspection unchecked
-						((Option<Object>) pair.option()).requestSet(pair.binding.defaultInput());
+					for (OptionActionPair pair : optionActions) {
+						pair.option().requestSet(Optional.ofNullable(pair.action.defaultInput()));
 					}
 				})
 				.build());
@@ -812,20 +818,20 @@ public class ControllerConfigScreenFactory {
 		return Optional.of(category.build());
 	}
 
-	private void updateConflictingBinds(List<OptionBindPair> all) {
+	private void updateConflictingActions(List<OptionActionPair> all) {
 		all.forEach(pair -> ((BindController) pair.option().controller()).setConflicting(false));
 
-		for (OptionBindPair opt : all) {
-			Set<BindContext> ctxs = opt.binding().contexts();
+		for (OptionActionPair opt : all) {
+			Set<Identifier> ctxs = opt.action().spec().contexts();
 
-			List<OptionBindPair> conflicting = all.stream()
-					.filter(pair -> pair.binding() != opt.binding())
+			List<OptionActionPair> conflicting = all.stream()
+					.filter(pair -> pair.action() != opt.action())
 					.filter(pair -> {
-						boolean contextsMatch = pair.binding().contexts()
+						boolean contextsMatch = pair.action().spec().contexts()
 								.stream()
 								.anyMatch(ctxs::contains);
-						boolean bindMatches = pair.option().pendingValue().equals(opt.option().pendingValue());
-						boolean bindIsNotEmpty = !(pair.option().pendingValue() instanceof EmptyInput);
+						boolean bindMatches = Objects.equals(pair.option().pendingValue(), opt.option().pendingValue());
+						boolean bindIsNotEmpty = pair.option().pendingValue() != null;
 						return contextsMatch && bindMatches && bindIsNotEmpty;
 					}).toList();
 
@@ -833,42 +839,34 @@ public class ControllerConfigScreenFactory {
 		}
 	}
 
-	private static Map<Component, List<InputBinding>> groupBindings(Collection<InputBinding> bindings) {
+	private static Map<Component, List<Action>> groupActions(Collection<Action> bindings) {
 		return bindings.stream()
-				.collect(Collectors.groupingBy(InputBinding::category, LinkedHashMap::new, Collectors.toList()));
+				.collect(Collectors.groupingBy(a -> a.spec().category(), LinkedHashMap::new, Collectors.toList()));
 	}
 
-	private static Option.Builder<Input> createBindingOpt(InputBindingSupplier bindingSupplier, ControllerImpl controller) {
-		return createBindingOpt(bindingSupplier.on(controller), controller);
-	}
-
-	private static Option.Builder<Input> createBindingOpt(InputBinding binding, @Nullable ControllerImpl controller) {
-		return Option.<Input>createBuilder()
-				.name(binding.name())
-				.description(v -> OptionDescription.createBuilder()
-						.text(binding.description())
+	private Option.Builder<Optional<LogicalInput>> createActionOpt(Action action, @Nullable ControllerImpl controller, ProfileSettings settings) {
+		Identifier fontNamespace = controller == null
+				? ControllerType.DEFAULT.id()
+				: controller.info().type().id();
+		return Option.<Optional<LogicalInput>>createBuilder()
+				.name(action.spec().name())
+				.description(value -> OptionDescription.createBuilder()
+						.text(action.spec().description())
 						.text(Component.translatable("controlify.gui.bind.currently_bound_to",
-								Component.empty()
-										.append(Controlify.instance().inputFontMapper().getComponentFromInputs(
-												controller.info().type().id(),
-												v.getRelevantInputs()
-										))
-										.append(CommonComponents.SPACE)
-										.append(Inputs.getInputComponentAnd(v.getRelevantInputs()))
-						))
-						.text(v.equals(binding.defaultInput()) ? Component.empty() : Component.translatable("controlify.gui.bind.default_bound_to",
-								Component.empty()
-										.append(Controlify.instance().inputFontMapper().getComponentFromInputs(
-												controller.info().type().id(),
-												binding.defaultInput().getRelevantInputs()
-										))
-										.append(CommonComponents.SPACE)
-										.append(Inputs.getInputComponentAnd(
-												binding.defaultInput().getRelevantInputs()
-										))
-						))
+								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, value.orElse(null))))
+						.text(Objects.equals(value, action.defaultInput()) ? Component.empty()
+								: Component.translatable("controlify.gui.bind.default_bound_to",
+								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, action.defaultInput())))
 						.build())
-				.binding(EmptyInput.INSTANCE, binding::boundInput, binding::setBoundInput)
+				.binding(Optional.ofNullable(action.defaultInput()), () -> Optional.ofNullable(action.boundInput()), value -> {
+					LogicalInput input = value.orElse(null);
+					action.setBoundInput(input);
+					if (input == null) {
+						settings.input.bindings.bindings.remove(action.spec().id());
+					} else {
+						settings.input.bindings.bindings.put(action.spec().id(), input);
+					}
+				})
 				.customController(opt -> new BindController(opt, controller));
 	}
 
@@ -880,6 +878,6 @@ public class ControllerConfigScreenFactory {
 		return Component.translatable("controlify.gui.not_supported", featureName).withStyle(ChatFormatting.RED);
 	}
 
-	private record OptionBindPair(Option<?> option, InputBinding binding) {
+	private record OptionActionPair(Option<Optional<LogicalInput>> option, Action action) {
 	}
 }

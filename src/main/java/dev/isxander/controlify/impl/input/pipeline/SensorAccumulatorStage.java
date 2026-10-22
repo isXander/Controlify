@@ -4,8 +4,9 @@ import dev.isxander.controlify.impl.input.SensorType;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSensorSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
-import dev.isxander.controlify.impl.utils.event.EventSink;
-import dev.isxander.controlify.impl.utils.event.EventStage;
+import dev.isxander.controlify.api.utils.event.EventSink;
+import dev.isxander.controlify.api.utils.event.EventStage;
+import org.jspecify.annotations.NonNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -18,8 +19,8 @@ public class SensorAccumulatorStage implements EventStage<PhysicalSignal, Logica
 
 	@Override
 	public void onEvent(
-			PhysicalSignal event,
-			EventSink<? super LogicalSignal.SensorInterval> downstream
+			@NonNull PhysicalSignal event,
+			@NonNull EventSink<? super LogicalSignal.SensorInterval> downstream
 	) {
 		switch (event) {
 			case PhysicalSignal.Frame(long timeNanos, _) -> {

@@ -6,11 +6,11 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.screenop.ScreenProcessor;
-import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.SelectWorldScreenAccessor;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.SelectWorldScreenAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
@@ -23,7 +23,7 @@ public class SelectWorldScreenProcessor extends ScreenProcessor<SelectWorldScree
 
 	@Override
 	protected void handleButtons(ControllerImpl controller) {
-		if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumePulse()) {
 			playClackSound();
 			var minecraft = Minecraft.getInstance();
 			CreateWorldScreen.openFresh(minecraft, () -> MinecraftUtil.setScreen(screen));
@@ -31,7 +31,7 @@ public class SelectWorldScreenProcessor extends ScreenProcessor<SelectWorldScree
 		}
 
 		if (screen.getFocused() != null && screen.getFocused() instanceof Button) {
-			if (ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
+			if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
 				screen.setFocused(((SelectWorldScreenAccessor) screen).controlify$getList());
 				return;
 			}

@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
@@ -78,7 +79,7 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
 
 	@Unique private void startRumble(RumbleEffect effect) {
 		if (useItemRumble != null) useItemRumble.stop();
-		this.useItemRumble = ControlifyApi.get().playRumbleEffect(CUtil.rl("use_item"), effect).orElse(null);
+		this.useItemRumble = Controlify.instance().playRumbleEffect(CUtil.rl("use_item"), effect).orElse(null);
 	}
 
 	@Override

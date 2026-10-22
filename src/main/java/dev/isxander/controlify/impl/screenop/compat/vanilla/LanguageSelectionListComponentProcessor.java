@@ -6,12 +6,12 @@
  */
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
-import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.OptionsSubScreenAccessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.OptionsSubScreenAccessor;
 import net.minecraft.client.Minecraft;
 
 public class LanguageSelectionListComponentProcessor implements ComponentProcessor {
@@ -23,7 +23,7 @@ public class LanguageSelectionListComponentProcessor implements ComponentProcess
 
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (ControlifyBindings.GUI_PRESS.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse()) {
 			var minecraft = Minecraft.getInstance();
 			var languageManager = minecraft.getLanguageManager();
 			if (!code.equals(languageManager.getSelected())) {

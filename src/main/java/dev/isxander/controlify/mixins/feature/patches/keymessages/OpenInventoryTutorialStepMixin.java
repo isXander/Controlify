@@ -9,8 +9,8 @@ package dev.isxander.controlify.mixins.feature.patches.keymessages;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.font.BindingFontHelper;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.tutorial.OpenInventoryTutorialStep;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,6 +22,6 @@ public class OpenInventoryTutorialStepMixin {
 	@Expression("key('inventory')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.INVENTORY.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.INVENTORY.actionId(), original);
 	}
 }

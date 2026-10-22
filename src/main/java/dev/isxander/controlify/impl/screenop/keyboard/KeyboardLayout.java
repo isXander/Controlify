@@ -12,7 +12,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -84,7 +84,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 	 * @param shortcutBinding an optional shortcut binding for the key, used to display a shortcut in the UI
 	 * @param identifier an optional identifier for the key, used when changing layouts to focus a specific key with a matching identifier
 	 */
-	public record Key(KeyFunction regular, KeyFunction shifted, float width, Optional<InputBindingSupplier> shortcutBinding, @Nullable String identifier) {
+	public record Key(KeyFunction regular, KeyFunction shifted, float width, Optional<ActionAccessor> shortcutBinding, @Nullable String identifier) {
 		private static final Codec<Float> WIDTH_CODEC = Codec.floatRange(0.1f, Float.MAX_VALUE);
 
 		private static final Codec<Key> PAIR_CODEC = Codec.withAlternative(
@@ -92,7 +92,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 						KeyFunction.CODEC.fieldOf("regular").forGetter(Key::regular),
 						KeyFunction.CODEC.optionalFieldOf("shifted").forGetter(k -> Optional.of(k.shifted)),
 						WIDTH_CODEC.optionalFieldOf("width", 1f).forGetter(Key::width),
-						InputBindingSupplier.CODEC.optionalFieldOf("shortcut").forGetter(Key::shortcutBinding),
+						ActionAccessor.CODEC.optionalFieldOf("shortcut").forGetter(Key::shortcutBinding),
 						Codec.STRING.optionalFieldOf("identifier").forGetter(k -> Optional.ofNullable(k.identifier))
 				).apply(instance, Key::fromCodec)),
 				CExtraCodecs.arrayPair(KeyFunction.CODEC, Key::regular, Key::shifted, Key::new)
@@ -112,7 +112,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 			this(keyFunction, width, Optional.empty());
 		}
 
-		public Key(KeyFunction keyFunction, float width, Optional<InputBindingSupplier> shortcut) {
+		public Key(KeyFunction keyFunction, float width, Optional<ActionAccessor> shortcut) {
 			this(keyFunction, keyFunction.createShifted(), width, shortcut, null);
 		}
 
@@ -120,7 +120,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 			this(regular, shifted, 1f, Optional.empty(), null);
 		}
 
-		private static Key fromCodec(KeyFunction regular, Optional<KeyFunction> shifted, float width, Optional<InputBindingSupplier> shortcut, Optional<String> identifier) {
+		private static Key fromCodec(KeyFunction regular, Optional<KeyFunction> shifted, float width, Optional<ActionAccessor> shortcut, Optional<String> identifier) {
 			return new Key(
 					regular,
 					shifted.orElseGet(regular::createShifted),

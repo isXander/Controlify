@@ -6,6 +6,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.function.Function;
 
+/// Internal context definition; the public API exposes its identifier and registration parameters only.
 public record ActionContext(Identifier id, Function<Minecraft, Boolean> isApplicable) implements Comparable<ActionContext> {
 	@Override
 	public int compareTo(@NonNull ActionContext o) {

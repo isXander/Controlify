@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.fabric.impl.platform;
 
-import dev.isxander.controlify.impl.api.entrypoint.ControlifyEntrypoint;
+import dev.isxander.controlify.api.ControlifyEntrypoint;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.fabric.impl.platform.network.C2SNetworkApiFabric;
 import dev.isxander.controlify.fabric.impl.platform.network.S2CNetworkApiFabric;
 import dev.isxander.controlify.impl.platform.Environment;
@@ -34,6 +35,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -58,9 +61,27 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
 
 	@Override
 	public void applyToControlifyEntrypoint(Consumer<ControlifyEntrypoint> entrypointConsumer) {
-		// Use both Fabric's entrypoint system and ServiceLoader to maximize compatibility
-		FabricLoader.getInstance().getEntrypoints("controlify", ControlifyEntrypoint.class).forEach(entrypointConsumer);
-		ServiceLoader.load(ControlifyEntrypoint.class).forEach(entrypointConsumer);
+		// Use both discovery mechanisms, without constructing duplicate service providers.
+		Set<Class<?>> loaded = new HashSet<>();
+		FabricLoader.getInstance().getEntrypointContainers("controlify", ControlifyEntrypoint.class).forEach(container -> {
+			try {
+				var entrypoint = container.getEntrypoint();
+				if (loaded.add(entrypoint.getClass())) {
+					entrypointConsumer.accept(entrypoint);
+				}
+			} catch (Throwable throwable) {
+				CUtil.LOGGER.error("Failed to load Controlify addon from mod: {}", container.getProvider().getMetadata().getId(), throwable);
+			}
+		});
+		ServiceLoader.load(ControlifyEntrypoint.class).stream().forEach(provider -> {
+			try {
+				if (loaded.add(provider.type())) {
+					entrypointConsumer.accept(provider.get());
+				}
+			} catch (Throwable throwable) {
+				CUtil.LOGGER.error("Failed to load Controlify addon provider: {}", provider.type().getName(), throwable);
+			}
+		});
 	}
 
 	@Override

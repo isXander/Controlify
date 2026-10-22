@@ -7,10 +7,10 @@
 package dev.isxander.controlify.impl.screenop.compat.vanilla;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import dev.isxander.controlify.impl.screenop.ComponentProcessor;
+import dev.isxander.controlify.impl.screenop.ScreenProcessor;
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.client.input.KeyEvent;
 
@@ -23,9 +23,6 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
 	private final AbstractSliderButton component;
 
-	private static final int SLIDER_CHANGE_DELAY = 1;
-	private int lastSliderChange = SLIDER_CHANGE_DELAY;
-
 	public SliderComponentProcessor(AbstractSliderButton component, Supplier<Boolean> canChangeValueGetter, Consumer<Boolean> canChangeValueSetter) {
 		this.component = component;
 		this.canChangeValueGetter = canChangeValueGetter;
@@ -34,22 +31,16 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
 	@Override
 	public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (!this.canChangeValueGetter.get()) return false;
+		if (!this.canChangeValueGetter.get()) {
+			return false;
+		}
 
-		var canSliderChange = ++lastSliderChange > SLIDER_CHANGE_DELAY;
-
-		if (ControlifyBindings.GUI_NAVI_RIGHT.on(controller).digitalNow()) {
-			if (canSliderChange) {
-				component.keyPressed(new KeyEvent(InputConstants.KEY_RIGHT, 0, 0));
-				lastSliderChange = 0;
-			}
+		if (ControlifyActions.GUI_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
+			component.keyPressed(new KeyEvent(InputConstants.KEY_RIGHT, 0, 0));
 
 			return true;
-		} else if (ControlifyBindings.GUI_NAVI_LEFT.on(controller).digitalNow()) {
-			if (canSliderChange) {
-				component.keyPressed(new KeyEvent(InputConstants.KEY_LEFT, 0, 0));
-				lastSliderChange = 0;
-			}
+		} else if (ControlifyActions.GUI_NAVI_LEFT.on(controller).pulse().consumePulse()) {
+			component.keyPressed(new KeyEvent(InputConstants.KEY_LEFT, 0, 0));
 
 			return true;
 		}
@@ -59,9 +50,11 @@ public class SliderComponentProcessor implements ComponentProcessor {
 
 	@Override
 	public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerImpl controller) {
-		if (!this.canChangeValueGetter.get()) return false;
+		if (!this.canChangeValueGetter.get()) {
+			return false;
+		}
 
-		if (ControlifyBindings.GUI_BACK.on(controller).justPressed()) {
+		if (ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
 			this.canChangeValueSetter.accept(false);
 			return true;
 		}

@@ -6,46 +6,39 @@
  */
 package dev.isxander.controlify.impl.utils;
 
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-
-public class HoldRepeatHelper {
-	private final int initialDelay, repeatDelay;
-	private int currentDelay;
-
-	private boolean hasResetThisTick = false;
+/// Consumer-local repetition for shared actions whose general-purpose activator must not repeat.
+/// Call once per fixed update, including while inactive. Delays are in fixed-update ticks.
+/// Dedicated repeat actions should use the repeat-latch activator instead.
+public final class HoldRepeatHelper {
+	private final int initialDelay;
+	private final int repeatDelay;
+	private int remainingDelay;
+	private boolean previouslyActive;
 
 	public HoldRepeatHelper(int initialDelay, int repeatDelay) {
 		this.initialDelay = initialDelay;
 		this.repeatDelay = repeatDelay;
-		this.currentDelay = 0;
 	}
 
-	public boolean canNavigate() {
-		return --currentDelay <= 0;
+	public boolean shouldAction(boolean active) {
+		if (!active) {
+			this.reset();
+			return false;
+		}
+		if (!this.previouslyActive) {
+			this.previouslyActive = true;
+			this.remainingDelay = this.initialDelay;
+			return true;
+		}
+		if (--this.remainingDelay <= 0) {
+			this.remainingDelay = this.repeatDelay;
+			return true;
+		}
+		return false;
 	}
 
 	public void reset() {
-		currentDelay = initialDelay;
-		hasResetThisTick = true;
-	}
-
-	public void clearDelay() {
-		currentDelay = 0;
-	}
-
-	public void onNavigate() {
-		if (!hasResetThisTick) {
-			currentDelay = repeatDelay;
-		} else {
-			hasResetThisTick = false;
-		}
-	}
-
-	public boolean shouldAction(InputBinding binding) {
-		boolean shouldAction = binding.digitalNow() && (canNavigate() || !binding.digitalPrev());
-		if (shouldAction && !binding.digitalPrev()) {
-			reset();
-		}
-		return shouldAction;
+		this.previouslyActive = false;
+		this.remainingDelay = 0;
 	}
 }

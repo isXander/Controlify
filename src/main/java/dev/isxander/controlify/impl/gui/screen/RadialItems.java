@@ -6,11 +6,11 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.action.radial.RadialIcon;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
 import dev.isxander.controlify.impl.action.radial.RadialIconManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -33,19 +33,19 @@ import java.util.function.Supplier;
 public final class RadialItems {
 	public static final RadialMenuScreen.RadialItem EMPTY_ACTION = new RadialItemRecord(Component.empty(), RadialIcon.EMPTY, () -> false, RadialIconManager.EMPTY);
 
-	public static RadialMenuScreen.RadialItem[] createBindings(ControllerImpl controller) {
+	public static RadialMenuScreen.RadialItem[] createActions(ControllerImpl controller) {
 		List<Identifier> actions = controller.settings().input.radialMenu.radialActions;
 		RadialMenuScreen.RadialItem[] items = new RadialMenuScreen.RadialItem[actions.size()];
 
 		for (int i = 0; i < actions.size(); i++) {
-			items[i] = getItemForBinding(actions.get(i), controller);
+			items[i] = getItemForAction(actions.get(i), controller);
 		}
 
 		return items;
 	}
 
-	public static List<RadialMenuScreen.RadialItem[]> createBindingPages(ControllerImpl controller) {
-		RadialMenuScreen.RadialItem[] items = createBindings(controller);
+	public static List<RadialMenuScreen.RadialItem[]> createActionPages(ControllerImpl controller) {
+		RadialMenuScreen.RadialItem[] items = createActions(controller);
 		return RadialMenuPages.partition(Arrays.asList(items)).stream()
 				.map(page -> page.toArray(RadialMenuScreen.RadialItem[]::new))
 				.toList();
@@ -60,7 +60,7 @@ public final class RadialItems {
 		items[3] = new GameModeItem(GameType.SPECTATOR);
 
 		return new RadialPage(
-			Component.translatable("controlify.binding.controlify.game_mode_switcher"),
+			Component.translatable("controlify.action.controlify.game_mode_switcher"),
 			items
 		);
 	}
@@ -136,20 +136,20 @@ public final class RadialItems {
 
 	public static RadialMenuScreen.RadialItem[] createDebug(ControllerImpl controller) {
 		return List.of(
-				ControlifyBindings.TOGGLE_DEBUG_MENU,
-				ControlifyBindings.TOGGLE_DEBUG_MENU_FPS,
-				ControlifyBindings.TOGGLE_DEBUG_MENU_NET,
-				ControlifyBindings.TOGGLE_DEBUG_MENU_PROF,
-				ControlifyBindings.DEBUG_RELOAD_CHUNKS,
-				ControlifyBindings.DEBUG_TOGGLE_CHUNK_BORDERS,
-				ControlifyBindings.DEBUG_TOGGLE_ADVANCED_TOOLTIPS,
-				ControlifyBindings.DEBUG_TOGGLE_ENTITY_HITBOXES,
-				ControlifyBindings.DEBUG_RELOAD_RESOURCE_PACKS,
-				ControlifyBindings.DEBUG_CLEAR_CHAT,
-				ControlifyBindings.DEBUG_START_STOP_PROFILING
+				ControlifyActions.TOGGLE_DEBUG_MENU,
+				ControlifyActions.TOGGLE_DEBUG_MENU_FPS,
+				ControlifyActions.TOGGLE_DEBUG_MENU_NET,
+				ControlifyActions.TOGGLE_DEBUG_MENU_PROF,
+				ControlifyActions.DEBUG_RELOAD_CHUNKS,
+				ControlifyActions.DEBUG_TOGGLE_CHUNK_BORDERS,
+				ControlifyActions.DEBUG_TOGGLE_ADVANCED_TOOLTIPS,
+				ControlifyActions.DEBUG_TOGGLE_ENTITY_HITBOXES,
+				ControlifyActions.DEBUG_RELOAD_RESOURCE_PACKS,
+				ControlifyActions.DEBUG_CLEAR_CHAT,
+				ControlifyActions.DEBUG_START_STOP_PROFILING
 		).stream()
-				.map(InputBindingSupplier::bindId)
-				.map(id -> getItemForBinding(id, controller))
+				.map(ActionAccessor::actionId)
+				.map(id -> getItemForAction(id, controller))
 				.toArray(RadialMenuScreen.RadialItem[]::new);
 	}
 
@@ -180,20 +180,24 @@ public final class RadialItems {
 		return model != null ? RadialIcon.model(model) : RadialIcon.EMPTY;
 	}
 
-	private static RadialMenuScreen.RadialItem getItemForBinding(Identifier id, ControllerImpl controller) {
-		InputBinding binding = controller.input().orElseThrow().getBinding(id);
+	private static RadialMenuScreen.RadialItem getItemForAction(Identifier id, ControllerImpl controller) {
+		var action = controller.input().getAction(id);
 		RadialIconManager radialIconManager = Controlify.instance().radialIconManager();
 
-		if (binding == null || !radialIconManager.isRadialCandidate(binding)) {
-			CUtil.LOGGER.warn("Binding {} does not exist or is not a radial candidate", binding);
+		if (action == null || !radialIconManager.isRadialCandidate(action.spec().id())) {
+			CUtil.LOGGER.warn("Action {} does not exist or is not a radial candidate", action);
 			return EMPTY_ACTION;
 		}
 
 		return new RadialItemRecord(
-				binding.name(),
-				radialIconManager.getIcon(binding),
+				action.spec().name(),
+				radialIconManager.getIcon(action.spec().id()),
 				() -> {
-					binding.fakePress();
+					var currentAction = controller.input().getAction(id);
+					if (currentAction == null) {
+						return false;
+					}
+					currentAction.state().firePulse();
 					return true;
 				},
 				id
@@ -211,7 +215,9 @@ public final class RadialItems {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) return true;
+			if (this == obj) {
+				return true;
+			}
 			if (obj instanceof RadialItemRecord record) {
 				return id.equals(record.id);
 			}

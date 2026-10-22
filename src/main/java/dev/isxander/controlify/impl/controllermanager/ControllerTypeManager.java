@@ -13,8 +13,6 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.hid.ControllerHIDInfo;
-import dev.isxander.controlify.impl.hid.HIDDevice;
 import dev.isxander.controlify.impl.hid.HIDID;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -55,7 +53,7 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 
 	@Override
 	public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
-		return CompletableFuture.supplyAsync(() -> manager.getResourceStack(CUtil.rl("controllers/controller_identification.json5")), executor)
+		return CompletableFuture.supplyAsync(() -> manager.getResourceStack(CUtil.rl("controller/controller_identification.json5")), executor)
 				.thenCompose(resources -> {
 					List<CompletableFuture<List<Map.Entry<HIDID, ControllerType>>>> futures = new ArrayList<>();
 					for (Resource resource : resources) {
@@ -103,34 +101,18 @@ public class ControllerTypeManager implements SimpleControlifyReloadListener<Con
 	}
 
 	public void triggerFullTypeReload() {
-		Optional<ControllerManager> controllerManagerOpt = Controlify.instance().getControllerManager();
-		if (controllerManagerOpt.isPresent()) {
-			ControllerManager controllerManager = controllerManagerOpt.get();
-
-			for (ControllerImpl controller : controllerManager.getAllControllers()) {
-				reloadTypeForController(controllerManager, controller);
+		Controlify.instance().getControllerCoordinator().ifPresent(coordinator -> {
+			// Reinitialization replaces entries in the manager's live collection.
+			for (ControllerImpl controller : List.copyOf(coordinator.controllerManager().getAllControllers())) {
+				reloadTypeForController(coordinator, controller);
 			}
-		}
+		});
 	}
 
-	public void reloadTypeForController(ControllerManager controllerManager, ControllerImpl controller) {
-		Optional<HIDDevice> hidOpt = controller.info().hid();
-		if (hidOpt.isEmpty()) return;
-
-		HIDDevice hid = hidOpt.get();
-
-		ControllerType newType = this.getControllerType(hid.hidid());
-		ControllerType oldType = controller.info().type();
-
-		// re-initialise the controller if its type has changed
-		if (!newType.equals(oldType)) {
-			controllerManager.reinitController(
-					controller,
-					new ControllerHIDInfo(
-							newType,
-							controller.info().hid()
-					)
-			);
+	public void reloadTypeForController(ControllerCoordinator coordinator, ControllerImpl controller) {
+		ControllerType newType = this.getControllerType(controller.info().hid());
+		if (!newType.equals(controller.info().type())) {
+			coordinator.reinitController(controller, newType);
 		}
 	}
 

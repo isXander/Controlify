@@ -10,7 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
@@ -36,7 +36,7 @@ public class RadialIconManager implements SimpleControlifyReloadListener<Map<Ide
 	public boolean isRadialCandidate(Identifier actionId) {
 		// noinspection removal
 		return this.iconsByActionId.containsKey(actionId)
-			   || actionId.getNamespace().equals(ControlifyBindings.MODDED_BIND_NAMESPACE);
+			   || actionId.getNamespace().equals(ControlifyActions.MODDED_ACTION_NAMESPACE);
 	}
 
 	public RadialIcon getIcon(Identifier actionId) {

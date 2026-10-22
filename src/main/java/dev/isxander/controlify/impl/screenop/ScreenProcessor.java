@@ -7,22 +7,21 @@
 package dev.isxander.controlify.impl.screenop;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.api.InputMode;
-import dev.isxander.controlify.impl.bindings.ControlifyBindings;
-import dev.isxander.controlify.impl.api.bind.InputBinding;
+import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
-import dev.isxander.controlify.impl.controller.input.ControllerStateView;
+import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
-import dev.isxander.controlify.impl.controller.input.InputComponent;
-import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
-import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.TabNavigationBarAccessor;
 import dev.isxander.controlify.impl.screenop.keyboard.*;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
-import dev.isxander.controlify.impl.utils.HoldRepeatHelper;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseBehaviour;
 import dev.isxander.controlify.impl.virtualmouse.VirtualMouseHandler;
+import dev.isxander.controlify.mixins.feature.screenop.ScreenAccessor;
+import dev.isxander.controlify.mixins.feature.screenop.impl.outofgame.TabNavigationBarAccessor;
 import net.minecraft.client.InputType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -44,7 +43,6 @@ import java.util.function.Supplier;
 
 public class ScreenProcessor<T extends Screen> {
 	public final T screen;
-	protected final HoldRepeatHelper holdRepeatHelper;
 	protected static final Minecraft minecraft = Minecraft.getInstance();
 
 	private final List<ScreenControllerEventListener> eventListeners = new ArrayList<>();
@@ -54,18 +52,19 @@ public class ScreenProcessor<T extends Screen> {
 		if (screen instanceof ScreenControllerEventListener eventListener) {
 			eventListeners.add(eventListener);
 		}
-		this.holdRepeatHelper = createHoldRepeatHelper();
 	}
 
 	public void onControllerFixedUpdate(ControllerImpl controller) {
 		Controlify.instance().virtualMouseHandler().handleControllerInput(controller);
 
 		if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
-			if (!handleComponentNavOverride(controller))
+			if (!handleComponentNavOverride(controller)) {
 				handleComponentNavigation(controller);
+			}
 
-			if (!handleComponentButtonOverride(controller))
+			if (!handleComponentButtonOverride(controller)) {
 				handleButtons(controller);
+			}
 		} else {
 			handleScreenVMouse(controller, Controlify.instance().virtualMouseHandler());
 		}
@@ -105,58 +104,20 @@ public class ScreenProcessor<T extends Screen> {
 
 		var focuses = List.copyOf(getFocusTree());
 
-		boolean repeatEventAvailable = holdRepeatHelper.canNavigate();
-
-		InputComponent input = controller.input().orElseThrow();
-		ControllerStateView state = input.stateNow();
-		ControllerStateView prevState = input.stateThen();
-
-		InputBinding guiNaviRight = ControlifyBindings.GUI_NAVI_RIGHT.on(controller);
-		InputBinding guiNaviLeft = ControlifyBindings.GUI_NAVI_LEFT.on(controller);
-		InputBinding guiNaviUp = ControlifyBindings.GUI_NAVI_UP.on(controller);
-		InputBinding guiNaviDown = ControlifyBindings.GUI_NAVI_DOWN.on(controller);
+		Action guiNaviRight = ControlifyActions.GUI_NAVI_RIGHT.on(controller);
+		Action guiNaviLeft = ControlifyActions.GUI_NAVI_LEFT.on(controller);
+		Action guiNaviUp = ControlifyActions.GUI_NAVI_UP.on(controller);
+		Action guiNaviDown = ControlifyActions.GUI_NAVI_DOWN.on(controller);
 
 		Supplier<Boolean> navigationFunc = null;
-		if (guiNaviRight.digitalNow() && (repeatEventAvailable || !guiNaviRight.digitalPrev())) {
+		if (guiNaviRight.pulse().consumePulse()) {
 			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.RIGHT);
-
-			if (!guiNaviRight.digitalPrev())
-				holdRepeatHelper.reset();
-		} else if (guiNaviLeft.digitalNow() && (repeatEventAvailable || !guiNaviLeft.digitalPrev())) {
+		} else if (guiNaviLeft.pulse().consumePulse()) {
 			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.LEFT);
-
-			if (!guiNaviLeft.digitalPrev())
-				holdRepeatHelper.reset();
-		} else if (guiNaviUp.digitalNow() && (repeatEventAvailable || !guiNaviUp.digitalPrev())) {
+		} else if (guiNaviUp.pulse().consumePulse()) {
 			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.UP);
-
-			if (!guiNaviUp.digitalPrev())
-				holdRepeatHelper.reset();
-		} else if (guiNaviDown.digitalNow() && (repeatEventAvailable || !guiNaviDown.digitalPrev())) {
+		} else if (guiNaviDown.pulse().consumePulse()) {
 			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.DOWN);
-
-			if (!guiNaviDown.digitalPrev())
-				holdRepeatHelper.reset();
-		} else if (state.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON))) {
-			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.RIGHT);
-
-			if (!prevState.isButtonDown(GamepadInputs.DPAD_RIGHT_BUTTON))
-				holdRepeatHelper.reset();
-		} else if (state.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON))) {
-			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.LEFT);
-
-			if (!prevState.isButtonDown(GamepadInputs.DPAD_LEFT_BUTTON))
-				holdRepeatHelper.reset();
-		} else if (state.isButtonDown(GamepadInputs.DPAD_UP_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_UP_BUTTON))) {
-			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.UP);
-
-			if (!prevState.isButtonDown(GamepadInputs.DPAD_UP_BUTTON))
-				holdRepeatHelper.reset();
-		} else if (state.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON) && (repeatEventAvailable || !prevState.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON))) {
-			navigationFunc = this.createScreenNavigationFunc(ScreenDirection.DOWN);
-
-			if (!prevState.isButtonDown(GamepadInputs.DPAD_DOWN_BUTTON))
-				holdRepeatHelper.reset();
 		}
 
 		if (navigationFunc != null) {
@@ -165,9 +126,8 @@ public class ScreenProcessor<T extends Screen> {
 			// established yet when a newly opened screen built its widgets.
 			minecraft.setLastInputType(InputType.KEYBOARD_ARROW);
 			if (navigationFunc.get()) {
-				holdRepeatHelper.onNavigate();
 
-				controller.input().ifPresent(InputComponent::notifyGuiPressOutputsOfNavigate);
+				controller.input().onGuiNavigate();
 
 				if (Controlify.instance().config().getSettings().globalSettings().extraUiSounds) {
 					playFocusChangeSound();
@@ -197,16 +157,18 @@ public class ScreenProcessor<T extends Screen> {
 
 	protected void handleButtons(ControllerImpl controller) {
 		boolean vmouseEnabled = Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled();
-		InputComponent input = controller.input().orElseThrow();
-		boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
-		boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+		InputComponentImpl input = controller.input();
+//		boolean touchpadPressed = input.stateNow().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+//		boolean prevTouchpadPressed = input.stateThen().isButtonDown(GamepadInputs.TOUCHPAD_1_BUTTON);
+		boolean touchpadPressed = false;
+		boolean prevTouchpadPressed = false;
 
-		if (ControlifyBindings.GUI_PRESS.on(controller).guiPressed().get() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
+		if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumePulse() || (vmouseEnabled && touchpadPressed && !prevTouchpadPressed)) {
 			if (!this.tryOpenKeyboard(controller, screen.getFocused())) {
 				screen.keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
 			}
 		}
-		if (screen.shouldCloseOnEsc() && ControlifyBindings.GUI_BACK.on(controller).guiPressed().get()) {
+		if (screen.shouldCloseOnEsc() && ControlifyActions.GUI_BACK.on(controller).pulse().consumePulse()) {
 			playClackSound();
 			screen.onClose();
 		}
@@ -221,7 +183,9 @@ public class ScreenProcessor<T extends Screen> {
 		while (!focusTree.isEmpty()) {
 			var focused = focusTree.poll();
 			var processor = ComponentProcessorProvider.provide(focused);
-			if (processor.overrideControllerButtons(this, controller)) return true;
+			if (processor.overrideControllerButtons(this, controller)) {
+				return true;
+			}
 		}
 
 		return false;
@@ -232,14 +196,16 @@ public class ScreenProcessor<T extends Screen> {
 		while (!focusTree.isEmpty()) {
 			var focused = focusTree.poll();
 			var processor = ComponentProcessorProvider.provide(focused);
-			if (processor.overrideControllerNavigation(this, controller)) return true;
+			if (processor.overrideControllerNavigation(this, controller)) {
+				return true;
+			}
 		}
 		return false;
 	}
 
 	protected void handleTabNavigation(ControllerImpl controller) {
-		var nextTab = ControlifyBindings.GUI_NEXT_TAB.on(controller).justPressed();
-		var prevTab = ControlifyBindings.GUI_PREV_TAB.on(controller).justPressed();
+		var nextTab = ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumePulse();
+		var prevTab = ControlifyActions.GUI_PREV_TAB.on(controller).pulse().consumePulse();
 
 		if (nextTab || prevTab) {
 			screen.children().stream()
@@ -252,8 +218,12 @@ public class ScreenProcessor<T extends Screen> {
 						int currentIndex = tabs.indexOf(accessor.controlify$getTabManager().getCurrentTab());
 
 						int newIndex = currentIndex + (prevTab ? -1 : 1);
-						if (newIndex < 0) newIndex = tabs.size() - 1;
-						if (newIndex >= tabs.size()) newIndex = 0;
+						if (newIndex < 0) {
+							newIndex = tabs.size() - 1;
+						}
+						if (newIndex >= tabs.size()) {
+							newIndex = 0;
+						}
 
 						navBar.selectTab(newIndex, true);
 						onTabChanged(controller);
@@ -262,7 +232,6 @@ public class ScreenProcessor<T extends Screen> {
 	}
 
 	protected void onTabChanged(ControllerImpl controller) {
-
 	}
 
 	public void onWidgetRebuild() {
@@ -282,7 +251,6 @@ public class ScreenProcessor<T extends Screen> {
 	}
 
 	protected void render(ControllerImpl controller, GuiGraphicsExtractor graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
-
 	}
 
 	public VirtualMouseBehaviour virtualMouseBehaviour() {
@@ -318,12 +286,10 @@ public class ScreenProcessor<T extends Screen> {
 		}
 	}
 
-	protected HoldRepeatHelper createHoldRepeatHelper() {
-		return new HoldRepeatHelper(10, 3);
-	}
-
 	protected Queue<GuiEventListener> getFocusTree() {
-		if (screen.getFocused() == null) return new ArrayDeque<>();
+		if (screen.getFocused() == null) {
+			return new ArrayDeque<>();
+		}
 
 		var tree = new ArrayDeque<GuiEventListener>();
 		var focused = screen.getFocused();
@@ -331,8 +297,9 @@ public class ScreenProcessor<T extends Screen> {
 		while (focused instanceof CustomFocus customFocus) {
 			focused = customFocus.getCustomFocus();
 
-			if (focused != null)
+			if (focused != null) {
 				tree.addFirst(focused);
+			}
 		}
 
 		return tree;

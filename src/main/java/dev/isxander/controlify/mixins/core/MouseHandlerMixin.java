@@ -8,7 +8,6 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.impl.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
@@ -93,7 +92,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 			)
 	)
 	private void moveMouseIfNecessary(CallbackInfo ci) {
-		if (!controlify$calledFromMinecraftSetScreen && ControlifyApi.get().currentInputMode().isController()) {
+		if (!controlify$calledFromMinecraftSetScreen && Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);
 		}
 	}
@@ -106,7 +105,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 
 	@ModifyExpressionValue(method = "grabMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"))
 	private boolean passWindowActiveCheckIfOOFInputIsOn(boolean isWindowActive) {
-		return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
+		return isWindowActive || (Controlify.instance().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
 	}
 
 	@Override

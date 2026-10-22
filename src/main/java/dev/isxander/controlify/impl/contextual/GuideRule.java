@@ -8,19 +8,19 @@ package dev.isxander.controlify.impl.contextual;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.impl.api.bind.InputBindingSupplier;
+import dev.isxander.controlify.api.action.ActionAccessor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
 
 public record GuideRule(
-		InputBindingSupplier binding,
+		ActionAccessor action,
 		GuideLocation location,
 		ContextualPredicate predicate,
 		Component text
 ) implements Rule<GuideRule.Key> {
 	public static final Codec<GuideRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			InputBindingSupplier.CODEC.fieldOf("for").forGetter(GuideRule::binding),
+			ActionAccessor.CODEC.fieldOf("for").forGetter(GuideRule::action),
 			GuideLocation.CODEC.fieldOf("where").forGetter(GuideRule::location),
 			ContextualPredicate.CODEC.fieldOf("if").forGetter(GuideRule::predicate),
 			ComponentSerialization.CODEC.fieldOf("then").forGetter(GuideRule::text)
@@ -28,11 +28,11 @@ public record GuideRule(
 
 	@Override
 	public Key key() {
-		return new Key(this.binding().bindId(), this.location());
+		return new Key(this.action().actionId(), this.location());
 	}
 
 	public record Key(
-			Identifier binding,
+			Identifier action,
 			GuideLocation location
 	) {}
 }

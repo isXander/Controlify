@@ -1,8 +1,7 @@
 package dev.isxander.controlify.api.action;
 
-import dev.isxander.controlify.impl.action.ActionSpecBuilder;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.action.ActionSpecBuilderImpl;
-import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
@@ -24,8 +23,12 @@ public record ActionSpec(
 		Component description,
 		Component category,
 		Set<Identifier> contexts,
-		Predicate<ControllerImpl> shouldExpose
+		Predicate<Controller> shouldExpose
 ) implements Comparable<ActionSpec> {
+	public ActionSpec {
+		contexts = Set.copyOf(contexts);
+	}
+
 	@Override
 	public int compareTo(ActionSpec o) {
 		return Comparator.comparing(ActionSpec::id)

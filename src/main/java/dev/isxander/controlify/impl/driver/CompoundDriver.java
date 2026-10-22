@@ -27,7 +27,7 @@ public class CompoundDriver implements Driver {
 	}
 
 	@Override
-	public void update(ControllerImpl controller, boolean outOfFocus) {
+	public void update(ControllerImpl controller) {
 		for (Driver driver : drivers) {
 			driver.update(controller);
 		}

@@ -6,7 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.damage;
 
-import dev.isxander.controlify.api.ControlifyApi;
+import dev.isxander.controlify.impl.Controlify;
+
 import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;
@@ -55,14 +56,14 @@ public class ClientPacketListenerMixin {
 	}
 
 	@Unique private void playIncomingDamageRumble() {
-		ControlifyApi.get().playRumbleEffect(
+		Controlify.instance().playRumbleEffect(
 				CUtil.rl("incoming_damage"),
 				RumbleEffect.finite().constant(0.8f, 0.5f, 5)
 		);
 	}
 
 	@Unique private void playOutgoingDamageRumble() {
-		ControlifyApi.get().playRumbleEffect(
+		Controlify.instance().playRumbleEffect(
 				CUtil.rl("outgoing_damage"),
 				RumbleEffect.finite().constant(0.18f, 0.4f, 1)
 						.then(RumbleEffect.finite().constant(0.06f, 0.16f, 1))
