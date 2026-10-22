@@ -15,6 +15,7 @@ import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectInstanceIm
 import dev.isxander.controlify.impl.gui.guide.GuideInstanceImpl;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.multiplayer.CacheSlot;
@@ -37,9 +38,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public final class ContextualDomainImpl<C extends Context> implements ContextualDomain<C>, SimpleControlifyReloadListener<ContextualDomainImpl.Preparations> {
-	public static final String DIRECTORY = "contextual/facts";
+	public static final String DIRECTORY = "controller/contextual/facts";
 	private static final FileToIdConverter converter = FileToIdConverter.json(DIRECTORY);
 
+	private final ControlifyLogger logger;
 	private final Identifier id;
 	private final CacheSlot<ClientLevel, FactDependencyGraph> resolvedFactGraphs = new CacheSlot<>(this::resolveFactGraph);
 	private ContextualStateContributor<C> contributor = ContextualStateContributor.noop();
@@ -48,11 +50,12 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 
 	public ContextualDomainImpl(Identifier id) {
 		this.id = Objects.requireNonNull(id, "id");
+		this.logger = CUtil.LOGGER.createSubLogger("ContextualDomain " + this.id);
 		this.registerContributor(ContextualStateContributors.COMMON);
 	}
 
 	@Override
-	public Identifier id() {
+	public @NonNull Identifier id() {
 		return this.id;
 	}
 
@@ -64,14 +67,14 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	}
 
 	@Override
-	public GuideInstance<C> createGuideInstance(@NonNull Font font) {
+	public @NonNull GuideInstance<C> createGuideInstance(@NonNull Font font) {
 		RuleSetManager<GuideRule.Key, GuideRule> ruleSetManager = RuleSetManager.GUIDE_RULES;
 
 		return new GuideInstanceImpl<>(this, () -> this.requireRuleEngine(ruleSetManager, "guide"), font);
 	}
 
 	@Override
-	public TriggerEffectInstance<C> createTriggerEffectInstance() {
+	public @NonNull TriggerEffectInstance<C> createTriggerEffectInstance() {
 		RuleSetManager<Identifier, TriggerEffectRule> ruleSetManager = RuleSetManager.TRIGGER_EFFECT_RULES;
 
 		return new TriggerEffectInstanceImpl<>(this, () -> this.requireRuleEngine(ruleSetManager, "trigger effect"));
@@ -139,6 +142,9 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	}
 
 	private synchronized void apply(Preparations data) {
+		if (this.preparations.facts().isEmpty()) {
+			this.logger.warn("Contextual domain {} loaded with 0 derived facts. Issue?", this.id);
+		}
 		this.preparations = data;
 		this.factGraphWithoutLevel = data.factGraphWithoutLevel();
 		this.resolvedFactGraphs.clear();

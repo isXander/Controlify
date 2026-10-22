@@ -46,7 +46,7 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 	}
 
 	@Override
-	public void update(C context) {
+	public void update(@NonNull C context) {
 		RuleEngine<GuideRule.Key, GuideRule> ruleEngine = this.ruleEngineSupplier.get();
 		ContextualState state = this.domain.calculateState(context, ruleEngine.factDependencies());
 		List<GuideRule> guides = ruleEngine.evaluate(state, _ -> true, "guide/" + this.domain.id());

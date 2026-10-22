@@ -39,7 +39,7 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 	}
 
 	@Override
-	public void update(C context) {
+	public void update(@NonNull C context) {
 		var controller = (ControllerImpl) context.controller();
 
 		RuleEngine<Identifier, TriggerEffectRule> ruleEngine = this.ruleEngineSupplier.get();
