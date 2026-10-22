@@ -23,6 +23,7 @@
       "dev.isxander.controlify.gametest.tests.ButtonGuideTests"
     ],
     "client": [
+      "dev.isxander.controlify.gametest.tests.ButtonGuideTests",
       "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
       "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests"
     ]

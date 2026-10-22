@@ -127,9 +127,11 @@ public class VirtualControllerBuilder {
 			throw SDLException.useSDLError(sdl, "Failed to open virtual joystick");
 		}
 
-		// Allow Controlify to poll and add controller
-		this.context.waitTick();
-
-		return new TestControllerContext<>(this.context, this.sdl, handle, jid, this.inputs, state);
+		var controller = new TestControllerContext<>(this.context, this.sdl, handle, jid, this.inputs, state);
+		// Center sticks and fully release triggers before Controlify receives the device.
+		// This also lets Controlify poll and add the controller.
+		controller.releaseAllInputs();
+		this.context.runOnClient(_ -> ControlifyGameTestContext.bindDefaultInputs(controller.getControllerImpl()));
+		return controller;
 	}
 }

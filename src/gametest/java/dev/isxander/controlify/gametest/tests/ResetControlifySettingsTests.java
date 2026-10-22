@@ -7,7 +7,6 @@
 package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.controller.gyro.GyroState;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -40,7 +39,7 @@ public class ResetControlifySettingsTests implements FabricClientGameTest {
 			if (cachedDeviceSettings != settings.getOrCreateDeviceSettings(ControllerImpl.uid())) {
 				throw new AssertionError("Connected controller device settings reference was replaced");
 			}
-			if (!cachedDeviceSettings.gyroCalibration.offset.equals(new GyroState())) {
+			if (!cachedDeviceSettings.gyroCalibration.offset.equals(new Vector3f())) {
 				throw new AssertionError("Device settings were not reset");
 			}
 			if (ControllerImpl.settings() != controlify.config().getActiveProfile()) {

@@ -15,10 +15,12 @@ import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.impl.gui.guide.GuideInstanceImpl;
 import dev.isxander.controlify.impl.utils.CUtil;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.EntityHitResult;
 
 import java.util.List;
@@ -26,7 +28,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"UnstableApiUsage", "unchecked"})
-public class ButtonGuideTests implements FabricClientGameTest {
+public class ButtonGuideTests implements FabricClientGameTest, ClientModInitializer {
+	private static final Identifier OVERRIDE_PACK = CTestUtil.id("guide_override_test");
+
+	@Override
+	public void onInitializeClient() {
+		CTestUtil.registerBuiltinResourcePack(OVERRIDE_PACK);
+	}
+
 	@Override
 	public void runTest(ClientGameTestContext context) {
 		var controlify = new ControlifyGameTestContext(context);
@@ -58,8 +67,8 @@ public class ButtonGuideTests implements FabricClientGameTest {
 				assertFact(state, "looking_at_merchant");
 
 				var matchingRules = ruleEngine.evaluate(state);
-				assertBindingRule(matchingRules, "attack");
-				assertBindingRule(matchingRules, "use");
+				assertActionRule(matchingRules, "attack");
+				assertActionRule(matchingRules, "use");
 
 				var guide = (GuideInstanceImpl<InGameContext>) domain.createGuideInstance(minecraft.font);
 				guide.update(inGameContext);
@@ -68,19 +77,19 @@ public class ButtonGuideTests implements FabricClientGameTest {
 				}
 			});
 
-			try (var _ = CTestUtil.applyResourcePack(context, CUtil.rl("legacy_console"))) {
+			try (var _ = CTestUtil.applyResourcePack(context, OVERRIDE_PACK)) {
 				context.runOnClient(minecraft -> {
 					var ruleEngine = RuleSetManager.GUIDE_RULES
 							.getRuleEngine(minecraft.level, CUtil.rl("in_game"))
 							.orElseThrow();
 
-					Set<String> expectedBindings = Set.of("jump", "sneak", "drop", "inventory", "attack", "use");
-					Set<String> actualBindings = ruleEngine.rules().stream()
-							.map(rule -> rule.binding().actionId())
+					Set<String> expectedActions = Set.of("jump", "sneak", "drop", "inventory", "attack", "use");
+					Set<String> actualActions = ruleEngine.rules().stream()
+							.map(rule -> rule.action().actionId())
 							.map(id -> id.getPath())
 							.collect(Collectors.toSet());
-					if (!actualBindings.equals(expectedBindings)) {
-						throw new AssertionError("Expected the Legacy Console guide rules to replace the defaults. Bindings: " + actualBindings);
+					if (!actualActions.equals(expectedActions)) {
+						throw new AssertionError("Expected the test guide rules to replace the defaults. Actions: " + actualActions);
 					}
 
 					assertRuleLocation(ruleEngine, "jump", GuideLocation.LEFT);
@@ -103,28 +112,28 @@ public class ButtonGuideTests implements FabricClientGameTest {
 		}
 	}
 
-	private static void assertBindingRule(
+	private static void assertActionRule(
 			List<GuideRule> rules,
-			String bindingPath
+			String actionPath
 	) {
-		var bindingId = CUtil.rl(bindingPath);
-		if (rules.stream().noneMatch(rule -> rule.binding().actionId().equals(bindingId))) {
-			throw new AssertionError("Expected a matching guide rule for '" + bindingId + "': " + rules);
+		var actionId = CUtil.rl(actionPath);
+		if (rules.stream().noneMatch(rule -> rule.action().actionId().equals(actionId))) {
+			throw new AssertionError("Expected a matching guide rule for '" + actionId + "': " + rules);
 		}
 	}
 
 	private static void assertRuleLocation(
 			RuleEngine<GuideRule.Key, GuideRule> ruleEngine,
-			String bindingPath,
+			String actionPath,
 			GuideLocation expectedLocation
 	) {
-		var bindingId = CUtil.rl(bindingPath);
+		var actionId = CUtil.rl(actionPath);
 		List<GuideRule> rules = ruleEngine.rules().stream()
-				.filter(rule -> rule.binding().actionId().equals(bindingId))
+				.filter(rule -> rule.action().actionId().equals(actionId))
 				.toList();
 		if (rules.isEmpty() || rules.stream().anyMatch(rule -> rule.location() != expectedLocation)) {
 			throw new AssertionError(
-					"Expected all guide rules for '" + bindingId + "' to be on " + expectedLocation + ": " + rules
+					"Expected all guide rules for '" + actionId + "' to be on " + expectedLocation + ": " + rules
 			);
 		}
 	}

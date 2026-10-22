@@ -11,10 +11,9 @@ import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.impl.config.settings.GlobalSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.gyro.GyroState;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
 import dev.isxander.controlify.gametest.mixin.ControlifySettingsAccessor;
-import dev.isxander.controlify.gametest.mixin.SDLControllerManagerAccessor;
+import dev.isxander.controlify.gametest.mixin.SDLControllerBackendAccessor;
 import dev.isxander.sdl.Sdl;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import org.joml.Vector3f;
@@ -29,7 +28,7 @@ public class ControlifyGameTestContext {
 
 	public ControlifyGameTestContext(ClientGameTestContext context) {
 		this.context = context;
-		this.sdl = ((SDLControllerManagerAccessor) Controlify.instance().getControllerManager().orElseThrow()).controlify_test$getSdl();
+		this.sdl = ((SDLControllerBackendAccessor) Controlify.instance().getControllerCoordinator().orElseThrow().backend()).controlify_test$getSdl();
 	}
 
 	public VirtualControllerBuilder virtualControllerBuilder() {
@@ -64,7 +63,7 @@ public class ControlifyGameTestContext {
 			settings.putProfileSettings(activeProfileIndex, profileDefaults);
 
 			var connectedControllers = controlify.getControllerManager()
-				.map(ControllerManager::getConnectedControllers)
+				.map(ControllerManager::getAllControllers)
 				.orElseGet(List::of);
 			var connectedUids = connectedControllers.stream()
 				.map(ControllerImpl::uid)
@@ -83,10 +82,23 @@ public class ControlifyGameTestContext {
 				device.mapping = null;
 
 				controller.setSettings(profileDefaults);
+				controller.input().reloadActions();
+				bindDefaultInputs(controller);
 			}
 
 			controlify.applyControllerSelection(false);
 			config.markDirty();
 		});
 	}
+
+	static void bindDefaultInputs(ControllerImpl controller) {
+		// New profiles can leave actions unbound; each virtual device test starts with its default layout.
+		controller.input().getAllActions().forEach(action -> {
+			action.setBoundInput(action.defaultInput());
+			if (action.defaultInput() != null) {
+				controller.settings().input.bindings.bindings.put(action.spec().id(), action.defaultInput());
+			}
+		});
+	}
+
 }
