@@ -351,7 +351,7 @@ public class Controlify implements ControlifyApi {
 		}
 
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
-							 && !this.minecraft.isWindowActive();
+							&& !this.minecraft.isWindowActive();
 
 		this.getCurrentController().ifPresent(currentController -> {
 			wrapControllerError(

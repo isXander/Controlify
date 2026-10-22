@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.impl.driver.sdl;
 
 import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
@@ -23,9 +29,9 @@ public final class SDLInputConversions {
 				case (SDL_GAMEPAD_AXIS_RIGHTY << 1) -> GamepadInputs.RIGHT_STICK_AXIS_DOWN;
 				case (SDL_GAMEPAD_AXIS_RIGHTY << 1) | 1 -> GamepadInputs.RIGHT_STICK_AXIS_UP;
 				case (SDL_GAMEPAD_AXIS_LEFT_TRIGGER << 1),
-					 (SDL_GAMEPAD_AXIS_LEFT_TRIGGER << 1) | 1 -> GamepadInputs.LEFT_TRIGGER_AXIS;
+					(SDL_GAMEPAD_AXIS_LEFT_TRIGGER << 1) | 1 -> GamepadInputs.LEFT_TRIGGER_AXIS;
 				case (SDL_GAMEPAD_AXIS_RIGHT_TRIGGER << 1),
-					 (SDL_GAMEPAD_AXIS_RIGHT_TRIGGER << 1) | 1 -> GamepadInputs.RIGHT_TRIGGER_AXIS;
+					(SDL_GAMEPAD_AXIS_RIGHT_TRIGGER << 1) | 1 -> GamepadInputs.RIGHT_TRIGGER_AXIS;
 				default -> throw new IllegalArgumentException("Unknown axis");
 			})
 			.toArray(Identifier[]::new);
