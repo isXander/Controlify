@@ -629,17 +629,7 @@ public class ControllerConfigScreenFactory {
 					o.requestSetDefault();
 				}))
 				.build());
-		var relativeModeOpt = Option.<Boolean>createBuilder()
-				.name(Component.translatable("controlify.gui.gyro_behaviour"))
-				.description(val -> OptionDescription.createBuilder()
-						.text(Component.translatable("controlify.gui.gyro_behaviour.tooltip"))
-						.text(val ? Component.translatable("controlify.gui.gyro_behaviour.relative.tooltip") : Component.translatable("controlify.gui.gyro_behaviour.absolute.tooltip"))
-						.build())
-				.binding(defaults.gyro.relativeMode, () -> settings.gyro.relativeMode, v -> settings.gyro.relativeMode = v)
-				.controller(opt -> BooleanControllerBuilder.create(opt)
-						.formatValue(v -> v ? Component.translatable("controlify.gui.gyro_behaviour.relative") : Component.translatable("controlify.gui.gyro_behaviour.absolute")))
-				.build();
-		gyroGroup.option(relativeModeOpt);
+
 		gyroGroup.option(Util.make(() -> {
 			var option = Option.<GyroYawMode>createBuilder()
 					.name(Component.translatable("controlify.gui.gyro_yaw_mode"))
@@ -691,6 +681,21 @@ public class ControllerConfigScreenFactory {
 					.build();
 			gyroOptions.add(opt);
 			return opt;
+		}));
+		gyroGroup.option(Util.make(() -> {
+			var option = Option.<Float>createBuilder()
+					.name(Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz"))
+					.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz.tooltip")))
+					.binding(defaults.gyro.lowPassCutoffHz, () -> settings.gyro.lowPassCutoffHz, v -> settings.gyro.lowPassCutoffHz = v)
+					.controller(opt -> FloatSliderControllerBuilder.create(opt)
+							.range(0f, 100f)
+							.step(1f)
+							.formatValue(v -> v == 0 ? CommonComponents.OPTION_OFF
+									: Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz.value", v.intValue())))
+					.available(gyroSensitivity.pendingValue() > 0)
+					.build();
+			gyroOptions.add(option);
+			return option;
 		}));
 		gyroGroup.option(Util.make(() -> {
 			var opt = Option.<Boolean>createBuilder()

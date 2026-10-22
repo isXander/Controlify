@@ -16,10 +16,6 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 public final class DebugOverlayHelper {
 	private static final Minecraft mc = Minecraft.getInstance();
 
-	public static boolean isOverlayEnabled() {
-		return mc.debugEntries.isOverlayVisible();
-	}
-
 	public static void toggleOverlay() {
 		mc.debugEntries.toggleDebugOverlay();
 	}

@@ -235,7 +235,7 @@ public final class TheHolyMigrationFix extends DataFix {
 				root.createString("look_sensitivity"), old.get("look_sensitivity")
 						.result().orElse(root.createFloat(defaults.lookSensitivity)),
 				root.createString("relative_mode"), old.get("relative_gyro_mode")
-						.result().orElse(root.createBoolean(defaults.relativeMode)),
+						.result().orElse(root.createBoolean(false)),
 				root.createString("invert_pitch"), old.get("invert_y")
 						.result().orElse(root.createBoolean(defaults.invertPitch)),
 				root.createString("invert_yaw"), old.get("invert_x")

@@ -14,7 +14,6 @@ import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
 
 public record GyroConfig(
 		float lookSensitivity,
-		boolean relativeMode,
 		boolean invertPitch,
 		boolean invertYaw,
 		GyroButtonMode buttonMode,
@@ -24,7 +23,6 @@ public record GyroConfig(
 ) {
 	public static final Codec<GyroConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.FLOAT.fieldOf("look_sensitivity").forGetter(GyroConfig::lookSensitivity),
-			Codec.BOOL.fieldOf("relative_mode").forGetter(GyroConfig::relativeMode),
 			Codec.BOOL.fieldOf("invert_pitch").forGetter(GyroConfig::invertPitch),
 			Codec.BOOL.fieldOf("invert_yaw").forGetter(GyroConfig::invertYaw),
 			GyroButtonMode.CODEC.fieldOf("button_mode").forGetter(GyroConfig::buttonMode),

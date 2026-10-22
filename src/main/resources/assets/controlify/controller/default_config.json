@@ -67,7 +67,6 @@
   },
   "gyro": {
     "look_sensitivity": 0.0,
-    "relative_mode": false,
     "invert_pitch": false,
     "invert_yaw": false,
     "button_mode": "on",

@@ -21,8 +21,6 @@
   "controlify.config.category.advanced": "Avansat",
   "controlify.gui.group.vibration": "Vibrație",
   "controlify.gui.allow_vibrations": "Permite Vibrarea",
-  "controlify.gui.gyro_behaviour.absolute": "Absolut",
-  "controlify.gui.gyro_behaviour.relative": "Relativ",
   "controlify.gui.group.advanced": "Avansat",
   "controlify.gui.test_vibration": "Testare Vibrație",
   "controlify.gui.radial_menu": "Meniu Radial",

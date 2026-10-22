@@ -12,7 +12,6 @@ import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
 
 public class GyroSettings {
 	public float lookSensitivity;
-	public boolean relativeMode;
 	public boolean invertPitch;
 	public boolean invertYaw;
 	public GyroButtonMode buttonMode;
@@ -22,7 +21,6 @@ public class GyroSettings {
 
 	public GyroSettings(
 			float lookSensitivity,
-			boolean relativeMode,
 			boolean invertPitch,
 			boolean invertYaw,
 			GyroButtonMode buttonMode,
@@ -31,7 +29,6 @@ public class GyroSettings {
 			float lowPassCutoffHz
 	) {
 		this.lookSensitivity = lookSensitivity;
-		this.relativeMode = relativeMode;
 		this.invertPitch = invertPitch;
 		this.invertYaw = invertYaw;
 		this.buttonMode = buttonMode;
@@ -43,7 +40,6 @@ public class GyroSettings {
 	public static GyroSettings fromDTO(GyroConfig dto) {
 		return new GyroSettings(
 				dto.lookSensitivity(),
-				dto.relativeMode(),
 				dto.invertPitch(),
 				dto.invertYaw(),
 				dto.buttonMode(),
@@ -56,7 +52,6 @@ public class GyroSettings {
 	public GyroConfig toDTO() {
 		return new GyroConfig(
 				lookSensitivity,
-				relativeMode,
 				invertPitch,
 				invertYaw,
 				buttonMode,

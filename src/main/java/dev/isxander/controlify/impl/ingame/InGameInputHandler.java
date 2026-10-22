@@ -64,8 +64,6 @@ public class InGameInputHandler {
 	private final Controlify controlify;
 	private final Minecraft minecraft;
 
-	private double lookInputX, lookInputY; // in degrees per tick
-	private final Vector3f gyroInput = new Vector3f();
 	private boolean gyroToggledOn;
 	private boolean wasAiming;
 	private Animation flickAnimation;
@@ -82,7 +80,6 @@ public class InGameInputHandler {
 	public void fixedUpdate() {
 		boolean isController = ControllerPlayerMovement.shouldBeControllerInput();
 
-		handlePlayerLookInput(isController);
 		ControllerPlayerMovement.ensureCorrectInput(minecraft.player);
 
 		if (isController) {
@@ -313,12 +310,10 @@ public class InGameInputHandler {
 				&& GameModeCommand.PERMISSION_CHECK.check(minecraft.player.permissions());
 	}
 
-	protected void handlePlayerLookInput(boolean isController) {
+	public void processPlayerLook(float deltaTime) {
 		LocalPlayer player = this.minecraft.player;
 
-		if (!isController || !canProcessLookInput()) {
-			lookInputX = 0;
-			lookInputY = 0;
+		if (!ControllerPlayerMovement.shouldBeControllerInput() || !canProcessLookInput()) {
 			return;
 		}
 
@@ -330,20 +325,22 @@ public class InGameInputHandler {
 		if (controller.gyro().map(gyro -> gyro.settings().lookSensitivity > 0 && gyro.settings().flickStick).orElse(false)) {
 			handleFlickStick(player);
 		} else {
-			handleRegularLook(controller.input(), lookImpulse, aiming, player);
+			handleRegularLook(controller.input(), lookImpulse, aiming, player, deltaTime);
 		}
 
 		var modifier = new LookInputModifier(new Vector2f((float) lookImpulse.x, (float) lookImpulse.y), controller);
 		Events.LOOK_INPUT_MODIFIER.emit(modifier);
 		lookImpulse.set(modifier.lookInput());
 
-		lookInputX = lookImpulse.x;
-		lookInputY = lookImpulse.y;
+		double velX = lookImpulse.x / 0.15;
+		double velY = lookImpulse.y / 0.15;
+		player.turn(velX, velY);
+		minecraft.getTutorial().onMouse(velX, velY);
 
 		wasAiming = aiming;
 	}
 
-	protected void handleRegularLook(InputComponentImpl input, Vector2d impulse, boolean aiming, LocalPlayer player) {
+	protected void handleRegularLook(InputComponentImpl input, Vector2d impulse, boolean aiming, LocalPlayer player, float deltaTime) {
 		InputSettings settings = input.settings();
 
 		// normal look input
@@ -391,12 +388,13 @@ public class InGameInputHandler {
 		regularImpulse.x *= settings.sensitivity.hLookSensitivity * 10f;
 		regularImpulse.y *= settings.sensitivity.vLookSensitivity * 10f;
 
-		impulse.add(regularImpulse);
+		impulse.add(regularImpulse.mul(deltaTime));
 	}
 
 	protected void handleGyroLook(GyroComponentImpl gyro, Vector2d impulse, boolean aiming) {
 		GyroSettings settings = gyro.settings();
 		var gyroButton = ControlifyActions.GYRO_BUTTON.on(controller);
+		var gyroInput = new Vector3f(gyro.getState());
 
 		if (settings.buttonMode.equals(GyroButtonMode.ON) && (!gyroButton.latch().isLatchActive() && !aiming)) {
 			gyroInput.set(0);
@@ -404,12 +402,6 @@ public class InGameInputHandler {
 			gyroInput.set(0);
 		} else if(settings.buttonMode.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
 			gyroInput.set(0);
-		} else {
-			if (settings.relativeMode) {
-				gyroInput.add(new Vector3f(gyro.getState()).mul(0.1f));
-			}
-			else
-				gyroInput.set(gyro.getState());
 		}
 
 		boolean gyroPressed = gyroButton.pulse().consumePulse();
@@ -417,10 +409,9 @@ public class InGameInputHandler {
 			gyroToggledOn = !gyroToggledOn;
 		}
 
-		// convert radians per second into degrees per tick
-		var thisInput = new Vector3f(gyroInput)
+		// The latest gyro sample is already accumulated over this frame, in radians.
+		var thisInput = gyroInput
 				.mul(Mth.RAD_TO_DEG)
-				.div(20)
 				.mul(settings.lookSensitivity);
 
 		impulse.y += -thisInput.x() * (settings.invertPitch ? -1 : 1);
@@ -455,16 +446,6 @@ public class InGameInputHandler {
 				.easing(EasingFunction.EASE_OUT_EXPO)
 				.deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
 				.play();
-	}
-
-	public void processPlayerLook(float deltaTime) {
-		if (minecraft.player != null) {
-			double velX = lookInputX / 0.15 * deltaTime;
-			double velY = lookInputY / 0.15 * deltaTime;
-			//noinspection SuspiciousNameCombination
-			minecraft.player.turn(velX, velY);
-			minecraft.getTutorial().onMouse(velX, velY);
-		}
 	}
 
 	public boolean shouldShowPlayerList() {
