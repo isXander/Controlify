@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.gui;
 import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import org.jspecify.annotations.NonNull;
 
 import java.util.function.Supplier;
 
@@ -19,12 +20,12 @@ public final class ButtonGuideApiImpl implements ButtonGuideApi {
 	}
 
 	@Override
-	public <T> void addGuideToButton(T button, ActionAccessor action, ButtonGuidePredicate<T> renderPredicate) {
+	public <T> void addGuideToButton(@NonNull T button, @NonNull ActionAccessor action, @NonNull ButtonGuidePredicate<T> renderPredicate) {
 		addGuideToButton(button, () -> action, renderPredicate);
 	}
 
 	@Override
-	public <T> void addGuideToButton(T button, Supplier<ActionAccessor> action, ButtonGuidePredicate<T> renderPredicate) {
+	public <T> void addGuideToButton(@NonNull T button, @NonNull Supplier<ActionAccessor> action, @NonNull ButtonGuidePredicate<T> renderPredicate) {
 		ButtonGuideRenderer.registerActionForButton(button, action, renderPredicate);
 	}
 }

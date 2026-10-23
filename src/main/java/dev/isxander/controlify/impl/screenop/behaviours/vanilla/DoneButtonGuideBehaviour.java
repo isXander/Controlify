@@ -32,7 +32,6 @@ public final class DoneButtonGuideBehaviour implements ScreenBehaviour {
 	}
 
 	public interface Access {
-		@Nullable
-		Button controlify$getDoneButton();
+		@Nullable Button controlify$getDoneButton();
 	}
 }

@@ -22,12 +22,9 @@ import java.util.function.Consumer;
 @Mixin(EnchantmentScreen.class)
 public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<EnchantmentMenu> implements AdditionalSnapPointsBehaviour.Access {
 
-	@Unique
-	private static final int SLOT_AREA_OFFSET_X = 60, SLOT_AREA_OFFSET_Y = 14;
-	@Unique
-	private static final int SLOT_WIDTH = 108, SLOT_HEIGHT = 19;
-	@Unique
-	private static final int SLOT_VERTICAL_SPACING = SLOT_HEIGHT;
+	@Unique private static final int SLOT_AREA_OFFSET_X = 60, SLOT_AREA_OFFSET_Y = 14;
+	@Unique private static final int SLOT_WIDTH = 108, SLOT_HEIGHT = 19;
+	@Unique private static final int SLOT_VERTICAL_SPACING = SLOT_HEIGHT;
 
 	// This math is based on the renderBg method in EnchantmentScreen
 	protected EnchantmentScreenMixin(EnchantmentMenu menu, Inventory inventory, Component title) {

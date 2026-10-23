@@ -43,10 +43,8 @@ public abstract class ChatScreenMixin extends Screen implements ChatScreenBehavi
 	@Shadow
 	private CommandSuggestions commandSuggestions;
 
-	@Unique
-	private KeyboardWidget keyboard;
-	@Unique
-	private float shiftChatAmt = 0f;
+	@Unique private KeyboardWidget keyboard;
+	@Unique private float shiftChatAmt = 0f;
 
 	protected ChatScreenMixin(Component title) {
 		super(title);

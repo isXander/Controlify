@@ -125,10 +125,8 @@ public final class ChatScreenBehaviour implements ScreenBehaviour {
 	public interface Access {
 		EditBox controlify$getInput();
 
-		@Nullable
-		KeyboardWidget controlify$getKeyboard();
+		@Nullable KeyboardWidget controlify$getKeyboard();
 
-		@Nullable
-		CmdSuggestionsController controlify$getSuggestionsController();
+		@Nullable CmdSuggestionsController controlify$getSuggestionsController();
 	}
 }

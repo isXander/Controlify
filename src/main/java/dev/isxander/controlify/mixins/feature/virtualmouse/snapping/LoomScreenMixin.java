@@ -26,10 +26,8 @@ import java.util.function.Consumer;
 @Mixin(LoomScreen.class)
 public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> implements AdditionalSnapPointsBehaviour.Access {
 
-	@Unique
-	private static final int COLUMNS = 4, ROWS = 4, SLOTS = COLUMNS * ROWS;
-	@Unique
-	private static final int BTN_SIZE = 14;
+	@Unique private static final int COLUMNS = 4, ROWS = 4, SLOTS = COLUMNS * ROWS;
+	@Unique private static final int BTN_SIZE = 14;
 
 	@Shadow
 	private boolean displayPatterns;

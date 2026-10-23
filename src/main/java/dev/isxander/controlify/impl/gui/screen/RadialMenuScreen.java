@@ -77,13 +77,11 @@ public class RadialMenuScreen extends Screen {
 
 	public RadialMenuScreen(
 			ControllerImpl controller,
-			@Nullable
-			ActionAccessor openAction,
+			@Nullable ActionAccessor openAction,
 			List<RadialItem[]> userPages,
 			List<RadialPage> bonusPages,
 			Component text,
-			@Nullable
-			Screen parent
+			@Nullable Screen parent
 	) {
 		super(text);
 		this.footerText = text;

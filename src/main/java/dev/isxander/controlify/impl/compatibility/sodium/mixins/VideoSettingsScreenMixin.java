@@ -40,8 +40,7 @@ public abstract class VideoSettingsScreenMixin extends Screen implements SodiumS
 	@Shadow
 	private OptionListWidget optionList;
 
-	@Unique
-	private Page controlify$currentPage = null;
+	@Unique private Page controlify$currentPage = null;
 
 	protected VideoSettingsScreenMixin(Component title) {
 		super(title);
@@ -77,8 +76,7 @@ public abstract class VideoSettingsScreenMixin extends Screen implements SodiumS
 		jumpToPage(pages.get(nextIndex));
 	}
 
-	@Unique
-	private List<Page> controlify$getAllPages() {
+	@Unique private List<Page> controlify$getAllPages() {
 		return ConfigManager.CONFIG.getModOptions().stream()
 				.flatMap(mod -> mod.pages().stream())
 				.toList();

@@ -23,12 +23,9 @@ import java.util.function.Consumer;
 @Mixin(StonecutterScreen.class)
 public abstract class StonecutterScreenMixin extends AbstractContainerScreen<StonecutterMenu> implements AdditionalSnapPointsBehaviour.Access {
 
-	@Unique
-	private static final int COLUMNS = 4, ROWS = 3, SLOTS = COLUMNS * ROWS;
-	@Unique
-	private static final int BTN_WIDTH = 16, BTN_HEIGHT = 18;
-	@Unique
-	private static final int BTN_Y_PADDING = 2;
+	@Unique private static final int COLUMNS = 4, ROWS = 3, SLOTS = COLUMNS * ROWS;
+	@Unique private static final int BTN_WIDTH = 16, BTN_HEIGHT = 18;
+	@Unique private static final int BTN_Y_PADDING = 2;
 
 	@Shadow
 	private int startIndex;

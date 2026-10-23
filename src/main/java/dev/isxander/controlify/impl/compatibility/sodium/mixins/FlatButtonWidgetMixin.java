@@ -8,17 +8,16 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.impl.gui.ButtonGuideRenderer;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.network.chat.Component;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Map;
 import java.util.Optional;
@@ -33,16 +32,9 @@ public class FlatButtonWidgetMixin implements ButtonGuideRenderer<FlatButtonWidg
 	@Unique private RenderData<FlatButtonWidget> renderData = null;
 	@Unique private final Map<Action, Component> controllerMessages = new Object2ObjectArrayMap<>(2);
 
-	@ModifyExpressionValue(
-			method = "extractRenderState",
-			at = @At(
-					value = "FIELD",
-					target = "Lnet/caffeinemc/mods/sodium/client/gui/widgets/FlatButtonWidget;label:Lnet/minecraft/network/chat/Component;",
-					opcode = Opcodes.GETFIELD
-			)
-	)
-	private Component modifyRenderedLabel(Component actualLabel) {
-		return getControllerMessage(actualLabel);
+	@WrapMethod(method = "getRenderedLabel")
+	private Component modifyRenderedLabel(Operation<Component> original) {
+		return getControllerMessage(original.call());
 	}
 
 	@Unique private Component getControllerMessage(Component actualLabel) {

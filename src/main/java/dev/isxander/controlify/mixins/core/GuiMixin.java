@@ -44,19 +44,9 @@ public class GuiMixin implements InitialScreenRegistryDuck {
 		((MouseMinecraftCallNotifier) Minecraft.getInstance().mouseHandler).controlify$imFromMinecraftSetScreen();
 	}
 
-	/**
-	 * Without this, the mouse would be left in the middle of the
-	 * screen, hovering over whatever is there which would look wrong
-	 * as there is a focus as well.
-	 */
-	@Inject(
-			method = "setScreen",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/Screen;init(II)V",
-					shift = At.Shift.AFTER
-			)
-	)
+	// Run after initialization and the final mouse-position resync, which would
+	// otherwise restore on-screen coordinates and make widgets appear hovered.
+	@Inject(method = "setScreen", at = @At("RETURN"))
 	private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
 		if (Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);

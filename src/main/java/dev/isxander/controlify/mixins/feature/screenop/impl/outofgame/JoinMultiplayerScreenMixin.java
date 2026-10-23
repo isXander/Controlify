@@ -23,12 +23,9 @@ public class JoinMultiplayerScreenMixin implements JoinMultiplayerScreenBehaviou
 	@Shadow
 	protected ServerSelectionList serverSelectionList;
 
-	@Unique
-	private Button backButton;
-	@Unique
-	private Button directConnectButton;
-	@Unique
-	private Button addServerButton;
+	@Unique private Button backButton;
+	@Unique private Button directConnectButton;
+	@Unique private Button addServerButton;
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "build", method = "Lnet/minecraft/client/gui/components/Button$Builder;build()Lnet/minecraft/client/gui/components/Button;")

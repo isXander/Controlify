@@ -80,7 +80,6 @@ public final class PauseScreenBehaviour implements ScreenBehaviour {
 	}
 
 	public interface Access {
-		@Nullable
-		Button controlify$getDisconnectButton();
+		@Nullable Button controlify$getDisconnectButton();
 	}
 }

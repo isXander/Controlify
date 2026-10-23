@@ -40,8 +40,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements So
 	@Shadow
 	private FlatButtonWidget undoButton;
 
-	@Unique
-	private TabFrame tabFrame;
+	@Unique private TabFrame tabFrame;
 
 	protected SodiumVideoOptionsScreenMixin(Component title) {
 		super(title);
@@ -79,8 +78,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements So
 		};
 	}
 
-	@Unique
-	private void focusOnFirstControl() {
+	@Unique private void focusOnFirstControl() {
 		AbstractFrame tabContentsFrame = ((TabFrameAccessor) tabFrame).getSelectedFrame();
 		List<ControlElement<?>> controlElements = ((AbstractFrameAccessor) tabContentsFrame).getControlElements();
 		if (!controlElements.isEmpty()) {
@@ -130,8 +128,7 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements So
 		return undoButton;
 	}
 
-	@Unique
-	private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
+	@Unique private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
 		return accessor.getSelectedTab();
 	}
 }

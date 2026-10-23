@@ -18,8 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(OptionsScreen.class)
 public class OptionsScreenMixin implements DoneButtonGuideBehaviour.Access {
-	@Unique
-	private Button doneButton;
+	@Unique private Button doneButton;
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "GUI_DONE", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_DONE:Lnet/minecraft/network/chat/Component;")

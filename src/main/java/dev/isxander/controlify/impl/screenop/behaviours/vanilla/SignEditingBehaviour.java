@@ -135,7 +135,6 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 
 		SignBlockEntity controlify$getSign();
 
-		@Nullable
-		KeyboardWidget controlify$getKeyboard();
+		@Nullable KeyboardWidget controlify$getKeyboard();
 	}
 }

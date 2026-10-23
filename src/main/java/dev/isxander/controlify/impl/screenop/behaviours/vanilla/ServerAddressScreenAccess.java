@@ -13,9 +13,7 @@ import org.jspecify.annotations.Nullable;
 public interface ServerAddressScreenAccess {
 	EditBox controlify$getAddressField();
 
-	@Nullable
-	Button controlify$getDoneButton();
+	@Nullable Button controlify$getDoneButton();
 
-	@Nullable
-	Button controlify$getBackButton();
+	@Nullable Button controlify$getBackButton();
 }

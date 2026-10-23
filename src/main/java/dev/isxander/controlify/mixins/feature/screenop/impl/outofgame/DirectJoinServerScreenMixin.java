@@ -24,8 +24,7 @@ public class DirectJoinServerScreenMixin implements ServerAddressScreenAccess {
 	private EditBox ipEdit;
 	@Shadow
 	private Button selectButton;
-	@Unique
-	private Button cancelButton;
+	@Unique private Button cancelButton;
 
 	@Definition(id = "builder", method = "Lnet/minecraft/client/gui/components/Button;builder(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;")
 	@Definition(id = "GUI_CANCEL", field = "Lnet/minecraft/network/chat/CommonComponents;GUI_CANCEL:Lnet/minecraft/network/chat/Component;")

@@ -54,8 +54,7 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Sign
 	@Final
 	protected SignBlockEntity sign;
 
-	@Unique
-	protected KeyboardWidget keyboard;
+	@Unique protected KeyboardWidget keyboard;
 
 	protected AbstractSignEditScreenMixin(Component title) {
 		super(title);

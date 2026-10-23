@@ -90,13 +90,10 @@ public final class JoinMultiplayerScreenBehaviour implements ScreenBehaviour {
 	public interface Access {
 		ServerSelectionList controlify$getServerList();
 
-		@Nullable
-		Button controlify$getBackButton();
+		@Nullable Button controlify$getBackButton();
 
-		@Nullable
-		Button controlify$getDirectConnectButton();
+		@Nullable Button controlify$getDirectConnectButton();
 
-		@Nullable
-		Button controlify$getAddServerButton();
+		@Nullable Button controlify$getAddServerButton();
 	}
 }
