@@ -7,11 +7,13 @@
 package dev.isxander.controlify.impl.utils.codec;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.*;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -19,6 +21,13 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public final class CExtraCodecs {
+	public static final Codec<Unit> EMPTY_MAP = Codec.unboundedMap(Codec.STRING, Codec.PASSTHROUGH).comapFlatMap(
+			map -> map.isEmpty()
+					? DataResult.success(Unit.INSTANCE)
+					: DataResult.error(() -> "Expected an empty input map"),
+			unit -> Map.of()
+	);
+
 	public static <T> Codec<T> fuzzy(
 			List<Codec<? extends T>> codecs,
 			Function<T, Encoder<? extends T>> encoderGetter

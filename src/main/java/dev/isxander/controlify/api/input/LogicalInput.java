@@ -38,17 +38,10 @@ public sealed interface LogicalInput {
 	);
 
 	/// Codec allowing a null LogicalInput represented by an empty map `{}`
-	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, emptyCodec()).xmap(
+	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, CExtraCodecs.EMPTY_MAP).xmap(
 			either -> either.left(),
 			optional -> optional.isPresent() ? Either.left(optional.get()) : Either.right(Unit.INSTANCE)
 	);
-
-	private static Codec<Unit> emptyCodec() {
-		return Codec.unboundedMap(Codec.STRING, Codec.PASSTHROUGH).comapFlatMap(
-				map -> map.isEmpty() ? DataResult.success(Unit.INSTANCE) : DataResult.error(() -> "Expected an empty input map"),
-				unit -> Map.of()
-		);
-	}
 
 	/// A logical input with a direct relationship with a physical input.
 	record Single(Identifier physicalInput) implements LogicalInput {
