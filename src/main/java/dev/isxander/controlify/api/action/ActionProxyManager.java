@@ -6,8 +6,11 @@
  */
 package dev.isxander.controlify.api.action;
 
+import dev.isxander.controlify.api.controller.Controller;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
+
+import java.util.function.Predicate;
 
 /// Configures how existing actions proxy operations in Minecraft.
 /// Supplied by {@link ActionEvents#REGISTER_PROXIES}, immediately after action-spec registration.
@@ -28,5 +31,18 @@ public interface ActionProxyManager {
 
 	/// Equivalent to {@link #proxyKeyMapping(ActionAccessor, KeyMapping)} using a registered action ID.
 	/// Throws if the action is not registered or the key is already proxied by a different action.
-	void proxyKeyMapping(Identifier actionId, KeyMapping keyMapping);
+	default void proxyKeyMapping(Identifier actionId, KeyMapping keyMapping) {
+		proxyKeyMapping(actionId, keyMapping, controller -> false);
+	}
+
+	/// Proxies an action with a controller-dependent toggle setting.
+	/// When the predicate is true, each pulse toggles the key's held state; otherwise the latch supplies it.
+	/// Toggle state clears when the action resets or the controller stops owning the proxy.
+	/// The action must produce pulses for toggle mode and a latch for hold mode.
+	default void proxyKeyMapping(ActionAccessor action, KeyMapping keyMapping, Predicate<Controller> toggleCondition) {
+		proxyKeyMapping(action.actionId(), keyMapping, toggleCondition);
+	}
+
+	/// Equivalent to {@link #proxyKeyMapping(ActionAccessor, KeyMapping, Predicate)} using an action ID.
+	void proxyKeyMapping(Identifier actionId, KeyMapping keyMapping, Predicate<Controller> toggleCondition);
 }

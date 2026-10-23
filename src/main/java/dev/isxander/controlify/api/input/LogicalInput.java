@@ -9,13 +9,13 @@ package dev.isxander.controlify.api.input;
 import com.mojang.datafixers.util.Either;
 import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,10 +38,17 @@ public sealed interface LogicalInput {
 	);
 
 	/// Codec allowing a null LogicalInput represented by an empty map `{}`
-	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, MapCodec.unitCodec(() -> Unit.INSTANCE)).xmap(
+	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, emptyCodec()).xmap(
 			either -> either.left(),
 			optional -> optional.isPresent() ? Either.left(optional.get()) : Either.right(Unit.INSTANCE)
 	);
+
+	private static Codec<Unit> emptyCodec() {
+		return Codec.unboundedMap(Codec.STRING, Codec.PASSTHROUGH).comapFlatMap(
+				map -> map.isEmpty() ? DataResult.success(Unit.INSTANCE) : DataResult.error(() -> "Expected an empty input map"),
+				unit -> Map.of()
+		);
+	}
 
 	/// A logical input with a direct relationship with a physical input.
 	record Single(Identifier physicalInput) implements LogicalInput {

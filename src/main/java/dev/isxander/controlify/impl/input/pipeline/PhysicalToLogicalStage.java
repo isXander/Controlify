@@ -109,14 +109,13 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		if (pressed) {
 			// Only buttons held before this press can modify it; adding the trigger first would select itself.
 			LogicalInput.ModifiedChord chord = this.recogniseChord(input);
-			this.press(time, single, downstream);
 			if (chord != null) {
 				this.press(time, chord, downstream);
 			}
+			this.press(time, single, downstream);
 			this.pressedButtons.add(input);
 		} else {
 			this.pressedButtons.remove(input);
-			this.release(time, single, downstream);
 			// Use the chords captured on press, so later presses cannot change which chord gets released.
 			// Snapshot because releasing a chord removes it from activeButtons.
 			for (var logicalInput : this.activeButtons.keySet().stream().toList()) {
@@ -125,6 +124,7 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 					this.release(time, chord, downstream);
 				}
 			}
+			this.release(time, single, downstream);
 		}
 	}
 

@@ -18,9 +18,12 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Arrays;
 
+import static dev.isxander.sdl.SdlJoystick.*;
+
 public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, PhysicalSignal> {
 	private final float[] prevGamepadAxisValues = new float[64];
 	private final float[] prevJoystickAxisValues = new float[64];
+	private final byte[] prevHatValues = new byte[256];
 
 	public SDLToPhysicalStage() {
 		Arrays.fill(this.prevGamepadAxisValues, 0f);
@@ -54,6 +57,30 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 			case SDLControllerEvent.JoyButton(_, long timeNanos, byte button, boolean down) ->
 				downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, JoystickInputs.button(button), down));
+
+			case SDLControllerEvent.JoyHat(_, long timeNanos, byte hat, byte value) -> {
+				int index = Byte.toUnsignedInt(hat);
+				byte previous = this.prevHatValues[index];
+				this.prevHatValues[index] = value;
+				if (previous != value) {
+					int released = previous & ~value;
+					int pressed = value & ~previous;
+					var directions = JoystickInputs.HatDirection.values();
+					// Release changed directions before pressing new ones; retain shared directions.
+					for (var direction : directions) {
+						if ((released & hatMask(direction)) != 0) {
+							downstream.accept(new PhysicalInputSignal.ButtonChanged(
+									timeNanos, JoystickInputs.hat(index, direction), false));
+						}
+					}
+					for (var direction : directions) {
+						if ((pressed & hatMask(direction)) != 0) {
+							downstream.accept(new PhysicalInputSignal.ButtonChanged(
+									timeNanos, JoystickInputs.hat(index, direction), true));
+						}
+					}
+				}
+			}
 
 			case SDLControllerEvent.GamepadAxis(_, long timeNanos, byte axis, short value) -> {
 				float normalisedValue = normaliseAxis(value);
@@ -98,5 +125,14 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 	private static float normaliseAxis(short v) {
 		return v < 0 ? (v / 32768f) : (v / 32767f);
+	}
+
+	private static int hatMask(JoystickInputs.HatDirection direction) {
+		return switch (direction) {
+			case UP -> SDL_HAT_UP;
+			case RIGHT -> SDL_HAT_RIGHT;
+			case DOWN -> SDL_HAT_DOWN;
+			case LEFT -> SDL_HAT_LEFT;
+		};
 	}
 }

@@ -13,6 +13,7 @@ import dev.isxander.controlify.api.action.ActionSpec;
 import dev.isxander.controlify.api.action.ActionSpecBuilder;
 import dev.isxander.controlify.api.action.BuiltinActionContexts;
 import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.ChatFormatting;
@@ -434,7 +435,8 @@ public final class ControlifyActions {
 	}
 
 	private static void registerProxies(ActionProxyManager proxies) {
-		proxies.proxyKeyMapping(SPRINT, options.keySprint);
+		proxies.proxyKeyMapping(SPRINT, options.keySprint,
+				controller -> ((ControllerImpl) controller).settings().generic.toggleSprint);
 		proxies.proxyKeyMapping(ATTACK, options.keyAttack);
 		proxies.proxyKeyMapping(USE, options.keyUse);
 		proxies.proxyKeyMapping(OPEN_CHAT, options.keyChat);

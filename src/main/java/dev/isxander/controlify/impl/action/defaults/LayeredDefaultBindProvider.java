@@ -26,11 +26,15 @@ public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultB
 	@Override
 	@Nullable public LogicalInput getDefaultInput(Identifier actionId) {
 		for (var layer : layers()) {
-			var input = layer.provider().getDefaultInput(actionId);
-			if (input != null) return input;
+			if (layer.provider().hasDefaultInput(actionId)) return layer.provider().getDefaultInput(actionId);
 			if (layer.clearBelow()) return null;
 		}
 		return null;
+	}
+
+	@Override
+	public boolean hasDefaultInput(Identifier actionId) {
+		return this.layers.stream().anyMatch(layer -> layer.provider().hasDefaultInput(actionId) || layer.clearBelow());
 	}
 
 	public record Layer(DefaultBindProvider provider, boolean clearBelow) {

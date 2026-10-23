@@ -10,11 +10,13 @@ import dev.isxander.controlify.impl.config.dto.profile.InputConfig;
 import dev.isxander.controlify.impl.ingame.InputCurves;
 import dev.isxander.controlify.api.input.LogicalInput;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 public class InputSettings {
@@ -59,10 +61,15 @@ public class InputSettings {
 	}
 
 	public static class BindingsSettings {
-		public Map<Identifier, LogicalInput> bindings;
+		/// Missing entries inherit the controller default; an empty optional explicitly unbinds an action.
+		public Map<Identifier, Optional<LogicalInput>> bindings;
 
-		public BindingsSettings(Map<Identifier, LogicalInput> bindings) {
+		public BindingsSettings(Map<Identifier, Optional<LogicalInput>> bindings) {
 			this.bindings = new HashMap<>(bindings);
+		}
+
+		public @Nullable LogicalInput resolve(Identifier actionId, @Nullable LogicalInput defaultInput) {
+			return this.bindings.getOrDefault(actionId, Optional.ofNullable(defaultInput)).orElse(null);
 		}
 
 		public static BindingsSettings fromDTO(InputConfig.BindingsConfig dto) {

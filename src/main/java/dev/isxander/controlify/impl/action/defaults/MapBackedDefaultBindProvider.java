@@ -27,4 +27,9 @@ public record MapBackedDefaultBindProvider(Map<Identifier, Optional<LogicalInput
 	public @Nullable LogicalInput getDefaultInput(Identifier actionId) {
 		return this.map.getOrDefault(actionId, Optional.empty()).orElse(null);
 	}
+
+	@Override
+	public boolean hasDefaultInput(Identifier actionId) {
+		return this.map.containsKey(actionId);
+	}
 }

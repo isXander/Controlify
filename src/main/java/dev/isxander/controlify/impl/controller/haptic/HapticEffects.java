@@ -10,5 +10,5 @@ import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
 public final class HapticEffects {
-	public static final Identifier NAVIGATE = CUtil.rl("haptics/navigate.ogg");
+	public static final Identifier NAVIGATE = CUtil.rl("controller/haptics/navigate.ogg");
 }

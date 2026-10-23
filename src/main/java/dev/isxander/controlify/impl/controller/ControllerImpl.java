@@ -107,6 +107,7 @@ public final class ControllerImpl implements Controller {
 
 	public void setSettings(@NonNull ProfileSettings settings) {
 		this.settings = settings;
+		this.input().reloadActions();
 	}
 
 	public void reloadDefaultSettings() {

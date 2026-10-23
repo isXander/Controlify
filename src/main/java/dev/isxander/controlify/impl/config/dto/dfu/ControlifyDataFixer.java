@@ -13,7 +13,7 @@ import dev.isxander.controlify.impl.config.settings.GlobalSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 
 public final class ControlifyDataFixer {
-	public static final int CURRENT_VERSION = 10;
+	public static final int CURRENT_VERSION = 11;
 
 	public static DataFixer getFixer() {
 		return ProductionFixerHolder.FIXER;
@@ -57,6 +57,9 @@ public final class ControlifyDataFixer {
 
 		var v10 = builder.addSchema(10, ControlifySchemas.V10::new);
 		builder.addFixer(new RemoveRelativeGyroFix(v10));
+
+		var v11 = builder.addSchema(11, ControlifySchemas.V11::new);
+		builder.addFixer(new LogicalInputBindingsFix(v11));
 
 		return builder.build().fixer();
 	}

@@ -1,7 +1,5 @@
 {
   "defaults": {
-    "controlify:show_player_list": {
-      "button": "controlify:button/touchpad"
-    }
+    "controlify:show_player_list": "controlify:button/touchpad_1"
   }
 }

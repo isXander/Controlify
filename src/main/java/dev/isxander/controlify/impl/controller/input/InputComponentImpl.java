@@ -122,13 +122,15 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		if (controllerMapping.equals(this.controllerMapping)) {
 			return;
 		}
-		this.resetActions();
+		this.actionGraph.resetInputState();
+		ActionProxyManagerImpl.INSTANCE.update(this.controller());
 		this.controllerMapping = controllerMapping;
 		this.inputPipeline.setControllerMapping(controllerMapping);
 	}
 
 	public void resetActions() {
 		this.actions.values().forEach(ActionImpl::reset);
+		this.actionGraph.restoreContinuousState();
 		ActionProxyManagerImpl.INSTANCE.update(this.controller());
 	}
 
@@ -137,6 +139,9 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 				.getDefaultBindProvider(this.controllerType);
 		for (ActionImpl action : this.actions.values()) {
 			action.setDefaultInput(provider.getDefaultInput(action.spec().id()));
+			if (!settings().bindings.bindings.containsKey(action.spec().id())) {
+				action.setBoundInput(action.defaultInput());
+			}
 		}
 	}
 
@@ -191,7 +196,7 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 				.getDefaultBindProvider(this.controllerType);
 		LogicalInput defaultBoundInput = bindProvider.getDefaultInput(spec.id());
 
-		LogicalInput currentBoundInput = settings().bindings.bindings.get(spec.id());
+		LogicalInput currentBoundInput = settings().bindings.resolve(spec.id(), defaultBoundInput);
 
 		ActivatorConfig<?> activatorConfig = Controlify.instance().activatorConfigManager()
 				.getConfig(spec.id());

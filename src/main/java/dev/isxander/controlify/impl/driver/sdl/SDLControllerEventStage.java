@@ -23,6 +23,9 @@ public class SDLControllerEventStage implements EventStage<SdlEvent, SDLControll
 			case SdlEvent.JoyButton(SdlJoystickId which, byte button, boolean down) ->
 				downstream.accept(new SDLControllerEvent.JoyButton(which, timeNanos, button, down));
 
+			case SdlEvent.JoyHat(SdlJoystickId which, byte hat, byte value) ->
+				downstream.accept(new SDLControllerEvent.JoyHat(which, timeNanos, hat, value));
+
 			case SdlEvent.JoyDevice(SdlJoystickId which) -> {
 				var type = SDLInputConversions.getDeviceEventType(event.type());
 				if (type != null) {

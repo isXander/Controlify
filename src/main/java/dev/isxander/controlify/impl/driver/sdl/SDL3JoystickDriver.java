@@ -17,6 +17,7 @@ import net.minecraft.resources.Identifier;
 
 import java.nio.ByteBuffer;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -39,8 +40,11 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SdlJoystickHandle> {
 				.boxed()
 				.flatMap(i -> Stream.of(JoystickInputs.axis(i, false), JoystickInputs.axis(i, true)))
 				.collect(Collectors.toSet());
-		this.supportedButtons = IntStream.range(0, this.numButtons)
-				.mapToObj(JoystickInputs::button)
+		int numHats = sdl.joystick().SDL_GetNumJoystickHats(ptrJoystick);
+		this.supportedButtons = Stream.concat(
+				IntStream.range(0, this.numButtons).mapToObj(JoystickInputs::button),
+				IntStream.range(0, numHats).boxed().flatMap(hat -> Arrays.stream(JoystickInputs.HatDirection.values())
+						.map(direction -> JoystickInputs.hat(hat, direction))))
 				.collect(Collectors.toSet());
 	}
 

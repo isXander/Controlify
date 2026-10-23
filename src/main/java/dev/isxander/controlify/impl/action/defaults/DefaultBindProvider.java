@@ -13,5 +13,10 @@ import org.jetbrains.annotations.Nullable;
 public interface DefaultBindProvider {
 	@Nullable LogicalInput getDefaultInput(Identifier actionId);
 
+	/// Whether this provider defines an input, including an explicit unbinding.
+	default boolean hasDefaultInput(Identifier actionId) {
+		return this.getDefaultInput(actionId) != null;
+	}
+
 	DefaultBindProvider EMPTY = bind -> null;
 }

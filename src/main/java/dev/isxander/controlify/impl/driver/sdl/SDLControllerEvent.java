@@ -87,6 +87,9 @@ public sealed interface SDLControllerEvent {
 			boolean down
 	) implements JoystickEvent, ButtonEvent {}
 
+	/// A raw joystick hat bitmask; converted to directional buttons before entering the input pipeline.
+	record JoyHat(SdlJoystickId which, long timeNanos, byte hat, byte value) implements JoystickEvent {}
+
 	/// A controller battery level change event.
 	/// @param which the joystick ID
 	/// @param timeNanos the event timestamp in nanoseconds

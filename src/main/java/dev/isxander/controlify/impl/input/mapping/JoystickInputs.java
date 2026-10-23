@@ -9,10 +9,16 @@ package dev.isxander.controlify.impl.input.mapping;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
+import java.util.Locale;
+
 public final class JoystickInputs {
 	private static final Identifier[] BUTTONS = new Identifier[256];
-	private static final Identifier[] AXES = new Identifier[512];
-	private static final Identifier[] HATS = new Identifier[256];
+	private static final Identifier[] AXES = new Identifier[256 << 1];
+	private static final Identifier[] HATS = new Identifier[128 << 2];
+
+	public enum HatDirection {
+		UP, RIGHT, DOWN, LEFT
+	}
 
 	private JoystickInputs() {
 	}
@@ -28,10 +34,7 @@ public final class JoystickInputs {
 	}
 
 	public static Identifier axis(int index, boolean positive) {
-		int cacheIndex = index;
-		if (!positive) {
-			cacheIndex += 256;
-		}
+		int cacheIndex = (index << 1) | (positive ? 0 : 1);
 
 		Identifier cache = AXES[cacheIndex];
 
@@ -42,11 +45,13 @@ public final class JoystickInputs {
 		return cache;
 	}
 
-	public static Identifier hat(int index) {
-		Identifier cache = HATS[index];
+	public static Identifier hat(int index, HatDirection direction) {
+		int cacheIndex = (index << 2) | direction.ordinal();
+
+		Identifier cache = HATS[cacheIndex];
 
 		if (cache == null) {
-			HATS[index] = cache = CUtil.rl("hat/" + index);
+			HATS[cacheIndex] = cache = CUtil.rl("hat/" + index + "/" + direction.name().toLowerCase());
 		}
 
 		return cache;

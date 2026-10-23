@@ -12,6 +12,7 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
 	private int pulses = 0;
 	private boolean latchActive = false;
 	private float continuousValue = 0;
+	private long resetVersion;
 
 	@Override
 	public float getContinuous() {
@@ -62,8 +63,13 @@ public final class ActionState implements Accumulator, Channel.Continuous, Chann
 	}
 
 	public void reset() {
+		this.resetVersion++;
 		this.pulses = 0;
 		this.latchActive = false;
 		this.continuousValue = 0f;
+	}
+
+	public long resetVersion() {
+		return this.resetVersion;
 	}
 }

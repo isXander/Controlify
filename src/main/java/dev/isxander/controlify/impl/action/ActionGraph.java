@@ -25,6 +25,7 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 	private final Map<Identifier, Map<LogicalInput, Set<ActionImpl>>> graph = new HashMap<>();
 
 	private final Set<ActionContext> currentContexts = new TreeSet<>();
+	private final Map<LogicalInput, LogicalSignal.AxisMoved> continuousInputs = new HashMap<>();
 	// mutable set to avoid set allocation on every signal
 	private final Set<ActionImpl> dispatchCandidates = new TreeSet<>();
 
@@ -37,6 +38,7 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 			byInputMap.computeIfAbsent(action.boundInput(), _ -> new TreeSet<>())
 					.add(action);
 		}
+		this.restoreContinuousState(action);
 	}
 
 	public void removeAction(ActionImpl action) {
@@ -69,11 +71,41 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 					.anyMatch(context -> action.spec().contexts().contains(context.id()));
 			if (wasActive && !isActive) {
 				action.reset();
+			} else if (!wasActive && isActive) {
+				this.restoreContinuousState(action, true);
 			}
 		}
 
 		this.currentContexts.clear();
 		this.currentContexts.addAll(contexts);
+	}
+
+	/// Releases state from a physical mapping that is being replaced.
+	public void resetInputState() {
+		this.continuousInputs.clear();
+		this.allActions.forEach(ActionImpl::reset);
+	}
+
+	public void restoreContinuousState() {
+		this.allActions.forEach(this::restoreContinuousState);
+	}
+
+	private void restoreContinuousState(ActionImpl action) {
+		this.restoreContinuousState(action, this.currentContexts.stream()
+				.anyMatch(context -> action.spec().contexts().contains(context.id())));
+	}
+
+	private void restoreContinuousState(ActionImpl action, boolean active) {
+		var value = this.continuousInputs.get(action.boundInput());
+		if (active && value != null) {
+			// Restore values without replaying presses, pulses or held-button latches.
+			action.activator().onSignal(value, new Accumulator() {
+				@Override
+				public void setContinuous(float value) {
+					action.state().setContinuous(value);
+				}
+			});
+		}
 	}
 
 	@Override
@@ -92,6 +124,14 @@ public class ActionGraph implements EventSink<LogicalSignal> {
 	}
 
 	private void processInput(LogicalSignal.InputSignal inputSignal) {
+		if (inputSignal instanceof LogicalSignal.AxisMoved axis) {
+			if (axis.value() == 0f) {
+				this.continuousInputs.remove(axis.input());
+			} else {
+				this.continuousInputs.put(axis.input(), new LogicalSignal.AxisMoved(
+						axis.timeNanos(), axis.input(), axis.value(), 0f));
+			}
+		}
 		this.dispatchCandidates.clear();
 
 		// collect all actions monitoring this logical input in the current context

@@ -783,8 +783,10 @@ public class ControllerConfigScreenFactory {
 						.map(action -> (Action) action).toList())
 				.orElseGet(() -> ActionSpecRegistryImpl.INSTANCE.getActionSpecs().stream()
 						.map(spec -> {
+							LogicalInput defaultInput = Controlify.instance().defaultBindManager()
+									.getDefaultBindProvider(ControllerType.DEFAULT.id()).getDefaultInput(spec.id());
 							var action = new ActionImpl(spec,
-									settings.input.bindings.bindings.get(spec.id()), null,
+									settings.input.bindings.resolve(spec.id(), defaultInput), defaultInput,
 									Controlify.instance().activatorConfigManager().getConfig(spec.id()),
 									new ActionGraph());
 							action.reset();
@@ -866,10 +868,10 @@ public class ControllerConfigScreenFactory {
 				.binding(Optional.ofNullable(action.defaultInput()), () -> Optional.ofNullable(action.boundInput()), value -> {
 					LogicalInput input = value.orElse(null);
 					action.setBoundInput(input);
-					if (input == null) {
+					if (Objects.equals(input, action.defaultInput())) {
 						settings.input.bindings.bindings.remove(action.spec().id());
 					} else {
-						settings.input.bindings.bindings.put(action.spec().id(), input);
+						settings.input.bindings.bindings.put(action.spec().id(), value);
 					}
 				})
 				.customController(opt -> new BindController(opt, controller));

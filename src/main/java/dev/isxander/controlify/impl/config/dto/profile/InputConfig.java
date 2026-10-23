@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public record InputConfig(
 		BindingsConfig bindings,
@@ -31,11 +32,11 @@ public record InputConfig(
 	).apply(instance, InputConfig::new));
 
 	public record BindingsConfig(
-			Map<Identifier, LogicalInput> bindings
+			Map<Identifier, Optional<LogicalInput>> bindings
 	) {
 		public static final BindingsConfig EMPTY = new BindingsConfig(Map.of());
 
-		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, LogicalInput.CODEC)
+		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, LogicalInput.OPTIONAL_CODEC)
 				.xmap(BindingsConfig::new, BindingsConfig::bindings);
 
 		public BindingsConfig {

@@ -7,6 +7,7 @@
 package dev.isxander.controlify.impl.action.proxy;
 
 import dev.isxander.controlify.api.action.ActionProxyManager;
+import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.action.ActionAccessorImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
@@ -21,6 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public final class ActionProxyManagerImpl implements ActionProxyManager {
 	/// Subscriptions do not initialize the proxy manager singleton.
@@ -49,10 +51,11 @@ public final class ActionProxyManagerImpl implements ActionProxyManager {
 	}
 
 	@Override
-	public void proxyKeyMapping(@NonNull Identifier actionId, @NonNull KeyMapping keyMapping) {
+	public void proxyKeyMapping(@NonNull Identifier actionId, @NonNull KeyMapping keyMapping, @NonNull Predicate<Controller> toggleCondition) {
 		this.checkRegistrationOpen();
 		Objects.requireNonNull(actionId);
 		Objects.requireNonNull(keyMapping);
+		Objects.requireNonNull(toggleCondition);
 		if (!ActionSpecRegistryImpl.INSTANCE.isRegistered(actionId)) {
 			throw new IllegalArgumentException("Action is not registered: " + actionId);
 		}
@@ -65,7 +68,7 @@ public final class ActionProxyManagerImpl implements ActionProxyManager {
 			this.proxyUpdates.subscribe(listener);
 			return listener;
 		});
-		proxy.addKeyMapping(keyMapping);
+		proxy.addKeyMapping(keyMapping, toggleCondition);
 		this.proxiedKeyMappings.put(keyMapping, actionId);
 	}
 

@@ -92,12 +92,10 @@ public class ControlifyGameTestContext {
 	}
 
 	static void bindDefaultInputs(ControllerImpl controller) {
-		// New profiles can leave actions unbound; each virtual device test starts with its default layout.
+		// Each virtual device test starts with its default layout, without saved binding overrides.
 		controller.input().getAllActions().forEach(action -> {
 			action.setBoundInput(action.defaultInput());
-			if (action.defaultInput() != null) {
-				controller.settings().input.bindings.bindings.put(action.spec().id(), action.defaultInput());
-			}
+			controller.settings().input.bindings.bindings.remove(action.spec().id());
 		});
 	}
 
