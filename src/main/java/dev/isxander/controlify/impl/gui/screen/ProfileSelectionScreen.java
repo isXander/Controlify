@@ -101,7 +101,7 @@ public class ProfileSelectionScreen extends Screen {
 		scrollable.setScrollbarSpacing(0);
 		//?} else {
 		/*ScrollableLayout scrollable = new ScrollableLayout(this.minecraft, scrollContent, this.layout.getContentHeight());
-		 *///?}
+		*///?}
 		scrollable.setMinWidth(columns * CARD_WIDTH + Math.max(0, columns - 1) * CARD_SPACING);
 		scrollable.setMaxHeight(this.layout.getContentHeight());
 		scrollable.setMinHeight(this.layout.getContentHeight());
