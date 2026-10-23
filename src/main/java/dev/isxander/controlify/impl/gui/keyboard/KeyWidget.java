@@ -260,26 +260,26 @@ public class KeyWidget extends AbstractWidget implements ElementBehaviour {
 
 	public boolean isVisuallyPressed() {
 		return this.mousePressed
-			   || this.buttonPressed
-			   || this.shortcutPressed
-			   || this.isShiftKeyAndShifting()
-			   || this.isShiftLockKeyAndShiftLocked();
+			|| this.buttonPressed
+			|| this.shortcutPressed
+			|| this.isShiftKeyAndShifting()
+			|| this.isShiftLockKeyAndShiftLocked();
 	}
 
 	private boolean isShiftKeyAndShifting() {
 		return this.keyboard.isShifted() && !this.keyboard.isShiftLocked()
-			   && this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(
+			&& this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(
 				KeyboardLayout.KeyFunction.SpecialFunc.Action action
 		)
-			   && action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT;
+			&& action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT;
 	}
 
 	private boolean isShiftLockKeyAndShiftLocked() {
 		return this.keyboard.isShiftLocked()
-			   && this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(
+			&& this.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc(
 				KeyboardLayout.KeyFunction.SpecialFunc.Action action
 		)
-			   && action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT_LOCK;
+			&& action == KeyboardLayout.KeyFunction.SpecialFunc.Action.SHIFT_LOCK;
 	}
 
 	private boolean supportsAction(boolean shifted) {

@@ -1,8 +1,15 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.impl.screenop;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.gui.keyboard.*;
 import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.compatibility.ControlifyCompat;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.gui.keyboard.*;
 import dev.isxander.controlify.impl.gui.screen.*;
@@ -34,7 +41,7 @@ public final class BuiltinScreenBehaviours {
 	public static void initialize() {
 		ScreenopEvents.REGISTER_SCREEN_BEHAVIOURS.subscribe(BuiltinScreenBehaviours::registerScreens);
 		ScreenopEvents.REGISTER_ELEMENT_BEHAVIOURS.subscribe(BuiltinScreenBehaviours::registerElements);
-		dev.isxander.controlify.impl.compatibility.ControlifyCompat.initializeScreenBehaviours();
+		ControlifyCompat.initializeScreenBehaviours();
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -49,24 +56,24 @@ public final class BuiltinScreenBehaviours {
 		});
 		registry.<AbstractRecipeBookScreen<?>>register((Class) AbstractRecipeBookScreen.class, RecipeBookScreenBehaviour::new);
 		registry.<CreativeModeInventoryScreen>register(CreativeModeInventoryScreen.class, CreativeModeInventoryScreenBehaviour::new);
-		registry.registerUnchecked(OptionsScreen.class);
-		registry.registerUnchecked(OptionsSubScreen.class);
-		registry.registerUnchecked(PauseScreen.class);
-		registry.registerUnchecked(JoinMultiplayerScreen.class);
-		registry.registerUnchecked(DirectJoinServerScreen.class);
-		registry.registerUnchecked(ManageServerScreen.class);
-		registry.registerUnchecked(CreateWorldScreen.class);
-		registry.registerUnchecked(ChatScreen.class);
-		registry.registerUnchecked(AbstractSignEditScreen.class);
-		registry.register(BindConsumerScreen.class, 200);
-		registry.register(ControllerMappingMakerScreen.class, 200);
-		registry.register(RadialMenuScreen.class);
-		registry.register(RadialMenuEditScreen.class, 200);
-		registry.register(ControlifySettingsScreen.class);
-		registry.register(ProfileSelectionScreen.class);
-		registry.registerUnchecked(EnchantmentScreen.class);
-		registry.registerUnchecked(LoomScreen.class);
-		registry.registerUnchecked(StonecutterScreen.class);
+		registry.<OptionsScreen>register(OptionsScreen.class, DoneButtonGuideBehaviour::new);
+		registry.<OptionsSubScreen>register(OptionsSubScreen.class, DoneButtonGuideBehaviour::new);
+		registry.<PauseScreen>register(PauseScreen.class, PauseScreenBehaviour::new);
+		registry.<JoinMultiplayerScreen>register(JoinMultiplayerScreen.class, JoinMultiplayerScreenBehaviour::new);
+		registry.<DirectJoinServerScreen>register(DirectJoinServerScreen.class, ServerAddressBehaviour::new);
+		registry.<ManageServerScreen>register(ManageServerScreen.class, ServerAddressBehaviour::new);
+		registry.<CreateWorldScreen>register(CreateWorldScreen.class, CreateWorldScreenBehaviour::new);
+		registry.<ChatScreen>register(ChatScreen.class, ChatScreenBehaviour::new);
+		registry.<AbstractSignEditScreen>register(AbstractSignEditScreen.class, SignEditingBehaviour::new);
+		registry.<BindConsumerScreen>register(BindConsumerScreen.class, 200, InputCaptureBehaviour::new);
+		registry.<ControllerMappingMakerScreen>register(ControllerMappingMakerScreen.class, 200, InputCaptureBehaviour::new);
+		registry.<RadialMenuScreen>register(RadialMenuScreen.class, RadialMenuScreen.Behaviour::new);
+		registry.<RadialMenuEditScreen>register(RadialMenuEditScreen.class, 200, RadialMenuEditScreen.Behaviour::new);
+		registry.<ControlifySettingsScreen>register(ControlifySettingsScreen.class, ControlifySettingsScreen.Behaviour::new);
+		registry.<ProfileSelectionScreen>register(ProfileSelectionScreen.class, ProfileSelectionScreen.Behaviour::new);
+		registry.<EnchantmentScreen>register(EnchantmentScreen.class, AdditionalSnapPointsBehaviour::new);
+		registry.<LoomScreen>register(LoomScreen.class, AdditionalSnapPointsBehaviour::new);
+		registry.<StonecutterScreen>register(StonecutterScreen.class, AdditionalSnapPointsBehaviour::new);
 	}
 
 	private static void registerElements(ScreenopEvents.RegisterElementBehavioursEvent event) {
@@ -149,7 +156,7 @@ public final class BuiltinScreenBehaviours {
 		try {
 			var type = Class.forName("net.minecraft.client.gui.screens.options.LanguageSelectScreen$LanguageSelectionList$Entry")
 					.asSubclass(GuiEventListener.class);
-			registry.registerUnchecked(type);
+			registry.register(type, LanguageSelectionBehaviour::new);
 		} catch (ClassNotFoundException exception) {
 			throw new IllegalStateException("Language selection entry class is unavailable", exception);
 		}
@@ -206,5 +213,4 @@ public final class BuiltinScreenBehaviours {
 				new ScreenSnapPointBehaviour(context)
 		);
 	}
-
 }

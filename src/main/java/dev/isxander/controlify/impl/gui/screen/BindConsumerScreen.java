@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
@@ -25,7 +24,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
-public class BindConsumerScreen extends Screen implements ScreenBehaviourFactory<BindConsumerScreen> {
+public class BindConsumerScreen extends Screen {
 	private final ControllerImpl controller;
 	private EventSource.Subscription inputSubscription;
 	private LogicalInput capturedInput;
@@ -185,21 +184,4 @@ public class BindConsumerScreen extends Screen implements ScreenBehaviourFactory
 		}
 		ticksTillClose = 5;
 	}
-
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends BindConsumerScreen> context) {
-		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
-		return new ScreenBehaviour() {
-			@Override
-			public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
-				// Physical input is captured by the screen's dedicated subscription.
-			}
-
-			@Override
-			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
-				// Do not also activate controls while capturing physical input.
-			}
-		};
-	}
-
 }

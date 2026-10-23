@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.mixins.feature.screenop;
+package dev.isxander.controlify.impl.gui.keyboard;
 
 import dev.isxander.controlify.api.gui.keyboard.InputTarget;
 

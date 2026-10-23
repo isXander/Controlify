@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
 package dev.isxander.controlify.impl.screenop;
 
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -20,7 +26,7 @@ public final class ScreenWidgets {
 
 	public static Optional<AbstractWidget> find(Screen screen, String translationKey) {
 		return find(screen, widget -> widget.getMessage().getContents() instanceof TranslatableContents contents
-									  && contents.getKey().equals(translationKey));
+									&& contents.getKey().equals(translationKey));
 	}
 
 	public static Optional<AbstractWidget> find(Screen screen, Component message) {

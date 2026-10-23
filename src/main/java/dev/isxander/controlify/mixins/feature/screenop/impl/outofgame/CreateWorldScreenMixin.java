@@ -14,14 +14,13 @@ import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.CreateWorldScreenBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(CreateWorldScreen.class)
-public abstract class CreateWorldScreenMixin implements ScreenBehaviourFactory<CreateWorldScreen> {
+public abstract class CreateWorldScreenMixin implements CreateWorldScreenBehaviour.Access {
 	@Shadow
 	protected abstract void onCreate();
 
@@ -72,7 +71,7 @@ public abstract class CreateWorldScreenMixin implements ScreenBehaviourFactory<C
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends CreateWorldScreen> context) {
-		return new CreateWorldScreenBehaviour(context, this::onCreate);
+	public void controlify$createWorld() {
+		this.onCreate();
 	}
 }

@@ -86,7 +86,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 	 * @param identifier      an optional identifier for the key, used when changing layouts to focus a specific key with a matching identifier
 	 */
 	public record Key(KeyFunction regular, KeyFunction shifted, float width, Optional<ActionAccessor> shortcutBinding,
-	                  @Nullable String identifier) {
+					@Nullable String identifier) {
 		private static final Codec<Float> WIDTH_CODEC = Codec.floatRange(0.1f, Float.MAX_VALUE);
 
 		private static final Codec<Key> PAIR_CODEC = Codec.withAlternative(

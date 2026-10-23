@@ -84,9 +84,9 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 				oldLayoutChangerToFocus != null,
 				k -> {
 					boolean isOldLayout = k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.ChangeLayoutFunc changeLayoutKey
-										  && changeLayoutKey.layout().equals(oldLayoutChangerToFocus);
+										&& changeLayoutKey.layout().equals(oldLayoutChangerToFocus);
 					boolean isPrevLayout = k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.SpecialFunc specialFunc
-										   && specialFunc.action() == KeyboardLayout.KeyFunction.SpecialFunc.Action.PREVIOUS_LAYOUT;
+										&& specialFunc.action() == KeyboardLayout.KeyFunction.SpecialFunc.Action.PREVIOUS_LAYOUT;
 					return isOldLayout || isPrevLayout;
 				})
 		);
@@ -156,7 +156,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 		boolean forward = this.forwardCursorRepeat.shouldAction(supportsCursor
 																&& ControlifyActions.GUI_NEXT_TAB.on(controller).latch().isLatchActive());
 		boolean backward = this.backwardCursorRepeat.shouldAction(supportsCursor
-																  && ControlifyActions.GUI_PREV_TAB.on(controller).latch().isLatchActive());
+																&& ControlifyActions.GUI_PREV_TAB.on(controller).latch().isLatchActive());
 		boolean movedCursor = false;
 		if (supportsCursor) {
 			ControlifyActions.GUI_NEXT_TAB.on(controller).pulse().consumeAllPulses();
@@ -278,8 +278,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 		this.focused = (KeyWidget) focused;
 	}
 
-	@Nullable
-	@Override
+	@Nullable @Override
 	public ComponentPath nextFocusPath(@NonNull FocusNavigationEvent event) {
 		return ContainerEventHandler.super.nextFocusPath(event);
 	}

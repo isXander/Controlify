@@ -58,7 +58,8 @@ public final class ScreenContextImpl<T extends Screen> implements ScreenContext<
 		this.behaviour = ScreenBehaviours.chain(ScreenBehaviourRegistryImpl.INSTANCE.create(this));
 		try {
 			ScreenBehaviourRegistryImpl.Events.REGISTER_ELEMENT_BEHAVIOURS.emit(
-					new ScreenopEvents.RegisterElementBehavioursEvent(this, elements));
+					new ScreenopEvents.RegisterElementBehavioursEvent(this, elements)
+			);
 		} finally {
 			elements.lock();
 		}

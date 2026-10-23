@@ -8,20 +8,18 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.api.screenop.*;
-import net.minecraft.client.gui.components.events.GuiEventListener;
+import dev.isxander.controlify.impl.screenop.behaviours.element.ControlValueAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(targets = "net.caffeinemc.mods.sodium.client.gui.options.control.TickBoxControl$TickBoxControlElement")
-public abstract class TickBoxControlElementMixin implements ElementBehaviourFactory<GuiEventListener> {
+public abstract class TickBoxControlElementMixin implements ControlValueAccess {
 	@Shadow
 	protected abstract void toggleControl();
 
 	@Override
-	public ElementBehaviour create(GuiEventListener element) {
-		return ElementBehaviours.cycle((GuiEventListener widget, int direction) -> this.toggleControl()).create((GuiEventListener) (Object) this);
+	public void controlify$adjustValue(int direction) {
+		this.toggleControl();
 	}
-
 }
 //?}

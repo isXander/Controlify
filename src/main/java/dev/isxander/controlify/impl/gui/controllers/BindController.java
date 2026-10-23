@@ -25,6 +25,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -116,7 +117,7 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 		}
 
 		@Override
-		public void handleInteraction(ScreenContext<?> screen, dev.isxander.controlify.api.controller.Controller controller, Runnable next) {
+		public void handleInteraction(@NonNull ScreenContext<?> screen, dev.isxander.controlify.api.controller.@NonNull Controller controller, @NonNull Runnable next) {
 			if (controller != control.controller) {
 				return;
 			}

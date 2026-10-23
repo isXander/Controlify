@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,8 +27,7 @@ import java.util.List;
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin implements ContainerScreenBehaviour.Access {
 	@Shadow
-	@Nullable
-	protected Slot hoveredSlot;
+	@Nullable protected Slot hoveredSlot;
 
 	@Shadow
 	protected abstract void slotClicked(
@@ -42,12 +42,12 @@ public abstract class AbstractContainerScreenMixin implements ContainerScreenBeh
 	private List<ItemSlotMouseAction> itemSlotMouseActions;
 
 	@Override
-	public void controlify$clickSlot(@Nullable Slot slot, int slotId, int button, ContainerInput input) {
+	public void controlify$clickSlot(@Nullable Slot slot, int slotId, int button, @NonNull ContainerInput input) {
 		this.slotClicked(slot, slotId, button, input);
 	}
 
 	@Override
-	public boolean controlify$handleItemSlotActions(ControllerImpl controller) {
+	public boolean controlify$handleItemSlotActions(@NonNull ControllerImpl controller) {
 		for (ItemSlotMouseAction itemSlotMouseAction : this.itemSlotMouseActions) {
 			if (itemSlotMouseAction instanceof ItemSlotControllerAction itemSlotControllerAction
 				&& itemSlotMouseAction.matches(this.hoveredSlot)

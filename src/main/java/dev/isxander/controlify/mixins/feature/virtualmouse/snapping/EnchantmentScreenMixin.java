@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.screenop.SnapPoint;
+import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.network.chat.Component;
@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.function.Consumer;
 
 @Mixin(EnchantmentScreen.class)
-public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<EnchantmentMenu> implements ScreenBehaviourFactory<EnchantmentScreen> {
+public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<EnchantmentMenu> implements AdditionalSnapPointsBehaviour.Access {
 
 	@Unique
 	private static final int SLOT_AREA_OFFSET_X = 60, SLOT_AREA_OFFSET_Y = 14;
@@ -35,37 +35,28 @@ public abstract class EnchantmentScreenMixin extends AbstractContainerScreen<Enc
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends EnchantmentScreen> context) {
-		return new ScreenBehaviour() {
-			@Override
-			public void collectSnapPoints(Consumer<SnapPoint> consumer, Runnable next) {
-				next.run();
+	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
+		int leftPos = this.leftPos;
+		int topPos = this.topPos;
+		int snapRadius = (SLOT_HEIGHT / 2) + 5;
 
-				int leftPos = EnchantmentScreenMixin.this.leftPos;
-				int topPos = EnchantmentScreenMixin.this.topPos;
-				int snapRadius = (SLOT_HEIGHT / 2) + 5;
-
-				// enchanting table has 3 options
-				for (int slotIndex = 0; slotIndex < 3; slotIndex++) {
-					if (EnchantmentScreenMixin.this.menu.costs[slotIndex] == 0) {
-						// Cost is 0 if there is no enchantment in this slot, skip
-						continue;
-					}
-
-					// Purposefully include the slots even if the player can't afford them,
-					// since you can still hover over them to see the enchantment and its cost.
-					int slotX = leftPos + SLOT_AREA_OFFSET_X;
-					int slotY = topPos + SLOT_AREA_OFFSET_Y + (slotIndex * SLOT_VERTICAL_SPACING);
-
-					int centreSlotX = slotX + (SLOT_WIDTH / 2);
-					int centreSlotY = slotY + (SLOT_HEIGHT / 2);
-
-					// Add the snap point for this slot
-					consumer.accept(new SnapPoint(centreSlotX, centreSlotY, snapRadius));
-				}
-
+		// enchanting table has 3 options
+		for (int slotIndex = 0; slotIndex < 3; slotIndex++) {
+			if (this.menu.costs[slotIndex] == 0) {
+				// Cost is 0 if there is no enchantment in this slot, skip
+				continue;
 			}
-		};
-	}
 
+			// Purposefully include the slots even if the player can't afford them,
+			// since you can still hover over them to see the enchantment and its cost.
+			int slotX = leftPos + SLOT_AREA_OFFSET_X;
+			int slotY = topPos + SLOT_AREA_OFFSET_Y + (slotIndex * SLOT_VERTICAL_SPACING);
+
+			int centreSlotX = slotX + (SLOT_WIDTH / 2);
+			int centreSlotY = slotY + (SLOT_HEIGHT / 2);
+
+			// Add the snap point for this slot
+			consumer.accept(new SnapPoint(centreSlotX, centreSlotY, snapRadius));
+		}
+	}
 }

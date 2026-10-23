@@ -9,19 +9,17 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.JoinMultiplayerScreenBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.ServerSelectionList;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(JoinMultiplayerScreen.class)
-public class JoinMultiplayerScreenMixin implements ScreenBehaviourFactory<JoinMultiplayerScreen> {
+public class JoinMultiplayerScreenMixin implements JoinMultiplayerScreenBehaviour.Access {
 	@Shadow
 	protected ServerSelectionList serverSelectionList;
 
@@ -60,12 +58,22 @@ public class JoinMultiplayerScreenMixin implements ScreenBehaviourFactory<JoinMu
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends JoinMultiplayerScreen> context) {
-		return new JoinMultiplayerScreenBehaviour(context,
-				() -> this.serverSelectionList,
-				() -> this.backButton,
-				() -> this.directConnectButton,
-				() -> this.addServerButton
-		);
+	public ServerSelectionList controlify$getServerList() {
+		return this.serverSelectionList;
+	}
+
+	@Override
+	public Button controlify$getBackButton() {
+		return this.backButton;
+	}
+
+	@Override
+	public Button controlify$getDirectConnectButton() {
+		return this.directConnectButton;
+	}
+
+	@Override
+	public Button controlify$getAddServerButton() {
+		return this.addServerButton;
 	}
 }

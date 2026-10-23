@@ -8,14 +8,15 @@ package dev.isxander.controlify.impl.compatibility.rso.mixins;
 
 //? if reeses_sodium_options {
 /*import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenBehaviour;
-import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
 import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.SodiumVideoOptionsScreen;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.AbstractFrame;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.Tab;
 import me.flashyreese.mods.reeses_sodium_options.client.gui.frame.tab.TabFrame;
+import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
+import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -26,14 +27,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import java.util.List;
 import java.util.Optional;
 
-import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
-import net.caffeinemc.mods.sodium.client.gui.options.control.ControlElement;
-
 @Mixin(SodiumVideoOptionsScreen.class)
-public abstract class SodiumVideoOptionsScreenMixin extends Screen implements ScreenBehaviourFactory<Screen>, SodiumScreenOperations {
+public abstract class SodiumVideoOptionsScreenMixin extends Screen implements SodiumScreenOperations {
 	@Shadow
 	private FlatButtonWidget applyButton;
 	@Shadow
@@ -41,7 +40,8 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 	@Shadow
 	private FlatButtonWidget undoButton;
 
-	@Unique private TabFrame tabFrame;
+	@Unique
+	private TabFrame tabFrame;
 
 	protected SodiumVideoOptionsScreenMixin(Component title) {
 		super(title);
@@ -79,18 +79,14 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 		};
 	}
 
-	@Unique private void focusOnFirstControl() {
+	@Unique
+	private void focusOnFirstControl() {
 		AbstractFrame tabContentsFrame = ((TabFrameAccessor) tabFrame).getSelectedFrame();
 		List<ControlElement<?>> controlElements = ((AbstractFrameAccessor) tabContentsFrame).getControlElements();
 		if (!controlElements.isEmpty()) {
 			System.out.println(controlElements.get(0).getOption().getName().getString());
 			setInitialFocus(controlElements.get(0));
 		}
-	}
-
-	@Override
-	public ScreenBehaviour create(ScreenContext<? extends Screen> context) {
-		return new SodiumScreenBehaviour(context, this);
 	}
 
 	@Override
@@ -134,7 +130,8 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements Sc
 		return undoButton;
 	}
 
-	@Unique private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
+	@Unique
+	private Optional<Tab<?>> getSelectedTab(TabFrameAccessor accessor) {
 		return accessor.getSelectedTab();
 	}
 }

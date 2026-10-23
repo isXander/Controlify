@@ -322,7 +322,7 @@ public class Controlify implements ControlifyApi {
 		}
 
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
-							 && !this.minecraft.isWindowActive();
+							&& !this.minecraft.isWindowActive();
 		boolean givingInput = this.controllerCoordinator.update(outOfFocus);
 
 		this.setupWizardManager.tick();
@@ -346,7 +346,9 @@ public class Controlify implements ControlifyApi {
 	/// {@link fixedUpdate} may have been called multiple times between
 	/// {@link update} and {@link postUpdate}, or it may not have been called.
 	public void postUpdate(float tickDelta) {
-		this.controllerCoordinator.postUpdate();
+		if (this.controllerCoordinator != null) {
+			this.controllerCoordinator.postUpdate();
+		}
 	}
 
 	/// Called at 20tps
@@ -363,7 +365,7 @@ public class Controlify implements ControlifyApi {
 		this.controllerCoordinator.fixedUpdate();
 
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
-							 && !this.minecraft.isWindowActive();
+							&& !this.minecraft.isWindowActive();
 
 		this.getCurrentController().ifPresent(currentController -> {
 			wrapControllerError(

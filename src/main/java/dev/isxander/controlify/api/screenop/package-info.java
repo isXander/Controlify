@@ -1,28 +1,51 @@
-/// Screen and element sidecars. Register screen factories during
-/// ScreenopEvents.REGISTER_SCREEN_BEHAVIOURS and element factories during the
-/// per-screen REGISTER_ELEMENT_BEHAVIOURS event. Screen behaviours compose cursor
-/// handling, focused-element dispatch and default controls. Focused-element input
-/// travels from the deepest element outward before continuing through screen
-/// behaviours. Navigation completes before interaction resolves its focus path.
+/// Composable controller support attached to screens and GUI elements as stateful sidecars.
+/// Screen implementations can remain independent of controller-specific classes, while
+/// registered factories construct the support that Controlify invokes.
 ///
-/// VirtualMouseMode is a screen-level policy configured through the context's
-/// virtual mouse. Live predicates select cursor or focus behaviours without
-/// reconstructing their state. Frame updates run before GUI mouse processing;
-/// activation notifications reach all behaviours independently of continuations.
+/// ## Registration and lifetime
 ///
-/// ScreenBehaviours.chain and ElementBehaviours.chain compose an explicit ordered
-/// group without assigning priorities to its individual members. Its final next()
-/// continues into the enclosing chain. Priorities order independently registered
-/// groups; each group controls the order of its own members.
-/// Branches confine cancellation to an inner group and then resume the enclosing
-/// chain on normal return. Conditional skips a group when its predicate is false;
-/// it is sufficient for ordinary visibility and availability checks.
+/// Subscribe to [ScreenopEvents#REGISTER_SCREEN_BEHAVIOURS] to register explicit screen
+/// factories. Each screen context retains its matching behaviours across widget rebuilds
+/// and reactivation. After those factories run,
+/// [ScreenopEvents#REGISTER_ELEMENT_BEHAVIOURS] supplies the context and its element
+/// registry. Element factories run lazily and results are cached by element identity
+/// within that context. Widgets may not exist when registration occurs.
 ///
-/// ElementBehaviours.button and slider supply shared input handling through
-/// callbacks, so custom controls can behave consistently with vanilla controls.
+/// Registrations compose rather than replace one another. Higher priorities run first,
+/// then more specific assignable types, then newer registrations. Use
+/// [ScreenBehaviours#chain] and [ElementBehaviours#chain] for a group with a fixed internal
+/// order instead of giving every member its own priority.
 ///
-/// Continuations control propagation within an invocation, not action lifetime.
-/// Consume or drain action pulses explicitly when rejecting input.
+/// ## Input stages and continuations
+///
+/// Every controller fixed update completes navigation before starting interaction.
+/// The built-in focused-element dispatcher visits the deepest focused element, then its
+/// ancestors, then continues with remaining screen controls. Focus is synchronized
+/// between stages, and interaction resolves the updated focus path.
+///
+/// Each `next` is synchronous and may be called at most once. Omitting it stops only the
+/// remaining invocation of that method. Cancelling navigation does not cancel interaction,
+/// and neither cancellation nor [ScreenBehaviours#branch] consumes or restores action
+/// pulses. Consume or drain conflicting actions explicitly. Changing screens stops further
+/// input for the previous screen.
+///
+/// Branches resume the enclosing chain after the inner callback returns normally, even
+/// if it omitted `next`. Conditional wrappers skip their member while a live predicate
+/// is false. State survives both forms of composition.
+///
+/// ## Notifications, keyboard policies, and cursor state
+///
+/// [ElementBehaviour#onFocusChanged] and [ScreenBehaviour#onScreenActiveChanged] are
+/// broadcast notifications, independent of input propagation. The composition helpers
+/// forward them to every member, including conditionally disabled members. Keyboard
+/// policies instead select the first non-empty result; an explicit
+/// [ElementKeyboardBehaviour.DoNothing] suppresses popup activation.
+///
+/// [ScreenContext] provides the current focus path, feedback, keyboard opening, and the
+/// shared [VirtualMouse]. Its [VirtualMouseMode] is a screen policy rather than another
+/// middleware instance. Frame updates run before GUI mouse processing and are separate
+/// from fixed input updates. [SnapPoint] coordinates are scaled GUI pixels; virtual mouse
+/// position getters return unscaled window coordinates.
 @NullMarked
 package dev.isxander.controlify.api.screenop;
 

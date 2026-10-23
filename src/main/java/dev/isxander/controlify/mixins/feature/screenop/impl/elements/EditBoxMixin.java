@@ -113,8 +113,7 @@ public abstract class EditBoxMixin extends AbstractWidget {
 		return cursorOnScreen && !renderHint.get();
 	}
 
-	@Unique
-	private boolean controlify$hasKeyboardBehaviour() {
+	@Unique private boolean controlify$hasKeyboardBehaviour() {
 		var screen = MinecraftUtil.getScreen();
 		if (screen == null) {
 			return false;

@@ -26,12 +26,12 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public final class SignEditingBehaviour implements ScreenBehaviour {
+	private final Access access;
 	private final ScreenContext<? extends AbstractSignEditScreen> context;
 	private final AbstractSignEditScreen screen;
 	private final Minecraft minecraft = Minecraft.getInstance();
@@ -40,23 +40,12 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 			ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_UP.actionId()),
 			ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_DOWN.actionId()));
 
-	private final Consumer<Integer> moveCursorFunc;
-	private final Supplier<SignBlockEntity> signSupplier;
-	private final Supplier<KeyboardWidget> keyboardWidgetSupplier;
-
 	private @org.jetbrains.annotations.Nullable List<PrecomputedComponentDims<FormattedCharSequence>> signLineHintLines;
 
-	public SignEditingBehaviour(
-			ScreenContext<? extends AbstractSignEditScreen> context,
-			Consumer<Integer> moveCursorFunc,
-			Supplier<SignBlockEntity> signSupplier,
-			Supplier<KeyboardWidget> keyboardWidgetSupplier
-	) {
+	public SignEditingBehaviour(ScreenContext<? extends AbstractSignEditScreen> context) {
 		this.context = context;
 		this.screen = context.screen();
-		this.moveCursorFunc = moveCursorFunc;
-		this.signSupplier = signSupplier;
-		this.keyboardWidgetSupplier = keyboardWidgetSupplier;
+		this.access = (Access) context.screen();
 	}
 
 	@Override
@@ -67,7 +56,7 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 
 		// move cursor down a line
 		while (ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse()) {
-			this.moveCursorFunc.accept(1);
+			access.controlify$moveLine(1);
 
 			if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
 				config.keyboard.hintSignLine = false;
@@ -79,7 +68,7 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 
 		// move cursor up a line
 		while (ControlifyActions.GUI_SECONDARY_NAVI_UP.on(controller).pulse().consumePulse()) {
-			this.moveCursorFunc.accept(-1);
+			access.controlify$moveLine(-1);
 
 			if (config.keyboard.hintSignLine && config.guide.showScreenGuides) {
 				config.keyboard.hintSignLine = false;
@@ -95,7 +84,7 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 	public void extractRenderState(GuiGraphicsExtractor graphics, float tickDelta, Controller input, Runnable next) {
 		var controller = (ControllerImpl) input;
 		var config = controller.settings().generic;
-		KeyboardWidget keyboardWidget = this.keyboardWidgetSupplier.get();
+		KeyboardWidget keyboardWidget = access.controlify$getKeyboard();
 		if (keyboardWidget != null && config.guide.showScreenGuides) {
 			if (config.keyboard.hintCursor) {
 				LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
@@ -132,12 +121,21 @@ public final class SignEditingBehaviour implements ScreenBehaviour {
 				));
 
 		// compute hint wrapping
-		SignBlockEntity sign = this.signSupplier.get();
+		SignBlockEntity sign = access.controlify$getSign();
 		int signRight = (screen.width / 2) + (sign.getMaxTextLineWidth() / 2);
 		int maxLineWidth = screen.width - signRight;
 		this.signLineHintLines = minecraft.font.split(signLineHint, maxLineWidth).stream()
 				.map(cs -> PrecomputedComponentDims.of(cs, minecraft.font))
 				.toList();
 		next.run();
+	}
+
+	public interface Access {
+		void controlify$moveLine(int direction);
+
+		SignBlockEntity controlify$getSign();
+
+		@Nullable
+		KeyboardWidget controlify$getKeyboard();
 	}
 }

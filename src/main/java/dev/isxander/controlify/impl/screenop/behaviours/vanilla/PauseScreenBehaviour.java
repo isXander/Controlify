@@ -20,19 +20,16 @@ import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
 public final class PauseScreenBehaviour implements ScreenBehaviour {
+	private final Access access;
 	private final ScreenContext<? extends PauseScreen> context;
 	private final PauseScreen screen;
 	private final Minecraft minecraft = Minecraft.getInstance();
 
-	private final Supplier<@Nullable Button> disconnectButtonSupplier;
-
-	public PauseScreenBehaviour(ScreenContext<? extends PauseScreen> context, Supplier<@Nullable Button> disconnectButtonSupplier) {
+	public PauseScreenBehaviour(ScreenContext<? extends PauseScreen> context) {
 		this.context = context;
 		this.screen = context.screen();
-		this.disconnectButtonSupplier = disconnectButtonSupplier;
+		this.access = (Access) context.screen();
 	}
 
 	@Override
@@ -44,7 +41,7 @@ public final class PauseScreenBehaviour implements ScreenBehaviour {
 		}
 		if (ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumeAllPulses()) {
 			ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses();
-			screen.setFocused(disconnectButtonSupplier.get());
+			screen.setFocused(access.controlify$getDisconnectButton());
 		}
 		next.run();
 	}
@@ -68,7 +65,7 @@ public final class PauseScreenBehaviour implements ScreenBehaviour {
 				);
 			});
 
-			Button disconnectButton = disconnectButtonSupplier.get();
+			Button disconnectButton = access.controlify$getDisconnectButton();
 			if (disconnectButton != null) {
 				context.buttonGuide().addGuideToButton(
 						disconnectButton,
@@ -80,5 +77,10 @@ public final class PauseScreenBehaviour implements ScreenBehaviour {
 			}
 		}
 		next.run();
+	}
+
+	public interface Access {
+		@Nullable
+		Button controlify$getDisconnectButton();
 	}
 }

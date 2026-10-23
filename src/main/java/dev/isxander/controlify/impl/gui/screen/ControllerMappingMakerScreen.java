@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ControllerMappingMakerScreen extends Screen implements ScreenBehaviourFactory<ControllerMappingMakerScreen>, DontInterruptScreen {
+public class ControllerMappingMakerScreen extends Screen implements DontInterruptScreen {
 	private static final float AXIS_PRESS_THRESHOLD = 0.5f;
 	private static final float AXIS_RELEASE_THRESHOLD = 0.25f;
 
@@ -314,22 +313,6 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenBehavi
 		return Component.translatable("controlify.gui.mapping_maker.instruction.axis", axisText, directionText);
 	}
 
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends ControllerMappingMakerScreen> context) {
-		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
-		return new ScreenBehaviour() {
-			@Override
-			public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
-				// Physical input is captured by the screen's dedicated subscription.
-			}
-
-			@Override
-			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
-				// Do not also activate controls while capturing physical input.
-			}
-		};
-	}
-
 	public static class MappingStage {
 		private final Identifier originInput;
 		private final MapType outputType;
@@ -383,5 +366,4 @@ public class ControllerMappingMakerScreen extends Screen implements ScreenBehavi
 			this.satisfied = satisfied;
 		}
 	}
-
 }

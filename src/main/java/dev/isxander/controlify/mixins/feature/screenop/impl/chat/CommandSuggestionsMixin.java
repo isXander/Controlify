@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
-import dev.isxander.controlify.mixins.feature.screenop.impl.chat.ChatKeyboardDucky;
+import dev.isxander.controlify.impl.gui.keyboard.ChatKeyboardDucky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -27,8 +27,7 @@ public class CommandSuggestionsMixin implements ChatScreenBehaviour.CmdSuggestio
 	Minecraft minecraft;
 
 	@Shadow
-	@Nullable
-	private CommandSuggestions.@Nullable SuggestionsList suggestions;
+	@Nullable private CommandSuggestions.@Nullable SuggestionsList suggestions;
 
 	@ModifyExpressionValue(
 			method = {

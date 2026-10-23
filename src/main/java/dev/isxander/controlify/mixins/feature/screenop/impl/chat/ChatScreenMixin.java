@@ -11,11 +11,11 @@ import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
-import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.keyboard.ChatKeyboardDucky;
 import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.impl.gui.keyboard.MixinInputTarget;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
-import dev.isxander.controlify.mixins.feature.screenop.MixinInputTarget;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -24,7 +24,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -37,7 +36,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements ScreenBehaviourFactory<ChatScreen>, MixinInputTarget, ChatKeyboardDucky {
+public abstract class ChatScreenMixin extends Screen implements ChatScreenBehaviour.Access, MixinInputTarget, ChatKeyboardDucky {
 
 	@Shadow
 	protected EditBox input;
@@ -171,12 +170,17 @@ public abstract class ChatScreenMixin extends Screen implements ScreenBehaviourF
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends ChatScreen> context) {
-		return new ChatScreenBehaviour(context,
-				() -> this.input,
-				() -> this.keyboard,
-				() -> (ChatScreenBehaviour.CmdSuggestionsController) this.commandSuggestions
-		);
+	public EditBox controlify$getInput() {
+		return this.input;
 	}
 
+	@Override
+	public KeyboardWidget controlify$getKeyboard() {
+		return this.keyboard;
+	}
+
+	@Override
+	public ChatScreenBehaviour.CmdSuggestionsController controlify$getSuggestionsController() {
+		return (ChatScreenBehaviour.CmdSuggestionsController) this.commandSuggestions;
+	}
 }

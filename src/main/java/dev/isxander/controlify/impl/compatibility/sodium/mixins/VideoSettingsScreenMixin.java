@@ -8,8 +8,6 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 
 //? if sodium {
 
-import dev.isxander.controlify.api.screenop.*;
-import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenBehaviour;
 import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.structure.Page;
@@ -18,7 +16,6 @@ import net.caffeinemc.mods.sodium.client.gui.widgets.FlatButtonWidget;
 import net.caffeinemc.mods.sodium.client.gui.widgets.OptionListWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(VideoSettingsScreen.class)
-public abstract class VideoSettingsScreenMixin extends Screen implements ScreenBehaviourFactory<Screen>, SodiumScreenOperations {
+public abstract class VideoSettingsScreenMixin extends Screen implements SodiumScreenOperations {
 	//? if >=26.2 {
 	@Shadow
 	private net.caffeinemc.mods.sodium.client.gui.widgets.KeyBoundButtonWidget applyButton;
@@ -60,11 +57,6 @@ public abstract class VideoSettingsScreenMixin extends Screen implements ScreenB
 	@Inject(method = "onSectionFocused", at = @At("HEAD"))
 	private void controlify$trackCurrentPage(Page page, CallbackInfo ci) {
 		controlify$currentPage = page;
-	}
-
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends Screen> context) {
-		return new SodiumScreenBehaviour(context, this);
 	}
 
 	@Override

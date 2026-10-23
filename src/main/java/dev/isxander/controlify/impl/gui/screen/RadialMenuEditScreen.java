@@ -8,9 +8,10 @@ package dev.isxander.controlify.impl.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.action.Action;
-import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.screenop.ScreenBehaviour;
+import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.api.screenop.VirtualMouseMode;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
@@ -50,7 +51,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class RadialMenuEditScreen extends Screen implements ScreenBehaviourFactory<RadialMenuEditScreen> {
+public class RadialMenuEditScreen extends Screen {
 	private static final int COLUMN_GAP = 8;
 	private static final int COLUMN_PADDING = 4;
 	private static final int COLUMN_HEADER_HEIGHT = 24;
@@ -427,12 +428,6 @@ public class RadialMenuEditScreen extends Screen implements ScreenBehaviourFacto
 		MinecraftUtil.setScreen(parent);
 	}
 
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends RadialMenuEditScreen> context) {
-		context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
-		return new Behaviour(context);
-	}
-
 	private Component trim(Component text, int maxWidth) {
 		String value = text.getString();
 		if (font.width(value) <= maxWidth) {
@@ -647,35 +642,36 @@ public class RadialMenuEditScreen extends Screen implements ScreenBehaviourFacto
 		}
 	}
 
-	private static final class Behaviour implements ScreenBehaviour {
+	public static final class Behaviour implements ScreenBehaviour {
 		private final RadialMenuEditScreen screen;
 		private final ScreenContext<? extends RadialMenuEditScreen> context;
 
-		private Behaviour(ScreenContext<? extends RadialMenuEditScreen> context) {
+		public Behaviour(ScreenContext<? extends RadialMenuEditScreen> context) {
 			this.context = context;
 			this.screen = context.screen();
+			context.virtualMouse().setMode(VirtualMouseMode.DISABLED);
 		}
 
 		@Override
 		public void handleNavigation(@NonNull Controller input, @NonNull Runnable next) {
 			var controller = (ControllerImpl) input;
-			if (!screen.model.isCarrying()) {
+			if (!this.screen.model.isCarrying()) {
 				next.run();
 				return;
 			}
 
 			boolean moved = false;
 			while (ControlifyActions.GUI_NAVI_LEFT.on(controller).pulse().consumePulse()) {
-				moved |= screen.moveCarried(ScreenDirection.LEFT);
+				moved |= this.screen.moveCarried(ScreenDirection.LEFT);
 			}
 			while (ControlifyActions.GUI_NAVI_RIGHT.on(controller).pulse().consumePulse()) {
-				moved |= screen.moveCarried(ScreenDirection.RIGHT);
+				moved |= this.screen.moveCarried(ScreenDirection.RIGHT);
 			}
 			while (ControlifyActions.GUI_NAVI_UP.on(controller).pulse().consumePulse()) {
-				moved |= screen.moveCarried(ScreenDirection.UP);
+				moved |= this.screen.moveCarried(ScreenDirection.UP);
 			}
 			while (ControlifyActions.GUI_NAVI_DOWN.on(controller).pulse().consumePulse()) {
-				moved |= screen.moveCarried(ScreenDirection.DOWN);
+				moved |= this.screen.moveCarried(ScreenDirection.DOWN);
 			}
 
 			if (moved) {
@@ -687,15 +683,14 @@ public class RadialMenuEditScreen extends Screen implements ScreenBehaviourFacto
 		@Override
 		public void handleInteraction(@NonNull Controller input, @NonNull Runnable next) {
 			var controller = (ControllerImpl) input;
-			if (screen.model.isCarrying()) {
+			if (this.screen.model.isCarrying()) {
 				if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses()) {
-					screen.dropCarried();
+					this.screen.dropCarried();
 					context.playClickSound();
 					return;
 				}
 			}
 			next.run();
 		}
-
 	}
 }

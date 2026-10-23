@@ -9,19 +9,17 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.screenop.*;
-import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ServerAddressBehaviour;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ServerAddressScreenAccess;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.ManageServerScreen;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(ManageServerScreen.class)
-public class ManageServerScreenMixin implements ScreenBehaviourFactory<ManageServerScreen>, dev.isxander.controlify.impl.screenop.behaviours.vanilla.ServerAddressScreenAccess {
+public class ManageServerScreenMixin implements ServerAddressScreenAccess {
 
 	@Shadow
 	private EditBox ipEdit;
@@ -40,16 +38,17 @@ public class ManageServerScreenMixin implements ScreenBehaviourFactory<ManageSer
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends ManageServerScreen> context) {
-		return new ServerAddressBehaviour(context,
-				() -> this.addButton,
-				() -> this.cancelButton
-		);
-	}
-
-	@Override
 	public EditBox controlify$getAddressField() {
 		return this.ipEdit;
 	}
 
+	@Override
+	public Button controlify$getDoneButton() {
+		return this.addButton;
+	}
+
+	@Override
+	public Button controlify$getBackButton() {
+		return this.cancelButton;
+	}
 }

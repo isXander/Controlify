@@ -10,27 +10,29 @@ import dev.isxander.controlify.api.gui.keyboard.InputTarget;
 import dev.isxander.controlify.api.gui.keyboard.KeyboardPositioner;
 import net.minecraft.resources.Identifier;
 
-/**
- * Describes whether and how to open a keyboard when an element is pressed.
- * An absent policy is represented by Optional.empty(), allowing an underlying
- * element behaviour to supply one.
- */
+/// Policy describing whether and how an element handles on-screen keyboard activation.
+/// [ElementBehaviour#keyboardBehaviour] returns an optional policy: an empty result
+/// inherits the next behaviour's policy, while either variant here explicitly handles
+/// activation. The first present policy in an element's chain wins.
+///
+/// Policies are interpreted by [ScreenContext#tryOpenKeyboard]; merely returning one
+/// does not open a keyboard or consume action pulses.
 public sealed interface ElementKeyboardBehaviour {
 
-	/**
-	 * Indicates that some other support has been provided, for example by the screen itself
-	 * and a separate keyboard widget that supports it.
-	 */
+	/// Handles keyboard activation without opening a popup or requesting ordinary activation.
+	/// Use this when the screen already supplies keyboard support, such as an embedded
+	/// keyboard widget. This explicit policy wins over later policies; it differs from an
+	/// empty optional, which delegates to them.
 	record DoNothing() implements ElementKeyboardBehaviour {
 	}
 
-	/**
-	 * Custom support for this element for a popup keyboard.
-	 *
-	 * @param layout      the keyboard layout to use
-	 * @param inputTarget the input target for the keyboard
-	 * @param positioner  the positioner for the overlaid keyboard
-	 */
+	/// Handles activation by requesting a popup keyboard for the element.
+	/// The user's on-screen keyboard setting determines whether the popup actually opens;
+	/// activation is still considered handled when that setting disables it.
+	///
+	/// @param layout the resource identifier of the keyboard layout to load
+	/// @param inputTarget receives text and editing input from the popup keyboard
+	/// @param positioner positions the popup relative to the parent screen
 	record Handled(
 			Identifier layout,
 			InputTarget inputTarget,

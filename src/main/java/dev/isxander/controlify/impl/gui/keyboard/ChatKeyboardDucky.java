@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
+package dev.isxander.controlify.impl.gui.keyboard;
 
 import net.minecraft.client.gui.screens.ChatScreen;
 

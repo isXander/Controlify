@@ -23,20 +23,6 @@ final class ElementBehaviourRegistryImpl implements ElementBehaviourRegistry {
 		registry.register(elementClass, priority, factory);
 	}
 
-	@Override
-	public <T extends GuiEventListener & ElementBehaviourFactory<? super T>> void register(Class<T> elementClass, int priority) {
-		register(elementClass, priority, element -> element.create(element));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends GuiEventListener> void registerUnchecked(Class<T> elementClass, int priority) {
-		if (!ElementBehaviourFactory.class.isAssignableFrom(elementClass)) {
-			throw new IllegalArgumentException(elementClass.getName() + " must implement ElementBehaviourFactory");
-		}
-		register(elementClass, priority, element -> ((ElementBehaviourFactory<T>) element).create(element));
-	}
-
 	List<ElementBehaviour> create(GuiEventListener element) {
 		return registry.factories(element).stream().map(factory -> create(factory, element)).toList();
 	}

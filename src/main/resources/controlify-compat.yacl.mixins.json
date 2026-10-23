@@ -14,17 +14,12 @@
   "plugin": "dev.isxander.controlify.impl.compatibility.yacl.YACLMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "CyclingControllerElementMixin",
     "GroupSeparatorEntryAccessor",
-    "OptionListWidgetMixin",
-    "SliderControllerElementMixin",
     "YACLScreenCategoryTabAccessor",
-    "YACLScreenCategoryTabMixin",
-    "YACLScreenMixin"
+    "YACLScreenCategoryTabMixin"
   ],
   "mixins": [
     "ControllerWidgetAccessor",
-    "StringControllerElementAccessor",
-    "StringControllerElementMixin"
+    "StringControllerElementAccessor"
   ]
 }

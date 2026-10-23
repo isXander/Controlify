@@ -9,7 +9,8 @@ package dev.isxander.controlify.impl.gui.screen;
 import com.google.common.collect.ImmutableList;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.api.screenop.ScreenBehaviour;
+import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -43,7 +44,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class ControlifySettingsScreen extends Screen implements ScreenBehaviourFactory<ControlifySettingsScreen> {
+public class ControlifySettingsScreen extends Screen {
 	private final @Nullable Screen parent;
 
 	private Button globalSettingsButton, doneButton, controllerNotDetectedButton;
@@ -185,12 +186,6 @@ public class ControlifySettingsScreen extends Screen implements ScreenBehaviourF
 				width, footerY,
 				32, 32
 		);
-	}
-
-	private void onControllerInput(ControllerImpl controller) {
-		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
-						globalSettingsButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
-		}
 	}
 
 	@Override
@@ -477,15 +472,20 @@ public class ControlifySettingsScreen extends Screen implements ScreenBehaviourF
 		}
 	}
 
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends ControlifySettingsScreen> context) {
-		return new ScreenBehaviour() {
-			@Override
-			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
-				onControllerInput((ControllerImpl) controller);
-				next.run();
-			}
-		};
-	}
+	public static final class Behaviour implements ScreenBehaviour {
+		private final ControlifySettingsScreen screen;
 
+		public Behaviour(ScreenContext<? extends ControlifySettingsScreen> context) {
+			this.screen = context.screen();
+		}
+
+		@Override
+		public void handleInteraction(Controller controller, Runnable next) {
+			if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
+				this.screen.globalSettingsButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+			}
+
+			next.run();
+		}
+	}
 }

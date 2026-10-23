@@ -12,33 +12,23 @@ import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import org.jspecify.annotations.Nullable;
-
-import java.util.function.Supplier;
 
 public final class ServerAddressBehaviour implements ScreenBehaviour {
+	private final ServerAddressScreenAccess access;
 	private final ScreenContext<? extends Screen> context;
 	private final Screen screen;
 
-	private final Supplier<@Nullable Button> doneButtonSupplier;
-	private final Supplier<@Nullable Button> backButtonSupplier;
-
-	public ServerAddressBehaviour(
-			ScreenContext<? extends Screen> context,
-			Supplier<@Nullable Button> doneButtonSupplier,
-			Supplier<@Nullable Button> backButtonSupplier
-	) {
+	public ServerAddressBehaviour(ScreenContext<? extends Screen> context) {
 		this.context = context;
 		this.screen = context.screen();
-		this.doneButtonSupplier = doneButtonSupplier;
-		this.backButtonSupplier = backButtonSupplier;
+		this.access = (ServerAddressScreenAccess) context.screen();
 	}
 
 	@Override
 	public void onWidgetRebuild(Runnable next) {
 
-		Button doneButton = doneButtonSupplier.get();
-		Button backButton = backButtonSupplier.get();
+		Button doneButton = access.controlify$getDoneButton();
+		Button backButton = access.controlify$getBackButton();
 
 		if (doneButton != null) {
 			context.buttonGuide().addGuideToButton(
@@ -63,7 +53,7 @@ public final class ServerAddressBehaviour implements ScreenBehaviour {
 	@Override
 	public void handleInteraction(Controller controller, Runnable next) {
 		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
-			Button doneButton = doneButtonSupplier.get();
+			Button doneButton = access.controlify$getDoneButton();
 			if (doneButton != null && !doneButton.isFocused()) {
 				ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses();
 				context.playClickSound();

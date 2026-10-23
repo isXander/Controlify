@@ -22,16 +22,11 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Supplier;
-
 public final class ChatScreenBehaviour implements ScreenBehaviour {
+	private final Access access;
 	private final ScreenContext<? extends ChatScreen> context;
 	private final ChatScreen screen;
 	private final Minecraft minecraft = Minecraft.getInstance();
-
-	private final Supplier<EditBox> inputSupplier;
-	private final Supplier<@Nullable KeyboardWidget> keyboardSupplier;
-	private final Supplier<@Nullable CmdSuggestionsController> suggestionsController;
 
 	private final LazyComponentDims commandSuggesterHint = new LazyComponentDims(
 			Component.translatable("controlify.hint.command_suggester",
@@ -40,24 +35,17 @@ public final class ChatScreenBehaviour implements ScreenBehaviour {
 					ActionGlyphs.action(ControlifyActions.GUI_SECONDARY_NAVI_RIGHT.actionId()))
 	);
 
-	public ChatScreenBehaviour(
-			ScreenContext<? extends ChatScreen> context,
-			Supplier<EditBox> inputSupplier,
-			Supplier<@Nullable KeyboardWidget> keyboardSupplier,
-			Supplier<@Nullable CmdSuggestionsController> suggestionsController
-	) {
+	public ChatScreenBehaviour(ScreenContext<? extends ChatScreen> context) {
 		this.context = context;
 		this.screen = context.screen();
-		this.inputSupplier = inputSupplier;
-		this.keyboardSupplier = keyboardSupplier;
-		this.suggestionsController = suggestionsController;
+		this.access = (Access) context.screen();
 	}
 
 	@Override
 	public void handleInteraction(Controller input, Runnable next) {
 		var controller = (ControllerImpl) input;
 
-		CmdSuggestionsController suggestionsController = this.suggestionsController.get();
+		CmdSuggestionsController suggestionsController = access.controlify$getSuggestionsController();
 		if (suggestionsController != null) {
 			while (ControlifyActions.GUI_SECONDARY_NAVI_DOWN.on(controller).pulse().consumePulse()) {
 				if (suggestionsController.controlify$cycle(1)) {
@@ -92,18 +80,18 @@ public final class ChatScreenBehaviour implements ScreenBehaviour {
 		var controller = (ControllerImpl) input;
 		var settings = controller.settings().generic;
 
-		if (this.keyboardSupplier.get() != null && settings.guide.showScreenGuides) {
+		if (access.controlify$getKeyboard() != null && settings.guide.showScreenGuides) {
 			if (settings.keyboard.hintCursor) {
 				LazyComponentDims hint = CommonKeyboardHints.TEXT_CURSOR;
 
-				int x = this.inputSupplier.get().getRight() - hint.getWidth() - 2;
-				int y = this.inputSupplier.get().getY() - hint.getHeight();
+				int x = access.controlify$getInput().getRight() - hint.getWidth() - 2;
+				int y = access.controlify$getInput().getY() - hint.getHeight();
 
 				graphics.text(minecraft.font, hint.getComponent(), x, y, 0xFFFFFFFF, true);
 			}
 
 			if (settings.keyboard.hintCommandSuggester) {
-				CmdSuggestionsController suggestionsController = this.suggestionsController.get();
+				CmdSuggestionsController suggestionsController = access.controlify$getSuggestionsController();
 
 				if (suggestionsController != null && suggestionsController.controlify$hasAvailableSuggestions()) {
 					LazyComponentDims hint = this.commandSuggesterHint;
@@ -132,5 +120,15 @@ public final class ChatScreenBehaviour implements ScreenBehaviour {
 		boolean controlify$useSuggestion();
 
 		boolean controlify$hasAvailableSuggestions();
+	}
+
+	public interface Access {
+		EditBox controlify$getInput();
+
+		@Nullable
+		KeyboardWidget controlify$getKeyboard();
+
+		@Nullable
+		CmdSuggestionsController controlify$getSuggestionsController();
 	}
 }

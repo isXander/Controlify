@@ -6,10 +6,6 @@
  */
 package dev.isxander.controlify.mixins.feature.screenop.impl.sign;
 
-import dev.isxander.controlify.api.screenop.*;
-import dev.isxander.controlify.impl.screenop.behaviours.vanilla.SignEditingBehaviour;
-import dev.isxander.controlify.impl.Controlify;
-
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
@@ -17,8 +13,10 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
-import dev.isxander.controlify.mixins.feature.screenop.MixinInputTarget;
+import dev.isxander.controlify.impl.gui.keyboard.MixinInputTarget;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.SignEditingBehaviour;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -30,7 +28,6 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractSignEditScreen.class)
-public abstract class AbstractSignEditScreenMixin extends Screen implements ScreenBehaviourFactory<AbstractSignEditScreen>, MixinInputTarget {
+public abstract class AbstractSignEditScreenMixin extends Screen implements SignEditingBehaviour.Access, MixinInputTarget {
 
 	@Shadow
 	private @Nullable TextFieldHelper signField;
@@ -161,14 +158,20 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends AbstractSignEditScreen> context) {
-		return new SignEditingBehaviour(context,
-				direction -> {
-					this.line = this.line + direction & 3;
-					this.signField.setCursorToEnd();
-				},
-				() -> this.sign,
-				() -> keyboard
-		);
+	public void controlify$moveLine(int direction) {
+		this.line = this.line + direction & 3;
+		if (this.signField != null) {
+			this.signField.setCursorToEnd();
+		}
+	}
+
+	@Override
+	public SignBlockEntity controlify$getSign() {
+		return this.sign;
+	}
+
+	@Override
+	public KeyboardWidget controlify$getKeyboard() {
+		return this.keyboard;
 	}
 }

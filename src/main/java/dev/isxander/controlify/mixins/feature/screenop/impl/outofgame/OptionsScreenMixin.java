@@ -9,17 +9,15 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.outofgame;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.DoneButtonGuideBehaviour;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(OptionsScreen.class)
-public class OptionsScreenMixin implements ScreenBehaviourFactory<OptionsScreen> {
+public class OptionsScreenMixin implements DoneButtonGuideBehaviour.Access {
 	@Unique
 	private Button doneButton;
 
@@ -34,7 +32,7 @@ public class OptionsScreenMixin implements ScreenBehaviourFactory<OptionsScreen>
 	}
 
 	@Override
-	public @NonNull ScreenBehaviour create(@NonNull ScreenContext<? extends OptionsScreen> context) {
-		return new DoneButtonGuideBehaviour(context, () -> this.doneButton);
+	public Button controlify$getDoneButton() {
+		return this.doneButton;
 	}
 }

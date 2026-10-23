@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.screenop.SnapPoint;
+import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
 import net.minecraft.core.Holder;
@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(LoomScreen.class)
-public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> implements ScreenBehaviourFactory<LoomScreen> {
+public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> implements AdditionalSnapPointsBehaviour.Access {
 
 	@Unique
 	private static final int COLUMNS = 4, ROWS = 4, SLOTS = COLUMNS * ROWS;
@@ -42,58 +42,49 @@ public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> 
 	}
 
 	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends LoomScreen> context) {
-		return new ScreenBehaviour() {
-			@Override
-			public void collectSnapPoints(Consumer<SnapPoint> consumer, Runnable next) {
-				next.run();
+	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
+		if (!this.displayPatterns) {
+			return;
+		}
+		// Get list of available patterns
+		List<Holder<BannerPattern>> patterns = this.menu.getSelectablePatterns();
 
-				if (!LoomScreenMixin.this.displayPatterns) {
-					return;
-				}
-				// Get list of available patterns
-				List<Holder<BannerPattern>> patterns = LoomScreenMixin.this.menu.getSelectablePatterns();
+		// Early exit if no patterns are available
+		if (patterns.isEmpty()) {
+			return;
+		}
 
-				// Early exit if no patterns are available
-				if (patterns.isEmpty()) {
-					return;
-				}
+		int numPatterns = patterns.size();
 
-				int numPatterns = patterns.size();
+		int gridLeft = this.leftPos + 60;
+		int gridTop = this.topPos + 14;
 
-				int gridLeft = LoomScreenMixin.this.leftPos + 60;
-				int gridTop = LoomScreenMixin.this.topPos + 14;
+		// Determine the range of *absolute* pattern indices to consider.
+		// The first index corresponds to the top-left corner of the grid.
+		int firstIndex = this.startRow * COLUMNS;
 
-				// Determine the range of *absolute* pattern indices to consider.
-				// The first index corresponds to the top-left corner of the grid.
-				int firstIndex = LoomScreenMixin.this.startRow * COLUMNS;
+		// The last potential index is SLOTS slots after the first one,
+		// but cannot exceed the number of available patterns
+		int endPatternIndexExclusive = Math.min(
+				numPatterns,       // cannot exceed the number of available patterns
+				firstIndex + SLOTS // cannot exceed the number of slots in the grid
+		);
 
-				// The last potential index is SLOTS slots after the first one,
-				// but cannot exceed the number of available patterns
-				int endPatternIndexExclusive = Math.min(
-						numPatterns,       // cannot exceed the number of available patterns
-						firstIndex + SLOTS // cannot exceed the number of slots in the grid
-				);
+		for (int patternIndex = firstIndex; patternIndex < endPatternIndexExclusive; patternIndex++) {
+			// Calculate the grid row and column based on the absolute index
+			// These calculations effectively reverse the patternIndex = absoluteRow * COLS + col formula
+			int absoluteRow = patternIndex / COLUMNS;
+			int gridColumn = patternIndex % COLUMNS;
 
-				for (int patternIndex = firstIndex; patternIndex < endPatternIndexExclusive; patternIndex++) {
-					// Calculate the grid row and column based on the absolute index
-					// These calculations effectively reverse the patternIndex = absoluteRow * COLS + col formula
-					int absoluteRow = patternIndex / COLUMNS;
-					int gridColumn = patternIndex % COLUMNS;
+			// Calculate the row relative to the visible grid
+			int gridRow = absoluteRow - this.startRow;
 
-					// Calculate the row relative to the visible grid
-					int gridRow = absoluteRow - LoomScreenMixin.this.startRow;
+			// Calculate the screen position in the centre of the button
+			int buttonX = gridLeft + gridColumn * BTN_SIZE + BTN_SIZE / 2;
+			int buttonY = gridTop + gridRow * BTN_SIZE + BTN_SIZE / 2;
 
-					// Calculate the screen position in the centre of the button
-					int buttonX = gridLeft + gridColumn * BTN_SIZE + BTN_SIZE / 2;
-					int buttonY = gridTop + gridRow * BTN_SIZE + BTN_SIZE / 2;
-
-					// Add the snap point for this slot
-					consumer.accept(new SnapPoint(buttonX, buttonY, BTN_SIZE / 2));
-				}
-
-			}
-		};
+			// Add the snap point for this slot
+			consumer.accept(new SnapPoint(buttonX, buttonY, BTN_SIZE / 2));
+		}
 	}
-
 }

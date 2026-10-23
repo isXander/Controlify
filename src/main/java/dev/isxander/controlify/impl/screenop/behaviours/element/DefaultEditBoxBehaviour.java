@@ -15,7 +15,6 @@ import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.impl.gui.keyboard.EditBoxInputTarget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public final class DefaultEditBoxBehaviour implements ElementBehaviour {
 	}
 
 	@Override
-	public @NonNull Optional<ElementKeyboardBehaviour> keyboardBehaviour(@NonNull ScreenContext<?> screen) {
+	public Optional<ElementKeyboardBehaviour> keyboardBehaviour(ScreenContext<?> screen) {
 		return Optional.of(new ElementKeyboardBehaviour.Handled(
 				layout, inputTarget,
 				KeyboardPositioner.aboveOrBelowWidgetPositioner(

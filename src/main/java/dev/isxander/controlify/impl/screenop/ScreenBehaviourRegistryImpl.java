@@ -55,20 +55,6 @@ public final class ScreenBehaviourRegistryImpl implements ScreenBehaviourRegistr
 		registry.register(screenClass, priority, factory);
 	}
 
-	@Override
-	public <T extends Screen & ScreenBehaviourFactory<? super T>> void register(Class<T> screenClass, int priority) {
-		register(screenClass, priority, context -> context.screen().create(context));
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T extends Screen> void registerUnchecked(Class<T> screenClass, int priority) {
-		if (!ScreenBehaviourFactory.class.isAssignableFrom(screenClass)) {
-			throw new IllegalArgumentException(screenClass.getName() + " must implement ScreenBehaviourFactory");
-		}
-		register(screenClass, priority, context -> ((ScreenBehaviourFactory<T>) context.screen()).create(context));
-	}
-
 	public boolean isReady() {
 		return ready;
 	}

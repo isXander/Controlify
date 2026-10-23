@@ -152,7 +152,7 @@ public class ControllerCoordinator implements AutoCloseable {
 	}
 
 	public void postUpdate() {
-		// after a FixedUpdate 
+		// after a FixedUpdate
 		if (this.requireActionPulseConsume) {
 			this.requireActionPulseConsume = false;
 

@@ -8,7 +8,8 @@ package dev.isxander.controlify.impl.gui.screen;
 
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
-import dev.isxander.controlify.api.screenop.*;
+import dev.isxander.controlify.api.screenop.ScreenBehaviour;
+import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -43,7 +44,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileSelectionScreen extends Screen implements ScreenBehaviourFactory<ProfileSelectionScreen> {
+public class ProfileSelectionScreen extends Screen {
 	private static final int CARD_WIDTH = 128;
 	private static final int CARD_HEIGHT = 104;
 	private static final int CARD_SPACING = 6;
@@ -199,16 +200,6 @@ public class ProfileSelectionScreen extends Screen implements ScreenBehaviourFac
 		);
 	}
 
-	private void onControllerInput(ControllerImpl controller) {
-		if (this.selectedProfileIndex >= 0
-			&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
-			this.switchProfile(this.selectedProfileIndex, false);
-		} else if (this.deleteButton.active
-				   && ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumeAllPulses()) {
-			this.confirmDeleteProfile();
-		}
-	}
-
 	@Override
 	public void onClose() {
 		MinecraftUtil.setScreen(this.parent);
@@ -238,7 +229,7 @@ public class ProfileSelectionScreen extends Screen implements ScreenBehaviourFac
 		}
 		if (this.deleteButton != null) {
 			this.deleteButton.active = hasProfile
-									   && this.selectedProfileIndex != Controlify.instance().config().getActiveProfileIndex();
+									&& this.selectedProfileIndex != Controlify.instance().config().getActiveProfileIndex();
 		}
 	}
 
@@ -487,15 +478,24 @@ public class ProfileSelectionScreen extends Screen implements ScreenBehaviourFac
 	private record ControllerDisplay(Component name, Identifier icon) {
 	}
 
-	@Override
-	public ScreenBehaviour create(@NonNull ScreenContext<? extends ProfileSelectionScreen> context) {
-		return new ScreenBehaviour() {
-			@Override
-			public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
-				onControllerInput((ControllerImpl) controller);
-				next.run();
-			}
-		};
-	}
+	public static final class Behaviour implements ScreenBehaviour {
+		private final ProfileSelectionScreen screen;
 
+		public Behaviour(ScreenContext<? extends ProfileSelectionScreen> context) {
+			this.screen = context.screen();
+		}
+
+		@Override
+		public void handleInteraction(Controller controller, Runnable next) {
+			if (this.screen.selectedProfileIndex >= 0
+				&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
+				this.screen.switchProfile(this.screen.selectedProfileIndex, false);
+			} else if (this.screen.deleteButton.active
+					&& ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumeAllPulses()) {
+				this.screen.confirmDeleteProfile();
+			}
+
+			next.run();
+		}
+	}
 }

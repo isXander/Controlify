@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.mixins.feature.screenop.impl.chat.ChatKeyboardDucky;
+import dev.isxander.controlify.impl.gui.keyboard.ChatKeyboardDucky;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.gui.screens.ChatScreen;
