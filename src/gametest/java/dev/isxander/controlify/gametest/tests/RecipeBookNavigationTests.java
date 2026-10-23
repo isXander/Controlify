@@ -11,6 +11,7 @@ import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.gametest.framework.TestUnitWorldContext;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.mixin.RecipeBookPageAccessor;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.mixins.feature.virtualmouse.snapping.RecipeBookComponentAccessor;
 import dev.isxander.controlify.impl.screenop.behaviours.vanilla.RecipeBookScreenBehaviour;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
@@ -72,7 +73,7 @@ public class RecipeBookNavigationTests implements FabricClientGameTest {
 						|| page.controlify_test$getCurrentPage() != 0) {
 					throw new AssertionError("Expected the first recipe category and page, with multiple visible categories");
 				}
-				if (!Controlify.instance().virtualMouseHandler().isVirtualMouseEnabled()) {
+				if (ScreenRuntime.virtualMouse().isEmpty()) {
 					throw new AssertionError("Crafting screen must have virtual mouse enabled for recipe navigation");
 				}
 			});
