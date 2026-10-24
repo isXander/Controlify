@@ -8,11 +8,10 @@ package dev.isxander.controlify.mixins.feature.patches.analogueboat;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.fixes.boatfix.AnalogBoatInput;
-import dev.isxander.controlify.ingame.InGameInputHandler;
-import dev.isxander.controlify.utils.MthExt;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.boatfix.AnalogBoatInput;
+import dev.isxander.controlify.impl.ingame.InGameInputHandler;
+import dev.isxander.controlify.impl.utils.MthExt;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.phys.Vec2;
@@ -37,7 +36,7 @@ public class LocalPlayerMixin {
 			boolean left, boolean right, boolean up, boolean down,
 			Operation<Void> original
 	) {
-		if (ControlifyApi.get().currentInputMode().isController() && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
+		if (Controlify.instance().currentInputMode().isController() && !Controlify.instance().config().getSettings().globalSettings().shouldUseKeyboardMovement()) {
 			Vec2 moveVec = InGameInputHandler.getMoveVec(input);
 			float forwardImpulse = moveVec.y;
 			float rightImpulse = -moveVec.x;

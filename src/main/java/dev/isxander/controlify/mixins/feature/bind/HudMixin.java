@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.bind;
 
-import dev.isxander.controlify.gui.screen.RadialMenuScreen;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.gui.screen.RadialMenuScreen;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

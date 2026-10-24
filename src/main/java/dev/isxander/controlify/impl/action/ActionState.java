@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.action;
+
+import dev.isxander.controlify.api.action.Channel;
+
+public final class ActionState implements Accumulator, Channel.Continuous, Channel.Latch, Channel.Pulse {
+	private int pulses = 0;
+	private boolean latchActive = false;
+	private float continuousValue = 0;
+	private long resetVersion;
+
+	@Override
+	public float getContinuous() {
+		return this.continuousValue;
+	}
+
+	@Override
+	public boolean isLatchActive() {
+		return this.latchActive;
+	}
+
+	@Override
+	public boolean consumePulse() {
+		if (this.pulses > 0) {
+			this.pulses--;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean consumeAllPulses() {
+		if (this.pulses > 0) {
+			this.pulses = 0;
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void toggleLatch() {
+		this.setLatch(!this.isLatchActive());
+	}
+
+	@Override
+	public void setLatch(boolean active) {
+		this.latchActive = active;
+	}
+
+	@Override
+	public void firePulse() {
+		this.pulses++;
+	}
+
+	@Override
+	public void setContinuous(float value) {
+		this.continuousValue = Math.clamp(value, 0f, 1f);
+	}
+
+	public void reset() {
+		this.resetVersion++;
+		this.pulses = 0;
+		this.latchActive = false;
+		this.continuousValue = 0f;
+	}
+
+	public long resetVersion() {
+		return this.resetVersion;
+	}
+}

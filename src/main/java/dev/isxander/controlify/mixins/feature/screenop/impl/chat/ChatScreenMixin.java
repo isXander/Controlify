@@ -10,10 +10,12 @@ import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.ChatScreenProcessor;
-import dev.isxander.controlify.screenop.keyboard.*;
+import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.keyboard.ChatKeyboardDucky;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.impl.gui.keyboard.MixinInputTarget;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -34,19 +36,15 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(ChatScreen.class)
-public abstract class ChatScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget, ChatKeyboardDucky {
+public abstract class ChatScreenMixin extends Screen implements ChatScreenBehaviour.Access, MixinInputTarget, ChatKeyboardDucky {
 
-	@Shadow protected EditBox input;
-	@Shadow private CommandSuggestions commandSuggestions;
+	@Shadow
+	protected EditBox input;
+	@Shadow
+	private CommandSuggestions commandSuggestions;
 
 	@Unique private KeyboardWidget keyboard;
 	@Unique private float shiftChatAmt = 0f;
-	@Unique private final ChatScreenProcessor screenProcessor = new ChatScreenProcessor(
-			(ChatScreen) (Object) this,
-			() -> this.input,
-			() -> this.keyboard,
-			() -> (ChatScreenProcessor.CmdSuggestionsController) this.commandSuggestions
-	);
 
 	protected ChatScreenMixin(Component title) {
 		super(title);
@@ -56,15 +54,15 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 	private void addKeyboard(CallbackInfo ci) {
 		this.shiftChatAmt = 0f;
 
-		ControlifyApi.get().getCurrentController().ifPresent(c -> {
+		Controlify.instance().getCurrentController().ifPresent(c -> {
 			// if the keyboard is already present, re-add it even if we're in kb/m mode since
 			// setting fullscreen will turn it to that mode
-			if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
+			if (!Controlify.instance().currentInputMode().isController() && this.keyboard == null) return;
 			if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
 			this.shiftChatAmt = 0.5f;
 			int keyboardHeight = (int) (this.height * this.shiftChatAmt);
-			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.full(), this));
+			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, Controlify.instance().keyboardLayoutManager().getLayout(KeyboardLayouts.FULL), this));
 		});
 	}
 
@@ -170,8 +168,17 @@ public abstract class ChatScreenMixin extends Screen implements ScreenProcessorP
 	}
 
 	@Override
-	public ChatScreenProcessor screenProcessor() {
-		return this.screenProcessor;
+	public EditBox controlify$getInput() {
+		return this.input;
 	}
 
+	@Override
+	public KeyboardWidget controlify$getKeyboard() {
+		return this.keyboard;
+	}
+
+	@Override
+	public ChatScreenBehaviour.CmdSuggestionsController controlify$getSuggestionsController() {
+		return (ChatScreenBehaviour.CmdSuggestionsController) this.commandSuggestions;
+	}
 }

@@ -6,10 +6,11 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.explosion;
 
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.impl.Controlify;
+
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundExplodePacket;
@@ -31,19 +32,17 @@ public class ClientPacketListenerMixin {
 			return;
 		}
 
-		ControlifyApi.get().playRumbleEffect(
-				RumbleSource.WORLD,
-				BasicRumbleEffect.seq(
-						BasicRumbleEffect.constant(magnitude, magnitude, 2), // initial boom
-						BasicRumbleEffect.byTime(t -> {
+		Controlify.instance().playRumbleEffect(
+				CUtil.rl("explosion"),
+				RumbleEffect.finite().constant(magnitude, magnitude, 2) // initial boom
+						.then(RumbleEffect.finite().byTime(t -> {
 							float decay = 1f - t;
 							decay *= decay;
 							return new RumbleState(
 									magnitude * 0.8f * decay,
 									magnitude * 0.2f * decay
 							);
-						}, 8) // low-frequency aftershock
-				)
+						}, 8)) // low-frequency aftershock
 		);
 	}
 

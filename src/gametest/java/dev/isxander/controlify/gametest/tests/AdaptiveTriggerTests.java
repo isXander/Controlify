@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
-import dev.isxander.controlify.driver.dualsense.DualsenseTriggerEffect;
+import dev.isxander.controlify.impl.driver.dualsense.DualsenseEffectsState;
+import dev.isxander.controlify.impl.driver.dualsense.DualsenseTriggerEffect;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.framework.controller.DualsenseEffectDriver;
@@ -64,7 +64,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 
 				testTriggerEffectsDisabled(context, controller);
 
-				controller.getControllerEntity().settings().dualsense.triggerEffects = true;
+				controller.getControllerImpl().settings().dualsense.triggerEffects = true;
 
 				context.waitTick();
 
@@ -76,7 +76,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 				testResourcePackPriority(context, world, controller);
 				testServerTagRule(context, world, controller);
 
-				controller.getControllerEntity().settings().dualsense.triggerEffects = false;
+				controller.getControllerImpl().settings().dualsense.triggerEffects = false;
 				context.waitTick();
 				waitForEffects(context, controller, new DualsenseEffectsState());
 			}
@@ -91,7 +91,7 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 		ClientGameTestContext context,
 		TestControllerContext<DualsenseEffectsState> controller
 	) {
-		controller.getControllerEntity().settings().dualsense.triggerEffects = false;
+		controller.getControllerImpl().settings().dualsense.triggerEffects = false;
 		context.waitTick();
 		waitForEffects(context, controller, new DualsenseEffectsState());
 	}

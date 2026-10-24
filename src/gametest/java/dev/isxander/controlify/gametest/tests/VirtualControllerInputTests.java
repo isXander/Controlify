@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.controller.input.GamepadInputs;
-import dev.isxander.controlify.controller.input.InputComponent;
+import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
+import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
 import dev.isxander.controlify.gametest.framework.controller.TestControllerContext;
@@ -18,11 +18,13 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.resources.Identifier;
 
 import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 //? if >=26.3 {
 import com.mojang.blaze3d.platform.SDLEventHandler;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.gametest.mixin.SDLEventHandlerAccessor;
 import org.lwjgl.sdl.SDL_Event;
 //?}
@@ -58,40 +60,49 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 		try (var controller = controlify.virtualControllerBuilder()
 				.withXbox()
 				.attach()) {
-			var controllerEntity = controller.getControllerEntity();
-			var input = controllerEntity.input().orElseThrow();
-
-			// Fabric cancels real mouse input during tests. Controlify must not
-			// change input mode before that cancellation takes effect.
-			//? if >=26.3 {
-			context.runOnClient(client -> {
-				Controlify.instance().setInputMode(InputMode.CONTROLLER);
-				try (var event = SDL_Event.calloc()) {
-					var handler = new SDLEventHandler(client, client.getWindow());
-					((SDLEventHandlerAccessor) handler).controlify_test$handleMouseMotionEvent(event);
+			var input = controller.getControllerImpl().input();
+			// This test observes physical events without triggering menus or gameplay.
+			context.runOnClient(_ -> input.getAllActions().forEach(action -> action.setBoundInput(null)));
+			Set<Identifier> pressedButtons = new HashSet<>();
+			try (var subscription = context.computeOnClient(_ -> input.inputPipeline().sourceRawPhysicalSignals().subscribe(signal -> {
+				if (signal instanceof PhysicalInputSignal.ButtonChanged button) {
+					if (button.state()) pressedButtons.add(button.input());
+					else pressedButtons.remove(button.input());
 				}
-				if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER) {
-					throw new AssertionError("Cancelled SDL mouse input changed Controlify input mode");
-				}
-			});
-			//?}
+			}))) {
 
-			context.waitTick();
-
-			for (var expected : XINPUT_BUTTONS.entrySet()) {
-				controller.holdButton(expected.getKey());
-				waitForButton(context, controller, input, expected, true);
-
-				for (var other : XINPUT_BUTTONS.values()) {
-					if (!other.equals(expected.getValue()) && input.rawStateNow().isButtonDown(other)) {
-						throw new AssertionError(
-							"Pressed " + expected.getValue() + " but also received " + other
-						);
+				// Fabric cancels real mouse input during tests. Controlify must not
+				// change input mode before that cancellation takes effect.
+				//? if >=26.3 {
+				context.runOnClient(client -> {
+					Controlify.instance().setInputMode(InputMode.CONTROLLER);
+					try (var event = SDL_Event.calloc()) {
+						var handler = new SDLEventHandler(client, client.getWindow());
+						((SDLEventHandlerAccessor) handler).controlify_test$handleMouseMotionEvent(event);
 					}
-				}
+					if (Controlify.instance().currentInputMode() != InputMode.CONTROLLER) {
+						throw new AssertionError("Cancelled SDL mouse input changed Controlify input mode");
+					}
+				});
+				//?}
 
-				controller.releaseButton(expected.getKey());
-				waitForButton(context, controller, input, expected, false);
+				context.waitTick();
+
+				for (var expected : XINPUT_BUTTONS.entrySet()) {
+					controller.holdButton(expected.getKey());
+					waitForButton(context, controller, pressedButtons, expected, true);
+
+					for (var other : XINPUT_BUTTONS.values()) {
+						if (!other.equals(expected.getValue()) && context.computeOnClient(_ -> pressedButtons.contains(other))) {
+							throw new AssertionError(
+								"Pressed " + expected.getValue() + " but also received " + other
+							);
+						}
+					}
+
+					controller.releaseButton(expected.getKey());
+					waitForButton(context, controller, pressedButtons, expected, false);
+				}
 			}
 		}
 
@@ -102,15 +113,14 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 	private static void waitForButton(
 		ClientGameTestContext context,
 		TestControllerContext<?> controller,
-		InputComponent input,
+		Set<Identifier> pressedButtons,
 		Map.Entry<Integer, Identifier> expected,
 		boolean down
 	) {
 		try {
-			context.waitFor(_ -> input.rawStateNow().isButtonDown(expected.getValue()) == down, 10);
+			context.waitFor(_ -> pressedButtons.contains(expected.getValue()) == down, 10);
 		} catch (AssertionError failure) {
-			var pressed = context.computeOnClient(_ -> input.rawStateNow().getButtons().stream()
-				.filter(input.rawStateNow()::isButtonDown).toList());
+			var pressed = context.computeOnClient(_ -> Set.copyOf(pressedButtons));
 			throw new AssertionError("Timed out waiting for " + expected.getValue()
 				+ " to be " + (down ? "pressed" : "released")
 				+ "; Controlify pressed=" + pressed + "; " + controller.describeButton(expected.getKey()), failure);

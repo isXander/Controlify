@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.driver.sdl.SDLException;
+import dev.isxander.controlify.impl.driver.sdl.SDLException;
 import dev.isxander.controlify.test.framework.SdlVirtualJoystickDescBuilder;
 import dev.isxander.sdl.*;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
@@ -127,9 +127,11 @@ public class VirtualControllerBuilder {
 			throw SDLException.useSDLError(sdl, "Failed to open virtual joystick");
 		}
 
-		// Allow Controlify to poll and add controller
-		this.context.waitTick();
-
-		return new TestControllerContext<>(this.context, this.sdl, handle, jid, this.inputs, state);
+		var controller = new TestControllerContext<>(this.context, this.sdl, handle, jid, this.inputs, state);
+		// Center sticks and fully release triggers before Controlify receives the device.
+		// This also lets Controlify poll and add the controller.
+		controller.releaseAllInputs();
+		this.context.runOnClient(_ -> ControlifyGameTestContext.bindDefaultInputs(controller.getControllerImpl()));
+		return controller;
 	}
 }

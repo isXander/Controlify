@@ -7,8 +7,8 @@
 package dev.isxander.controlify.mixins.feature.font;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.font.BindingFontHelper;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.font.ActionGlyphsImpl;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,9 +25,9 @@ public class TranslatableContentsMixin {
 			)
 	)
 	private String replaceControllerActiveKey(String originalKey) {
-		if (BindingFontHelper.PLACEHOLDER_CONTROLLER_ACTIVE_KEY.equals(originalKey)) {
-			if (ControlifyApi.get().currentInputMode().isController()) {
-				return BindingFontHelper.PLACEHOLDER_KEY;
+		if (ActionGlyphsImpl.PLACEHOLDER_CONTROLLER_ACTIVE_KEY.equals(originalKey)) {
+			if (Controlify.instance().currentInputMode().isController()) {
+				return ActionGlyphsImpl.PLACEHOLDER_KEY;
 			} else {
 				// because the key doesn't exist, it will rely on the fallback text provided by this translatable contents
 				return originalKey;

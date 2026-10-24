@@ -8,8 +8,8 @@ package dev.isxander.controlify.gametest.tests;
 
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
-import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.sdl.SdlGamepad;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;

@@ -6,12 +6,16 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
-import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
+import dev.isxander.controlify.api.screenop.SnapPoint;
+import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.LoomScreen;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.LoomMenu;
 import net.minecraft.world.level.block.entity.BannerPattern;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -20,19 +24,23 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @Mixin(LoomScreen.class)
-public abstract class LoomScreenMixin extends AbstractContainerScreenMixin<LoomMenu> implements ISnapBehaviour {
+public abstract class LoomScreenMixin extends AbstractContainerScreen<LoomMenu> implements AdditionalSnapPointsBehaviour.Access {
 
 	@Unique private static final int COLUMNS = 4, ROWS = 4, SLOTS = COLUMNS * ROWS;
 	@Unique private static final int BTN_SIZE = 14;
 
-	@Shadow private boolean displayPatterns;
-	@Shadow private int startRow;
+	@Shadow
+	private boolean displayPatterns;
+	@Shadow
+	private int startRow;
 
 	// This math is based on the renderBg method in LoomScreen
-	@Override
-	public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
-		super.controlify$collectSnapPoints(consumer);
+	protected LoomScreenMixin(LoomMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
+	}
 
+	@Override
+	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
 		if (!this.displayPatterns) {
 			return;
 		}

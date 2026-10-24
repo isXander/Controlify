@@ -324,6 +324,12 @@ public class RumbleTests implements FabricClientGameTest {
 		TestControllerContext<?> controller,
 		TestUnitWorldContext world
 	) {
+		controller.releaseAllInputs();
+		context.runOnClient(client -> {
+			if (client.options.keyAttack.isDown() || client.options.keyUse.isDown()) {
+				throw new AssertionError("Attack or use remained held after releasing the virtual controller");
+			}
+		});
 		// Wait for rumble to stop
 		context.waitFor(_ -> !controller.state().hasRumble());
 	}

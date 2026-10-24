@@ -6,9 +6,13 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.*;
-import dev.isxander.controlify.rumble.effects.UseItemEffectHolder;
+import dev.isxander.controlify.impl.Controlify;
+
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.controller.rumble.effects.UseItemEffectHolder;
+import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BowItem;
@@ -21,48 +25,42 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseItemEffectHolder {
-	@Unique private ContinuousRumbleEffect useItemRumble;
+	@Unique private RumbleEffectInstance useItemRumble;
 
 	@Override
 	protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, ItemStack stack) {
 		switch (stack.getUseAnimation()) {
-			case BOW -> startRumble(ContinuousRumbleEffect.builder()
+			case BOW -> startRumble(RumbleEffect.continuous()
 					.byTick(tick -> new RumbleState(
 							tick % 7 <= 3 && tick > BowItem.MAX_DRAW_DURATION ? 0.1f : 0f,
 							BowItem.getPowerForTime(tick)
-					))
-					.build());
+					)));
 			case CROSSBOW -> {
 				int chargeDuration = CrossbowItem.getChargeDuration(
 						stack,
 						(LocalPlayer) (Object) this
 				);
-				startRumble(ContinuousRumbleEffect.builder()
+				startRumble(RumbleEffect.continuous()
 						.byTick(tick -> new RumbleState(
 								0f,
 								(float) tick / chargeDuration
 						))
-						.timeout(chargeDuration)
-						.build());
+						.timeout(chargeDuration));
 			}
-			case BLOCK, SPYGLASS -> startRumble(ContinuousRumbleEffect.builder()
+			case BLOCK, SPYGLASS -> startRumble(RumbleEffect.continuous()
 					.byTick(tick -> new RumbleState(
 							0f,
 							tick % 4 / 4f * 0.12f + 0.05f
-					))
-					.build());
-			case EAT, DRINK -> startRumble(ContinuousRumbleEffect.builder()
-					.constant(0.1f, 0.2f)
-					.build());
-			case TOOT_HORN -> startRumble(ContinuousRumbleEffect.builder()
+					)));
+			case EAT, DRINK -> startRumble(RumbleEffect.continuous()
+					.constant(0.1f, 0.2f));
+			case TOOT_HORN -> startRumble(RumbleEffect.continuous()
 					.byTick(tick -> new RumbleState(
 							Math.min(1f, tick / 10f),
 							0.25f
-					))
-					.build());
-			case SPEAR -> startRumble(ContinuousRumbleEffect.builder()
-					.constant(0.3f, 0.3f)
-					.build());
+					)));
+			case SPEAR -> startRumble(RumbleEffect.continuous()
+					.constant(0.3f, 0.3f));
 		}
 	}
 
@@ -79,13 +77,13 @@ public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseI
 		}
 	}
 
-	@Unique private void startRumble(ContinuousRumbleEffect effect) {
-		ControlifyApi.get().playRumbleEffect(RumbleSource.INTERACTION, effect);
-		this.useItemRumble = effect;
+	@Unique private void startRumble(RumbleEffect effect) {
+		if (useItemRumble != null) useItemRumble.stop();
+		this.useItemRumble = Controlify.instance().playRumbleEffect(CUtil.rl("use_item"), effect).orElse(null);
 	}
 
 	@Override
-	public @Nullable ContinuousRumbleEffect controlify$getUseItemEffect() {
+	public @Nullable RumbleEffectInstance controlify$getUseItemEffect() {
 		return useItemRumble;
 	}
 }

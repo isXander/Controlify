@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.driver.dualsense.DualsenseEffectsState;
+import dev.isxander.controlify.impl.driver.dualsense.DualsenseEffectsState;
 
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;

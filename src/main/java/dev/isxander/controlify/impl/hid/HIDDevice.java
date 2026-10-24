@@ -1,0 +1,16 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.hid;
+
+public record HIDDevice(HIDID hidid, String path) {
+	public int vendorId() {
+		return hidid().vendorId();
+	}
+	public int productId() {
+		return hidid().productId();
+	}
+}

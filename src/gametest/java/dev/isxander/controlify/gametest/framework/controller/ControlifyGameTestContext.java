@@ -6,17 +6,17 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.config.settings.GlobalSettings;
-import dev.isxander.controlify.config.settings.profile.ProfileSettings;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.gyro.GyroState;
-import dev.isxander.controlify.controllermanager.ControllerManager;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
+import dev.isxander.controlify.impl.config.settings.GlobalSettings;
+import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.ControllerManager;
 import dev.isxander.controlify.gametest.mixin.ControlifySettingsAccessor;
-import dev.isxander.controlify.gametest.mixin.SDLControllerManagerAccessor;
+import dev.isxander.controlify.gametest.mixin.SDLControllerBackendAccessor;
 import dev.isxander.sdl.Sdl;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public class ControlifyGameTestContext {
 
 	public ControlifyGameTestContext(ClientGameTestContext context) {
 		this.context = context;
-		this.sdl = ((SDLControllerManagerAccessor) Controlify.instance().getControllerManager().orElseThrow()).controlify_test$getSdl();
+		this.sdl = ((SDLControllerBackendAccessor) Controlify.instance().getControllerCoordinator().orElseThrow().backend()).controlify_test$getSdl();
 	}
 
 	public VirtualControllerBuilder virtualControllerBuilder() {
@@ -63,29 +63,40 @@ public class ControlifyGameTestContext {
 			settings.putProfileSettings(activeProfileIndex, profileDefaults);
 
 			var connectedControllers = controlify.getControllerManager()
-				.map(ControllerManager::getConnectedControllers)
+				.map(ControllerManager::getAllControllers)
 				.orElseGet(List::of);
 			var connectedUids = connectedControllers.stream()
-				.map(ControllerEntity::uid)
+				.map(ControllerImpl::uid)
 				.collect(Collectors.toSet());
 
 			// Keep the existing objects for connected devices because input
 			// components cache their DeviceSettings reference when attached.
 			var deviceSettings = settingsAccessor.controlify_test$getDeviceSettings();
 			deviceSettings.keySet().retainAll(connectedUids);
-			for (ControllerEntity controller : connectedControllers) {
+			for (ControllerImpl controller : connectedControllers) {
 				var device = settings.getOrCreateDeviceSettings(controller.uid());
 				device.name = controller.name();
 				device.lastSeen = System.currentTimeMillis();
-				device.controllerType = controller.info().type().namespace();
-				device.gyroCalibration.offset = new GyroState();
+				device.controllerType = controller.info().type().id();
+				device.gyroCalibration.offset = new Vector3f();
 				device.mapping = null;
 
 				controller.setSettings(profileDefaults);
+				controller.input().reloadActions();
+				bindDefaultInputs(controller);
 			}
 
 			controlify.applyControllerSelection(false);
 			config.markDirty();
 		});
 	}
+
+	static void bindDefaultInputs(ControllerImpl controller) {
+		// Each virtual device test starts with its default layout, without saved binding overrides.
+		controller.input().getAllActions().forEach(action -> {
+			action.setBoundInput(action.defaultInput());
+			controller.settings().input.bindings.bindings.remove(action.spec().id());
+		});
+	}
+
 }

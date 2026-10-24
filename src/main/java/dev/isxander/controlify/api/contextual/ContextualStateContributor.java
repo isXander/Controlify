@@ -14,7 +14,7 @@ public interface ContextualStateContributor<C extends Context> {
 	}
 
 	static <C extends Context> ContextualStateContributor<C> noop() {
-		return (context, sink) -> {};
+		return (_, _) -> {};
 	}
 
 	@SafeVarargs

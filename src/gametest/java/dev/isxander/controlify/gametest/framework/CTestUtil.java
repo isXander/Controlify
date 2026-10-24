@@ -6,16 +6,9 @@
  */
 package dev.isxander.controlify.gametest.framework;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.config.settings.GlobalSettings;
-import dev.isxander.controlify.config.settings.profile.ProfileSettings;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controller.gyro.GyroState;
-import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.gametest.mixin.ControlifySettingsAccessor;
 import dev.isxander.controlify.gametest.mixin.ToastInstanceAccessor;
 import dev.isxander.controlify.gametest.mixin.ToastManagerAccessor;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.fabric.api.resource.v1.pack.PackActivationType;
@@ -36,10 +29,8 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("UnstableApiUsage")

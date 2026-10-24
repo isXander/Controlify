@@ -8,8 +8,8 @@ package dev.isxander.controlify.mixins.feature.guide.ingame;
 
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.gui.guide.InGameButtonGuide;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.protocol.game.ClientboundLoginPacket;

@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.core;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.ingame.ControllerPlayerMovement;
+import dev.isxander.controlify.impl.ingame.ControllerPlayerMovement;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.player.LocalPlayer;

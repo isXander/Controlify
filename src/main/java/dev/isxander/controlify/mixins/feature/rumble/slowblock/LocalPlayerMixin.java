@@ -6,11 +6,13 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.slowblock;
 
+import dev.isxander.controlify.impl.Controlify;
+
 import com.mojang.authlib.GameProfile;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.rumble.ContinuousRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.ClientInput;
@@ -29,7 +31,7 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 
 	@Shadow public ClientInput input;
 
-	@Unique private ContinuousRumbleEffect slowBlockRumble = null;
+	@Unique private RumbleEffectInstance slowBlockRumble = null;
 
 	public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
 		super(world, profile);
@@ -53,22 +55,21 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 	}
 
 	@Unique private void ensureRumbleStarted() {
-		if (slowBlockRumble == null || slowBlockRumble.isFinished()) {
-			slowBlockRumble = ContinuousRumbleEffect.builder()
+		if (slowBlockRumble == null || slowBlockRumble.hasFinished()) {
+			var effect = RumbleEffect.continuous()
 					.byTick(i -> {
 						float movementAmount = input.getMoveVector().length();
 						return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
 					})
-					.timeout(100)
-					.build();
-			ControlifyApi.get().playRumbleEffect(RumbleSource.PLAYER, slowBlockRumble);
+					.timeout(100);
+			slowBlockRumble = Controlify.instance().playRumbleEffect(CUtil.rl("slow_block"), effect).orElse(null);
 		} else {
-			slowBlockRumble.heartbeat();
+			slowBlockRumble.keepAlive();
 		}
 	}
 
 	@Unique private void ensureRumbleStopped() {
-		if (slowBlockRumble != null && !slowBlockRumble.isFinished()) {
+		if (slowBlockRumble != null && !slowBlockRumble.hasFinished()) {
 			slowBlockRumble.stop();
 		}
 	}

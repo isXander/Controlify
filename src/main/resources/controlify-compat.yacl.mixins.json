@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.compatibility.yacl.mixins",
+  "package": "dev.isxander.controlify.impl.compatibility.yacl.mixins",
   "required": true,
   "minVersion": "0.8",
   "mixinextras": {
@@ -11,20 +11,15 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.compatibility.yacl.YACLMixinPlugin",
+  "plugin": "dev.isxander.controlify.impl.compatibility.yacl.YACLMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "CyclingControllerElementMixin",
     "GroupSeparatorEntryAccessor",
-    "OptionListWidgetMixin",
-    "SliderControllerElementMixin",
     "YACLScreenCategoryTabAccessor",
-    "YACLScreenCategoryTabMixin",
-    "YACLScreenMixin"
+    "YACLScreenCategoryTabMixin"
   ],
   "mixins": [
     "ControllerWidgetAccessor",
-    "StringControllerElementAccessor",
-    "StringControllerElementMixin"
+    "StringControllerElementAccessor"
   ]
 }

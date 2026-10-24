@@ -7,9 +7,9 @@
 package dev.isxander.controlify.mixins.feature.screenop.impl.chat;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.screenop.keyboard.ChatKeyboardDucky;
-import dev.isxander.controlify.screenop.compat.vanilla.ChatScreenProcessor;
-import dev.isxander.controlify.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.ChatScreenBehaviour;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.gui.keyboard.ChatKeyboardDucky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.screens.ChatScreen;
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(CommandSuggestions.class)
-public class CommandSuggestionsMixin implements ChatScreenProcessor.CmdSuggestionsController {
+public class CommandSuggestionsMixin implements ChatScreenBehaviour.CmdSuggestionsController {
 	@Shadow
 	@Final
 	Minecraft minecraft;

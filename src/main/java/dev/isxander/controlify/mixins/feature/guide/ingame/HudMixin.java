@@ -6,8 +6,8 @@
  */
 package dev.isxander.controlify.mixins.feature.guide.ingame;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.gui.guide.InGameButtonGuide;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;

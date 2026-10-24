@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.mixins.feature.util;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.multiplayer.ServerData;
