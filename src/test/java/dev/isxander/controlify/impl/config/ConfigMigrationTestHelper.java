@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public final class ConfigMigrationTestHelper {
-	private static final String DEFAULT_PROFILE = "/assets/controlify/controllers/default_config.json";
+	private static final String DEFAULT_PROFILE = "/assets/controlify/controller/default_config.json";
 
 	public static void assertSharedMigration(String input, String expected) throws IOException {
 		var actual = migrator().migrateShared(readJson(input)).json();

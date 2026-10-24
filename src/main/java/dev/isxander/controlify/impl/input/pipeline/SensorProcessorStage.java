@@ -55,7 +55,8 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 				var data = new Vector3f(x, y, z);
 
 				for (SensorProcessor processor : this.processors.get(sensorType)) {
-					processor.process(data, sensorTimeNanos);
+					// Filtering and integration share the host event clock, including frame boundaries.
+					processor.process(data, timeNanos);
 				}
 
 				downstream.accept(new PhysicalSensorSignal(timeNanos, sensorTimeNanos, sensorType, data.x, data.y, data.z));
@@ -77,7 +78,7 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 
 	/// A first-order low-pass filter with a finite, positive cutoff frequency in Hz.
 	/// Lower frequencies smooth more strongly. The first sample passes through unchanged.
-	/// History expires after a gap of 50ms or when the sensor clock moves backwards.
+	/// History expires after a gap of 50ms or when the host clock does not advance.
 	///
 	/// If the frequency is set to 0, the filter is bypassed.
 	public static class LowPassFilter implements SensorProcessor {
@@ -96,18 +97,16 @@ public class SensorProcessorStage implements UnaryEventStage<PhysicalSignal> {
 
 			long elapsedNanos = timeNanos - this.previousTimeNanos;
 			if (cutoffHz == 0 || this.previous == null
-					|| elapsedNanos > MAX_SAMPLE_AGE_NANOS || elapsedNanos < 0) {
+					|| elapsedNanos > MAX_SAMPLE_AGE_NANOS || elapsedNanos <= 0) {
 				this.previous = new Vector3f(data);
 				this.previousTimeNanos = timeNanos;
 			} else {
-				if (elapsedNanos > 0) {
-					// Exponential decay keeps the response consistent across sample rates.
-					// expm1 preserves precision for very short sample intervals.
-					double decayPerNano = 2.0 * Math.PI * cutoffHz * 1e-9;
-					float blend = (float) -Math.expm1(-elapsedNanos * decayPerNano);
-					this.previous.lerp(data, blend);
-					this.previousTimeNanos = timeNanos;
-				}
+				// Exponential decay keeps the response consistent across sample rates.
+				// expm1 preserves precision for very short sample intervals.
+				double decayPerNano = 2.0 * Math.PI * cutoffHz * 1e-9;
+				float blend = (float) -Math.expm1(-elapsedNanos * decayPerNano);
+				this.previous.lerp(data, blend);
+				this.previousTimeNanos = timeNanos;
 				data.set(this.previous);
 			}
 		}

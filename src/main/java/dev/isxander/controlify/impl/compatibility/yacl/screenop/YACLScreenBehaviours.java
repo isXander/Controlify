@@ -30,7 +30,7 @@ public final class YACLScreenBehaviours {
 			));
 			registry.register(SliderControllerElement.class, element -> ElementBehaviours.conditional(
 					() -> ((ControllerWidgetAccessor) element).getControl().option().available(),
-					ElementBehaviours.<SliderControllerElement>slider((widget, direction) -> widget.incrementValue(direction)).create(element)
+					ElementBehaviours.<SliderControllerElement>secondarySlider((widget, direction) -> widget.incrementValue(direction)).create(element)
 			));
 			registry.register(StringControllerElement.class, StringControllerElementBehaviour::new);
 		});

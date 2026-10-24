@@ -11,9 +11,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -24,7 +22,7 @@ public record ControllerType(
 		boolean forceJoystick,
 		boolean preventLoading
 ) {
-	public static final ControllerType DEFAULT = new ControllerType(CUtil.rl("default"), null, null, false, false);
+	public static final ControllerType DEFAULT = new ControllerType(CUtil.rl("default"), Optional.empty(), Optional.empty(), false, false);
 
 	public static final MapCodec<ControllerType> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			Identifier.CODEC.optionalFieldOf("id", DEFAULT.id()).forGetter(ControllerType::id),

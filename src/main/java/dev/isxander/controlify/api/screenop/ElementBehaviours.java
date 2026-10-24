@@ -162,6 +162,12 @@ public final class ElementBehaviours {
 		return element -> new SliderBehaviour(direction -> adjust.accept(element, direction));
 	}
 
+	/// Adjusts a value with secondary horizontal navigation while preserving normal activation.
+	/// Use for controls whose keyboard activation or editing state is managed by another UI.
+	public static <T extends GuiEventListener> ElementBehaviourFactory<T> secondarySlider(ObjIntConsumer<? super T> adjust) {
+		return element -> SliderBehaviour.secondaryNavigation(direction -> adjust.accept(element, direction));
+	}
+
 	/// Creates discrete option handling for secondary horizontal navigation and activation.
 	/// Secondary left/right pulses call `cycle` with -1/+1 during navigation; GUI press
 	/// pulses call it with +1 during interaction. Every pulse is applied separately, including

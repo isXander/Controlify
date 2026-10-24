@@ -76,10 +76,6 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 				graphics.text(textRenderer, awaitingText, getDimension().xLimit() - textRenderer.width(awaitingText) - getXPadding(), (int) (getDimension().centerY() - textRenderer.lineHeight / 2f), 0xFFFFFFFF, true);
 			} else {
 				var bind = control.option().pendingValue();
-				if (bind == null) {
-					return;
-				}
-
 				Component text = Controlify.instance().inputFontMapper()
 						.getComponentFromInput((control.controller == null ? ControllerType.DEFAULT.id() : control.controller.info().type().id()), bind.orElse(null));
 				int width = textRenderer.width(text);
@@ -109,16 +105,14 @@ public class BindController implements Controller<Optional<LogicalInput>> {
 		}
 
 		private void openConsumerScreen() {
-			if (control.controller == null) {
-				return;
-			}
 			awaitingControllerInput = true;
-			MinecraftUtil.setScreen(new BindConsumerScreen(control.controller, control.option(), this, MinecraftUtil.getScreen()));
+			MinecraftUtil.setScreen(new BindConsumerScreen(control.controller != null ? control.controller : Controlify.instance().getCurrentController().orElse(null), control.option(), this, MinecraftUtil.getScreen()));
 		}
 
 		@Override
 		public void handleInteraction(@NonNull ScreenContext<?> screen, dev.isxander.controlify.api.controller.@NonNull Controller controller, @NonNull Runnable next) {
 			if (controller != control.controller) {
+				next.run();
 				return;
 			}
 

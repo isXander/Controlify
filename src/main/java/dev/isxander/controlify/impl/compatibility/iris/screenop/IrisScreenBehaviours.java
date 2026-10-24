@@ -19,7 +19,7 @@ public final class IrisScreenBehaviours {
 
 	public static void initialize() {
 		ScreenopEvents.REGISTER_ELEMENT_BEHAVIOURS.subscribe(event ->
-				event.registry().register(BaseOptionElementWidget.class, ElementBehaviours.slider(
+				event.registry().register(BaseOptionElementWidget.class, ElementBehaviours.secondarySlider(
 						(widget, direction) -> ((ControlValueAccess) widget).controlify$adjustValue(direction)
 				)));
 	}

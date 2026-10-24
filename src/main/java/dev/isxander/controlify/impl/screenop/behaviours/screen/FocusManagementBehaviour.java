@@ -49,6 +49,7 @@ public final class FocusManagementBehaviour implements ScreenBehaviour {
 		if (context.inputMode().isController() && !context.isVirtualMouseEnabled()) {
 			Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
 		}
+		previousMode = null;
 		synchronizeInputMode();
 		next.run();
 	}
@@ -68,7 +69,7 @@ public final class FocusManagementBehaviour implements ScreenBehaviour {
 			if (mouse || context.focusPath().stream().noneMatch(EditBox.class::isInstance)) {
 				context.clearFocus();
 			}
-		} else {
+		} else if (context.screen().getFocused() == null) {
 			context.setInitialFocus();
 		}
 	}

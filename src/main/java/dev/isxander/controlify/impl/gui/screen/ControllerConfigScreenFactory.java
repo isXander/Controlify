@@ -460,7 +460,7 @@ public class ControllerConfigScreenFactory {
 						.build())
 				.binding(def.buttonActivationThreshold, () -> config.buttonActivationThreshold, v -> config.buttonActivationThreshold = v)
 				.controller(opt -> FloatSliderControllerBuilder.create(opt)
-						.range(0f, 1f).step(0.01f)
+						.range(0.01f, 1f).step(0.01f)
 						.formatValue(percentFormatter))
 				.build());
 
@@ -508,7 +508,10 @@ public class ControllerConfigScreenFactory {
 				.option(ButtonOption.createBuilder()
 						.name(Component.translatable("controlify.gui.clear_mapping"))
 						.description(OptionDescription.of(Component.translatable("controlify.gui.clear_mapping.tooltip")))
-						.action((screen, button) -> config.mapping = def.mapping)
+						.action((screen, button) -> {
+							config.mapping = def.mapping;
+							controller.input().reloadControllerMapping();
+						})
 						.build())
 				.collapsed(true)
 				.build());
@@ -838,7 +841,7 @@ public class ControllerConfigScreenFactory {
 								.stream()
 								.anyMatch(ctxs::contains);
 						boolean bindMatches = Objects.equals(pair.option().pendingValue(), opt.option().pendingValue());
-						boolean bindIsNotEmpty = pair.option().pendingValue() != null;
+						boolean bindIsNotEmpty = pair.option().pendingValue().isPresent();
 						return contextsMatch && bindMatches && bindIsNotEmpty;
 					}).toList();
 
@@ -861,7 +864,7 @@ public class ControllerConfigScreenFactory {
 						.text(action.spec().description())
 						.text(Component.translatable("controlify.gui.bind.currently_bound_to",
 								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, value.orElse(null))))
-						.text(Objects.equals(value, action.defaultInput()) ? Component.empty()
+						.text(Objects.equals(value.orElse(null), action.defaultInput()) ? Component.empty()
 								: Component.translatable("controlify.gui.bind.default_bound_to",
 								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, action.defaultInput())))
 						.build())

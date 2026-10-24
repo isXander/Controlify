@@ -33,7 +33,7 @@ public final class SodiumScreenBehaviours {
 			registerControl(event.registry(), "CyclingControl$CyclingControlElement", ElementBehaviours.cycle(
 					(widget, direction) -> ((ControlValueAccess) widget).controlify$adjustValue(direction)
 			));
-			registerControl(event.registry(), "SliderControl$SliderControlElement", ElementBehaviours.slider(
+			registerControl(event.registry(), "SliderControl$SliderControlElement", ElementBehaviours.secondarySlider(
 					(widget, direction) -> ((ControlValueAccess) widget).controlify$adjustValue(direction)
 			));
 			registerControl(event.registry(), "TickBoxControl$TickBoxControlElement", ElementBehaviours.cycle(

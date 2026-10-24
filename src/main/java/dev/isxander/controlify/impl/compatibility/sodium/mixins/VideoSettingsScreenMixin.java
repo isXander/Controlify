@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.compatibility.sodium.mixins;
 //? if sodium {
 
 import dev.isxander.controlify.impl.compatibility.sodium.screenop.SodiumScreenOperations;
+import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import net.caffeinemc.mods.sodium.client.config.ConfigManager;
 import net.caffeinemc.mods.sodium.client.config.structure.Page;
 import net.caffeinemc.mods.sodium.client.gui.VideoSettingsScreen;
@@ -51,6 +52,7 @@ public abstract class VideoSettingsScreenMixin extends Screen implements SodiumS
 		if (optionList != null && !optionList.getControls().isEmpty()) {
 			this.setInitialFocus(optionList.getControls().get(0));
 		}
+		ScreenContextImpl.get(this).onWidgetRebuild();
 	}
 
 	@Inject(method = "onSectionFocused", at = @At("HEAD"))

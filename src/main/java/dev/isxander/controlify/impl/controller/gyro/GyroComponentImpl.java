@@ -73,6 +73,9 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 	}
 
 	private void onRawSignal(PhysicalSignal signal) {
+		if (signal instanceof PhysicalSignal.Frame) {
+			this.gyroState = new Vector3f();
+		}
 		if (signal instanceof PhysicalSensorSignal(_, _, SensorType sensorType, float x, float y, float z)
 				&& sensorType == SensorType.GYROSCOPE) {
 			this.updateCalibration(x, y, z);
@@ -101,7 +104,7 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 	}
 
 	/// Returns the latest integrated gyro interval in radians.
-	/// Missing samples expire naturally, independently of controller selection.
+	/// Cleared at the start of each frame; repeated reads within that frame are stable.
 	@Override
 	public Vector3fc getState() {
 		return System.nanoTime() - this.lastStateTimeNanos > MAX_SAMPLE_AGE_NANOS

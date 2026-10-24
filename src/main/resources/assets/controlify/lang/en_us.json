@@ -209,7 +209,7 @@
   "controlify.gui.group.controls.tooltip": "Adjust the controller controls.",
   "controlify.gui.reset_all_binds": "Reset All Binds",
   "controlify.gui.reset_all_binds.tooltip": "Sets all binds to their default values. This can be undone by pressing the undo button.",
-  "controlify.gui.bind_input_awaiting": "Press any button",
+  "controlify.gui.bind_input_awaiting": "Release input; Del to clear",
   "controlify.gui.bind.currently_bound_to": "Currently bound to %s",
   "controlify.gui.bind.default_bound_to": "Default bound to %s",
   "controlify.gui.format.ticks": "%s ticks",

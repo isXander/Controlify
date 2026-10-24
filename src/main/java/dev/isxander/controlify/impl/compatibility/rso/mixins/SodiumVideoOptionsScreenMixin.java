@@ -48,8 +48,8 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements So
 
 	@Inject(method = "init", at = @At("RETURN"))
 	private void notifyProcessorRebuild(CallbackInfo ci) {
-		ScreenContextImpl.get(this).onWidgetRebuild();
 		focusOnFirstControl();
+		ScreenContextImpl.get(this).onWidgetRebuild();
 	}
 
 	@ModifyExpressionValue(
@@ -73,16 +73,14 @@ public abstract class SodiumVideoOptionsScreenMixin extends Screen implements So
 	private Runnable setInitialFocusOnTabChange(Runnable onSetTab) {
 		return () -> {
 			onSetTab.run();
-			Minecraft.getInstance().
-					/^? if >=1.21.2 {^/ schedule /^?} else {^/ /^tell ^//^?}^/(this::focusOnFirstControl);
+			Minecraft.getInstance().schedule(this::focusOnFirstControl);
 		};
 	}
 
 	@Unique private void focusOnFirstControl() {
 		AbstractFrame tabContentsFrame = ((TabFrameAccessor) tabFrame).getSelectedFrame();
 		List<ControlElement<?>> controlElements = ((AbstractFrameAccessor) tabContentsFrame).getControlElements();
-		if (!controlElements.isEmpty()) {
-			System.out.println(controlElements.get(0).getOption().getName().getString());
+		if (!controlElements.isEmpty() && !ScreenContextImpl.get(this).virtualMouse().isRequired()) {
 			setInitialFocus(controlElements.get(0));
 		}
 	}

@@ -10,6 +10,7 @@ package dev.isxander.controlify.impl.compatibility.simplevoicechat;
 
 import de.maxhenkel.voicechat.voice.client.ClientManager;
 import de.maxhenkel.voicechat.voice.client.KeyEvents;
+import dev.isxander.controlify.api.action.BuiltinActionContexts;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.api.action.ActionEvents;
@@ -19,7 +20,6 @@ import dev.isxander.controlify.api.action.ActionSpecRegistry;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.compatibility.simplevoicechat.mixins.KeyEventsAccessor;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
-import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
@@ -58,7 +58,7 @@ public class SimpleVoiceChatCompat {
 				.id(Identifier.fromNamespaceAndPath("voicechat", path))
 				.name(name)
 				.category(category)
-				.context(CUtil.rl("unknown"))
+				.context(BuiltinActionContexts.IN_GAME)
 				.build());
 	}
 

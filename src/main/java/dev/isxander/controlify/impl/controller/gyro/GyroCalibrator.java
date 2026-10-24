@@ -11,7 +11,7 @@ import org.joml.Vector3fc;
 
 /**
  * Implements rolling gyro calibration using exponential moving average
- * for background bias estimation during stationary periods (low angular velocity).
+ * for background bias estimation during periods of stable angular velocity.
  * Bias application is handled by the input pipeline using the device settings.
  */
 public class GyroCalibrator {
@@ -19,8 +19,7 @@ public class GyroCalibrator {
 	// 0.001 means it takes ~1000 samples to substantially update the bias estimate
 	private static final float EMA_ALPHA = 0.001f;
 
-	// Threshold for detecting stationary state (rad/s)
-	// If all axes are below this threshold, we consider the gyro stationary
+	// Maximum sample spread during a stationary window (rad/s), independent of zero-rate bias.
 	private static final float STATIONARY_THRESHOLD = 0.02f;
 
 	// Minimum number of consecutive stationary samples before updating bias
@@ -31,8 +30,14 @@ public class GyroCalibrator {
 
 	// Counter for consecutive stationary samples
 	private int stationarySampleCount = 0;
+	private final Vector3f windowMin = new Vector3f();
+	private final Vector3f windowMax = new Vector3f();
 
 	public void update(float x, float y, float z) {
+		if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)) {
+			this.stationarySampleCount = 0;
+			return;
+		}
 		// Check if the gyro appears to be stationary
 		boolean isStationary = isStationary(x, y, z);
 
@@ -49,17 +54,25 @@ public class GyroCalibrator {
 			}
 		} else {
 			// Reset stationary counter when motion is detected
-			this.stationarySampleCount = 0;
+			this.stationarySampleCount = 1;
+			this.windowMin.set(x, y, z);
+			this.windowMax.set(x, y, z);
 		}
 	}
 
 	/**
-	 * Check if the gyro appears to be stationary based on angular velocity.
+	 * Check the spread of raw samples, so hardware bias does not prevent calibration.
 	 */
 	private boolean isStationary(float x, float y, float z) {
-		return Math.abs(x) < STATIONARY_THRESHOLD
-			&& Math.abs(y) < STATIONARY_THRESHOLD
-			&& Math.abs(z) < STATIONARY_THRESHOLD;
+		if (this.stationarySampleCount == 0) {
+			this.windowMin.set(x, y, z);
+			this.windowMax.set(x, y, z);
+		}
+		this.windowMin.min(new Vector3f(x, y, z));
+		this.windowMax.max(new Vector3f(x, y, z));
+		return this.windowMax.x - this.windowMin.x < STATIONARY_THRESHOLD
+				&& this.windowMax.y - this.windowMin.y < STATIONARY_THRESHOLD
+				&& this.windowMax.z - this.windowMin.z < STATIONARY_THRESHOLD;
 	}
 
 	/**

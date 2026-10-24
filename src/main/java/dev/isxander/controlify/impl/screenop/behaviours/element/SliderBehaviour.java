@@ -22,11 +22,18 @@ public final class SliderBehaviour implements ElementBehaviour {
 	private final BooleanSupplier isEditing;
 	private final Consumer<Boolean> setEditing;
 	private boolean editing;
+	private boolean toggleEditing = true;
 
 	public SliderBehaviour(IntConsumer adjust) {
 		this.adjust = adjust;
 		this.isEditing = () -> editing;
 		this.setEditing = editing -> this.editing = editing;
+	}
+
+	public static SliderBehaviour secondaryNavigation(IntConsumer adjust) {
+		var behaviour = new SliderBehaviour(adjust);
+		behaviour.toggleEditing = false;
+		return behaviour;
 	}
 
 	public SliderBehaviour(IntConsumer adjust, BooleanSupplier isEditing, Consumer<Boolean> setEditing) {
@@ -65,7 +72,7 @@ public final class SliderBehaviour implements ElementBehaviour {
 
 	@Override
 	public void handleInteraction(ScreenContext<?> screen, Controller controller, Runnable next) {
-		if (screen.isVirtualMouseEnabled()) {
+		if (!toggleEditing || screen.isVirtualMouseEnabled()) {
 			next.run();
 			return;
 		}

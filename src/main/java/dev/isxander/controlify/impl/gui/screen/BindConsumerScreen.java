@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
@@ -13,6 +14,7 @@ import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -23,11 +25,14 @@ import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BindConsumerScreen extends Screen {
 	private final ControllerImpl controller;
 	private EventSource.Subscription inputSubscription;
 	private LogicalInput capturedInput;
+	private final Set<LogicalInput> eligibleInputs = new HashSet<>();
 	private final Option<Optional<LogicalInput>> option;
 	private final Screen backgroundScreen;
 	private final BindController.BindControllerElement widgetToFocus;
@@ -49,10 +54,18 @@ public class BindConsumerScreen extends Screen {
 		if (inputSubscription != null) {
 			inputSubscription.close();
 		}
+		if (controller == null) {
+			return;
+		}
 		inputSubscription = controller.input().inputPipeline().sourceLogicalSignals().subscribe(signal -> {
-			if (ticksTillInput == 0 && ticksTillClose == 0 && capturedInput == null
-				&& signal instanceof LogicalSignal.Tapped tap) {
-				capturedInput = tap.input();
+			if (ticksTillInput != 0 || ticksTillClose != 0 || capturedInput != null) {
+				return;
+			}
+			if (signal instanceof LogicalSignal.ButtonPress press) {
+				eligibleInputs.add(press.input());
+			} else if (signal instanceof LogicalSignal.ButtonRelease release && eligibleInputs.remove(release.input())) {
+				// Chords release before singles; releases also capture presses longer than a tap.
+				capturedInput = release.input();
 			}
 		});
 	}
@@ -94,6 +107,7 @@ public class BindConsumerScreen extends Screen {
 				widgetToFocus.awaitingControllerInput = false;
 				// don't call setScreen because will cause background to re-init
 				MinecraftUtil.forceSetScreen(backgroundScreen);
+				ScreenRuntime.onScreenChanged();
 			}
 		}
 
@@ -116,6 +130,12 @@ public class BindConsumerScreen extends Screen {
 
 	@Override
 	public boolean keyPressed(@NonNull KeyEvent keyEvent) {
+		if (ticksTillInput == 0 && ticksTillClose == 0
+				&& (keyEvent.key() == InputConstants.KEY_BACKSPACE || keyEvent.key() == InputConstants.KEY_DELETE)) {
+			option.requestSet(Optional.empty());
+			returnToBackground();
+			return true;
+		}
 		boolean consumed = super.keyPressed(keyEvent);
 		if (consumed) {
 			return true;
@@ -176,6 +196,11 @@ public class BindConsumerScreen extends Screen {
 		}
 		returnToBackground();
 		return true;
+	}
+
+	@Override
+	public void onClose() {
+		returnToBackground();
 	}
 
 	private void returnToBackground() {

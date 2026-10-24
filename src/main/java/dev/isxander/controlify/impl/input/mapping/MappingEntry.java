@@ -82,7 +82,9 @@ public sealed interface MappingEntry {
 			@Override
 			public PhysicalInputSignal apply(PhysicalInputSignal signal) {
 				if (signal instanceof PhysicalInputSignal.AxisMoved(long timeNanos, _, float value)) {
-					return new PhysicalInputSignal.AxisMoved(timeNanos, to, MthExt.remap(value, minIn, maxIn, minOut, maxOut));
+					float clampedInput = Math.clamp(value, Math.min(minIn, maxIn), Math.max(minIn, maxIn));
+					float output = minIn == maxIn ? minOut : MthExt.remap(clampedInput, minIn, maxIn, minOut, maxOut);
+					return new PhysicalInputSignal.AxisMoved(timeNanos, to, Math.clamp(output, 0f, 1f));
 				}
 				return signal;
 			}

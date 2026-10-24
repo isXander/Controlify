@@ -77,6 +77,8 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		this.reloadControllerMapping();
 		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> settings().sensitivity.getDeadzone((Identifier) axis));
 
+		this.inputPipeline.stageInputDomainExpansion().setThresholdSupplier(() -> settings().buttonActivationThreshold);
+
 		this.reloadActions();
 		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(signal -> {
 			this.actionGraph.accept(signal);
@@ -110,8 +112,8 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		ControllerMapping controllerMapping = this.deviceSettings.mapping;
 		if (controllerMapping == null) {
 			ControllerMappingManager controllerMappingManager = Controlify.instance().controllerMappingManager();
-			controllerMapping = controllerMappingManager
-					.getMappingById(this.controller().info().type().mappingId().orElse(null))
+			controllerMapping = this.controller().info().type().mappingId()
+					.flatMap(controllerMappingManager::getMappingById)
 					.orElse(null);
 		}
 		if (controllerMapping == null) {

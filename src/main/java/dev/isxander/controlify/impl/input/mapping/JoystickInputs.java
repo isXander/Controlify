@@ -9,12 +9,10 @@ package dev.isxander.controlify.impl.input.mapping;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-import java.util.Locale;
-
 public final class JoystickInputs {
 	private static final Identifier[] BUTTONS = new Identifier[256];
 	private static final Identifier[] AXES = new Identifier[256 << 1];
-	private static final Identifier[] HATS = new Identifier[128 << 2];
+	private static final Identifier[] HATS = new Identifier[256 << 2];
 
 	public enum HatDirection {
 		UP, RIGHT, DOWN, LEFT

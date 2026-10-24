@@ -161,7 +161,7 @@ public class SDLControllerBackend extends ControllerBackend {
 		SdlJoystickId jid = ucid.jid();
 		controllerLogger.debugLog("Creating controller: {}", jid.value());
 
-		boolean isGamepad = this.sdl.gamepad().SDL_IsGamepad(jid) && !DebugProperties.FORCE_JOYSTICK;
+		boolean isGamepad = this.sdl.gamepad().SDL_IsGamepad(jid) && !DebugProperties.FORCE_JOYSTICK && !type.forceJoystick();
 		controllerLogger.debugLog("Controller is gamepad: {}", isGamepad);
 
 		EventSource<SDLControllerEvent> controllerEventSource = this.controllerEventBus

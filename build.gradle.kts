@@ -169,7 +169,13 @@ manifests {
             "controlify:default_config",
             "controlify:controller_type",
             "controlify:default_binds",
-            "controlify:trigger_effect",
+            "controlify:reload/in_game",
+            "controlify:reload/container",
+            "controlify:reload/controller/contextual/guide",
+            "controlify:reload/controller/contextual/trigger_effect",
+            "controlify:activators",
+            "controlify:controller_mapping",
+            "controlify:rumble_sources",
             "controlify:radial_icons",
         )
     ))

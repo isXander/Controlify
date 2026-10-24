@@ -77,11 +77,11 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
 		this.arrangeKeys(layout.layout());
 
-		findKey(
-				identifierToFocus != null,
+		setFocused(findKey(
+				identifierToFocus == null,
 				k -> Objects.equals(k.getKey().identifier(), identifierToFocus)
 		).or(() -> findKey(
-				oldLayoutChangerToFocus != null,
+				oldLayoutChangerToFocus == null,
 				k -> {
 					boolean isOldLayout = k.getKeyFunction() instanceof KeyboardLayout.KeyFunction.ChangeLayoutFunc changeLayoutKey
 										&& changeLayoutKey.layout().equals(oldLayoutChangerToFocus);
@@ -89,7 +89,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 										&& specialFunc.action() == KeyboardLayout.KeyFunction.SpecialFunc.Action.PREVIOUS_LAYOUT;
 					return isOldLayout || isPrevLayout;
 				})
-		);
+		).orElse(this.keys.isEmpty() ? null : this.keys.getFirst()));
 	}
 
 	private void arrangeKeys(KeyboardLayout layout) {

@@ -42,7 +42,7 @@ public class ControllerMappingManager implements SimpleControlifyReloadListener<
 		return CompletableFuture.supplyAsync(() -> {
 			Map<Identifier, Resource> resources = converter.listMatchingResources(manager);
 			Map<Identifier, ControllerMapping> mappingById = resources.entrySet().stream()
-					.map(entry -> Map.entry(entry.getKey(), parseFile(entry.getValue())))
+					.map(entry -> Map.entry(converter.fileToId(entry.getKey()), parseFile(entry.getValue())))
 					.collect(Util.toMap());
 
 			return new Preparations(mappingById);

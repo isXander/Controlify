@@ -21,8 +21,8 @@ import java.util.Arrays;
 import static dev.isxander.sdl.SdlJoystick.*;
 
 public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, PhysicalSignal> {
-	private final float[] prevGamepadAxisValues = new float[64];
-	private final float[] prevJoystickAxisValues = new float[64];
+	private final float[] prevGamepadAxisValues = new float[256];
+	private final float[] prevJoystickAxisValues = new float[256];
 	private final byte[] prevHatValues = new byte[256];
 
 	public SDLToPhysicalStage() {
@@ -37,26 +37,27 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 					downstream.accept(new PhysicalSignal.Frame(timeNanos, deltaTimeNanos));
 
 			case SDLControllerEvent.JoyAxis(_, long timeNanos, byte axis, short value) -> {
+				int index = Byte.toUnsignedInt(axis);
 				float normalisedValue = normaliseAxis(value);
 
-				float prevNormalisedValue = this.prevJoystickAxisValues[axis];
-				this.prevJoystickAxisValues[axis] = normalisedValue;
+				float prevNormalisedValue = this.prevJoystickAxisValues[index];
+				this.prevJoystickAxisValues[index] = normalisedValue;
 
 				boolean positive = normalisedValue > 0;
 				boolean prevPositive = prevNormalisedValue > 0;
 
 				if (prevPositive != positive) {
 					// sign changed
-					Identifier prevInput = JoystickInputs.axis(axis, prevPositive);
+					Identifier prevInput = JoystickInputs.axis(index, prevPositive);
 					downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, prevInput, 0f));
 				}
 
-				Identifier input = JoystickInputs.axis(axis, positive);
+				Identifier input = JoystickInputs.axis(index, positive);
 				downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, input, Math.abs(normalisedValue)));
 			}
 
 			case SDLControllerEvent.JoyButton(_, long timeNanos, byte button, boolean down) ->
-				downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, JoystickInputs.button(button), down));
+				downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, JoystickInputs.button(Byte.toUnsignedInt(button)), down));
 
 			case SDLControllerEvent.JoyHat(_, long timeNanos, byte hat, byte value) -> {
 				int index = Byte.toUnsignedInt(hat);
@@ -83,10 +84,11 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 			}
 
 			case SDLControllerEvent.GamepadAxis(_, long timeNanos, byte axis, short value) -> {
+				int index = Byte.toUnsignedInt(axis);
 				float normalisedValue = normaliseAxis(value);
 
-				float prevNormalisedValue = this.prevGamepadAxisValues[axis];
-				this.prevGamepadAxisValues[axis] = normalisedValue;
+				float prevNormalisedValue = this.prevGamepadAxisValues[index];
+				this.prevGamepadAxisValues[index] = normalisedValue;
 
 				boolean positive = normalisedValue > 0;
 				boolean prevPositive = prevNormalisedValue > 0;

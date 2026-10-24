@@ -30,6 +30,9 @@ public class RepeatLatchPulseActivator implements Activator {
 			Activator latchActivator,
 			long initialDelayNs, long repeatDelayNs
 	) {
+		if (initialDelayNs < 0 || repeatDelayNs <= 0) {
+			throw new IllegalArgumentException("Repeat delays must be positive and initial delay nonnegative");
+		}
 		this.latchActivator = latchActivator;
 		this.initialDelayNs = initialDelayNs;
 		this.repeatDelayNs = repeatDelayNs;
@@ -44,9 +47,10 @@ public class RepeatLatchPulseActivator implements Activator {
 		this.latchActivator.onSignal(signal, this.holdRepeatAccumulator);
 
 		if (signal instanceof LogicalSignal.Frame) {
-			while (down && signal.timeNanos() >= nextDue) {
+			if (down && signal.timeNanos() >= nextDue) {
 				acc.firePulse();
-				nextDue += repeatDelayNs;
+				// Skip missed repeats after a hitch while preserving the repeat cadence.
+				nextDue = signal.timeNanos() + repeatDelayNs - (signal.timeNanos() - nextDue) % repeatDelayNs;
 			}
 		}
 	}
@@ -67,6 +71,9 @@ public class RepeatLatchPulseActivator implements Activator {
 
 		@Override
 		public void setLatch(boolean active) {
+			if (active == down) {
+				return;
+			}
 			if (active) {
 				down = true;
 				nextDue = time + initialDelayNs;

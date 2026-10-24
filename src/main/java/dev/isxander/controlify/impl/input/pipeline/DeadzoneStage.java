@@ -95,7 +95,7 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 			float magnitude = Mth.sqrt(magnitudeSqr);
 
 			float scale;
-			if (magnitude <= deadzone) {
+			if (deadzone >= 1.0f || magnitude <= deadzone || magnitude == 0.0f) {
 				scale = 0.0f;
 			} else {
 				float outputMagnitude = Math.min(
