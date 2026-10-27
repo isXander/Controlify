@@ -24,7 +24,7 @@ val downloadHidDb = tasks.register<Download>("downloadHidDb") {
     group = "controlify"
 
     src("https://raw.githubusercontent.com/mdqinc/SDL_GameControllerDB/master/gamecontrollerdb.txt")
-    dest("src/main/resources/assets/controlify/controllers/gamecontrollerdb-sdl2.txt")
+    dest("src/main/resources/assets/controlify/controller/gamecontrollerdb-sdl2.txt")
 }
 
 // SDL3 renamed `Mac OS X` -> `macOS` and this change carried over to mappings
