@@ -55,6 +55,11 @@
       ],
       "button_focus_timeout_ticks": 20
     },
+    "gestures": {
+      "tap_max_ms": 200,
+      "double_tap_gap_ms": 200,
+      "hold_ms": 400
+    },
     "button_activation_threshold": 0.5,
     "mixed_input": false,
     "keep_default_bindings": false

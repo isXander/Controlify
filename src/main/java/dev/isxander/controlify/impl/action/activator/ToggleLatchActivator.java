@@ -27,6 +27,10 @@ public class ToggleLatchActivator implements Activator {
 	public void onSignal(LogicalSignal signal, Accumulator acc) {
 		this.pulseToToggleAcc.target = acc;
 		this.pulseActivator.onSignal(signal, this.pulseToToggleAcc);
+
+		if (signal instanceof LogicalSignal.Cancelled(_, LogicalInput input) && this.boundInput().equals(input)) {
+			acc.setLatch(false);
+		}
 	}
 
 	@Override

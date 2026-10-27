@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /// Converts physical inputs into single inputs and modifier chords.
 /// A press emits every chord it could form with the buttons already held, up to
@@ -36,45 +37,45 @@ import java.util.function.Consumer;
 /// and follows the same gesture lifecycle as a single button.
 ///
 /// Button gestures use event timestamps, with holds emitted once on a tick.
+/// Tap and double tap are mutually exclusive for an actuation. After a tap is released, the stage
+/// waits up to {@link GestureTimings#doubleTapGapNanos()} for the next press. If none comes, the tap is
+/// emitted on the next frame. If one does, the tap is emitted as soon as that press can no longer be a
+/// tap, and a {@link LogicalSignal.DoubleTapped} replaces both if it is.
 /// Call {@link #onGuiNavigate()} when GUI navigation consumes a pending press.
 /// Sensor integration is delegated to {@link SensorAccumulatorStage}.
 public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, LogicalSignal> {
-	public static final long DEFAULT_TAP_MAX_NANOS = 200_000_000L;
-	public static final long DEFAULT_DOUBLE_TAP_MAX_NANOS = 300_000_000L;
-	public static final long DEFAULT_HOLD_NANOS = 500_000_000L;
-
 	private final SensorAccumulatorStage sensorAccumulatorStage;
-	private final long tapMaxNanos, doubleTapMaxNanos, holdNanos;
+	private Supplier<GestureTimings> timingsSupplier;
+	/// Read once per event so a settings change never splits one event's decisions.
+	private GestureTimings timings;
 
 	// Press order lets an older held button become the latest modifier again when a newer one is released.
 	private final LinkedHashSet<Identifier> pressedButtons = new LinkedHashSet<>();
 	private final Map<LogicalInput, ButtonState> activeButtons = new LinkedHashMap<>();
-	private final Map<LogicalInput, Long> lastTaps = new HashMap<>();
+	/// Logical input -> release time of a tap waiting to see whether it becomes a double tap.
+	private final Map<LogicalInput, Long> pendingTaps = new LinkedHashMap<>();
 	private final Map<Identifier, Float> axisValues = new HashMap<>();
 
 	public PhysicalToLogicalStage(SensorAccumulatorStage sensorAccumulatorStage) {
-		this(sensorAccumulatorStage, DEFAULT_TAP_MAX_NANOS,
-				DEFAULT_DOUBLE_TAP_MAX_NANOS, DEFAULT_HOLD_NANOS);
+		this(sensorAccumulatorStage, GestureTimings.DEFAULT);
 	}
 
-	public PhysicalToLogicalStage(
-			SensorAccumulatorStage sensorAccumulatorStage,
-			long tapMaxNanos, long doubleTapMaxNanos, long holdNanos
-	) {
+	public PhysicalToLogicalStage(SensorAccumulatorStage sensorAccumulatorStage, GestureTimings timings) {
 		this.sensorAccumulatorStage = Objects.requireNonNull(sensorAccumulatorStage);
-		if (tapMaxNanos < 0 || doubleTapMaxNanos < 0 || holdNanos <= tapMaxNanos) {
-			throw new IllegalArgumentException("Gesture durations must be nonnegative and hold must exceed tap");
-		}
-		this.tapMaxNanos = tapMaxNanos;
-		this.doubleTapMaxNanos = doubleTapMaxNanos;
-		this.holdNanos = holdNanos;
+		this.setTimingsSupplier(() -> timings);
+	}
+
+	/// Timings are read on every event, so changes apply immediately.
+	public void setTimingsSupplier(Supplier<GestureTimings> timingsSupplier) {
+		this.timingsSupplier = Objects.requireNonNull(timingsSupplier);
+		this.timings = timingsSupplier.get();
 	}
 
 	/// Clears pending gestures and axis values after the physical mapping changes.
 	public void resetInputState() {
 		this.pressedButtons.clear();
 		this.activeButtons.clear();
-		this.lastTaps.clear();
+		this.pendingTaps.clear();
 		this.axisValues.clear();
 	}
 
@@ -85,17 +86,30 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 
 	@Override
 	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super LogicalSignal> downstream) {
+		this.timings = this.timingsSupplier.get();
 		switch (event) {
 			case PhysicalSignal.Frame(long timeNanos, long deltaTimeNanos) -> {
 				this.sensorAccumulatorStage.onEvent(event, downstream);
+				// Resolve taps before holds: a second press is never held before it stops being a possible tap.
+				var pending = this.pendingTaps.entrySet().iterator();
+				while (pending.hasNext()) {
+					var entry = pending.next();
+					ButtonState secondPress = this.activeButtons.get(entry.getKey());
+					boolean resolved = secondPress != null && secondPress.secondTap
+							? timeNanos - secondPress.pressedAt > this.timings.tapMaxNanos()
+							: timeNanos - entry.getValue() > this.timings.doubleTapGapNanos();
+					if (resolved) {
+						pending.remove();
+						downstream.accept(new LogicalSignal.Tapped(timeNanos, entry.getKey()));
+					}
+				}
 				// Holds must fire even without new input events, before downstream actions process this frame's tick.
 				this.activeButtons.forEach((input, state) -> {
-					if (!state.held && timeNanos - state.pressedAt >= this.holdNanos) {
+					if (!state.held && timeNanos - state.pressedAt >= this.timings.holdNanos()) {
 						state.held = true;
 						downstream.accept(new LogicalSignal.Held(timeNanos, input));
 					}
 				});
-				this.lastTaps.values().removeIf(time -> timeNanos - time > this.doubleTapMaxNanos);
 				downstream.accept(new LogicalSignal.Frame(timeNanos, deltaTimeNanos));
 			}
 			case PhysicalSensorSignal sensorSignal ->
@@ -139,7 +153,18 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 	}
 
 	private void press(long time, LogicalInput input, EventSink<? super LogicalSignal> downstream) {
-		this.activeButtons.put(input, new ButtonState(time));
+		var state = new ButtonState(time);
+		Long pendingTap = this.pendingTaps.get(input);
+		if (pendingTap != null) {
+			if (time >= pendingTap && time - pendingTap <= this.timings.doubleTapGapNanos()) {
+				state.secondTap = true;
+			} else {
+				// The gap expired between frames; the earlier tap was a lone one.
+				this.pendingTaps.remove(input);
+				downstream.accept(new LogicalSignal.Tapped(time, input));
+			}
+		}
+		this.activeButtons.put(input, state);
 		downstream.accept(new LogicalSignal.ButtonPress(time, input));
 	}
 
@@ -148,19 +173,21 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		if (state == null) {
 			return;
 		}
-		downstream.accept(new LogicalSignal.ButtonRelease(time, input));
 		long duration = time - state.pressedAt;
-		if (!state.held && duration >= 0 && duration <= this.tapMaxNanos) {
+		boolean isTap = !state.held && duration >= 0 && duration <= this.timings.tapMaxNanos();
+		Long previousTap = this.pendingTaps.remove(input);
+		boolean isDoubleTap = isTap && state.secondTap && previousTap != null;
+		if (previousTap != null && !isDoubleTap) {
+			// The previous actuation was a lone tap. Emit it before this release so it stays attributed to that actuation.
 			downstream.accept(new LogicalSignal.Tapped(time, input));
-			// Consume the first tap so three quick taps form one double tap, rather than overlapping pairs.
-			Long previousTap = this.lastTaps.remove(input);
-			if (previousTap != null && time >= previousTap && time - previousTap <= this.doubleTapMaxNanos) {
-				downstream.accept(new LogicalSignal.DoubleTapped(time, input));
-			} else {
-				this.lastTaps.put(input, time);
-			}
-		} else {
-			this.lastTaps.remove(input);
+		}
+
+		downstream.accept(new LogicalSignal.ButtonRelease(time, input));
+		if (isDoubleTap) {
+			// Both taps are consumed, so three quick taps form one double tap and a pending tap.
+			downstream.accept(new LogicalSignal.DoubleTapped(time, input));
+		} else if (isTap) {
+			this.pendingTaps.put(input, time);
 		}
 		if (state.guiPressEligible && duration >= 0) {
 			downstream.accept(new LogicalSignal.GuiPress(time, input));
@@ -216,6 +243,8 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		private final long pressedAt;
 		private boolean held;
 		private boolean guiPressEligible = true;
+		/// Pressed within the double tap gap of an earlier tap on the same input.
+		private boolean secondTap;
 
 		private ButtonState(long pressedAt) {
 			this.pressedAt = pressedAt;

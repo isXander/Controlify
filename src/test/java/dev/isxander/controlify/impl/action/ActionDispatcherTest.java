@@ -14,10 +14,12 @@ import dev.isxander.controlify.impl.action.activator.ContinuousActivator;
 import dev.isxander.controlify.impl.action.activator.HoldLatchActivator;
 import dev.isxander.controlify.impl.action.activator.PressPulseActivator;
 import dev.isxander.controlify.impl.action.activator.ReleasePulseActivator;
+import dev.isxander.controlify.impl.action.activator.TapPulseActivator;
 import dev.isxander.controlify.impl.input.pipeline.PhysicalToLogicalStage;
 import dev.isxander.controlify.impl.input.pipeline.SensorAccumulatorStage;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
+import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
@@ -217,6 +219,37 @@ class ActionDispatcherTest {
 
 		assertFalse(chord.state().consumeAllPulses());
 		assertTrue(jump.state().consumeAllPulses());
+	}
+
+	@Test
+	void deferredTapOnlyReachesReachableOwnersOfItsActuation() {
+		ActionImpl gameTap = action("game_tap", BASE, SOUTH, TapPulseActivator.Config.INSTANCE);
+		ActionImpl screenTap = action("screen_tap", BLOCKING, SOUTH, TapPulseActivator.Config.INSTANCE);
+		this.dispatcher.setCurrentContexts(List.of(BASE));
+		this.physical(0, A, true);
+		this.physical(100_000_000L, A, false);
+
+		// A screen opens and the button is pressed again before the tap window closes. The screen
+		// never owned the first tap, and the game action that did is no longer reachable.
+		this.dispatcher.setCurrentContexts(List.of(BLOCKING, BASE));
+		this.physical(150_000_000L, A, true);
+		this.physical(400_000_000L, A, false);
+
+		assertFalse(gameTap.state().consumeAllPulses());
+		assertFalse(screenTap.state().consumeAllPulses());
+	}
+
+	@Test
+	void deferredTapFiresAfterTheWindow() {
+		ActionImpl tap = action("tap", BASE, SOUTH, TapPulseActivator.Config.INSTANCE);
+		this.dispatcher.setCurrentContexts(List.of(BASE));
+		this.physical(0, A, true);
+		this.physical(100_000_000L, A, false);
+		this.stage.onEvent(new PhysicalSignal.Frame(200_000_000L, 1), this.dispatcher);
+		assertFalse(tap.state().consumeAllPulses());
+
+		this.stage.onEvent(new PhysicalSignal.Frame(500_000_000L, 1), this.dispatcher);
+		assertTrue(tap.state().consumeAllPulses());
 	}
 
 	private final PhysicalToLogicalStage stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());

@@ -23,6 +23,7 @@ import dev.isxander.controlify.impl.controller.ControllerComponent;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.input.mapping.ControllerMapping;
 import dev.isxander.controlify.impl.input.mapping.ControllerMappingManager;
+import dev.isxander.controlify.impl.input.pipeline.GestureTimings;
 import dev.isxander.controlify.impl.input.pipeline.InputPipeline;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
@@ -78,6 +79,10 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		this.inputPipeline.stageDeadzone().setDeadzoneSupplier(axis -> settings().sensitivity.getDeadzone((Identifier) axis));
 
 		this.inputPipeline.stageInputDomainExpansion().setThresholdSupplier(() -> settings().buttonActivationThreshold);
+		this.inputPipeline.stagePhysicalToLogical().setTimingsSupplier(() -> {
+			var gestures = settings().gestures;
+			return GestureTimings.ofMillis(gestures.tapMaxMs, gestures.doubleTapGapMs, gestures.holdMs);
+		});
 
 		this.reloadActions();
 		this.actionDispatcherSub = this.inputPipeline.sourceLogicalSignals().subscribe(signal -> {

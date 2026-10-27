@@ -45,6 +45,8 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 
 	/// Logical input -> actions that received its current press.
 	private final Map<LogicalInput, Set<ActionImpl>> pressOwners = new HashMap<>();
+	/// Logical input -> actions that owned its last completed press, for its deferred {@link LogicalSignal.Tapped}.
+	private final Map<LogicalInput, Set<ActionImpl>> tapOwners = new HashMap<>();
 	/// Physical input -> the chord that claimed it.
 	private final Map<Identifier, LogicalInput> claims = new HashMap<>();
 	private final Map<LogicalInput, LogicalSignal.AxisMoved> continuousInputs = new HashMap<>();
@@ -76,6 +78,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		this.bindings.clear();
 		this.claims.clear();
 		this.pressOwners.clear();
+		this.tapOwners.clear();
 		this.dispatch = Map.of();
 		this.dispatchDirty = true;
 	}
@@ -99,6 +102,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 	public void resetInputState() {
 		this.continuousInputs.clear();
 		this.pressOwners.clear();
+		this.tapOwners.clear();
 		this.claims.clear();
 		this.allActions.forEach(ActionImpl::reset);
 	}
@@ -106,6 +110,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 	/// Resets every action, abandoning presses in progress while keeping held axis values.
 	public void resetActions() {
 		this.pressOwners.clear();
+		this.tapOwners.clear();
 		this.claims.clear();
 		this.allActions.forEach(ActionImpl::reset);
 		this.rebuildDispatchIfDirty();
@@ -187,12 +192,27 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 
 	/// Release, tap, double tap, hold and GUI press only reach the actions that saw the press.
 	private void processGesture(LogicalSignal.InputSignal gesture) {
-		if (gesture instanceof LogicalSignal.ButtonRelease release) {
-			this.claims.values().removeIf(release.input()::equals);
+		LogicalInput input = gesture.input();
+		if (gesture instanceof LogicalSignal.Tapped) {
+			// Taps arrive after the double tap window, possibly once a newer press has taken ownership.
+			Set<ActionImpl> owners = this.tapOwners.remove(input);
+			if (owners != null) {
+				this.deliver(gesture, owners);
+			}
+			return;
 		}
-		Set<ActionImpl> owners = this.pressOwners.get(gesture.input());
+
+		Set<ActionImpl> owners = this.pressOwners.get(input);
 		if (owners != null) {
 			this.deliver(gesture, owners);
+		}
+		if (gesture instanceof LogicalSignal.ButtonRelease) {
+			this.claims.values().removeIf(input::equals);
+			if (owners != null) {
+				this.tapOwners.put(input, new TreeSet<>(owners));
+			} else {
+				this.tapOwners.remove(input);
+			}
 		}
 	}
 
@@ -222,6 +242,10 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 			}
 		});
 		this.pressOwners.values().removeIf(owners -> owners.isEmpty());
+		this.tapOwners.entrySet().removeIf(entry -> {
+			entry.getValue().retainAll(next.getOrDefault(entry.getKey(), Set.of()));
+			return entry.getValue().isEmpty();
+		});
 
 		// Actions that started receiving an axis pick up its value without replaying presses.
 		next.forEach((input, actions) -> {

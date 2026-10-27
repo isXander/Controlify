@@ -20,6 +20,7 @@ public record InputConfig(
 		BindingsConfig bindings,
 		SensitivityConfig sensitivity,
 		RadialMenuConfig radialMenu,
+		GestureConfig gestures,
 		float buttonActivationThreshold,
 		boolean keepDefaultBindings
 ) {
@@ -27,6 +28,7 @@ public record InputConfig(
 			BindingsConfig.CODEC.optionalFieldOf("bindings", BindingsConfig.EMPTY).forGetter(InputConfig::bindings),
 			SensitivityConfig.CODEC.fieldOf("sensitivity").forGetter(InputConfig::sensitivity),
 			RadialMenuConfig.CODEC.fieldOf("radial_menu").forGetter(InputConfig::radialMenu),
+			GestureConfig.CODEC.fieldOf("gestures").forGetter(InputConfig::gestures),
 			Codec.floatRange(0.01f, 1f).fieldOf("button_activation_threshold").forGetter(InputConfig::buttonActivationThreshold),
 			Codec.BOOL.fieldOf("keep_default_bindings").forGetter(InputConfig::keepDefaultBindings)
 	).apply(instance, InputConfig::new));
@@ -68,6 +70,27 @@ public record InputConfig(
 				Codec.floatRange(0f, 1f).fieldOf("default_deadzone").forGetter(SensitivityConfig::defaultDeadzone),
 				Codec.unboundedMap(Identifier.CODEC, Codec.FLOAT).optionalFieldOf("deadzones", Map.of()).forGetter(SensitivityConfig::deadzones)
 		).apply(instance, SensitivityConfig::new));
+	}
+
+	/// Button gesture timings in milliseconds.
+	/// @param tapMaxMs the longest press that still counts as a tap
+	/// @param doubleTapGapMs the longest gap between releasing a tap and pressing again for a double tap
+	/// @param holdMs how long a press lasts before it counts as held; raised above tapMaxMs if needed,
+	///               since the settings screen sets each value independently
+	public record GestureConfig(
+			int tapMaxMs,
+			int doubleTapGapMs,
+			int holdMs
+	) {
+		public static final Codec<GestureConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+				Codec.intRange(0, 2000).fieldOf("tap_max_ms").forGetter(GestureConfig::tapMaxMs),
+				Codec.intRange(0, 2000).fieldOf("double_tap_gap_ms").forGetter(GestureConfig::doubleTapGapMs),
+				Codec.intRange(1, 5000).fieldOf("hold_ms").forGetter(GestureConfig::holdMs)
+		).apply(instance, GestureConfig::new));
+
+		public GestureConfig {
+			holdMs = Math.max(holdMs, tapMaxMs + 1);
+		}
 	}
 
 	public record RadialMenuConfig(

@@ -23,6 +23,7 @@ public class InputSettings {
 	public final BindingsSettings bindings;
 	public final SensitivitySettings sensitivity;
 	public final RadialMenuSettings radialMenu;
+	public final GestureSettings gestures;
 	public float buttonActivationThreshold;
 	public boolean keepDefaultBindings;
 
@@ -30,12 +31,14 @@ public class InputSettings {
 			BindingsSettings bindings,
 			SensitivitySettings sensitivity,
 			RadialMenuSettings radialMenu,
+			GestureSettings gestures,
 			float buttonActivationThreshold,
 			boolean keepDefaultBindings
 	) {
 		this.bindings = bindings;
 		this.sensitivity = sensitivity;
 		this.radialMenu = radialMenu;
+		this.gestures = gestures;
 		this.buttonActivationThreshold = buttonActivationThreshold;
 		this.keepDefaultBindings = keepDefaultBindings;
 	}
@@ -45,6 +48,7 @@ public class InputSettings {
 				BindingsSettings.fromDTO(dto.bindings()),
 				SensitivitySettings.fromDTO(dto.sensitivity()),
 				RadialMenuSettings.fromDTO(dto.radialMenu()),
+				GestureSettings.fromDTO(dto.gestures()),
 				dto.buttonActivationThreshold(),
 				dto.keepDefaultBindings()
 		);
@@ -55,9 +59,30 @@ public class InputSettings {
 				bindings.toDTO(),
 				sensitivity.toDTO(),
 				radialMenu.toDTO(),
+				gestures.toDTO(),
 				buttonActivationThreshold,
 				keepDefaultBindings
 		);
+	}
+
+	public static class GestureSettings {
+		public int tapMaxMs;
+		public int doubleTapGapMs;
+		public int holdMs;
+
+		public GestureSettings(int tapMaxMs, int doubleTapGapMs, int holdMs) {
+			this.tapMaxMs = tapMaxMs;
+			this.doubleTapGapMs = doubleTapGapMs;
+			this.holdMs = holdMs;
+		}
+
+		public static GestureSettings fromDTO(InputConfig.GestureConfig dto) {
+			return new GestureSettings(dto.tapMaxMs(), dto.doubleTapGapMs(), dto.holdMs());
+		}
+
+		public InputConfig.GestureConfig toDTO() {
+			return new InputConfig.GestureConfig(tapMaxMs, doubleTapGapMs, holdMs);
+		}
 	}
 
 	public static class BindingsSettings {

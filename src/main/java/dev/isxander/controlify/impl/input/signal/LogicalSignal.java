@@ -28,10 +28,12 @@ public sealed interface LogicalSignal {
 	/// When the button is released
 	record ButtonRelease(long timeNanos, LogicalInput input) implements InputSignal {}
 
-	/// When button is pressed and released in quick succession
+	/// When button is pressed and released in quick succession, and no second tap followed
+	/// within the double tap window. Emitted after that window, so never for an actuation that
+	/// became a {@link DoubleTapped}, and after a later press of the same input may have begun.
 	record Tapped(long timeNanos, LogicalInput input) implements InputSignal {}
 
-	/// When two {@link Tapped taps} occur in quick succession
+	/// When two taps occur in quick succession. Neither tap produces {@link Tapped}.
 	record DoubleTapped(long timeNanos, LogicalInput input) implements InputSignal {}
 
 	/// When a button is pressed and released, where no GUI navigation happened in between

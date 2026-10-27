@@ -55,6 +55,7 @@ public class ControllerConfigScreenFactory {
 	private static final ValueFormatter<Float> percentOrOffFormatter = v -> v == 0 ? CommonComponents.OPTION_OFF : percentFormatter.format(v);
 	private static final Component newOptionLabel = Component.translatable("controlify.gui.new_options.label").withStyle(ChatFormatting.GOLD);
 	private static final ValueFormatter<Integer> ticksToMillisFormatter = v -> Component.literal(String.format("%03dms", v * 50));
+	private static final ValueFormatter<Integer> millisFormatter = v -> Component.literal(v + "ms");
 
 	private final List<Option<?>> newOptions = new ArrayList<>();
 
@@ -462,6 +463,39 @@ public class ControllerConfigScreenFactory {
 				.controller(opt -> FloatSliderControllerBuilder.create(opt)
 						.range(0.01f, 1f).step(0.01f)
 						.formatValue(percentFormatter))
+				.build());
+
+		InputSettings.GestureSettings gestures = config.gestures;
+		InputSettings.GestureSettings gestureDefaults = def.gestures;
+		group.option(Option.<Integer>createBuilder()
+				.name(Component.translatable("controlify.gui.gesture_tap_max"))
+				.description(OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.gesture_tap_max.tooltip"))
+						.build())
+				.binding(gestureDefaults.tapMaxMs, () -> gestures.tapMaxMs, v -> gestures.tapMaxMs = v)
+				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
+						.range(50, 500).step(10)
+						.formatValue(millisFormatter))
+				.build());
+		group.option(Option.<Integer>createBuilder()
+				.name(Component.translatable("controlify.gui.gesture_double_tap_gap"))
+				.description(OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.gesture_double_tap_gap.tooltip"))
+						.build())
+				.binding(gestureDefaults.doubleTapGapMs, () -> gestures.doubleTapGapMs, v -> gestures.doubleTapGapMs = v)
+				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
+						.range(50, 600).step(10)
+						.formatValue(millisFormatter))
+				.build());
+		group.option(Option.<Integer>createBuilder()
+				.name(Component.translatable("controlify.gui.gesture_hold"))
+				.description(OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.gesture_hold.tooltip"))
+						.build())
+				.binding(gestureDefaults.holdMs, () -> gestures.holdMs, v -> gestures.holdMs = v)
+				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
+						.range(200, 1500).step(50)
+						.formatValue(millisFormatter))
 				.build());
 
 		return Optional.of(group.build());
