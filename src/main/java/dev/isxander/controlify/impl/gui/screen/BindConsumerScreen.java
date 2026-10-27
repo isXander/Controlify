@@ -101,10 +101,10 @@ public class BindConsumerScreen extends Screen {
 		graphics.nextStratum();
 
 		// darken everything except the widget
-		graphics.fill(0, 0, width, dim.y() - 1, 0x80000000);
-		graphics.fill(0, dim.y(), dim.x() - 1, height, 0x80000000);
-		graphics.fill(dim.xLimit() + 1, dim.y() - 1, width, height, 0x80000000);
-		graphics.fill(dim.x(), dim.yLimit() + 1, dim.xLimit(), height, 0x80000000);
+		graphics.fill(0, 0, width, dim.y(), 0x80000000);
+		graphics.fill(0, dim.y(), dim.x(), height, 0x80000000);
+		graphics.fill(dim.xLimit(), dim.y(), width, height, 0x80000000);
+		graphics.fill(dim.x(), dim.yLimit(), dim.xLimit(), height, 0x80000000);
 
 		super.extractRenderState(graphics, mouseX, mouseY, a);
 	}
