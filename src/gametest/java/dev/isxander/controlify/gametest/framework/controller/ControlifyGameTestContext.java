@@ -94,7 +94,7 @@ public class ControlifyGameTestContext {
 	static void bindDefaultInputs(ControllerImpl controller) {
 		// Each virtual device test starts with its default layout, without saved binding overrides.
 		controller.input().getAllActions().forEach(action -> {
-			action.setBoundInput(action.defaultInput());
+			action.setBindings(action.defaultBindings());
 			controller.settings().input.bindings.bindings.remove(action.spec().id());
 		});
 	}

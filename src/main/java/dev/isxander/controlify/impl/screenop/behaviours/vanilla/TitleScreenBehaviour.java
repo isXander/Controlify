@@ -39,7 +39,7 @@ public final class TitleScreenBehaviour implements ScreenBehaviour {
 
 		if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
 			if (ScreenWidgets.find(screen, "menu.options").isPresent()) {
-				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options /*? if <26.3 >>*///,false));
+				MinecraftUtil.setScreen(new OptionsScreen(screen, minecraft.options/*? if <26.3 {*//*, false*//*?}*/));
 				context.playClickSound();
 			}
 		}

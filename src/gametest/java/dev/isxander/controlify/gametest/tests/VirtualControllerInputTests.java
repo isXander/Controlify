@@ -19,6 +19,7 @@ import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //? if >=26.3 {
@@ -62,7 +63,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 				.attach()) {
 			var input = controller.getControllerImpl().input();
 			// This test observes physical events without triggering menus or gameplay.
-			context.runOnClient(_ -> input.getAllActions().forEach(action -> action.setBoundInput(null)));
+			context.runOnClient(_ -> input.getAllActions().forEach(action -> action.setBindings(List.of())));
 			Set<Identifier> pressedButtons = new HashSet<>();
 			try (var _ = context.computeOnClient(_ -> input.inputPipeline().sourceRawPhysicalSignals().subscribe(signal -> {
 				if (signal instanceof PhysicalInputSignal.ButtonChanged button) {
