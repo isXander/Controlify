@@ -34,7 +34,6 @@ public class RadialIconManager implements SimpleControlifyReloadListener<Map<Ide
 	private volatile Map<Identifier, RadialIcon> iconsByActionId = Map.of();
 
 	public boolean isRadialCandidate(Identifier actionId) {
-		// noinspection removal
 		return this.iconsByActionId.containsKey(actionId)
 			|| actionId.getNamespace().equals(ControlifyActions.MODDED_ACTION_NAMESPACE);
 	}

@@ -23,6 +23,7 @@ import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.utils.animation.api.Animation;
 import dev.isxander.controlify.impl.utils.animation.api.EasingFunction;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.TextAlignment;
 import net.minecraft.client.gui.components.MultiLineLabel;
@@ -160,8 +161,15 @@ public class RadialMenuScreen extends Screen {
 		}
 
 		if (!openAction.on(controller).latch().isLatchActive()) {
-			if (selectedButton >= 0 && selectedButton < buttons.length && buttons[selectedButton].invoke()) {
-				playClickSound();
+			if (selectedButton >= 0 && selectedButton < buttons.length) {
+				// force the invocation to happen next tick after the
+				// radial screen has closed, so the in-game action layers are in effect
+				minecraft.schedule(() -> {
+					if (buttons[selectedButton].invoke()) {
+						playClickSound();
+					}
+				});
+
 			}
 			onClose();
 			return;
@@ -277,8 +285,9 @@ public class RadialMenuScreen extends Screen {
 		return false;
 	}
 
-	private void playClickSound() {
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
+	private static void playClickSound() {
+		Minecraft.getInstance().getSoundManager()
+				.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
 	}
 
 	public interface RadialItem {
@@ -378,7 +387,7 @@ public class RadialMenuScreen extends Screen {
 		}
 
 		@Override
-		public void handleNavigation(Controller input, Runnable next) {
+		public void handleNavigation(@NonNull Controller input, @NonNull Runnable next) {
 			var controller = (ControllerImpl) input;
 			this.screen.onControllerInput(controller);
 			if (MinecraftUtil.getScreen() != this.context.screen()) {
