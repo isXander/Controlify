@@ -31,8 +31,8 @@ public class InGameButtonGuide {
 		//? if >=26.2 {
 		boolean hideGui = minecraft.gui.hud.isHidden();
 		//?} else {
-		/*boolean hideGui = minecraft.options.hideGui;
-		*///?}
+		//boolean hideGui = minecraft.options.hideGui;
+		//?}
 		boolean screenOpen = MinecraftUtil.getScreen() != null;
 		GenericControllerSettings.GuideSettings settings = controller.settings().generic.guide;
 

@@ -12,8 +12,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.advancements.predicates.*;
 import net.minecraft.advancements.predicates.entity.*;
 //?} else {
-/*import net.minecraft.advancements.criterion.*;
-*///?}
+//import net.minecraft.advancements.criterion.*;
+//?}
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;

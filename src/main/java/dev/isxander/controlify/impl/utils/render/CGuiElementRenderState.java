@@ -17,8 +17,8 @@ import org.jetbrains.annotations.Nullable;
 //? if >=26.3 {
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 //?} else {
-/*import com.mojang.blaze3d.pipeline.RenderPipeline;
-*///?}
+//import com.mojang.blaze3d.pipeline.RenderPipeline;
+//?}
 
 public interface CGuiElementRenderState extends GuiElementRenderState {
 

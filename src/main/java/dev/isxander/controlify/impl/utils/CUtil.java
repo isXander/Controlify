@@ -38,8 +38,8 @@ public class CUtil {
 		//? if >=26.3 {
 		Blaze3D.openUri(URI.create(uri));
 		//?} else {
-		/*Util.getPlatform().openUri(uri);
-		*///?}
+		//Util.getPlatform().openUri(uri);
+		//?}
 	}
 
 	public static <T> Supplier<T> lazyInit(Supplier<T> supplier) {

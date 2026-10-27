@@ -15,8 +15,8 @@ import dev.isxander.controlify.impl.utils.predicates.ClientPredicateUtils;
 //? if >=26.2 {
 import net.minecraft.advancements.predicates.*;
 //?} else {
-/*import net.minecraft.advancements.criterion.*;
-*///?}
+//import net.minecraft.advancements.criterion.*;
+//?}
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 

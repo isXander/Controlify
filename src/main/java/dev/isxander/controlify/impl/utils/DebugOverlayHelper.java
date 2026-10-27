@@ -36,8 +36,8 @@ public final class DebugOverlayHelper {
 		//? if >=26.2 {
 		mc.levelExtractor.allChanged();
 		//?} else {
-		/*mc.levelRenderer.allChanged();
-		*///?}
+		//mc.levelRenderer.allChanged();
+		//?}
 		debugFeedbackTranslated("debug.reload_chunks.message");
 	}
 
@@ -75,8 +75,8 @@ public final class DebugOverlayHelper {
 		//? if >=26.2 {
 		return mc.gui.hud.getChat();
 		//?} else {
-		/*return mc.gui.getChat();
-		*///?}
+		//return mc.gui.getChat();
+		//?}
 	}
 
 	public static void clearChat() {

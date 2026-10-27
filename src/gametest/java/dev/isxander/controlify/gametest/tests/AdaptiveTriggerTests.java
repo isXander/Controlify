@@ -56,8 +56,8 @@ public class AdaptiveTriggerTests implements FabricClientGameTest, ClientModInit
 				//? if >=26.2 {
 				world.getConnection().waitForChunksRender();
 				//?} else {
-				/*world.getClientLevel().waitForChunksRender();
-				*///?}
+				//world.getClientLevel().waitForChunksRender();
+				//?}
 
 				setServerHands(world, new ItemStack(Items.DIAMOND_SWORD), new ItemStack(Items.SHIELD));
 				context.waitTick();

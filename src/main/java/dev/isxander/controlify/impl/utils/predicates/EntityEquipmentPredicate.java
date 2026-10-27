@@ -13,8 +13,8 @@ import java.util.Optional;
 //? if >=26.2 {
 import net.minecraft.advancements.predicates.ItemPredicate;
 //?} else {
-/*import net.minecraft.advancements.criterion.ItemPredicate;
-*///?}
+//import net.minecraft.advancements.criterion.ItemPredicate;
+//?}
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;

@@ -20,8 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Hud.class
 		//?} else {
-		/*net.minecraft.client.gui.Gui.class
-		*///?}
+		//net.minecraft.client.gui.Gui.class
+		//?}
 )
 public class HudMixin {
 	@Shadow @Final private Minecraft minecraft;

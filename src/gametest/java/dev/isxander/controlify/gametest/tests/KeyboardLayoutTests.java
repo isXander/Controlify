@@ -37,8 +37,8 @@ public class KeyboardLayoutTests implements FabricClientGameTest, ClientModIniti
 			//? if >=26.2 {
 			world.getConnection().waitForChunksRender();
 			//?} else {
-			/*world.getClientLevel().waitForChunksRender();
-			*///?}
+			//world.getClientLevel().waitForChunksRender();
+			//?}
 
 			runLocaleTest(context, controlify);
 		}

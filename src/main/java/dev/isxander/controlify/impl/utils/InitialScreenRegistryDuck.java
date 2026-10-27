@@ -18,8 +18,8 @@ public interface InitialScreenRegistryDuck {
 		//? if >=26.2 {
 		return (InitialScreenRegistryDuck) Minecraft.getInstance().gui;
 		//?} else {
-		/*return (InitialScreenRegistryDuck) Minecraft.getInstance();
-		*///?}
+		//return (InitialScreenRegistryDuck) Minecraft.getInstance();
+		//?}
 	}
 
 	static void registerInitialScreen(Function<Runnable, Screen> screenFactory) {

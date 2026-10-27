@@ -52,8 +52,8 @@ public class RumbleTests implements FabricClientGameTest {
 				//? if >=26.2 {
 				world.getWorld().getConnection().waitForChunksRender();
 				//?} else {
-				/*world.getWorld().getClientLevel().waitForChunksRender();
-				*///?}
+				//world.getWorld().getClientLevel().waitForChunksRender();
+				//?}
 
 				runTest(context, controlify, controller, world, "Lightning bolt", this::testLightningBoltRumble);
 				runTest(context, controlify, controller, world, "Explosion", this::testExplosionRumble);

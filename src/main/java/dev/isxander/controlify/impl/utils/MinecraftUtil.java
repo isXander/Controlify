@@ -26,16 +26,16 @@ public final class MinecraftUtil {
 		//? if >=26.2 {
 		minecraft.gui.setScreen(screen);
 		//?} else {
-		/*minecraft.setScreen(screen);
-		*///?}
+		//minecraft.setScreen(screen);
+		//?}
 	}
 
 	public static void forceSetScreen(@Nullable Screen screen) {
 		//? if >=26.2 {
 		((GuiAccessor) minecraft.gui).controlify$setScreenField(screen);
 		//?} else {
-		/*minecraft.screen = screen;
-		*///?}
+		//minecraft.screen = screen;
+		//?}
 	}
 
 	@Contract(pure = true)
@@ -43,8 +43,8 @@ public final class MinecraftUtil {
 		//? if >=26.2 {
 		return minecraft.gui.screen();
 		//?} else {
-		/*return minecraft.screen;
-		*///?}
+		//return minecraft.screen;
+		//?}
 	}
 
 	@Contract(pure = true)
@@ -52,8 +52,8 @@ public final class MinecraftUtil {
 		//? if >=26.2 {
 		return minecraft.gui.overlay();
 		//?} else {
-		/*return minecraft.getOverlay();
-		*///?}
+		//return minecraft.getOverlay();
+		//?}
 	}
 
 	public static void sendToast(Component title, Component message, boolean longer) {

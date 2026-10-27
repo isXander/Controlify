@@ -35,8 +35,8 @@ public class ServerPolicyTests implements FabricClientGameTest {
 					//? if >=26.2 {
 					connection.waitForChunksDownload();
 					//?} else {
-					/*connection.getClientLevel().waitForChunksDownload();
-					*///?}
+					//connection.getClientLevel().waitForChunksDownload();
+					//?}
 
 					assertKeyboardMovement(context, true);
 				}

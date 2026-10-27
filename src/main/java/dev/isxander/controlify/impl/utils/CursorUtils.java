@@ -11,8 +11,8 @@ import com.mojang.blaze3d.platform.Window;
 //? if >=26.3 {
 import org.lwjgl.sdl.SDLMouse;
 //?} else {
-/*import org.lwjgl.glfw.GLFW;
-*///?}
+//import org.lwjgl.glfw.GLFW;
+//?}
 
 public final class CursorUtils {
 
@@ -42,7 +42,7 @@ public final class CursorUtils {
 		//? if >=26.3 {
 		SDLMouse.SDL_WarpMouseInWindow(window.handle(), x, y);
 		//?} else {
-		/*GLFW.glfwSetCursorPos(window.handle(), x, y);
-		*///?}
+		//GLFW.glfwSetCursorPos(window.handle(), x, y);
+		//?}
 	}
 }

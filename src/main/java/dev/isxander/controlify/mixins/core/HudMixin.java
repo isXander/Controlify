@@ -16,8 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Hud.class
 		//?} else {
-		/*net.minecraft.client.gui.Gui.class
-		*///?}
+		//net.minecraft.client.gui.Gui.class
+		//?}
 )
 public class HudMixin {
 	@ModifyExpressionValue(method = "extractTabList", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/KeyMapping;isDown()Z"))

@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.At;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Gui.class
 		//?} else {
-		/*net.minecraft.client.Minecraft.class
-		*///?}
+		//net.minecraft.client.Minecraft.class
+		//?}
 )
 public class GuiMixin {
 	@WrapWithCondition(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;removed()V"))

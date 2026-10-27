@@ -28,8 +28,8 @@ import java.util.function.Function;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Gui.class
 		//?} else {
-		/*Minecraft.class
-		*///?}
+		//Minecraft.class
+		//?}
 )
 public class GuiMixin implements InitialScreenRegistryDuck {
 	@Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();

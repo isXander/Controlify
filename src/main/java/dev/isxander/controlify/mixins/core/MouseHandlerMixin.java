@@ -91,8 +91,8 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 					//? if >=26.3 {
 					target = "Lcom/mojang/blaze3d/platform/InputConstants;releaseMouse(Lcom/mojang/blaze3d/platform/Window;DD)V"
 					//?} else {
-					/*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
-					*///?}
+					//target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					//?}
 			)
 	)
 	private void moveMouseIfNecessary(CallbackInfo ci) {

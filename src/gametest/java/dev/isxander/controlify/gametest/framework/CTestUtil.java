@@ -146,8 +146,8 @@ public final class CTestUtil {
 			//? if >=26.2 {
 			minecraft.gui.toastManager().clear();
 			//?} else {
-			/*minecraft.getToastManager().clear();
-			*///?}
+			//minecraft.getToastManager().clear();
+			//?}
 		});
 	}
 
@@ -155,8 +155,8 @@ public final class CTestUtil {
 		//? if >=26.2 {
 		var toastManager = minecraft.gui.toastManager();
 		//?} else {
-		/*var toastManager = minecraft.getToastManager();
-		*///?}
+		//var toastManager = minecraft.getToastManager();
+		//?}
 
 		String text = Component.translatable(translationKey).getString();
 

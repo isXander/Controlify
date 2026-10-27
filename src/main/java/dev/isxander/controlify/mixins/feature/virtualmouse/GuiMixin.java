@@ -18,8 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Gui.class
 		//?} else {
-		/*net.minecraft.client.Minecraft.class
-		*///?}
+		//net.minecraft.client.Minecraft.class
+		//?}
 )
 public class GuiMixin {
 	@Inject(method = "setScreen", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;updateTitle()V"))

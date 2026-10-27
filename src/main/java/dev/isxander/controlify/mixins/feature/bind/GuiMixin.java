@@ -20,8 +20,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 		//? if >=26.2 {
 		Gui.class
 		//?} else {
-		/*Minecraft.class
-		*///?}
+		//Minecraft.class
+		//?}
 )
 public class GuiMixin {
 	@Inject(method = "setScreen", at = @At("HEAD"))

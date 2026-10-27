@@ -12,8 +12,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.advancements.predicates.*;
 import net.minecraft.advancements.predicates.entity.*;
 //?} else {
-/*import net.minecraft.advancements.criterion.*;
-*///?}
+//import net.minecraft.advancements.criterion.*;
+//?}
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.SlotProvider;

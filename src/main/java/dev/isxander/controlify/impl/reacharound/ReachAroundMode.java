@@ -22,8 +22,8 @@ public enum ReachAroundMode implements NameableEnum, StringRepresentable {
 			//? if >=26.2 {
 			minecraft.hasSingleplayerServer()
 			//?} else {
-			/*minecraft.isSingleplayer()
-			*///?}
+			//minecraft.isSingleplayer()
+			//?}
 	),
 	SINGLEPLAYER_AND_LAN((minecraft, controlify) -> minecraft.isLocalServer()),
 	EVERYWHERE((minecraft, controlify) -> true);

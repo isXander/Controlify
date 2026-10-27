@@ -34,8 +34,8 @@ public class CommandSuggestionsMixin implements ChatScreenBehaviour.CmdSuggestio
 					//? if >=26.2 {
 					"extractUsage",
 					//?} else {
-					/*"renderUsage",
-					*///?}
+					//"renderUsage",
+					//?}
 					"showSuggestions"
 			},
 			at = @At(

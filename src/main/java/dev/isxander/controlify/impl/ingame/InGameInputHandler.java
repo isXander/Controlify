@@ -164,8 +164,8 @@ public class InGameInputHandler {
 			//? if >=26.2 {
 			minecraft.gui.hud.toggle();
 			//?} else {
-			/*minecraft.options.hideGui = !minecraft.options.hideGui;
-			*///?}
+			//minecraft.options.hideGui = !minecraft.options.hideGui;
+			//?}
 		}
 
 		while (ControlifyActions.SHOW_PLAYER_LIST.on(controller).pulse().consumePulse()) {
@@ -226,14 +226,14 @@ public class InGameInputHandler {
 					//? if >=26.2 {
 					this.minecraft.gameRenderer.mainRenderTarget(),
 					//?} else {
-					/*this.minecraft.getMainRenderTarget(),
-					*///?}
+					//this.minecraft.getMainRenderTarget(),
+					//?}
 					component -> this.minecraft.execute(() -> {
 						//? if >=26.2 {
 						this.minecraft.gui.hud.getChat()
 						//?} else {
-						/*this.minecraft.gui.getChat()
-						*///?}
+						//this.minecraft.gui.getChat()
+						//?}
 								.addClientSystemMessage(component);
 
 						// TODO: this currently does not work, yet to debug why not
