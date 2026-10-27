@@ -206,7 +206,7 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 
 	@Override
 	public Identifier getReloadId() {
-		return this.id.withPrefix("reload/");
+		return this.id.withPrefix("contextual/domain/");
 	}
 
 	public ContextualState calculateState(C context, @Nullable Collection<Identifier> requiredFacts) {

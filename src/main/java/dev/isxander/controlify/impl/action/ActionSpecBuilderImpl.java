@@ -51,7 +51,7 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 	}
 
 	@Override
-	public ActionSpecBuilder context(Identifier @NonNull ... contexts) {
+	public ActionSpecBuilder layer(Identifier @NonNull ... contexts) {
 		this.contexts.addAll(List.of(contexts));
 		return this;
 	}

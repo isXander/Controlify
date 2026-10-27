@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.action;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.action.ActionSpec;
 import dev.isxander.controlify.api.action.Channel;
+import dev.isxander.controlify.impl.action.activator.Activator;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
 import dev.isxander.controlify.impl.action.activator.NoopActivator;
 import dev.isxander.controlify.api.input.LogicalInput;
@@ -23,20 +24,20 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	private Activator activator;
 	private final ActivatorConfig<?> activatorConfig;
 
-	private final ActionGraph actionGraph;
+	private final ActionDispatcher actionDispatcher;
 
 	public ActionImpl(
 			ActionSpec spec,
 			@Nullable LogicalInput boundInput,
 			@Nullable LogicalInput defaultInput,
 			ActivatorConfig<?> activator,
-			ActionGraph actionGraph
+			ActionDispatcher actionDispatcher
 	) {
 		this.spec = spec;
 		this.defaultInput = defaultInput;
 		this.activatorConfig = activator;
 		this.state = new ActionState();
-		this.actionGraph = actionGraph;
+		this.actionDispatcher = actionDispatcher;
 		this.boundInput = boundInput;
 	}
 
@@ -54,7 +55,7 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	public void setBoundInput(@Nullable LogicalInput boundInput) {
 		this.boundInput = boundInput;
 		this.reset();
-		this.actionGraph.onActionBindingChange(this);
+		this.actionDispatcher.onActionBindingChange(this);
 	}
 
 	@Override

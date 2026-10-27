@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.driver.dualsense;
 
+import dev.isxander.controlify.api.controller.dualsense.MicLightMode;
 import org.intellij.lang.annotations.MagicConstant;
 
 import java.lang.foreign.MemoryLayout;
@@ -146,7 +147,7 @@ public final class DualsenseEffectsState {
 
 	public byte ucAudioEnableBits;
 
-	@MagicConstant(valuesFromClass = MuteLightState.class)
+	@MagicConstant(valuesFromClass = MicLightMode.class)
 	public byte ucMicLightMode;
 
 	public byte ucAudioMuteBits;
@@ -375,7 +376,7 @@ public final class DualsenseEffectsState {
 	}
 
 	public static final class EnableBitFlags2 {
-		public static final byte ALLOW_MUTE_LIGHT = 1;
+		public static final byte ALLOW_MIC_LIGHT_MODE = 1;
 		public static final byte ALLOW_AUDIO_MUTE = 1 << 1;
 		public static final byte ALLOW_LED_COLOUR = 1 << 2;
 		public static final byte RESET_LIGHTS = 1 << 3;
@@ -388,17 +389,26 @@ public final class DualsenseEffectsState {
 		}
 	}
 
-	public static final class MuteLightState {
+	public static final class MicLightMode {
 		public static final byte OFF = 0;
 		public static final byte ON = 1;
 		public static final byte BREATHING = 2;
 
-		@MagicConstant(valuesFromClass = MuteLightState.class)
+		@MagicConstant(valuesFromClass = MicLightMode.class)
 		public static byte fromBoolean(boolean state) {
 			return state ? ON : OFF;
 		}
 
-		private MuteLightState() {
+		@MagicConstant(valuesFromClass = MicLightMode.class)
+		public static byte fromEnum(dev.isxander.controlify.api.controller.dualsense.MicLightMode mode) {
+			return switch (mode) {
+				case OFF -> OFF;
+				case ON -> ON;
+				case BREATHING -> BREATHING;
+			};
+		}
+
+		private MicLightMode() {
 		}
 	}
 }

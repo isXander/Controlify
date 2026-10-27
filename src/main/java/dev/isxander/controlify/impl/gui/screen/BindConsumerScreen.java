@@ -40,7 +40,12 @@ public class BindConsumerScreen extends Screen {
 	private int ticksTillClose;
 	private int ticksTillInput;
 
-	public BindConsumerScreen(ControllerImpl controller, Option<Optional<LogicalInput>> option, BindController.BindControllerElement widgetToFocus, Screen backgroundScreen) {
+	public BindConsumerScreen(
+			ControllerImpl controller,
+			Option<Optional<LogicalInput>> option,
+			BindController.BindControllerElement widgetToFocus,
+			Screen backgroundScreen
+	) {
 		super(Component.empty());
 		this.controller = controller;
 		this.option = option;

@@ -11,14 +11,14 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.ControlifyEvents;
 import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
-import dev.isxander.controlify.impl.action.ActionContextRegistryImpl;
+import dev.isxander.controlify.impl.action.ActionLayerRegistryImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.impl.action.defaults.DefaultBindManager;
 import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
 import dev.isxander.controlify.impl.action.radial.RadialIconManager;
-import dev.isxander.controlify.impl.compatibility.ControlifyCompat;
+import dev.isxander.controlify.compat.ControlifyCompat;
 import dev.isxander.controlify.impl.config.ConfigManager;
 import dev.isxander.controlify.impl.config.dto.profile.defaults.DefaultConfigManager;
 import dev.isxander.controlify.impl.contextual.ContextualDomains;
@@ -238,7 +238,7 @@ public class Controlify implements ControlifyApi {
 		this.inGameInputHandler = null; // set when the current controller changes
 		this.triggerEffectManager = new TriggerEffectManager();
 
-		ActionContextRegistryImpl.INSTANCE.registerBuiltinContexts();
+		ActionLayerRegistryImpl.INSTANCE.registerBuiltinContexts();
 		ControlifyActions.init();
 
 		PlatformClientUtil.registerPostScreenRender((screen, graphics, mouseX, mouseY, tickDelta) ->
@@ -258,9 +258,9 @@ public class Controlify implements ControlifyApi {
 		ScreenRuntime.onScreenChanged();
 		try {
 			try {
-				ActionContextRegistryImpl.Events.REGISTER_CONTEXTS.emit(ActionContextRegistryImpl.INSTANCE);
+				ActionLayerRegistryImpl.Events.REGISTER_LAYERS.emit(ActionLayerRegistryImpl.INSTANCE);
 			} finally {
-				ActionContextRegistryImpl.INSTANCE.lock();
+				ActionLayerRegistryImpl.INSTANCE.lock();
 			}
 			ActionSpecRegistryImpl.Events.REGISTER_ACTIONS.emit(ActionSpecRegistryImpl.INSTANCE);
 			ActionProxyManagerImpl.Events.REGISTER_PROXIES.emit(ActionProxyManagerImpl.INSTANCE);

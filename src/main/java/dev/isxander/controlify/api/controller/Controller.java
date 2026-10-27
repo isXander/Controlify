@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.api.controller;
 
+import dev.isxander.controlify.api.controller.dualsense.DualsenseComponent;
 import dev.isxander.controlify.api.controller.rumble.RumbleComponent;
 import dev.isxander.controlify.api.controller.input.InputComponent;
 import dev.isxander.controlify.api.controller.gyro.GyroComponent;
@@ -51,4 +52,8 @@ public interface Controller {
 	/// Get the rumble component that may be attached to this controller.
 	/// If the returned optional is empty, then the controller is not capable of rumble.
 	Optional<? extends RumbleComponent> rumble();
+
+	/// Present if this controller is a dualsense controller.
+	/// You can configure the mute light.
+	Optional<? extends DualsenseComponent> dualsense();
 }

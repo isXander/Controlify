@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /// A reference to a logical button or axis.
 ///
@@ -29,6 +31,9 @@ import java.util.Set;
 /// like the `A` button or `Left Stick` left, but it may also refer to
 /// a chord, like `A` + `B`.
 public sealed interface LogicalInput {
+	/// Every physical input this logical input is made of.
+	Set<Identifier> physicalInputs();
+
 	Codec<LogicalInput> CODEC = CExtraCodecs.fuzzy(
 			List.of(Single.CODEC, ModifiedChord.CODEC),
 			input -> switch (input) {
@@ -47,13 +52,48 @@ public sealed interface LogicalInput {
 	record Single(Identifier physicalInput) implements LogicalInput {
 		public static final Codec<Single> CODEC =
 				Identifier.CODEC.xmap(Single::new, Single::physicalInput);
+
+		@Override
+		public Set<Identifier> physicalInputs() {
+			return Set.of(this.physicalInput);
+		}
 	}
 
 	/// A logical input that triggers only after all modifiers are already pressed.
+	/// When several chords match a press, the one with the most modifiers wins.
 	record ModifiedChord(Set<Identifier> modifiers, Identifier trigger) implements LogicalInput {
-		public static final Codec<ModifiedChord> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-				CExtraCodecs.set(Identifier.CODEC).fieldOf("modifiers").forGetter(ModifiedChord::modifiers),
-				Identifier.CODEC.fieldOf("trigger").forGetter(ModifiedChord::trigger)
-		).apply(instance, ModifiedChord::new));
+		/// Keeps the number of chords recognised for each press small.
+		public static final int MAX_MODIFIERS = 2;
+
+		public static final Codec<ModifiedChord> CODEC = RecordCodecBuilder.<Map.Entry<Set<Identifier>, Identifier>>create(instance -> instance.group(
+				CExtraCodecs.set(Identifier.CODEC).fieldOf("modifiers").forGetter(Map.Entry::getKey),
+				Identifier.CODEC.fieldOf("trigger").forGetter(Map.Entry::getValue)
+		).apply(instance, Map::entry)).flatXmap(
+				entry -> validate(entry.getKey(), entry.getValue())
+						.<DataResult<ModifiedChord>>map(error -> DataResult.error(() -> error))
+						.orElseGet(() -> DataResult.success(new ModifiedChord(entry.getKey(), entry.getValue()))),
+				chord -> DataResult.success(Map.entry(chord.modifiers(), chord.trigger()))
+		);
+
+		public ModifiedChord {
+			modifiers = Set.copyOf(modifiers);
+			validate(modifiers, trigger).ifPresent(error -> {
+				throw new IllegalArgumentException(error);
+			});
+		}
+
+		@Override
+		public Set<Identifier> physicalInputs() {
+			return Stream.concat(this.modifiers.stream(), Stream.of(this.trigger))
+					.collect(Collectors.toUnmodifiableSet());
+		}
+
+		private static Optional<String> validate(Set<Identifier> modifiers, Identifier trigger) {
+			if (modifiers.isEmpty() || modifiers.size() > MAX_MODIFIERS || modifiers.contains(trigger)) {
+				return Optional.of("A chord needs 1 to " + MAX_MODIFIERS
+						+ " modifiers, none of which is the trigger: " + modifiers + " + " + trigger);
+			}
+			return Optional.empty();
+		}
 	}
 }

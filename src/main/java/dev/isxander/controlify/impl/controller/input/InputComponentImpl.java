@@ -11,7 +11,7 @@ import dev.isxander.controlify.api.controller.input.InputComponent;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.action.ActionGraph;
+import dev.isxander.controlify.impl.action.ActionDispatcher;
 import dev.isxander.controlify.impl.action.ActionImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
@@ -39,14 +39,14 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 	private ControllerMapping controllerMapping;
 
 	private final InputPipeline inputPipeline;
-	private final ActionGraph actionGraph;
+	private final ActionDispatcher actionDispatcher;
 
 	private final Map<Identifier, ActionImpl> actions;
 
 	private final Set<Identifier> physicalButtons, physicalAxes;
 	private final boolean isGamepad;
 
-	private EventSource.Subscription actionGraphSub;
+	private EventSource.Subscription actionDispatcherSub;
 
 	public InputComponentImpl(
 			Identifier controllerType,
@@ -63,7 +63,7 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		this.physicalAxes = Set.copyOf(physicalAxes);
 		this.isGamepad = isGamepad;
 
-		this.actionGraph = new ActionGraph();
+		this.actionDispatcher = new ActionDispatcher();
 		this.actions = new LinkedHashMap<>();
 	}
 
@@ -80,8 +80,8 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		this.inputPipeline.stageInputDomainExpansion().setThresholdSupplier(() -> settings().buttonActivationThreshold);
 
 		this.reloadActions();
-		this.actionGraphSub = this.inputPipeline.sourceLogicalSignals().subscribe(signal -> {
-			this.actionGraph.accept(signal);
+		this.actionDispatcherSub = this.inputPipeline.sourceLogicalSignals().subscribe(signal -> {
+			this.actionDispatcher.accept(signal);
 			ActionProxyManagerImpl.INSTANCE.update(this.controller());
 		});
 	}
@@ -95,8 +95,8 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		return Collections.unmodifiableCollection(this.actions.values());
 	}
 
-	public ActionGraph actionGraph() {
-		return this.actionGraph;
+	public ActionDispatcher actionDispatcher() {
+		return this.actionDispatcher;
 	}
 
 	public InputPipeline inputPipeline() {
@@ -124,15 +124,14 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		if (controllerMapping.equals(this.controllerMapping)) {
 			return;
 		}
-		this.actionGraph.resetInputState();
+		this.actionDispatcher.resetInputState();
 		ActionProxyManagerImpl.INSTANCE.update(this.controller());
 		this.controllerMapping = controllerMapping;
 		this.inputPipeline.setControllerMapping(controllerMapping);
 	}
 
 	public void resetActions() {
-		this.actions.values().forEach(ActionImpl::reset);
-		this.actionGraph.restoreContinuousState();
+		this.actionDispatcher.resetActions();
 		ActionProxyManagerImpl.INSTANCE.update(this.controller());
 	}
 
@@ -150,12 +149,12 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 	public void reloadActions() {
 		ActionProxyManagerImpl.INSTANCE.release(this.controller());
 		this.actions.clear();
-		this.actionGraph.clearActions();
+		this.actionDispatcher.clearActions();
 
 		for (ActionSpec spec : ActionSpecRegistryImpl.INSTANCE.getActionSpecs()) {
 			ActionImpl action = this.createAction(spec);
 			this.actions.put(spec.id(), action);
-			this.actionGraph.addAction(action);
+			this.actionDispatcher.addAction(action);
 		}
 	}
 
@@ -189,8 +188,8 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		ActionProxyManagerImpl.INSTANCE.release(this.controller());
 		super.close();
 
-		this.actionGraphSub.close();
-		this.actionGraphSub = null;
+		this.actionDispatcherSub.close();
+		this.actionDispatcherSub = null;
 	}
 
 	private ActionImpl createAction(ActionSpec spec) {
@@ -208,7 +207,7 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 				currentBoundInput,
 				defaultBoundInput,
 				activatorConfig,
-				this.actionGraph
+				this.actionDispatcher
 		);
 		action.reset();
 

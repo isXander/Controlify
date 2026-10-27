@@ -89,7 +89,13 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 			float deadzone = DeadzoneStage.this.deadzoneByGroupName.getFloat(this.deadzoneGroup.name());
 
 			float magnitudeSqr = 0.0f;
-			for (float value : this.rawAxes.values()) {
+			for (DeadzoneGroup.Dimension dimension : this.deadzoneGroup.dimensions()) {
+				// Opposing half-axes are exclusive, but both may be briefly non-zero while the source
+				// crosses its centre. Using the larger keeps the magnitude stable across that transition.
+				float value = this.rawAxes.getFloat(dimension.positive());
+				if (dimension.negative().isPresent()) {
+					value = Math.max(value, this.rawAxes.getFloat(dimension.negative().get()));
+				}
 				magnitudeSqr += value * value;
 			}
 			float magnitude = Mth.sqrt(magnitudeSqr);

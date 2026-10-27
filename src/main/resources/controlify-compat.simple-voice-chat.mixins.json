@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.impl.compatibility.simplevoicechat.mixins",
+  "package": "dev.isxander.controlify.compat.simplevoicechat.mixins",
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
@@ -11,7 +11,7 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.impl.compatibility.simplevoicechat.SVCMixinPlugin",
+  "plugin": "dev.isxander.controlify.compat.simplevoicechat.SVCMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
   ],

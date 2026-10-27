@@ -7,15 +7,16 @@
 package dev.isxander.controlify.impl.action.activator;
 
 import dev.isxander.controlify.impl.action.Accumulator;
-import dev.isxander.controlify.impl.action.Activator;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 
 public record ContinuousActivator(LogicalInput boundInput) implements Activator {
 	@Override
 	public void onSignal(LogicalSignal signal, Accumulator acc) {
-		if (signal instanceof LogicalSignal.AxisMoved s && s.input().equals(this.boundInput)) {
-			acc.setContinuous(s.value());
+		switch (signal) {
+			case LogicalSignal.AxisMoved s when s.input().equals(this.boundInput) -> acc.setContinuous(s.value());
+			case LogicalSignal.Cancelled s when s.input().equals(this.boundInput) -> acc.setContinuous(0f);
+			default -> {}
 		}
 	}
 

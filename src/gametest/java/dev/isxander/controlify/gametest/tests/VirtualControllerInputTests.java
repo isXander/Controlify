@@ -64,7 +64,7 @@ public class VirtualControllerInputTests implements FabricClientGameTest {
 			// This test observes physical events without triggering menus or gameplay.
 			context.runOnClient(_ -> input.getAllActions().forEach(action -> action.setBoundInput(null)));
 			Set<Identifier> pressedButtons = new HashSet<>();
-			try (var subscription = context.computeOnClient(_ -> input.inputPipeline().sourceRawPhysicalSignals().subscribe(signal -> {
+			try (var _ = context.computeOnClient(_ -> input.inputPipeline().sourceRawPhysicalSignals().subscribe(signal -> {
 				if (signal instanceof PhysicalInputSignal.ButtonChanged button) {
 					if (button.state()) pressedButtons.add(button.input());
 					else pressedButtons.remove(button.input());

@@ -21,8 +21,9 @@ public interface ActionSpecBuilder {
 
 	ActionSpecBuilder category(Component category);
 
-	/// Accepts IDs from {@link BuiltinActionContexts} or addon IDs registered during {@link ActionEvents#REGISTER_CONTEXTS}.
-	ActionSpecBuilder context(Identifier... contexts);
+	/// Accepts IDs from {@link BuiltinActionLayers} or addon IDs registered during {@link ActionEvents#REGISTER_LAYERS}.
+	/// An action in several layers receives input through whichever of them is reachable.
+	ActionSpecBuilder layer(Identifier... contexts);
 
 	ActionSpecBuilder shouldExpose(Predicate<Controller> predicate);
 

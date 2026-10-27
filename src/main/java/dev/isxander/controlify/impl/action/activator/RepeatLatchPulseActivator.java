@@ -11,7 +11,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.action.Accumulator;
-import dev.isxander.controlify.impl.action.Activator;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 
 /// Emits a pulse immediately when the source latch becomes active, then repeats while held.
@@ -97,8 +96,8 @@ public class RepeatLatchPulseActivator implements Activator {
 		public static final String TYPE_ID = "pulse_repeat_latch";
 		public static final MapCodec<Config> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				ActivatorConfig.CODEC.fieldOf("source_latch").forGetter(Config::latchBinding),
-				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ms", 5).forGetter(Config::initialDelayMs),
-				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ms", 1).forGetter(Config::repeatDelayMs)
+				Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("initial_delay_ms", 250).forGetter(Config::initialDelayMs),
+				Codec.intRange(1, Integer.MAX_VALUE).optionalFieldOf("repeat_delay_ms", 50).forGetter(Config::repeatDelayMs)
 		).apply(instance, Config::new));
 
 		@Override

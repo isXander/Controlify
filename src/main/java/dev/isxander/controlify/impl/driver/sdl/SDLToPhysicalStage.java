@@ -15,8 +15,10 @@ import dev.isxander.controlify.api.utils.event.EventSink;
 import dev.isxander.controlify.api.utils.event.EventStage;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import static dev.isxander.sdl.SdlJoystick.*;
 
@@ -38,22 +40,8 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 			case SDLControllerEvent.JoyAxis(_, long timeNanos, byte axis, short value) -> {
 				int index = Byte.toUnsignedInt(axis);
-				float normalisedValue = normaliseAxis(value);
-
-				float prevNormalisedValue = this.prevJoystickAxisValues[index];
-				this.prevJoystickAxisValues[index] = normalisedValue;
-
-				boolean positive = normalisedValue > 0;
-				boolean prevPositive = prevNormalisedValue > 0;
-
-				if (prevPositive != positive) {
-					// sign changed
-					Identifier prevInput = JoystickInputs.axis(index, prevPositive);
-					downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, prevInput, 0f));
-				}
-
-				Identifier input = JoystickInputs.axis(index, positive);
-				downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, input, Math.abs(normalisedValue)));
+				emitSplitAxis(timeNanos, this.prevJoystickAxisValues, index, value,
+						positive -> JoystickInputs.axis(index, positive), downstream);
 			}
 
 			case SDLControllerEvent.JoyButton(_, long timeNanos, byte button, boolean down) ->
@@ -85,26 +73,8 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 			case SDLControllerEvent.GamepadAxis(_, long timeNanos, byte axis, short value) -> {
 				int index = Byte.toUnsignedInt(axis);
-				float normalisedValue = normaliseAxis(value);
-
-				float prevNormalisedValue = this.prevGamepadAxisValues[index];
-				this.prevGamepadAxisValues[index] = normalisedValue;
-
-				boolean positive = normalisedValue > 0;
-				boolean prevPositive = prevNormalisedValue > 0;
-
-				if (prevPositive != positive) {
-					// sign changed
-					Identifier prevInput = SDLInputConversions.getGamepadAxis(axis, prevPositive);
-					if (prevInput != null) {
-						downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, prevInput, 0f));
-					}
-				}
-
-				Identifier input = SDLInputConversions.getGamepadAxis(axis, positive);
-				if (input != null) {
-					downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, input, Math.abs(normalisedValue)));
-				}
+				emitSplitAxis(timeNanos, this.prevGamepadAxisValues, index, value,
+						positive -> SDLInputConversions.getGamepadAxis(index, positive), downstream);
 			}
 
 			case SDLControllerEvent.GamepadButton(_, long timeNanos, byte button, boolean down) -> {
@@ -122,6 +92,35 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 			}
 
 			default -> {}
+		}
+	}
+
+	/// Splits a signed axis into two half-axes.
+	/// When the sign changes, the new half-axis is emitted before the old one is zeroed,
+	/// so downstream radial deadzones never observe a transiently collapsed magnitude.
+	private static void emitSplitAxis(
+			long timeNanos, float[] prevValues, int index, short value,
+			Function<Boolean, @Nullable Identifier> halfAxis,
+			EventSink<? super PhysicalSignal> downstream
+	) {
+		float normalisedValue = normaliseAxis(value);
+
+		float prevNormalisedValue = prevValues[index];
+		prevValues[index] = normalisedValue;
+
+		boolean positive = normalisedValue > 0;
+		boolean prevPositive = prevNormalisedValue > 0;
+
+		Identifier input = halfAxis.apply(positive);
+		if (input != null) {
+			downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, input, Math.abs(normalisedValue)));
+		}
+
+		if (prevPositive != positive) {
+			Identifier prevInput = halfAxis.apply(prevPositive);
+			if (prevInput != null && !prevInput.equals(input)) {
+				downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, prevInput, 0f));
+			}
 		}
 	}
 

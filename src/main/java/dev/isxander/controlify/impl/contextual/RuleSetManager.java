@@ -41,6 +41,7 @@ public class RuleSetManager<K, R extends Rule<K>> implements SimpleControlifyRel
 
 	private final Codec<RuleSet<K, R>> ruleSetCodec;
 	private final Codec<R> ruleCodec;
+	private final Identifier reloadId;
 	private final String directory;
 	private final FileToIdConverter converter;
 	private final CacheSlot<ClientLevel, Map<Identifier, RuleEngine<K, R>>> resolvedRuleEngines =
@@ -52,6 +53,7 @@ public class RuleSetManager<K, R extends Rule<K>> implements SimpleControlifyRel
 	public RuleSetManager(Codec<R> ruleCodec, String directory) {
 		this.ruleSetCodec = RuleSet.createCodec(ruleCodec);
 		this.ruleCodec = ruleCodec;
+		this.reloadId = CUtil.rl(directory).withPrefix("contextual/ruleset/");
 		this.directory = DIRECTORY + directory;
 		this.converter = FileToIdConverter.json(this.directory);
 		this.preparations = new Preparations<>(Map.of(), null);

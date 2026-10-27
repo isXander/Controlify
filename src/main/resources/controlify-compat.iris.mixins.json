@@ -1,5 +1,5 @@
 {
-  "package": "dev.isxander.controlify.impl.compatibility.iris.mixins",
+  "package": "dev.isxander.controlify.compat.iris.mixins",
   "required": false,
   "minVersion": "0.8",
   "mixinextras": {
@@ -11,7 +11,7 @@
   "overwrites": {
     "requireAnnotations": true
   },
-  "plugin": "dev.isxander.controlify.impl.compatibility.iris.IrisMixinPlugin",
+  "plugin": "dev.isxander.controlify.compat.iris.IrisMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
   ],

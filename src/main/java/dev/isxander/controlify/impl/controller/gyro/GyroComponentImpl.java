@@ -149,6 +149,8 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 			this.sensorSubscription.close();
 			this.sensorSubscription = null;
 		}
+		// The installed processors capture this component; the pipeline may outlive it.
+		this.inputPipeline.stageSensorProcessor().setProcessors(SensorType.GYROSCOPE, List.of());
 		if (this.deviceSettings != null) {
 			this.saveCalibrationIfChanged();
 		}

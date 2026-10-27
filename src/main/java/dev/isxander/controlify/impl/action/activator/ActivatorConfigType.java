@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.action.activator;
 
 import com.mojang.serialization.MapCodec;
-import dev.isxander.controlify.impl.action.Activator;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
 

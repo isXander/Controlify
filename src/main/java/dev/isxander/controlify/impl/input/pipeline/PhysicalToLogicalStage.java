@@ -16,16 +16,23 @@ import dev.isxander.controlify.api.utils.event.EventStage;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
-/// Converts physical inputs into single inputs and arbitrary modifier chords.
-/// Each trigger uses the most recently pressed button still held as its sole
-/// modifier. The chord keeps that modifier until either button is released,
+/// Converts physical inputs into single inputs and modifier chords.
+/// A press emits every chord it could form with the buttons already held, up to
+/// {@link LogicalInput.ModifiedChord#MAX_MODIFIERS} modifiers, followed by the single input.
+/// Chords are ordered most specific first: more modifiers, then more recently pressed modifiers.
+/// This stage does not know what is bound; consumers choose between the candidates.
+/// Each chord keeps its modifiers until any of its buttons is released,
 /// and follows the same gesture lifecycle as a single button.
 ///
 /// Button gestures use event timestamps, with holds emitted once on a tick.
@@ -108,8 +115,7 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		var single = new LogicalInput.Single(input);
 		if (pressed) {
 			// Only buttons held before this press can modify it; adding the trigger first would select itself.
-			LogicalInput.ModifiedChord chord = this.recogniseChord(input);
-			if (chord != null) {
+			for (LogicalInput.ModifiedChord chord : this.recogniseChords(input)) {
 				this.press(time, chord, downstream);
 			}
 			this.press(time, single, downstream);
@@ -118,11 +124,15 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 			this.pressedButtons.remove(input);
 			// Use the chords captured on press, so later presses cannot change which chord gets released.
 			// Snapshot because releasing a chord removes it from activeButtons.
-			for (var logicalInput : this.activeButtons.keySet().stream().toList()) {
-				if (logicalInput instanceof LogicalInput.ModifiedChord chord
-						&& (chord.trigger().equals(input) || chord.modifiers().contains(input))) {
-					this.release(time, chord, downstream);
-				}
+			// Release most specific first, matching press order, so consumers capturing the first release get the largest chord.
+			List<LogicalInput.ModifiedChord> released = this.activeButtons.keySet().stream()
+					.filter(LogicalInput.ModifiedChord.class::isInstance)
+					.map(LogicalInput.ModifiedChord.class::cast)
+					.filter(chord -> chord.trigger().equals(input) || chord.modifiers().contains(input))
+					.sorted(Comparator.comparingInt((LogicalInput.ModifiedChord chord) -> chord.modifiers().size()).reversed())
+					.toList();
+			for (var chord : released) {
+				this.release(time, chord, downstream);
 			}
 			this.release(time, single, downstream);
 		}
@@ -171,11 +181,35 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		downstream.accept(new LogicalSignal.AxisMoved(time, new LogicalInput.Single(input), value, value - previous));
 	}
 
-	private LogicalInput.ModifiedChord recogniseChord(Identifier trigger) {
-		if (!this.pressedButtons.isEmpty()) {
-			return new LogicalInput.ModifiedChord(Set.of(this.pressedButtons.getLast()), trigger);
+	/// @return every chord the trigger forms with held buttons, most specific first
+	private List<LogicalInput.ModifiedChord> recogniseChords(Identifier trigger) {
+		if (this.pressedButtons.isEmpty()) {
+			return List.of();
 		}
-		return null;
+		List<Identifier> heldByRecency = new ArrayList<>(this.pressedButtons).reversed();
+		List<LogicalInput.ModifiedChord> chords = new ArrayList<>();
+		int maxModifiers = Math.min(LogicalInput.ModifiedChord.MAX_MODIFIERS, heldByRecency.size());
+		for (int size = maxModifiers; size >= 1; size--) {
+			collectCombinations(heldByRecency, size, 0, new ArrayList<>(), modifiers ->
+					chords.add(new LogicalInput.ModifiedChord(Set.copyOf(modifiers), trigger)));
+		}
+		return chords;
+	}
+
+	/// Emits combinations in lexicographic order of recency, so more recent modifiers come first.
+	private static void collectCombinations(
+			List<Identifier> items, int size, int from,
+			List<Identifier> current, Consumer<List<Identifier>> output
+	) {
+		if (current.size() == size) {
+			output.accept(current);
+			return;
+		}
+		for (int i = from; i <= items.size() - (size - current.size()); i++) {
+			current.add(items.get(i));
+			collectCombinations(items, size, i + 1, current, output);
+			current.removeLast();
+		}
 	}
 
 	private static final class ButtonState {

@@ -6,11 +6,12 @@
  */
 package dev.isxander.controlify.impl.driver.sdl;
 
+import dev.isxander.controlify.api.controller.dualsense.MicLightMode;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.impl.controller.battery.PowerState;
-import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponent;
+import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponentImpl;
 import dev.isxander.controlify.impl.controller.haptic.CompleteSoundData;
 import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
@@ -67,7 +68,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected TriggerRumbleComponent triggerRumbleComponent;
 	protected HDHapticComponent hdHapticComponent;
 	protected LEDComponent ledComponent;
-	protected DualsenseComponent dualSenseComponent;
+	protected DualsenseComponentImpl dualSenseComponent;
 
 	protected final boolean isRumbleSupported, isTriggerRumbleSupported;
 	protected final boolean isDualsense;
@@ -174,7 +175,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			controller.addComponent(this.ledComponent = new LEDComponent(1));
 		}
 		if (this.isDualsense) {
-			controller.addComponent(this.dualSenseComponent = new DualsenseComponent());
+			controller.addComponent(this.dualSenseComponent = new DualsenseComponentImpl());
 		}
 		if (this.dualsenseAudioDev != null) {
 			controller.addComponent(this.hdHapticComponent = new HDHapticComponent());
@@ -282,8 +283,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			});
 
 			// Mute Light
-			effectsState.ucEnableBits2 |= DualsenseEffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT;
-			effectsState.ucMicLightMode = DualsenseEffectsState.MuteLightState.fromBoolean(this.dualSenseComponent.getMuteLight());
+			effectsState.ucEnableBits2 |= DualsenseEffectsState.EnableBitFlags2.ALLOW_MIC_LIGHT_MODE;
+			effectsState.ucMicLightMode = DualsenseEffectsState.MicLightMode.fromEnum(this.dualSenseComponent.getMicLightMode());
 
 			try (Arena arena = Arena.ofConfined()) {
 				MemorySegment memory = arena.allocate(DualsenseEffectsState.LAYOUT);
@@ -319,7 +320,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (dualSenseComponent != null) {
 			dualSenseComponent.setLeftTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
 			dualSenseComponent.setRightTriggerEffect(DualsenseTriggerEffect.Off.INSTANCE);
-			dualSenseComponent.setMuteLight(false);
+			dualSenseComponent.setMicLightMode(MicLightMode.OFF);
 			updateDualSense();
 		}
 

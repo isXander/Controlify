@@ -14,6 +14,13 @@ import java.util.function.Predicate;
 public interface EventSource<T> {
 	Subscription subscribe(EventSink<? super T> listener);
 
+	/// Equivalent to [subscribe] but explicitly discards the subscription return
+	/// to prevent downstream warnings about not closing.
+	@SuppressWarnings("resource")
+	default void subscribeForever(EventSink<? super T> listener) {
+		var _ = this.subscribe(listener);
+	}
+
 	default <O> EventSource<O> via(EventStage<T, O> stage) {
 		return sink -> this.subscribe(stage.bind(sink));
 	}

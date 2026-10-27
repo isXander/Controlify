@@ -9,7 +9,7 @@ package dev.isxander.controlify.impl.screenop;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.gui.keyboard.*;
 import dev.isxander.controlify.api.screenop.*;
-import dev.isxander.controlify.impl.compatibility.ControlifyCompat;
+import dev.isxander.controlify.compat.ControlifyCompat;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.gui.keyboard.*;
 import dev.isxander.controlify.impl.gui.screen.*;

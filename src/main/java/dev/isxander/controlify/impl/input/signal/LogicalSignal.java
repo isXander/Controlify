@@ -40,6 +40,12 @@ public sealed interface LogicalSignal {
 	/// When a button is held for a long period of time. Signaled whilst still held.
 	record Held(long timeNanos, LogicalInput input) implements InputSignal {}
 
+	/// When an in-progress press or axis movement stops reaching an action, for example
+	/// because a higher context started consuming the input or the action's contexts became inactive.
+	/// Ends anything the input was holding without firing; no release follows for that press.
+	/// Produced by the action graph, never by the input pipeline.
+	record Cancelled(long timeNanos, LogicalInput input) implements InputSignal {}
+
 	/// When an axis value changes
 	record AxisMoved(long timeNanos, LogicalInput input, float value, float delta) implements InputSignal {}
 

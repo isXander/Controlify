@@ -8,7 +8,6 @@ package dev.isxander.controlify.impl.action.activator;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.isxander.controlify.impl.action.Activator;
 import dev.isxander.controlify.api.input.LogicalInput;
 import net.minecraft.util.StringRepresentable;
 

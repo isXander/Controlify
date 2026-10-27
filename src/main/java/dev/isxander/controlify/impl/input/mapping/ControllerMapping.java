@@ -30,6 +30,12 @@ public record ControllerMapping(
 					.forGetter(ControllerMapping::mappings),
 			Codec.unboundedMap(Identifier.CODEC, DeadzoneGroup.CODEC)
 					.xmap(LinkedHashMap::new, map -> map)
+					.validate(groups -> {
+						if (!validateDisjointDeadzoneGroups(groups.values())) {
+							return DataResult.error(() -> "An axis must not belong to more than one deadzone group");
+						}
+						return DataResult.success(groups);
+					})
 					.fieldOf("deadzones")
 					.forGetter(ControllerMapping::deadzones)
 	).apply(instance, ControllerMapping::new));
@@ -37,6 +43,9 @@ public record ControllerMapping(
 	public ControllerMapping {
 		if (!validateDistinctMappingSources(mappings)) {
 			throw new IllegalArgumentException("Every mapping entry must have a distinct source input");
+		}
+		if (!validateDisjointDeadzoneGroups(deadzones.values())) {
+			throw new IllegalArgumentException("An axis must not belong to more than one deadzone group");
 		}
 	}
 
@@ -52,6 +61,17 @@ public record ControllerMapping(
 				.distinct()
 				.count();
 		return entryCount == distinctSourceCount;
+	}
+
+	private static boolean validateDisjointDeadzoneGroups(Collection<DeadzoneGroup> groups) {
+		long axisCount = groups.stream()
+				.mapToLong(group -> group.axes().size())
+				.sum();
+		long distinctAxisCount = groups.stream()
+				.flatMap(group -> group.axes().stream())
+				.distinct()
+				.count();
+		return axisCount == distinctAxisCount;
 	}
 
 	public static class Builder {

@@ -68,16 +68,12 @@ public final class GamepadInputs {
 
 	public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
 			new DeadzoneGroup(CUtil.rl("left_stick"), List.of(
-					LEFT_STICK_AXIS_UP,
-					LEFT_STICK_AXIS_DOWN,
-					LEFT_STICK_AXIS_LEFT,
-					LEFT_STICK_AXIS_RIGHT
+					new DeadzoneGroup.Dimension(LEFT_STICK_AXIS_UP, LEFT_STICK_AXIS_DOWN),
+					new DeadzoneGroup.Dimension(LEFT_STICK_AXIS_LEFT, LEFT_STICK_AXIS_RIGHT)
 			)),
 			new DeadzoneGroup(CUtil.rl("right_stick"), List.of(
-					RIGHT_STICK_AXIS_UP,
-					RIGHT_STICK_AXIS_DOWN,
-					RIGHT_STICK_AXIS_LEFT,
-					RIGHT_STICK_AXIS_RIGHT
+					new DeadzoneGroup.Dimension(RIGHT_STICK_AXIS_UP, RIGHT_STICK_AXIS_DOWN),
+					new DeadzoneGroup.Dimension(RIGHT_STICK_AXIS_LEFT, RIGHT_STICK_AXIS_RIGHT)
 			))
 	));
 

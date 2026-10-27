@@ -169,10 +169,10 @@ manifests {
             "controlify:default_config",
             "controlify:controller_type",
             "controlify:default_binds",
-            "controlify:reload/in_game",
-            "controlify:reload/container",
-            "controlify:reload/controller/contextual/guide",
-            "controlify:reload/controller/contextual/trigger_effect",
+            "controlify:contextual/domain/in_game",
+            "controlify:contextual/domain/container",
+            "controlify:contextual/ruleset/guide",
+            "controlify:contextual/ruleset/trigger_effect",
             "controlify:activators",
             "controlify:controller_mapping",
             "controlify:rumble_sources",
@@ -183,7 +183,7 @@ manifests {
     fabricModJson(sourceSets.fabric.get()) {
         from(commonManifest)
 
-        entrypoint("modmenu", "dev.isxander.controlify.fabric.impl.compatibility.ModMenuIntegration")
+        entrypoint("modmenu", "dev.isxander.controlify.fabric.compat.ModMenuIntegration")
         entrypoint("main", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
         entrypoint("client", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
         entrypoint("server", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")

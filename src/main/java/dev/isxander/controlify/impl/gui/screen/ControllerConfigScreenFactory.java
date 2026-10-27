@@ -12,7 +12,7 @@ import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.action.ActionGraph;
+import dev.isxander.controlify.impl.action.ActionDispatcher;
 import dev.isxander.controlify.impl.action.ActionImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -791,7 +791,7 @@ public class ControllerConfigScreenFactory {
 							var action = new ActionImpl(spec,
 									settings.input.bindings.resolve(spec.id(), defaultInput), defaultInput,
 									Controlify.instance().activatorConfigManager().getConfig(spec.id()),
-									new ActionGraph());
+									new ActionDispatcher());
 							action.reset();
 							return (Action) action;
 						}).toList());

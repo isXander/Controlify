@@ -75,8 +75,30 @@ class DeadzoneStageTest {
 		assertEquals(0.3f, ((PhysicalInputSignal.AxisMoved) output.get(1)).value(), 0.000001f);
 	}
 
+	@Test
+	void crossingCentreDoesNotDisturbPerpendicularAxis() {
+		var stage = stage(0.1f).andThen(new InputDomainExpansionStage(0.5f, 0.49f, 1f, 0f));
+		List<PhysicalSignal> output = new ArrayList<>();
+		stage.onEvent(new PhysicalInputSignal.AxisMoved(1, UP, 0.55f), output::add);
+		stage.onEvent(new PhysicalInputSignal.AxisMoved(2, LEFT, 0.05f), output::add);
+		output.clear();
+
+		// SDL emits the new half-axis before zeroing the old one when the sign flips.
+		stage.onEvent(new PhysicalInputSignal.AxisMoved(3, RIGHT, 0.05f), output::add);
+		stage.onEvent(new PhysicalInputSignal.AxisMoved(3, LEFT, 0f), output::add);
+
+		assertTrue(output.stream().noneMatch(signal -> signal instanceof PhysicalInputSignal.AxisMoved moved
+						&& moved.input().equals(UP)),
+				() -> "Perpendicular axis changed while crossing centre: " + output);
+		assertTrue(output.stream().noneMatch(signal -> signal instanceof PhysicalInputSignal.ButtonChanged),
+				() -> "Unexpected button edge while crossing centre: " + output);
+	}
+
 	private static DeadzoneStage stage(float threshold) {
-		var stage = new DeadzoneStage(Set.of(new DeadzoneGroup(id("right_stick"), List.of(UP, DOWN, LEFT, RIGHT))));
+		var stage = new DeadzoneStage(Set.of(new DeadzoneGroup(id("right_stick"), List.of(
+				new DeadzoneGroup.Dimension(UP, DOWN),
+				new DeadzoneGroup.Dimension(LEFT, RIGHT)
+		))));
 		stage.setDeadzoneSupplier(_ -> threshold);
 		return stage;
 	}

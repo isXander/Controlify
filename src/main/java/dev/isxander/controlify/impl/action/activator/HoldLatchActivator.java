@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.action.activator;
 
 import dev.isxander.controlify.impl.action.Accumulator;
-import dev.isxander.controlify.impl.action.Activator;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 
@@ -22,6 +21,11 @@ public record HoldLatchActivator(LogicalInput boundInput) implements Activator {
 				}
 			}
 			case LogicalSignal.ButtonRelease(_, LogicalInput input) -> {
+				if (this.boundInput.equals(input)) {
+					acc.setLatch(false);
+				}
+			}
+			case LogicalSignal.Cancelled(_, LogicalInput input) -> {
 				if (this.boundInput.equals(input)) {
 					acc.setLatch(false);
 				}

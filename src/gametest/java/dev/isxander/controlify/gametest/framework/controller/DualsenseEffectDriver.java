@@ -33,7 +33,7 @@ public final class DualsenseEffectDriver implements GamepadEffectDriver<Dualsens
 		if (isEnabled(command.ucEnableBits1, DualsenseEffectsState.EnableBitFlags1.ALLOW_RIGHT_TRIGGER_FFB)) {
 			this.firmwareState.rgucRightTriggerEffect = command.rgucRightTriggerEffect;
 		}
-		if (isEnabled(command.ucEnableBits2, DualsenseEffectsState.EnableBitFlags2.ALLOW_MUTE_LIGHT)) {
+		if (isEnabled(command.ucEnableBits2, DualsenseEffectsState.EnableBitFlags2.ALLOW_MIC_LIGHT_MODE)) {
 			this.firmwareState.ucMicLightMode = command.ucMicLightMode;
 		}
 

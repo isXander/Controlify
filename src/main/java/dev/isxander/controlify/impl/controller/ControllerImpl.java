@@ -9,7 +9,7 @@ package dev.isxander.controlify.impl.controller;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
-import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponent;
+import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponentImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
@@ -150,8 +150,9 @@ public final class ControllerImpl implements Controller {
 		return this.getComponent(BatteryLevelComponent.ID);
 	}
 
-	public @NonNull Optional<DualsenseComponent> dualsense() {
-		return this.getComponent(DualsenseComponent.ID);
+	@Override
+	public @NonNull Optional<DualsenseComponentImpl> dualsense() {
+		return this.getComponent(DualsenseComponentImpl.ID);
 	}
 
 	public @NonNull Optional<HDHapticComponent> hdHaptics() {

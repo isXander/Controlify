@@ -11,7 +11,8 @@ import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.api.controllermanager.ControllerEvents;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.action.ActionContextRegistryImpl;
+import dev.isxander.controlify.impl.action.ActionLayer;
+import dev.isxander.controlify.impl.action.ActionLayerRegistryImpl;
 import dev.isxander.controlify.impl.config.ConfigManager;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
@@ -33,6 +34,7 @@ import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerE
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -126,9 +128,11 @@ public class ControllerCoordinator implements AutoCloseable {
 			return false;
 		}
 
-		var contexts = ActionContextRegistryImpl.INSTANCE.getApplicableContexts(Minecraft.getInstance());
+		var contexts = outOfFocus
+				? List.<ActionLayer>of()
+				: ActionLayerRegistryImpl.INSTANCE.getActiveContexts(Minecraft.getInstance());
 		for (var controller : this.controllerManager.getAllControllers()) {
-			controller.input().actionGraph().setCurrentContexts(outOfFocus ? Set.of() : contexts);
+			controller.input().actionDispatcher().setCurrentContexts(contexts);
 		}
 
 		this.backend.pollEvents();
