@@ -6,17 +6,19 @@
  */
 package dev.isxander.controlify.impl.action.defaults;
 
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public interface DefaultBindProvider {
-	@Nullable LogicalInput getDefaultInput(Identifier actionId);
+	/// The default bindings for an action; empty when it is unbound by default.
+	List<ActionBinding> getDefaultBindings(Identifier actionId);
 
-	/// Whether this provider defines an input, including an explicit unbinding.
-	default boolean hasDefaultInput(Identifier actionId) {
-		return this.getDefaultInput(actionId) != null;
+	/// Whether this provider defines bindings, including an explicit unbinding.
+	default boolean hasDefaultBindings(Identifier actionId) {
+		return !this.getDefaultBindings(actionId).isEmpty();
 	}
 
-	DefaultBindProvider EMPTY = bind -> null;
+	DefaultBindProvider EMPTY = _ -> List.of();
 }

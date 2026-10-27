@@ -14,6 +14,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.action.ActionBinding;
+import dev.isxander.controlify.api.action.Gesture;
+import dev.isxander.controlify.impl.action.ActionImpl;
+import dev.isxander.controlify.impl.action.activator.LeafConfig;
+import net.minecraft.ChatFormatting;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
@@ -29,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -98,13 +104,43 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		return mappings.getOrDefault(namespace, defaultFontMap);
 	}
 
+	/// The action's primary binding, as shown in prompts. Its gesture is only spelled out when the action
+	/// lets bindings choose one and another currently active action shares the input, since the glyph
+	/// alone would not say which of them a press triggers.
 	public Component getComponentFromAction(Identifier namespace, @Nullable Action action) {
-		if (action == null || action.boundInput() == null) {
+		if (action == null || action.bindings().isEmpty()) {
 			// TODO: implement some sort of "unbound" character
 			return Component.literal("?");
 		}
 
-		return getComponentFromInput(namespace, action.boundInput());
+		ActionBinding primary = action.bindings().getFirst();
+		Optional<LeafConfig> shownGesture = editableLeaf(action)
+				.filter(_ -> action instanceof ActionImpl impl && impl.isInputShared(primary.input()));
+		return getComponentFromBinding(namespace, primary, shownGesture);
+	}
+
+	/// The binding's input glyph followed by its gesture, such as "A (Hold)".
+	/// The gesture is only shown when {@code editableLeaf} is present, since it is otherwise fixed by the action.
+	public Component getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<LeafConfig> editableLeaf) {
+		if (binding == null) {
+			return getComponentFromInput(namespace, null);
+		}
+		Component input = getComponentFromInput(namespace, binding.input());
+		return editableLeaf.flatMap(leaf -> leaf.gestureFor(binding))
+				.<Component>map(gesture -> Component.empty()
+						.append(input)
+						.append(Component.literal(" ").withStyle(style -> style.withFont(FontDescription.DEFAULT)))
+						.append(gestureLabel(gesture)))
+				.orElse(input);
+	}
+
+	public static Optional<LeafConfig> editableLeaf(Action action) {
+		return action instanceof ActionImpl impl ? impl.activatorConfig().editableLeaf() : Optional.empty();
+	}
+
+	public static Component gestureLabel(Gesture gesture) {
+		return Component.translatable("controlify.gesture." + gesture.getSerializedName())
+				.withStyle(style -> style.withFont(FontDescription.DEFAULT).withColor(ChatFormatting.GRAY));
 	}
 
 	public Component getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {

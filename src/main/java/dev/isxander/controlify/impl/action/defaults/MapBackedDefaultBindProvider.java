@@ -9,27 +9,26 @@ package dev.isxander.controlify.impl.action.defaults;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Keyable;
 import com.mojang.serialization.MapCodec;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
-public record MapBackedDefaultBindProvider(Map<Identifier, Optional<LogicalInput>> map) implements DefaultBindProvider {
+public record MapBackedDefaultBindProvider(Map<Identifier, List<ActionBinding>> map) implements DefaultBindProvider {
 	public static final MapCodec<MapBackedDefaultBindProvider> MAP_CODEC = Codec.simpleMap(
-			Identifier.CODEC, LogicalInput.OPTIONAL_CODEC,
+			Identifier.CODEC, ActionBinding.CODEC.listOf(),
 			Keyable.forStrings(() -> ActionSpecRegistryImpl.INSTANCE.getActionSpecs().stream().map(spec -> spec.id().toString()))
 	).xmap(MapBackedDefaultBindProvider::new, MapBackedDefaultBindProvider::map);
 
 	@Override
-	public @Nullable LogicalInput getDefaultInput(Identifier actionId) {
-		return this.map.getOrDefault(actionId, Optional.empty()).orElse(null);
+	public List<ActionBinding> getDefaultBindings(Identifier actionId) {
+		return this.map.getOrDefault(actionId, List.of());
 	}
 
 	@Override
-	public boolean hasDefaultInput(Identifier actionId) {
+	public boolean hasDefaultBindings(Identifier actionId) {
 		return this.map.containsKey(actionId);
 	}
 }

@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.action;
 import dev.isxander.controlify.api.action.ActionSpec;
 import dev.isxander.controlify.api.action.ActionSpecBuilder;
 import dev.isxander.controlify.api.controller.Controller;
+import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.Validate;
@@ -27,43 +28,43 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 	private Predicate<Controller> shouldExpose = _ -> true;
 
 	@Override
-	public ActionSpecBuilder id(@NonNull Identifier id) {
+	public @NonNull ActionSpecBuilder id(@NonNull Identifier id) {
 		this.id = id;
 		return this;
 	}
 
 	@Override
-	public ActionSpecBuilder name(@NonNull Component name) {
+	public @NonNull ActionSpecBuilder name(@NonNull Component name) {
 		this.name = name;
 		return this;
 	}
 
 	@Override
-	public ActionSpecBuilder description(@NonNull Component description) {
+	public @NonNull ActionSpecBuilder description(@NonNull Component description) {
 		this.description = description;
 		return this;
 	}
 
 	@Override
-	public ActionSpecBuilder category(@NonNull Component category) {
+	public @NonNull ActionSpecBuilder category(@NonNull Component category) {
 		this.category = category;
 		return this;
 	}
 
 	@Override
-	public ActionSpecBuilder layer(Identifier @NonNull ... contexts) {
+	public @NonNull ActionSpecBuilder layer(Identifier @NonNull ... contexts) {
 		this.contexts.addAll(List.of(contexts));
 		return this;
 	}
 
 	@Override
-	public ActionSpecBuilder shouldExpose(@NonNull Predicate<Controller> predicate) {
+	public @NonNull ActionSpecBuilder shouldExpose(@NonNull Predicate<Controller> predicate) {
 		this.shouldExpose = predicate;
 		return this;
 	}
 
 	@Override
-	public ActionSpec build() {
+	public @NonNull ActionSpec build() {
 		Validate.notNull(this.id, "An action spec needs an id");
 		Validate.notNull(this.category, "An action spec needs a category");
 		Validate.isTrue(!this.contexts.isEmpty(), "An action spec needs at least one context");
@@ -71,7 +72,15 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 		Component name = Optional.ofNullable(this.name)
 				.orElseGet(() -> Component.translatable(this.id.toLanguageKey("controlify.action")));
 		Component description = Optional.ofNullable(this.description)
-				.orElseGet(() -> Component.translatable(this.id.toLanguageKey("controlify.action", "desc")));
+				.or(() -> {
+					String key = this.id.toLanguageKey("controlify.action", "desc");
+					if (Language.getInstance().has(key)) {
+						return Optional.of(Component.translatable(key));
+					} else {
+						return Optional.empty();
+					}
+				})
+				.orElse(Component.empty());
 
 		return new ActionSpec(
 				this.id,

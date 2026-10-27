@@ -7,6 +7,7 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.utils.event.EventSource;
@@ -15,16 +16,18 @@ import dev.isxander.controlify.impl.gui.controllers.BindController;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.impl.screenop.ScreenRuntime;
-import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.utils.Dimension;
+import net.minecraft.client.gui.ComponentPath;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,8 +36,12 @@ public class BindConsumerScreen extends Screen {
 	private EventSource.Subscription inputSubscription;
 	private LogicalInput capturedInput;
 	private final Set<LogicalInput> eligibleInputs = new HashSet<>();
-	private final Option<Optional<LogicalInput>> option;
+	/// The binding currently in the slot being rebound.
+	private final Optional<ActionBinding> current;
+	private final Consumer<Optional<ActionBinding>> onResult;
 	private final Screen backgroundScreen;
+	/// Focus is lost while this screen covers the background, so it is put back on return.
+	private final @Nullable ComponentPath backgroundFocus;
 	private final BindController.BindControllerElement widgetToFocus;
 
 	private int ticksTillClose;
@@ -42,15 +49,18 @@ public class BindConsumerScreen extends Screen {
 
 	public BindConsumerScreen(
 			ControllerImpl controller,
-			Option<Optional<LogicalInput>> option,
+			Optional<ActionBinding> current,
+			Consumer<Optional<ActionBinding>> onResult,
 			BindController.BindControllerElement widgetToFocus,
 			Screen backgroundScreen
 	) {
 		super(Component.empty());
 		this.controller = controller;
-		this.option = option;
+		this.current = current;
+		this.onResult = onResult;
 		this.widgetToFocus = widgetToFocus;
 		this.backgroundScreen = backgroundScreen;
+		this.backgroundFocus = backgroundScreen.getCurrentFocusPath();
 		this.ticksTillInput = 5;
 	}
 
@@ -84,7 +94,7 @@ public class BindConsumerScreen extends Screen {
 
 	@Override
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		Dimension<Integer> dim = widgetToFocus.getDimension();
+		Dimension<Integer> dim = widgetToFocus.awaitingSlotDimension();
 
 		backgroundScreen.extractRenderStateWithTooltipAndSubtitles(graphics, dim.centerX(), dim.centerY(), a);
 
@@ -112,6 +122,10 @@ public class BindConsumerScreen extends Screen {
 				widgetToFocus.awaitingControllerInput = false;
 				// don't call setScreen because will cause background to re-init
 				MinecraftUtil.forceSetScreen(backgroundScreen);
+				// Restore before the screen context reactivates, which would otherwise focus the first element.
+				if (backgroundFocus != null && backgroundScreen.getFocused() == null) {
+					backgroundFocus.applyFocus(true);
+				}
 				ScreenRuntime.onScreenChanged();
 			}
 		}
@@ -125,9 +139,12 @@ public class BindConsumerScreen extends Screen {
 
 		// tick runs after all controller input ticks
 
-		Optional<LogicalInput> pressedBind = Optional.ofNullable(capturedInput);
-		if (pressedBind.isPresent()) {
-			option.requestSet(pressedBind);
+		if (capturedInput != null) {
+			// Rebinding keeps the slot's gesture override.
+			LogicalInput input = capturedInput;
+			onResult.accept(Optional.of(current
+					.map(binding -> new ActionBinding(input, binding.gesture()))
+					.orElseGet(() -> ActionBinding.of(input))));
 			capturedInput = null;
 			returnToBackground();
 		}
@@ -137,7 +154,7 @@ public class BindConsumerScreen extends Screen {
 	public boolean keyPressed(@NonNull KeyEvent keyEvent) {
 		if (ticksTillInput == 0 && ticksTillClose == 0
 				&& (keyEvent.key() == InputConstants.KEY_BACKSPACE || keyEvent.key() == InputConstants.KEY_DELETE)) {
-			option.requestSet(Optional.empty());
+			onResult.accept(Optional.empty());
 			returnToBackground();
 			return true;
 		}

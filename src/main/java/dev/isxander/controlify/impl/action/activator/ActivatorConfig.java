@@ -8,16 +8,28 @@ package dev.isxander.controlify.impl.action.activator;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import net.minecraft.util.StringRepresentable;
 
-/// An immutable structure typically containing the configuration
-/// for an {@link Activator} type, allowing you to create instances
-/// of the activator using the configuration and a given bound logical input.
+import java.util.List;
+import java.util.Optional;
+
+/// An immutable structure containing the configuration for an {@link Activator} tree,
+/// allowing you to create instances of it for an action's bindings.
 public interface ActivatorConfig<T extends Activator> {
-	T create(LogicalInput boundInput);
+	/// Creates the activator tree. Each leaf gets one instance per binding; everything above the
+	/// leaves exists once and sees the bindings merged, as if there were a single binding.
+	T create(List<ActionBinding> bindings);
 
 	ActivatorConfigType<T, ?> type();
+
+	/// Every leaf in this tree, depth first.
+	List<LeafConfig> leaves();
+
+	/// The single leaf whose gesture a binding may override, if any.
+	default Optional<LeafConfig> editableLeaf() {
+		return this.leaves().stream().filter(LeafConfig::editable).findFirst();
+	}
 
 	Codec<ActivatorConfig<?>> CODEC = Codec.recursive("ActivatorConfig", self -> {
 		Codec<ActivatorConfigType<?, ?>> typeCodec = StringRepresentable.fromValues(() -> ActivatorConfigType.TYPES);
@@ -31,6 +43,9 @@ public interface ActivatorConfig<T extends Activator> {
 
 		// Alternatives are accepted when decoding; encoding always uses the full object form.
 		return fullCodec.withAlternative(shorthandCodec)
-				.withAlternative(self.listOf(), CompoundActivator.Config::new);
+				.withAlternative(self.listOf(), CompoundActivator.Config::new)
+				.validate(config -> config.leaves().stream().filter(LeafConfig::editable).count() > 1
+						? DataResult.error(() -> "An activator may have at most one editable leaf")
+						: DataResult.success(config));
 	});
 }

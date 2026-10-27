@@ -34,7 +34,7 @@ public class ActivatorConfigManager implements SimpleControlifyReloadListener<Ma
 	private static final ActivatorConfig<?> FALLBACK =
 			new CompoundActivator.Config(List.of());
 	private static final ActivatorConfig<?> PROXY_ACTIVATOR =
-			new CompoundActivator.Config(List.of(HoldLatchActivator.Config.INSTANCE, PressPulseActivator.Config.INSTANCE));
+			SpanLeafConfig.DEFAULT;
 
 	private volatile Map<Identifier, ActivatorConfig<?>> configsByAction = Map.of();
 

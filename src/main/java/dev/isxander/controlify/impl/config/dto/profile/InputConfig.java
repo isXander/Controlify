@@ -9,12 +9,11 @@ package dev.isxander.controlify.impl.config.dto.profile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.ingame.InputCurves;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import net.minecraft.resources.Identifier;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public record InputConfig(
 		BindingsConfig bindings,
@@ -33,12 +32,13 @@ public record InputConfig(
 			Codec.BOOL.fieldOf("keep_default_bindings").forGetter(InputConfig::keepDefaultBindings)
 	).apply(instance, InputConfig::new));
 
+	/// Action -> its bindings, overriding the controller defaults. An empty list unbinds the action.
 	public record BindingsConfig(
-			Map<Identifier, Optional<LogicalInput>> bindings
+			Map<Identifier, List<ActionBinding>> bindings
 	) {
 		public static final BindingsConfig EMPTY = new BindingsConfig(Map.of());
 
-		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, LogicalInput.OPTIONAL_CODEC)
+		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, ActionBinding.CODEC.listOf())
 				.xmap(BindingsConfig::new, BindingsConfig::bindings);
 
 		public BindingsConfig {

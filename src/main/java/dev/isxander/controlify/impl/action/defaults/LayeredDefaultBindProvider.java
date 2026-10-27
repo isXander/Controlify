@@ -8,9 +8,8 @@ package dev.isxander.controlify.impl.action.defaults;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,17 +23,17 @@ public record LayeredDefaultBindProvider(List<Layer> layers) implements DefaultB
 	}
 
 	@Override
-	@Nullable public LogicalInput getDefaultInput(Identifier actionId) {
+	public List<ActionBinding> getDefaultBindings(Identifier actionId) {
 		for (var layer : layers()) {
-			if (layer.provider().hasDefaultInput(actionId)) return layer.provider().getDefaultInput(actionId);
-			if (layer.clearBelow()) return null;
+			if (layer.provider().hasDefaultBindings(actionId)) return layer.provider().getDefaultBindings(actionId);
+			if (layer.clearBelow()) return List.of();
 		}
-		return null;
+		return List.of();
 	}
 
 	@Override
-	public boolean hasDefaultInput(Identifier actionId) {
-		return this.layers.stream().anyMatch(layer -> layer.provider().hasDefaultInput(actionId) || layer.clearBelow());
+	public boolean hasDefaultBindings(Identifier actionId) {
+		return this.layers.stream().anyMatch(layer -> layer.provider().hasDefaultBindings(actionId) || layer.clearBelow());
 	}
 
 	public record Layer(DefaultBindProvider provider, boolean clearBelow) {

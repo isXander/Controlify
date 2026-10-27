@@ -58,7 +58,7 @@ public class GuideInstanceImpl<C extends Context> implements GuideInstance<C> {
 
 		for (GuideRule guide : guides) {
 			Action action = guide.action().onOrNull(controller);
-			if (action == null || action.boundInput() == null) {
+			if (action == null || action.primaryInput() == null) {
 				// skip this rule if the action is not bound
 				continue;
 			}

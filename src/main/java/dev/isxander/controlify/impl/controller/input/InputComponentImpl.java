@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.controller.input;
 
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.ActionSpec;
 import dev.isxander.controlify.api.controller.input.InputComponent;
 import dev.isxander.controlify.api.input.LogicalInput;
@@ -144,9 +145,9 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		DefaultBindProvider provider = Controlify.instance().defaultBindManager()
 				.getDefaultBindProvider(this.controllerType);
 		for (ActionImpl action : this.actions.values()) {
-			action.setDefaultInput(provider.getDefaultInput(action.spec().id()));
+			action.setDefaultBindings(provider.getDefaultBindings(action.spec().id()));
 			if (!settings().bindings.bindings.containsKey(action.spec().id())) {
-				action.setBoundInput(action.defaultInput());
+				action.setBindings(action.defaultBindings());
 			}
 		}
 	}
@@ -200,17 +201,16 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 	private ActionImpl createAction(ActionSpec spec) {
 		DefaultBindProvider bindProvider = Controlify.instance().defaultBindManager()
 				.getDefaultBindProvider(this.controllerType);
-		LogicalInput defaultBoundInput = bindProvider.getDefaultInput(spec.id());
-
-		LogicalInput currentBoundInput = settings().bindings.resolve(spec.id(), defaultBoundInput);
+		List<ActionBinding> defaultBindings = bindProvider.getDefaultBindings(spec.id());
+		List<ActionBinding> currentBindings = settings().bindings.resolve(spec.id(), defaultBindings);
 
 		ActivatorConfig<?> activatorConfig = Controlify.instance().activatorConfigManager()
 				.getConfig(spec.id());
 
 		ActionImpl action = new ActionImpl(
 				spec,
-				currentBoundInput,
-				defaultBoundInput,
+				currentBindings,
+				defaultBindings,
 				activatorConfig,
 				this.actionDispatcher
 		);

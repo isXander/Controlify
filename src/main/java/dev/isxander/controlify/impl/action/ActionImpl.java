@@ -7,20 +7,25 @@
 package dev.isxander.controlify.impl.action;
 
 import dev.isxander.controlify.api.action.Action;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.ActionSpec;
 import dev.isxander.controlify.api.action.Channel;
+import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.action.activator.Activator;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
 import dev.isxander.controlify.impl.action.activator.NoopActivator;
-import dev.isxander.controlify.api.input.LogicalInput;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ActionImpl implements Action, Comparable<ActionImpl> {
 	private final ActionSpec spec;
 	private final ActionState state;
-	private @Nullable LogicalInput boundInput;
-	private @Nullable LogicalInput defaultInput;
+	private List<ActionBinding> bindings;
+	private List<ActionBinding> defaultBindings;
+	private Set<LogicalInput> boundInputs;
 	private Activator activator;
 	private final ActivatorConfig<?> activatorConfig;
 
@@ -28,17 +33,17 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 
 	public ActionImpl(
 			ActionSpec spec,
-			@Nullable LogicalInput boundInput,
-			@Nullable LogicalInput defaultInput,
+			List<ActionBinding> bindings,
+			List<ActionBinding> defaultBindings,
 			ActivatorConfig<?> activator,
 			ActionDispatcher actionDispatcher
 	) {
 		this.spec = spec;
-		this.defaultInput = defaultInput;
+		this.defaultBindings = List.copyOf(defaultBindings);
 		this.activatorConfig = activator;
 		this.state = new ActionState();
 		this.actionDispatcher = actionDispatcher;
-		this.boundInput = boundInput;
+		this.setBindingsSilently(bindings);
 	}
 
 	@Override
@@ -47,25 +52,46 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	}
 
 	@Override
-	public @Nullable LogicalInput boundInput() {
-		return this.boundInput;
+	public @NonNull List<ActionBinding> bindings() {
+		return this.bindings;
+	}
+
+	/// The distinct inputs across every binding.
+	public Set<LogicalInput> boundInputs() {
+		return this.boundInputs;
 	}
 
 	@Override
-	public void setBoundInput(@Nullable LogicalInput boundInput) {
-		this.boundInput = boundInput;
+	public void setBindings(List<ActionBinding> bindings) {
+		this.setBindingsSilently(bindings);
 		this.reset();
 		this.actionDispatcher.onActionBindingChange(this);
 	}
 
-	@Override
-	public @Nullable LogicalInput defaultInput() {
-		return this.defaultInput;
+	private void setBindingsSilently(List<ActionBinding> bindings) {
+		this.bindings = List.copyOf(bindings);
+		this.boundInputs = this.bindings.stream()
+				.map(ActionBinding::input)
+				.collect(Collectors.toUnmodifiableSet());
 	}
 
-	/// Refreshes resource-defined defaults without changing the current binding or activator state.
-	public void setDefaultInput(@Nullable LogicalInput defaultInput) {
-		this.defaultInput = defaultInput;
+	@Override
+	public List<ActionBinding> defaultBindings() {
+		return this.defaultBindings;
+	}
+
+	/// Refreshes resource-defined defaults without changing the current bindings or activator state.
+	public void setDefaultBindings(List<ActionBinding> defaultBindings) {
+		this.defaultBindings = List.copyOf(defaultBindings);
+	}
+
+	/// Whether another action currently receives this input too, given the active layers.
+	public boolean isInputShared(LogicalInput input) {
+		return this.actionDispatcher.isSharedWithOtherActions(this, input);
+	}
+
+	public ActivatorConfig<?> activatorConfig() {
+		return this.activatorConfig;
 	}
 
 	@Override
@@ -84,9 +110,9 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	}
 
 	public void reset() {
-		this.activator = this.boundInput() != null
-				? this.activatorConfig.create(this.boundInput())
-				: new NoopActivator();
+		this.activator = this.bindings.isEmpty()
+				? new NoopActivator()
+				: this.activatorConfig.create(this.bindings);
 		this.state.reset();
 	}
 

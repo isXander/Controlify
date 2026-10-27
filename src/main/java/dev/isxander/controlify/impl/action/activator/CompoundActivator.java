@@ -9,13 +9,13 @@ package dev.isxander.controlify.impl.action.activator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.action.Accumulator;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public record CompoundActivator(LogicalInput boundInput, List<Activator> activators) implements Activator {
+public record CompoundActivator(List<Activator> activators) implements Activator {
 
 	@Override
 	public void onSignal(LogicalSignal signal, Accumulator acc) {
@@ -38,11 +38,16 @@ public record CompoundActivator(LogicalInput boundInput, List<Activator> activat
 		).apply(instance, Config::new));
 
 		@Override
-		public CompoundActivator create(LogicalInput boundInput) {
+		public CompoundActivator create(List<ActionBinding> bindings) {
 			var activators = this.activators.stream()
-					.<Activator>map(config -> config.create(boundInput))
+					.<Activator>map(config -> config.create(bindings))
 					.toList();
-			return new CompoundActivator(boundInput, activators);
+			return new CompoundActivator(activators);
+		}
+
+		@Override
+		public List<LeafConfig> leaves() {
+			return this.activators.stream().flatMap(config -> config.leaves().stream()).toList();
 		}
 
 		@Override

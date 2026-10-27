@@ -9,8 +9,10 @@ package dev.isxander.controlify.impl.action.activator;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.action.Accumulator;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
+
+import java.util.List;
 
 /// Accepts another pulse binding, and converts pulses into toggling a latch.
 public class ToggleLatchActivator implements Activator {
@@ -28,14 +30,10 @@ public class ToggleLatchActivator implements Activator {
 		this.pulseToToggleAcc.target = acc;
 		this.pulseActivator.onSignal(signal, this.pulseToToggleAcc);
 
-		if (signal instanceof LogicalSignal.Cancelled(_, LogicalInput input) && this.boundInput().equals(input)) {
+		// The dispatcher only cancels inputs bound to this action, so any cancel ends the toggle.
+		if (signal instanceof LogicalSignal.Cancelled) {
 			acc.setLatch(false);
 		}
-	}
-
-	@Override
-	public LogicalInput boundInput() {
-		return this.pulseActivator.boundInput();
 	}
 
 	@Override
@@ -61,8 +59,13 @@ public class ToggleLatchActivator implements Activator {
 		).apply(instance, Config::new));
 
 		@Override
-		public ToggleLatchActivator create(LogicalInput boundInput) {
-			return new ToggleLatchActivator(this.pulseBinding.create(boundInput));
+		public ToggleLatchActivator create(List<ActionBinding> bindings) {
+			return new ToggleLatchActivator(this.pulseBinding.create(bindings));
+		}
+
+		@Override
+		public List<LeafConfig> leaves() {
+			return this.pulseBinding.leaves();
 		}
 
 		@Override

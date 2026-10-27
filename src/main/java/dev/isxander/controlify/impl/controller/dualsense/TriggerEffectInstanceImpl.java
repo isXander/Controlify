@@ -89,7 +89,7 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 			return Trigger.NEITHER;
 		}
 
-		if (action.boundInput() instanceof LogicalInput.Single(Identifier physicalInput)) {
+		if (action.primaryInput() instanceof LogicalInput.Single(Identifier physicalInput)) {
 			if (GamepadInputs.LEFT_TRIGGER_AXIS.equals(physicalInput)) {
 				return Trigger.LEFT;
 			} else if (GamepadInputs.RIGHT_TRIGGER_AXIS.equals(physicalInput)) {

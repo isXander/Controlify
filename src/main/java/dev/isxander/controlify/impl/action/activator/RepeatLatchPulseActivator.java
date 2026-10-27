@@ -9,9 +9,11 @@ package dev.isxander.controlify.impl.action.activator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.api.input.LogicalInput;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.action.Accumulator;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
+
+import java.util.List;
 
 /// Emits a pulse immediately when the source latch becomes active, then repeats while held.
 /// initialDelayMs delays the first repeat, not the initial pulse.
@@ -52,11 +54,6 @@ public class RepeatLatchPulseActivator implements Activator {
 				nextDue = signal.timeNanos() + repeatDelayNs - (signal.timeNanos() - nextDue) % repeatDelayNs;
 			}
 		}
-	}
-
-	@Override
-	public LogicalInput boundInput() {
-		return this.latchActivator.boundInput();
 	}
 
 	@Override
@@ -101,10 +98,15 @@ public class RepeatLatchPulseActivator implements Activator {
 		).apply(instance, Config::new));
 
 		@Override
-		public RepeatLatchPulseActivator create(LogicalInput boundInput) {
+		public RepeatLatchPulseActivator create(List<ActionBinding> bindings) {
 			long initialDelayNs = this.initialDelayMs * 1_000_000L;
 			long repeatDelayNs = this.repeatDelayMs * 1_000_000L;
-			return new RepeatLatchPulseActivator(this.latchBinding.create(boundInput), initialDelayNs, repeatDelayNs);
+			return new RepeatLatchPulseActivator(this.latchBinding.create(bindings), initialDelayNs, repeatDelayNs);
+		}
+
+		@Override
+		public List<LeafConfig> leaves() {
+			return this.latchBinding.leaves();
 		}
 
 		@Override

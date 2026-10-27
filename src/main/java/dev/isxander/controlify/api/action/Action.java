@@ -9,8 +9,10 @@ package dev.isxander.controlify.api.action;
 import dev.isxander.controlify.api.input.LogicalInput;
 import org.jspecify.annotations.Nullable;
 
-/// An action is bound to a logical input and has one or more activators
-/// that determine how its output channels respond to input signals.
+import java.util.List;
+
+/// An action is bound to any number of logical inputs and has an activator tree
+/// that determines how its output channels respond to them.
 public interface Action {
 	ActionSpec spec();
 
@@ -18,12 +20,18 @@ public interface Action {
 	Channel.Latch latch();
 	Channel.Continuous continuous();
 
-	/// When set to null, it is unbound.
-	void setBoundInput(@Nullable LogicalInput input);
+	/// The current bindings, in display order. Empty when unbound.
+	List<ActionBinding> bindings();
 
-	/// When set to null, it is currently unbound.
-	@Nullable LogicalInput boundInput();
+	/// Replaces every binding. An empty list unbinds the action.
+	void setBindings(List<ActionBinding> bindings);
 
-	/// When set to null, it is by default unbound.
-	@Nullable LogicalInput defaultInput();
+	/// The bindings this action has by default for the current controller type.
+	List<ActionBinding> defaultBindings();
+
+	/// The input shown in prompts and button glyphs: the first binding's, or null when unbound.
+	default @Nullable LogicalInput primaryInput() {
+		List<ActionBinding> bindings = this.bindings();
+		return bindings.isEmpty() ? null : bindings.getFirst().input();
+	}
 }

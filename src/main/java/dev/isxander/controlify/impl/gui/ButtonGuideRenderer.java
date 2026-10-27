@@ -48,7 +48,7 @@ public interface ButtonGuideRenderer<T> {
 			return binding.isPresent()
 					&& Controlify.instance().currentInputMode().isController()
 					&& Controlify.instance().getCurrentController().map(c -> c.settings().generic.guide.showScreenGuides).orElse(false)
-					&& binding.get().boundInput() != null
+					&& binding.get().primaryInput() != null
 					&& renderPredicate().shouldDisplay(renderable);
 		}
 

@@ -13,6 +13,10 @@ import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ActionDispatcher;
+import dev.isxander.controlify.impl.action.activator.LeafConfig;
+import dev.isxander.controlify.impl.action.ActionLayerRegistryImpl;
+import dev.isxander.controlify.impl.action.BindingConflicts;
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.action.ActionImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
@@ -26,7 +30,12 @@ import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
 import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
+import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.gui.controllers.BindController;
+import java.util.Locale;
+import net.minecraft.network.chat.ComponentUtils;
+import dev.isxander.controlify.impl.gui.controllers.BindingInfoImageRenderer;
 import dev.isxander.controlify.impl.gui.controllers.Deadzone2DImageRenderer;
 import dev.isxander.controlify.impl.ingame.InputCurves;
 import dev.isxander.controlify.impl.input.mapping.DeadzoneGroup;
@@ -820,10 +829,10 @@ public class ControllerConfigScreenFactory {
 						.map(action -> (Action) action).toList())
 				.orElseGet(() -> ActionSpecRegistryImpl.INSTANCE.getActionSpecs().stream()
 						.map(spec -> {
-							LogicalInput defaultInput = Controlify.instance().defaultBindManager()
-									.getDefaultBindProvider(ControllerType.DEFAULT.id()).getDefaultInput(spec.id());
+							List<ActionBinding> defaultBindings = Controlify.instance().defaultBindManager()
+									.getDefaultBindProvider(ControllerType.DEFAULT.id()).getDefaultBindings(spec.id());
 							var action = new ActionImpl(spec,
-									settings.input.bindings.resolve(spec.id(), defaultInput), defaultInput,
+									settings.input.bindings.resolve(spec.id(), defaultBindings), defaultBindings,
 									Controlify.instance().activatorConfigManager().getConfig(spec.id()),
 									new ActionDispatcher());
 							action.reset();
@@ -834,14 +843,13 @@ public class ControllerConfigScreenFactory {
 			var controlsGroup = OptionGroup.createBuilder()
 					.name(categoryName);
 
-			controlsGroup.options(bindGroup.stream().map(binding -> {
-				Option.Builder<Optional<LogicalInput>> option = createActionOpt(binding, controller.orElse(null), settings)
-						.addListener((opt, val) -> updateConflictingActions(optionActions));
-
-				Option<Optional<LogicalInput>> built = option.build();
-				optionActions.add(new OptionActionPair(built, binding));
-				return built;
-			}).toList());
+			for (Action action : bindGroup) {
+				Option<List<ActionBinding>> built = createActionOpt(action, settings, controller.orElse(null))
+						.addListener((opt, val) -> updateConflictingActions(optionActions))
+						.build();
+				optionActions.add(new OptionActionPair(built, (ActionImpl) action));
+				controlsGroup.option(built);
+			}
 
 			category.group(controlsGroup.build());
 		});
@@ -854,7 +862,7 @@ public class ControllerConfigScreenFactory {
 						.build())
 				.action((screen, opt) -> {
 					for (OptionActionPair pair : optionActions) {
-						pair.option().requestSet(Optional.ofNullable(pair.action.defaultInput()));
+						pair.option().requestSet(pair.action().defaultBindings());
 					}
 				})
 				.build());
@@ -863,24 +871,78 @@ public class ControllerConfigScreenFactory {
 	}
 
 	private void updateConflictingActions(List<OptionActionPair> all) {
-		all.forEach(pair -> ((BindController) pair.option().controller()).setConflicting(false));
-
-		for (OptionActionPair opt : all) {
-			Set<Identifier> ctxs = opt.action().spec().contexts();
-
-			List<OptionActionPair> conflicting = all.stream()
-					.filter(pair -> pair.action() != opt.action())
-					.filter(pair -> {
-						boolean contextsMatch = pair.action().spec().contexts()
-								.stream()
-								.anyMatch(ctxs::contains);
-						boolean bindMatches = Objects.equals(pair.option().pendingValue(), opt.option().pendingValue());
-						boolean bindIsNotEmpty = pair.option().pendingValue().isPresent();
-						return contextsMatch && bindMatches && bindIsNotEmpty;
-					}).toList();
-
-			conflicting.forEach(conflict -> ((BindController) conflict.option().controller()).setConflicting(true));
+		Map<Identifier, OptionActionPair> byAction = new HashMap<>();
+		List<BindingConflicts.Entry> entries = new ArrayList<>();
+		for (OptionActionPair pair : all) {
+			byAction.put(pair.action().spec().id(), pair);
+			entries.add(new BindingConflicts.Entry(pair.action().spec().id(), pair.action().spec().contexts(),
+					pair.option().pendingValue(), pair.action().activatorConfig()));
 		}
+
+		Map<OptionActionPair, BindingConflicts.Kind[]> worst = new HashMap<>();
+		Map<OptionActionPair, List<BindingConflicts.Conflict>> byPair = new HashMap<>();
+		for (BindingConflicts.Conflict conflict : BindingConflicts.find(entries, ActionLayerRegistryImpl.INSTANCE.getOrderedContexts())) {
+			OptionActionPair pair = byAction.get(conflict.action());
+			byPair.computeIfAbsent(pair, _ -> new ArrayList<>()).add(conflict);
+			if (conflict.bindingIndex() < BindController.SLOTS) {
+				var kinds = worst.computeIfAbsent(pair, _ -> new BindingConflicts.Kind[BindController.SLOTS]);
+				BindingConflicts.Kind current = kinds[conflict.bindingIndex()];
+				// Kinds are declared most severe first.
+				if (current == null || conflict.kind().ordinal() < current.ordinal()) {
+					kinds[conflict.bindingIndex()] = conflict.kind();
+				}
+			}
+		}
+		for (OptionActionPair pair : all) {
+			((BindController) pair.option().controller()).setConflicts(
+					worst.getOrDefault(pair, new BindingConflicts.Kind[BindController.SLOTS]),
+					describeConflicts(pair, byPair.getOrDefault(pair, List.of()), byAction));
+		}
+	}
+
+	/// One heading per binding with conflicts, followed by each of its conflicts, most severe first.
+	private List<Component> describeConflicts(
+			OptionActionPair pair, List<BindingConflicts.Conflict> conflicts, Map<Identifier, OptionActionPair> byAction
+	) {
+		List<Component> lines = new ArrayList<>();
+		List<ActionBinding> bindings = pair.option().pendingValue();
+		for (int index = 0; index < bindings.size(); index++) {
+			int bindingIndex = index;
+			List<BindingConflicts.Conflict> forBinding = conflicts.stream()
+					.filter(conflict -> conflict.bindingIndex() == bindingIndex)
+					.sorted(Comparator.comparing(BindingConflicts.Conflict::kind))
+					.toList();
+			if (forBinding.isEmpty()) {
+				continue;
+			}
+			lines.add(Component.translatable("controlify.gui.bind.conflicts_for", index + 1,
+					bindingGlyph(pair, bindings.get(index))));
+			for (BindingConflicts.Conflict conflict : forBinding) {
+				lines.add(Component.literal(" • ").append(describeConflict(conflict, byAction.get(conflict.other()))));
+			}
+		}
+		return lines;
+	}
+
+	private Component bindingGlyph(OptionActionPair pair, ActionBinding binding) {
+		ControllerImpl controller = ((BindController) pair.option().controller()).controller;
+		Identifier fontNamespace = controller == null ? ControllerType.DEFAULT.id() : controller.info().type().id();
+		return Controlify.instance().inputFontMapper()
+				.getComponentFromBinding(fontNamespace, binding, pair.action().activatorConfig().editableLeaf());
+	}
+
+	private Component describeConflict(BindingConflicts.Conflict conflict, OptionActionPair other) {
+		String key = "controlify.gui.bind.conflict." + conflict.kind().name().toLowerCase(Locale.ROOT);
+		ChatFormatting colour = switch (conflict.kind()) {
+			case CONFLICT -> ChatFormatting.RED;
+			case MODIFIER_LEAK -> ChatFormatting.GOLD;
+			case REDUNDANT, SHADOWED -> ChatFormatting.GRAY;
+		};
+		if (conflict.kind() == BindingConflicts.Kind.REDUNDANT) {
+			return Component.translatable(key, conflict.otherBindingIndex() + 1).withStyle(colour);
+		}
+		Component otherBinding = bindingGlyph(other, other.option().pendingValue().get(conflict.otherBindingIndex()));
+		return Component.translatable(key, other.action().spec().name(), otherBinding).withStyle(colour);
 	}
 
 	private static Map<Component, List<Action>> groupActions(Collection<Action> bindings) {
@@ -888,30 +950,56 @@ public class ControllerConfigScreenFactory {
 				.collect(Collectors.groupingBy(a -> a.spec().category(), LinkedHashMap::new, Collectors.toList()));
 	}
 
-	private Option.Builder<Optional<LogicalInput>> createActionOpt(Action action, @Nullable ControllerImpl controller, ProfileSettings settings) {
+	private Option.Builder<List<ActionBinding>> createActionOpt(Action action, ProfileSettings settings, @Nullable ControllerImpl controller) {
 		Identifier fontNamespace = controller == null
 				? ControllerType.DEFAULT.id()
 				: controller.info().type().id();
-		return Option.<Optional<LogicalInput>>createBuilder()
+		Optional<LeafConfig> editableLeaf = ((ActionImpl) action).activatorConfig().editableLeaf();
+		var fontMapper = Controlify.instance().inputFontMapper();
+		// The description is built before the controller exists, but renders after it.
+		AtomicReference<BindController> bindController = new AtomicReference<>();
+		AtomicReference<Option<List<ActionBinding>>> optionRef = new AtomicReference<>();
+
+		var description = OptionDescription.createBuilder()
+				.text(action.spec().description());
+		if (editableLeaf.isPresent()) {
+			description.text(Component.translatable("controlify.gui.bind.gesture_hint",
+					ActionGlyphs.action(ControlifyActions.GUI_ABSTRACT_ACTION_1)).withStyle(ChatFormatting.GRAY));
+		}
+		description.customImage(new BindingInfoImageRenderer(() -> {
+			List<Component> lines = new ArrayList<>();
+			Option<List<ActionBinding>> option = optionRef.get();
+			if (option != null && !option.pendingValue().equals(action.defaultBindings())) {
+				Component defaults = action.defaultBindings().isEmpty()
+						? fontMapper.getComponentFromInput(fontNamespace, null)
+						: ComponentUtils.formatList(action.defaultBindings(), Component.literal(", "),
+								binding -> fontMapper.getComponentFromBinding(fontNamespace, binding, editableLeaf));
+				lines.add(Component.translatable("controlify.gui.bind.default_bound_to", defaults));
+			}
+			BindController controllerInstance = bindController.get();
+			if (controllerInstance != null) {
+				lines.addAll(controllerInstance.conflictLines());
+			}
+			return lines;
+		}));
+
+		return Option.<List<ActionBinding>>createBuilder()
 				.name(action.spec().name())
-				.description(value -> OptionDescription.createBuilder()
-						.text(action.spec().description())
-						.text(Component.translatable("controlify.gui.bind.currently_bound_to",
-								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, value.orElse(null))))
-						.text(Objects.equals(value.orElse(null), action.defaultInput()) ? Component.empty()
-								: Component.translatable("controlify.gui.bind.default_bound_to",
-								Controlify.instance().inputFontMapper().getComponentFromInput(fontNamespace, action.defaultInput())))
-						.build())
-				.binding(Optional.ofNullable(action.defaultInput()), () -> Optional.ofNullable(action.boundInput()), value -> {
-					LogicalInput input = value.orElse(null);
-					action.setBoundInput(input);
-					if (Objects.equals(input, action.defaultInput())) {
+				.description(description.build())
+				.binding(action.defaultBindings(), action::bindings, bindings -> {
+					action.setBindings(bindings);
+					if (bindings.equals(action.defaultBindings())) {
 						settings.input.bindings.bindings.remove(action.spec().id());
 					} else {
-						settings.input.bindings.bindings.put(action.spec().id(), value);
+						settings.input.bindings.bindings.put(action.spec().id(), bindings);
 					}
 				})
-				.customController(opt -> new BindController(opt, controller));
+				.customController(opt -> {
+					optionRef.set(opt);
+					var created = new BindController(opt, controller, editableLeaf);
+					bindController.set(created);
+					return created;
+				});
 	}
 
 	private static Identifier screenshot(String filename) {
@@ -922,6 +1010,6 @@ public class ControllerConfigScreenFactory {
 		return Component.translatable("controlify.gui.not_supported", featureName).withStyle(ChatFormatting.RED);
 	}
 
-	private record OptionActionPair(Option<Optional<LogicalInput>> option, Action action) {
+	private record OptionActionPair(Option<List<ActionBinding>> option, ActionImpl action) {
 	}
 }

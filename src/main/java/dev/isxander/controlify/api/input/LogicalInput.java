@@ -6,8 +6,6 @@
  */
 package dev.isxander.controlify.api.input;
 
-import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Unit;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -40,12 +38,6 @@ public sealed interface LogicalInput {
 				case Single _ -> Single.CODEC;
 				case ModifiedChord _ -> ModifiedChord.CODEC;
 			}
-	);
-
-	/// Codec allowing a null LogicalInput represented by an empty map `{}`
-	Codec<Optional<LogicalInput>> OPTIONAL_CODEC = Codec.either(CODEC, CExtraCodecs.EMPTY_MAP).xmap(
-			either -> either.left(),
-			optional -> optional.isPresent() ? Either.left(optional.get()) : Either.right(Unit.INSTANCE)
 	);
 
 	/// A logical input with a direct relationship with a physical input.

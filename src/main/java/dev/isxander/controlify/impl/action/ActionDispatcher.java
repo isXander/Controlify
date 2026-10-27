@@ -58,8 +58,9 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		}
 		for (var contextId : action.spec().contexts()) {
 			var byInputMap = this.bindings.computeIfAbsent(contextId, _ -> new HashMap<>());
-			byInputMap.computeIfAbsent(action.boundInput(), _ -> new TreeSet<>())
-					.add(action);
+			for (LogicalInput input : action.boundInputs()) {
+				byInputMap.computeIfAbsent(input, _ -> new TreeSet<>()).add(action);
+			}
 		}
 		this.dispatchDirty = true;
 	}
@@ -98,6 +99,14 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		this.dispatchDirty = true;
 	}
 
+	/// Whether another action currently receives this input alongside the given one,
+	/// given the active layers. Prompts use this to decide whether a gesture needs spelling out.
+	public boolean isSharedWithOtherActions(ActionImpl action, LogicalInput input) {
+		this.rebuildDispatchIfDirty();
+		Set<ActionImpl> actions = this.dispatch.getOrDefault(input, Set.of());
+		return actions.size() > (actions.contains(action) ? 1 : 0);
+	}
+
 	/// Releases state from a physical mapping that is being replaced.
 	public void resetInputState() {
 		this.continuousInputs.clear();
@@ -114,7 +123,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		this.claims.clear();
 		this.allActions.forEach(ActionImpl::reset);
 		this.rebuildDispatchIfDirty();
-		this.dispatch.values().forEach(actions -> actions.forEach(this::restoreContinuousState));
+		this.dispatch.forEach((input, actions) -> actions.forEach(action -> this.restoreContinuousState(action, input)));
 	}
 
 	@Override
@@ -252,7 +261,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 			Set<ActionImpl> wasReachable = previous.getOrDefault(input, Set.of());
 			for (ActionImpl action : actions) {
 				if (!wasReachable.contains(action)) {
-					this.restoreContinuousState(action);
+					this.restoreContinuousState(action, input);
 				}
 			}
 		});
@@ -263,13 +272,13 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		if (owners != null) {
 			owners.remove(action);
 		}
-		// The binding may have changed since the action was reachable, in which case
-		// it was already reset and the cancel is a no-op for its new input.
+		// The bindings may have changed since the action was reachable, in which case
+		// it was already reset and the cancel is a no-op for its new inputs.
 		action.activator().onSignal(new LogicalSignal.Cancelled(this.lastSignalNanos, input), action.state());
 	}
 
-	private void restoreContinuousState(ActionImpl action) {
-		var value = this.continuousInputs.get(action.boundInput());
+	private void restoreContinuousState(ActionImpl action, LogicalInput input) {
+		var value = this.continuousInputs.get(input);
 		if (value != null) {
 			// Restore values without replaying presses, pulses or held-button latches.
 			action.activator().onSignal(value, new Accumulator() {
@@ -292,7 +301,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		for (ActionLayer context : contexts) {
 			Map<LogicalInput, Set<ActionImpl>> byInput = bindings.getOrDefault(context.id(), Map.of());
 			byInput.forEach((input, actions) -> {
-				if (input != null && !actions.isEmpty() && !consumed.contains(input)) {
+				if (!actions.isEmpty() && !consumed.contains(input)) {
 					dispatch.computeIfAbsent(input, _ -> new TreeSet<>()).addAll(actions);
 				}
 			});
@@ -300,7 +309,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 			switch (context.mode()) {
 				case TRANSPARENT -> {}
 				case OVERLAY -> byInput.forEach((input, actions) -> {
-					if (input != null && !actions.isEmpty()) {
+					if (!actions.isEmpty()) {
 						consumed.add(input);
 					}
 				});

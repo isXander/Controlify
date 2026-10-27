@@ -6,15 +6,15 @@
  */
 package dev.isxander.controlify.impl.action;
 
+import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.ActionSpec;
+import dev.isxander.controlify.api.action.Gesture;
 import dev.isxander.controlify.api.action.ActionLayerMode;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
-import dev.isxander.controlify.impl.action.activator.ContinuousActivator;
-import dev.isxander.controlify.impl.action.activator.HoldLatchActivator;
-import dev.isxander.controlify.impl.action.activator.PressPulseActivator;
-import dev.isxander.controlify.impl.action.activator.ReleasePulseActivator;
-import dev.isxander.controlify.impl.action.activator.TapPulseActivator;
+import dev.isxander.controlify.impl.action.activator.ContinuousLeafConfig;
+import dev.isxander.controlify.impl.action.activator.PulseLeafConfig;
+import dev.isxander.controlify.impl.action.activator.SpanLeafConfig;
 import dev.isxander.controlify.impl.input.pipeline.PhysicalToLogicalStage;
 import dev.isxander.controlify.impl.input.pipeline.SensorAccumulatorStage;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
@@ -32,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ActionDispatcherTest {
+	private static final PulseLeafConfig RELEASE_PULSE = new PulseLeafConfig(Gesture.RELEASE, false);
+	private static final PulseLeafConfig TAP_PULSE = new PulseLeafConfig(Gesture.TAP, false);
 	private static final LogicalInput SOUTH = new LogicalInput.Single(id("button/south"));
 	private static final LogicalInput EAST = new LogicalInput.Single(id("button/east"));
 	private static final Identifier A = id("button/south");
@@ -52,9 +54,9 @@ class ActionDispatcherTest {
 
 	@Test
 	void blockingContextHidesEverythingBelow() {
-		ActionImpl screen = action("screen_press", BLOCKING, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl game = action("game_press", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl gameOther = action("game_other", BASE, EAST, PressPulseActivator.Config.INSTANCE);
+		ActionImpl screen = action("screen_press", BLOCKING, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl game = action("game_press", BASE, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl gameOther = action("game_other", BASE, EAST, PulseLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(BLOCKING, BASE));
 
 		this.press(1, SOUTH);
@@ -67,9 +69,9 @@ class ActionDispatcherTest {
 
 	@Test
 	void overlayShadowsOnlyItsOwnInputs() {
-		ActionImpl overlay = action("overlay_press", OVERLAY, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl shadowed = action("base_press", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl passing = action("base_other", BASE, EAST, PressPulseActivator.Config.INSTANCE);
+		ActionImpl overlay = action("overlay_press", OVERLAY, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl shadowed = action("base_press", BASE, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl passing = action("base_other", BASE, EAST, PulseLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(OVERLAY, BASE));
 
 		this.press(1, SOUTH);
@@ -82,8 +84,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void transparentContextSharesInputs() {
-		ActionImpl upper = action("upper", TRANSPARENT, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl lower = action("lower", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
+		ActionImpl upper = action("upper", TRANSPARENT, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl lower = action("lower", BASE, SOUTH, PulseLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(TRANSPARENT, BASE));
 
 		this.press(1, SOUTH);
@@ -94,8 +96,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void becomingUnreachableMidPressCancelsInsteadOfReleasing() {
-		ActionImpl hold = action("hold", BASE, SOUTH, HoldLatchActivator.Config.INSTANCE);
-		ActionImpl release = action("release", BASE, SOUTH, ReleasePulseActivator.Config.INSTANCE);
+		ActionImpl hold = action("hold", BASE, SOUTH, SpanLeafConfig.DEFAULT);
+		ActionImpl release = action("release", BASE, SOUTH, RELEASE_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.press(1, SOUTH);
 		assertTrue(hold.state().isLatchActive());
@@ -113,7 +115,7 @@ class ActionDispatcherTest {
 
 	@Test
 	void becomingReachableMidPressDoesNotReceiveTheRelease() {
-		ActionImpl release = action("release", BLOCKING, SOUTH, ReleasePulseActivator.Config.INSTANCE);
+		ActionImpl release = action("release", BLOCKING, SOUTH, RELEASE_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.press(1, SOUTH);
 
@@ -129,8 +131,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void heldAxisCarriesOverWhenContextChanges() {
-		ActionImpl game = action("game_look", BASE, STICK, ContinuousActivator.Config.INSTANCE);
-		ActionImpl screen = action("screen_scroll", BLOCKING, STICK, ContinuousActivator.Config.INSTANCE);
+		ActionImpl game = action("game_look", BASE, STICK, ContinuousLeafConfig.INSTANCE);
+		ActionImpl screen = action("screen_scroll", BLOCKING, STICK, ContinuousLeafConfig.INSTANCE);
 		this.dispatcher.setCurrentContexts(List.of(BLOCKING, BASE));
 		this.dispatcher.accept(new LogicalSignal.AxisMoved(1, STICK, 0.7f, 0.7f));
 		assertEquals(0.7f, screen.state().getContinuous());
@@ -145,11 +147,11 @@ class ActionDispatcherTest {
 
 	@Test
 	void rebindingCancelsTheOldInput() {
-		ActionImpl hold = action("hold", BASE, SOUTH, HoldLatchActivator.Config.INSTANCE);
+		ActionImpl hold = action("hold", BASE, SOUTH, SpanLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.press(1, SOUTH);
 
-		hold.setBoundInput(EAST);
+		hold.setBindings(List.of(ActionBinding.of(EAST)));
 		this.release(2, SOUTH);
 		this.press(3, EAST);
 
@@ -158,10 +160,10 @@ class ActionDispatcherTest {
 
 	@Test
 	void boundChordSuppressesTriggerAndCancelsModifier() {
-		ActionImpl chord = action("chord", BASE, LB_A, PressPulseActivator.Config.INSTANCE);
-		ActionImpl jump = action("jump", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl aim = action("aim", BASE, LB_SINGLE, HoldLatchActivator.Config.INSTANCE);
-		ActionImpl prevSlot = action("prev_slot", BASE, LB_SINGLE, ReleasePulseActivator.Config.INSTANCE);
+		ActionImpl chord = action("chord", BASE, LB_A, PulseLeafConfig.DEFAULT);
+		ActionImpl jump = action("jump", BASE, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl aim = action("aim", BASE, LB_SINGLE, SpanLeafConfig.DEFAULT);
+		ActionImpl prevSlot = action("prev_slot", BASE, LB_SINGLE, RELEASE_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 
 		this.physical(1, LB, true);
@@ -183,8 +185,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void unboundChordLeavesSinglesAlone() {
-		ActionImpl jump = action("jump", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
-		ActionImpl aim = action("aim", BASE, LB_SINGLE, HoldLatchActivator.Config.INSTANCE);
+		ActionImpl jump = action("jump", BASE, SOUTH, PulseLeafConfig.DEFAULT);
+		ActionImpl aim = action("aim", BASE, LB_SINGLE, SpanLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 
 		this.physical(1, LB, true);
@@ -196,8 +198,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void mostSpecificBoundChordWins() {
-		ActionImpl two = action("two", BASE, LB_RB_A, PressPulseActivator.Config.INSTANCE);
-		ActionImpl one = action("one", BASE, RB_A, PressPulseActivator.Config.INSTANCE);
+		ActionImpl two = action("two", BASE, LB_RB_A, PulseLeafConfig.DEFAULT);
+		ActionImpl one = action("one", BASE, RB_A, PulseLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 
 		this.physical(1, LB, true);
@@ -210,8 +212,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void chordOnlyClaimsWhereItIsReachable() {
-		ActionImpl chord = action("chord", BLOCKING, LB_A, PressPulseActivator.Config.INSTANCE);
-		ActionImpl jump = action("jump", BASE, SOUTH, PressPulseActivator.Config.INSTANCE);
+		ActionImpl chord = action("chord", BLOCKING, LB_A, PulseLeafConfig.DEFAULT);
+		ActionImpl jump = action("jump", BASE, SOUTH, PulseLeafConfig.DEFAULT);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 
 		this.physical(1, LB, true);
@@ -223,8 +225,8 @@ class ActionDispatcherTest {
 
 	@Test
 	void deferredTapOnlyReachesReachableOwnersOfItsActuation() {
-		ActionImpl gameTap = action("game_tap", BASE, SOUTH, TapPulseActivator.Config.INSTANCE);
-		ActionImpl screenTap = action("screen_tap", BLOCKING, SOUTH, TapPulseActivator.Config.INSTANCE);
+		ActionImpl gameTap = action("game_tap", BASE, SOUTH, TAP_PULSE);
+		ActionImpl screenTap = action("screen_tap", BLOCKING, SOUTH, TAP_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.physical(0, A, true);
 		this.physical(100_000_000L, A, false);
@@ -241,7 +243,7 @@ class ActionDispatcherTest {
 
 	@Test
 	void deferredTapFiresAfterTheWindow() {
-		ActionImpl tap = action("tap", BASE, SOUTH, TapPulseActivator.Config.INSTANCE);
+		ActionImpl tap = action("tap", BASE, SOUTH, TAP_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.physical(0, A, true);
 		this.physical(100_000_000L, A, false);
@@ -250,6 +252,38 @@ class ActionDispatcherTest {
 
 		this.stage.onEvent(new PhysicalSignal.Frame(500_000_000L, 1), this.dispatcher);
 		assertTrue(tap.state().consumeAllPulses());
+	}
+
+	@Test
+	void bindingsMergeIntoOneOutput() {
+		var spec = new ActionSpec(id("nav"), Component.empty(), Component.empty(), Component.empty(),
+				Set.of(BASE.id()), _ -> true);
+		List<ActionBinding> bindings = List.of(ActionBinding.of(SOUTH), ActionBinding.of(EAST));
+		var span = new ActionImpl(spec, bindings, bindings, SpanLeafConfig.DEFAULT, this.dispatcher);
+		span.reset();
+		this.dispatcher.addAction(span);
+		this.dispatcher.setCurrentContexts(List.of(BASE));
+
+		this.press(1, SOUTH);
+		this.press(2, EAST);
+		assertTrue(span.state().consumePulse());
+		// The second binding joined a span already in progress.
+		assertFalse(span.state().consumePulse());
+
+		this.release(3, SOUTH);
+		assertTrue(span.state().isLatchActive());
+		this.release(4, EAST);
+		assertFalse(span.state().isLatchActive());
+	}
+
+	@Test
+	void gestureOverrideOnlyAppliesToEditableLeavesOfTheSameKind() {
+		var tap = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.TAP));
+		var whileHeld = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.WHILE_HELD));
+
+		assertEquals(java.util.Optional.of(Gesture.TAP), new PulseLeafConfig(Gesture.PRESS, true).gestureFor(tap));
+		assertEquals(java.util.Optional.of(Gesture.PRESS), new PulseLeafConfig(Gesture.PRESS, false).gestureFor(tap));
+		assertEquals(java.util.Optional.of(Gesture.PRESS), new PulseLeafConfig(Gesture.PRESS, true).gestureFor(whileHeld));
 	}
 
 	private final PhysicalToLogicalStage stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
@@ -261,7 +295,7 @@ class ActionDispatcherTest {
 	private ActionImpl action(String name, ActionLayer context, LogicalInput input, ActivatorConfig<?> activator) {
 		var spec = new ActionSpec(id(name), Component.empty(), Component.empty(), Component.empty(),
 				Set.of(context.id()), _ -> true);
-		var action = new ActionImpl(spec, input, input, activator, this.dispatcher);
+		var action = new ActionImpl(spec, List.of(ActionBinding.of(input)), List.of(ActionBinding.of(input)), activator, this.dispatcher);
 		action.reset();
 		this.dispatcher.addAction(action);
 		return action;
