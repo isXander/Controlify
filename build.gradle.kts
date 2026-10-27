@@ -287,6 +287,18 @@ if (includeNatives) {
     }
 }
 
+// Run configs
+
+// Fabric
+loom.runConfigs.configureEach {
+	runDirectory = layout.projectDirectory.dir("run")
+}
+
+// NeoForge
+runs.configureEach {
+	workingDirectory = layout.projectDirectory.dir("run")
+}
+
 /// Testing
 
 fabricApi {
