@@ -17,7 +17,7 @@ import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfigManager;
 import dev.isxander.controlify.impl.action.defaults.DefaultBindManager;
 import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
-import dev.isxander.controlify.impl.action.radial.RadialIconManager;
+import dev.isxander.controlify.impl.gui.radial.RadialIconManager;
 import dev.isxander.controlify.compat.ControlifyCompat;
 import dev.isxander.controlify.impl.config.ConfigManager;
 import dev.isxander.controlify.impl.config.dto.profile.defaults.DefaultConfigManager;

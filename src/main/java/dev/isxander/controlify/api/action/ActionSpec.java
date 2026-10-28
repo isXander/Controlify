@@ -16,13 +16,24 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 /// Immutable information about an {@link Action}.
+///
+/// A lot of information about an action is data-driven and cannot be defined in code;
+/// - to define this action's activator, do so in
+///   `assets/controlify/controller/activators.json`
+/// - to allow an action to be driven by the radial menu, define its icon
+///   in `assets/controlify/controller/radial_icons.json`
+/// - to define default bindings (per controller type), use
+///   `assets/controlify/controller/default_bind/default.json`
+///
 /// @param id the unique identifier for the action
 /// @param name the display name for the action
 /// @param description the display description for the action
 /// @param category the category for the action
 /// @param contexts the set of context IDs that this action should work in
 /// @param shouldExpose predicate deciding if the action should be visible in the settings and available
-///                     to bind for the current controller
+///                     to bind for the current controller. even if this predicate resolves to false the action
+///                     will be created for the given controller, the only difference is that it is not visible
+///                     to the user
 public record ActionSpec(
 		Identifier id,
 		Component name,

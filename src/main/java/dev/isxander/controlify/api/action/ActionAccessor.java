@@ -21,22 +21,35 @@ public interface ActionAccessor {
 	Codec<ActionAccessor> CODEC = Identifier.CODEC.xmap(
 			ActionAccessorImpl::new, ActionAccessor::actionId);
 
+	/// The identifier of the action this accessor tries to retrieve
 	Identifier actionId();
 
+	/// Try and access this action on a given [InputComponent],
+	/// or null if the action is not registered on the given input component.
 	@Nullable Action onOrNull(InputComponent inputComponent);
 
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [onOrNull(InputComponent)].
+	/// Or null if the action is not registered on the given controller.
 	default @Nullable Action onOrNull(Controller controller) {
 		return this.onOrNull(controller.input());
 	}
 
+	/// Try and access this action on a given [InputComponent],
+	/// or [Optional#empty()] if the action is not registered on the given input component.
 	default Optional<Action> onOptional(InputComponent inputComponent) {
 		return Optional.ofNullable(this.onOrNull(inputComponent));
 	}
 
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [onOptional(InputComponent)].
+	/// Or [Optional#empty()] if the action is not registered on the given controller.
 	default Optional<Action> onOptional(Controller controller) {
 		return Optional.ofNullable(this.onOrNull(controller.input()));
 	}
 
+	/// Try and access this action on a given [InputComponent].
+	/// @throws NullPointerException if the action is not registered on the given controller.
 	default Action on(InputComponent inputComponent) {
 		Action action = onOrNull(inputComponent);
 		if (action == null) {
@@ -45,6 +58,9 @@ public interface ActionAccessor {
 		return action;
 	}
 
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [on(InputComponent)].
+	/// @throws NullPointerException if the action is not registered on the given controller.
 	default Action on(Controller controller) {
 		return on(controller.input());
 	}

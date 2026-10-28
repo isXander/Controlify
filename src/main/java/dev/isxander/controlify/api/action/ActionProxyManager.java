@@ -22,7 +22,11 @@ public interface ActionProxyManager {
 	void dontAutoProxyKeyMapping(KeyMapping keyMapping);
 
 	/// Proxies an already registered action to a key mapping, suppressing its automatic proxy action.
+	///
 	/// The listener consumes pulses to generate key clicks and reads the latch for held state.
+	/// **This means an action that is proxied cannot have its pulses queried normally, because
+	/// the proxy manager consumes them.**
+	///
 	/// It resolves the action again on each update so profile changes can replace action instances.
 	/// A key mapping may only be proxied by one action; an action may proxy multiple keys.
 	default void proxyKeyMapping(ActionAccessor action, KeyMapping keyMapping) {

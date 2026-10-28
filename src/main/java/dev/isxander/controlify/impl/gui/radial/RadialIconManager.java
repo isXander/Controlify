@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.impl.action.radial;
+package dev.isxander.controlify.impl.gui.radial;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;

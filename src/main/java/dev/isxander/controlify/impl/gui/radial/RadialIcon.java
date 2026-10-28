@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.impl.action.radial;
+package dev.isxander.controlify.impl.gui.radial;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;

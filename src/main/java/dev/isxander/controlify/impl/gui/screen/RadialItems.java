@@ -6,12 +6,11 @@
  */
 package dev.isxander.controlify.impl.gui.screen;
 
-import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
-import dev.isxander.controlify.impl.action.radial.RadialIcon;
-import dev.isxander.controlify.impl.action.radial.RadialIconManager;
+import dev.isxander.controlify.impl.gui.radial.RadialIcon;
+import dev.isxander.controlify.impl.gui.radial.RadialIconManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;

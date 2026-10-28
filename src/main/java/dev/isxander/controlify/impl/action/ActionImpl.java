@@ -62,7 +62,7 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	}
 
 	@Override
-	public void setBindings(List<ActionBinding> bindings) {
+	public void setBindings(@NonNull List<ActionBinding> bindings) {
 		this.setBindingsSilently(bindings);
 		this.reset();
 		this.actionDispatcher.onActionBindingChange(this);

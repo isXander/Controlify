@@ -12,6 +12,8 @@ import dev.isxander.controlify.impl.action.ControlifyActions;
 /// meaning there is a guarantee that these will not be removed or renamed.
 ///
 /// If you require accessing none-API-safe actions, you can do so via [ControlifyActions].
+/// If you believe some actions should be API-safe when they are not here, request it via
+/// a GitHub issue.
 public final class BuiltinActions {
 	public static final ActionAccessor GUI_PRESS = ControlifyActions.GUI_PRESS;
 	public static final ActionAccessor GUI_BACK = ControlifyActions.GUI_BACK;

@@ -6,14 +6,9 @@
  */
 package dev.isxander.controlify.api.input;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,18 +27,8 @@ public sealed interface LogicalInput {
 	/// Every physical input this logical input is made of.
 	Set<Identifier> physicalInputs();
 
-	Codec<LogicalInput> CODEC = CExtraCodecs.fuzzy(
-			List.of(Single.CODEC, ModifiedChord.CODEC),
-			input -> switch (input) {
-				case Single _ -> Single.CODEC;
-				case ModifiedChord _ -> ModifiedChord.CODEC;
-			}
-	);
-
 	/// A logical input with a direct relationship with a physical input.
 	record Single(Identifier physicalInput) implements LogicalInput {
-		public static final Codec<Single> CODEC =
-				Identifier.CODEC.xmap(Single::new, Single::physicalInput);
 
 		@Override
 		public Set<Identifier> physicalInputs() {
@@ -56,16 +41,6 @@ public sealed interface LogicalInput {
 	record ModifiedChord(Set<Identifier> modifiers, Identifier trigger) implements LogicalInput {
 		/// Keeps the number of chords recognised for each press small.
 		public static final int MAX_MODIFIERS = 2;
-
-		public static final Codec<ModifiedChord> CODEC = RecordCodecBuilder.<Map.Entry<Set<Identifier>, Identifier>>create(instance -> instance.group(
-				CExtraCodecs.set(Identifier.CODEC).fieldOf("modifiers").forGetter(Map.Entry::getKey),
-				Identifier.CODEC.fieldOf("trigger").forGetter(Map.Entry::getValue)
-		).apply(instance, Map::entry)).flatXmap(
-				entry -> validate(entry.getKey(), entry.getValue())
-						.<DataResult<ModifiedChord>>map(error -> DataResult.error(() -> error))
-						.orElseGet(() -> DataResult.success(new ModifiedChord(entry.getKey(), entry.getValue()))),
-				chord -> DataResult.success(Map.entry(chord.modifiers(), chord.trigger()))
-		);
 
 		public ModifiedChord {
 			modifiers = Set.copyOf(modifiers);
@@ -80,7 +55,8 @@ public sealed interface LogicalInput {
 					.collect(Collectors.toUnmodifiableSet());
 		}
 
-		private static Optional<String> validate(Set<Identifier> modifiers, Identifier trigger) {
+		@ApiStatus.Internal
+		public static Optional<String> validate(Set<Identifier> modifiers, Identifier trigger) {
 			if (modifiers.isEmpty() || modifiers.size() > MAX_MODIFIERS || modifiers.contains(trigger)) {
 				return Optional.of("A chord needs 1 to " + MAX_MODIFIERS
 						+ " modifiers, none of which is the trigger: " + modifiers + " + " + trigger);

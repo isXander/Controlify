@@ -8,6 +8,7 @@ package dev.isxander.controlify.impl.config.dto.profile;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.impl.action.ActionCodecs;
 import dev.isxander.controlify.impl.ingame.InputCurves;
 import dev.isxander.controlify.api.action.ActionBinding;
 import net.minecraft.resources.Identifier;
@@ -38,7 +39,7 @@ public record InputConfig(
 	) {
 		public static final BindingsConfig EMPTY = new BindingsConfig(Map.of());
 
-		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, ActionBinding.CODEC.listOf())
+		public static final Codec<BindingsConfig> CODEC = Codec.unboundedMap(Identifier.CODEC, ActionCodecs.BINDING.listOf())
 				.xmap(BindingsConfig::new, BindingsConfig::bindings);
 
 		public BindingsConfig {
