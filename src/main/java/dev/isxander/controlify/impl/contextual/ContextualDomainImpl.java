@@ -88,7 +88,13 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	@Override
 	public CompletableFuture<ContextualDomainImpl.Preparations> load(ResourceManager manager, Executor executor) {
 		return CompletableFuture.supplyAsync(() -> {
-			List<Resource> resources = manager.getResourceStack(converter.idToFile(this.id));
+			Identifier file = converter.idToFile(this.id);
+			List<Resource> resources = manager.getResourceStack(file);
+
+			if (resources.isEmpty()) {
+				CUtil.LOGGER.error("Found 0 entries in resource stack {} while loading contextual domain {}", file, this.id);
+			}
+
 			var lookup = new PlaceholderLookupProvider(RegistryAccess.EMPTY);
 			var ops = lookup.createSerializationContext(JsonOps.INSTANCE);
 
@@ -142,7 +148,7 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	}
 
 	private synchronized void apply(Preparations data) {
-		if (this.preparations.facts().isEmpty()) {
+		if (data.facts().isEmpty()) {
 			this.logger.warn("Contextual domain {} loaded with 0 derived facts. Issue?", this.id);
 		}
 		this.preparations = data;
