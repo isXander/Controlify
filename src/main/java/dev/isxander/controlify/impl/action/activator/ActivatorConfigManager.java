@@ -10,6 +10,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
+import dev.isxander.controlify.api.action.Gesture;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.action.proxy.ActionProxyManagerImpl;
@@ -33,8 +34,9 @@ public class ActivatorConfigManager implements SimpleControlifyReloadListener<Ma
 
 	private static final ActivatorConfig<?> FALLBACK =
 			new CompoundActivator.Config(List.of());
+	/// Mod key mappings are usually pressed, but players may move them to a hold to share a button.
 	private static final ActivatorConfig<?> PROXY_ACTIVATOR =
-			SpanLeafConfig.DEFAULT;
+			new SpanLeafConfig(Gesture.WHILE_PRESSED, true, true);
 
 	private volatile Map<Identifier, ActivatorConfig<?>> configsByAction = Map.of();
 

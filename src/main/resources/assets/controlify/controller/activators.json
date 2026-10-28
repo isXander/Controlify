@@ -26,22 +26,28 @@
   "controlify:attack": "span",
   "controlify:use": "span",
   "controlify:drop": {
-    "type": "pulse_repeat_latch",
-    "source_latch": "span",
-    "initial_delay_ms": 1000,
-    "repeat_delay_ms": 50
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
   },
   "controlify:drop_stack": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
-  "controlify:pause": "pulse",
+  "controlify:pause": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
   "controlify:change_perspective": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:swap_hands": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:next_slot": {
@@ -56,7 +62,10 @@
     "initial_delay_ms": 500,
     "repeat_delay_ms": 200
   },
-  "controlify:hotbar_item_select_radial": "span",
+  "controlify:hotbar_item_select_radial": {
+    "type": "span",
+    "editable": true
+  },
   "controlify:hotbar_slot_1": {
     "type": "pulse",
     "editable": true
@@ -93,9 +102,13 @@
     "type": "pulse",
     "editable": true
   },
-  "controlify:game_mode_switcher": "span",
+  "controlify:game_mode_switcher": {
+    "type": "span",
+    "editable": true
+  },
   "controlify:inventory": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:inv_select": "pulse",
@@ -104,70 +117,99 @@
   "controlify:drop_inventory": "pulse",
   "controlify:pick_block": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:pick_block_nbt": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
-  "controlify:hotbar_load_radial": "span",
-  "controlify:hotbar_save_radial": "span",
-  "controlify:open_chat": "span",
+  "controlify:hotbar_load_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:hotbar_save_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:open_chat": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
   "controlify:toggle_hud_visibility": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:show_player_list": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:take_screenshot": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
-  "controlify:debug_radial": "span",
+  "controlify:debug_radial": {
+    "type": "span",
+    "editable": true
+  },
   "controlify:toggle_debug_menu": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:toggle_debug_menu_fps": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:toggle_debug_menu_net": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:toggle_debug_menu_prof": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_reload_chunks": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_toggle_chunk_borders": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_toggle_advanced_tooltips": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_toggle_entity_hitboxes": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_reload_resource_packs": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_clear_chat": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:debug_start_stop_profiling": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "controlify:gui_press": [
@@ -243,7 +285,10 @@
     "initial_delay_ms": 750,
     "repeat_delay_ms": 150
   },
-  "controlify:radial_menu": "span",
+  "controlify:radial_menu": {
+    "type": "span",
+    "editable": true
+  },
   "controlify:radial_axis_up": "continuous",
   "controlify:radial_axis_down": "continuous",
   "controlify:radial_axis_left": "continuous",
@@ -286,13 +331,18 @@
   "controlify:vmouse_page_prev": "pulse",
   "controlify:vmouse_page_down": "pulse",
   "controlify:vmouse_page_up": "pulse",
-  "controlify:vmouse_toggle": "pulse",
+  "controlify:vmouse_toggle": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
   "voicechat:ptt_hold": {
     "type": "span",
     "pulse_on_start": false
   },
   "voicechat:ptt_toggle": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "voicechat:whisper_hold": {
@@ -301,10 +351,12 @@
   },
   "voicechat:whisper_toggle": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   },
   "voicechat:mute_microphone": {
     "type": "pulse",
+    "gesture": "tap",
     "editable": true
   }
 }

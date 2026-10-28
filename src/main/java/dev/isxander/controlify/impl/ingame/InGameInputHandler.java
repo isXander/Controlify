@@ -29,6 +29,7 @@ import dev.isxander.controlify.impl.utils.event.EventBus;
 import dev.isxander.controlify.mixins.feature.steamdeck.ScreenshotAccessor;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.ChatComponent;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.ClientInput;
@@ -170,6 +171,14 @@ public class InGameInputHandler {
 
 		while (ControlifyActions.SHOW_PLAYER_LIST.on(controller).pulse().consumePulse()) {
 			shouldShowPlayerList = !shouldShowPlayerList;
+		}
+
+		if (ControlifyActions.OPEN_CHAT.on(controller).pulse().consumeAllPulses()) {
+			//? if >=26.2 {
+			minecraft.gui.openChatScreen(ChatComponent.ChatMethod.MESSAGE);
+			//?} else {
+			//minecraft.openChatScreen(ChatComponent.ChatMethod.MESSAGE);
+			//?}
 		}
 
 		while (ControlifyActions.TOGGLE_DEBUG_MENU.on(controller).pulse().consumePulse()) {

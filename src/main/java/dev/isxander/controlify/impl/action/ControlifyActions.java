@@ -439,7 +439,6 @@ public final class ControlifyActions {
 				controller -> ((ControllerImpl) controller).settings().generic.toggleSprint);
 		proxies.proxyKeyMapping(ATTACK, options.keyAttack);
 		proxies.proxyKeyMapping(USE, options.keyUse);
-		proxies.proxyKeyMapping(OPEN_CHAT, options.keyChat);
 	}
 
 	public static void registerModdedActions() {
