@@ -13,6 +13,7 @@ import dev.isxander.controlify.impl.input.signal.PhysicalSensorSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import dev.isxander.controlify.api.utils.event.EventSink;
 import dev.isxander.controlify.api.utils.event.EventStage;
+import dev.isxander.sdl.*;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -23,11 +24,18 @@ import java.util.function.Function;
 import static dev.isxander.sdl.SdlJoystick.*;
 
 public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, PhysicalSignal> {
+	private final Sdl sdl;
+
 	private final float[] prevGamepadAxisValues = new float[256];
 	private final float[] prevJoystickAxisValues = new float[256];
 	private final byte[] prevHatValues = new byte[256];
 
-	public SDLToPhysicalStage() {
+	// because the pipeline is synchronous we can allocate this once and re-use it
+	// for each invocation of onEvent
+	private final SdlRefs.ShortRef initialStateRef = new SdlRefs.ShortRef();
+
+	public SDLToPhysicalStage(Sdl sdl) {
+		this.sdl = sdl;
 		Arrays.fill(this.prevGamepadAxisValues, 0f);
 		Arrays.fill(this.prevJoystickAxisValues, 0f);
 	}
@@ -38,9 +46,18 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 			case SDLControllerEvent.Frame(long timeNanos, long deltaTimeNanos) ->
 					downstream.accept(new PhysicalSignal.Frame(timeNanos, deltaTimeNanos));
 
-			case SDLControllerEvent.JoyAxis(_, long timeNanos, byte axis, short value) -> {
+			case SDLControllerEvent.JoyAxis(SdlJoystickId which, long timeNanos, byte axis, short value) -> {
 				int index = Byte.toUnsignedInt(axis);
-				emitSplitAxis(timeNanos, this.prevJoystickAxisValues, index, value,
+
+				float normalised = normaliseAxis(value);
+
+				SdlJoystickHandle joystick = this.sdl.joystick().SDL_GetJoystickFromID(which);
+				if (this.sdl.joystick().SDL_GetJoystickAxisInitialState(joystick, index, this.initialStateRef)) {
+					normalised = normaliseAxisResting(normalised, normaliseAxis(this.initialStateRef.value));
+					this.initialStateRef.value = 0;
+				}
+
+				emitSplitAxis(timeNanos, this.prevJoystickAxisValues, index, normalised,
 						positive -> JoystickInputs.axis(index, positive), downstream);
 			}
 
@@ -73,7 +90,7 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 			case SDLControllerEvent.GamepadAxis(_, long timeNanos, byte axis, short value) -> {
 				int index = Byte.toUnsignedInt(axis);
-				emitSplitAxis(timeNanos, this.prevGamepadAxisValues, index, value,
+				emitSplitAxis(timeNanos, this.prevGamepadAxisValues, index, normaliseAxis(value),
 						positive -> SDLInputConversions.getGamepadAxis(index, positive), downstream);
 			}
 
@@ -99,12 +116,10 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 	/// When the sign changes, the new half-axis is emitted before the old one is zeroed,
 	/// so downstream radial deadzones never observe a transiently collapsed magnitude.
 	private static void emitSplitAxis(
-			long timeNanos, float[] prevValues, int index, short value,
+			long timeNanos, float[] prevValues, int index, float normalisedValue,
 			Function<Boolean, @Nullable Identifier> halfAxis,
 			EventSink<? super PhysicalSignal> downstream
 	) {
-		float normalisedValue = normaliseAxis(value);
-
 		float prevNormalisedValue = prevValues[index];
 		prevValues[index] = normalisedValue;
 
@@ -126,6 +141,14 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 
 	private static float normaliseAxis(short v) {
 		return v < 0 ? (v / 32768f) : (v / 32767f);
+	}
+
+	private static float normaliseAxisResting(float value, float resting) {
+		if (value >= resting) {
+			return resting == 1f ? 0f : (value - resting) / (1f - resting);
+		}
+
+		return resting == -1f ? 0f : (value - resting) / (1f + resting);
 	}
 
 	private static int hatMask(JoystickInputs.HatDirection direction) {

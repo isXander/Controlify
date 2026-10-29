@@ -123,7 +123,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
 
 		this.inputPipeline = new InputPipeline();
-		this.sdlToPhysicalStage = new SDLToPhysicalStage();
+		this.sdlToPhysicalStage = new SDLToPhysicalStage(this.sdl);
 
 		// open audio device for dualsense hd haptics
 		this.dualsenseAudioHandles = new ArrayList<>();
