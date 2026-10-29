@@ -830,10 +830,12 @@ public class ControllerConfigScreenFactory {
 						.map(spec -> {
 							List<ActionBinding> defaultBindings = Controlify.instance().defaultBindManager()
 									.getDefaultBindProvider(ControllerType.DEFAULT.id()).getDefaultBindings(spec.id());
-							var action = new ActionImpl(spec,
+							var action = new ActionImpl(
+									spec,
 									settings.input.bindings.resolve(spec.id(), defaultBindings), defaultBindings,
 									Controlify.instance().activatorConfigManager().getConfig(spec.id()),
-									new ActionDispatcher());
+									new ActionDispatcher()
+							);
 							action.reset();
 							return (Action) action;
 						}).toList());

@@ -107,7 +107,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 	/// The action's primary binding, as shown in prompts. Its gesture is only spelled out when the action
 	/// lets bindings choose one and another currently active action shares the input, since the glyph
 	/// alone would not say which of them a press triggers.
-	public Component getComponentFromAction(Identifier namespace, @Nullable Action action) {
+	public MutableComponent getComponentFromAction(Identifier namespace, @Nullable Action action) {
 		if (action == null || action.bindings().isEmpty()) {
 			// TODO: implement some sort of "unbound" character
 			return Component.literal("?");
@@ -121,13 +121,13 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 	/// The binding's input glyph followed by its gesture, such as "A (Hold)".
 	/// The gesture is only shown when {@code editableLeaf} is present, since it is otherwise fixed by the action.
-	public Component getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<LeafConfig> editableLeaf) {
+	public MutableComponent getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<LeafConfig> editableLeaf) {
 		if (binding == null) {
 			return getComponentFromInput(namespace, null);
 		}
-		Component input = getComponentFromInput(namespace, binding.input());
+		var input = getComponentFromInput(namespace, binding.input());
 		return editableLeaf.flatMap(leaf -> leaf.gestureFor(binding))
-				.<Component>map(gesture -> Component.empty()
+				.map(gesture -> Component.empty()
 						.append(input)
 						.append(Component.literal(" ").withStyle(style -> style.withFont(FontDescription.DEFAULT)))
 						.append(gestureLabel(gesture)))
@@ -138,12 +138,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		return action instanceof ActionImpl impl ? impl.activatorConfig().editableLeaf() : Optional.empty();
 	}
 
-	public static Component gestureLabel(Gesture gesture) {
+	public static MutableComponent gestureLabel(Gesture gesture) {
 		return Component.translatable("controlify.gesture." + gesture.getSerializedName())
 				.withStyle(style -> style.withFont(FontDescription.DEFAULT).withColor(ChatFormatting.GRAY));
 	}
 
-	public Component getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {
+	public MutableComponent getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {
 		if (input == null) {
 			return Component.literal("<unbound>");
 		}

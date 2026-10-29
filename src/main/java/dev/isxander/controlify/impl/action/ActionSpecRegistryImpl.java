@@ -13,9 +13,7 @@ import dev.isxander.controlify.impl.utils.event.EventBus;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ActionSpecRegistryImpl implements ActionSpecRegistry {
 	/// Addons can subscribe without initializing the registry singleton.
@@ -32,7 +30,7 @@ public class ActionSpecRegistryImpl implements ActionSpecRegistry {
 	private boolean locked;
 
 	@Override
-	public ActionAccessor register(@NonNull ActionSpec actionSpec) {
+	public @NonNull ActionAccessor register(@NonNull ActionSpec actionSpec) {
 		this.checkLocked(false);
 		if (this.registeredSpecs.stream().anyMatch(spec -> spec.id().equals(actionSpec.id()))) {
 			throw new IllegalArgumentException("Action is already registered: " + actionSpec.id());
@@ -41,8 +39,8 @@ public class ActionSpecRegistryImpl implements ActionSpecRegistry {
 		return new ActionAccessorImpl(actionSpec.id());
 	}
 
-	public boolean isRegistered(Identifier actionId) {
-		return this.registeredSpecs.stream().anyMatch(spec -> spec.id().equals(actionId));
+	public Optional<ActionSpec> getSpec(Identifier actionId) {
+		return this.registeredSpecs.stream().filter(spec -> spec.id().equals(actionId)).findAny();
 	}
 
 	public List<ActionSpec> getActionSpecs() {

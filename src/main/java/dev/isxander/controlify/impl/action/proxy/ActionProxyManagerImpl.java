@@ -56,7 +56,7 @@ public final class ActionProxyManagerImpl implements ActionProxyManager {
 		Objects.requireNonNull(actionId);
 		Objects.requireNonNull(keyMapping);
 		Objects.requireNonNull(toggleCondition);
-		if (!ActionSpecRegistryImpl.INSTANCE.isRegistered(actionId)) {
+		if (ActionSpecRegistryImpl.INSTANCE.getSpec(actionId).isEmpty()) {
 			throw new IllegalArgumentException("Action is not registered: " + actionId);
 		}
 		Identifier previousAction = this.proxiedKeyMappings.get(keyMapping);
