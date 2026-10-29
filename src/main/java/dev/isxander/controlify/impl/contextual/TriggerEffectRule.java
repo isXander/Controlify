@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.contextual;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.impl.action.ActionCodecs;
 import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectCodecs;
 import dev.isxander.controlify.impl.driver.dualsense.DualsenseTriggerEffect;
 import net.minecraft.resources.Identifier;
@@ -21,7 +22,7 @@ public record TriggerEffectRule(
 		DualsenseTriggerEffect effect
 ) implements Rule<Identifier> {
 	public static final Codec<TriggerEffectRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			ActionAccessor.CODEC.fieldOf("for").forGetter(TriggerEffectRule::action),
+			ActionCodecs.ACCESSOR.fieldOf("for").forGetter(TriggerEffectRule::action),
 			ContextualPredicate.CODEC.fieldOf("if").forGetter(TriggerEffectRule::predicate),
 			TriggerEffectCodecs.CODEC.fieldOf("then").forGetter(TriggerEffectRule::effect)
 	).apply(instance, TriggerEffectRule::new));

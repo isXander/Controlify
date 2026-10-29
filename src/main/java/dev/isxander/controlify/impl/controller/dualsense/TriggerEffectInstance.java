@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.controller.dualsense;
 
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.contextual.Context;
-import dev.isxander.controlify.api.contextual.TriggerEffectInstance;
+import dev.isxander.controlify.api.contextual.ContextualInstance;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.contextual.ContextualDomainImpl;
 import dev.isxander.controlify.impl.contextual.ContextualState;
@@ -23,14 +23,14 @@ import org.jspecify.annotations.NonNull;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffectInstance<C> {
+public class TriggerEffectInstance<C extends Context> implements ContextualInstance<C> {
 	private final ContextualDomainImpl<C> domain;
 	private final Supplier<RuleEngine<Identifier, TriggerEffectRule>> ruleEngineSupplier;
 
 	private DualsenseTriggerEffect leftEffect = DualsenseTriggerEffect.Off.INSTANCE;
 	private DualsenseTriggerEffect rightEffect = DualsenseTriggerEffect.Off.INSTANCE;
 
-	public TriggerEffectInstanceImpl(
+	public TriggerEffectInstance(
 			ContextualDomainImpl<C> domain,
 			Supplier<RuleEngine<Identifier, TriggerEffectRule>> ruleEngineSupplier
 	) {
@@ -72,12 +72,10 @@ public class TriggerEffectInstanceImpl<C extends Context> implements TriggerEffe
 				.orElse(DualsenseTriggerEffect.Off.INSTANCE);
 	}
 
-	@Override
 	public @NonNull DualsenseTriggerEffect getLeftTriggerEffect() {
 		return this.leftEffect;
 	}
 
-	@Override
 	public @NonNull DualsenseTriggerEffect getRightTriggerEffect() {
 		return this.rightEffect;
 	}

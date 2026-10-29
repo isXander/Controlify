@@ -9,7 +9,7 @@ package dev.isxander.controlify.impl.gui.keyboard;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.controller.Controller;
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.api.gui.keyboard.InputTarget;
 import dev.isxander.controlify.api.screenop.ElementBehaviour;
 import dev.isxander.controlify.api.screenop.ScreenContext;

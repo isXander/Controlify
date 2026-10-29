@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.api.action.ActionAccessor;
 import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.Gesture;
 import dev.isxander.controlify.api.input.LogicalInput;
@@ -17,6 +18,9 @@ import java.util.Set;
 /// All action-related codecs whose classes would be in the api package are here
 /// so their CODECs do not become a part of the api.
 public final class ActionCodecs {
+
+	public static final Codec<ActionAccessor> ACCESSOR =
+			Identifier.CODEC.xmap(ActionAccessorImpl::new, ActionAccessor::actionId);
 
 	private static final Codec<LogicalInput.Single> LOGICAL_INPUT_SINGLE =
 			Identifier.CODEC.xmap(LogicalInput.Single::new, LogicalInput.Single::physicalInput);

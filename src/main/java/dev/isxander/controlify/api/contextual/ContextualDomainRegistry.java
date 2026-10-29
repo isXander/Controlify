@@ -10,14 +10,10 @@ import net.minecraft.resources.Identifier;
 
 /// Supplied during ContextualEvents.REGISTER_DOMAINS for registering custom domains
 /// and accessing built-in domains, for example to register contributors.
-public interface ContextualDomainRegistry extends BuiltinContextualDomains {
+public interface ContextualDomainRegistry {
 	/// Register during ContextualEvents.REGISTER_DOMAINS, before initial resource loading.
 	/// Throws when registration is closed or the domain identifier is already registered.
 	<C extends Context> ContextualDomain<C> register(Identifier domainId);
 
-	default <C extends Context> ContextualDomain<C> register(Identifier domainId, ContextualStateContributor<? super C> contributor) {
-		var domain = this.<C>register(domainId);
-		domain.registerContributor(contributor);
-		return domain;
-	}
+	<C extends Context> ContextualDomain<C> register(Identifier domainId, ContextualStateContributor<? super C> contributor);
 }

@@ -10,7 +10,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.isxander.controlify.impl.Controlify;
-import dev.isxander.controlify.impl.font.ActionGlyphsImpl;
+import dev.isxander.controlify.impl.gui.font.ActionGlyphsImpl;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.Style;

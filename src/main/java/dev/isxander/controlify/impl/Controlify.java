@@ -10,7 +10,6 @@ import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.ControlifyEvents;
 import dev.isxander.controlify.api.InputMode;
-import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
 import dev.isxander.controlify.impl.action.ActionLayerRegistryImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.action.ControlifyActions;
@@ -34,7 +33,7 @@ import dev.isxander.controlify.impl.controllermanager.ControllerTypeManager;
 import dev.isxander.controlify.impl.debug.DebugProperties;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckMode;
 import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
-import dev.isxander.controlify.impl.font.InputFontMapper;
+import dev.isxander.controlify.impl.gui.font.InputFontMapper;
 import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.impl.gui.screen.*;
 import dev.isxander.controlify.impl.ingame.ControllerPlayerMovement;
@@ -456,20 +455,15 @@ public class Controlify implements ControlifyApi {
 	}
 
 	@Override
-	public Collection<ControllerImpl> getConnectedControllers() {
+	public @NonNull Collection<ControllerImpl> getConnectedControllers() {
 		return this.getControllerManager()
 				.map(manager -> List.copyOf(manager.getAllControllers()))
 				.orElseGet(List::of);
 	}
 
 	@Override
-	public Optional<ControllerImpl> getControllerByUid(@NonNull String uid) {
+	public @NonNull Optional<ControllerImpl> getControllerByUid(@NonNull String uid) {
 		return this.getControllerManager().flatMap(manager -> manager.getControllerByUid(uid));
-	}
-
-	@Override
-	public BuiltinContextualDomains contextualDomains() {
-		return ContextualDomains.INSTANCE;
 	}
 
 	public void setCurrentController(@Nullable ControllerImpl controller, boolean changeInputMode) {

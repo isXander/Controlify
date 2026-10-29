@@ -9,7 +9,7 @@ package dev.isxander.controlify.mixins.feature.patches.keymessages;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.tutorial.MovementTutorialStepInstance;
 import net.minecraft.network.chat.Component;

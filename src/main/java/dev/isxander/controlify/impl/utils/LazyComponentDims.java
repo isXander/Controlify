@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.utils;
 
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
-import dev.isxander.controlify.impl.font.ComponentFontHelper;
+import dev.isxander.controlify.impl.gui.font.ComponentFontHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;

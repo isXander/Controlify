@@ -33,10 +33,6 @@ public interface ControlifyApi {
 
 	Optional<? extends Controller> getControllerByUid(String uid);
 
-	/// Access to built-in contextual domains throughout the client lifetime, without
-	/// exposing the new-domain registration operations supplied during REGISTER_DOMAINS.
-	BuiltinContextualDomains contextualDomains();
-
 	InputMode currentInputMode();
 
 	/// Returns whether the mode changed. Controller modes require a current controller.

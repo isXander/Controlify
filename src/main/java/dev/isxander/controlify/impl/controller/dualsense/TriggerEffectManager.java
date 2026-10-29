@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.controller.dualsense;
 
 import dev.isxander.controlify.api.contextual.InGameContext;
-import dev.isxander.controlify.api.contextual.TriggerEffectInstance;
 import dev.isxander.controlify.impl.contextual.ContextualDomains;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.driver.dualsense.DualsenseTriggerEffect;

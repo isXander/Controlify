@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.impl.font;
+package dev.isxander.controlify.impl.gui.font;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.FormattedText;

@@ -4,10 +4,10 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.api.font;
+package dev.isxander.controlify.api.gui.font;
 
 import dev.isxander.controlify.api.action.ActionAccessor;
-import dev.isxander.controlify.impl.font.ActionGlyphsImpl;
+import dev.isxander.controlify.impl.gui.font.ActionGlyphsImpl;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 

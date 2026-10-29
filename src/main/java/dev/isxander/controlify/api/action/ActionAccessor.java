@@ -6,10 +6,8 @@
  */
 package dev.isxander.controlify.api.action;
 
-import com.mojang.serialization.Codec;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.controller.input.InputComponent;
-import dev.isxander.controlify.impl.action.ActionAccessorImpl;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
@@ -18,9 +16,6 @@ import java.util.Optional;
 /// Resolves the current action on a controller or input component. Retain this accessor;
 /// profile changes may replace resolved action instances.
 public interface ActionAccessor {
-	Codec<ActionAccessor> CODEC = Identifier.CODEC.xmap(
-			ActionAccessorImpl::new, ActionAccessor::actionId);
-
 	/// The identifier of the action this accessor tries to retrieve
 	Identifier actionId();
 

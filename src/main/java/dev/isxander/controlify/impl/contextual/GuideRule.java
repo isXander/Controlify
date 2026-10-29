@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.contextual;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.impl.action.ActionCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.resources.Identifier;
@@ -20,7 +21,7 @@ public record GuideRule(
 		Component text
 ) implements Rule<GuideRule.Key> {
 	public static final Codec<GuideRule> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			ActionAccessor.CODEC.fieldOf("for").forGetter(GuideRule::action),
+			ActionCodecs.ACCESSOR.fieldOf("for").forGetter(GuideRule::action),
 			GuideLocation.CODEC.fieldOf("where").forGetter(GuideRule::location),
 			ContextualPredicate.CODEC.fieldOf("if").forGetter(GuideRule::predicate),
 			ComponentSerialization.CODEC.fieldOf("then").forGetter(GuideRule::text)

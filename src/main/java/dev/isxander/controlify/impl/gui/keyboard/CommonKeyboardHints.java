@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.gui.keyboard;
 
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.utils.LazyComponentDims;
 import net.minecraft.network.chat.Component;

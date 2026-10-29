@@ -7,7 +7,7 @@
 package dev.isxander.controlify.impl.gui.screen;
 
 import dev.isxander.controlify.api.action.ActionAccessor;
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.screenop.ScreenBehaviour;
 import dev.isxander.controlify.api.screenop.ScreenContext;

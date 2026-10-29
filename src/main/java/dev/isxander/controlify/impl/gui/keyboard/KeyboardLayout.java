@@ -13,6 +13,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.action.ActionAccessor;
+import dev.isxander.controlify.impl.action.ActionCodecs;
 import dev.isxander.controlify.impl.utils.codec.CExtraCodecs;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -94,7 +95,7 @@ public record KeyboardLayout(float width, List<List<Key>> keys) {
 						KeyFunction.CODEC.fieldOf("regular").forGetter(Key::regular),
 						KeyFunction.CODEC.optionalFieldOf("shifted").forGetter(k -> Optional.of(k.shifted)),
 						WIDTH_CODEC.optionalFieldOf("width", 1f).forGetter(Key::width),
-						ActionAccessor.CODEC.optionalFieldOf("shortcut").forGetter(Key::shortcutBinding),
+						ActionCodecs.ACCESSOR.optionalFieldOf("shortcut").forGetter(Key::shortcutBinding),
 						Codec.STRING.optionalFieldOf("identifier").forGetter(k -> Optional.ofNullable(k.identifier))
 				).apply(instance, Key::fromCodec)),
 				CExtraCodecs.arrayPair(KeyFunction.CODEC, Key::regular, Key::shifted, Key::new)

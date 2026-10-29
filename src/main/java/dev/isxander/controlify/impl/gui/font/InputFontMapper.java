@@ -4,7 +4,7 @@
  *
  * SPDX-License-Identifier: LGPL-3.0-or-later
  */
-package dev.isxander.controlify.impl.font;
+package dev.isxander.controlify.impl.gui.font;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;

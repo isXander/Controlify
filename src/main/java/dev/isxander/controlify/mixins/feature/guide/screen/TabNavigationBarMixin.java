@@ -7,7 +7,7 @@
 package dev.isxander.controlify.mixins.feature.guide.screen;
 
 import com.google.common.collect.ImmutableList;
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.controller.ControllerImpl;

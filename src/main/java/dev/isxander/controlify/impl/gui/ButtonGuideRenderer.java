@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.gui;
 
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.action.ActionAccessor;
-import dev.isxander.controlify.api.font.ActionGlyphs;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
 import dev.isxander.controlify.impl.Controlify;
 import net.minecraft.client.Minecraft;

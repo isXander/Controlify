@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.utils;
 
-import dev.isxander.controlify.impl.font.ComponentFontHelper;
+import dev.isxander.controlify.impl.gui.font.ComponentFontHelper;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;

@@ -6,9 +6,12 @@
  */
 package dev.isxander.controlify.api.contextual;
 
-/// Access to Controlify's built-in domains during registration and throughout runtime.
-public interface BuiltinContextualDomains {
-	ContextualDomain<InGameContext> inGame();
+import dev.isxander.controlify.impl.contextual.ContextualDomains;
 
-	ContextualDomain<ContainerContext> container();
+/// Access to Controlify's built-in domains throughout runtime
+public final class BuiltinContextualDomains {
+
+	public static final ContextualDomain<InGameContext> IN_GAME = ContextualDomains.INSTANCE.inGame();
+
+	public static final ContextualDomain<ContainerContext> CONTAINER = ContextualDomains.INSTANCE.container();
 }

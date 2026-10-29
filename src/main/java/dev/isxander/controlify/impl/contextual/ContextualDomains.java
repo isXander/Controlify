@@ -6,11 +6,7 @@
  */
 package dev.isxander.controlify.impl.contextual;
 
-import dev.isxander.controlify.api.contextual.ContainerContext;
-import dev.isxander.controlify.api.contextual.InGameContext;
-import dev.isxander.controlify.api.contextual.Context;
-import dev.isxander.controlify.api.contextual.ContextualDomain;
-import dev.isxander.controlify.api.contextual.ContextualDomainRegistry;
+import dev.isxander.controlify.api.contextual.*;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.event.EventBus;
@@ -32,27 +28,26 @@ public final class ContextualDomains implements ContextualDomainRegistry {
 
 	private final List<ContextualDomainImpl<?>> domains = new ArrayList<>();
 	private boolean locked;
-	private final ContextualDomain<InGameContext> inGame = register(
+
+	private final ContextualDomainImpl<InGameContext> inGame = register(
 			CUtil.rl("in_game"),
 			ContextualStateContributors.IN_GAME
 	);
-	private final ContextualDomain<ContainerContext> container = register(
+	private final ContextualDomainImpl<ContainerContext> container = register(
 			CUtil.rl("container"),
 			ContextualStateContributors.CONTAINER
 	);
 
-	@Override
-	public @NonNull ContextualDomain<InGameContext> inGame() {
+	public @NonNull ContextualDomainImpl<InGameContext> inGame() {
 		return this.inGame;
 	}
 
-	@Override
-	public @NonNull ContextualDomain<ContainerContext> container() {
+	public @NonNull ContextualDomainImpl<ContainerContext> container() {
 		return this.container;
 	}
 
 	@Override
-	public <C extends Context> @NonNull ContextualDomain<C> register(@NonNull Identifier domainId) {
+	public <C extends Context> @NonNull ContextualDomainImpl<C> register(@NonNull Identifier domainId) {
 		if (this.locked) {
 			throw new IllegalStateException("Contextual domains must be registered during REGISTER_DOMAINS");
 		}
@@ -62,6 +57,13 @@ public final class ContextualDomains implements ContextualDomainRegistry {
 		var domain = new ContextualDomainImpl<C>(domainId);
 		this.domains.add(domain);
 		PlatformClientUtil.registerAssetReloadListener(domain);
+		return domain;
+	}
+
+	@Override
+	public <C extends Context> @NonNull ContextualDomainImpl<C> register(@NonNull Identifier domainId, @NonNull ContextualStateContributor<? super C> contributor) {
+		var domain = this.<C>register(domainId);
+		domain.registerContributor(contributor);
 		return domain;
 	}
 

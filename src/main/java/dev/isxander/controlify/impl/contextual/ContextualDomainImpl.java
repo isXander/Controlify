@@ -11,7 +11,7 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.api.contextual.*;
-import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectInstanceImpl;
+import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectInstance;
 import dev.isxander.controlify.impl.gui.guide.GuideInstanceImpl;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -73,11 +73,10 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 		return new GuideInstanceImpl<>(this, () -> this.requireRuleEngine(ruleSetManager, "guide"), font);
 	}
 
-	@Override
 	public @NonNull TriggerEffectInstance<C> createTriggerEffectInstance() {
 		RuleSetManager<Identifier, TriggerEffectRule> ruleSetManager = RuleSetManager.TRIGGER_EFFECT_RULES;
 
-		return new TriggerEffectInstanceImpl<>(this, () -> this.requireRuleEngine(ruleSetManager, "trigger effect"));
+		return new TriggerEffectInstance<>(this, () -> this.requireRuleEngine(ruleSetManager, "trigger effect"));
 	}
 
 	private <K, R extends Rule<K>> RuleEngine<K, R> requireRuleEngine(RuleSetManager<K, R> ruleSetManager, String type) {

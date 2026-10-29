@@ -84,7 +84,7 @@ public class ControlifySettingsScreen extends Screen {
 								Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
 								btn -> CUtil.openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
 						)
-						.pos(width / 2 - 75, (this.height - 36) / 2 + 10)
+						.pos(width / 2 - 75, (this.height - 36) - 20)
 						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
 						.build()
 		);
@@ -114,7 +114,7 @@ public class ControlifySettingsScreen extends Screen {
 		FrameLayout.centerInRectangle(grid, 0, this.footerY, this.width, this.footerHeight);
 
 		// Main Pane
-		if (!this.controllerNotDetectedButton.visible) {
+		if (!this.controllerNotDetectedButton.visible || true) {
 			int mainPaneX = 0;
 			int mainPaneY = 11;
 			int mainPaneHeight = this.mainPaneHeight - mainPaneY;
