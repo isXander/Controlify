@@ -8,8 +8,8 @@ package dev.isxander.controlify.mixins.feature.virtualmouse;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.mojang.blaze3d.platform.Window;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.api.InputMode;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -23,8 +23,8 @@ public class MouseHandlerMixin {
 					//? if >=26.3 {
 					target = "Lcom/mojang/blaze3d/platform/InputConstants;releaseMouse(Lcom/mojang/blaze3d/platform/Window;DD)V"
 					//?} else {
-					/*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
-					*///?}
+					//target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					//?}
 			)
 	)
 	private boolean shouldReleaseMouse(Window window, /*? if <26.3 {*//*int cursorMode,*//*?}*/ double xpos, double ypos) {

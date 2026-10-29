@@ -6,12 +6,11 @@
  */
 package dev.isxander.controlify.gametest.tests;
 
-import dev.isxander.controlify.Controlify;
+import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.gametest.framework.CTestUtil;
 import dev.isxander.controlify.gametest.framework.controller.ControlifyGameTestContext;
-import dev.isxander.controlify.server.ControlifyServer;
-import dev.isxander.controlify.server.ControlifyServerConfig;
-import dev.isxander.controlify.server.ServerPolicies;
+import dev.isxander.controlify.impl.server.ControlifyServer;
+import dev.isxander.controlify.impl.server.ControlifyServerConfig;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.minecraft.server.MinecraftServer;
@@ -36,8 +35,8 @@ public class ServerPolicyTests implements FabricClientGameTest {
 					//? if >=26.2 {
 					connection.waitForChunksDownload();
 					//?} else {
-					/*connection.getClientLevel().waitForChunksDownload();
-					*///?}
+					//connection.getClientLevel().waitForChunksDownload();
+					//?}
 
 					assertKeyboardMovement(context, true);
 				}

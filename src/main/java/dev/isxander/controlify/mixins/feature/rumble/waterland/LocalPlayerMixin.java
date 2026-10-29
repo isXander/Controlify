@@ -6,11 +6,13 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.waterland;
 
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.BasicRumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import dev.isxander.controlify.rumble.RumbleState;
+import dev.isxander.controlify.impl.Controlify;
+
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.utils.CUtil;
+import java.util.Objects;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -19,8 +21,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Objects;
 
 @Mixin(LocalPlayer.class)
 public abstract class LocalPlayerMixin extends PlayerMixin {
@@ -34,7 +34,7 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 			return;
 		}
 
-		ControlifyApi.get().getCurrentController().flatMap(ControllerEntity::rumble).ifPresent(rumble -> {
+		Controlify.instance().getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble -> {
 			Entity entity = Objects.requireNonNullElse(this.getControllingPassenger(), this);
 			float f = entity == this ? 0.2F : 0.9F;
 			Vec3 vec3 = entity.getDeltaMovement();
@@ -42,9 +42,9 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 
 			if (impactForce >= 0.05f) {
 				float multiplier = Math.min(1, impactForce / 0.5f);
-				rumble.rumbleManager().play(
-						RumbleSource.PLAYER,
-						BasicRumbleEffect.byTime(
+				rumble.playEffect(
+						CUtil.rl("water_land"),
+						RumbleEffect.finite().byTime(
 								t -> new RumbleState(multiplier * (1 - t), multiplier * 0.5f),
 								impactForce < 0.25f ? 10 : 20
 						)

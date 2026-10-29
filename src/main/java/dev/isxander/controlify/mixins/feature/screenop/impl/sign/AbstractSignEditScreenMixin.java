@@ -12,13 +12,11 @@ import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.screenop.ScreenProcessor;
-import dev.isxander.controlify.screenop.ScreenProcessorProvider;
-import dev.isxander.controlify.screenop.compat.vanilla.AbstractSignEditScreenProcessor;
-import dev.isxander.controlify.screenop.keyboard.KeyboardLayouts;
-import dev.isxander.controlify.screenop.keyboard.KeyboardWidget;
-import dev.isxander.controlify.screenop.keyboard.MixinInputTarget;
+import dev.isxander.controlify.api.gui.keyboard.KeyboardLayouts;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.gui.keyboard.KeyboardWidget;
+import dev.isxander.controlify.impl.gui.keyboard.MixinInputTarget;
+import dev.isxander.controlify.impl.screenop.behaviours.vanilla.SignEditingBehaviour;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -39,25 +37,24 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractSignEditScreen.class)
-public abstract class AbstractSignEditScreenMixin extends Screen implements ScreenProcessorProvider, MixinInputTarget {
+public abstract class AbstractSignEditScreenMixin extends Screen implements SignEditingBehaviour.Access, MixinInputTarget {
 
-	@Shadow private @Nullable TextFieldHelper signField;
-	@Shadow @Final private String[] messages;
-	@Shadow private int line;
-	@Shadow protected abstract void onDone();
-	@Shadow @Final protected SignBlockEntity sign;
+	@Shadow
+	private @Nullable TextFieldHelper signField;
+	@Shadow
+	@Final
+	private String[] messages;
+	@Shadow
+	private int line;
+
+	@Shadow
+	protected abstract void onDone();
+
+	@Shadow
+	@Final
+	protected SignBlockEntity sign;
 
 	@Unique protected KeyboardWidget keyboard;
-	@Unique private final AbstractSignEditScreenProcessor screenProcessor = new AbstractSignEditScreenProcessor(
-			(AbstractSignEditScreen) (Object) this,
-			direction -> {
-				this.line = this.line + direction & 3;
-				this.signField.setCursorToEnd();
-			},
-			() -> this.sign,
-			() -> keyboard
-	);
-
 
 	protected AbstractSignEditScreenMixin(Component title) {
 		super(title);
@@ -68,14 +65,14 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 	 */
 	@Inject(method = "init", at = @At("HEAD"))
 	private void addKeyboard(CallbackInfo ci) {
-		ControlifyApi.get().getCurrentController().ifPresent(c -> {
+		Controlify.instance().getCurrentController().ifPresent(c -> {
 			// if the keyboard is already present, re-add it even if we're in kb/m mode since
 			// setting fullscreen will turn it to that mode
-			if (!ControlifyApi.get().currentInputMode().isController() && this.keyboard == null) return;
+			if (!Controlify.instance().currentInputMode().isController() && this.keyboard == null) return;
 			if (!c.settings().generic.keyboard.showOnScreenKeyboard) return;
 
 			int keyboardHeight = (int) (this.height * 0.5f);
-			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, KeyboardLayouts.simple(), this));
+			this.addRenderableWidget(this.keyboard = new KeyboardWidget(0, this.height - keyboardHeight, this.width, keyboardHeight, Controlify.instance().keyboardLayoutManager().getLayout(KeyboardLayouts.SIMPLE), this));
 		});
 	}
 
@@ -160,7 +157,20 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Scre
 	}
 
 	@Override
-	public ScreenProcessor<?> screenProcessor() {
-		return screenProcessor;
+	public void controlify$moveLine(int direction) {
+		this.line = this.line + direction & 3;
+		if (this.signField != null) {
+			this.signField.setCursorToEnd();
+		}
+	}
+
+	@Override
+	public SignBlockEntity controlify$getSign() {
+		return this.sign;
+	}
+
+	@Override
+	public KeyboardWidget controlify$getKeyboard() {
+		return this.keyboard;
 	}
 }

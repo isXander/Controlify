@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.api.action;
+
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.controller.input.InputComponent;
+import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
+
+/// Resolves the current action on a controller or input component. Retain this accessor;
+/// profile changes may replace resolved action instances.
+public interface ActionAccessor {
+	/// The identifier of the action this accessor tries to retrieve
+	Identifier actionId();
+
+	/// Try and access this action on a given [InputComponent],
+	/// or null if the action is not registered on the given input component.
+	@Nullable Action onOrNull(InputComponent inputComponent);
+
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [onOrNull(InputComponent)].
+	/// Or null if the action is not registered on the given controller.
+	default @Nullable Action onOrNull(Controller controller) {
+		return this.onOrNull(controller.input());
+	}
+
+	/// Try and access this action on a given [InputComponent],
+	/// or [Optional#empty()] if the action is not registered on the given input component.
+	default Optional<Action> onOptional(InputComponent inputComponent) {
+		return Optional.ofNullable(this.onOrNull(inputComponent));
+	}
+
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [onOptional(InputComponent)].
+	/// Or [Optional#empty()] if the action is not registered on the given controller.
+	default Optional<Action> onOptional(Controller controller) {
+		return Optional.ofNullable(this.onOrNull(controller.input()));
+	}
+
+	/// Try and access this action on a given [InputComponent].
+	/// @throws NullPointerException if the action is not registered on the given controller.
+	default Action on(InputComponent inputComponent) {
+		Action action = onOrNull(inputComponent);
+		if (action == null) {
+			throw new NullPointerException("No action bound to input component " + actionId());
+		}
+		return action;
+	}
+
+	/// Try and access this action on a given [Controller];
+	/// convenience function for [on(InputComponent)].
+	/// @throws NullPointerException if the action is not registered on the given controller.
+	default Action on(Controller controller) {
+		return on(controller.input());
+	}
+}

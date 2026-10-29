@@ -19,6 +19,6 @@ public interface SDLEventHandlerAccessor {
 	void controlify_test$handleMouseMotionEvent(SDL_Event event);
 }
 //?} else {
-/*@Mixin(dev.isxander.controlify.utils.DummyMixinTarget.class)
+/*@Mixin(dev.isxander.controlify.impl.utils.DummyMixinTarget.class)
 public interface SDLEventHandlerAccessor { }
 *///?}

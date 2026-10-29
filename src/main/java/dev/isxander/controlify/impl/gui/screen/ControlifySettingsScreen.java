@@ -1,0 +1,473 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.gui.screen;
+
+import com.google.common.collect.ImmutableList;
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.gui.ButtonGuidePredicate;
+import dev.isxander.controlify.api.screenop.ScreenBehaviour;
+import dev.isxander.controlify.api.screenop.ScreenContext;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.ControllerType;
+import dev.isxander.controlify.impl.gui.components.PlainTextWidget;
+import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
+import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.layouts.FrameLayout;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.narration.NarratableEntry;
+import net.minecraft.client.gui.narration.NarratedElementType;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.navigation.ScreenRectangle;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+
+public class ControlifySettingsScreen extends Screen {
+	private final @Nullable Screen parent;
+
+	private Button globalSettingsButton, doneButton;
+
+	private int mainPaneHeight, footerY, footerHeight;
+
+	public ControlifySettingsScreen(@Nullable Screen parent) {
+		super(Component.translatable("controlify.gui.carousel.title"));
+		this.parent = parent;
+	}
+
+	@Override
+	protected void init() {
+		this.footerY = Mth.roundToward(this.height - 36 - 2, 2);
+		this.footerHeight = this.height - this.footerY;
+		this.mainPaneHeight = this.footerY;
+
+		// Top Links
+		Component donateText = Component.translatable("controlify.gui.carousel.donate")
+				.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD);
+		PlainTextButton donateBtn = this.addRenderableWidget(new PlainTextButton(3, 3, 100, 11, donateText, btn -> {
+			CUtil.openUri("https://patreon.com/isxander");
+		}, font));
+		donateBtn.setTabOrderGroup(2);
+
+		Component artCreditText = Component.translatable("controlify.gui.carousel.art_credit", Component.literal("Andrew Grant"))
+				.withStyle(ChatFormatting.DARK_GRAY);
+		int artCreditTextWidth = font.width(artCreditText);
+		PlainTextButton artCreditBtn = this.addRenderableWidget(new PlainTextButton(width - artCreditTextWidth - 3, 3, artCreditTextWidth, 11, artCreditText, btn -> {
+			CUtil.openUri("https://github.com/Andrew6rant");
+		}, font));
+		artCreditBtn.setTabOrderGroup(2);
+
+		// Footer
+		GridLayout grid = new GridLayout().columnSpacing(10);
+		GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
+		globalSettingsButton = rowHelper.addChild(
+				Button.builder(
+						Component.translatable("controlify.gui.global_settings.title"),
+						btn -> MinecraftUtil.setScreen(GlobalSettingsScreenFactory.createGlobalSettingsScreen(this))
+				).build()
+		);
+		doneButton = rowHelper.addChild(
+				Button.builder(
+						CommonComponents.GUI_DONE,
+						btn -> this.onClose()
+				).build()
+		);
+		grid.visitWidgets(widget -> {
+			widget.setTabOrderGroup(1);
+			this.addRenderableWidget(widget);
+		});
+		grid.arrangeElements();
+		FrameLayout.centerInRectangle(grid, 0, this.footerY, this.width, this.footerHeight);
+
+		// Main Pane
+		int mainPaneX = 0;
+		int mainPaneY = 11;
+		int mainPaneHeight = this.mainPaneHeight - mainPaneY;
+
+		int slotPaddingX = 10;
+		int slotPaddingY = 10;
+
+		int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
+		int profileSlotWidth = this.width - (2 * slotPaddingX);
+		int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
+		if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
+			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+			);
+			this.addRenderableWidget(profileSlotEntry);
+			SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
+					mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+			);
+			this.addRenderableWidget(splitscreenAdEntry);
+		} else {
+			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth, profileSlotHeight
+			);
+			this.addRenderableWidget(profileSlotEntry);
+		}
+
+		ScreenContextImpl.get(this).buttonGuide().addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		ScreenContextImpl.get(this).buttonGuide().addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
+	}
+
+	@Override
+	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractRenderState(graphics, mouseX, mouseY, a);
+
+		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
+		graphics.blit(
+				RenderPipelines.GUI_TEXTURED,
+				texture,
+				0, footerY,
+				0.0F, 0.0F,
+				this.width, 2,
+				32, 2
+		);
+	}
+
+	@Override
+	public void extractBackground(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		super.extractBackground(graphics, mouseX, mouseY, a);
+
+		Identifier texture = minecraft.level == null
+				? AbstractSelectionListAccessor.controlify$getMenuListBackground()
+				: AbstractSelectionListAccessor.controlify$getInWorldMenuListBackground();
+
+		graphics.blit(
+				RenderPipelines.GUI_TEXTURED,
+				texture,
+				0, 0,
+				0f, 0f,
+				width, footerY,
+				32, 32
+		);
+	}
+
+	@Override
+	public void onClose() {
+		MinecraftUtil.setScreen(parent);
+	}
+
+	private boolean hasController() {
+		return Controlify.instance().getControllerManager()
+				.map(c -> !c.getAllControllers().isEmpty())
+				.orElse(false);
+	}
+
+	private abstract static class SlotEntry extends AbstractContainerEventHandler implements Renderable, NarratableEntry {
+		protected final int x, y, width, height;
+
+		public SlotEntry(
+				int x, int y, int width, int height
+		) {
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
+		}
+
+		@Override
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+			graphics.fill(
+					this.x, this.y,
+					this.x + this.width, this.y + this.height,
+					0x55000000
+			);
+			graphics.outline(x, y, width, height, 0x5AFFFFFF);
+		}
+
+		@Override
+		public boolean isMouseOver(double mouseX, double mouseY) {
+			return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+		}
+
+		@Override
+		public @NonNull ScreenRectangle getRectangle() {
+			return new ScreenRectangle(x, y, width, height);
+		}
+	}
+
+	private class ProfileSlotEntry extends SlotEntry {
+		private static final Identifier KEYBOARD_MOUSE_SPRITE = CUtil.rl("keyboard_mouse");
+
+		private final int profileIndex;
+
+		private final Button settingsButton, swapProfileButton;
+		private final PlainTextWidget profileNameText;
+		private final PlainTextWidget controllerNameText;
+		private final ImageWidget controllerIcon;
+		private final GridLayout gridLayout;
+
+		private final ImmutableList<? extends GuiEventListener> children;
+		private Component displayedProfileName = Component.empty();
+		private Component displayedControllerName = Component.empty();
+		private Identifier displayedControllerIcon = KEYBOARD_MOUSE_SPRITE;
+		private boolean displayedControllerConnected = true;
+
+		public ProfileSlotEntry(
+				int profileIndex,
+				int x, int y, int width, int height
+		) {
+			super(x, y, width, height);
+			this.profileIndex = profileIndex;
+
+			this.settingsButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.settings"), btn -> onSettingsButtonPressed()).build();
+			this.swapProfileButton = Button.builder(Component.translatable("controlify.gui.carousel.entry.swap_profile"), btn -> {
+				MinecraftUtil.setScreen(new ProfileSelectionScreen(ControlifySettingsScreen.this));
+			}).build();
+			this.profileNameText = new PlainTextWidget(Component.empty());
+			this.controllerNameText = new PlainTextWidget(Component.empty());
+			this.controllerIcon = ImageWidget.sprite(64, 64, KEYBOARD_MOUSE_SPRITE);
+			this.children = ImmutableList.of(
+					this.settingsButton,
+					this.swapProfileButton,
+					this.profileNameText,
+					this.controllerNameText,
+					this.controllerIcon
+			);
+
+			this.gridLayout = new GridLayout().spacing(10);
+			this.gridLayout.defaultCellSetting().alignHorizontallyCenter();
+			var rowHelper = this.gridLayout.createRowHelper(1);
+			rowHelper.addChild(this.profileNameText);
+			rowHelper.addChild(this.controllerIcon);
+			rowHelper.addChild(this.controllerNameText);
+			GridLayout buttonGrid = rowHelper.addChild(new GridLayout().spacing(5));
+			var buttonRow = buttonGrid.createRowHelper(1);
+			buttonRow.addChild(this.swapProfileButton);
+			buttonRow.addChild(this.settingsButton);
+
+			updateProfileInfo(true);
+
+			this.gridLayout.arrangeElements();
+			FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
+		}
+
+		@Override
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+			super.extractRenderState(graphics, mouseX, mouseY, a);
+
+			updateProfileInfo(false);
+
+			this.settingsButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.swapProfileButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.profileNameText.extractRenderState(graphics, mouseX, mouseY, a);
+			this.controllerNameText.extractRenderState(graphics, mouseX, mouseY, a);
+			this.controllerIcon.extractRenderState(graphics, mouseX, mouseY, a);
+		}
+
+		private void onSettingsButtonPressed() {
+			ProfileSettings profileSettings = this.getProfileSettings();
+			ProfileSettings defaultSettings = ProfileSettings.createDefault();
+
+			var screen = ControllerConfigScreenFactory.generateConfigScreen(
+					ControlifySettingsScreen.this,
+					profileSettings,
+					defaultSettings,
+					this.getController(profileSettings).orElse(null)
+			);
+			MinecraftUtil.setScreen(screen);
+		}
+
+		private void updateProfileInfo(boolean force) {
+			ProfileSettings profileSettings = this.getProfileSettings();
+			int displayedProfileIndex = profileIndex + 1;
+			Component profileName = profileSettings.name == null
+					? Component.translatable("controlify.gui.carousel.entry.profile", displayedProfileIndex)
+					: Component.translatable("controlify.gui.carousel.entry.named_profile", displayedProfileIndex, profileSettings.name);
+
+			Optional<ControllerImpl> controller = this.getController(profileSettings);
+			Component controllerName;
+			Identifier controllerIcon;
+			boolean controllerConnected;
+			if (controller.isPresent()) {
+				ControllerImpl entity = controller.get();
+				controllerName = Component.literal(entity.name());
+				controllerIcon = entity.info().type().getIconSprite();
+				controllerConnected = true;
+			} else if (profileSettings.controllerUid != null) {
+				DeviceSettings device = Controlify.instance().config().getSettings().deviceSettings().get(profileSettings.controllerUid);
+				controllerName = Component.translatable(
+						"controlify.gui.carousel.entry.disconnected_controller",
+						device == null ? profileSettings.controllerUid : device.name
+				).withStyle(ChatFormatting.RED);
+				controllerIcon = device == null
+						? ControllerType.DEFAULT.getIconSprite()
+						: device.controllerType.withPrefix("controllers/");
+				controllerConnected = false;
+			} else {
+				controllerName = Component.translatable("controlify.gui.carousel.entry.keyboard_mouse");
+				controllerIcon = KEYBOARD_MOUSE_SPRITE;
+				controllerConnected = true;
+			}
+
+			if (!force
+				&& profileName.equals(displayedProfileName)
+				&& controllerName.equals(displayedControllerName)
+				&& controllerIcon.equals(displayedControllerIcon)
+				&& controllerConnected == displayedControllerConnected) {
+				return;
+			}
+
+			this.displayedProfileName = profileName;
+			this.displayedControllerName = controllerName;
+			this.displayedControllerIcon = controllerIcon;
+			this.displayedControllerConnected = controllerConnected;
+			this.profileNameText.setMessage(profileName);
+			this.controllerNameText.setMessage(controllerName);
+			this.updateIcon(controllerIcon);
+			this.controllerIcon.setAlpha(controllerConnected ? 1.0F : 0.4F);
+			this.gridLayout.arrangeElements();
+			FrameLayout.centerInRectangle(this.gridLayout, x, y, width, height);
+		}
+
+		private void updateIcon(Identifier iconSprite) {
+			this.controllerIcon.updateResource(iconSprite);
+		}
+
+		private ProfileSettings getProfileSettings() {
+			ProfileSettings profile = Controlify.instance().config().getSettings().getProfileSettings(profileIndex);
+			if (profile == null) {
+				throw new IllegalStateException("Unknown profile index " + profileIndex);
+			}
+			return profile;
+		}
+
+		private Optional<ControllerImpl> getController(ProfileSettings profileSettings) {
+			if (profileSettings.controllerUid == null) {
+				return Controlify.instance().getCurrentController();
+			}
+			return Controlify.instance().getControllerManager().flatMap(manager ->
+					manager.getControllerByUid(profileSettings.controllerUid)
+			);
+		}
+
+		@Override
+		public @NonNull List<? extends GuiEventListener> children() {
+			return this.children;
+		}
+
+		@Override
+		public @NonNull NarrationPriority narrationPriority() {
+			return NarrationPriority.NONE;
+		}
+
+		@Override
+		public void updateNarration(NarrationElementOutput narrationElementOutput) {
+			narrationElementOutput.add(NarratedElementType.TITLE, this.profileNameText.getMessage());
+			narrationElementOutput.add(NarratedElementType.USAGE, this.controllerNameText.getMessage());
+		}
+	}
+
+	private class SplitscreenAdvertisementSlotEntry extends SlotEntry {
+		private final PlainTextWidget adText;
+		private final Button adButton;
+		private final PlainTextButton disableAdButton;
+
+		private final ImmutableList<? extends GuiEventListener> children;
+
+		public SplitscreenAdvertisementSlotEntry(
+				int x, int y, int width, int height
+		) {
+			super(x, y, width, height);
+
+			this.adText = new PlainTextWidget(
+					Component.literal("Try Splitscreen preview!")
+							.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)
+			);
+			this.adButton = Button.builder(
+					Component.literal("Donate on Patreon"),
+					btn -> CUtil.openUri("https://patreon.com/isxander")
+			).build();
+			Component disableAdText = Component.literal("Don't show this again")
+					.withStyle(ChatFormatting.DARK_GRAY);
+			this.disableAdButton = new PlainTextButton(
+					0, 0, font.width(disableAdText), 11,
+					disableAdText,
+					btn -> {
+						Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd = false;
+						Controlify.instance().config().saveSafely();
+						ControlifySettingsScreen.this.rebuildWidgets();
+					},
+					font
+			);
+			this.children = ImmutableList.of(adText, adButton, disableAdButton);
+
+			var grid = new GridLayout().spacing(10);
+			grid.defaultCellSetting().alignHorizontallyCenter();
+			var rowHelper = grid.createRowHelper(1);
+			rowHelper.addChild(adText);
+			rowHelper.addChild(adButton);
+			rowHelper.addChild(disableAdButton);
+			grid.arrangeElements();
+			FrameLayout.centerInRectangle(grid, x, y, width, height);
+		}
+
+		@Override
+		public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+			super.extractRenderState(graphics, mouseX, mouseY, a);
+
+			this.adText.extractRenderState(graphics, mouseX, mouseY, a);
+			this.adButton.extractRenderState(graphics, mouseX, mouseY, a);
+			this.disableAdButton.extractRenderState(graphics, mouseX, mouseY, a);
+		}
+
+		@Override
+		public @NonNull List<? extends GuiEventListener> children() {
+			return this.children;
+		}
+
+		@Override
+		public @NonNull NarrationPriority narrationPriority() {
+			return NarrationPriority.NONE;
+		}
+
+		@Override
+		public void updateNarration(@NonNull NarrationElementOutput narrationElementOutput) {
+		}
+	}
+
+	public static final class Behaviour implements ScreenBehaviour {
+		private final ControlifySettingsScreen screen;
+
+		public Behaviour(ScreenContext<? extends ControlifySettingsScreen> context) {
+			this.screen = context.screen();
+		}
+
+		@Override
+		public void handleInteraction(Controller controller, Runnable next) {
+			if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
+				this.screen.globalSettingsButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+			}
+
+			next.run();
+		}
+	}
+}

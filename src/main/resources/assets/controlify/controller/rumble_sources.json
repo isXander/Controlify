@@ -1,0 +1,16 @@
+{
+  "controlify:incoming_damage": "controlify:player",
+  "controlify:water_land": "controlify:player",
+  "controlify:slow_block": "controlify:player",
+  "controlify:outgoing_damage": "controlify:interaction",
+  "controlify:item_break": "controlify:interaction",
+  "controlify:use_item": "controlify:interaction",
+  "controlify:block_break": "controlify:interaction",
+  "controlify:fishing_bite": "controlify:interaction",
+  "controlify:explosion": "controlify:world",
+  "controlify:lightning": "controlify:world",
+  "controlify:dragon_death": "controlify:world",
+  "controlify:wither_spawn": "controlify:world",
+  "controlify:anvil": "controlify:gui",
+  "controlify:test_vibration": "controlify:master"
+}

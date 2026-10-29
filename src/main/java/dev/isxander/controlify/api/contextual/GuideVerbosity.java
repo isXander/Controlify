@@ -10,7 +10,6 @@ import com.mojang.serialization.Codec;
 import dev.isxander.yacl3.api.NameableEnum;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.StringRepresentable;
-import org.jspecify.annotations.NonNull;
 
 public enum GuideVerbosity implements NameableEnum, StringRepresentable {
 	FULL(3),
@@ -35,7 +34,7 @@ public enum GuideVerbosity implements NameableEnum, StringRepresentable {
 	}
 
 	@Override
-	public @NonNull String getSerializedName() {
+	public String getSerializedName() {
 		return name().toLowerCase();
 	}
 }

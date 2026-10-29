@@ -6,11 +6,11 @@
  */
 package dev.isxander.controlify.gametest.framework.controller;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.controllermanager.SDLControllerManager;
-import dev.isxander.controlify.driver.sdl.SDLException;
-import dev.isxander.controlify.utils.CUtil;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.impl.controllermanager.SDLUniqueControllerID;
+import dev.isxander.controlify.impl.driver.sdl.SDLException;
+import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.sdl.Sdl;
 import dev.isxander.sdl.SdlGamepad;
 import dev.isxander.sdl.SdlJoystickHandle;
@@ -45,10 +45,10 @@ public class TestControllerContext<E> implements AutoCloseable {
 		this.state = state;
 	}
 
-	public ControllerEntity getControllerEntity() {
+	public ControllerImpl getControllerImpl() {
 		return Controlify.instance().getControllerManager().orElseThrow()
-			.getConnectedControllers().stream()
-			.filter(c -> c.info().ucid().equals(new SDLControllerManager.SDLUniqueControllerID(this.joystickId)))
+			.getAllControllers().stream()
+			.filter(c -> c.info().ucid().equals(new SDLUniqueControllerID(this.joystickId)))
 			.findAny()
 			.orElseThrow();
 	}
@@ -91,13 +91,19 @@ public class TestControllerContext<E> implements AutoCloseable {
 	}
 
 	public void holdAxis(int axis, float state) {
+		// SDL's raw joystick triggers span [-1, 1], while tests use [0, 1].
+		if (axis == SdlGamepad.SDL_GAMEPAD_AXIS_LEFT_TRIGGER || axis == SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER) {
+			state = state * 2f - 1f;
+		}
 		short stateShort = CUtil.mapFloatToShort(state);
 
-		this.sdl.joystick().SDL_SetJoystickVirtualAxis(
+		if (!this.sdl.joystick().SDL_SetJoystickVirtualAxis(
 			this.joystickHandle,
 			this.inputs.joystickAxis(axis),
 			stateShort
-		);
+		)) {
+			throw SDLException.useSDLError(this.sdl, "Failed to set virtual axis " + axis + " to " + state);
+		}
 	}
 
 	public void releaseAxis(int axis) {
@@ -108,6 +114,13 @@ public class TestControllerContext<E> implements AutoCloseable {
 		this.holdAxis(axis, state);
 		context.waitTick();
 		this.releaseAxis(axis);
+		context.waitTick();
+	}
+
+	public void releaseAllInputs() {
+		this.inputs.buttons().forEach(this::releaseButton);
+		this.inputs.axes().forEach(this::releaseAxis);
+		this.context.waitTick();
 	}
 
 	public void sendSensorData(int sensorType, float... data) {

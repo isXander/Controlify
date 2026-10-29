@@ -6,45 +6,39 @@
  */
 package dev.isxander.controlify.api;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.controller.ControllerEntity;
-import dev.isxander.controlify.rumble.RumbleEffect;
-import dev.isxander.controlify.rumble.RumbleSource;
-import org.jetbrains.annotations.NotNull;
+import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
+import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
+import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
+import dev.isxander.controlify.impl.Controlify;
+import net.minecraft.resources.Identifier;
 
+import java.util.Collection;
 import java.util.Optional;
 
-/**
- * Interface with Controlify in a manner where you don't need to worry about updates
- * breaking! This is the recommended way to interact with Controlify.
- * <p>
- * Alternatively, to use Controlify directly, you can use {@link Controlify#instance()}. Though
- * beware, things may break at any time!
- * <p>
- * Anything that is asked for from this API is safe to use, even if it is not in the API package.
- */
+/// Live client queries and operations. Access through {@link #get()} or event payloads;
+/// consumers do not need to retain the API or reconstruct state from notifications.
 public interface ControlifyApi {
-	/**
-	 * The controller that is currently enabled and in use.
-	 * If there is no controller disconnected or disabled, this will return {@link Optional#empty()}.
-	 * This is the controller that is used for {@link dev.isxander.controlify.api.event.ControlifyEvents#ACTIVE_CONTROLLER_TICKED}
-	 */
-	@NotNull Optional<ControllerEntity> getCurrentController();
-
-	/**
-	 * The last input received: a controller or keyboard/mouse.
-	 */
-	@NotNull InputMode currentInputMode();
-	boolean setInputMode(@NotNull InputMode mode);
-
-	default void playRumbleEffect(@NotNull RumbleSource rumbleSource, @NotNull RumbleEffect rumbleEffect) {
-		getCurrentController()
-				.flatMap(ControllerEntity::rumble)
-				.ifPresent(r -> r.rumbleManager().play(rumbleSource, rumbleEffect));
-	}
-
+	/// Returns the shared client API without initializing its subsystems. Action-spec and
+	/// contextual-domain registries must still be obtained through their registration events; INITIALIZED
+	/// indicates when runtime managers are ready, rather than granting access to this API.
 	static ControlifyApi get() {
 		return Controlify.instance();
+	}
+
+	Optional<? extends Controller> getCurrentController();
+
+	/// An unmodifiable snapshot of the currently connected controllers.
+	Collection<? extends Controller> getConnectedControllers();
+
+	Optional<? extends Controller> getControllerByUid(String uid);
+
+	InputMode currentInputMode();
+
+	/// Returns whether the mode changed. Controller modes require a current controller.
+	boolean setInputMode(InputMode mode);
+
+	default Optional<RumbleEffectInstance> playRumbleEffect(Identifier effectId, RumbleEffect effect) {
+		return getCurrentController().flatMap(Controller::rumble).map(rumble -> rumble.playEffect(effectId, effect));
 	}
 }

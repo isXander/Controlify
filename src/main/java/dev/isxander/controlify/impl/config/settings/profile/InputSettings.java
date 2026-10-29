@@ -1,0 +1,199 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.config.settings.profile;
+
+import dev.isxander.controlify.impl.config.dto.profile.InputConfig;
+import dev.isxander.controlify.impl.ingame.InputCurves;
+import dev.isxander.controlify.api.action.ActionBinding;
+import net.minecraft.resources.Identifier;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+
+
+public class InputSettings {
+	public final BindingsSettings bindings;
+	public final SensitivitySettings sensitivity;
+	public final RadialMenuSettings radialMenu;
+	public final GestureSettings gestures;
+	public float buttonActivationThreshold;
+	public boolean keepDefaultBindings;
+
+	public InputSettings(
+			BindingsSettings bindings,
+			SensitivitySettings sensitivity,
+			RadialMenuSettings radialMenu,
+			GestureSettings gestures,
+			float buttonActivationThreshold,
+			boolean keepDefaultBindings
+	) {
+		this.bindings = bindings;
+		this.sensitivity = sensitivity;
+		this.radialMenu = radialMenu;
+		this.gestures = gestures;
+		this.buttonActivationThreshold = buttonActivationThreshold;
+		this.keepDefaultBindings = keepDefaultBindings;
+	}
+
+	public static InputSettings fromDTO(InputConfig dto) {
+		return new InputSettings(
+				BindingsSettings.fromDTO(dto.bindings()),
+				SensitivitySettings.fromDTO(dto.sensitivity()),
+				RadialMenuSettings.fromDTO(dto.radialMenu()),
+				GestureSettings.fromDTO(dto.gestures()),
+				dto.buttonActivationThreshold(),
+				dto.keepDefaultBindings()
+		);
+	}
+
+	public InputConfig toDTO() {
+		return new InputConfig(
+				bindings.toDTO(),
+				sensitivity.toDTO(),
+				radialMenu.toDTO(),
+				gestures.toDTO(),
+				buttonActivationThreshold,
+				keepDefaultBindings
+		);
+	}
+
+	public static class GestureSettings {
+		public int tapMaxMs;
+		public int doubleTapGapMs;
+		public int holdMs;
+
+		public GestureSettings(int tapMaxMs, int doubleTapGapMs, int holdMs) {
+			this.tapMaxMs = tapMaxMs;
+			this.doubleTapGapMs = doubleTapGapMs;
+			this.holdMs = holdMs;
+		}
+
+		public static GestureSettings fromDTO(InputConfig.GestureConfig dto) {
+			return new GestureSettings(dto.tapMaxMs(), dto.doubleTapGapMs(), dto.holdMs());
+		}
+
+		public InputConfig.GestureConfig toDTO() {
+			return new InputConfig.GestureConfig(tapMaxMs, doubleTapGapMs, holdMs);
+		}
+	}
+
+	public static class BindingsSettings {
+		/// Missing entries inherit the controller default; an empty list explicitly unbinds an action.
+		public Map<Identifier, List<ActionBinding>> bindings;
+
+		public BindingsSettings(Map<Identifier, List<ActionBinding>> bindings) {
+			this.bindings = new HashMap<>(bindings);
+		}
+
+		public List<ActionBinding> resolve(Identifier actionId, List<ActionBinding> defaultBindings) {
+			return this.bindings.getOrDefault(actionId, defaultBindings);
+		}
+
+		public static BindingsSettings fromDTO(InputConfig.BindingsConfig dto) {
+			return new BindingsSettings(dto.bindings());
+		}
+
+		public InputConfig.BindingsConfig toDTO() {
+			return new InputConfig.BindingsConfig(Map.copyOf(bindings));
+		}
+	}
+
+	public static class SensitivitySettings {
+		public float hLookSensitivity;
+		public float vLookSensitivity;
+		public boolean hLookInvert;
+		public boolean vLookInvert;
+		public float virtualMouseSensitivity;
+		public boolean reduceAimingSensitivity;
+		public InputCurves lookInputCurve;
+		public boolean isLCE;
+		public float defaultDeadzone;
+		private final Map<Identifier, Float> deadzones;
+
+		public SensitivitySettings(
+				float hLookSensitivity,
+				float vLookSensitivity,
+				boolean hLookInvert,
+				boolean vLookInvert,
+				float virtualMouseSensitivity,
+				boolean reduceAimingSensitivity,
+				InputCurves lookInputCurve,
+				boolean isLCE,
+				float defaultDeadzone,
+				Map<Identifier, Float> deadzones
+		) {
+			this.hLookSensitivity = hLookSensitivity;
+			this.vLookSensitivity = vLookSensitivity;
+			this.hLookInvert = hLookInvert;
+			this.vLookInvert = vLookInvert;
+			this.virtualMouseSensitivity = virtualMouseSensitivity;
+			this.reduceAimingSensitivity = reduceAimingSensitivity;
+			this.lookInputCurve = lookInputCurve;
+			this.isLCE = isLCE;
+			this.defaultDeadzone = defaultDeadzone;
+			this.deadzones = new HashMap<>(deadzones);
+		}
+
+		public float getDeadzone(Identifier deadzoneGroupId) {
+			return deadzones.getOrDefault(deadzoneGroupId, defaultDeadzone);
+		}
+
+		public void putDeadzone(Identifier deadzoneGroupId, float deadzone) {
+			deadzones.put(deadzoneGroupId, deadzone);
+		}
+
+		public static SensitivitySettings fromDTO(InputConfig.SensitivityConfig dto) {
+			return new SensitivitySettings(
+					dto.hLookSensitivity(),
+					dto.vLookSensitivity(),
+					dto.hLookInvert(),
+					dto.vLookInvert(),
+					dto.virtualMouseSensitivity(),
+					dto.reduceAimingSensitivity(),
+					dto.lookInputCurve(),
+					dto.isLCE(),
+					dto.defaultDeadzone(),
+					dto.deadzones()
+			);
+		}
+
+		public InputConfig.SensitivityConfig toDTO() {
+			return new InputConfig.SensitivityConfig(
+					hLookSensitivity,
+					vLookSensitivity,
+					hLookInvert,
+					vLookInvert,
+					virtualMouseSensitivity,
+					reduceAimingSensitivity,
+					lookInputCurve,
+					isLCE,
+					defaultDeadzone,
+					Map.copyOf(deadzones)
+			);
+		}
+	}
+
+	public static class RadialMenuSettings {
+		public List<Identifier> radialActions;
+		public int radialButtonFocusTimeoutTicks;
+
+		public RadialMenuSettings(List<Identifier> radialActions, int radialButtonFocusTimeoutTicks) {
+			this.radialActions = new ArrayList<>(radialActions);
+			this.radialButtonFocusTimeoutTicks = radialButtonFocusTimeoutTicks;
+		}
+
+		public static RadialMenuSettings fromDTO(InputConfig.RadialMenuConfig dto) {
+			return new RadialMenuSettings(dto.radialActions(), dto.radialButtonFocusTimeoutTicks());
+		}
+
+		public InputConfig.RadialMenuConfig toDTO() {
+			return new InputConfig.RadialMenuConfig(radialActions, radialButtonFocusTimeoutTicks);
+		}
+	}
+}

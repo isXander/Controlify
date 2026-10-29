@@ -9,8 +9,8 @@ package dev.isxander.controlify.mixins.feature.patches.keymessages;
 import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import dev.isxander.controlify.bindings.ControlifyBindings;
-import dev.isxander.controlify.font.BindingFontHelper;
+import dev.isxander.controlify.api.gui.font.ActionGlyphs;
+import dev.isxander.controlify.impl.action.ControlifyActions;
 import net.minecraft.client.tutorial.PunchTreeTutorialStepInstance;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,6 +22,6 @@ public class PunchTreeTutorialStepInstanceMixin {
 	@Expression("key('attack')")
 	@ModifyExpressionValue(method = "<clinit>", at = @At("MIXINEXTRAS:EXPRESSION"))
 	private static Component useGlyph(Component original) {
-		return BindingFontHelper.bindingWithActiveFallback(ControlifyBindings.ATTACK.bindId(), original);
+		return ActionGlyphs.actionWithActiveFallback(ControlifyActions.ATTACK.actionId(), original);
 	}
 }

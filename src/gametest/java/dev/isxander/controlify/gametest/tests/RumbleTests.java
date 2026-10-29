@@ -52,8 +52,8 @@ public class RumbleTests implements FabricClientGameTest {
 				//? if >=26.2 {
 				world.getWorld().getConnection().waitForChunksRender();
 				//?} else {
-				/*world.getWorld().getClientLevel().waitForChunksRender();
-				*///?}
+				//world.getWorld().getClientLevel().waitForChunksRender();
+				//?}
 
 				runTest(context, controlify, controller, world, "Lightning bolt", this::testLightningBoltRumble);
 				runTest(context, controlify, controller, world, "Explosion", this::testExplosionRumble);
@@ -324,6 +324,12 @@ public class RumbleTests implements FabricClientGameTest {
 		TestControllerContext<?> controller,
 		TestUnitWorldContext world
 	) {
+		controller.releaseAllInputs();
+		context.runOnClient(client -> {
+			if (client.options.keyAttack.isDown() || client.options.keyUse.isDown()) {
+				throw new AssertionError("Attack or use remained held after releasing the virtual controller");
+			}
+		});
 		// Wait for rumble to stop
 		context.waitFor(_ -> !controller.state().hasRumble());
 	}

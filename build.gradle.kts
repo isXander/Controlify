@@ -154,10 +154,10 @@ val commonManifest = manifests.manifest {
 
     mixin("controlify.mixins.json")
     mixin("controlify-compat.yacl.mixins.json")
-    ifPresent("deps.iris") { mixin("controlify-compat.iris.mixins.json") }
-    ifPresent("deps.sodium") { mixin("controlify-compat.sodium.mixins.json") }
-    ifPresent("deps.reeses-sodium-options") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
-    ifPresent("deps.svc") { mixin("controlify-compat.svc.mixins.json") }
+    ifPresent("dep.iris") { mixin("controlify-compat.iris.mixins.json") }
+    ifPresent("dep.sodium") { mixin("controlify-compat.sodium.mixins.json") }
+    ifPresent("dep.rso") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
+    ifPresent("dep.svc") { mixin("controlify-compat.simple-voice-chat.mixins.json") }
     mixin("controlify-compat.rrls.mixins.json")
 
     dependency("minecraft", REQUIRED, minecraftRange)
@@ -169,7 +169,13 @@ manifests {
             "controlify:default_config",
             "controlify:controller_type",
             "controlify:default_binds",
-            "controlify:trigger_effect",
+            "controlify:contextual/domain/in_game",
+            "controlify:contextual/domain/container",
+            "controlify:contextual/ruleset/guide",
+            "controlify:contextual/ruleset/trigger_effect",
+            "controlify:activators",
+            "controlify:controller_mapping",
+            "controlify:rumble_sources",
             "controlify:radial_icons",
         )
     ))
@@ -177,10 +183,10 @@ manifests {
     fabricModJson(sourceSets.fabric.get()) {
         from(commonManifest)
 
-        entrypoint("modmenu", "dev.isxander.controlify.fabric.compatibility.ModMenuIntegration")
-        entrypoint("main", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("client", "dev.isxander.controlify.fabric.ControlifyBootstrap")
-        entrypoint("server", "dev.isxander.controlify.fabric.ControlifyBootstrap")
+        entrypoint("modmenu", "dev.isxander.controlify.fabric.compat.ModMenuIntegration")
+        entrypoint("main", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("client", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
+        entrypoint("server", "dev.isxander.controlify.fabric.impl.ControlifyBootstrap")
         dependency("fabricloader", REQUIRED, "[0.19,)")
 
         mixin("controlify-platform.fabric.mixins.json")
@@ -279,6 +285,18 @@ if (includeNatives) {
     tasks.processResources {
         dependsOn(prepareNatives)
     }
+}
+
+// Run configs
+
+// Fabric
+loom.runConfigs.configureEach {
+	runDirectory = layout.projectDirectory.dir("run")
+}
+
+// NeoForge
+runs.configureEach {
+	workingDirectory = layout.projectDirectory.dir("run")
 }
 
 /// Testing

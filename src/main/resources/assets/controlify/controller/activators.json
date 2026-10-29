@@ -1,0 +1,362 @@
+{
+  "controlify:walk_forward": "continuous",
+  "controlify:walk_backward": "continuous",
+  "controlify:strafe_left": "continuous",
+  "controlify:strafe_right": "continuous",
+  "controlify:look_up": [
+    "continuous",
+    "pulse"
+  ],
+  "controlify:look_down": [
+    "continuous",
+    "pulse"
+  ],
+  "controlify:look_left": [
+    "continuous",
+    "pulse"
+  ],
+  "controlify:look_right": [
+    "continuous",
+    "pulse"
+  ],
+  "controlify:gyro_button": "span",
+  "controlify:jump": "span",
+  "controlify:sprint": "span",
+  "controlify:sneak": "span",
+  "controlify:attack": "span",
+  "controlify:use": "span",
+  "controlify:drop": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:drop_stack": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:pause": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:change_perspective": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:swap_hands": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:next_slot": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 200
+  },
+  "controlify:prev_slot": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 200
+  },
+  "controlify:hotbar_item_select_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:hotbar_slot_1": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_2": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_3": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_4": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_5": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_6": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_7": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_8": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:hotbar_slot_9": {
+    "type": "pulse",
+    "editable": true
+  },
+  "controlify:game_mode_switcher": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:inventory": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:inv_select": "pulse",
+  "controlify:inv_quick_move": "pulse",
+  "controlify:inv_take_half": "pulse",
+  "controlify:drop_inventory": "pulse",
+  "controlify:pick_block": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:pick_block_nbt": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:hotbar_load_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:hotbar_save_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:open_chat": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:toggle_hud_visibility": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:show_player_list": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:take_screenshot": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_radial": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:toggle_debug_menu": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:toggle_debug_menu_fps": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:toggle_debug_menu_net": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:toggle_debug_menu_prof": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_reload_chunks": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_toggle_chunk_borders": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_toggle_advanced_tooltips": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_toggle_entity_hitboxes": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_reload_resource_packs": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_clear_chat": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:debug_start_stop_profiling": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "controlify:gui_press": [
+    {
+      "type": "span",
+      "pulse_on_start": false
+    },
+    {
+      "type": "pulse",
+      "gesture": "gui_press"
+    }
+  ],
+  "controlify:gui_back": [
+    {
+      "type": "span",
+      "pulse_on_start": false
+    },
+    {
+      "type": "pulse",
+      "gesture": "gui_press"
+    }
+  ],
+  "controlify:gui_next_tab": "span",
+  "controlify:gui_prev_tab": "span",
+  "controlify:gui_abstract_action_1": "span",
+  "controlify:gui_abstract_action_2": "span",
+  "controlify:gui_abstract_action_3": "span",
+  "controlify:gui_navi_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_navi_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:gui_secondary_navi_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 750,
+    "repeat_delay_ms": 150
+  },
+  "controlify:radial_menu": {
+    "type": "span",
+    "editable": true
+  },
+  "controlify:radial_axis_up": "continuous",
+  "controlify:radial_axis_down": "continuous",
+  "controlify:radial_axis_left": "continuous",
+  "controlify:radial_axis_right": "continuous",
+  "controlify:vmouse_move_up": "continuous",
+  "controlify:vmouse_move_down": "continuous",
+  "controlify:vmouse_move_left": "continuous",
+  "controlify:vmouse_move_right": "continuous",
+  "controlify:vmouse_snap_up": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_down": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_left": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_snap_right": {
+    "type": "pulse_repeat_latch",
+    "source_latch": "span",
+    "initial_delay_ms": 500,
+    "repeat_delay_ms": 150
+  },
+  "controlify:vmouse_lclick": "span",
+  "controlify:vmouse_rclick": "span",
+  "controlify:vmouse_shift_click": "span",
+  "controlify:vmouse_scroll_down": "continuous",
+  "controlify:vmouse_scroll_up": "continuous",
+  "controlify:vmouse_shift": "span",
+  "controlify:vmouse_page_next": "pulse",
+  "controlify:vmouse_page_prev": "pulse",
+  "controlify:vmouse_page_down": "pulse",
+  "controlify:vmouse_page_up": "pulse",
+  "controlify:vmouse_toggle": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "voicechat:ptt_hold": {
+    "type": "span",
+    "pulse_on_start": false
+  },
+  "voicechat:ptt_toggle": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "voicechat:whisper_hold": {
+    "type": "span",
+    "pulse_on_start": false
+  },
+  "voicechat:whisper_toggle": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  },
+  "voicechat:mute_microphone": {
+    "type": "pulse",
+    "gesture": "tap",
+    "editable": true
+  }
+}

@@ -7,13 +7,8 @@
 package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.platform.Window;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.InputMode;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Final;
@@ -25,7 +20,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 //? if <26.3 {
-/*import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+/*import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.mojang.blaze3d.platform.Window;
+import dev.isxander.controlify.api.InputMode;
+import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.glfw.GLFWDropCallbackI;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import org.lwjgl.glfw.GLFWScrollCallbackI;
@@ -92,12 +91,12 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 					//? if >=26.3 {
 					target = "Lcom/mojang/blaze3d/platform/InputConstants;releaseMouse(Lcom/mojang/blaze3d/platform/Window;DD)V"
 					//?} else {
-					/*target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
-					*///?}
+					//target = "Lcom/mojang/blaze3d/platform/InputConstants;grabOrReleaseMouse(Lcom/mojang/blaze3d/platform/Window;IDD)V"
+					//?}
 			)
 	)
 	private void moveMouseIfNecessary(CallbackInfo ci) {
-		if (!controlify$calledFromMinecraftSetScreen && ControlifyApi.get().currentInputMode().isController()) {
+		if (!controlify$calledFromMinecraftSetScreen && Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);
 		}
 	}
@@ -110,7 +109,7 @@ public class MouseHandlerMixin implements MouseMinecraftCallNotifier {
 
 	@ModifyExpressionValue(method = "grabMouse", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;isWindowActive()Z"))
 	private boolean passWindowActiveCheckIfOOFInputIsOn(boolean isWindowActive) {
-		return isWindowActive || (ControlifyApi.get().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
+		return isWindowActive || (Controlify.instance().currentInputMode().isController() && Controlify.instance().config().getSettings().globalSettings().outOfFocusInput);
 	}
 
 	@Override

@@ -1,0 +1,85 @@
+/*
+ * Copyright (C) 2026 isXander
+ * This file is part of Controlify.
+ *
+ * SPDX-License-Identifier: LGPL-3.0-or-later
+ */
+package dev.isxander.controlify.impl.server;
+
+import dev.isxander.controlify.impl.platform.network.SidedNetworkApi;
+import dev.isxander.controlify.impl.platform.main.PlatformMainUtil;
+import dev.isxander.controlify.impl.server.packets.*;
+import dev.isxander.controlify.impl.utils.CUtil;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.VisibleForTesting;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class ControlifyServer {
+	private static ControlifyServer INSTANCE;
+
+	public static ControlifyServer getInstance() {
+		if (INSTANCE == null) INSTANCE = new ControlifyServer();
+		return INSTANCE;
+	}
+
+	public void onInitialize() {
+		ControlifyHandshake.setupOnServer();
+
+		SidedNetworkApi.S2C().registerPacket(VibrationPacket.CHANNEL, VibrationPacket.CODEC);
+		SidedNetworkApi.S2C().registerPacket(OriginVibrationPacket.CHANNEL, OriginVibrationPacket.CODEC);
+		SidedNetworkApi.S2C().registerPacket(EntityVibrationPacket.CHANNEL, EntityVibrationPacket.CODEC);
+		SidedNetworkApi.S2C().registerPacket(ServerPolicyPacket.CHANNEL, ServerPolicyPacket.CODEC);
+
+		PlatformMainUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
+			VibrateCommand.register(dispatcher);
+		});
+	}
+
+	public void onInitializeServer() {
+		try {
+			Path configDirectory = PlatformMainUtil.getConfigDir();
+			Path controlifyDirectory = configDirectory.resolve("controlify");
+			Path serverConfig = controlifyDirectory.resolve("server.json");
+			Path legacyServerConfig = configDirectory.resolve("controlify.json");
+			Files.createDirectories(controlifyDirectory);
+			if (Files.notExists(serverConfig) && Files.exists(legacyServerConfig)) {
+				Files.move(legacyServerConfig, serverConfig);
+				CUtil.LOGGER.log("Migrated Controlify server config to {}.", serverConfig.toAbsolutePath());
+			}
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to create Controlify server config directory", e);
+		}
+		ControlifyServerConfig.HANDLER.load();
+		ControlifyServerConfig.HANDLER.save();
+
+		CUtil.LOGGER.log("Reach-around policy: {}", ControlifyServerConfig.HANDLER.instance().reachAroundPolicy);
+		CUtil.LOGGER.log("No-fly drift policy: {}", ControlifyServerConfig.HANDLER.instance().noFlyDriftPolicy);
+		CUtil.LOGGER.log("Allow analogue movement: {}", ControlifyServerConfig.HANDLER.instance().allowAnalogueMovement);
+
+		ControlifyServerConfig config = ControlifyServerConfig.HANDLER.instance();
+		PlatformMainUtil.registerPlayerJoinedEvent(player -> {
+			setServerPolicies(player, config);
+		});
+	}
+
+	@VisibleForTesting
+	public static void setServerPolicies(ServerPlayer player, ControlifyServerConfig config) {
+		setServerPolicy(ServerPolicies.REACH_AROUND, player, config.reachAroundPolicy);
+		setServerPolicy(ServerPolicies.DISABLE_FLY_DRIFTING, player, config.noFlyDriftPolicy);
+		setServerPolicy(ServerPolicies.ANALOGUE_MOVEMENT, player, config.allowAnalogueMovement);
+	}
+
+	private static void setServerPolicy(ServerPolicies policy, ServerPlayer player, boolean option) {
+		SidedNetworkApi.S2C().sendPacket(
+				player,
+				ServerPolicyPacket.CHANNEL,
+				new ServerPolicyPacket(
+						policy.getId(),
+						option
+				)
+		);
+	}
+}

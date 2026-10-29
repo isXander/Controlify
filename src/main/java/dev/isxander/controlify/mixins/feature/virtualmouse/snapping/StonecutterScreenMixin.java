@@ -6,10 +6,14 @@
  */
 package dev.isxander.controlify.mixins.feature.virtualmouse.snapping;
 
-import dev.isxander.controlify.api.vmousesnapping.ISnapBehaviour;
-import dev.isxander.controlify.api.vmousesnapping.SnapPoint;
+import dev.isxander.controlify.api.screenop.SnapPoint;
+import dev.isxander.controlify.impl.screenop.behaviours.screen.AdditionalSnapPointsBehaviour;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.StonecutterScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.StonecutterMenu;
+import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -17,19 +21,22 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.function.Consumer;
 
 @Mixin(StonecutterScreen.class)
-public abstract class StonecutterScreenMixin extends AbstractContainerScreenMixin<StonecutterMenu> implements ISnapBehaviour {
+public abstract class StonecutterScreenMixin extends AbstractContainerScreen<StonecutterMenu> implements AdditionalSnapPointsBehaviour.Access {
 
 	@Unique private static final int COLUMNS = 4, ROWS = 3, SLOTS = COLUMNS * ROWS;
 	@Unique private static final int BTN_WIDTH = 16, BTN_HEIGHT = 18;
 	@Unique private static final int BTN_Y_PADDING = 2;
 
-	@Shadow private int startIndex;
+	@Shadow
+	private int startIndex;
 
 	// This math is based on the renderBg method in StonecutterScreen
-	@Override
-	public void controlify$collectSnapPoints(Consumer<SnapPoint> consumer) {
-		super.controlify$collectSnapPoints(consumer);
+	protected StonecutterScreenMixin(StonecutterMenu menu, Inventory inventory, Component title) {
+		super(menu, inventory, title);
+	}
 
+	@Override
+	public void controlify$collectSnapPoints(@NonNull Consumer<SnapPoint> consumer) {
 		int startIndex = this.startIndex;
 		int endIndex = this.startIndex + SLOTS;
 		int visibleRecipes = this.menu.getNumberOfVisibleRecipes();

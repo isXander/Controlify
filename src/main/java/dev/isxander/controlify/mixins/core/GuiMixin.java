@@ -8,11 +8,10 @@ package dev.isxander.controlify.mixins.core;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.utils.InitialScreenRegistryDuck;
-import dev.isxander.controlify.utils.MinecraftUtil;
-import dev.isxander.controlify.utils.MouseMinecraftCallNotifier;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.utils.InitialScreenRegistryDuck;
+import dev.isxander.controlify.impl.utils.MinecraftUtil;
+import dev.isxander.controlify.impl.utils.MouseMinecraftCallNotifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,8 +28,8 @@ import java.util.function.Function;
 		//? if >=26.2 {
 		net.minecraft.client.gui.Gui.class
 		//?} else {
-		/*Minecraft.class
-		*///?}
+		//Minecraft.class
+		//?}
 )
 public class GuiMixin implements InitialScreenRegistryDuck {
 	@Unique private final List<Function<Runnable, Screen>> initialScreenCallbacks = new ArrayList<>();
@@ -45,21 +44,11 @@ public class GuiMixin implements InitialScreenRegistryDuck {
 		((MouseMinecraftCallNotifier) Minecraft.getInstance().mouseHandler).controlify$imFromMinecraftSetScreen();
 	}
 
-	/**
-	 * Without this, the mouse would be left in the middle of the
-	 * screen, hovering over whatever is there which would look wrong
-	 * as there is a focus as well.
-	 */
-	@Inject(
-			method = "setScreen",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/Screen;init(II)V",
-					shift = At.Shift.AFTER
-			)
-	)
+	// Run after initialization and the final mouse-position resync, which would
+	// otherwise restore on-screen coordinates and make widgets appear hovered.
+	@Inject(method = "setScreen", at = @At("RETURN"))
 	private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
-		if (ControlifyApi.get().currentInputMode().isController()) {
+		if (Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);
 		}
 	}

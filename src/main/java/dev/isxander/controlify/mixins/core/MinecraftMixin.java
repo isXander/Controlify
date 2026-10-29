@@ -6,9 +6,11 @@
  */
 package dev.isxander.controlify.mixins.core;
 
-import dev.isxander.controlify.Controlify;
-import dev.isxander.controlify.controllermanager.ControllerManager;
-import dev.isxander.controlify.utils.animation.impl.Animator;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import dev.isxander.controlify.impl.Controlify;
+import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
+import dev.isxander.controlify.impl.utils.animation.impl.Animator;
 import net.minecraft.CrashReport;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -39,8 +41,15 @@ public abstract class MinecraftMixin {
 		}
 	}
 
+	@WrapOperation(method = "run", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;runTick(Z)V"))
+	private void wrapUpdate(Minecraft instance, boolean advanceGameTime, Operation<Void> original) {
+		Controlify.instance().update(getTickDelta());
+		original.call(instance, advanceGameTime);
+		Controlify.instance().postUpdate(getTickDelta());
+	}
+
 	@Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;handleAccumulatedMovement()V"))
-	private void doPlayerLook(boolean advanceGameTime, CallbackInfo ci) {
+	private void doPlayerLook(CallbackInfo ci) {
 		Controlify.instance().inGameInputHandler().ifPresent(ih -> ih.processPlayerLook(getTickDelta()));
 	}
 
@@ -52,7 +61,7 @@ public abstract class MinecraftMixin {
 			)
 	)
 	private void onMinecraftClose(CallbackInfo ci) {
-		Controlify.instance().getControllerManager().ifPresent(ControllerManager::close);
+		Controlify.instance().getControllerCoordinator().ifPresent(ControllerCoordinator::close);
 	}
 
 	@Inject(

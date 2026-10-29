@@ -1,0 +1,88 @@
+{
+  "generic": {
+    "auto_jump": false,
+    "toggle_sprint": true,
+    "toggle_sneak": true,
+    "disable_fly_drifting": false,
+    "guide": {
+      "verbosity": "full",
+      "show_ingame_guide": true,
+      "ingame_guide_bottom": false,
+      "show_screen_guides": true,
+      "ingame_gui_scale": 0,
+      "screen_gui_scale": 0
+    },
+    "keyboard": {
+      "show_on_screen_keyboard": true,
+      "hint_cursor": true,
+      "hint_command_suggester": true,
+      "hint_sign_line": true
+    }
+  },
+  "input": {
+    "sensitivity": {
+      "horizontal": 1.0,
+      "vertical": 0.9,
+      "horizontal_invert": false,
+      "vertical_invert": false,
+      "virtual_mouse": 1.0,
+      "reduce_aiming": true,
+      "look_curve": "standard",
+      "is_lce": false,
+      "default_deadzone": 0.12
+    },
+    "radial_menu": {
+      "actions": [
+        "controlify:toggle_hud_visibility",
+        "controlify:change_perspective",
+        "controlify:drop_stack",
+        "controlify:open_chat",
+        "controlify:swap_hands",
+        "controlify:pick_block",
+        "controlify:take_screenshot",
+        "controlify:show_player_list",
+        "controlify:toggle_debug_menu",
+        "controlify:toggle_debug_menu_fps",
+        "controlify:toggle_debug_menu_net",
+        "controlify:toggle_debug_menu_prof",
+        "controlify:debug_reload_chunks",
+        "controlify:debug_toggle_chunk_borders",
+        "controlify:debug_toggle_advanced_tooltips",
+        "controlify:debug_toggle_entity_hitboxes",
+        "controlify:debug_reload_resource_packs",
+        "controlify:debug_clear_chat",
+        "controlify:debug_start_stop_profiling"
+      ],
+      "button_focus_timeout_ticks": 20
+    },
+    "gestures": {
+      "tap_max_ms": 200,
+      "double_tap_gap_ms": 200,
+      "hold_ms": 400
+    },
+    "button_activation_threshold": 0.5,
+    "mixed_input": false,
+    "keep_default_bindings": false
+  },
+  "rumble": {
+    "enabled": true
+  },
+  "hd_haptic": {
+    "enabled": true
+  },
+  "gyro": {
+    "look_sensitivity": 0.0,
+    "invert_pitch": false,
+    "invert_yaw": false,
+    "button_mode": "on",
+    "yaw_mode": "yaw",
+    "flick_stick": false,
+    "low_pass_cutoff_hz": 0
+  },
+  "bluetooth_device": {
+    "dont_show_warning": false
+  },
+  "dualsense": {
+    "trigger_effects": true
+  }
+}
