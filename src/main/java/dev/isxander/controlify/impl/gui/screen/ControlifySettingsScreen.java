@@ -18,6 +18,7 @@ import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.gui.components.PlainTextWidget;
+import dev.isxander.controlify.impl.screenop.ScreenContextImpl;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import dev.isxander.controlify.mixins.feature.ui.AbstractSelectionListAccessor;
@@ -47,7 +48,7 @@ import java.util.Optional;
 public class ControlifySettingsScreen extends Screen {
 	private final @Nullable Screen parent;
 
-	private Button globalSettingsButton, doneButton, controllerNotDetectedButton;
+	private Button globalSettingsButton, doneButton;
 
 	private int mainPaneHeight, footerY, footerHeight;
 
@@ -78,19 +79,6 @@ public class ControlifySettingsScreen extends Screen {
 		}, font));
 		artCreditBtn.setTabOrderGroup(2);
 
-		// Controller Not Detected Button
-		controllerNotDetectedButton = this.addRenderableWidget(
-				Button.builder(
-								Component.translatable("controlify.gui.carousel.controller_not_detected_btn"),
-								btn -> CUtil.openUri("https://docs.isxander.dev/controlify/users/controller-issues#my-controller-is-not-detected")
-						)
-						.pos(width / 2 - 75, (this.height - 36) - 20)
-						.tooltip(Tooltip.create(Component.translatable("controlify.gui.carousel.controller_not_detected_btn.tooltip")))
-						.build()
-		);
-		controllerNotDetectedButton.visible = !hasController();
-		FrameLayout.centerInRectangle(controllerNotDetectedButton, 0, 0, this.width, this.mainPaneHeight);
-
 		// Footer
 		GridLayout grid = new GridLayout().columnSpacing(10);
 		GridLayout.RowHelper rowHelper = grid.createRowHelper(2);
@@ -114,49 +102,43 @@ public class ControlifySettingsScreen extends Screen {
 		FrameLayout.centerInRectangle(grid, 0, this.footerY, this.width, this.footerHeight);
 
 		// Main Pane
-		if (!this.controllerNotDetectedButton.visible || true) {
-			int mainPaneX = 0;
-			int mainPaneY = 11;
-			int mainPaneHeight = this.mainPaneHeight - mainPaneY;
+		int mainPaneX = 0;
+		int mainPaneY = 11;
+		int mainPaneHeight = this.mainPaneHeight - mainPaneY;
 
-			int slotPaddingX = 10;
-			int slotPaddingY = 10;
+		int slotPaddingX = 10;
+		int slotPaddingY = 10;
 
-			int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
-			int profileSlotWidth = this.width - (2 * slotPaddingX);
-			int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
-			if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
-				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-						activeProfileIndex,
-						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-						profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
-				);
-				this.addRenderableWidget(profileSlotEntry);
-				SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
-						mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
-						profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
-				);
-				this.addRenderableWidget(splitscreenAdEntry);
-			} else {
-				ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
-						activeProfileIndex,
-						mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
-						profileSlotWidth, profileSlotHeight
-				);
-				this.addRenderableWidget(profileSlotEntry);
-			}
+		int profileSlotHeight = mainPaneHeight - (2 * slotPaddingY);
+		int profileSlotWidth = this.width - (2 * slotPaddingX);
+		int activeProfileIndex = Controlify.instance().config().getActiveProfileIndex();
+		if (Controlify.instance().config().getSettings().globalSettings().showSplitscreenAd && false) {
+			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+			);
+			this.addRenderableWidget(profileSlotEntry);
+			SplitscreenAdvertisementSlotEntry splitscreenAdEntry = new SplitscreenAdvertisementSlotEntry(
+					mainPaneX + slotPaddingX + profileSlotWidth / 2 + (slotPaddingX / 2), mainPaneY + slotPaddingY,
+					profileSlotWidth / 2 - (slotPaddingX / 2), profileSlotHeight
+			);
+			this.addRenderableWidget(splitscreenAdEntry);
+		} else {
+			ProfileSlotEntry profileSlotEntry = new ProfileSlotEntry(
+					activeProfileIndex,
+					mainPaneX + slotPaddingX, mainPaneY + slotPaddingY,
+					profileSlotWidth, profileSlotHeight
+			);
+			this.addRenderableWidget(profileSlotEntry);
 		}
 
-		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
-		dev.isxander.controlify.impl.screenop.ScreenContextImpl.get(this).buttonGuide().addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
+		ScreenContextImpl.get(this).buttonGuide().addGuideToButton(globalSettingsButton, ControlifyActions.GUI_ABSTRACT_ACTION_1, ButtonGuidePredicate.always());
+		ScreenContextImpl.get(this).buttonGuide().addGuideToButton(doneButton, ControlifyActions.GUI_BACK, ButtonGuidePredicate.always());
 	}
 
 	@Override
 	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
-		if (this.controllerNotDetectedButton.visible == hasController()) {
-			this.repositionElements();
-		}
-
 		super.extractRenderState(graphics, mouseX, mouseY, a);
 
 		Identifier texture = minecraft.level == null ? Screen.FOOTER_SEPARATOR : Screen.INWORLD_FOOTER_SEPARATOR;
