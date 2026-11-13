@@ -154,10 +154,10 @@ val commonManifest = manifests.manifest {
 
     mixin("controlify.mixins.json")
     mixin("controlify-compat.yacl.mixins.json")
-    ifPresent("deps.iris") { mixin("controlify-compat.iris.mixins.json") }
-    ifPresent("deps.sodium") { mixin("controlify-compat.sodium.mixins.json") }
-    ifPresent("deps.reeses-sodium-options") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
-    ifPresent("deps.svc") { mixin("controlify-compat.svc.mixins.json") }
+    ifPresent("dep.iris") { mixin("controlify-compat.iris.mixins.json") }
+    ifPresent("dep.sodium") { mixin("controlify-compat.sodium.mixins.json") }
+    ifPresent("dep.rso") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
+    ifPresent("dep.svc") { mixin("controlify-compat.simple-voice-chat.mixins.json") }
     mixin("controlify-compat.rrls.mixins.json")
 
     dependency("minecraft", REQUIRED, minecraftRange)
