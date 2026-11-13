@@ -28,7 +28,7 @@ public class InGameButtonGuide {
 	}
 
 	public void extractRenderState(GuiGraphicsExtractor graphics, float tickDelta) {
-		boolean debugOpen = minecraft.getDebugOverlay().showDebugScreen();
+		boolean debugOpen = minecraft.debugEntries.isOverlayVisible();
 		//? if >=26.2 {
 		boolean hideGui = minecraft.gui.hud.isHidden();
 		//?} else {
