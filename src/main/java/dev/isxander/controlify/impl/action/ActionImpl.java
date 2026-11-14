@@ -110,11 +110,6 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 		this.defaultBindings = List.copyOf(defaultBindings);
 	}
 
-	/// Whether another action currently receives this input too, given the active layers.
-	public boolean isInputShared(LogicalInput input) {
-		return this.actionDispatcher.isSharedWithOtherActions(this, input);
-	}
-
 	public ActivatorConfig<?> activatorConfig() {
 		return this.activatorConfig;
 	}

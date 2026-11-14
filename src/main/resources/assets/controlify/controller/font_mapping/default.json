@@ -30,5 +30,9 @@
   "controlify:button/left_paddle_1": "\uE01C",
   "controlify:button/left_paddle_2": "\uE01D",
   "controlify:button/right_paddle_1": "\uE01E",
-  "controlify:button/right_paddle_2": "\uE01F"
+  "controlify:button/right_paddle_2": "\uE01F",
+  "controlify:gesture/tap": "\uE100\uE101",
+  "controlify:gesture/long_press": "\uE100\uE102",
+  "controlify:gesture/release": "\uE100\uE103",
+  "controlify:gesture/long_hold": "\uE100\uE104"
 }

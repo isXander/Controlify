@@ -216,7 +216,7 @@
   "controlify.gui.bind_input_awaiting": "Press any button",
   "controlify.gui.bind.currently_bound_to": "Currently bound to %s",
   "controlify.gui.bind.gesture_hint": "Right-click a binding, or select it and press %s, to change the gesture that triggers it.",
-  "controlify.gui.bind.conflicts_for": "Binding %s, %s:",
+  "controlify.gui.bind.binding": "Binding %s: %s",
   "controlify.gui.bind.conflict.conflict": "Also triggers %s (%s)",
   "controlify.gui.bind.conflict.modifier_leak": "Still triggers when used as a modifier for %s (%s)",
   "controlify.gui.bind.conflict.shadowed": "Overridden by %s (%s) while that is available",

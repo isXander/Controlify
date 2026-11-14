@@ -12,6 +12,21 @@
         "\uE015\uE016\uE017\uE018\uE019\uE01A\uE000",
         "\uE01C\uE01D\uE01E\uE01F\uE000\uE000\uE000"
       ]
+    },
+    {
+      "type": "space",
+      "advances": {
+        "\uE100": -7
+      }
+    },
+    {
+      "type": "bitmap",
+      "file": "controlify:font/controller/gestures.png",
+      "ascent": 11,
+      "height": 16,
+      "chars": [
+        "\uE101\uE102\uE103\uE104"
+      ]
     }
   ]
 }

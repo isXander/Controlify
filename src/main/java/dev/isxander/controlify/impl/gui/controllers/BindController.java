@@ -13,6 +13,7 @@ import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.BindingConflicts;
 import dev.isxander.controlify.impl.action.ControlifyActions;
+import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
 import dev.isxander.controlify.impl.action.activator.LeafConfig;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
@@ -45,15 +46,17 @@ public class BindController implements Controller<List<ActionBinding>> {
 
 	private final Option<List<ActionBinding>> option;
 	public final @Nullable ControllerImpl controller;
+	private final ActivatorConfig<?> activator;
 	/// The leaf a binding may override the gesture of, if the action allows it.
 	private final Optional<LeafConfig> editableLeaf;
 	private final BindingConflicts.@Nullable Kind[] slotConflicts = new BindingConflicts.Kind[SLOTS];
-	private List<Component> conflictLines = List.of();
+	private List<Component> bindingLines = List.of();
 
-	public BindController(Option<List<ActionBinding>> option, @Nullable ControllerImpl controller, Optional<LeafConfig> editableLeaf) {
+	public BindController(Option<List<ActionBinding>> option, @Nullable ControllerImpl controller, ActivatorConfig<?> activator) {
 		this.option = option;
 		this.controller = controller;
-		this.editableLeaf = editableLeaf;
+		this.activator = activator;
+		this.editableLeaf = activator.editableLeaf();
 	}
 
 	@Override
@@ -67,14 +70,14 @@ public class BindController implements Controller<List<ActionBinding>> {
 	}
 
 	/// @param slotConflicts the most severe conflict on each slot, or null for none
-	/// @param conflictLines explanations shown in the description
-	public void setConflicts(BindingConflicts.@Nullable Kind[] slotConflicts, List<Component> conflictLines) {
+	/// @param bindingLines each binding and its conflicts, shown in the description
+	public void setConflicts(BindingConflicts.@Nullable Kind[] slotConflicts, List<Component> bindingLines) {
 		System.arraycopy(slotConflicts, 0, this.slotConflicts, 0, SLOTS);
-		this.conflictLines = List.copyOf(conflictLines);
+		this.bindingLines = List.copyOf(bindingLines);
 	}
 
-	public List<Component> conflictLines() {
-		return this.conflictLines;
+	public List<Component> bindingLines() {
+		return this.bindingLines;
 	}
 
 	public Optional<ActionBinding> slot(int slot) {
@@ -123,7 +126,7 @@ public class BindController implements Controller<List<ActionBinding>> {
 	private Component slotText(int slot) {
 		Identifier fontNamespace = this.controller == null ? ControllerType.DEFAULT.id() : this.controller.info().type().id();
 		return this.slot(slot)
-				.map(binding -> Controlify.instance().inputFontMapper().getComponentFromBinding(fontNamespace, binding, this.editableLeaf))
+				.map(binding -> Controlify.instance().inputFontMapper().getComponentFromBinding(fontNamespace, binding, this.activator.displayGesture(binding)))
 				.orElseGet(() -> Component.literal("-").withStyle(ChatFormatting.DARK_GRAY));
 	}
 
@@ -287,7 +290,7 @@ public class BindController implements Controller<List<ActionBinding>> {
 				openConsumerScreen(selectedSlot);
 				return;
 			}
-			if (control.canEditGesture(selectedSlot) && ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
+			if (control.canEditGesture(selectedSlot) && ControlifyActions.GUI_ABSTRACT_ACTION_2.on(controller).pulse().consumeAllPulses()) {
 				control.cycleGesture(selectedSlot);
 				return;
 			}

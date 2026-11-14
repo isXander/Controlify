@@ -99,14 +99,6 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		this.dispatchDirty = true;
 	}
 
-	/// Whether another action currently receives this input alongside the given one,
-	/// given the active layers. Prompts use this to decide whether a gesture needs spelling out.
-	public boolean isSharedWithOtherActions(ActionImpl action, LogicalInput input) {
-		this.rebuildDispatchIfDirty();
-		Set<ActionImpl> actions = this.dispatch.getOrDefault(input, Set.of());
-		return actions.size() > (actions.contains(action) ? 1 : 0);
-	}
-
 	/// Releases state from a physical mapping that is being replaced.
 	public void resetInputState() {
 		this.continuousInputs.clear();

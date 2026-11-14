@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.action.activator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import dev.isxander.controlify.api.action.ActionBinding;
+import dev.isxander.controlify.api.action.Gesture;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.List;
@@ -29,6 +30,16 @@ public interface ActivatorConfig<T extends Activator> {
 	/// The single leaf whose gesture a binding may override, if any.
 	default Optional<LeafConfig> editableLeaf() {
 		return this.leaves().stream().filter(LeafConfig::editable).findFirst();
+	}
+
+	/// The gesture to show beside a binding: the one every leaf that has a gesture agrees on.
+	/// Empty when the leaves disagree, since no single gesture describes the binding.
+	default Optional<Gesture> displayGesture(ActionBinding binding) {
+		List<Gesture> gestures = this.leaves().stream()
+				.flatMap(leaf -> leaf.gestureFor(binding).stream())
+				.distinct()
+				.toList();
+		return gestures.size() == 1 ? Optional.of(gestures.getFirst()) : Optional.empty();
 	}
 
 	Codec<ActivatorConfig<?>> CODEC = Codec.recursive("ActivatorConfig", self -> {

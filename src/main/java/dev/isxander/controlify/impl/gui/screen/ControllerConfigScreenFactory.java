@@ -12,7 +12,7 @@ import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
 import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ActionDispatcher;
-import dev.isxander.controlify.impl.action.activator.LeafConfig;
+import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
 import dev.isxander.controlify.impl.action.ActionLayerRegistryImpl;
 import dev.isxander.controlify.impl.action.BindingConflicts;
 import dev.isxander.controlify.api.action.ActionBinding;
@@ -887,12 +887,12 @@ public class ControllerConfigScreenFactory {
 		for (OptionActionPair pair : all) {
 			((BindController) pair.option().controller()).setConflicts(
 					worst.getOrDefault(pair, new BindingConflicts.Kind[BindController.SLOTS]),
-					describeConflicts(pair, byPair.getOrDefault(pair, List.of()), byAction));
+					describeBindings(pair, byPair.getOrDefault(pair, List.of()), byAction));
 		}
 	}
 
-	/// One heading per binding with conflicts, followed by each of its conflicts, most severe first.
-	private List<Component> describeConflicts(
+	/// One heading per binding, naming its gesture, followed by each of its conflicts, most severe first.
+	private List<Component> describeBindings(
 			OptionActionPair pair, List<BindingConflicts.Conflict> conflicts, Map<Identifier, OptionActionPair> byAction
 	) {
 		List<Component> lines = new ArrayList<>();
@@ -903,11 +903,15 @@ public class ControllerConfigScreenFactory {
 					.filter(conflict -> conflict.bindingIndex() == bindingIndex)
 					.sorted(Comparator.comparing(BindingConflicts.Conflict::kind))
 					.toList();
-			if (forBinding.isEmpty()) {
-				continue;
-			}
-			lines.add(Component.translatable("controlify.gui.bind.conflicts_for", index + 1,
-					bindingGlyph(pair, bindings.get(index))));
+			ActionBinding binding = bindings.get(index);
+			MutableComponent described = Component.empty().append(bindingGlyph(pair, binding));
+			// Spelling the gesture out beside its badge teaches what each badge means.
+			pair.action().activatorConfig().displayGesture(binding)
+					.filter(gesture -> Controlify.instance().inputFontMapper().hasGestureBadge(fontNamespace(pair), gesture))
+					.ifPresent(gesture -> described.append(" ").append(
+							Component.translatable("controlify.gesture." + gesture.getSerializedName())
+									.withStyle(ChatFormatting.GRAY)));
+			lines.add(Component.translatable("controlify.gui.bind.binding", index + 1, described));
 			for (BindingConflicts.Conflict conflict : forBinding) {
 				lines.add(Component.literal(" • ").append(describeConflict(conflict, byAction.get(conflict.other()))));
 			}
@@ -916,10 +920,13 @@ public class ControllerConfigScreenFactory {
 	}
 
 	private Component bindingGlyph(OptionActionPair pair, ActionBinding binding) {
-		ControllerImpl controller = ((BindController) pair.option().controller()).controller;
-		Identifier fontNamespace = controller == null ? ControllerType.DEFAULT.id() : controller.info().type().id();
 		return Controlify.instance().inputFontMapper()
-				.getComponentFromBinding(fontNamespace, binding, pair.action().activatorConfig().editableLeaf());
+				.getComponentFromBinding(fontNamespace(pair), binding, pair.action().activatorConfig().displayGesture(binding));
+	}
+
+	private static Identifier fontNamespace(OptionActionPair pair) {
+		ControllerImpl controller = ((BindController) pair.option().controller()).controller;
+		return controller == null ? ControllerType.DEFAULT.id() : controller.info().type().id();
 	}
 
 	private Component describeConflict(BindingConflicts.Conflict conflict, OptionActionPair other) {
@@ -945,7 +952,7 @@ public class ControllerConfigScreenFactory {
 		Identifier fontNamespace = controller == null
 				? ControllerType.DEFAULT.id()
 				: controller.info().type().id();
-		Optional<LeafConfig> editableLeaf = ((ActionImpl) action).activatorConfig().editableLeaf();
+		ActivatorConfig<?> activator = ((ActionImpl) action).activatorConfig();
 		var fontMapper = Controlify.instance().inputFontMapper();
 		// The description is built before the controller exists, but renders after it.
 		AtomicReference<BindController> bindController = new AtomicReference<>();
@@ -953,9 +960,9 @@ public class ControllerConfigScreenFactory {
 
 		var description = OptionDescription.createBuilder()
 				.text(action.spec().description());
-		if (editableLeaf.isPresent()) {
+		if (activator.editableLeaf().isPresent()) {
 			description.text(Component.translatable("controlify.gui.bind.gesture_hint",
-					ActionGlyphs.action(ControlifyActions.GUI_ABSTRACT_ACTION_1)).withStyle(ChatFormatting.GRAY));
+					ActionGlyphs.action(ControlifyActions.GUI_ABSTRACT_ACTION_2)).withStyle(ChatFormatting.AQUA));
 		}
 		description.customImage(new BindingInfoImageRenderer(() -> {
 			List<Component> lines = new ArrayList<>();
@@ -964,12 +971,12 @@ public class ControllerConfigScreenFactory {
 				Component defaults = action.defaultBindings().isEmpty()
 						? fontMapper.getComponentFromInput(fontNamespace, null)
 						: ComponentUtils.formatList(action.defaultBindings(), Component.literal(", "),
-								binding -> fontMapper.getComponentFromBinding(fontNamespace, binding, editableLeaf));
+								binding -> fontMapper.getComponentFromBinding(fontNamespace, binding, activator.displayGesture(binding)));
 				lines.add(Component.translatable("controlify.gui.bind.default_bound_to", defaults));
 			}
 			BindController controllerInstance = bindController.get();
 			if (controllerInstance != null) {
-				lines.addAll(controllerInstance.conflictLines());
+				lines.addAll(controllerInstance.bindingLines());
 			}
 			return lines;
 		}));
@@ -987,7 +994,7 @@ public class ControllerConfigScreenFactory {
 				})
 				.customController(opt -> {
 					optionRef.set(opt);
-					var created = new BindController(opt, controller, editableLeaf);
+					var created = new BindController(opt, controller, activator);
 					bindController.set(created);
 					return created;
 				});

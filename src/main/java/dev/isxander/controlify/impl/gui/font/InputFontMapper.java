@@ -11,13 +11,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.Gesture;
 import dev.isxander.controlify.impl.action.ActionImpl;
-import dev.isxander.controlify.impl.action.activator.LeafConfig;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
@@ -25,12 +23,11 @@ import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.ExtraCodecs;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -45,19 +42,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 	private ImmutableMap<Identifier, FontMap> mappings = ImmutableMap.of();
 	private FontMap defaultFontMap;
 
-	private static final Codec<Character> CHAR_CODEC = Codec.STRING.comapFlatMap(
-			(str) -> {
-				if (str.length() != 1) {
-					return DataResult.error(() -> "Expected a single character string, got " + str);
-				}
-				return DataResult.success(str.charAt(0));
-			},
-			String::valueOf
-	);
+	/// One or more characters of the glyph set's font, rendered in sequence.
+	private static final Codec<String> GLYPHS_CODEC = ExtraCodecs.NON_EMPTY_STRING;
 
-	private static final Codec<Pair<Character, Map<Identifier, Character>>> FONT_MAP_CODEC = Codec.pair(
-			CHAR_CODEC.fieldOf("unknown").codec(),
-			Codec.unboundedMap(Identifier.CODEC, CHAR_CODEC)
+	private static final Codec<Pair<String, Map<Identifier, String>>> FONT_MAP_CODEC = Codec.pair(
+			GLYPHS_CODEC.fieldOf("unknown").codec(),
+			Codec.unboundedMap(Identifier.CODEC, GLYPHS_CODEC)
 	);
 
 	private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controller/font_mapping");
@@ -105,9 +95,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		return mappings.getOrDefault(namespace, defaultFontMap);
 	}
 
-	/// The action's primary binding, as shown in prompts. Its gesture is only spelled out when the action
-	/// lets bindings choose one and another currently active action shares the input, since the glyph
-	/// alone would not say which of them a press triggers.
+	/// The action's primary binding, as shown in prompts.
 	public MutableComponent getComponentFromAction(Identifier namespace, @Nullable Action action) {
 		if (action == null || action.bindings().isEmpty()) {
 			// TODO: implement some sort of "unbound" character
@@ -115,38 +103,34 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		}
 
 		ActionBinding primary = action.bindings().getFirst();
-		Optional<LeafConfig> shownGesture = editableLeaf(action)
-				.filter(_ -> action instanceof ActionImpl impl && impl.isInputShared(primary.input()));
-		return getComponentFromBinding(namespace, primary, shownGesture);
+		Optional<Gesture> gesture = action instanceof ActionImpl impl
+				? impl.activatorConfig().displayGesture(primary)
+				: Optional.empty();
+		return getComponentFromBinding(namespace, primary, gesture);
 	}
 
-	/// The binding's input glyph followed by its gesture, such as "A (Hold)".
-	/// The gesture is only shown when {@code editableLeaf} is present, since it is otherwise fixed by the action.
-	public MutableComponent getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<LeafConfig> editableLeaf) {
+	/// The binding's input glyph followed by the badge for {@code gesture}, if it has one.
+	public MutableComponent getComponentFromBinding(Identifier namespace, @Nullable ActionBinding binding, Optional<Gesture> gesture) {
 		if (binding == null) {
 			return getComponentFromInput(namespace, null);
 		}
 		var input = getComponentFromInput(namespace, binding.input());
-		return editableLeaf.flatMap(leaf -> leaf.gestureFor(binding))
-				.map(gesture -> Component.empty()
-						.append(input)
-						.append(Component.literal(" ").withStyle(style -> style.withFont(FontDescription.DEFAULT)))
-						.append(gestureLabel(gesture)))
+		return gesture.flatMap(shown -> gestureBadge(getMappings(namespace), shown))
+				.map(badge -> Component.empty().append(input).append(badge))
 				.orElse(input);
 	}
 
-	public static Optional<LeafConfig> editableLeaf(Action action) {
-		return action instanceof ActionImpl impl ? impl.activatorConfig().editableLeaf() : Optional.empty();
+	/// Whether a badge is drawn for this gesture in the given glyph set.
+	public boolean hasGestureBadge(Identifier namespace, Gesture gesture) {
+		return gestureBadge(getMappings(namespace), gesture).isPresent();
 	}
 
-	public static MutableComponent gestureLabel(Gesture gesture) {
-		return Component.translatable("controlify.gesture." + gesture.getSerializedName())
-				.withStyle(style -> style
-						.withFont(FontDescription.DEFAULT)
-						.withColor(TextColor.GRAY)
-						// explicit shadow colour renders even when opted out by GuiGraphicsExtractor.text
-						.withShadowColor(ARGB.scaleRGB(TextColor.GRAY.getValue() | 0xFF000000, 0.25f))
-				);
+	/// The glyphs mapped to `controlify:gesture/<name>`. A glyph set positions them itself, usually with
+	/// a negative space so the badge overlaps the input glyph before it.
+	/// Gestures with no mapping, such as a plain press or hold, have no badge.
+	private Optional<MutableComponent> gestureBadge(FontMap fontMap, Gesture gesture) {
+		return findGlyphs(fontMap, CUtil.rl("gesture/" + gesture.getSerializedName()))
+				.map(mapped -> createComponent(mapped.glyphs(), mapped.fontMap()));
 	}
 
 	public MutableComponent getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {
@@ -157,8 +141,8 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 		FontMap fontMap = getMappings(namespace);
 		return switch (input) {
 			case LogicalInput.Single(var physicalInput) -> {
-				MappedChar mappedChar = getChar(fontMap, physicalInput);
-				yield createComponent(String.valueOf(mappedChar.character()), mappedChar.fontMap());
+				MappedGlyphs mapped = getGlyphs(fontMap, physicalInput);
+				yield createComponent(mapped.glyphs(), mapped.fontMap());
 			}
 			case LogicalInput.ModifiedChord(var modifiers, var trigger) -> {
 				MutableComponent component = Component.empty();
@@ -167,14 +151,14 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 				// Coalesce adjacent modifiers using the same font into a single literal.
 				for (Identifier modifier : modifiers) {
-					MappedChar mappedChar = getChar(fontMap, modifier);
-					if (currentFontMap != null && currentFontMap != mappedChar.fontMap()) {
+					MappedGlyphs mapped = getGlyphs(fontMap, modifier);
+					if (currentFontMap != null && currentFontMap != mapped.fontMap()) {
 						MutableComponent run = createComponent(literal.toString(), currentFontMap);
 						component.append(run);
 						literal.setLength(0);
 					}
-					currentFontMap = mappedChar.fontMap();
-					literal.append(mappedChar.character());
+					currentFontMap = mapped.fontMap();
+					literal.append(mapped.glyphs());
 				}
 
 				if (currentFontMap != null) {
@@ -184,8 +168,8 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 					component.append(Component.literal("+").withStyle(style -> style.withFont(FontDescription.DEFAULT)));
 				}
 
-				MappedChar mappedTrigger = getChar(fontMap, trigger);
-				MutableComponent triggerComponent = createComponent(String.valueOf(mappedTrigger.character()), mappedTrigger.fontMap());
+				MappedGlyphs mappedTrigger = getGlyphs(fontMap, trigger);
+				MutableComponent triggerComponent = createComponent(mappedTrigger.glyphs(), mappedTrigger.fontMap());
 				yield component.append(triggerComponent);
 			}
 		};
@@ -198,19 +182,23 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 				.withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
 	}
 
-	private MappedChar getChar(FontMap fontMap, Identifier input) {
-		Character ch = fontMap.inputToChar().get(input);
-		if (ch != null) {
-			return new MappedChar(ch, fontMap);
+	private MappedGlyphs getGlyphs(FontMap fontMap, Identifier input) {
+		return findGlyphs(fontMap, input).orElseGet(() -> new MappedGlyphs(fontMap.unknown(), fontMap));
+	}
+
+	private Optional<MappedGlyphs> findGlyphs(FontMap fontMap, Identifier key) {
+		String glyphs = fontMap.glyphs().get(key);
+		if (glyphs != null) {
+			return Optional.of(new MappedGlyphs(glyphs, fontMap));
 		}
 
 		// fallback to default icon set if there is no mapping
-		ch = defaultFontMap.inputToChar().get(input);
-		if (ch != null) {
-			return new MappedChar(ch, defaultFontMap);
+		glyphs = defaultFontMap.glyphs().get(key);
+		if (glyphs != null) {
+			return Optional.of(new MappedGlyphs(glyphs, defaultFontMap));
 		}
 
-		return new MappedChar(fontMap.unknown(), fontMap);
+		return Optional.empty();
 	}
 
 	@Override
@@ -220,9 +208,9 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 	public record Preparations(Map<Identifier, FontMap> mappings) {
 	}
-	public record FontMap(Identifier namespace, char unknown, Map<Identifier, Character> inputToChar) {
+	public record FontMap(Identifier namespace, String unknown, Map<Identifier, String> glyphs) {
 	}
 
-	private record MappedChar(char character, FontMap fontMap) {
+	private record MappedGlyphs(String glyphs, FontMap fontMap) {
 	}
 }

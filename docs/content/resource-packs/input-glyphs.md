@@ -81,7 +81,44 @@ Create a file in your resource pack, like `/assets/my_resource_pack/controllers/
 }
 ```
 
-### 4. Done!
+Each value is one or more characters from your font, drawn in sequence.
+
+### 4. Gesture badges (optional)
+
+When a binding uses a gesture such as a tap or a long press, a small badge is drawn over the corner of its glyph.
+Glyph sets that do not define badges use the built-in ones, so you can skip this step.
+
+Badges are mapped the same way as inputs, using the key `controlify:gesture/<gesture>`.
+The built-in set has badges for `tap`, `long_press`, `release` and `long_hold`.
+A gesture without a mapping, like a regular `press` or `hold`, has no badge.
+
+The badge is drawn directly after the input glyph. To make it overlap, start the mapping with a character from a
+`space` provider with a negative advance, followed by the badge's own character:
+
+```jsonc
+// font file
+{ "type": "space", "advances": { "": -7 } },
+{
+  "type": "bitmap",
+  "file": "my_resource_pack:font/controller/gestures.png",
+  "ascent": 11,
+  "height": 16,
+  "chars": [""]
+}
+```
+```json5
+// font mapping
+{
+  "controlify:gesture/tap": "",
+  "controlify:gesture/long_press": ""
+}
+```
+
+The advance of a bitmap glyph is the width up to its right-most pixel, plus one.
+Here every badge is right-aligned in a 6 pixel wide cell, so `-7` places it flush with the right edge of the
+input glyph and leaves the total width unchanged. Leave the space character out to place the badge after the glyph.
+
+### 5. Done!
 
 You have now successfully created a custom glyph set for your controller! Test it out in game!
 
