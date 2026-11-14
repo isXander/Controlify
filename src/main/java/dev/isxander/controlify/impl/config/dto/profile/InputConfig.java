@@ -75,19 +75,19 @@ public record InputConfig(
 
 	/// Button gesture timings in milliseconds.
 	/// @param tapMaxMs the longest press that still counts as a tap
-	/// @param holdMs how long a press lasts before it counts as held; raised above tapMaxMs if needed,
+	/// @param longPressMs how long a press lasts before it counts as a long press; raised above tapMaxMs if needed,
 	///               since the settings screen sets each value independently
 	public record GestureConfig(
 			int tapMaxMs,
-			int holdMs
+			int longPressMs
 	) {
 		public static final Codec<GestureConfig> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.intRange(0, 2000).fieldOf("tap_max_ms").forGetter(GestureConfig::tapMaxMs),
-				Codec.intRange(1, 5000).fieldOf("hold_ms").forGetter(GestureConfig::holdMs)
+				Codec.intRange(1, 5000).fieldOf("long_press_ms").forGetter(GestureConfig::longPressMs)
 		).apply(instance, GestureConfig::new));
 
 		public GestureConfig {
-			holdMs = Math.max(holdMs, tapMaxMs + 1);
+			longPressMs = Math.max(longPressMs, tapMaxMs + 1);
 		}
 	}
 

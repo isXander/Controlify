@@ -17,9 +17,9 @@ import java.util.Optional;
 /// Holds the latch for the duration of a span gesture, and by default pulses once when it starts.
 public record SpanLeafConfig(Gesture spanGesture, boolean editable, boolean pulseOnStart) implements LeafConfig {
 	public static final String TYPE_ID = "span";
-	public static final SpanLeafConfig DEFAULT = new SpanLeafConfig(Gesture.WHILE_PRESSED, false, true);
+	public static final SpanLeafConfig DEFAULT = new SpanLeafConfig(Gesture.HOLD, false, true);
 	public static final MapCodec<SpanLeafConfig> MAP_CODEC = RecordCodecBuilder.<SpanLeafConfig>mapCodec(instance -> instance.group(
-			Gesture.CODEC.optionalFieldOf("gesture", Gesture.WHILE_PRESSED).forGetter(SpanLeafConfig::spanGesture),
+			Gesture.CODEC.optionalFieldOf("gesture", Gesture.HOLD).forGetter(SpanLeafConfig::spanGesture),
 			Codec.BOOL.optionalFieldOf("editable", false).forGetter(SpanLeafConfig::editable),
 			Codec.BOOL.optionalFieldOf("pulse_on_start", true).forGetter(SpanLeafConfig::pulseOnStart)
 	).apply(instance, SpanLeafConfig::new)).validate(config -> config.spanGesture().kind() == Gesture.Kind.SPAN

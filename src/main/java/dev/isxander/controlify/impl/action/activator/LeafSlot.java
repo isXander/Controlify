@@ -109,8 +109,8 @@ public final class LeafSlot implements Activator {
 				case SPAN -> {
 					if (signal instanceof LogicalSignal.ButtonRelease || signal instanceof LogicalSignal.Cancelled) {
 						this.active = false;
-					} else if (this.gesture == Gesture.WHILE_PRESSED && signal instanceof LogicalSignal.ButtonPress
-							|| this.gesture == Gesture.WHILE_HELD && signal instanceof LogicalSignal.Held) {
+					} else if (this.gesture == Gesture.HOLD && signal instanceof LogicalSignal.ButtonPress
+							|| this.gesture == Gesture.LONG_HOLD && signal instanceof LogicalSignal.LongPressed) {
 						this.active = true;
 					}
 				}
@@ -129,9 +129,9 @@ public final class LeafSlot implements Activator {
 				case PRESS -> signal instanceof LogicalSignal.ButtonPress;
 				case RELEASE -> signal instanceof LogicalSignal.ButtonRelease;
 				case TAP -> signal instanceof LogicalSignal.Tapped;
-				case HOLD -> signal instanceof LogicalSignal.Held;
+				case LONG_PRESS -> signal instanceof LogicalSignal.LongPressed;
 				case GUI_PRESS -> signal instanceof LogicalSignal.GuiPress;
-				case WHILE_PRESSED, WHILE_HELD -> false;
+				case HOLD, LONG_HOLD -> false;
 			};
 		}
 	}

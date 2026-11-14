@@ -18,7 +18,6 @@ import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.api.action.Gesture;
 import dev.isxander.controlify.impl.action.ActionImpl;
 import dev.isxander.controlify.impl.action.activator.LeafConfig;
-import net.minecraft.ChatFormatting;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.platform.client.resource.SimpleControlifyReloadListener;
@@ -26,10 +25,12 @@ import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FontDescription;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
@@ -140,7 +141,12 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 	public static MutableComponent gestureLabel(Gesture gesture) {
 		return Component.translatable("controlify.gesture." + gesture.getSerializedName())
-				.withStyle(style -> style.withFont(FontDescription.DEFAULT).withColor(ChatFormatting.GRAY));
+				.withStyle(style -> style
+						.withFont(FontDescription.DEFAULT)
+						.withColor(TextColor.GRAY)
+						// explicit shadow colour renders even when opted out by GuiGraphicsExtractor.text
+						.withShadowColor(ARGB.scaleRGB(TextColor.GRAY.getValue() | 0xFF000000, 0.25f))
+				);
 	}
 
 	public MutableComponent getComponentFromInput(Identifier namespace, @Nullable LogicalInput input) {

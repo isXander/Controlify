@@ -35,7 +35,7 @@ public sealed interface LogicalSignal {
 	record GuiPress(long timeNanos, LogicalInput input) implements InputSignal {}
 
 	/// When a button is held for a long period of time. Signaled whilst still held.
-	record Held(long timeNanos, LogicalInput input) implements InputSignal {}
+	record LongPressed(long timeNanos, LogicalInput input) implements InputSignal {}
 
 	/// When an in-progress press or axis movement stops reaching an action, for example
 	/// because a higher context started consuming the input or the action's contexts became inactive.

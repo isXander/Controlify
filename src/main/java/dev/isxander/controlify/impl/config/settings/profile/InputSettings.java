@@ -65,19 +65,19 @@ public class InputSettings {
 
 	public static class GestureSettings {
 		public int tapMaxMs;
-		public int holdMs;
+		public int longPressMs;
 
-		public GestureSettings(int tapMaxMs, int holdMs) {
+		public GestureSettings(int tapMaxMs, int longPressMs) {
 			this.tapMaxMs = tapMaxMs;
-			this.holdMs = holdMs;
+			this.longPressMs = longPressMs;
 		}
 
 		public static GestureSettings fromDTO(InputConfig.GestureConfig dto) {
-			return new GestureSettings(dto.tapMaxMs(), dto.holdMs());
+			return new GestureSettings(dto.tapMaxMs(), dto.longPressMs());
 		}
 
 		public InputConfig.GestureConfig toDTO() {
-			return new InputConfig.GestureConfig(tapMaxMs, holdMs);
+			return new InputConfig.GestureConfig(tapMaxMs, longPressMs);
 		}
 	}
 

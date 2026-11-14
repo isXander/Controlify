@@ -36,7 +36,7 @@ public class ActivatorConfigManager implements SimpleControlifyReloadListener<Ma
 			new CompoundActivator.Config(List.of());
 	/// Mod key mappings are usually pressed, but players may move them to a hold to share a button.
 	private static final ActivatorConfig<?> PROXY_ACTIVATOR =
-			new SpanLeafConfig(Gesture.WHILE_PRESSED, true, true);
+			new SpanLeafConfig(Gesture.HOLD, true, true);
 
 	private volatile Map<Identifier, ActivatorConfig<?>> configsByAction = Map.of();
 

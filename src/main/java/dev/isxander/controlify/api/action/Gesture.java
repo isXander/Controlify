@@ -19,12 +19,12 @@ public enum Gesture implements StringRepresentable {
 	PRESS("press", Kind.INSTANT, Outcome.ALL, true),
 	RELEASE("release", Kind.INSTANT, Outcome.ALL, false),
 	TAP("tap", Kind.INSTANT, EnumSet.of(Outcome.TAP), false),
-	HOLD("hold", Kind.INSTANT, EnumSet.of(Outcome.HELD), true),
+	LONG_PRESS("long_press", Kind.INSTANT, EnumSet.of(Outcome.LONG), true),
 	/// A release with no GUI navigation since the press.
 	GUI_PRESS("gui_press", Kind.INSTANT, Outcome.ALL, false),
 
-	WHILE_PRESSED("while_pressed", Kind.SPAN, Outcome.ALL, true),
-	WHILE_HELD("while_held", Kind.SPAN, EnumSet.of(Outcome.HELD), true);
+	HOLD("hold", Kind.SPAN, Outcome.ALL, true),
+	LONG_HOLD("long_hold", Kind.SPAN, EnumSet.of(Outcome.LONG), true);
 
 	public static final Codec<Gesture> CODEC = StringRepresentable.fromEnum(Gesture::values);
 
@@ -73,8 +73,8 @@ public enum Gesture implements StringRepresentable {
 		TAP,
 		/// Longer than a tap, released before the hold duration.
 		MEDIUM,
-		/// Reached the hold duration.
-		HELD;
+		/// Reached the long press duration.
+		LONG;
 
 		static final Set<Outcome> ALL = EnumSet.allOf(Outcome.class);
 	}

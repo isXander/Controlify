@@ -86,9 +86,9 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 				this.sensorAccumulatorStage.onEvent(event, downstream);
 				// Holds must fire even without new input events, before downstream actions process this frame's tick.
 				this.activeButtons.forEach((input, state) -> {
-					if (!state.held && timeNanos - state.pressedAt >= this.timings.holdNanos()) {
+					if (!state.held && timeNanos - state.pressedAt >= this.timings.longPressNanos()) {
 						state.held = true;
-						downstream.accept(new LogicalSignal.Held(timeNanos, input));
+						downstream.accept(new LogicalSignal.LongPressed(timeNanos, input));
 					}
 				});
 				downstream.accept(new LogicalSignal.Frame(timeNanos, deltaTimeNanos));

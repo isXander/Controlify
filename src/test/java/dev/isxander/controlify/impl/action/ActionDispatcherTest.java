@@ -274,7 +274,7 @@ class ActionDispatcherTest {
 	@Test
 	void gestureOverrideOnlyAppliesToEditableLeavesOfTheSameKind() {
 		var tap = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.TAP));
-		var whileHeld = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.WHILE_HELD));
+		var whileHeld = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.LONG_HOLD));
 
 		assertEquals(java.util.Optional.of(Gesture.TAP), new PulseLeafConfig(Gesture.PRESS, true).gestureFor(tap));
 		assertEquals(java.util.Optional.of(Gesture.PRESS), new PulseLeafConfig(Gesture.PRESS, false).gestureFor(tap));
