@@ -129,7 +129,6 @@ public final class LeafSlot implements Activator {
 				case PRESS -> signal instanceof LogicalSignal.ButtonPress;
 				case RELEASE -> signal instanceof LogicalSignal.ButtonRelease;
 				case TAP -> signal instanceof LogicalSignal.Tapped;
-				case DOUBLE_TAP -> signal instanceof LogicalSignal.DoubleTapped;
 				case HOLD -> signal instanceof LogicalSignal.Held;
 				case GUI_PRESS -> signal instanceof LogicalSignal.GuiPress;
 				case WHILE_PRESSED, WHILE_HELD -> false;

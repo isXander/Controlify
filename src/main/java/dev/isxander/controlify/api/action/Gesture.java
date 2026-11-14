@@ -18,8 +18,7 @@ import java.util.Set;
 public enum Gesture implements StringRepresentable {
 	PRESS("press", Kind.INSTANT, Outcome.ALL, true),
 	RELEASE("release", Kind.INSTANT, Outcome.ALL, false),
-	TAP("tap", Kind.INSTANT, EnumSet.of(Outcome.LONE_TAP), false),
-	DOUBLE_TAP("double_tap", Kind.INSTANT, EnumSet.of(Outcome.DOUBLE_SECOND), false),
+	TAP("tap", Kind.INSTANT, EnumSet.of(Outcome.TAP), false),
 	HOLD("hold", Kind.INSTANT, EnumSet.of(Outcome.HELD), true),
 	/// A release with no GUI navigation since the press.
 	GUI_PRESS("gui_press", Kind.INSTANT, Outcome.ALL, false),
@@ -70,12 +69,8 @@ public enum Gesture implements StringRepresentable {
 	/// The mutually exclusive ways a single press of an input can end.
 	/// Relies on the hold duration exceeding the tap duration.
 	public enum Outcome {
-		/// A short press with no second tap following it.
-		LONE_TAP,
-		/// The first half of a double tap.
-		DOUBLE_FIRST,
-		/// The second half of a double tap.
-		DOUBLE_SECOND,
+		/// A short press.
+		TAP,
 		/// Longer than a tap, released before the hold duration.
 		MEDIUM,
 		/// Reached the hold duration.

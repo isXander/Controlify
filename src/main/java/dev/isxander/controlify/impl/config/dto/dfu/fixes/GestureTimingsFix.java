@@ -39,7 +39,6 @@ public class GestureTimingsFix extends DataFix {
 
 		var gestures = root.emptyMap()
 				.set("tap_max_ms", root.createInt(defaults.tapMaxMs))
-				.set("double_tap_gap_ms", root.createInt(defaults.doubleTapGapMs))
 				.set("hold_ms", root.createInt(defaults.holdMs));
 
 		return root.set("input", input.set("gestures", gestures));

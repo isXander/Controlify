@@ -68,91 +68,43 @@ class PhysicalToLogicalStageTest {
 	}
 
 	@Test
-	void loneTapWaitsForTheDoubleTapWindow() {
+	void tapIsEmittedImmediatelyAfterTheRelease() {
 		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
 		List<LogicalSignal> output = new ArrayList<>();
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
+		output.clear();
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(100), A, false), output::add);
-		stage.onEvent(new PhysicalSignal.Frame(ms(300), ms(200)), output::add);
-		assertEquals(0, count(output, LogicalSignal.Tapped.class));
 
-		// The gap is measured from the release, so the tap resolves 200ms after it.
-		stage.onEvent(new PhysicalSignal.Frame(ms(301), ms(1)), output::add);
-		assertEquals(1, count(output, LogicalSignal.Tapped.class));
-		assertEquals(0, count(output, LogicalSignal.DoubleTapped.class));
+		assertEquals(List.of(LogicalSignal.ButtonRelease.class, LogicalSignal.Tapped.class, LogicalSignal.GuiPress.class),
+				output.stream().map(Object::getClass).toList());
 	}
 
 	@Test
-	void doubleTapProducesNoTaps() {
-		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
-		List<LogicalSignal> output = new ArrayList<>();
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(100), A, false), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(200), A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(250), A, false), output::add);
-		stage.onEvent(new PhysicalSignal.Frame(ms(1000), ms(750)), output::add);
-
-		assertEquals(1, count(output, LogicalSignal.DoubleTapped.class));
-		assertEquals(0, count(output, LogicalSignal.Tapped.class));
-	}
-
-	@Test
-	void tapFollowedByLongPressFlushesTheTapBeforeTheRelease() {
+	void quickRepeatedTapsEachProduceATap() {
 		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
 		List<LogicalSignal> output = new ArrayList<>();
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(100), A, false), output::add);
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(150), A, true), output::add);
-		output.clear();
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(390), A, false), output::add);
+		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(250), A, false), output::add);
 
-		assertEquals(List.of(LogicalSignal.Tapped.class, LogicalSignal.ButtonRelease.class, LogicalSignal.GuiPress.class),
-				output.stream().map(Object::getClass).toList());
+		assertEquals(2, count(output, LogicalSignal.Tapped.class));
 	}
 
 	@Test
-	void slowSecondPressFlushesTheTapBeforeItsPress() {
+	void longPressIsNotATap() {
 		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
 		List<LogicalSignal> output = new ArrayList<>();
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(100), A, false), output::add);
-		output.clear();
+		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(300), A, false), output::add);
 
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(350), A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(400), A, false), output::add);
-
-		assertEquals(List.of(LogicalSignal.Tapped.class, LogicalSignal.ButtonPress.class,
-						LogicalSignal.ButtonRelease.class, LogicalSignal.GuiPress.class),
-				output.stream().map(Object::getClass).toList());
-	}
-
-	@Test
-	void secondPressHeldResolvesTheTapBeforeTheHold() {
-		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
-		List<LogicalSignal> output = new ArrayList<>();
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(100), A, false), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(250), A, true), output::add);
-
-		// Past the gap, but the second press could still be a tap.
-		stage.onEvent(new PhysicalSignal.Frame(ms(400), ms(150)), output::add);
 		assertEquals(0, count(output, LogicalSignal.Tapped.class));
-
-		output.clear();
-		stage.onEvent(new PhysicalSignal.Frame(ms(451), ms(51)), output::add);
-		assertEquals(List.of(LogicalSignal.Tapped.class, LogicalSignal.Frame.class),
-				output.stream().map(Object::getClass).toList());
-
-		output.clear();
-		stage.onEvent(new PhysicalSignal.Frame(ms(650), ms(199)), output::add);
-		assertEquals(List.of(LogicalSignal.Held.class, LogicalSignal.Frame.class),
-				output.stream().map(Object::getClass).toList());
 	}
 
 	@Test
 	void timingsApplyFromTheSupplier() {
 		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
-		stage.setTimingsSupplier(() -> GestureTimings.ofMillis(100, 50, 300));
+		stage.setTimingsSupplier(() -> GestureTimings.ofMillis(100, 300));
 		List<LogicalSignal> output = new ArrayList<>();
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
 		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(150), A, false), output::add);

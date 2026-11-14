@@ -199,11 +199,11 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		}
 	}
 
-	/// Release, tap, double tap, hold and GUI press only reach the actions that saw the press.
+	/// Release, tap, hold and GUI press only reach the actions that saw the press.
 	private void processGesture(LogicalSignal.InputSignal gesture) {
 		LogicalInput input = gesture.input();
 		if (gesture instanceof LogicalSignal.Tapped) {
-			// Taps arrive after the double tap window, possibly once a newer press has taken ownership.
+			// Taps arrive right after the release, which has already moved the press owners to tapOwners.
 			Set<ActionImpl> owners = this.tapOwners.remove(input);
 			if (owners != null) {
 				this.deliver(gesture, owners);

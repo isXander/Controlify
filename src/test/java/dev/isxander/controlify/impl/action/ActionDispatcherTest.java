@@ -224,33 +224,28 @@ class ActionDispatcherTest {
 	}
 
 	@Test
-	void deferredTapOnlyReachesReachableOwnersOfItsActuation() {
+	void tapOnlyReachesTheOwnersOfItsActuation() {
 		ActionImpl gameTap = action("game_tap", BASE, SOUTH, TAP_PULSE);
 		ActionImpl screenTap = action("screen_tap", BLOCKING, SOUTH, TAP_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.physical(0, A, true);
+
+		// A screen opens mid-press. It never saw the press, so it must not receive the tap.
+		this.dispatcher.setCurrentContexts(List.of(BLOCKING, BASE));
 		this.physical(100_000_000L, A, false);
 
-		// A screen opens and the button is pressed again before the tap window closes. The screen
-		// never owned the first tap, and the game action that did is no longer reachable.
-		this.dispatcher.setCurrentContexts(List.of(BLOCKING, BASE));
-		this.physical(150_000_000L, A, true);
-		this.physical(400_000_000L, A, false);
-
-		assertFalse(gameTap.state().consumeAllPulses());
 		assertFalse(screenTap.state().consumeAllPulses());
+		assertFalse(gameTap.state().consumeAllPulses());
 	}
 
 	@Test
-	void deferredTapFiresAfterTheWindow() {
+	void tapFiresImmediatelyOnRelease() {
 		ActionImpl tap = action("tap", BASE, SOUTH, TAP_PULSE);
 		this.dispatcher.setCurrentContexts(List.of(BASE));
 		this.physical(0, A, true);
-		this.physical(100_000_000L, A, false);
-		this.stage.onEvent(new PhysicalSignal.Frame(200_000_000L, 1), this.dispatcher);
 		assertFalse(tap.state().consumeAllPulses());
 
-		this.stage.onEvent(new PhysicalSignal.Frame(500_000_000L, 1), this.dispatcher);
+		this.physical(100_000_000L, A, false);
 		assertTrue(tap.state().consumeAllPulses());
 	}
 

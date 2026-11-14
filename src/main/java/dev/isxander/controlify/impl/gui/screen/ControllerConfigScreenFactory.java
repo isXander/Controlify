@@ -486,16 +486,6 @@ public class ControllerConfigScreenFactory {
 						.formatValue(millisFormatter))
 				.build());
 		group.option(Option.<Integer>createBuilder()
-				.name(Component.translatable("controlify.gui.gesture_double_tap_gap"))
-				.description(OptionDescription.createBuilder()
-						.text(Component.translatable("controlify.gui.gesture_double_tap_gap.tooltip"))
-						.build())
-				.binding(gestureDefaults.doubleTapGapMs, () -> gestures.doubleTapGapMs, v -> gestures.doubleTapGapMs = v)
-				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
-						.range(50, 600).step(10)
-						.formatValue(millisFormatter))
-				.build());
-		group.option(Option.<Integer>createBuilder()
 				.name(Component.translatable("controlify.gui.gesture_hold"))
 				.description(OptionDescription.createBuilder()
 						.text(Component.translatable("controlify.gui.gesture_hold.tooltip"))

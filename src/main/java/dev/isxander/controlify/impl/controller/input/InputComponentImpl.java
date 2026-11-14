@@ -82,7 +82,7 @@ public class InputComponentImpl extends ControllerComponent implements InputComp
 		this.inputPipeline.stageInputDomainExpansion().setThresholdSupplier(() -> settings().buttonActivationThreshold);
 		this.inputPipeline.stagePhysicalToLogical().setTimingsSupplier(() -> {
 			var gestures = settings().gestures;
-			return GestureTimings.ofMillis(gestures.tapMaxMs, gestures.doubleTapGapMs, gestures.holdMs);
+			return GestureTimings.ofMillis(gestures.tapMaxMs, gestures.holdMs);
 		});
 
 		this.reloadActions();
