@@ -12,7 +12,6 @@ import dev.isxander.controlify.api.screenop.ElementKeyboardBehaviour;
 import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.api.screenop.SnapPoint;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -47,7 +46,7 @@ public final class CompositeElementBehaviour implements ElementBehaviour {
 	}
 
 	@Override
-	public void handleNavigation(@NonNull ScreenContext<?> screen, @NonNull Controller controller, @NonNull Runnable next) {
+	public void handleNavigation(ScreenContext<?> screen, Controller controller, Runnable next) {
 		run((behaviour, continuation) -> {
 			if (MinecraftUtil.getScreen() == screen.screen()) {
 				behaviour.handleNavigation(screen, controller, continuation);
@@ -60,7 +59,7 @@ public final class CompositeElementBehaviour implements ElementBehaviour {
 	}
 
 	@Override
-	public void handleInteraction(@NonNull ScreenContext<?> screen, @NonNull Controller controller, @NonNull Runnable next) {
+	public void handleInteraction(ScreenContext<?> screen, Controller controller, Runnable next) {
 		run((behaviour, continuation) -> {
 			if (MinecraftUtil.getScreen() == screen.screen()) {
 				behaviour.handleInteraction(screen, controller, continuation);
@@ -73,18 +72,18 @@ public final class CompositeElementBehaviour implements ElementBehaviour {
 	}
 
 	@Override
-	public void onFocusChanged(@NonNull ScreenContext<?> screen, boolean focused) {
+	public void onFocusChanged(ScreenContext<?> screen, boolean focused) {
 		behaviours.forEach(behaviour -> behaviour.onFocusChanged(screen, focused));
 	}
 
 	@Override
-	public Optional<ElementKeyboardBehaviour> keyboardBehaviour(@NonNull ScreenContext<?> screen) {
+	public Optional<ElementKeyboardBehaviour> keyboardBehaviour(ScreenContext<?> screen) {
 		return behaviours.stream().map(behaviour -> behaviour.keyboardBehaviour(screen))
 				.flatMap(Optional::stream).findFirst();
 	}
 
 	@Override
-	public void collectSnapPoints(@NonNull ScreenContext<?> screen, @NonNull Consumer<SnapPoint> output, @NonNull Runnable next) {
+	public void collectSnapPoints(ScreenContext<?> screen, Consumer<SnapPoint> output, Runnable next) {
 		run((behaviour, continuation) -> behaviour.collectSnapPoints(screen, output, continuation), next);
 	}
 }

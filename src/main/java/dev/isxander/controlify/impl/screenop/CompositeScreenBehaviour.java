@@ -11,7 +11,6 @@ import dev.isxander.controlify.api.screenop.ScreenBehaviour;
 import dev.isxander.controlify.api.screenop.SnapPoint;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -58,27 +57,27 @@ public final class CompositeScreenBehaviour implements ScreenBehaviour {
 	}
 
 	@Override
-	public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
+	public void handleNavigation(Controller controller, Runnable next) {
 		input((behaviour, continuation) -> behaviour.handleNavigation(controller, continuation), next);
 	}
 
 	@Override
-	public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
+	public void handleInteraction(Controller controller, Runnable next) {
 		input((behaviour, continuation) -> behaviour.handleInteraction(controller, continuation), next);
 	}
 
 	@Override
-	public void onWidgetRebuild(@NonNull Runnable next) {
+	public void onWidgetRebuild(Runnable next) {
 		run(ScreenBehaviour::onWidgetRebuild, next);
 	}
 
 	@Override
-	public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, float tickDelta, @NonNull Controller controller, @NonNull Runnable next) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, float tickDelta, Controller controller, Runnable next) {
 		run((behaviour, continuation) -> behaviour.extractRenderState(graphics, tickDelta, controller, continuation), next);
 	}
 
 	@Override
-	public void collectSnapPoints(@NonNull Consumer<SnapPoint> output, @NonNull Runnable next) {
+	public void collectSnapPoints(Consumer<SnapPoint> output, Runnable next) {
 		run((behaviour, continuation) -> behaviour.collectSnapPoints(output, continuation), next);
 	}
 
