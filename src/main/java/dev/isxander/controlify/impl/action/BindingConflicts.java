@@ -13,10 +13,13 @@ import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
 import net.minecraft.resources.Identifier;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,7 +34,8 @@ public final class BindingConflicts {
 		/// The binding's button is a modifier of another action's chord, and the binding
 		/// fires before the chord can claim it.
 		MODIFIER_LEAK,
-		/// Another action in a higher, non-transparent context takes this input whenever that context is active.
+		/// Another action in a higher overlay context takes this input from this binding while that context is active.
+		/// A context that is hidden outright, by a blocking context, is not shadowed: none of its bindings compete.
 		SHADOWED,
 		/// The same action already has this input with the same gestures.
 		REDUNDANT,
@@ -48,10 +52,14 @@ public final class BindingConflicts {
 	/// @param layerOrder every layer, top to bottom
 	public static List<Conflict> find(List<Entry> entries, List<ActionLayer> layerOrder) {
 		Map<Identifier, Integer> position = new HashMap<>();
-		Map<Identifier, ActionLayerMode> mode = new HashMap<>();
+		Map<Identifier, ActionLayer> layers = new HashMap<>();
 		for (int i = 0; i < layerOrder.size(); i++) {
 			position.put(layerOrder.get(i).id(), i);
-			mode.put(layerOrder.get(i).id(), layerOrder.get(i).mode());
+			layers.put(layerOrder.get(i).id(), layerOrder.get(i));
+		}
+		Map<Identifier, Integer> reach = new HashMap<>();
+		for (ActionLayer layer : layerOrder) {
+			reach.put(layer.id(), reach(layer, position, layers));
 		}
 
 		List<Conflict> conflicts = new ArrayList<>();
@@ -81,7 +89,7 @@ public final class BindingConflicts {
 							}
 							if (shareContext) {
 								conflicts.add(new Conflict(Kind.CONFLICT, a.action(), i, b.action(), j));
-							} else if (shadows(b.contexts(), a.contexts(), position, mode)) {
+							} else if (shadows(b.contexts(), a.contexts(), position, layers, reach)) {
 								conflicts.add(new Conflict(Kind.SHADOWED, a.action(), i, b.action(), j));
 							}
 						} else if (shareContext
@@ -123,24 +131,49 @@ public final class BindingConflicts {
 		return gesture.map(Gesture::firesBeforeRelease).orElse(true);
 	}
 
-	/// Whether some upper context sits above some lower context and consumes inputs.
+	/// Whether some upper context consumes inputs that some lower context would otherwise receive.
 	private static boolean shadows(
 			Set<Identifier> upper, Set<Identifier> lower,
-			Map<Identifier, Integer> position, Map<Identifier, ActionLayerMode> mode
+			Map<Identifier, Integer> position, Map<Identifier, ActionLayer> layers, Map<Identifier, Integer> reach
 	) {
 		for (Identifier upperContext : upper) {
-			Integer upperPosition = position.get(upperContext);
-			if (upperPosition == null || mode.get(upperContext) == ActionLayerMode.TRANSPARENT) {
+			ActionLayer upperLayer = layers.get(upperContext);
+			if (upperLayer == null || upperLayer.mode() == ActionLayerMode.TRANSPARENT) {
 				continue;
 			}
+			int upperPosition = position.get(upperContext);
+			int upperReach = reach.get(upperContext);
 			for (Identifier lowerContext : lower) {
 				Integer lowerPosition = position.get(lowerContext);
-				if (lowerPosition != null && upperPosition < lowerPosition) {
+				if (lowerPosition != null && upperPosition < lowerPosition && lowerPosition <= upperReach) {
 					return true;
 				}
 			}
 		}
 		return false;
+	}
+
+	/// The position of the lowest layer that can receive input while this layer is active: the nearest
+	/// blocking layer at or below it that is always active alongside it, being itself or one it requires.
+	private static int reach(ActionLayer layer, Map<Identifier, Integer> position, Map<Identifier, ActionLayer> layers) {
+		int layerPosition = position.get(layer.id());
+		int reach = Integer.MAX_VALUE;
+		Set<Identifier> seen = new HashSet<>(Set.of(layer.id()));
+		Deque<ActionLayer> pending = new ArrayDeque<>(List.of(layer));
+		while (!pending.isEmpty()) {
+			ActionLayer alwaysActive = pending.pop();
+			int alwaysActivePosition = position.get(alwaysActive.id());
+			if (alwaysActive.mode() == ActionLayerMode.BLOCKING && alwaysActivePosition >= layerPosition) {
+				reach = Math.min(reach, alwaysActivePosition);
+			}
+			for (Identifier requiredId : alwaysActive.requires()) {
+				ActionLayer required = layers.get(requiredId);
+				if (required != null && seen.add(requiredId)) {
+					pending.push(required);
+				}
+			}
+		}
+		return reach;
 	}
 
 	private BindingConflicts() {

@@ -56,40 +56,33 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 	}
 
 	public void registerBuiltinContexts() {
-		// Always applicable, so it sits above everything and consumes nothing.
-		this.layer(BuiltinActionLayers.UNKNOWN)
-				.mode(ActionLayerMode.TRANSPARENT)
-				.activeWhen(mc -> true)
-				.top()
-				.register();
 		// Radial actions shadow screen actions on the same inputs; screen-wide actions such as back still work.
 		this.layer(BuiltinActionLayers.RADIAL_MENU)
 				.mode(ActionLayerMode.OVERLAY)
 				.activeWhen(mc -> MinecraftUtil.getScreen() instanceof RadialMenuScreen)
-				.above(BuiltinActionLayers.V_MOUSE_COMPAT)
-				.register();
-		// Screen sub-contexts overlap on purpose; screen behaviours decide between their actions.
-		this.layer(BuiltinActionLayers.V_MOUSE_COMPAT)
-				.mode(ActionLayerMode.TRANSPARENT)
-				.activeWhen(mc -> MinecraftUtil.getScreen() != null
-						&& ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled() && mouse.mode().emulatesClicks()).orElse(false))
+				.requires(BuiltinActionLayers.ANY_SCREEN)
 				.above(BuiltinActionLayers.V_MOUSE_CURSOR)
 				.register();
+		// Screen sub-contexts overlap on purpose: which of their actions applies depends on what is
+		// hovered or focused, so they consume nothing and the screen behaviours decide.
 		this.layer(BuiltinActionLayers.V_MOUSE_CURSOR)
 				.mode(ActionLayerMode.TRANSPARENT)
 				.activeWhen(mc -> MinecraftUtil.getScreen() != null
 						&& ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false))
+				.requires(BuiltinActionLayers.ANY_SCREEN)
 				.above(BuiltinActionLayers.CONTAINER)
 				.register();
 		this.layer(BuiltinActionLayers.CONTAINER)
 				.mode(ActionLayerMode.TRANSPARENT)
 				.activeWhen(mc -> MinecraftUtil.getScreen() instanceof AbstractContainerScreen<?>)
+				.requires(BuiltinActionLayers.ANY_SCREEN)
 				.above(BuiltinActionLayers.REGULAR_SCREEN)
 				.register();
 		this.layer(BuiltinActionLayers.REGULAR_SCREEN)
 				.mode(ActionLayerMode.TRANSPARENT)
 				.activeWhen(mc -> MinecraftUtil.getScreen() != null
 						&& !ScreenRuntime.virtualMouse().map(mouse -> mouse.isEnabled()).orElse(false))
+				.requires(BuiltinActionLayers.ANY_SCREEN)
 				.above(BuiltinActionLayers.ANY_SCREEN)
 				.register();
 		// Any open screen hides gameplay.
@@ -111,11 +104,32 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 			throw new IllegalStateException("Action contexts must be registered before evaluating them");
 		}
 		List<ActionLayer> active = new ArrayList<>(this.orderedContexts.size());
+		Map<Identifier, Boolean> evaluated = new HashMap<>();
 		for (ActionLayer context : this.orderedContexts) {
-			if (context.isActive().test(minecraft)) {
+			if (this.isActive(context, minecraft, evaluated)) {
 				active.add(context);
 			}
 		}
+		return active;
+	}
+
+	/// A layer is only active while every layer it requires is.
+	private boolean isActive(ActionLayer context, Minecraft minecraft, Map<Identifier, Boolean> evaluated) {
+		Boolean known = evaluated.get(context.id());
+		if (known != null) {
+			return known;
+		}
+		// Layers requiring each other in a cycle are never active.
+		evaluated.put(context.id(), false);
+		boolean active = context.isActive().test(minecraft);
+		for (Identifier requiredId : context.requires()) {
+			if (!active) {
+				break;
+			}
+			ActionLayer required = this.contexts.get(requiredId);
+			active = required == null || this.isActive(required, minecraft, evaluated);
+		}
+		evaluated.put(context.id(), active);
 		return active;
 	}
 
@@ -138,6 +152,7 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 		private final Identifier id;
 		private ActionLayerMode mode = ActionLayerMode.OVERLAY;
 		private @Nullable Predicate<Minecraft> isActive;
+		private final Set<Identifier> requires = new LinkedHashSet<>();
 		private final Set<Identifier> above = new LinkedHashSet<>();
 		private final Set<Identifier> below = new LinkedHashSet<>();
 		private boolean top, bottom;
@@ -155,6 +170,12 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 		@Override
 		public @NonNull Builder activeWhen(@NonNull Predicate<Minecraft> isActive) {
 			this.isActive = Objects.requireNonNull(isActive);
+			return this;
+		}
+
+		@Override
+		public @NonNull Builder requires(@NonNull Identifier other) {
+			this.requires.add(Objects.requireNonNull(other));
 			return this;
 		}
 
@@ -198,7 +219,7 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 			if (registry.contexts.containsKey(this.id)) {
 				throw new IllegalArgumentException("Action context is already registered: " + this.id);
 			}
-			registry.contexts.put(this.id, new ActionLayer(this.id, this.mode, this.isActive));
+			registry.contexts.put(this.id, new ActionLayer(this.id, this.mode, this.isActive, this.requires));
 			registry.placements.put(this.id, placement);
 			return this.id;
 		}

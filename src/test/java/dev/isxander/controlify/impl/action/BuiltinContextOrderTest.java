@@ -21,9 +21,7 @@ class BuiltinContextOrderTest {
 		registry.lock();
 
 		assertEquals(List.of(
-				BuiltinActionLayers.UNKNOWN,
 				BuiltinActionLayers.RADIAL_MENU,
-				BuiltinActionLayers.V_MOUSE_COMPAT,
 				BuiltinActionLayers.V_MOUSE_CURSOR,
 				BuiltinActionLayers.CONTAINER,
 				BuiltinActionLayers.REGULAR_SCREEN,

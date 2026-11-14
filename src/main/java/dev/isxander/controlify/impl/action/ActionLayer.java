@@ -10,8 +10,18 @@ import dev.isxander.controlify.api.action.ActionLayerMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
+import java.util.Set;
 import java.util.function.Predicate;
 
 /// Internal layer definition; the public API exposes its identifier and registration parameters only.
-public record ActionLayer(Identifier id, ActionLayerMode mode, Predicate<Minecraft> isActive) {
+///
+/// @param requires layers that are always active while this one is
+public record ActionLayer(Identifier id, ActionLayerMode mode, Predicate<Minecraft> isActive, Set<Identifier> requires) {
+	public ActionLayer {
+		requires = Set.copyOf(requires);
+	}
+
+	public ActionLayer(Identifier id, ActionLayerMode mode, Predicate<Minecraft> isActive) {
+		this(id, mode, isActive, Set.of());
+	}
 }

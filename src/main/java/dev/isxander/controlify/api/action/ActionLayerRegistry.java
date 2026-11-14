@@ -31,6 +31,15 @@ public interface ActionLayerRegistry {
 		@Contract("_ -> this")
 		Builder activeWhen(Predicate<Minecraft> isActive);
 
+		/// Declares that this layer is only ever active while another is, such as a specific screen
+		/// requiring {@link BuiltinActionLayers#ANY_SCREEN}. The layer is inactive whenever the other is,
+		/// whatever its own predicate says. A layer that is never registered is ignored.
+		///
+		/// Binding conflict detection relies on this: a layer hidden by a blocking layer that
+		/// this one requires can never compete with it for an input.
+		@Contract("_ -> this")
+		Builder requires(Identifier other);
+
 		/// Places this layer above another. A layer that is never registered is ignored.
 		@Contract("_ -> this")
 		Builder above(Identifier other);

@@ -108,7 +108,7 @@ public final class ControlifyActions {
 	public static final ActionAccessor PAUSE = register(ActionSpec.builder()
 			.id(CUtil.rl("pause"))
 			.category(GAMEPLAY_CATEGORY)
-			.layer(BuiltinActionLayers.IN_GAME, BuiltinActionLayers.REGULAR_SCREEN));
+			.layer(BuiltinActionLayers.IN_GAME));
 	public static final ActionAccessor CHANGE_PERSPECTIVE = register(ActionSpec.builder()
 			.id(CUtil.rl("change_perspective"))
 			.category(GAMEPLAY_CATEGORY)
@@ -188,7 +188,7 @@ public final class ControlifyActions {
 	public static final ActionAccessor DROP_INVENTORY = register(ActionSpec.builder()
 			.id(CUtil.rl("drop_inventory"))
 			.category(INVENTORY_CATEGORY)
-			.layer(BuiltinActionLayers.CONTAINER, BuiltinActionLayers.REGULAR_SCREEN));
+			.layer(BuiltinActionLayers.CONTAINER));
 	public static final ActionAccessor PICK_BLOCK = register(ActionSpec.builder()
 			.id(CUtil.rl("pick_block"))
 			.category(CREATIVE_CATEGORY)
@@ -384,47 +384,47 @@ public final class ControlifyActions {
 	public static final ActionAccessor VMOUSE_LCLICK = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_lclick"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_RCLICK = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_rclick"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_SHIFT_CLICK = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_shift_click"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_SCROLL_DOWN = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_scroll_down"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_SCROLL_UP = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_scroll_up"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_SHIFT = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_shift"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_PAGE_NEXT = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_page_next"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_PAGE_PREV = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_page_prev"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_PAGE_DOWN = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_page_down"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_PAGE_UP = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_page_up"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.V_MOUSE_CURSOR));
+			.layer(BuiltinActionLayers.V_MOUSE_CURSOR));
 	public static final ActionAccessor VMOUSE_TOGGLE = register(ActionSpec.builder()
 			.id(CUtil.rl("vmouse_toggle"))
 			.category(VMOUSE_CATEGORY)
-			.layer(BuiltinActionLayers.V_MOUSE_CURSOR, BuiltinActionLayers.V_MOUSE_COMPAT, BuiltinActionLayers.ANY_SCREEN));
+			.layer(BuiltinActionLayers.ANY_SCREEN));
 
 	private static ActionAccessor register(ActionSpecBuilder builder) {
 		return ActionSpecRegistryImpl.INSTANCE.register(builder.build());

@@ -13,13 +13,14 @@ import net.minecraft.resources.Identifier;
 /// Referencing these constants does not initialize or register layer implementations.
 ///
 /// The built-in stack, from top to bottom:
-/// {@link #UNKNOWN}, {@link #RADIAL_MENU}, {@link #V_MOUSE_COMPAT}, {@link #V_MOUSE_CURSOR},
-/// {@link #CONTAINER}, {@link #REGULAR_SCREEN}, {@link #ANY_SCREEN}, {@link #IN_GAME}.
+/// {@link #RADIAL_MENU}, {@link #V_MOUSE_CURSOR}, {@link #CONTAINER}, {@link #REGULAR_SCREEN},
+/// {@link #ANY_SCREEN}, {@link #IN_GAME}.
 /// Use these as anchors with {@link ActionLayerRegistry.Builder#above(Identifier)} and
 /// {@link ActionLayerRegistry.Builder#below(Identifier)}.
+///
+/// Every layer between {@link #RADIAL_MENU} and {@link #REGULAR_SCREEN} requires {@link #ANY_SCREEN},
+/// so none of them ever competes with {@link #IN_GAME} for an input.
 public final class BuiltinActionLayers {
-	/// Always applicable. Transparent, at the top.
-	public static final Identifier UNKNOWN = CUtil.rl("unknown");
 	/// A world is loaded. Overlay, at the bottom; hidden whenever a screen is open.
 	public static final Identifier IN_GAME = CUtil.rl("in_game");
 	/// Any screen is open. Blocking, so gameplay contexts below it receive nothing.
@@ -30,8 +31,6 @@ public final class BuiltinActionLayers {
 	public static final Identifier CONTAINER = CUtil.rl("container");
 	/// The virtual mouse is on. Transparent.
 	public static final Identifier V_MOUSE_CURSOR = CUtil.rl("vmouse_cursor");
-	/// The virtual mouse is on and emulating clicks. Transparent.
-	public static final Identifier V_MOUSE_COMPAT = CUtil.rl("vmouse_compat");
 	/// The radial menu is open. Overlay, so its inputs shadow the screen contexts below.
 	public static final Identifier RADIAL_MENU = CUtil.rl("radial_menu");
 
