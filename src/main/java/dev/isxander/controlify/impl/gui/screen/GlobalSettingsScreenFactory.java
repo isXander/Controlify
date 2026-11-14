@@ -9,7 +9,6 @@ package dev.isxander.controlify.impl.gui.screen;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.config.settings.GlobalSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.reacharound.ReachAroundMode;
 import dev.isxander.controlify.impl.server.ServerPolicies;
 import dev.isxander.controlify.impl.server.ServerPolicy;
@@ -162,15 +161,6 @@ public class GlobalSettingsScreenFactory {
 										.description(OptionDescription.of(Component.translatable("controlify.gui.mixed_input.tooltip")))
 										.binding(GlobalSettings.defaults().mixedInput, () -> globalSettings.mixedInput, v -> globalSettings.mixedInput = v)
 										.controller(TickBoxControllerBuilder::create)
-										.build())
-								.optionIf(SteamDeckUtil.IS_STEAM_DECK, Option.<Boolean>createBuilder()
-										.name(Component.translatable("controlify.gui.use_enhanced_steam_deck_driver"))
-										.description(OptionDescription.createBuilder()
-												.text(Component.translatable("controlify.gui.use_enhanced_steam_deck_driver.tooltip"))
-												.build())
-										.binding(GlobalSettings.defaults().useEnhancedSteamDeckDriver, () -> globalSettings.useEnhancedSteamDeckDriver, v -> globalSettings.useEnhancedSteamDeckDriver = v)
-										.controller(TickBoxControllerBuilder::create)
-										.flag(OptionFlag.GAME_RESTART)
 										.build())
 								.option(ButtonOption.createBuilder()
 										.name(Component.translatable("controlify.gui.copy_debug_dump"))

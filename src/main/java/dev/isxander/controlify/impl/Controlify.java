@@ -31,8 +31,6 @@ import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerTypeManager;
 import dev.isxander.controlify.impl.debug.DebugProperties;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckMode;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.gui.font.InputFontMapper;
 import dev.isxander.controlify.impl.gui.guide.InGameButtonGuide;
 import dev.isxander.controlify.impl.gui.screen.*;
@@ -278,34 +276,6 @@ public class Controlify implements ControlifyApi {
 
 		if (DebugProperties.INIT_DUMP) {
 			CUtil.LOGGER.log("\n{}", DebugDump.dumpDebug());
-		}
-
-		if (this.config().getSettings().globalSettings().useEnhancedSteamDeckDriver) {
-			doSteamDeckChecks();
-		}
-	}
-
-	private void doSteamDeckChecks() {
-		CUtil.LOGGER.log("Steam Deck state: {}", SteamDeckUtil.DECK_MODE);
-
-		if (!SteamDeckUtil.IS_STEAM_DECK && DebugProperties.STEAM_DECK_CUSTOM_CEF_URL == null) {
-			return;
-		}
-
-		boolean connectedToCef = SteamDeckUtil.getDeckInstance().isPresent();
-
-		if (!connectedToCef) {
-			CUtil.LOGGER.error("Controlify could not connect to CEF debugger instance. Decky is probably not installed.");
-			InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDeckyRequiredWarning);
-		}
-
-		if (SteamDeckUtil.DECK_MODE == SteamDeckMode.DESKTOP_MODE) {
-			CUtil.LOGGER.warn("Controlify is running in SteamOS desktop mode.");
-			InitialScreenRegistryDuck.registerInitialScreen(SteamDeckAlerts::createDesktopModeWarning);
-		}
-
-		if (connectedToCef && SteamDeckUtil.DECK_MODE == SteamDeckMode.GAMING_MODE) {
-			CUtil.LOGGER.log("Steam Deck is in gaming mode and Controlify has successfully connected to CEF.");
 		}
 	}
 

@@ -71,8 +71,6 @@
   "controlify.gui.analogue_movement_whitelist": "Analogue Movement Whitelist",
   "controlify.gui.analogue_movement_whitelist.tooltip": "Servers listed here will use full analogue movement instead of keyboard-like movement. Only whitelist servers that permit analogue movement, as some server anti-cheats may reject it. A server policy requiring keyboard-like movement takes priority.",
   "controlify.gui.open_issue_tracker": "Open Issue Tracker",
-  "controlify.gui.use_enhanced_steam_deck_driver": "Use Enhanced Steam Deck Driver",
-  "controlify.gui.use_enhanced_steam_deck_driver.tooltip": "If enabled, Controlify will use an enhanced driver for the Steam Deck to improve compatibility and performance. This is experimental and may have bugs. This driver requires Decky Loader to be installed on your Deck.",
   "controlify.gui.copy_debug_dump": "Copy Debug Dump To Clipboard",
   "controlify.gui.copy_debug_dump.tooltip": "Copies a Controlify debug dump to your clipboard. You may be asked to use this if you are seeking support.",
 

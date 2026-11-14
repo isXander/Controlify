@@ -15,7 +15,6 @@ import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckDriver;
 import dev.isxander.controlify.impl.gui.screen.RadialItems.RadialPage;
 import dev.isxander.controlify.impl.gui.screen.RadialItems;
 import dev.isxander.controlify.impl.gui.screen.RadialMenuScreen;
@@ -244,11 +243,6 @@ public class InGameInputHandler {
 						//this.minecraft.gui.getChat()
 						//?}
 								.addClientSystemMessage(component);
-
-						// TODO: this currently does not work, yet to debug why not
-						SteamDeckDriver.getDeck().ifPresent(deck -> {
-							deck.doSteamScreenshot(screenshotFile.getAbsoluteFile().toPath(), "");
-						});
 					})
 			);
 		}

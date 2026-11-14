@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.controllermanager;
 
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.hid.HIDID;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.ControllerUtils;
@@ -45,13 +44,6 @@ public class ControllerManager implements Closeable {
 
 		if (controllerType.preventLoading()) {
 			controllerLogger.debugLog("Preventing load of controller #" + ucid + " because its type prevents loading.");
-			return false;
-		}
-
-		if (controllerType.isSteamDeck()
-			&& SteamDeckUtil.DECK_MODE.isDesktopMode()
-		) {
-			controllerLogger.log("Preventing load of controller #{} because Steam Deck is in desktop mode.", ucid);
 			return false;
 		}
 
