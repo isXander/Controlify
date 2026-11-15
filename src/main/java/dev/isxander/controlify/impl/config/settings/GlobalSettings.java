@@ -30,7 +30,6 @@ public class GlobalSettings {
 	public boolean extraUiSounds;
 	public boolean notifyLowBattery;
 	public float ingameButtonGuideScale;
-	public boolean useEnhancedSteamDeckDriver;
 	public boolean alwaysKeyboardMovement;
 	public List<String> analogueMovementWhitelist;
 	public final Set<String> seenServers;
@@ -48,7 +47,6 @@ public class GlobalSettings {
 		this.extraUiSounds = true;
 		this.notifyLowBattery = true;
 		this.ingameButtonGuideScale = 1f;
-		this.useEnhancedSteamDeckDriver = true;
 		this.alwaysKeyboardMovement = false;
 		this.analogueMovementWhitelist = new ArrayList<>();
 		this.seenServers = new HashSet<>();
@@ -65,7 +63,6 @@ public class GlobalSettings {
 			boolean extraUiSounds,
 			boolean notifyLowBattery,
 			float ingameButtonGuideScale,
-			boolean useEnhancedSteamDeckDriver,
 			boolean alwaysKeyboardMovement,
 			List<String> analogueMovementWhitelist,
 			Set<String> seenServers,
@@ -80,7 +77,6 @@ public class GlobalSettings {
 		this.extraUiSounds = extraUiSounds;
 		this.notifyLowBattery = notifyLowBattery;
 		this.ingameButtonGuideScale = ingameButtonGuideScale;
-		this.useEnhancedSteamDeckDriver = useEnhancedSteamDeckDriver;
 		this.alwaysKeyboardMovement = alwaysKeyboardMovement;
 		this.analogueMovementWhitelist = new ArrayList<>(analogueMovementWhitelist);
 		this.seenServers = new HashSet<>(seenServers);
@@ -128,7 +124,6 @@ public class GlobalSettings {
 				dto.extraUiSounds(),
 				dto.notifyLowBattery(),
 				dto.ingameButtonGuideScale(),
-				dto.useEnhancedSteamDeckDriver(),
 				dto.alwaysAllowKeyboardMovement(),
 				List.copyOf(dto.analogueMovementWhitelist()),
 				Set.copyOf(dto.seenServers()),
@@ -150,7 +145,6 @@ public class GlobalSettings {
 				extraUiSounds,
 				notifyLowBattery,
 				ingameButtonGuideScale,
-				useEnhancedSteamDeckDriver,
 				alwaysKeyboardMovement,
 				List.copyOf(analogueMovementWhitelist),
 				List.copyOf(seenServers),

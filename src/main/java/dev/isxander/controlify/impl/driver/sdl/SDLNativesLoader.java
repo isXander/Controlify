@@ -160,6 +160,11 @@ public class SDLNativesLoader {
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
 		sdl.hints().SDL_SetHint(SDL_HINT_JOYSTICK_LINUX_DEADZONES, "1");
 
+		// Steam sets these if the game is launched via the client.
+		// It's intended to make sure the game sees Steam Input instead of the raw device. We don't want that.
+		sdl.hints().SDL_SetHintWithPriority(SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, "", SDL_HINT_OVERRIDE);
+		sdl.stdinc().SDL_unsetenv_unsafe("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD");
+
 		// initialise SDL with just joystick and gamecontroller subsystems
 		if (!sdl.init().SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS)) {
 			LOGGER.error("Failed to initialise SDL3: {}", sdl.error().SDL_GetError());

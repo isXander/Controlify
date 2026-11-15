@@ -9,7 +9,6 @@ package dev.isxander.controlify.impl.controllermanager;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.isxander.controlify.impl.driver.steamdeck.SteamDeckUtil;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
@@ -34,9 +33,5 @@ public record ControllerType(
 
 	public Identifier getIconSprite() {
 		return id.withPrefix("controllers/");
-	}
-
-	public boolean isSteamDeck() {
-		return id.equals(SteamDeckUtil.STEAM_DECK_NAMESPACE);
 	}
 }
