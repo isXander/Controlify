@@ -10,8 +10,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import dev.isxander.controlify.impl.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.server.packets.EntityVibrationPacket;
 import dev.isxander.controlify.impl.server.packets.OriginVibrationPacket;
 import dev.isxander.controlify.impl.server.packets.VibrationPacket;
@@ -49,7 +49,7 @@ public class VibrateCommand {
 																												FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																												FloatArgumentType.getFloat(context, "high_freq_vibration"),
 																												IntegerArgumentType.getInteger(context, "duration"),
-																												RumbleSource.MASTER
+																												FeedbackSource.MASTER
 																										))
 																						)
 																						.then(
@@ -66,7 +66,7 @@ public class VibrateCommand {
 																																				IntegerArgumentType.getInteger(context, "duration"),
 																																				FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																																				FloatArgumentType.getFloat(context, "high_freq_vibration"),
-																																				RumbleSource.MASTER
+																																				FeedbackSource.MASTER
 																																		))
 																														)
 																														.then(
@@ -79,7 +79,7 @@ public class VibrateCommand {
 																																				IntegerArgumentType.getInteger(context, "duration"),
 																																				FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																																				FloatArgumentType.getFloat(context, "high_freq_vibration"),
-																																				RumbleSource.MASTER
+																																				FeedbackSource.MASTER
 																																		))
 																														)
 																										)
@@ -97,7 +97,7 @@ public class VibrateCommand {
 			Collection<ServerPlayer> targets,
 			float lowFreqMagnitude, float highFreqMagnitude,
 			int durationTicks,
-			RumbleSource rumbleSource
+			FeedbackSource rumbleSource
 	) {
 		RumbleState[] frames = new RumbleState[durationTicks];
 		Arrays.fill(frames, new RumbleState(lowFreqMagnitude, highFreqMagnitude));
@@ -123,7 +123,7 @@ public class VibrateCommand {
 			Vec3 origin,
 			float effectRange, int duration,
 			float lowFreqMagnitude, float highFreqMagnitude,
-			RumbleSource rumbleSource
+			FeedbackSource rumbleSource
 	) {
 		RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
@@ -148,7 +148,7 @@ public class VibrateCommand {
 			Entity origin,
 			float effectRange, int duration,
 			float lowFreqMagnitude, float highFreqMagnitude,
-			RumbleSource rumbleSource
+			FeedbackSource rumbleSource
 	) {
 		RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 

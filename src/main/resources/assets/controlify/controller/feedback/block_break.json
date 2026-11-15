@@ -1,0 +1,13 @@
+{
+  "release": 0.05,
+  "tracks": [
+    {
+      "band": "low",
+      "scale": {"param": "destroy_time", "from": [0, 20], "to": [0.02, 0.27], "ease": "in_quad"}
+    },
+    {
+      "band": "high",
+      "level": 0.01
+    }
+  ]
+}

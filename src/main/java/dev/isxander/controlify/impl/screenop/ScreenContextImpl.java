@@ -13,7 +13,8 @@ import dev.isxander.controlify.api.screenop.*;
 import dev.isxander.controlify.api.screenop.ElementKeyboardBehaviour;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import dev.isxander.controlify.impl.gui.keyboard.KeyboardOverlayScreen;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
@@ -141,7 +142,7 @@ public final class ScreenContextImpl<T extends Screen> implements ScreenContext<
 	@Override
 	public void playNavigationHaptic(Controller controller) {
 		if (controller instanceof ControllerImpl impl) {
-			impl.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+			FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, impl, null);
 		}
 	}
 

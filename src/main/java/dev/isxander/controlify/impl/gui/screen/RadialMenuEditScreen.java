@@ -18,7 +18,8 @@ import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.gui.radial.RadialIcon;
 import dev.isxander.controlify.impl.gui.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -676,7 +677,7 @@ public class RadialMenuEditScreen extends Screen {
 
 			if (moved) {
 				context.playFocusChangeSound();
-				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+				FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 			}
 		}
 

@@ -13,15 +13,11 @@ import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.touchpad.Touchpads;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.api.utils.event.EventSource;
-import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.resources.Identifier;
 
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,14 +33,7 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	private final Set<Identifier> supportedButtons;
 	private final Set<Identifier> supportedAxes;
 
-	private final boolean isGyroSupported;
-	private boolean active;
-
 	private final int numTouchpads;
-
-	private final boolean isSteamController;
-	private ByteBuffer steamControllerImuPayload;
-	private long steamControllerImuPayloadLastSent;
 
 	public SDL3GamepadDriver(Sdl sdl, SdlGamepadHandle ptrController, EventSource<SDLControllerEvent> eventSource, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
 		super(sdl, ptrController, jid, eventSource, type, logger);
@@ -58,24 +47,8 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				.boxed()
 				.flatMap(i -> Stream.of(SDLInputConversions.getGamepadAxis(i, true), SDLInputConversions.getGamepadAxis(i, false)))
 				.collect(Collectors.toSet());
-		this.isGyroSupported = this.sdl.gamepad().SDL_GamepadHasSensor(this.ptrController, SDL_SENSOR_GYRO);
 
 		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
-
-		// TODO: call steam://forceinputappid/480 on open and /0 on close (or SteamAPI equiv)
-		this.isSteamController = this.controllerType.id().equals(CUtil.rl("steam_controller"));
-		if (this.isSteamController) {
-			var payload = new byte[64];
-			Arrays.fill(payload, (byte) 0);
-			payload[0] = (byte) 0x01; // report id
-			payload[1] = (byte) 0x87; // set settings
-			payload[2] = (byte) 0x03; // payload length (one setting)
-			payload[3] = (byte) 0x30; // IMU mode setting
-			payload[4] = (byte) 0x18; // raw accel + raw gyro, LE
-			payload[5] = (byte) 0x00; // ditto
-			MemorySegment memory = this.arena.allocateFrom(ValueLayout.OfByte.JAVA_BYTE, payload);
-			this.steamControllerImuPayload = memory.asByteBuffer();
-		}
 	}
 
 	@Override
@@ -92,10 +65,6 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				)
 		);
 
-		if (this.isGyroSupported) {
-			controller.addComponent(new GyroComponentImpl(this.inputPipeline));
-		}
-
 		if (this.numTouchpads > 0) {
 			controller.addComponent(this.touchpadComponent = new TouchpadComponent(
 					new Touchpads(
@@ -107,21 +76,6 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 								).toArray(Touchpads.Touchpad[]::new)
 					)
 			));
-		}
-	}
-
-	@Override
-	public void setActive(boolean active) {
-		if (this.ptrController == null) {
-			throw new IllegalStateException("Tried to activate or deactivate a closed controller.");
-		}
-		if (this.active == active) {
-			return;
-		}
-		this.active = active;
-		if (this.isGyroSupported
-				&& !this.sdl.gamepad().SDL_SetGamepadSensorEnabled(this.ptrController, SDL_SENSOR_GYRO, active)) {
-			this.logger.warn("Failed to {} gyro sensor: {}", active ? "enable" : "disable", this.sdl.error().SDL_GetError());
 		}
 	}
 
@@ -140,25 +94,6 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 			default -> {}
 		}
-	}
-
-	@Override
-	public void update(ControllerImpl controller) {
-		super.update(controller);
-
-		if (this.active && this.isSteamController) {
-			long now = System.currentTimeMillis();
-			if (now - this.steamControllerImuPayloadLastSent > 3000) {
-				SDL_SendControllerEffect(ptrController, steamControllerImuPayload);
-				this.steamControllerImuPayloadLastSent = now;
-			}
-		}
-	}
-
-	@Override
-	public void close() {
-		this.setActive(false);
-		super.close();
 	}
 
 	private void onTouchpadEvent(SDLControllerEvent.GamepadTouchpad event) {
@@ -232,5 +167,15 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 	@Override
 	protected boolean SDL_SetControllerLED(SdlGamepadHandle ptrController, byte red, byte green, byte blue) {
 		return sdl.gamepad().SDL_SetGamepadLED(ptrController, red, green, blue);
+	}
+
+	@Override
+	protected boolean SDL_ControllerHasSensor(SdlGamepadHandle ptrController, int type) {
+		 return sdl.gamepad().SDL_GamepadHasSensor(ptrController, type);
+	}
+
+	@Override
+	protected boolean SDL_SetControllerSensorEnabled(SdlGamepadHandle ptrController, int type, boolean enabled) {
+		return sdl.gamepad().SDL_SetGamepadSensorEnabled(ptrController, type, enabled);
 	}
 }

@@ -86,7 +86,8 @@ export default defineConfig({
           { text: 'Button Guides', link: '/resource-packs/guides' },
           { text: 'Keyboard Layouts', link: '/resource-packs/keyboard-layouts' },
           { text: 'Radial Menu Icons', link: '/resource-packs/radial-icons' },
-          { text: 'Adaptive Trigger Effects', link: '/resource-packs/adaptive-trigger-effects' }
+          { text: 'Adaptive Trigger Effects', link: '/resource-packs/adaptive-trigger-effects' },
+          { text: 'Feedback Effects', link: '/resource-packs/feedback-effects' }
         ]
       },
       {
@@ -97,7 +98,8 @@ export default defineConfig({
           { text: 'Controlify Entrypoint', link: '/developers/controlify-entrypoint' },
           { text: 'Bindings API', link: '/developers/bindings-api' },
           { text: 'Screen Operation API', link: '/developers/screen-operation-api' },
-          { text: 'Contextual API', link: '/developers/contextual-api' }
+          { text: 'Contextual API', link: '/developers/contextual-api' },
+          { text: 'Feedback API', link: '/developers/feedback-api' }
         ]
       },
 			{

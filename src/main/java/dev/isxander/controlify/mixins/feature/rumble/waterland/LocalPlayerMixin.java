@@ -6,12 +6,7 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.waterland;
 
-import dev.isxander.controlify.impl.Controlify;
-
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import java.util.Objects;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
@@ -34,22 +29,14 @@ public abstract class LocalPlayerMixin extends PlayerMixin {
 			return;
 		}
 
-		Controlify.instance().getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble -> {
-			Entity entity = Objects.requireNonNullElse(this.getControllingPassenger(), this);
-			float f = entity == this ? 0.2F : 0.9F;
-			Vec3 vec3 = entity.getDeltaMovement();
-			float impactForce = Math.min(1.0F, (float)Math.sqrt(vec3.x * vec3.x * 0.2F + vec3.y * vec3.y + vec3.z * vec3.z * 0.2F) * f);
+		Entity entity = Objects.requireNonNullElse(this.getControllingPassenger(), this);
+		float f = entity == this ? 0.2F : 0.9F;
+		Vec3 vec3 = entity.getDeltaMovement();
+		float impactForce = Math.min(1.0F, (float)Math.sqrt(vec3.x * vec3.x * 0.2F + vec3.y * vec3.y + vec3.z * vec3.z * 0.2F) * f);
 
-			if (impactForce >= 0.05f) {
-				float multiplier = Math.min(1, impactForce / 0.5f);
-				rumble.playEffect(
-						CUtil.rl("water_land"),
-						RumbleEffect.finite().byTime(
-								t -> new RumbleState(multiplier * (1 - t), multiplier * 0.5f),
-								impactForce < 0.25f ? 10 : 20
-						)
-				);
-			}
-		});
+		// too gentle to feel
+		if (impactForce >= 0.05f) {
+			BuiltinFeedback.WATER_LAND.fire(new BuiltinFeedback.WaterImpact(impactForce));
+		}
 	}
 }

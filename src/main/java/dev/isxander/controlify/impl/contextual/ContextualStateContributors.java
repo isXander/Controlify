@@ -14,11 +14,15 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
+
+import java.util.Locale;
 
 public final class ContextualStateContributors {
 	private static final Identifier SLOT_SELF = CUtil.rl("self");
@@ -72,6 +76,7 @@ public final class ContextualStateContributors {
 		sink.contributeItem(SLOT_MAIN_HAND, context.player().getMainHandItem());
 		sink.contributeItem(SLOT_OFF_HAND, context.player().getOffhandItem());
 		sink.contributeItem(SLOT_ACTIVE_ITEM, context.player().getActiveItem());
+		contributeUseAnimation(sink, context.player().getActiveItem());
 		sink.contributeFact(
 				FACT_MAIN_HAND_IS_BLOCK_ITEM,
 				context.player().getMainHandItem().getItem() instanceof BlockItem
@@ -156,6 +161,21 @@ public final class ContextualStateContributors {
 				context.cursorOutsideContainer()
 		);
 	};
+
+	/// Contributes `controlify:use_animation/<name>` for every use animation (`bow`, `crossbow`,
+	/// `block`, `spyglass`, `eat`, `drink`, `toot_horn`, `spear`, ...), true only for the one `stack` uses.
+	public static void contributeUseAnimation(ContextualStateSink sink, ItemStack stack) {
+		contributeUseAnimation(sink, stack.getUseAnimation());
+	}
+
+	public static void contributeUseAnimation(ContextualStateSink sink, ItemUseAnimation current) {
+		for (ItemUseAnimation animation : ItemUseAnimation.values()) {
+			sink.contributeFact(
+					CUtil.rl("use_animation/" + animation.name().toLowerCase(Locale.ROOT)),
+					animation == current
+			);
+		}
+	}
 
 	private ContextualStateContributors() {
 	}

@@ -1,0 +1,14 @@
+{
+  "duration": 1.05,
+  "tracks": [
+    {
+      "band": "low",
+      "lfo": {"period": 0.35, "on": 0.1}
+    },
+    {
+      "band": "high",
+      "level": 0.5,
+      "lfo": {"period": 0.35, "on": 0.1}
+    }
+  ]
+}

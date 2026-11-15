@@ -8,8 +8,7 @@ package dev.isxander.controlify.impl.gui.screen;
 
 import dev.isxander.controlify.api.action.Action;
 import dev.isxander.controlify.api.contextual.GuideVerbosity;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.api.feedback.FeedbackEffect;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ActionDispatcher;
 import dev.isxander.controlify.impl.action.activator.ActivatorConfig;
@@ -26,8 +25,9 @@ import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
 import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
-import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import dev.isxander.controlify.impl.feedback.FeedbackRegistryImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.api.gui.font.ActionGlyphs;
 import dev.isxander.controlify.impl.action.ControlifyActions;
@@ -576,7 +576,9 @@ public class ControllerConfigScreenFactory {
 				.controller(TickBoxControllerBuilder::create)
 				.build());
 
-		boolean hdHapticsNotSupported = controller.isPresent() && controller.get().hdHaptics().isEmpty();
+		boolean hdHapticsNotSupported = controller.isPresent()
+				&& controller.get().pcmHaptics().isEmpty()
+				&& controller.get().steamHaptics().isEmpty();
 		vibrationGroup.option(Option.<Boolean>createBuilder()
 				.name(Component.translatable("controlify.gui.hd_haptics"))
 				.description(OptionDescription.createBuilder()
@@ -587,7 +589,7 @@ public class ControllerConfigScreenFactory {
 				.controller(TickBoxControllerBuilder::create)
 				.build());
 
-		for (RumbleSource source : Controlify.instance().rumbleSourceManager().sources()) {
+		for (FeedbackSource source : Controlify.instance().feedbackSourceManager().sources()) {
 			var option = Option.<Float>createBuilder()
 					.name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
 					.description(OptionDescription.createBuilder()
@@ -608,22 +610,21 @@ public class ControllerConfigScreenFactory {
 			vibrationGroup.option(option);
 		}
 		if (controller.isPresent() && controller.get().rumble().isPresent()) {
-			RumbleComponentImpl rumble = controller.get().rumble().get();
+			ControllerImpl testController = controller.get();
 			vibrationGroup.option(ButtonOption.createBuilder()
 					.name(Component.translatable("controlify.gui.test_vibration"))
 					.description(OptionDescription.of(Component.translatable("controlify.gui.test_vibration.tooltip")))
 					.action((screen, btn) -> {
-						rumble.playEffect(
-								CUtil.rl("test_vibration"),
-								RumbleEffect.finite().byTime(t -> new RumbleState(0f, t), 20)
-										.then(RumbleEffect.finite().byTime(t -> new RumbleState(0f, 1 - t), 20))
-										.repeat(3)
-										.then(RumbleEffect.finite().constant(1f, 0f, 5)
-												.then(RumbleEffect.finite().constant(0f, 1f, 5))
-												.repeat(10)
-										)
-										.stopCondition(() -> MinecraftUtil.getScreen() != screen)
-						);
+						FeedbackEffect<Object> effect = FeedbackRegistryImpl.INSTANCE.findData(BuiltinFeedback.TEST_VIBRATION);
+						if (effect != null) {
+							testController.feedback().play(
+									BuiltinFeedback.TEST_VIBRATION,
+									FeedbackSource.MASTER,
+									// stops as soon as the settings screen is left
+									(playback, out) -> MinecraftUtil.getScreen() == screen && effect.sample(playback, out),
+									null, 0f
+							);
+						}
 					})
 					.build());
 		}

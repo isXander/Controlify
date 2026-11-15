@@ -1,0 +1,20 @@
+{
+  "duration": 11,
+  "tracks": [
+    {
+      "band": "high",
+      "envelope": [[0, 1], [6, 1], [6, 0]],
+      "lfo": {"period": 2, "shape": "triangle"}
+    },
+    {
+      "band": "low",
+      "delay": 6,
+      "lfo": {"period": 0.5, "on": 0.25}
+    },
+    {
+      "band": "high",
+      "delay": 6.25,
+      "lfo": {"period": 0.5, "on": 0.25}
+    }
+  ]
+}

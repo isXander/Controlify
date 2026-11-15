@@ -36,6 +36,7 @@ import java.io.BufferedReader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 public final class ContextualDomainImpl<C extends Context> implements ContextualDomain<C>, SimpleControlifyReloadListener<ContextualDomainImpl.Preparations> {
 	public static final String DIRECTORY = "controller/contextual/facts";
@@ -215,10 +216,23 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 	}
 
 	public ContextualState calculateState(C context, @Nullable Collection<Identifier> requiredFacts) {
+		return this.calculateState(context, requiredFacts, null);
+	}
+
+	/// @param extra contributes after the domain's contributors, so it can add to or override
+	///              their state for this calculation only; used by events to contribute their subject
+	public ContextualState calculateState(
+			C context,
+			@Nullable Collection<Identifier> requiredFacts,
+			@Nullable Consumer<ContextualStateSink> extra
+	) {
 		Objects.requireNonNull(context, "context");
 
 		ContextualStateAccumulator state = new ContextualStateAccumulator();
 		this.contributor.contribute(context, state);
+		if (extra != null) {
+			extra.accept(state);
+		}
 		ContextualDebug.logStateStart(this.id, state.snapshot(), requiredFacts);
 
 		FactDependencyGraph graph = this.currentFactGraph(Minecraft.getInstance().level);

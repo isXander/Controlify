@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.controller.rumble;
 
-import dev.isxander.controlify.api.controller.rumble.TriggerRumbleState;
+import dev.isxander.controlify.impl.controller.rumble.TriggerRumbleState;
 import dev.isxander.controlify.impl.controller.ControllerComponent;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;

@@ -7,8 +7,7 @@
 package dev.isxander.controlify.impl.config.settings.profile;
 
 import dev.isxander.controlify.impl.config.dto.profile.RumbleConfig;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
 import net.minecraft.resources.Identifier;
 
 import java.util.HashMap;
@@ -36,14 +35,14 @@ public class RumbleSettings {
 		return this.vibrationStrengths.getOrDefault(sourceId, 1.0f);
 	}
 
-	public RumbleState applyRumbleStrength(RumbleState baseStrength, RumbleSource source) {
-		Identifier masterSourceId = RumbleSource.MASTER.id();
+	/// The factor every output of a playback from this source is multiplied by.
+	public float strengthMultiplier(FeedbackSource source) {
+		Identifier masterSourceId = FeedbackSource.MASTER.id();
 		float masterStrength = this.getStrengthForSource(masterSourceId);
 		if (masterSourceId.equals(source.id())) {
-			return baseStrength.mul(masterStrength);
+			return masterStrength;
 		}
 
-		float strengthMultiplier = masterStrength * getStrengthForSource(source.id());
-		return baseStrength.mul(strengthMultiplier);
+		return masterStrength * getStrengthForSource(source.id());
 	}
 }

@@ -1,0 +1,12 @@
+{
+  "tracks": [
+    {
+      "band": "low",
+      "level": 0.3
+    },
+    {
+      "band": "high",
+      "level": 0.3
+    }
+  ]
+}

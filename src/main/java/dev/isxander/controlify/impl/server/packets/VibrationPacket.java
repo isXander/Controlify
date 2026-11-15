@@ -6,16 +6,16 @@
  */
 package dev.isxander.controlify.impl.server.packets;
 
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
+import dev.isxander.controlify.api.feedback.FeedbackEffect;
+import dev.isxander.controlify.impl.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
-public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
+public record VibrationPacket(FeedbackSource source, RumbleState[] frames) {
 	public static final Identifier CHANNEL = CUtil.rl("vibration");
 
 	public static final StreamCodec<FriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.of(
@@ -27,7 +27,7 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
 			}
 		},
 		buf -> {
-			RumbleSource source = new RumbleSource(buf.readIdentifier());
+			FeedbackSource source = new FeedbackSource(buf.readIdentifier());
 			RumbleState[] frames = new RumbleState[buf.readInt()];
 			for (int i = 0; i < frames.length; i++) {
 				frames[i] = RumbleState.unpackFromInt(buf.readInt());
@@ -36,7 +36,15 @@ public record VibrationPacket(RumbleSource source, RumbleState[] frames) {
 		}
 	);
 
-	public RumbleEffect createEffect() {
-		return RumbleEffect.finite().byTick(tick -> frames[tick], frames.length).stopCondition(() -> Minecraft.getInstance().level == null);
+	/// Plays the frames back at 20 per second, as the server authored them.
+	public FeedbackEffect<Object> createEffect() {
+		return (playback, out) -> {
+			int frame = (int) (playback.seconds() * 20f);
+			if (frame >= frames.length || Minecraft.getInstance().level == null) {
+				return false;
+			}
+			out.rumble(frames[frame].strong(), frames[frame].weak());
+			return true;
+		};
 	}
 }

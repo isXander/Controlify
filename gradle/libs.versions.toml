@@ -1,7 +1,7 @@
 [versions]
 fabric_loader = "0.19.3"
-sdl_natives = "release-3.4.14"
-sdl_java = "release-3.4.14-9"
+sdl_natives = "fda4ece2775c"
+sdl_java = "fda4ece2775c-12"
 quilt_parsers = "0.3.0"
 
 modstitch_manifests = "0.1.5"

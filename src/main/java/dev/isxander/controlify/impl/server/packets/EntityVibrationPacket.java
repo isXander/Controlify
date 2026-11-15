@@ -6,18 +6,20 @@
  */
 package dev.isxander.controlify.impl.server.packets;
 
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
+import dev.isxander.controlify.api.feedback.FeedbackEffect;
+import dev.isxander.controlify.impl.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
 import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.Easings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
-public record EntityVibrationPacket(int entityId, float range, int duration, RumbleState state, RumbleSource source) {
+import java.util.function.Supplier;
+
+public record EntityVibrationPacket(int entityId, float range, int duration, RumbleState state, FeedbackSource source) {
 	public static final Identifier CHANNEL = CUtil.rl("vibrate_from_entity");
 
 	public static final StreamCodec<FriendlyByteBuf, EntityVibrationPacket> CODEC = StreamCodec.of(
@@ -33,15 +35,28 @@ public record EntityVibrationPacket(int entityId, float range, int duration, Rum
 			buf.readFloat(),
 			buf.readInt(),
 			RumbleState.unpackFromInt(buf.readInt()),
-			new RumbleSource(buf.readIdentifier())
+			new FeedbackSource(buf.readIdentifier())
 		)
 	);
 
-	public RumbleEffect createEffect() {
+	/// A constant vibration lasting `duration` ticks. The engine attenuates it by distance.
+	public FeedbackEffect<Object> createEffect() {
+		float seconds = duration / 20f;
+		return (playback, out) -> {
+			if (playback.seconds() >= seconds) {
+				return false;
+			}
+			out.rumble(state.strong(), state.weak());
+			return true;
+		};
+	}
+
+	/// Where the vibration comes from, following the entity as it moves.
+	public Supplier<Vec3> position() {
 		Entity entity = Minecraft.getInstance().level.getEntity(entityId);
-		return RumbleEffect.continuous()
-				.constant(state.strong(), state.weak())
-				.inWorld(entity::position, 0, 1, range, Easings.toFloat(Easings::easeInSine))
-				.timeout(duration);
+		Vec3 fallback = Minecraft.getInstance().getCameraEntity() != null
+				? Minecraft.getInstance().getCameraEntity().position()
+				: Vec3.ZERO;
+		return () -> entity != null ? entity.position() : fallback;
 	}
 }

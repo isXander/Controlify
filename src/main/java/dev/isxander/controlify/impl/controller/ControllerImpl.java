@@ -11,7 +11,9 @@ import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponentImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
-import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
+import dev.isxander.controlify.impl.controller.haptic.PcmHapticsComponent;
+import dev.isxander.controlify.impl.controller.haptic.SteamHapticsComponent;
+import dev.isxander.controlify.impl.feedback.SteamHapticsRenderer;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.controller.led.LEDComponent;
 import dev.isxander.controlify.impl.controller.misc.BluetoothDeviceComponent;
@@ -22,14 +24,24 @@ import dev.isxander.controlify.impl.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.impl.controller.steamdeck.SteamDeckComponent;
 import dev.isxander.controlify.impl.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.impl.driver.Driver;
+import dev.isxander.controlify.impl.feedback.DualMotorRenderer;
+import dev.isxander.controlify.impl.feedback.FeedbackEngine;
+import dev.isxander.controlify.impl.feedback.FeedbackRenderer;
+import dev.isxander.controlify.impl.feedback.LiveFeedbackServices;
+import dev.isxander.controlify.impl.feedback.PcmRenderer;
+import dev.isxander.controlify.impl.feedback.SwitchingRenderer;
+import dev.isxander.controlify.impl.feedback.TriggerMotorRenderer;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 public final class ControllerImpl implements Controller {
@@ -38,6 +50,7 @@ public final class ControllerImpl implements Controller {
 	private final ControlifyLogger logger;
 
 	private final Map<Identifier, ControllerComponent> components;
+	private final FeedbackEngine feedback;
 
 	private ProfileSettings settings;
 	private ProfileSettings defaultSettings;
@@ -61,6 +74,7 @@ public final class ControllerImpl implements Controller {
 
 		this.driver.addComponents(this);
 		this.getAllComponents().values().forEach(c -> c.attach(this));
+		this.feedback = this.createFeedbackEngine();
 
 		logger.debugLog(
 				"Components: {}",
@@ -118,13 +132,44 @@ public final class ControllerImpl implements Controller {
 		return this.defaultSettings;
 	}
 
+	/// The feedback engine of this controller, which mixes every playing effect and drives the renderers.
+	public @NonNull FeedbackEngine feedback() {
+		return this.feedback;
+	}
+
+	private FeedbackEngine createFeedbackEngine() {
+		List<FeedbackRenderer> renderers = new ArrayList<>();
+		SteamHapticsComponent steam = this.steamHaptics().orElse(null);
+		BooleanSupplier steamHdActive = () -> steam != null && steam.settings().enabled && steam.isWorking();
+
+		FeedbackRenderer motors = this.rumble()
+				.<FeedbackRenderer>map(rumble -> new DualMotorRenderer(rumble::queueRumble, steamHdActive))
+				.orElse(null);
+		PcmHapticsComponent pcmHaptics = this.pcmHaptics().orElse(null);
+		if (pcmHaptics != null) {
+			// the HD actuators also emulate rumble, so only ever drive them one way at a time
+			FeedbackRenderer pcm = new PcmRenderer(pcmHaptics.sink());
+			renderers.add(motors == null ? pcm : new SwitchingRenderer(() -> pcmHaptics.settings().enabled, pcm, motors));
+		} else if (motors != null) {
+			renderers.add(motors);
+		}
+
+		// voices and clicks only; this controller's rumble still goes through the motors above
+		if (steam != null) {
+			renderers.add(new SwitchingRenderer(steamHdActive, new SteamHapticsRenderer(steam), FeedbackRenderer.NONE));
+		}
+
+		this.triggerRumble().ifPresent(triggers -> renderers.add(new TriggerMotorRenderer(triggers::queueTriggerRumble)));
+
+		return new FeedbackEngine(new LiveFeedbackServices(this), renderers);
+	}
+
 	@Override
 	public @NonNull InputComponentImpl input() {
 		// assert that all controllers must have InputComponentImpl
 		return this.<InputComponentImpl>getComponent(InputComponentImpl.ID).orElseThrow();
 	}
 
-	@Override
 	public @NonNull Optional<RumbleComponentImpl> rumble() {
 		return this.getComponent(RumbleComponentImpl.ID);
 	}
@@ -155,8 +200,12 @@ public final class ControllerImpl implements Controller {
 		return this.getComponent(DualsenseComponentImpl.ID);
 	}
 
-	public @NonNull Optional<HDHapticComponent> hdHaptics() {
-		return this.getComponent(HDHapticComponent.ID);
+	public @NonNull Optional<PcmHapticsComponent> pcmHaptics() {
+		return this.getComponent(PcmHapticsComponent.ID);
+	}
+
+	public @NonNull Optional<SteamHapticsComponent> steamHaptics() {
+		return this.getComponent(SteamHapticsComponent.ID);
 	}
 
 	public @NonNull Optional<BluetoothDeviceComponent> bluetoothDevice() {
@@ -188,6 +237,7 @@ public final class ControllerImpl implements Controller {
 
 	public void close() {
 		this.setActive(false);
+		this.feedback.clear();
 		this.getAllComponents().values().forEach(ControllerComponent::close);
 		this.driver.close();
 	}

@@ -70,8 +70,7 @@ public class GlobalSettingsScreenFactory {
 										.controller(TickBoxControllerBuilder::create)
 										.addListener((opt, val) -> {
 											Controlify.instance().getCurrentController()
-													.flatMap(ControllerImpl::rumble)
-													.ifPresent(rumble -> rumble.rumbleManager().clearEffects());
+													.ifPresent(controller -> controller.feedback().clear());
 										})
 										.build())
 								.option(Option.<Boolean>createBuilder()

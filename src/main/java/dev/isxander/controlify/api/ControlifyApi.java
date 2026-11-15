@@ -8,8 +8,6 @@ package dev.isxander.controlify.api;
 
 import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
 import dev.isxander.controlify.api.controller.Controller;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
 import dev.isxander.controlify.impl.Controlify;
 import net.minecraft.resources.Identifier;
 
@@ -37,8 +35,4 @@ public interface ControlifyApi {
 
 	/// Returns whether the mode changed. Controller modes require a current controller.
 	boolean setInputMode(InputMode mode);
-
-	default Optional<RumbleEffectInstance> playRumbleEffect(Identifier effectId, RumbleEffect effect) {
-		return getCurrentController().flatMap(Controller::rumble).map(rumble -> rumble.playEffect(effectId, effect));
-	}
 }

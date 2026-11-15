@@ -16,7 +16,8 @@ import dev.isxander.controlify.impl.action.ControlifyActions;
 import dev.isxander.controlify.impl.gui.radial.RadialIcon;
 import dev.isxander.controlify.impl.gui.radial.RadialIconExtractor;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.haptic.HapticEffects;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import dev.isxander.controlify.impl.gui.screen.RadialItems.RadialPage;
 import dev.isxander.controlify.impl.sound.ControlifyClientSounds;
 import dev.isxander.controlify.impl.utils.CUtil;
@@ -145,7 +146,7 @@ public class RadialMenuScreen extends Screen {
 		pageIndex = Math.floorMod(pageIndex + direction, pageCount());
 		buildCurrentPage();
 		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
-		controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+		FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 	}
 
 	private void onControllerInput(@NonNull ControllerImpl controller) {
@@ -195,7 +196,7 @@ public class RadialMenuScreen extends Screen {
 			if (newSelected != selectedButton) {
 				selectedButton = newSelected;
 				minecraft.getSoundManager().play(SimpleSoundInstance.forUI(ControlifyClientSounds.SCREEN_FOCUS_CHANGE.get(), 1f));
-				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+				FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 			}
 
 			for (int i = 0; i < buttons.length; i++) {
@@ -211,7 +212,7 @@ public class RadialMenuScreen extends Screen {
 			if (idleTicks >= idleTicksTimeout && selectedButton != -1) {
 				selectedButton = -1;
 				for (RadialButton button : buttons) button.setFocused(false);
-				controller.hdHaptics().ifPresent(haptics -> haptics.playHaptic(HapticEffects.NAVIGATE));
+				FeedbackEventImpl.fireOn(BuiltinFeedback.UI_NAVIGATE, controller, null);
 			}
 		}
 	}

@@ -12,8 +12,9 @@ import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
 import dev.isxander.controlify.impl.controller.battery.PowerState;
 import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponentImpl;
-import dev.isxander.controlify.impl.controller.haptic.CompleteSoundData;
-import dev.isxander.controlify.impl.controller.haptic.HDHapticComponent;
+import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
+import dev.isxander.controlify.impl.controller.haptic.PcmHapticsComponent;
+import dev.isxander.controlify.impl.controller.haptic.SteamHapticsComponent;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.controller.misc.DriverNameComponent;
 import dev.isxander.controlify.impl.controller.misc.UIDComponent;
@@ -24,9 +25,10 @@ import dev.isxander.controlify.impl.controller.rumble.TriggerRumbleComponent;
 import dev.isxander.controlify.impl.driver.Driver;
 import dev.isxander.controlify.impl.driver.dualsense.DualsenseEffectsState;
 import dev.isxander.controlify.impl.driver.dualsense.DualsenseTriggerEffect;
+import dev.isxander.controlify.impl.feedback.PcmSink;
 import dev.isxander.controlify.impl.input.pipeline.InputPipeline;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.api.controller.rumble.TriggerRumbleState;
+import dev.isxander.controlify.impl.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.controller.rumble.TriggerRumbleState;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
@@ -35,21 +37,23 @@ import net.minecraft.util.Util;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.sound.sampled.AudioFormat;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static dev.isxander.sdl.SdlAudio.*;
+import static dev.isxander.sdl.SdlGamepad.SDL_SENSOR_GYRO;
 import static dev.isxander.sdl.SdlInit.*;
 import static dev.isxander.sdl.SdlProperties.*;
 
 public abstract class SDLCommonDriver<SdlController> implements Driver {
-	private static final int AUDIO_STREAM_TIMEOUT_TICKS = 5 * 60 * 60 * 20; // 5 minutes
+	/// The most haptic audio written to the stream in one call.
+	private static final int HAPTIC_BUFFER_FRAMES = 4096;
 
 	protected final Sdl sdl;
 	protected final ControlifyLogger logger;
@@ -66,13 +70,14 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected BatteryLevelComponent batteryLevelComponent;
 	protected RumbleComponentImpl rumbleComponent;
 	protected TriggerRumbleComponent triggerRumbleComponent;
-	protected HDHapticComponent hdHapticComponent;
+	protected PcmHapticsComponent pcmHapticsComponent;
 	protected LEDComponent ledComponent;
 	protected DualsenseComponentImpl dualSenseComponent;
 
 	protected final boolean isRumbleSupported, isTriggerRumbleSupported;
 	protected final boolean isDualsense;
 	protected final boolean isRGBLedSupported;
+	protected final boolean isGyroSupported;
 
 	protected final SdlGuid guid;
 	protected final String guidString;
@@ -85,7 +90,11 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 	@Nullable protected SdlAudioDeviceId dualsenseAudioDev;
 	@Nullable protected SdlAudioSpec dualsenseAudioSpec;
-	protected final List<AudioStreamHandle> dualsenseAudioHandles;
+	/// Stereo float audio that drives the left and right haptic actuators.
+	@Nullable private SdlAudioStreamHandle hapticStream;
+	@Nullable private MemorySegment hapticBuffer;
+
+	private boolean active;
 
 	public SDLCommonDriver(Sdl sdl, SdlController ptrController, SdlJoystickId jid, EventSource<SDLControllerEvent> eventSource, ControllerType type, ControlifyLogger logger) {
 		this.sdl = sdl;
@@ -118,6 +127,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		this.isRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
 		this.isTriggerRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
 		this.isRGBLedSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
+		this.isGyroSupported = SDL_ControllerHasSensor(this.ptrController, SDL_SENSOR_GYRO);
 
 		DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
 		logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
@@ -126,21 +136,27 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		this.sdlToPhysicalStage = new SDLToPhysicalStage(this.sdl);
 
 		// open audio device for dualsense hd haptics
-		this.dualsenseAudioHandles = new ArrayList<>();
-
-		this.isDualsense = CUtil.rl("dualsense").equals(type.id());
+		this.isDualsense = this.isDualsense();
 		if (this.isDualsense) {
 			logger.debugLog("DualSense controller detected.");
 
 			// macOS HD haptics are broken
-			if (Util.getPlatform() != Util.OS.OSX && sdl.init().SDL_WasInit(SDL_INIT_AUDIO) != 0) {
+			if (sdl.init().SDL_WasInit(SDL_INIT_AUDIO) != 0) {
 				SdlAudioDeviceId dualsenseAudioDev = null;
 				SdlAudio.SdlAudioSpecRef devSpec = new SdlAudio.SdlAudioSpecRef();
 
+				String controllerContainer = sdl.properties().SDL_GetStringProperty(props, SDL_PROP_GAMEPAD_CONTAINER_ID_STRING, "");
+
 				for (SdlAudioDeviceId dev : sdl.audio().SDL_GetAudioPlaybackDevices()) {
-					String name = sdl.audio().SDL_GetAudioDeviceName(dev).toLowerCase();
-					if (name.contains("dualsense") || name.contains("ps5") || name.contains("wireless controller")) {
-						sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, new SdlRefs.IntRef());
+					SdlPropertiesId audioDevProps = sdl.audio().SDL_GetAudioDeviceProperties(dev);
+					String audioContainer = sdl.properties().SDL_GetStringProperty(audioDevProps, SDL_PROP_AUDIO_DEVICE_CONTAINER_ID_STRING, "");
+
+					if (!"".equals(controllerContainer) && !"".equals(audioContainer) && Objects.equals(controllerContainer, audioContainer)) {
+						if (!sdl.audio().SDL_GetAudioDeviceFormat(dev, devSpec, new SdlRefs.IntRef())) {
+							logger.error("Failed to get candidate audio device format: {}", sdl.error().SDL_GetError());
+							continue;
+						}
+
 						if (devSpec.value.channels() == 4) {
 							dualsenseAudioDev = dev;
 							break;
@@ -152,6 +168,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 					logger.debugLog("DualSense HD Haptics audio device found.");
 					this.dualsenseAudioSpec = devSpec.value;
 					this.dualsenseAudioDev = sdl.audio().SDL_OpenAudioDevice(dualsenseAudioDev, this.dualsenseAudioSpec);
+					this.openHapticStream();
 				} else {
 					logger.debugLog("DualSense HD Haptics audio device not found.");
 				}
@@ -177,9 +194,14 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (this.isDualsense) {
 			controller.addComponent(this.dualSenseComponent = new DualsenseComponentImpl());
 		}
-		if (this.dualsenseAudioDev != null) {
-			controller.addComponent(this.hdHapticComponent = new HDHapticComponent());
-			this.hdHapticComponent.acceptPlayHaptic(this::playHaptic);
+		if (this.isGyroSupported) {
+			controller.addComponent(new GyroComponentImpl(this.inputPipeline));
+		}
+		if (this.isSteamTriton()) {
+			controller.addComponent(new SteamHapticsComponent(this::sendRawEffect));
+		}
+		if (this.hapticStream != null) {
+			controller.addComponent(this.pcmHapticsComponent = new PcmHapticsComponent(new HapticSink()));
 		}
 
 		if (isBluetooth()) {
@@ -221,7 +243,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		updateRumble();
 		updateLED();
 		updateDualSense();
-		updateHDHaptic();
 	}
 
 	protected void updateRumble() {
@@ -230,7 +251,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 			stateOpt.ifPresent(state -> {
 				if (!SDL_RumbleController(ptrController, state.strong(), state.weak(), 5000)) {
-					CUtil.LOGGER.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
+					this.logger.error("Could not rumble gamepad: {}", sdl.error().SDL_GetError());
 				}
 			});
 		}
@@ -240,7 +261,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 			stateOpt.ifPresent(state -> {
 				if (!SDL_RumbleControllerTriggers(ptrController, state.left(), state.right(), 0)) {
-					CUtil.LOGGER.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
+					this.logger.error("Could not rumble triggers gamepad: {}", sdl.error().SDL_GetError());
 				}
 			});
 		}
@@ -294,15 +315,17 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		}
 	}
 
-	private void updateHDHaptic() {
-		for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
-			AudioStreamHandle handle = dualsenseAudioHandles.get(i);
-			if (handle.isTimedOut()) {
-				handle.close();
-				dualsenseAudioHandles.remove(handle);
-			} else {
-				handle.tick();
-			}
+	@Override
+	public void setActive(boolean active) {
+		if (this.ptrController == null) {
+			throw new IllegalStateException("Tried to activate or deactivate a closed controller.");
+		}
+		if (this.active == active) {
+			return;
+		}
+		this.active = active;
+		if (this.isGyroSupported && !SDL_SetControllerSensorEnabled(this.ptrController, SDL_SENSOR_GYRO, active)) {
+			this.logger.warn("Failed to {} gyro sensor: {}", active ? "enable" : "disable", this.sdl.error().SDL_GetError());
 		}
 	}
 
@@ -311,6 +334,8 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (ptrController == null) {
 			throw new IllegalStateException("Tried to close controller when it's already closed.");
 		}
+
+		this.setActive(false);
 
 		if (this.eventSubscription != null) {
 			this.eventSubscription.close();
@@ -327,71 +352,89 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		SDL_CloseController(ptrController);
 		ptrController = null;
 
+		if (hapticStream != null) {
+			sdl.audio().SDL_DestroyAudioStream(hapticStream);
+			hapticStream = null;
+		}
 		if (dualsenseAudioDev != null) {
 			sdl.audio().SDL_CloseAudioDevice(dualsenseAudioDev);
 			dualsenseAudioDev = null;
-			for (AudioStreamHandle handle : dualsenseAudioHandles) {
-				handle.close();
-			}
 		}
 
 		arena.close();
 	}
 
-	private void playHaptic(CompleteSoundData sound) {
-		if (ptrController == null || dualsenseAudioDev == null || dualsenseAudioSpec == null) {
+	/// Whether this is the 2026 Steam Controller, wired, over Bluetooth or through its dongle.
+	private boolean isSteamTriton() {
+		return (this.vendorId & 0xFFFF) == 0x28DE && switch (this.productId & 0xFFFF) {
+			case 0x1302, 0x1303, 0x1304, 0x1305 -> true;
+			default -> false;
+		};
+	}
+
+	private boolean isDualsense() {
+		return (this.vendorId & 0xFFFF) == 0x54C && switch (this.productId & 0xFFFF) {
+			case 0x0ce6, 0x0df2 -> true;
+			default -> false;
+		};
+	}
+
+	private boolean sendRawEffect(byte[] report) {
+		if (ptrController == null) {
+			return false;
+		}
+		try (Arena arena = Arena.ofConfined()) {
+			MemorySegment memory = arena.allocateFrom(ValueLayout.JAVA_BYTE, report);
+			return SDL_SendControllerEffect(ptrController, memory.asByteBuffer());
+		}
+	}
+
+	/// Opens the stream that haptics are synthesised into. The device has four channels:
+	/// the first two are the speaker and headphone jack, the last two the haptic actuators.
+	private void openHapticStream() {
+		SdlAudioSpec streamSpec = new SdlAudioSpec(this.dualsenseAudioSpec.frequency(), SDL_AUDIO_F32, 2);
+		SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(streamSpec, this.dualsenseAudioSpec);
+
+		if (!sdl.audio().SDL_BindAudioStream(this.dualsenseAudioDev, stream)
+				// leave the speaker channels silent and send left/right to the actuators
+				|| !sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, new int[]{ -1, -1, 0, 1 })) {
+			this.logger.warn("Could not open DualSense HD haptics stream: {}", sdl.error().SDL_GetError());
+			sdl.audio().SDL_DestroyAudioStream(stream);
 			return;
 		}
 
-		int format = -1;
-		int ss = sound.format().getSampleSizeInBits();
-		int byteSs = ss / 8;
-		AudioFormat.Encoding encoding = sound.format().getEncoding();
-		if (ss == 8) {
-			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-				format = SDL_AUDIO_S8;
-			} else if (encoding == AudioFormat.Encoding.PCM_UNSIGNED) {
-				format = SDL_AUDIO_U8;
-			}
-		} else if (sound.format().isBigEndian()) {
-			format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16BE, SDL_AUDIO_S32BE, SDL_AUDIO_F32BE);
-		} else {
-			format = audioFmtEndian(ss, encoding, SDL_AUDIO_S16LE, SDL_AUDIO_S32LE, SDL_AUDIO_F32LE);
+		this.hapticStream = stream;
+		this.hapticBuffer = this.arena.allocate((long) HAPTIC_BUFFER_FRAMES * 2 * Float.BYTES, Float.BYTES);
+	}
+
+	private final class HapticSink implements PcmSink {
+		private static final int BYTES_PER_FRAME = 2 * Float.BYTES;
+
+		@Override
+		public int sampleRate() {
+			return dualsenseAudioSpec.frequency();
 		}
 
-		if (format == -1) {
-			throw new IllegalStateException("Unsupported format");
+		@Override
+		public int queuedFrames() {
+			if (hapticStream == null) {
+				return 0;
+			}
+			return Math.max(0, sdl.audio().SDL_GetAudioStreamQueued(hapticStream)) / BYTES_PER_FRAME;
 		}
 
-		SdlAudioSpec spec = new SdlAudioSpec(
-			(int) sound.format().getSampleRate(),
-			format,
-			sound.format().getChannels()
-		);
-
-		AudioStreamHandle handle = null;
-		for (AudioStreamHandle stream : dualsenseAudioHandles) {
-			SdlAudioSpec streamSpec = stream.getSpec();
-			if (streamSpec.format() == spec.format()
-				&& streamSpec.frequency() == spec.frequency()
-				&& streamSpec.channels() == spec.channels()
-				&& !stream.isInUse()
-			) {
-				handle = stream;
-				break;
+		@Override
+		public void write(float[] samples, int frames) {
+			int written = 0;
+			while (written < frames && hapticStream != null) {
+				int count = Math.min(frames - written, HAPTIC_BUFFER_FRAMES);
+				MemorySegment.copy(samples, written * 2, hapticBuffer, ValueLayout.JAVA_FLOAT, 0, count * 2);
+				ByteBuffer bytes = hapticBuffer.asSlice(0, (long) count * BYTES_PER_FRAME).asByteBuffer();
+				if (!sdl.audio().SDL_PutAudioStreamData(hapticStream, bytes)) {
+					return;
+				}
+				written += count;
 			}
-		}
-		int length = sound.audio().length / spec.frequency() / spec.channels() / byteSs * 20;
-
-		if (handle != null) {
-			handle.queueAudio(sound.audio(), length);
-		} else {
-			if (dualsenseAudioHandles.size() >= 16) {
-				dualsenseAudioHandles.removeFirst().close();
-			}
-
-			AudioStreamHandle newHandle = AudioStreamHandle.createWithAudio(sdl, dualsenseAudioDev, spec, dualsenseAudioSpec, sound.audio(), length);
-			dualsenseAudioHandles.add(newHandle);
 		}
 	}
 
@@ -457,85 +500,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected abstract int SDL_GetControllerPowerInfo(SdlController ptrController, SdlRefs.IntRef percent);
 	protected abstract boolean SDL_SendControllerEffect(SdlController ptrController, ByteBuffer effect);
 	protected abstract boolean SDL_SetControllerLED(SdlController ptrController, byte red, byte green, byte blue);
-
-	private static int audioFmtEndian(int ss, AudioFormat.Encoding encoding, int signed16, int signed32, int float32) {
-		if (ss == 16) {
-			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-				return signed16;
-			}
-		} else if (ss == 32) {
-			if (encoding == AudioFormat.Encoding.PCM_SIGNED) {
-				return signed32;
-			} else if (encoding == AudioFormat.Encoding.PCM_FLOAT) {
-				return float32;
-			}
-		}
-		return -1;
-	}
-
-	protected static class AudioStreamHandle {
-		private int streamLastPlayed;
-		private final Sdl sdl;
-		private final SdlAudioStreamHandle stream;
-		private final SdlAudioSpec spec;
-
-		private AudioStreamHandle(Sdl sdl, SdlAudioStreamHandle stream, SdlAudioSpec spec) {
-			this.sdl = sdl;
-			this.stream = stream;
-			this.spec = spec;
-			this.streamLastPlayed = 0;
-		}
-
-		public void queueAudio(byte[] audio, int tickLength) {
-			try (Arena arena = Arena.ofConfined()) {
-				MemorySegment memory = arena.allocateFrom(ValueLayout.JAVA_BYTE, audio);
-
-				sdl.audio().SDL_PutAudioStreamData(stream, memory.asByteBuffer());
-
-				streamLastPlayed = Math.min(0, streamLastPlayed);
-				streamLastPlayed -= tickLength;
-			}
-		}
-
-		public SdlAudioSpec getSpec() {
-			return this.spec;
-		}
-
-		public boolean isInUse() {
-			return streamLastPlayed < 0;
-		}
-
-		public boolean isTimedOut() {
-			return streamLastPlayed >= AUDIO_STREAM_TIMEOUT_TICKS;
-		}
-
-		public void tick() {
-			streamLastPlayed++;
-		}
-
-		public void close() {
-			sdl.audio().SDL_DestroyAudioStream(stream);
-		}
-
-		public static AudioStreamHandle createWithAudio(Sdl sdl, SdlAudioDeviceId device, SdlAudioSpec audioSpec, SdlAudioSpec devSpec, byte[] audio, int tickLength) {
-			SdlAudioStreamHandle stream = sdl.audio().SDL_CreateAudioStream(audioSpec, devSpec);
-
-			if (!sdl.audio().SDL_BindAudioStream(device, stream)) {
-				throw SDLException.useSDLError(sdl, "binding audio stream");
-			}
-
-			int[] channelMap = switch (audioSpec.channels()) {
-				case 1 -> new int[]{ -1, -1, 0, 0 };
-				case 2 -> new int[]{ -1, -1, 0, 1 };
-				default -> throw new IllegalStateException("Unsupported channel count " + audioSpec.channels());
-			};
-			if (!sdl.audio().SDL_SetAudioStreamOutputChannelMap(stream, channelMap)) {
-				throw SDLException.useSDLError(sdl, "setting channel map");
-			}
-
-			var handle = new AudioStreamHandle(sdl, stream, audioSpec);
-			handle.queueAudio(audio, tickLength);
-			return handle;
-		}
-	}
+	protected abstract boolean SDL_ControllerHasSensor(SdlController ptrController, int type);
+	protected abstract boolean SDL_SetControllerSensorEnabled(SdlController ptrController, int type, boolean enabled);
 }

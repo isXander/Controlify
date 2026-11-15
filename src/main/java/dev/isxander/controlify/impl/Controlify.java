@@ -24,9 +24,12 @@ import dev.isxander.controlify.impl.contextual.ContextualDomains;
 import dev.isxander.controlify.impl.contextual.RuleSetManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectManager;
-import dev.isxander.controlify.impl.controller.rumble.RumbleComponentImpl;
-import dev.isxander.controlify.impl.controller.rumble.RumbleManager;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSourceManager;
+import dev.isxander.controlify.impl.feedback.FeedbackSourceManager;
+import dev.isxander.controlify.impl.feedback.FeedbackEngine;
+import dev.isxander.controlify.impl.feedback.FeedbackRegistryImpl;
+import dev.isxander.controlify.impl.feedback.LiveFeedbackServices;
+import dev.isxander.controlify.impl.feedback.StateFeedback;
+import dev.isxander.controlify.impl.feedback.data.FeedbackEffectManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerTypeManager;
@@ -50,10 +53,8 @@ import dev.isxander.controlify.impl.utils.event.EventBus;
 import dev.isxander.controlify.impl.screenop.ScreenRuntime;
 import dev.isxander.controlify.impl.wireless.LowBatteryNotifier;
 import dev.isxander.controlify.mixins.feature.virtualmouse.MouseHandlerAccessor;
-import dev.isxander.yacl3.gui.YACLScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -97,7 +98,8 @@ public class Controlify implements ControlifyApi {
 	private RadialIconManager radialIconManager;
 	private ActivatorConfigManager activatorConfigManager;
 	private ControllerMappingManager controllerMappingManager;
-	private RumbleSourceManager rumbleSourceManager;
+	private FeedbackSourceManager feedbackSourceManager;
+	private long lastFeedbackUpdateNanos;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -144,7 +146,7 @@ public class Controlify implements ControlifyApi {
 		this.radialIconManager = new RadialIconManager();
 		this.activatorConfigManager = new ActivatorConfigManager();
 		this.controllerMappingManager = new ControllerMappingManager();
-		this.rumbleSourceManager = new RumbleSourceManager();
+		this.feedbackSourceManager = new FeedbackSourceManager();
 
 		PlatformClientUtil.registerAssetReloadListener(this.inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(this.defaultBindManager);
@@ -154,9 +156,12 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(this.radialIconManager);
 		PlatformClientUtil.registerAssetReloadListener(this.activatorConfigManager);
 		PlatformClientUtil.registerAssetReloadListener(this.controllerMappingManager);
-		PlatformClientUtil.registerAssetReloadListener(this.rumbleSourceManager);
+		PlatformClientUtil.registerAssetReloadListener(this.feedbackSourceManager);
+		PlatformClientUtil.registerAssetReloadListener(new FeedbackEffectManager(FeedbackRegistryImpl.INSTANCE));
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
+		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.FEEDBACK_RULES);
+		FeedbackRegistryImpl.INSTANCE.initialise();
 		ContextualDomains.touch();
 		try {
 			ContextualDomains.Events.REGISTER_DOMAINS.emit(ContextualDomains.INSTANCE);
@@ -172,20 +177,20 @@ public class Controlify implements ControlifyApi {
 
 		SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble ->
-						rumble.rumbleManager().play(VibrationPacket.CHANNEL, packet.source(), packet.createEffect()));
+				getCurrentController().ifPresent(controller -> controller.feedback()
+						.play(VibrationPacket.CHANNEL, packet.source(), packet.createEffect(), null, 0f));
 			}
 		});
 		SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble ->
-						rumble.rumbleManager().play(OriginVibrationPacket.CHANNEL, packet.source(), packet.createEffect()));
+				getCurrentController().ifPresent(controller -> controller.feedback()
+						.play(OriginVibrationPacket.CHANNEL, packet.source(), packet.createEffect(), packet.position(), packet.effectRange()));
 			}
 		});
 		SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().flatMap(ControllerImpl::rumble).ifPresent(rumble ->
-						rumble.rumbleManager().play(EntityVibrationPacket.CHANNEL, packet.source(), packet.createEffect()));
+				getCurrentController().ifPresent(controller -> controller.feedback()
+						.play(EntityVibrationPacket.CHANNEL, packet.source(), packet.createEffect(), packet.position(), packet.range()));
 			}
 		});
 		SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
@@ -292,6 +297,10 @@ public class Controlify implements ControlifyApi {
 
 		boolean outOfFocus = !config().getSettings().globalSettings().outOfFocusInput
 							&& !this.minecraft.isWindowActive();
+
+		// before the drivers update, so this frame's output reaches the hardware this frame
+		this.updateFeedback(outOfFocus);
+
 		boolean givingInput = this.controllerCoordinator.update(outOfFocus);
 
 		this.setupWizardManager.tick();
@@ -309,6 +318,22 @@ public class Controlify implements ControlifyApi {
 		});
 
 		this.mouseUsedThisFrame = false;
+	}
+
+	private void updateFeedback(boolean outOfFocus) {
+		long now = System.nanoTime();
+		float deltaSeconds = this.lastFeedbackUpdateNanos == 0 ? 0f : (now - this.lastFeedbackUpdateNanos) / 1e9f;
+		this.lastFeedbackUpdateNanos = now;
+
+		this.getCurrentController().ifPresent(controller -> wrapControllerError(
+				() -> {
+					FeedbackEngine feedback = controller.feedback();
+					feedback.setSilent(LiveFeedbackServices.shouldSilence(minecraft, outOfFocus, currentInputMode()));
+					feedback.update(deltaSeconds, minecraft.isPaused());
+				},
+				"Updating feedback",
+				controller
+		));
 	}
 
 	/// Called once per frame, after minecraft has done its full tick
@@ -377,15 +402,7 @@ public class Controlify implements ControlifyApi {
 		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
 		this.triggerEffectManager().tick(this.minecraft, controller);
 		this.triggerEffectManager().applyTriggerEffects(controller, controllerInputSuppressed);
-
-		boolean isPaused = minecraft.isPaused() || MinecraftUtil.getScreen() instanceof PauseScreen;
-		boolean isConfigScreen = MinecraftUtil.getScreen() instanceof YACLScreen;
-
-		Optional<RumbleManager> rumbleManager = controller.rumble().map(RumbleComponentImpl::rumbleManager);
-		rumbleManager.ifPresent(rumble -> rumble.setSilent(outOfFocus || (isPaused && !isConfigScreen) || currentInputMode() == InputMode.KEYBOARD_MOUSE));
-		if (!outOfFocus) {
-			rumbleManager.ifPresent(RumbleManager::tick);
-		}
+		StateFeedback.tick(this.minecraft, controller);
 
 		if (minecraft.level != null) {
 			this.inGameInputHandler().ifPresent(InGameInputHandler::fixedUpdate);
@@ -612,8 +629,8 @@ public class Controlify implements ControlifyApi {
 		return this.controllerMappingManager;
 	}
 
-	public RumbleSourceManager rumbleSourceManager() {
-		return this.rumbleSourceManager;
+	public FeedbackSourceManager feedbackSourceManager() {
+		return this.feedbackSourceManager;
 	}
 
 	public TriggerEffectManager triggerEffectManager() {

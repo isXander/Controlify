@@ -6,12 +6,7 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.levelevents;
 
-import dev.isxander.controlify.impl.Controlify;
-
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.Easings;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import net.minecraft.client.renderer.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.LevelEvent;
@@ -23,36 +18,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(LevelEventHandler.class)
 public class LevelEventHandlerMixin {
 	@Inject(method = "levelEvent", at = @At("HEAD"))
-	private void onLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
-		switch (eventId) {
-			case LevelEvent.SOUND_ANVIL_USED -> Controlify.instance().playRumbleEffect(
-					CUtil.rl("anvil"),
-					RumbleEffect.finite().constant(1f, 0.5f, 2)
-							.then(RumbleEffect.finite().constant(0f, 0f, 5)).repeat(3)
-			);
+	private void onLevelEvent(int eventType, BlockPos pos, int data, CallbackInfo ci) {
+		switch (eventType) {
+			case LevelEvent.SOUND_ANVIL_USED -> BuiltinFeedback.ANVIL.fire();
 		}
 	}
 
 	@Inject(method = "globalLevelEvent", at = @At("HEAD"))
-	private void onGlobalLevelEvent(int eventId, BlockPos pos, int data, CallbackInfo ci) {
-		switch (eventId) {
-			case LevelEvent.SOUND_DRAGON_DEATH -> Controlify.instance().playRumbleEffect(
-					CUtil.rl("dragon_death"),
-					RumbleEffect.finite().constant(1f, 1f, 194)
-							.then(RumbleEffect.finite().byTime(t -> {
-								float easeOutQuad = (float) Easings.easeOutQuad(t);
-								return new RumbleState(1 - easeOutQuad, 1 - easeOutQuad);
-							}, 63))
-			);
-			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> Controlify.instance().playRumbleEffect(
-					CUtil.rl("wither_spawn"),
-					RumbleEffect.finite().constant(1f, 1f, 9)
-							.then(RumbleEffect.finite().constant(0.1f, 1f, 14))
-							.then(RumbleEffect.finite().byTime(t -> {
-								float easeOutQuad = 1 - (1 - t) * (1 - t);
-								return new RumbleState(0f, 1 - easeOutQuad);
-							}, 56))
-			);
+	private void onGlobalLevelEvent(int type, BlockPos pos, int data, CallbackInfo ci) {
+		switch (type) {
+			case LevelEvent.SOUND_DRAGON_DEATH -> BuiltinFeedback.DRAGON_DEATH.fire();
+			case LevelEvent.SOUND_WITHER_BOSS_SPAWN -> BuiltinFeedback.WITHER_SPAWN.fire();
 		}
 	}
 }

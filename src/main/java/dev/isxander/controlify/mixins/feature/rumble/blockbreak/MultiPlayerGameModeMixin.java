@@ -6,15 +6,10 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.blockbreak;
 
-import dev.isxander.controlify.impl.Controlify;
-
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.Easings;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,13 +22,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 @Mixin(MultiPlayerGameMode.class)
 public class MultiPlayerGameModeMixin {
-	@Unique private RumbleEffectInstance blockBreakRumble = null;
-	@Unique private AtomicBoolean blockBreakStopped;
-
 	@Inject(
 			method = "lambda$startDestroyBlock$1",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V")
@@ -55,47 +45,34 @@ public class MultiPlayerGameModeMixin {
 	) {
 		startRumble(state);
 		// won't stop until 1 tick
-		stopRumble();
+		BuiltinFeedback.BLOCK_BREAK.release();
 	}
 
 	@Inject(method = "stopDestroyBlock", at = @At("RETURN"))
 	private void onStopBreakingBlock(CallbackInfo ci) {
-		stopRumble();
+		BuiltinFeedback.BLOCK_BREAK.release();
 	}
 
 	@Inject(method = "continueDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;startPrediction(Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/client/multiplayer/prediction/PredictiveAction;)V", ordinal = 1))
 	private void onFinishBreakingBlock(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
-		stopRumble();
+		BuiltinFeedback.BLOCK_BREAK.release();
 	}
 
 	@ModifyExpressionValue(method = "continueDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isAir()Z"))
-	private boolean onAbortBreakingBlock(boolean original) {
-		if (original)
-			stopRumble();
+	private boolean onContinueBreakingBlock(boolean isAir, @Local(name = "state") BlockState state) {
+		if (isAir) {
+			BuiltinFeedback.BLOCK_BREAK.release();
+		} else {
+			// still mining this block: keep the held rumble alive
+			startRumble(state);
+		}
 
-		return original;
+		return isAir;
 	}
 
 	@Unique private void startRumble(BlockState state) {
-		stopRumble();
-
-		var stopped = new AtomicBoolean();
-		blockBreakStopped = stopped;
-		var effect = RumbleEffect.continuous()
-				.byTick(tick -> new RumbleState(
-						0.02f + (float)Easings.easeInQuad(Math.min(1, state.getBlock().defaultDestroyTime() / 20f)) * 0.25f,
-						0.01f
-				))
-				.minTime(1)
-				.stopCondition(stopped::get);
-
-		blockBreakRumble = Controlify.instance().playRumbleEffect(CUtil.rl("block_break"), effect).orElse(null);
-	}
-
-	@Unique private void stopRumble() {
-		if (blockBreakRumble != null) {
-			blockBreakStopped.set(true);
-			blockBreakRumble = null;
-		}
+		// a new block starts a fresh playback; the previous one ends
+		BuiltinFeedback.BLOCK_BREAK.release();
+		BuiltinFeedback.BLOCK_BREAK.hold(new BuiltinFeedback.BlockBreak(state.getBlock().defaultDestroyTime()));
 	}
 }

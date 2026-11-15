@@ -37,6 +37,9 @@ public class RuleSetManager<K, R extends Rule<K>> implements SimpleControlifyRel
 	public static final RuleSetManager<Identifier, TriggerEffectRule> TRIGGER_EFFECT_RULES =
 			new RuleSetManager<>(TriggerEffectRule.CODEC, "trigger_effect");
 
+	public static final RuleSetManager<Identifier, FeedbackRule> FEEDBACK_RULES =
+			new RuleSetManager<>(FeedbackRule.CODEC, "feedback");
+
 	private static final String DIRECTORY = "controller/contextual/";
 
 	private final Codec<RuleSet<K, R>> ruleSetCodec;

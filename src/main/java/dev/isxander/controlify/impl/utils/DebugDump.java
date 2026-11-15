@@ -83,7 +83,7 @@ public class DebugDump {
 					dump.line("Battery level: ", controller.batteryLevel().map(b -> b.getBatteryLevel().toString()).orElse("UNSUPPORTED"));
 					dump.line("Gyro supported: ", controller.gyro().isPresent());
 					dump.line("Touchpads supported: ", controller.touchpad().map(touchpad -> touchpad.touchpads().length).orElse(0));
-					dump.line("HD haptics supported: ", controller.hdHaptics().isPresent());
+					dump.line("HD haptics supported: ", controller.pcmHaptics().isPresent());
 					dump.line("Log:").pushIndent().line(controller.logger().export()).popIndent();
 
 					dump.line();

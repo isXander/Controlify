@@ -6,18 +6,19 @@
  */
 package dev.isxander.controlify.impl.server.packets;
 
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.controller.rumble.RumbleSource;
+import dev.isxander.controlify.api.feedback.FeedbackEffect;
+import dev.isxander.controlify.impl.controller.rumble.RumbleState;
+import dev.isxander.controlify.impl.feedback.FeedbackSource;
 import dev.isxander.controlify.impl.utils.CUtil;
-import dev.isxander.controlify.impl.utils.Easings;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, RumbleSource source) {
+import java.util.function.Supplier;
+
+public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, FeedbackSource source) {
 	public static final Identifier CHANNEL = CUtil.rl("vibrate_from_origin");
 
 	public static final StreamCodec<FriendlyByteBuf, OriginVibrationPacket> CODEC = StreamCodec.of(
@@ -33,15 +34,24 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
 			buf.readFloat(),
 			buf.readVarInt(),
 			RumbleState.unpackFromInt(buf.readInt()),
-			new RumbleSource(buf.readIdentifier())
+			new FeedbackSource(buf.readIdentifier())
 		)
 	);
 
-	public RumbleEffect createEffect() {
-		var originVec3 = new Vec3(origin);
-		return RumbleEffect.continuous()
-				.constant(state.strong(), state.weak())
-				.inWorld(() -> originVec3, 0, 1, effectRange, Easings.toFloat(Easings::easeInSine))
-				.timeout(duration);
+	/// A constant vibration lasting `duration` ticks. The engine attenuates it by distance.
+	public FeedbackEffect<Object> createEffect() {
+		float seconds = duration / 20f;
+		return (playback, out) -> {
+			if (playback.seconds() >= seconds) {
+				return false;
+			}
+			out.rumble(state.strong(), state.weak());
+			return true;
+		};
+	}
+
+	public Supplier<Vec3> position() {
+		Vec3 originVec3 = new Vec3(origin);
+		return () -> originVec3;
 	}
 }

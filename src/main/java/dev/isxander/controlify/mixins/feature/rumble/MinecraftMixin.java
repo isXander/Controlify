@@ -20,7 +20,6 @@ public class MinecraftMixin {
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screens/Screen;Z)V", at = @At("HEAD"))
 	private void clearRumbleEffects(CallbackInfo ci) {
 		Controlify.instance().getCurrentController()
-				.flatMap(ControllerImpl::rumble)
-				.ifPresent(controller -> controller.rumbleManager().clearEffects());
+				.ifPresent(controller -> controller.feedback().clear());
 	}
 }

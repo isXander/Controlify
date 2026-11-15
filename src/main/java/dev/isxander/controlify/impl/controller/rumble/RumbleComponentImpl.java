@@ -6,32 +6,22 @@
  */
 package dev.isxander.controlify.impl.controller.rumble;
 
-import dev.isxander.controlify.api.controller.rumble.RumbleComponent;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.config.settings.profile.RumbleSettings;
 import dev.isxander.controlify.impl.controller.ControllerComponent;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
-import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
-public class RumbleComponentImpl extends ControllerComponent implements RumbleComponent {
+/// The two rumble motors of a controller. Written to by the feedback engine's
+/// `DualMotorRenderer` and read by the driver.
+public class RumbleComponentImpl extends ControllerComponent {
 	public static final Identifier ID = CUtil.rl("rumble");
 
 	private RumbleState state = null;
-	private final RumbleManager rumbleManager;
 
 	public RumbleComponentImpl() {
 		super(ID);
-		this.rumbleManager = new RumbleManager(this);
-	}
-
-	@Override
-	public @NonNull RumbleEffectInstance playEffect(@NonNull Identifier effectId, @NonNull RumbleEffect effect) {
-		return this.rumbleManager.play(effectId, effect);
 	}
 
 	public void queueRumble(RumbleState state) {
@@ -46,10 +36,6 @@ public class RumbleComponentImpl extends ControllerComponent implements RumbleCo
 		return Optional.ofNullable(state);
 	}
 
-	public RumbleManager rumbleManager() {
-		return this.rumbleManager;
-	}
-
 	public RumbleSettings settings() {
 		return this.controller().settings().rumble;
 	}
@@ -57,5 +43,4 @@ public class RumbleComponentImpl extends ControllerComponent implements RumbleCo
 	public RumbleSettings defaultSettings() {
 		return this.controller().defaultSettings().rumble;
 	}
-
 }

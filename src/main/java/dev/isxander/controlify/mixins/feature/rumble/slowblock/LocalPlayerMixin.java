@@ -6,20 +6,14 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.slowblock;
 
-import dev.isxander.controlify.impl.Controlify;
-
 import com.mojang.authlib.GameProfile;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.ClientInput;
 import net.minecraft.client.player.LocalPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,8 +24,6 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 	protected abstract boolean isMoving();
 
 	@Shadow public ClientInput input;
-
-	@Unique private RumbleEffectInstance slowBlockRumble = null;
 
 	public LocalPlayerMixin(ClientLevel world, GameProfile profile) {
 		super(world, profile);
@@ -48,29 +40,9 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer {
 		float speed = this.getBlockSpeedFactor();
 
 		if (speed < 1f && isMoving()) {
-			ensureRumbleStarted();
+			BuiltinFeedback.SLOW_BLOCK.hold(new BuiltinFeedback.Movement(this.input.getMoveVector().length()));
 		} else {
-			ensureRumbleStopped();
-		}
-	}
-
-	@Unique private void ensureRumbleStarted() {
-		if (slowBlockRumble == null || slowBlockRumble.hasFinished()) {
-			var effect = RumbleEffect.continuous()
-					.byTick(i -> {
-						float movementAmount = input.getMoveVector().length();
-						return new RumbleState(0.3f * movementAmount, 0.5f * movementAmount);
-					})
-					.timeout(100);
-			slowBlockRumble = Controlify.instance().playRumbleEffect(CUtil.rl("slow_block"), effect).orElse(null);
-		} else {
-			slowBlockRumble.keepAlive();
-		}
-	}
-
-	@Unique private void ensureRumbleStopped() {
-		if (slowBlockRumble != null && !slowBlockRumble.hasFinished()) {
-			slowBlockRumble.stop();
+			BuiltinFeedback.SLOW_BLOCK.release();
 		}
 	}
 }

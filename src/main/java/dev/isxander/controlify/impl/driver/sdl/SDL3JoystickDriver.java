@@ -131,4 +131,14 @@ public class SDL3JoystickDriver extends SDLCommonDriver<SdlJoystickHandle> {
 	protected boolean SDL_SetControllerLED(SdlJoystickHandle ptrController, byte red, byte green, byte blue) {
 		return sdl.joystick().SDL_SetJoystickLED(ptrController, red, green, blue);
 	}
+
+	@Override
+	protected boolean SDL_ControllerHasSensor(SdlJoystickHandle ptrController, int type) {
+		return sdl.joystick().SDL_JoystickHasSensor(ptrController, type);
+	}
+
+	@Override
+	protected boolean SDL_SetControllerSensorEnabled(SdlJoystickHandle ptrController, int type, boolean enabled) {
+		return sdl.joystick().SDL_SetJoystickSensorEnabled(ptrController, type, enabled);
+	}
 }

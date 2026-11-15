@@ -6,84 +6,44 @@
  */
 package dev.isxander.controlify.mixins.feature.rumble.useitem;
 
-import dev.isxander.controlify.impl.Controlify;
-
-import dev.isxander.controlify.api.controller.rumble.RumbleEffect;
-import dev.isxander.controlify.api.controller.rumble.RumbleEffectInstance;
-import dev.isxander.controlify.api.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.controller.rumble.effects.UseItemEffectHolder;
-import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.item.ItemUseAnimation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public abstract class LocalPlayerMixin extends LivingEntityMixin implements UseItemEffectHolder {
-	@Unique private RumbleEffectInstance useItemRumble;
-
+public abstract class LocalPlayerMixin extends LivingEntityMixin {
 	@Override
 	protected void onStartUsingItem(InteractionHand hand, CallbackInfo ci, ItemStack stack) {
-		switch (stack.getUseAnimation()) {
-			case BOW -> startRumble(RumbleEffect.continuous()
-					.byTick(tick -> new RumbleState(
-							tick % 7 <= 3 && tick > BowItem.MAX_DRAW_DURATION ? 0.1f : 0f,
-							BowItem.getPowerForTime(tick)
-					)));
-			case CROSSBOW -> {
-				int chargeDuration = CrossbowItem.getChargeDuration(
-						stack,
-						(LocalPlayer) (Object) this
-				);
-				startRumble(RumbleEffect.continuous()
-						.byTick(tick -> new RumbleState(
-								0f,
-								(float) tick / chargeDuration
-						))
-						.timeout(chargeDuration));
-			}
-			case BLOCK, SPYGLASS -> startRumble(RumbleEffect.continuous()
-					.byTick(tick -> new RumbleState(
-							0f,
-							tick % 4 / 4f * 0.12f + 0.05f
-					)));
-			case EAT, DRINK -> startRumble(RumbleEffect.continuous()
-					.constant(0.1f, 0.2f));
-			case TOOT_HORN -> startRumble(RumbleEffect.continuous()
-					.byTick(tick -> new RumbleState(
-							Math.min(1f, tick / 10f),
-							0.25f
-					)));
-			case SPEAR -> startRumble(RumbleEffect.continuous()
-					.constant(0.3f, 0.3f));
-		}
+		holdUseItemFeedback(stack, 0);
 	}
 
 	@Override
 	protected void onUpdateUsingItem(ItemStack stack, CallbackInfo ci) {
-
+		holdUseItemFeedback(stack, ((LocalPlayer) (Object) this).getTicksUsingItem());
 	}
 
 	@Override
 	protected void onStopUsingItem(CallbackInfo ci) {
-		if (useItemRumble != null) {
-			useItemRumble.stop();
-			useItemRumble = null;
+		BuiltinFeedback.USE_ITEM.release();
+	}
+
+	/// Which effect plays depends on selection rules over the `use_animation/*` facts of the in-game domain.
+	@Unique private void holdUseItemFeedback(ItemStack stack, int ticksUsed) {
+		float chargeProgress = 0f;
+		if (stack.getUseAnimation() == ItemUseAnimation.CROSSBOW) {
+			int chargeDuration = CrossbowItem.getChargeDuration(stack, (LocalPlayer) (Object) this);
+			// builds while charging and stops once the crossbow is ready
+			if (chargeDuration > 0 && ticksUsed < chargeDuration) {
+				chargeProgress = (float) ticksUsed / chargeDuration;
+			}
 		}
-	}
 
-	@Unique private void startRumble(RumbleEffect effect) {
-		if (useItemRumble != null) useItemRumble.stop();
-		this.useItemRumble = Controlify.instance().playRumbleEffect(CUtil.rl("use_item"), effect).orElse(null);
-	}
-
-	@Override
-	public @Nullable RumbleEffectInstance controlify$getUseItemEffect() {
-		return useItemRumble;
+		BuiltinFeedback.USE_ITEM.hold(new BuiltinFeedback.ItemUse(chargeProgress));
 	}
 }
