@@ -14,6 +14,7 @@ import dev.isxander.controlify.api.feedback.FeedbackFrame;
 import dev.isxander.controlify.api.feedback.Playback;
 import dev.isxander.controlify.api.feedback.Site;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
 
@@ -41,8 +42,8 @@ public record Track(
 		float delay,
 		Optional<Requirement> requires
 ) {
-	private static final Codec<Site> SITE_CODEC = enumCodec(Site.values());
-	private static final Codec<Band> BAND_CODEC = enumCodec(Band.values());
+	private static final Codec<Site> SITE_CODEC = StringRepresentable.fromEnum(Site::values);
+	private static final Codec<Band> BAND_CODEC = StringRepresentable.fromEnum(Band::values);
 
 	public static final Codec<Track> CODEC = RecordCodecBuilder.<Track>create(instance -> instance.group(
 			SITE_CODEC.optionalFieldOf("site", Site.BODY).forGetter(Track::site),
@@ -144,19 +145,8 @@ public record Track(
 		}
 
 		@Override
-		public String getSerializedName() {
+		public @NonNull String getSerializedName() {
 			return this.name;
 		}
-	}
-
-	private static <E extends Enum<E>> Codec<E> enumCodec(E[] values) {
-		return Codec.STRING.comapFlatMap(name -> {
-			for (E value : values) {
-				if (value.name().equalsIgnoreCase(name)) {
-					return DataResult.success(value);
-				}
-			}
-			return DataResult.error(() -> "Unknown value '" + name + "'");
-		}, value -> value.name().toLowerCase(java.util.Locale.ROOT));
 	}
 }

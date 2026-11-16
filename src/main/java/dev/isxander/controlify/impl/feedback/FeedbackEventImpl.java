@@ -121,24 +121,24 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 		}
 
 		@Override
-		public <P> FeedbackEvent.TypedBuilder<P> param(@NonNull String name, @NonNull ParamSource<P> source) {
+		public <P> FeedbackEvent.@NonNull TypedBuilder<P> param(@NonNull String name, @NonNull ParamSource<P> source) {
 			return new TypedBuilderImpl<P>(this.id, this.selection, this.falloffRange).param(name, source);
 		}
 
 		@Override
-		public FeedbackEvent.Builder selection() {
+		public FeedbackEvent.@NonNull Builder selection() {
 			this.selection = true;
 			return this;
 		}
 
 		@Override
-		public FeedbackEvent.Builder falloffRange(float blocks) {
+		public FeedbackEvent.@NonNull Builder falloffRange(float blocks) {
 			this.falloffRange = checkRange(blocks);
 			return this;
 		}
 
 		@Override
-		public FeedbackEvent<Void> build() {
+		public @NonNull FeedbackEvent<Void> build() {
 			return new FeedbackEventImpl<>(this.id, List.of(), this.selection, this.falloffRange);
 		}
 	}
