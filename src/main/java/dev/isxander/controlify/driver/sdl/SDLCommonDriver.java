@@ -39,6 +39,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -303,11 +304,11 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	}
 
 	private void updateHDHaptic() {
-		for (int i = 0; i < dualsenseAudioHandles.size(); i++) {
-			AudioStreamHandle handle = dualsenseAudioHandles.get(i);
+		for (Iterator<AudioStreamHandle> it = dualsenseAudioHandles.iterator(); it.hasNext(); ) {
+			AudioStreamHandle handle = it.next();
 			if (handle.isTimedOut()) {
 				handle.close();
-				dualsenseAudioHandles.remove(handle);
+				it.remove();
 			} else {
 				handle.tick();
 			}
@@ -357,7 +358,9 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 				break;
 			}
 		}
-		int length = sound.audio().length / spec.frequency() / spec.channels() / byteSs * 20;
+		// in ticks, rounded up so a clip shorter than a second isn't 0
+		int byteRate = spec.frequency() * spec.channels() * byteSs;
+		int length = Math.max(1, (int) Math.ceil(sound.audio().length * 20.0 / byteRate));
 
 		if (handle != null) {
 			handle.queueAudio(sound.audio(), length);
