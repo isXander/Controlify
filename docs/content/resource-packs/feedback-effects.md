@@ -11,9 +11,9 @@ There are three kinds of file:
 
 | File | What it decides |
 |------|-----------------|
-| `assets/<namespace>/controller/feedback/<path>.json` | What an effect feels like |
+| `assets/<namespace>/controller/feedback/effect/<path>.json` | What an effect feels like |
 | `assets/<namespace>/controller/contextual/feedback/in_game.json` | Which effect plays, and when |
-| `assets/controlify/controller/feedback_sources.json` | Which strength slider controls each event |
+| `assets/controlify/controller/feedback/sources.json` | Which strength slider controls each effect |
 
 ## Events and effects
 
@@ -21,7 +21,7 @@ An **event** is something that happens: the player takes damage, an explosion go
 An **effect** is what that feels like.
 
 By default an event plays the effect with the same id. The event `controlify:explosion` plays the effect at
-`assets/controlify/controller/feedback/explosion.json`. To change how an explosion feels, a pack only needs to provide
+`assets/controlify/controller/feedback/effect/explosion.json`. To change how an explosion feels, a pack only needs to provide
 that file.
 
 Events either **fire** once (damage, an explosion) or are **held** for as long as something is true (drawing a bow,
@@ -79,7 +79,7 @@ This rises to full strength over half a second, then fades out over the next sec
 
 - Two points at the same time make a sudden step.
 - A third value eases the line arriving at that point: `linear`, `in_quad`, `out_quad`, `in_out_quad`, `in_sine`
-  or `out_expo`.
+  or `out_expo`: `[2, 0, "out_quad"]`
 - After the last point, the last strength is kept.
 
 ### `level`
@@ -174,10 +174,11 @@ An effect with only constant tracks has no length, so a fired event cannot play 
 | `controlify:block_break` | Held | `destroy_time`: the block's destroy time |
 | `controlify:use_item` | Held | `charge_progress`: 0 to 1 while a crossbow charges |
 | `controlify:ui_navigate` | Fired | |
+| `controlify:ambient` | Held the whole time the player is in a world | See [Ambient feedback](#ambient-feedback) |
 
 Events fired at a position get weaker with distance on their own. Effects do not need to handle it.
 
-## Choosing which effect plays
+## Choosing which effects play
 
 Rules live in `assets/<namespace>/controller/contextual/feedback/in_game.json`. They use the same predicates as
 [button guides](guides.md) and [adaptive trigger effects](adaptive-trigger-effects.md).
@@ -190,36 +191,56 @@ Rules live in `assets/<namespace>/controller/contextual/feedback/in_game.json`. 
 }
 ```
 
-There are two kinds of rule.
+A rule says: for this event, if this is true, then play this effect. `controlify:use_item` uses rules to feel
+different for a bow, a shield and food. Any event can have rules.
 
-### Rules for an event
+- **Every** rule for the event whose `if` is true plays its effect, so one event can play several effects at once.
+- If no rule is true, the event plays the effect with its own id.
+- `"then": "controlify:none"` stops there: no rule below it plays. Put it first to silence an event in some situation.
 
-A rule with `for` picks the effect an event plays. `controlify:use_item` uses this to feel different for a bow, a
-shield and food.
+While an event is held, its rules are checked every game tick. An effect starts when its rule becomes true and ends
+when it becomes false, and the event's other effects carry on.
 
-- The first rule for the event whose `if` is true wins.
-- If none match, the event plays the effect with its own id.
-- `"then": "controlify:none"` plays nothing.
+### Ambient feedback
 
-### Rules with no event
-
-A rule without `for` needs no event at all. Its effect is held for as long as `if` is true. This is how a pack adds
-feedback for a situation Controlify has no event for.
-
-```json
-{ "if": "controlify:on_climbable", "then": "mypack:climbing" }
-```
+`controlify:ambient` is held for as long as the player is in a world. It has no effect of its own, so it only plays
+what rules give it. This is how a pack adds feedback for a situation Controlify has no event for.
 
 What that feels like depends on the effect:
 
 - An effect with a constant track is felt the whole time the predicate is true.
-- An effect whose envelopes end at 0 is felt once, when the predicate becomes true.
+- An effect whose envelopes end at 0 or has an explicit duration is felt once, each time the predicate becomes true.
 
-These rules are checked once per game tick.
+The ambient event's params describe the player, so effects can react to them with [`scale`](#scale):
+
+| Param | Meaning |
+|-------|---------|
+| `speed` | Horizontal speed in blocks per second, including a vehicle's. Walking is about 4.3. |
+| `fall_speed` | Downward speed in blocks per second. 0 when not moving down. |
+| `fall_distance` | Blocks fallen so far |
+| `health` | 0 to 1, of maximum health |
+| `hunger` | 0 to 1, how full the food bar is |
+| `air` | 0 to 1, how much breath is left |
+
+A heartbeat that grows as health drops below 30%, played by the rule
+`{ "for": "controlify:ambient" "if": "controlify:is_survival", "then": "mypack:heartbeat" }`:
+
+```json
+{
+  "tracks": [
+    {
+      "band": "low",
+      "lfo": { "period": 0.9, "on": 0.12 },
+      "scale": { "param": "health", "from": [0, 0.3], "to": [0.6, 0] }
+    }
+  ]
+}
+```
 
 ## Strength sliders
 
-`assets/controlify/controller/feedback_sources.json` groups events under the strength sliders in Controlify's settings.
+`assets/controlify/controller/feedback_sources.json` groups effects under the strength sliders in Controlify's
+settings.
 
 ```json
 {
@@ -228,7 +249,8 @@ These rules are checked once per game tick.
 }
 ```
 
-- Every pack's file is merged. Listing an event under a different source moves it.
+- Every pack's file is merged. Listing an effect under a different source moves it.
 - A source that is new gets its own slider.
-- For a rule with no event, list the effect id.
-- Anything not listed is controlled by the master strength only.
+- An effect that is not listed uses the slider of the event's default effect, the one with the event's own id. So
+  listing `controlify:use_item` covers every `controlify:use_item/...` variant, unless a variant is listed itself.
+- Anything else is controlled by the master strength only. This includes ambient effects that are not listed.

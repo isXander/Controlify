@@ -1,0 +1,9 @@
+{
+  "tracks": [
+    {
+      "band": "low",
+      "lfo": { "period": 0.9, "on": 0.12 },
+      "scale": { "param": "health", "from": [0, 0.3], "to": [0.6, 0] }
+    }
+  ]
+}

@@ -13,9 +13,8 @@ Feedback is everything the player feels through the controller. The API splits i
 The API is in `dev.isxander.controlify.api.feedback` and is marked experimental.
 
 ::: tip
-If the situation you want feedback for is already described by contextual state, you may not need any code. A
-[rule with no event](../resource-packs/feedback-effects.md#rules-with-no-event) plays an effect whenever a predicate is
-true.
+If the situation you want feedback for is already described by contextual state, you may not need any code. An
+[ambient rule](../resource-packs/feedback-effects.md#ambient-feedback) plays an effect whenever a predicate is true.
 :::
 
 ## Declaring an event
@@ -70,6 +69,30 @@ stop immediately. Each `hold` call refreshes the params.
 With nothing else set up, an event plays the effect with its own id, so `mymod:recoil` plays
 `assets/mymod/controller/feedback/recoil.json`. If no such effect exists, firing it does nothing.
 
+[Feedback rules](../resource-packs/feedback-effects.md#choosing-which-effects-play) can give any event other effects
+to play, depending on contextual state. Every rule that matches plays, so one event can play several effects at once.
+
+### Always-on params
+
+To give data effects numbers that are always available, hold an event every tick and let rules decide what it plays.
+Controlify does this itself with `controlify:ambient`, which carries the player's speed, health and so on.
+
+```java
+public record Vehicle(float rpm, float boost) {}
+
+public static final FeedbackEvent<Vehicle> VEHICLE = FeedbackEvent.builder(Identifier.fromNamespaceAndPath("mymod", "vehicle"))
+        .param("rpm", Vehicle::rpm)
+        .param("boost", Vehicle::boost)
+        .build();
+
+// every client tick while driving
+VEHICLE.hold(new Vehicle(rpm, boost));
+```
+
+```json
+{ "for": "mymod:vehicle", "if": "mymod:boosting", "then": "mymod:vehicle/boost" }
+```
+
 ## Effects in code
 
 Write the effect as a [data file](../resource-packs/feedback-effects.md) where you can. Use code for an effect that
@@ -99,8 +122,8 @@ FeedbackEvents.REGISTER.subscribeForever(registry -> {
 - A data effect with the same id always wins over a code effect, so resource packs can still replace yours.
 
 `registerEffect(event, effect)` registers the event's default effect. To register a variant that
-[selection rules](../resource-packs/feedback-effects.md#rules-for-an-event) can choose, give it its own id:
-`registerEffect(id, event, effect)`. Mark the event with `.selection()` when you build it so its rules are consulted.
+[feedback rules](../resource-packs/feedback-effects.md#choosing-which-effects-play) can choose, give it its own id:
+`registerEffect(id, event, effect)`.
 
 ### The output frame
 

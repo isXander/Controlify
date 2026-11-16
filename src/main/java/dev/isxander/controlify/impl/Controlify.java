@@ -25,10 +25,11 @@ import dev.isxander.controlify.impl.contextual.RuleSetManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectManager;
 import dev.isxander.controlify.impl.feedback.FeedbackSourceManager;
+import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import dev.isxander.controlify.impl.feedback.FeedbackEngine;
+import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import dev.isxander.controlify.impl.feedback.FeedbackRegistryImpl;
 import dev.isxander.controlify.impl.feedback.LiveFeedbackServices;
-import dev.isxander.controlify.impl.feedback.StateFeedback;
 import dev.isxander.controlify.impl.feedback.data.FeedbackEffectManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
 import dev.isxander.controlify.impl.controllermanager.ControllerManager;
@@ -100,6 +101,7 @@ public class Controlify implements ControlifyApi {
 	private ControllerMappingManager controllerMappingManager;
 	private FeedbackSourceManager feedbackSourceManager;
 	private long lastFeedbackUpdateNanos;
+	private long fixedUpdateCount;
 
 	private TriggerEffectManager triggerEffectManager;
 
@@ -347,6 +349,8 @@ public class Controlify implements ControlifyApi {
 
 	/// Called at 20tps
 	public void fixedUpdate() {
+		this.fixedUpdateCount++;
+
 		LowBatteryNotifier.tick();
 
 		if (currentInputMode() == InputMode.MIXED && showMouseTicks > 0) {
@@ -398,11 +402,21 @@ public class Controlify implements ControlifyApi {
 		}
 	}
 
+	/// How many times [#fixedUpdate] has run. Something calculated for one game tick is still
+	/// valid for as long as this has not changed.
+	public long fixedUpdateCount() {
+		return this.fixedUpdateCount;
+	}
+
 	private void fixedUpdateActiveController(ControllerImpl controller, boolean outOfFocus) {
 		boolean controllerInputSuppressed = outOfFocus || currentInputMode() == InputMode.KEYBOARD_MOUSE;
 		this.triggerEffectManager().tick(this.minecraft, controller);
 		this.triggerEffectManager().applyTriggerEffects(controller, controllerInputSuppressed);
-		StateFeedback.tick(this.minecraft, controller);
+		if (this.minecraft.player != null) {
+			FeedbackEventImpl.holdOn(
+					BuiltinFeedback.AMBIENT, controller, BuiltinFeedback.Ambient.of(this.minecraft.player)
+			);
+		}
 
 		if (minecraft.level != null) {
 			this.inGameInputHandler().ifPresent(InGameInputHandler::fixedUpdate);

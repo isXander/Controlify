@@ -134,6 +134,6 @@ public final class PlaybackImpl implements Playback<Object> {
 			return;
 		}
 
-		mixed.mix(scratch, services.gain(this.eventId, this.effectId, this.fallbackSource) * falloff);
+		mixed.mix(scratch, services.gain(this.effectId, this.eventId, this.fallbackSource) * falloff);
 	}
 }

@@ -8,7 +8,9 @@ package dev.isxander.controlify.impl.feedback;
 
 import dev.isxander.controlify.api.feedback.FeedbackEvent;
 import dev.isxander.controlify.impl.utils.CUtil;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 
 /// Controlify's built-in feedback events.
 ///
@@ -39,6 +41,32 @@ public final class BuiltinFeedback {
 	public record ItemUse(float chargeProgress) {
 	}
 
+	/// What the player is doing, for effects that play from [#AMBIENT].
+	///
+	/// @param speed        horizontal speed in blocks per second, including any vehicle's
+	/// @param fallSpeed    downward speed in blocks per second, 0 when not moving down
+	/// @param fallDistance how many blocks the player has fallen so far
+	/// @param health       0 to 1, of the player's maximum health
+	/// @param hunger       0 to 1, how full the food bar is
+	/// @param air          0 to 1, how much breath is left
+	public record Ambient(float speed, float fallSpeed, float fallDistance, float health, float hunger, float air) {
+		private static final float TICKS_PER_SECOND = 20f;
+
+		public static Ambient of(LocalPlayer player) {
+			double dx = player.getX() - player.xo;
+			double dy = player.getY() - player.yo;
+			double dz = player.getZ() - player.zo;
+			return new Ambient(
+					(float) Math.sqrt(dx * dx + dz * dz) * TICKS_PER_SECOND,
+					(float) Math.max(-dy, 0.0) * TICKS_PER_SECOND,
+					(float) player.fallDistance,
+					Mth.clamp(player.getHealth() / player.getMaxHealth(), 0f, 1f),
+					Mth.clamp(player.getFoodData().getFoodLevel() / 20f, 0f, 1f),
+					Mth.clamp(player.getAirSupply() / (float) player.getMaxAirSupply(), 0f, 1f)
+			);
+		}
+	}
+
 
 	public static final FeedbackEvent<Void> INCOMING_DAMAGE = event("incoming_damage");
 	public static final FeedbackEvent<Void> OUTGOING_DAMAGE = event("outgoing_damage");
@@ -63,13 +91,24 @@ public final class BuiltinFeedback {
 	public static final FeedbackEvent<BlockBreak> BLOCK_BREAK = FeedbackEvent.builder(CUtil.rl("block_break"))
 			.param("destroy_time", BlockBreak::destroyTime)
 			.build();
-	/// Which effect plays is chosen by selection rules, by the animation of the item in use.
+	/// Which effect plays is chosen by feedback rules, by the animation of the item in use.
 	public static final FeedbackEvent<ItemUse> USE_ITEM = FeedbackEvent.builder(CUtil.rl("use_item"))
 			.param("charge_progress", ItemUse::chargeProgress)
-			.selection()
 			.build();
 	/// Moving focus in a menu. Only felt on controllers with HD haptics.
 	public static final FeedbackEvent<Void> UI_NAVIGATE = event("ui_navigate");
+
+	/// Held for as long as the player is in a world. It has no effect of its own: feedback
+	/// rules choose what it plays, so a resource pack can add feedback for any contextual
+	/// state without code. A rule with no `for` is for this event.
+	public static final FeedbackEvent<Ambient> AMBIENT = FeedbackEvent.builder(CUtil.rl("ambient"))
+			.param("speed", Ambient::speed)
+			.param("fall_speed", Ambient::fallSpeed)
+			.param("fall_distance", Ambient::fallDistance)
+			.param("health", Ambient::health)
+			.param("hunger", Ambient::hunger)
+			.param("air", Ambient::air)
+			.build();
 
 	/// The effect the vibration test button in the settings plays. It has no event.
 	public static final Identifier TEST_VIBRATION = CUtil.rl("test_vibration");
@@ -81,7 +120,7 @@ public final class BuiltinFeedback {
 	static void register(FeedbackRegistryImpl registry) {
 		for (FeedbackEvent<?> event : new FeedbackEvent<?>[] {
 				INCOMING_DAMAGE, OUTGOING_DAMAGE, EXPLOSION, LIGHTNING, FISHING_BITE, ITEM_BREAK, ANVIL,
-				DRAGON_DEATH, WITHER_SPAWN, WATER_LAND, SLOW_BLOCK, BLOCK_BREAK, USE_ITEM, UI_NAVIGATE
+				DRAGON_DEATH, WITHER_SPAWN, WATER_LAND, SLOW_BLOCK, BLOCK_BREAK, USE_ITEM, UI_NAVIGATE, AMBIENT
 		}) {
 			registry.registerEvent(event);
 		}

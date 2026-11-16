@@ -19,8 +19,8 @@ public interface FeedbackRegistry {
 	void registerEvent(FeedbackEvent<?> event);
 
 	/// Registers a code effect that plays for `event`. An event plays the effect with its own
-	/// id unless a selection rule names another, so use the event's id for its default effect
-	/// and other ids for the variants that rules select.
+	/// id unless feedback rules choose others, so use the event's id for its default effect
+	/// and other ids for the variants that rules choose.
 	///
 	/// @throws IllegalStateException if a code effect already has that id; use [#replaceEffect]
 	<P> void registerEffect(Identifier effectId, FeedbackEvent<P> event, FeedbackEffect<? super P> effect);

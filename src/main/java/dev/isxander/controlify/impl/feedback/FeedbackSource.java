@@ -13,12 +13,12 @@ import net.minecraft.resources.Identifier;
 import java.util.Objects;
 
 /// A category of feedback that the user can set the strength of, such as `controlify:world`.
-/// Which events belong to which source is data: see [FeedbackSourceManager].
+/// Which effects belong to which source is data: see [FeedbackSourceManager].
 public record FeedbackSource(Identifier id) {
 	public static final Codec<FeedbackSource> CODEC = Identifier.CODEC
 			.xmap(FeedbackSource::new, FeedbackSource::id);
 
-	/// The overall strength, which every other source is multiplied by. Events that no
+	/// The overall strength, which every other source is multiplied by. Effects that no
 	/// source lists are controlled by this alone.
 	public static final FeedbackSource MASTER = new FeedbackSource(CUtil.rl("master"));
 

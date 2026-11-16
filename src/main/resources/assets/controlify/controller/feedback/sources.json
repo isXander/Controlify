@@ -5,7 +5,8 @@
   "controlify:player": [
     "controlify:incoming_damage",
     "controlify:water_land",
-    "controlify:slow_block"
+    "controlify:slow_block",
+    "controlify:heartbeat"
   ],
   "controlify:interaction": [
     "controlify:outgoing_damage",

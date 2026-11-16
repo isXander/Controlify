@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.feedback;
 
-import dev.isxander.controlify.api.contextual.ContextualStateSink;
 import dev.isxander.controlify.api.feedback.FeedbackEvent;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /// An event definition. Holds no playback state; playbacks live in the engine of the controller.
 public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
@@ -28,14 +26,12 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 	private final Identifier id;
 	private final List<NamedParam<P>> params;
 	private final List<String> paramNames;
-	private final boolean selection;
 	private final float falloffRange;
 
-	private FeedbackEventImpl(Identifier id, List<NamedParam<P>> params, boolean selection, float falloffRange) {
+	private FeedbackEventImpl(Identifier id, List<NamedParam<P>> params, float falloffRange) {
 		this.id = id;
 		this.params = List.copyOf(params);
 		this.paramNames = this.params.stream().map(NamedParam::name).toList();
-		this.selection = selection;
 		this.falloffRange = falloffRange;
 	}
 
@@ -46,11 +42,6 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 	@Override
 	public Identifier id() {
 		return this.id;
-	}
-
-	/// Whether this event consults selection rules before falling back to the effect with its own id.
-	public boolean usesSelection() {
-		return this.selection;
 	}
 
 	public float falloffRange() {
@@ -71,27 +62,32 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 
 	/// Fires on a specific controller rather than the current one.
 	public static <P> void fireOn(FeedbackEvent<P> event, ControllerImpl controller, @Nullable P params) {
-		controller.feedback().fire((FeedbackEventImpl<P>) event, params, null, null);
+		controller.feedback().fire((FeedbackEventImpl<P>) event, params, null);
+	}
+
+	/// Holds on a specific controller rather than the current one.
+	public static <P> void holdOn(FeedbackEvent<P> event, ControllerImpl controller, @Nullable P params) {
+		controller.feedback().hold((FeedbackEventImpl<P>) event, params, null);
 	}
 
 	@Override
-	public void fire(@Nullable P params, @Nullable Consumer<ContextualStateSink> subject) {
-		currentEngine().ifPresent(engine -> engine.fire(this, params, null, subject));
+	public void fire(@Nullable P params) {
+		currentEngine().ifPresent(engine -> engine.fire(this, params, null));
 	}
 
 	@Override
-	public void fireAt(@NonNull Vec3 pos, @Nullable P params, @Nullable Consumer<ContextualStateSink> subject) {
-		currentEngine().ifPresent(engine -> engine.fire(this, params, pos, subject));
+	public void fireAt(@NonNull Vec3 pos, @Nullable P params) {
+		currentEngine().ifPresent(engine -> engine.fire(this, params, pos));
 	}
 
 	@Override
-	public void hold(@Nullable P params, @Nullable Consumer<ContextualStateSink> subject) {
-		currentEngine().ifPresent(engine -> engine.hold(this, params, null, subject));
+	public void hold(@Nullable P params) {
+		currentEngine().ifPresent(engine -> engine.hold(this, params, null));
 	}
 
 	@Override
-	public void holdAt(@NonNull Vec3 pos, @Nullable P params, @Nullable Consumer<ContextualStateSink> subject) {
-		currentEngine().ifPresent(engine -> engine.hold(this, params, pos, subject));
+	public void holdAt(@NonNull Vec3 pos, @Nullable P params) {
+		currentEngine().ifPresent(engine -> engine.hold(this, params, pos));
 	}
 
 	@Override
@@ -113,7 +109,6 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 
 	private static final class UntypedBuilder implements FeedbackEvent.Builder {
 		private final Identifier id;
-		private boolean selection;
 		private float falloffRange = DEFAULT_FALLOFF_RANGE;
 
 		private UntypedBuilder(Identifier id) {
@@ -122,13 +117,7 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 
 		@Override
 		public <P> FeedbackEvent.@NonNull TypedBuilder<P> param(@NonNull String name, @NonNull ParamSource<P> source) {
-			return new TypedBuilderImpl<P>(this.id, this.selection, this.falloffRange).param(name, source);
-		}
-
-		@Override
-		public FeedbackEvent.@NonNull Builder selection() {
-			this.selection = true;
-			return this;
+			return new TypedBuilderImpl<P>(this.id, this.falloffRange).param(name, source);
 		}
 
 		@Override
@@ -139,19 +128,17 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 
 		@Override
 		public @NonNull FeedbackEvent<Void> build() {
-			return new FeedbackEventImpl<>(this.id, List.of(), this.selection, this.falloffRange);
+			return new FeedbackEventImpl<>(this.id, List.of(), this.falloffRange);
 		}
 	}
 
 	private static final class TypedBuilderImpl<P> implements FeedbackEvent.TypedBuilder<P> {
 		private final Identifier id;
 		private final List<NamedParam<P>> params = new ArrayList<>();
-		private boolean selection;
 		private float falloffRange;
 
-		private TypedBuilderImpl(Identifier id, boolean selection, float falloffRange) {
+		private TypedBuilderImpl(Identifier id, float falloffRange) {
 			this.id = id;
-			this.selection = selection;
 			this.falloffRange = falloffRange;
 		}
 
@@ -167,12 +154,6 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 		}
 
 		@Override
-		public FeedbackEvent.TypedBuilder<P> selection() {
-			this.selection = true;
-			return this;
-		}
-
-		@Override
 		public FeedbackEvent.TypedBuilder<P> falloffRange(float blocks) {
 			this.falloffRange = checkRange(blocks);
 			return this;
@@ -180,7 +161,7 @@ public final class FeedbackEventImpl<P> implements FeedbackEvent<P> {
 
 		@Override
 		public FeedbackEvent<P> build() {
-			return new FeedbackEventImpl<>(this.id, this.params, this.selection, this.falloffRange);
+			return new FeedbackEventImpl<>(this.id, this.params, this.falloffRange);
 		}
 	}
 

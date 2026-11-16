@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.api.feedback.Playback;
+import net.minecraft.util.Mth;
 
 import java.util.List;
 
@@ -61,10 +62,7 @@ public record Scale(String param, List<Float> from, List<Float> to, Easing ease)
 
 	public float apply(Playback<?> playback) {
 		float value = playback.param(this.param, 0f);
-		if (this.isPlain()) {
-			return value;
-		}
-		float progress = (value - this.from.get(0)) / (this.from.get(1) - this.from.get(0));
-		return this.ease.lerp(this.to.get(0), this.to.get(1), Math.clamp(progress, 0f, 1f));
+
+		return Mth.clampedMap(value, this.from.get(0), this.from.get(1), this.to.get(0), this.to.get(1));
 	}
 }

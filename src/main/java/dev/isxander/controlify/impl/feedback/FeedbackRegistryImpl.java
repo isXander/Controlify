@@ -24,7 +24,7 @@ import java.util.Objects;
 /// same id. A code effect only plays for the event it was registered for, which is what
 /// keeps its params typed.
 public final class FeedbackRegistryImpl implements FeedbackRegistry {
-	/// The effect id a selection rule uses to explicitly play nothing.
+	/// The effect id a feedback rule uses to stop the rules below it, so they play nothing.
 	public static final Identifier NONE = CUtil.rl("none");
 
 	/// Loading this holder does not construct the registry.
@@ -126,7 +126,7 @@ public final class FeedbackRegistryImpl implements FeedbackRegistry {
 		Objects.requireNonNull(event, "event");
 		Objects.requireNonNull(effect, "effect");
 		if (NONE.equals(effectId)) {
-			throw new IllegalArgumentException("'" + NONE + "' is reserved for selection rules that play nothing");
+			throw new IllegalArgumentException("'" + NONE + "' is reserved for feedback rules that play nothing");
 		}
 		// safe: the effect is only ever handed playbacks of `event`, whose params are P
 		return new CodeEffect(event.id(), (FeedbackEffect<Object>) effect);

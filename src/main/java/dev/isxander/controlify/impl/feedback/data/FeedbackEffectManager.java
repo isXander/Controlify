@@ -26,7 +26,7 @@ import java.util.concurrent.Executor;
 /// The effect id is `<namespace>:<path>`. The highest-priority pack wins per id, and a data
 /// effect takes precedence over any code effect with the same id.
 public final class FeedbackEffectManager implements SimpleControlifyReloadListener<Map<Identifier, DataFeedbackEffect>> {
-	private static final FileToIdConverter CONVERTER = FileToIdConverter.json("controller/feedback");
+	private static final FileToIdConverter CONVERTER = FileToIdConverter.json("controller/feedback/effect");
 
 	private final FeedbackRegistryImpl registry;
 

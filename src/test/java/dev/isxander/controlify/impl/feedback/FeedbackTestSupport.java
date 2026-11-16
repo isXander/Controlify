@@ -6,7 +6,6 @@
  */
 package dev.isxander.controlify.impl.feedback;
 
-import dev.isxander.controlify.api.contextual.ContextualStateSink;
 import dev.isxander.controlify.api.feedback.Band;
 import dev.isxander.controlify.api.feedback.FeedbackEffect;
 import dev.isxander.controlify.api.feedback.FeedbackEvent;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /// Shared fixtures for feedback tests, which run without a Minecraft client.
@@ -66,17 +64,18 @@ final class FeedbackTestSupport {
 	static final class TestServices implements FeedbackServices {
 		/// Effects by id, playable for any event.
 		final Map<Identifier, FeedbackEffect<Object>> effects = new HashMap<>();
+		/// Gain by effect id.
 		final Map<Identifier, Float> gains = new HashMap<>();
-		/// Maps an event id to the effect id a selection rule would pick; absent means no rule matched.
-		final Map<Identifier, Identifier> selections = new HashMap<>();
+		/// Maps an event id to the effect ids its rules select; absent means it plays its own id.
+		final Map<Identifier, List<Identifier>> selections = new HashMap<>();
 		Function<Vec3, Float> falloff = _ -> 1f;
 		boolean enabled = true;
 		boolean hd;
 		int selectCalls;
 
 		@Override
-		public float gain(Identifier eventId, Identifier effectId, FeedbackSource fallback) {
-			return this.gains.getOrDefault(eventId, 1f);
+		public float gain(Identifier effectId, Identifier eventId, FeedbackSource fallback) {
+			return this.gains.getOrDefault(effectId, 1f);
 		}
 
 		@Override
@@ -95,9 +94,9 @@ final class FeedbackTestSupport {
 		}
 
 		@Override
-		public @Nullable Identifier select(FeedbackEventImpl<?> event, @Nullable Consumer<ContextualStateSink> subject) {
+		public List<Identifier> select(FeedbackEventImpl<?> event) {
 			this.selectCalls++;
-			return this.selections.get(event.id());
+			return this.selections.getOrDefault(event.id(), List.of(event.id()));
 		}
 
 		@Override

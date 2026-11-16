@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.feedback;
 
 import dev.isxander.controlify.api.InputMode;
-import dev.isxander.controlify.api.contextual.ContextualStateSink;
 import dev.isxander.controlify.api.contextual.InGameContext;
 import dev.isxander.controlify.api.feedback.FeedbackEffect;
 import dev.isxander.controlify.impl.Controlify;
@@ -28,11 +27,17 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
+import java.util.List;
 
 /// [FeedbackServices] backed by the running game, for one controller.
 public final class LiveFeedbackServices implements FeedbackServices {
 	private final ControllerImpl controller;
+
+	/// The in-game state rules are matched against. It is calculated at most once per game
+	/// tick, by the first event in that tick that has rules, and shared by the rest.
+	private @Nullable ContextualState ruleState;
+	private @Nullable RuleEngine<Identifier, FeedbackRule> ruleStateRules;
+	private long ruleStateTick;
 
 	public LiveFeedbackServices(ControllerImpl controller) {
 		this.controller = controller;
@@ -47,11 +52,8 @@ public final class LiveFeedbackServices implements FeedbackServices {
 	}
 
 	@Override
-	public float gain(Identifier eventId, Identifier effectId, FeedbackSource fallback) {
-		FeedbackSourceManager sources = Controlify.instance().feedbackSourceManager();
-		FeedbackSource source = sources.findAssigned(eventId)
-				.or(() -> sources.findAssigned(effectId))
-				.orElseGet(() -> sources.getSource(eventId, fallback));
+	public float gain(Identifier effectId, Identifier eventId, FeedbackSource fallback) {
+		FeedbackSource source = Controlify.instance().feedbackSourceManager().getSource(effectId, eventId, fallback);
 		return this.controller.settings().rumble.strengthMultiplier(source);
 	}
 
@@ -79,26 +81,33 @@ public final class LiveFeedbackServices implements FeedbackServices {
 	}
 
 	@Override
-	public @Nullable Identifier select(FeedbackEventImpl<?> event, @Nullable Consumer<ContextualStateSink> subject) {
+	public List<Identifier> select(FeedbackEventImpl<?> event) {
 		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.player == null || minecraft.level == null) {
-			return null;
-		}
-
 		ContextualDomainImpl<InGameContext> domain = ContextualDomains.INSTANCE.inGame();
-		RuleEngine<Identifier, FeedbackRule> rules = RuleSetManager.FEEDBACK_RULES
-				.getRuleEngine(minecraft.level, domain.id())
-				.orElse(null);
+		RuleEngine<Identifier, FeedbackRule> rules = minecraft.player == null || minecraft.level == null
+				? null
+				: RuleSetManager.FEEDBACK_RULES.getRuleEngine(minecraft.level, domain.id()).orElse(null);
 		if (rules == null) {
-			return null;
+			// do not keep the state of a world that has been left
+			this.ruleState = null;
+			this.ruleStateRules = null;
+			return List.of(event.id());
+		}
+		// most events have no rules, so they never cause the state to be calculated
+		if (!FeedbackSelection.hasRulesFor(rules, event.id())) {
+			return List.of(event.id());
 		}
 
-		ContextualState state = domain.calculateState(
-				InGameContext.create(minecraft, this.controller),
-				rules.factDependencies(),
-				subject
-		);
-		return FeedbackSelection.select(rules, event.id(), state);
+		long tick = Controlify.instance().fixedUpdateCount();
+		if (this.ruleState == null || this.ruleStateRules != rules || this.ruleStateTick != tick) {
+			this.ruleState = domain.calculateState(
+					InGameContext.create(minecraft, this.controller),
+					rules.factDependencies()
+			);
+			this.ruleStateRules = rules;
+			this.ruleStateTick = tick;
+		}
+		return FeedbackSelection.select(rules, event.id(), this.ruleState);
 	}
 
 	@Override

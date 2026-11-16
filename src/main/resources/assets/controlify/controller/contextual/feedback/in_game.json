@@ -29,6 +29,11 @@
       "for": "controlify:use_item",
       "if": "controlify:use_animation/spear",
       "then": "controlify:use_item/spear"
+    },
+    {
+      "for": "controlify:ambient",
+      "if": "controlify:has_hearts",
+      "then": "controlify:heartbeat"
     }
   ]
 }
