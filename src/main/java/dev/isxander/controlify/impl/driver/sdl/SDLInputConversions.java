@@ -87,6 +87,23 @@ public final class SDLInputConversions {
 		return GAMEPAD_BUTTONS[button];
 	}
 
+	private static final Identifier[] GAMEPAD_CAPSENSES = IntStream.range(0, SDL_GAMEPAD_CAPSENSE_COUNT)
+			.mapToObj(i -> switch (i) {
+				case SDL_GAMEPAD_CAPSENSE_LEFT_STICK -> GamepadInputs.LEFT_STICK_CAPSENSE;
+				case SDL_GAMEPAD_CAPSENSE_RIGHT_STICK -> GamepadInputs.RIGHT_STICK_CAPSENSE;
+				case SDL_GAMEPAD_CAPSENSE_LEFT_GRIP -> GamepadInputs.LEFT_GRIP_CAPSENSE;
+				case SDL_GAMEPAD_CAPSENSE_RIGHT_GRIP -> GamepadInputs.RIGHT_GRIP_CAPSENSE;
+				default -> null;
+			})
+			.toArray(Identifier[]::new);
+
+	public static @Nullable Identifier getGamepadCapSense(int capsense) {
+		if (capsense < 0 || capsense >= GAMEPAD_CAPSENSES.length) {
+			return null;
+		}
+		return GAMEPAD_CAPSENSES[capsense];
+	}
+
 	public static @Nullable Identifier getGamepadAxis(int axis, boolean positive) {
 		int index = (axis << 1) | (positive ? 0 : 1);
 		if (index < 0 || index >= GAMEPAD_AXES.length) {

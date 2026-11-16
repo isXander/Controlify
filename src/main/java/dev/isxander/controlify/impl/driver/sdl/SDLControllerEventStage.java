@@ -60,6 +60,9 @@ public class SDLControllerEventStage implements EventStage<SdlEvent, SDLControll
 				}
 			}
 
+			case SdlEvent.GamepadCapSense(SdlJoystickId which, byte capsense, boolean down) ->
+				downstream.accept(new SDLControllerEvent.GamepadCapSense(which, timeNanos, capsense, down));
+
 			case SdlEvent.GamepadSensor(SdlJoystickId which, int sensor, float[] values, long sensorTimestamp) -> {
 				float x = values.length >= 1 ? values[0] : 0f;
 				float y = values.length >= 2 ? values[1] : 0f;

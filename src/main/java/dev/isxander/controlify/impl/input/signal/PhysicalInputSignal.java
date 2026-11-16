@@ -23,4 +23,11 @@ public sealed interface PhysicalInputSignal extends PhysicalSignal {
 	/// @param input the identifier of the physical axis
 	/// @param value the position of the axis, *always* in the range `[0.0, 1.0]`
 	record AxisMoved(long timeNanos, Identifier input, float value) implements PhysicalInputSignal {}
+
+	/// Represents a capacitive touch sensor state change, identified by id.
+	/// This is device state only; it never becomes a logical input.
+	/// @param timeNanos the timestamp of the event in nanoseconds
+	/// @param input the identifier of the capacitive touch sensor
+	/// @param touched true if the sensor is now being touched
+	record CapSenseChanged(long timeNanos, Identifier input, boolean touched) implements PhysicalInputSignal {}
 }

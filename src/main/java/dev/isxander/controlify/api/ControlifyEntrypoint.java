@@ -19,7 +19,7 @@ public interface ControlifyEntrypoint {
 	/// @see dev.isxander.controlify.api.contextual.ContextualEvents
 	/// @see dev.isxander.controlify.api.controllermanager.ControllerEvents
 	/// @see dev.isxander.controlify.api.feedback.FeedbackEvents
-	/// @see dev.isxander.controlify.api.ingame.InGameEvents
+	/// @see dev.isxander.controlify.api.ingame.look.LookEvents
 	/// @see dev.isxander.controlify.api.screenop.ScreenopEvents
 	void onControlifyInitialize();
 }

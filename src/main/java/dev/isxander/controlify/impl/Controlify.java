@@ -29,6 +29,7 @@ import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import dev.isxander.controlify.impl.feedback.FeedbackEngine;
 import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import dev.isxander.controlify.impl.feedback.FeedbackRegistryImpl;
+import dev.isxander.controlify.impl.ingame.look.LookRegistryImpl;
 import dev.isxander.controlify.impl.feedback.LiveFeedbackServices;
 import dev.isxander.controlify.impl.feedback.data.FeedbackEffectManager;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
@@ -164,6 +165,7 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.FEEDBACK_RULES);
 		FeedbackRegistryImpl.INSTANCE.initialise();
+		LookRegistryImpl.INSTANCE.initialise();
 		ContextualDomains.touch();
 		try {
 			ContextualDomains.Events.REGISTER_DOMAINS.emit(ContextualDomains.INSTANCE);

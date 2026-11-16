@@ -18,12 +18,14 @@ import dev.isxander.controlify.api.action.ActionBinding;
 import dev.isxander.controlify.impl.action.ActionImpl;
 import dev.isxander.controlify.impl.action.ActionSpecRegistryImpl;
 import dev.isxander.controlify.impl.config.settings.device.DeviceSettings;
+import dev.isxander.controlify.impl.config.settings.profile.FlickStickSettings;
 import dev.isxander.controlify.impl.config.settings.profile.GenericControllerSettings;
+import dev.isxander.controlify.impl.config.settings.profile.GyroSettings;
 import dev.isxander.controlify.impl.config.settings.profile.InputSettings;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
-import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
+import dev.isxander.controlify.impl.controller.gyro.GyroActivation;
+import dev.isxander.controlify.impl.controller.gyro.GyroSpace;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
 import dev.isxander.controlify.impl.feedback.FeedbackSource;
 import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
@@ -35,7 +37,9 @@ import dev.isxander.controlify.impl.gui.controllers.BindController;
 import java.util.Locale;
 import net.minecraft.network.chat.ComponentUtils;
 import dev.isxander.controlify.impl.gui.controllers.BindingInfoImageRenderer;
+import dev.isxander.controlify.impl.gui.controllers.ControllerSpriteImageRenderer;
 import dev.isxander.controlify.impl.gui.controllers.Deadzone2DImageRenderer;
+import dev.isxander.controlify.impl.ingame.look.FlickSnap;
 import dev.isxander.controlify.impl.ingame.InputCurves;
 import dev.isxander.controlify.impl.input.mapping.DeadzoneGroup;
 import dev.isxander.controlify.impl.server.ServerPolicies;
@@ -56,6 +60,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ControllerConfigScreenFactory {
@@ -87,14 +93,17 @@ public class ControllerConfigScreenFactory {
 			Optional<ControllerImpl> controller
 	) {
 		String initialControllerUid = settings.controllerUid;
-		var advancedCategory = createAdvancedCategory(settings, defaults, controller);
+		var aimingCategory = createAimingCategory(settings, defaults, controller);
 		var bindsCategory = makeBindsCategory(settings, defaults, controller);
-		var basicCategory = createBasicCategory(settings, defaults, controller); // must be last for new options
+		var interfaceCategory = createInterfaceCategory(settings, defaults, controller);
+		var hapticsCategory = createHapticsCategory(settings, defaults, controller);
+		var hardwareCategory = createHardwareCategory(settings, defaults, controller);
+		var generalCategory = createGeneralCategory(settings, defaults, controller); // must be last for new options
 
 		var yacl = YetAnotherConfigLib.createBuilder()
 				.title(Component.literal("Controlify"))
-				.category(basicCategory)
-				.category(advancedCategory)
+				.category(generalCategory)
+				.category(aimingCategory)
 				.save(() -> {
 					if (!Objects.equals(initialControllerUid, settings.controllerUid)) {
 						Controlify.instance().applyControllerSelection(true);
@@ -103,25 +112,22 @@ public class ControllerConfigScreenFactory {
 				});
 
 		bindsCategory.ifPresent(yacl::category);
+		yacl.category(interfaceCategory);
+		yacl.category(hapticsCategory);
+		hardwareCategory.ifPresent(yacl::category);
 
 		return yacl.build().generateScreen(parent);
 	}
 
-	private ConfigCategory createBasicCategory(
+	private ConfigCategory createGeneralCategory(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
-		var sensitivityGroup = makeSensitivityGroup(settings, defaults, controller);
-		var controlsGroup = makeControlsGroup(settings, defaults, controller);
-		var accessibilityGroup = makeAccessibilityGroup(settings, defaults, controller);
-		var deadzoneGroup = makeDeadzoneGroup(settings, defaults, controller);
-
-		GenericControllerSettings genSettings = settings.generic;
-		GenericControllerSettings genDefaults = defaults.generic;
+		var gameplayGroup = makeGameplayGroup(settings, defaults, controller);
 
 		ConfigCategory.Builder builder = ConfigCategory.createBuilder()
-				.name(Component.translatable("controlify.gui.config.category.basic"));
+				.name(Component.translatable("controlify.gui.config.category.general"));
 		builder.group(makeProfileGroup(settings));
 		if (!newOptions.isEmpty()) {
 			builder.group(OptionGroup.createBuilder()
@@ -131,12 +137,72 @@ public class ControllerConfigScreenFactory {
 					.build());
 		}
 
-		sensitivityGroup.ifPresent(builder::group);
-		controlsGroup.ifPresent(builder::group);
-		accessibilityGroup.ifPresent(builder::group);
-		deadzoneGroup.ifPresent(builder::group);
+		gameplayGroup.ifPresent(builder::group);
 
 		return builder.build();
+	}
+
+	private ConfigCategory createAimingCategory(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		var builder = ConfigCategory.createBuilder()
+				.name(Component.translatable("controlify.gui.config.category.aiming"));
+
+		makeStickGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeFlickStickGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeGyroGroups(settings, defaults, controller).forEach(builder::group);
+
+		return builder.build();
+	}
+
+	private ConfigCategory createInterfaceCategory(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		var builder = ConfigCategory.createBuilder()
+				.name(Component.translatable("controlify.gui.config.category.interface"));
+
+		makeButtonGuidesGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeOnScreenKeyboardGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeVirtualMouseGroup(settings, defaults, controller).ifPresent(builder::group);
+
+		return builder.build();
+	}
+
+	private ConfigCategory createHapticsCategory(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		var builder = ConfigCategory.createBuilder()
+				.name(Component.translatable("controlify.gui.config.category.haptics"));
+
+		makeVibrationGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeTriggerEffectsGroup(settings, defaults, controller).ifPresent(builder::group);
+
+		return builder.build();
+	}
+
+	private Optional<ConfigCategory> createHardwareCategory(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		List<OptionGroup> groups = new ArrayList<>();
+		makeDeadzoneGroup(settings, defaults, controller).ifPresent(groups::add);
+		makeActivationGroup(settings, defaults, controller).ifPresent(groups::add);
+		makeControllerMappingGroup(settings, defaults, controller).ifPresent(groups::add);
+		if (groups.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return Optional.of(ConfigCategory.createBuilder()
+				.name(Component.translatable("controlify.gui.config.category.hardware"))
+				.groups(groups)
+				.build());
 	}
 
 	private OptionGroup makeProfileGroup(ProfileSettings settings) {
@@ -163,7 +229,7 @@ public class ControllerConfigScreenFactory {
 						.build())
 				.option(Option.<String>createBuilder()
 						.name(Component.translatable("controlify.gui.controller_selection"))
-						.description(OptionDescription.of(Component.translatable("controlify.gui.controller_selection.tooltip")))
+						.description(uid -> controllerSelectionDescription(uid, devices.get(uid)))
 						.binding("", () -> Optional.ofNullable(settings.controllerUid).orElse(""), value ->
 								settings.controllerUid = value.isEmpty() ? null : value)
 						.controller(option -> CyclingListControllerBuilder.create(option)
@@ -179,13 +245,42 @@ public class ControllerConfigScreenFactory {
 				.build();
 	}
 
-	private Optional<OptionGroup> makeSensitivityGroup(
+	private static OptionDescription controllerSelectionDescription(String uid, @Nullable DeviceSettings device) {
+		OptionDescription.Builder builder = OptionDescription.createBuilder()
+				.text(Component.translatable("controlify.gui.controller_selection.tooltip"));
+		if (uid.isEmpty()) {
+			return builder.build();
+		}
+
+		ControllerImpl connected = Controlify.instance().getControllerManager()
+				.flatMap(manager -> manager.getControllerByUid(uid))
+				.orElse(null);
+
+		ControllerType type = connected != null ? connected.info().type() : null;
+		Identifier typeId = type != null
+				? type.id()
+				: device != null ? device.controllerType : ControllerType.DEFAULT.id();
+		Identifier sprite = type != null ? type.getIconSprite() : typeId.withPrefix("controllers/");
+
+		builder.customImage(new ControllerSpriteImageRenderer(sprite));
+		builder.text(Component.translatable("controlify.gui.controller_selection.info.uid", uid).withStyle(ChatFormatting.GRAY));
+		builder.text(Component.translatable("controlify.gui.controller_selection.info.type", typeId.toString()).withStyle(ChatFormatting.GRAY));
+		if (connected != null) {
+			builder.text(Component.translatable("controlify.gui.controller_selection.info.driver",
+					connected.driver().getClass().getSimpleName()).withStyle(ChatFormatting.GRAY));
+		} else {
+			builder.text(Component.translatable("controlify.gui.controller_selection.info.not_connected").withStyle(ChatFormatting.GRAY));
+		}
+		return builder.build();
+	}
+
+	private Optional<OptionGroup> makeStickGroup(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
 		var builder = OptionGroup.createBuilder()
-				.name(Component.translatable("controlify.gui.config.group.sensitivity"));
+				.name(Component.translatable("controlify.gui.config.group.stick"));
 
 		InputSettings.SensitivitySettings sens = settings.input.sensitivity;
 		InputSettings.SensitivitySettings def = defaults.input.sensitivity;
@@ -227,15 +322,6 @@ public class ControllerConfigScreenFactory {
 						.binding(def.vLookInvert, () -> sens.vLookInvert, v -> sens.vLookInvert = v)
 						.controller(TickBoxControllerBuilder::create)
 						.build())
-				.option(Option.<Float>createBuilder()
-						.name(Component.translatable("controlify.gui.vmouse_sensitivity"))
-						.description(OptionDescription.createBuilder()
-								.text(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
-								.build())
-						.binding(def.virtualMouseSensitivity, () -> sens.virtualMouseSensitivity, v -> sens.virtualMouseSensitivity = v)
-						.controller(opt -> FloatSliderControllerBuilder.create(opt)
-								.range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
-						.build())
 				.option(Option.<Boolean>createBuilder()
 						.name(Component.translatable("controlify.gui.reduce_aiming_sensitivity"))
 						.description(OptionDescription.createBuilder()
@@ -269,7 +355,7 @@ public class ControllerConfigScreenFactory {
 				.build());
 	}
 
-	private Optional<OptionGroup> makeControlsGroup(
+	private Optional<OptionGroup> makeGameplayGroup(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
@@ -284,7 +370,7 @@ public class ControllerConfigScreenFactory {
 		GenericControllerSettings def = defaults.generic;
 
 		return Optional.of(OptionGroup.createBuilder()
-				.name(Component.translatable("controlify.gui.config.group.controls"))
+				.name(Component.translatable("controlify.gui.config.group.gameplay"))
 				.option(Option.<Boolean>createBuilder()
 						.name(Component.translatable("controlify.gui.toggle_sprint"))
 						.description(OptionDescription.createBuilder()
@@ -333,7 +419,7 @@ public class ControllerConfigScreenFactory {
 				.build());
 	}
 
-	private Optional<OptionGroup> makeAccessibilityGroup(
+	private Optional<OptionGroup> makeButtonGuidesGroup(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
@@ -342,7 +428,7 @@ public class ControllerConfigScreenFactory {
 		GenericControllerSettings gDefaults = defaults.generic;
 
 		return Optional.of(OptionGroup.createBuilder()
-				.name(Component.translatable("controlify.config.group.accessibility"))
+				.name(Component.translatable("controlify.gui.config.group.button_guides"))
 				.option(Option.<Boolean>createBuilder()
 						.name(Component.translatable("controlify.gui.show_ingame_guide"))
 						.description(OptionDescription.createBuilder()
@@ -406,6 +492,19 @@ public class ControllerConfigScreenFactory {
 									default -> Component.literal(String.valueOf(v));
 								}))
 						.build())
+				.build());
+	}
+
+	private Optional<OptionGroup> makeOnScreenKeyboardGroup(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		GenericControllerSettings gSettings = settings.generic;
+		GenericControllerSettings gDefaults = defaults.generic;
+
+		return Optional.of(OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.config.group.on_screen_keyboard"))
 				.option(Option.<Boolean>createBuilder()
 						.name(Component.translatable("controlify.gui.show_keyboard"))
 						.description(OptionDescription.createBuilder()
@@ -413,6 +512,28 @@ public class ControllerConfigScreenFactory {
 								.build())
 						.binding(gDefaults.keyboard.showOnScreenKeyboard, () -> gSettings.keyboard.showOnScreenKeyboard, v -> gSettings.keyboard.showOnScreenKeyboard = v)
 						.controller(TickBoxControllerBuilder::create)
+						.build())
+				.build());
+	}
+
+	private Optional<OptionGroup> makeVirtualMouseGroup(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		InputSettings.SensitivitySettings sens = settings.input.sensitivity;
+		InputSettings.SensitivitySettings def = defaults.input.sensitivity;
+
+		return Optional.of(OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.config.group.virtual_mouse"))
+				.option(Option.<Float>createBuilder()
+						.name(Component.translatable("controlify.gui.vmouse_sensitivity"))
+						.description(OptionDescription.createBuilder()
+								.text(Component.translatable("controlify.gui.vmouse_sensitivity.tooltip"))
+								.build())
+						.binding(def.virtualMouseSensitivity, () -> sens.virtualMouseSensitivity, v -> sens.virtualMouseSensitivity = v)
+						.controller(opt -> FloatSliderControllerBuilder.create(opt)
+								.range(0.1f, 2f).step(0.05f).formatValue(percentFormatter))
 						.build())
 				.build());
 	}
@@ -462,6 +583,24 @@ public class ControllerConfigScreenFactory {
 			deadzoneOpts.add(deadzoneOpt);
 		}
 
+		return Optional.of(group.build());
+	}
+
+	private Optional<OptionGroup> makeActivationGroup(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		if (controller.isEmpty()) {
+			return Optional.empty();
+		}
+
+		InputSettings config = settings.input;
+		InputSettings def = defaults.input;
+
+		var group = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.config.group.activation"));
+
 		group.option(Option.<Float>createBuilder()
 				.name(Component.translatable("controlify.gui.button_activation_threshold"))
 				.description(OptionDescription.createBuilder()
@@ -497,22 +636,6 @@ public class ControllerConfigScreenFactory {
 				.build());
 
 		return Optional.of(group.build());
-	}
-
-	private ConfigCategory createAdvancedCategory(
-			ProfileSettings settings,
-			ProfileSettings defaults,
-			Optional<ControllerImpl> controller
-	) {
-		var builder = ConfigCategory.createBuilder()
-				.name(Component.translatable("controlify.config.category.advanced"));
-
-		makeVibrationGroup(settings, defaults, controller).ifPresent(builder::group);
-		makeGyroGroup(settings, defaults, controller).ifPresent(builder::group);
-		makeTriggerEffectsGroup(settings, defaults, controller).ifPresent(builder::group);
-		makeControllerMappingGroup(settings, defaults, controller).ifPresent(builder::group);
-
-		return builder.build();
 	}
 
 	private Optional<OptionGroup> makeControllerMappingGroup(
@@ -632,122 +755,241 @@ public class ControllerConfigScreenFactory {
 		return Optional.of(vibrationGroup.build());
 	}
 
-	private Optional<OptionGroup> makeGyroGroup(
+	private List<OptionGroup> makeGyroGroups(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
-		var gyroGroup = OptionGroup.createBuilder()
+		GyroSettings gyro = settings.gyro;
+		GyroSettings def = defaults.gyro;
+		boolean noGyro = controller.isPresent() && controller.get().gyro().isEmpty();
+
+		// everything but the enable toggle is only available while gyro is enabled
+		List<Option<?>> dependents = new ArrayList<>();
+
+		ValueFormatter<Float> degreesPerSecond = v -> Component.translatable("controlify.gui.format.degrees_per_second", Math.round(v));
+		ValueFormatter<Float> degreesPerSecondOrOff = v -> v == 0 ? CommonComponents.OPTION_OFF : degreesPerSecond.format(v);
+		ValueFormatter<Float> degreesPerSecondOneDecimalOrOff = v -> v == 0
+				? CommonComponents.OPTION_OFF
+				: Component.translatable("controlify.gui.format.degrees_per_second", String.format(Locale.ROOT, "%.1f", v));
+		ValueFormatter<Float> secondsAsMillis = v -> Component.literal(Math.round(v * 1000) + "ms");
+
+		// activation
+		var activationGroup = OptionGroup.createBuilder()
 				.name(Component.translatable("controlify.gui.group.gyro"))
 				.description(OptionDescription.createBuilder()
 						.text(Component.translatable("controlify.gui.group.gyro.tooltip"))
 						.build());
-
-		if (controller.isPresent() && controller.get().gyro().isEmpty()) {
-			gyroGroup.collapsed(true);
-			gyroGroup.option(LabelOption.create(Component.translatable("controlify.gui.group.gyro.no_gyro.tooltip").withStyle(ChatFormatting.RED)));
+		if (noGyro) {
+			activationGroup.collapsed(true);
+			activationGroup.option(LabelOption.create(Component.translatable("controlify.gui.group.gyro.no_gyro.tooltip").withStyle(ChatFormatting.RED)));
 		}
 
-		Option<Float> gyroSensitivity;
-		List<Option<?>> gyroOptions = new ArrayList<>();
-		gyroGroup.option(gyroSensitivity = Option.<Float>createBuilder()
-				.name(Component.translatable("controlify.gui.gyro_look_sensitivity"))
-				.description(OptionDescription.createBuilder()
-						.text(Component.translatable("controlify.gui.gyro_look_sensitivity.tooltip"))
-						.build())
-				.binding(defaults.gyro.lookSensitivity, () -> settings.gyro.lookSensitivity, v -> settings.gyro.lookSensitivity = v)
-				.controller(opt -> FloatSliderControllerBuilder.create(opt)
-						.range(0f, 3f)
-						.step(0.1f)
-						.formatValue(percentOrOffFormatter))
-				.addListener((opt, event) -> gyroOptions.forEach(o -> {
-					o.setAvailable(opt.pendingValue() > 0);
-					o.requestSetDefault();
-				}))
+		activationGroup.option(Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_enabled"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_enabled.tooltip")))
+				.binding(def.enabled, () -> gyro.enabled, v -> gyro.enabled = v)
+				.controller(TickBoxControllerBuilder::create)
+				.addListener((opt, event) -> dependents.forEach(o -> o.setAvailable(opt.pendingValue())))
 				.build());
+		activationGroup.option(dependent(dependents, Option.<GyroActivation>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_activation"))
+				.description(val -> OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.gyro_activation.tooltip"))
+						.text(Component.translatable("controlify.gui.gyro_activation.tooltip." + val.name().toLowerCase()))
+						.build())
+				.binding(def.activation, () -> gyro.activation, v -> gyro.activation = v)
+				.controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroActivation.class))
+				.available(gyro.enabled)
+				.build()));
+		activationGroup.option(dependent(dependents, Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_active_while_aiming"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_active_while_aiming.tooltip")))
+				.binding(def.activeWhileAiming, () -> gyro.activeWhileAiming, v -> gyro.activeWhileAiming = v)
+				.controller(TickBoxControllerBuilder::create)
+				.available(gyro.enabled)
+				.build()));
+		controller.flatMap(ControllerImpl::capSense).ifPresent(capSense -> {
+			for (Identifier sensor : capSense.sensors().stream().sorted().toList()) {
+				activationGroup.option(dependent(dependents, Option.<Boolean>createBuilder()
+						.name(Component.translatableWithFallback(
+								"controlify.gui.gyro_touch_activator." + sensor.getPath().replace('/', '.'),
+								sensor.toString()
+						))
+						.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_touch_activator.tooltip")))
+						.binding(
+								def.touchActivators.contains(sensor),
+								() -> gyro.touchActivators.contains(sensor),
+								v -> {
+									if (v) {
+										gyro.touchActivators.add(sensor);
+									} else {
+										gyro.touchActivators.remove(sensor);
+									}
+								}
+						)
+						.controller(TickBoxControllerBuilder::create)
+						.available(gyro.enabled)
+						.build()));
+			}
+		});
+		activationGroup.option(dependent(dependents, Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_invert_x"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
+				.binding(def.invertYaw, () -> gyro.invertYaw, v -> gyro.invertYaw = v)
+				.controller(TickBoxControllerBuilder::create)
+				.available(gyro.enabled)
+				.build()));
+		activationGroup.option(dependent(dependents, Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_invert_y"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
+				.binding(def.invertPitch, () -> gyro.invertPitch, v -> gyro.invertPitch = v)
+				.controller(TickBoxControllerBuilder::create)
+				.available(gyro.enabled)
+				.build()));
 
-		gyroGroup.option(Util.make(() -> {
-			var option = Option.<GyroYawMode>createBuilder()
-					.name(Component.translatable("controlify.gui.gyro_yaw_mode"))
-					.description(val -> OptionDescription.createBuilder()
-							.text(Component.translatable("controlify.gui.gyro_yaw_mode.tooltip"))
-							.text(val == GyroYawMode.YAW ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.yaw_only") : Component.empty())
-							.text(val == GyroYawMode.ROLL ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.roll_only") : Component.empty())
-							.text(val == GyroYawMode.BOTH ? Component.translatable("controlify.gui.gyro_yaw_mode.tooltip.both") : Component.empty())
-							.build())
-					.binding(defaults.gyro.yawMode, () -> settings.gyro.yawMode, v -> settings.gyro.yawMode = v)
-					.controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroYawMode.class))
-					.build();
-			gyroOptions.add(option);
-			return option;
-		}));
-		gyroGroup.option(Util.make(() -> {
-			var opt = Option.<Boolean>createBuilder()
-					.name(Component.translatable("controlify.gui.gyro_invert_x"))
-					.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_x.tooltip")))
-					.binding(defaults.gyro.invertYaw, () -> settings.gyro.invertYaw, v -> settings.gyro.invertYaw = v)
-					.controller(TickBoxControllerBuilder::create)
-					.build();
-			gyroOptions.add(opt);
-			return opt;
-		}));
-		gyroGroup.option(Util.make(() -> {
-			var opt = Option.<Boolean>createBuilder()
-					.name(Component.translatable("controlify.gui.gyro_invert_y"))
-					.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_invert_y.tooltip")))
-					.binding(defaults.gyro.invertPitch, () -> settings.gyro.invertPitch, v -> settings.gyro.invertPitch = v)
-					.controller(TickBoxControllerBuilder::create)
-					.build();
-			gyroOptions.add(opt);
-			return opt;
-		}));
-		gyroGroup.option(Util.make(() -> {
-			var opt = Option.<GyroButtonMode>createBuilder()
-					.name(Component.translatable("controlify.gui.gyro_requires_button"))
-					.description(val -> OptionDescription.createBuilder()
-							.text(Component.translatable("controlify.gui.gyro_requires_button.tooltip"))
-							.text(val == GyroButtonMode.ON ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.on") : Component.empty())
-							.text(val == GyroButtonMode.INVERT ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.invert") : Component.empty())
-							.text(val == GyroButtonMode.TOGGLE ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.toggle") : Component.empty())
-							.text(val == GyroButtonMode.OFF ? Component.translatable("controlify.gui.gyro_requires_button.tooltip.off") : Component.empty())
-							.build())
-					.binding(defaults.gyro.buttonMode, () -> settings.gyro.buttonMode, v -> settings.gyro.buttonMode = v)
-					.controller(controllerOpt -> EnumControllerBuilder.create(controllerOpt).enumClass(GyroButtonMode.class))
-					.available(gyroSensitivity.pendingValue() > 0)
-					.build();
-			gyroOptions.add(opt);
-			return opt;
-		}));
-		gyroGroup.option(Util.make(() -> {
-			var option = Option.<Float>createBuilder()
-					.name(Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz"))
-					.description(OptionDescription.of(Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz.tooltip")))
-					.binding(defaults.gyro.lowPassCutoffHz, () -> settings.gyro.lowPassCutoffHz, v -> settings.gyro.lowPassCutoffHz = v)
-					.controller(opt -> FloatSliderControllerBuilder.create(opt)
-							.range(0f, 100f)
-							.step(1f)
-							.formatValue(v -> v == 0 ? CommonComponents.OPTION_OFF
-									: Component.translatable("controlify.gui.gyro_low_pass_cutoff_hz.value", v.intValue())))
-					.available(gyroSensitivity.pendingValue() > 0)
-					.build();
-			gyroOptions.add(option);
-			return option;
-		}));
-		gyroGroup.option(Util.make(() -> {
-			var opt = Option.<Boolean>createBuilder()
-					.name(Component.translatable("controlify.gui.flick_stick"))
-					.description(OptionDescription.createBuilder()
-							.text(Component.translatable("controlify.gui.flick_stick.tooltip"))
-							.build())
-					.binding(defaults.gyro.flickStick, () -> settings.gyro.flickStick, v -> settings.gyro.flickStick = v)
-					.controller(TickBoxControllerBuilder::create)
-					.available(gyroSensitivity.pendingValue() > 0)
-					.build();
-			gyroOptions.add(opt);
-			return opt;
-		}));
+		// space and sensitivity
+		var sensitivityGroup = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.gyro_sensitivity"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.group.gyro_sensitivity.tooltip")))
+				.collapsed(noGyro);
+		sensitivityGroup.option(dependent(dependents, Option.<GyroSpace>createBuilder()
+				.name(Component.translatable("controlify.gui.gyro_space"))
+				.description(val -> OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.gyro_space.tooltip"))
+						.text(Component.translatable("controlify.gui.gyro_space.tooltip." + val.name().toLowerCase()))
+						.build())
+				.binding(def.space, () -> gyro.space, v -> gyro.space = v)
+				.controller(opt -> EnumControllerBuilder.create(opt).enumClass(GyroSpace.class))
+				.available(gyro.enabled)
+				.build()));
+		sensitivityGroup.option(dependent(dependents, slider(
+				"gyro_sensitivity", def.sensitivity, () -> gyro.sensitivity, v -> gyro.sensitivity = v,
+				0.05f, 4f, 0.05f, percentFormatter, gyro.enabled
+		)));
+		sensitivityGroup.option(dependent(dependents, slider(
+				"gyro_vertical_ratio", def.verticalRatio, () -> gyro.verticalRatio, v -> gyro.verticalRatio = v,
+				0.25f, 2f, 0.05f, percentFormatter, gyro.enabled
+		)));
+		sensitivityGroup.option(dependent(dependents, slider(
+				"gyro_aim_multiplier", def.aimMultiplier, () -> gyro.aimMultiplier, v -> gyro.aimMultiplier = v,
+				0.1f, 1.5f, 0.05f, percentFormatter, gyro.enabled
+		)));
 
-		return Optional.of(gyroGroup.build());
+		// acceleration
+		var accelerationGroup = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.gyro_acceleration"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.group.gyro_acceleration.tooltip")))
+				.collapsed(true);
+		accelerationGroup.option(dependent(dependents, slider(
+				"gyro_fast_sensitivity", def.fastSensitivity, () -> gyro.fastSensitivity, v -> gyro.fastSensitivity = v,
+				0.05f, 8f, 0.05f, percentFormatter, gyro.enabled
+		)));
+		accelerationGroup.option(dependent(dependents, slider(
+				"gyro_accel_slow_threshold", def.accelSlowThreshold, () -> gyro.accelSlowThreshold, v -> gyro.accelSlowThreshold = v,
+				0f, 200f, 5f, degreesPerSecond, gyro.enabled
+		)));
+		accelerationGroup.option(dependent(dependents, slider(
+				"gyro_accel_fast_threshold", def.accelFastThreshold, () -> gyro.accelFastThreshold, v -> gyro.accelFastThreshold = v,
+				0f, 800f, 10f, degreesPerSecond, gyro.enabled
+		)));
+
+		// smoothing and tightening
+		var filteringGroup = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.gyro_filtering"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.group.gyro_filtering.tooltip")))
+				.collapsed(true);
+		filteringGroup.option(dependent(dependents, slider(
+				"gyro_smooth_threshold", def.smoothThreshold, () -> gyro.smoothThreshold, v -> gyro.smoothThreshold = v,
+				0f, 100f, 1f, degreesPerSecondOrOff, gyro.enabled
+		)));
+		filteringGroup.option(dependent(dependents, slider(
+				"gyro_smooth_time", def.smoothTime, () -> gyro.smoothTime, v -> gyro.smoothTime = v,
+				0.01f, 0.5f, 0.01f, secondsAsMillis, gyro.enabled
+		)));
+		filteringGroup.option(dependent(dependents, slider(
+				"gyro_tighten_threshold", def.tightenThreshold, () -> gyro.tightenThreshold, v -> gyro.tightenThreshold = v,
+				0f, 20f, 0.5f, degreesPerSecondOneDecimalOrOff, gyro.enabled
+		)));
+
+		return List.of(activationGroup.build(), sensitivityGroup.build(), accelerationGroup.build(), filteringGroup.build());
+	}
+
+	private Optional<OptionGroup> makeFlickStickGroup(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		FlickStickSettings flick = settings.flickStick;
+		FlickStickSettings def = defaults.flickStick;
+
+		List<Option<?>> dependents = new ArrayList<>();
+
+		var group = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.flick_stick"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.group.flick_stick.tooltip")));
+
+		group.option(Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.flick_stick"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.flick_stick.tooltip")))
+				.binding(def.enabled, () -> flick.enabled, v -> flick.enabled = v)
+				.controller(TickBoxControllerBuilder::create)
+				.addListener((opt, event) -> dependents.forEach(o -> o.setAvailable(opt.pendingValue())))
+				.build());
+		group.option(dependent(dependents, slider(
+				"flick_stick_time", def.flickTime, () -> flick.flickTime, v -> flick.flickTime = v,
+				0.05f, 1f, 0.05f, v -> Component.literal(Math.round(v * 1000) + "ms"), flick.enabled
+		)));
+		group.option(dependent(dependents, slider(
+				"flick_stick_forward_deadzone", def.forwardDeadzone, () -> flick.forwardDeadzone, v -> flick.forwardDeadzone = v,
+				0f, 45f, 1f,
+				v -> v == 0 ? CommonComponents.OPTION_OFF : Component.translatable("controlify.gui.format.degrees", Math.round(v)),
+				flick.enabled
+		)));
+		group.option(dependent(dependents, Option.<FlickSnap>createBuilder()
+				.name(Component.translatable("controlify.gui.flick_stick_snap"))
+				.description(val -> OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.flick_stick_snap.tooltip"))
+						.text(Component.translatable("controlify.gui.flick_stick_snap.tooltip." + val.name().toLowerCase()))
+						.build())
+				.binding(def.snap, () -> flick.snap, v -> flick.snap = v)
+				.controller(opt -> EnumControllerBuilder.create(opt).enumClass(FlickSnap.class))
+				.available(flick.enabled)
+				.build()));
+		group.option(dependent(dependents, Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.flick_stick_rotate"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.flick_stick_rotate.tooltip")))
+				.binding(def.rotate, () -> flick.rotate, v -> flick.rotate = v)
+				.controller(TickBoxControllerBuilder::create)
+				.available(flick.enabled)
+				.build()));
+
+		return Optional.of(group.build());
+	}
+
+	private static <T> Option<T> dependent(List<Option<?>> dependents, Option<T> option) {
+		dependents.add(option);
+		return option;
+	}
+
+	private static Option<Float> slider(
+			String key,
+			float defaultValue,
+			Supplier<Float> getter,
+			Consumer<Float> setter,
+			float min,
+			float max,
+			float step,
+			ValueFormatter<Float> formatter,
+			boolean available
+	) {
+		return Option.<Float>createBuilder()
+				.name(Component.translatable("controlify.gui." + key))
+				.description(OptionDescription.of(Component.translatable("controlify.gui." + key + ".tooltip")))
+				.binding(defaultValue, getter, setter)
+				.controller(opt -> FloatSliderControllerBuilder.create(opt).range(min, max).step(step).formatValue(formatter))
+				.available(available)
+				.build();
 	}
 
 	private Optional<OptionGroup> makeTriggerEffectsGroup(
@@ -783,7 +1025,7 @@ public class ControllerConfigScreenFactory {
 	) {
 
 		var category = ConfigCategory.createBuilder()
-				.name(Component.translatable("controlify.gui.group.controls"));
+				.name(Component.translatable("controlify.gui.config.category.bindings"));
 
 		InputSettings.RadialMenuSettings radialConfig = settings.input.radialMenu;
 		InputSettings.RadialMenuSettings radialDef = defaults.input.radialMenu;

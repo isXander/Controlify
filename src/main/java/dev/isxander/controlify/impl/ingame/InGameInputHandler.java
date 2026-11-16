@@ -6,25 +6,18 @@
  */
 package dev.isxander.controlify.impl.ingame;
 
-import dev.isxander.controlify.api.ingame.LookInputModifier;
 import dev.isxander.controlify.impl.Controlify;
 import dev.isxander.controlify.impl.action.ControlifyActions;
-import dev.isxander.controlify.impl.config.settings.profile.GyroSettings;
-import dev.isxander.controlify.impl.config.settings.profile.InputSettings;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
-import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
-import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
-import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.impl.ingame.look.CameraLookSink;
+import dev.isxander.controlify.impl.ingame.look.LookPipeline;
+import dev.isxander.controlify.impl.ingame.look.LookRegistryImpl;
 import dev.isxander.controlify.impl.gui.screen.RadialItems.RadialPage;
 import dev.isxander.controlify.impl.gui.screen.RadialItems;
 import dev.isxander.controlify.impl.gui.screen.RadialMenuScreen;
 import dev.isxander.controlify.impl.server.ServerPolicies;
-import dev.isxander.controlify.impl.utils.ControllerUtils;
 import dev.isxander.controlify.impl.utils.DebugOverlayHelper;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
-import dev.isxander.controlify.impl.utils.animation.api.Animation;
-import dev.isxander.controlify.impl.utils.animation.api.EasingFunction;
-import dev.isxander.controlify.impl.utils.event.EventBus;
 import dev.isxander.controlify.mixins.feature.steamdeck.ScreenshotAccessor;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -38,16 +31,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.server.commands.GameModeCommand;
-import net.minecraft.util.Mth;
 //? if <26.3
 //import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2d;
-import org.joml.Vector2f;
-import org.joml.Vector3f;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -55,20 +43,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class InGameInputHandler {
-	public static final class Events {
-		public static final EventBus<LookInputModifier> LOOK_INPUT_MODIFIER = new EventBus<>();
-
-		private Events() {
-		}
-	}
-
 	private final ControllerImpl controller;
 	private final Controlify controlify;
 	private final Minecraft minecraft;
+	private final LookPipeline lookPipeline;
 
-	private boolean gyroToggledOn;
-	private boolean wasAiming;
-	private Animation flickAnimation;
+	private boolean lookWasPossible;
 
 	private boolean shouldShowPlayerList;
 
@@ -76,7 +56,7 @@ public class InGameInputHandler {
 		this.controller = controller;
 		this.minecraft = Minecraft.getInstance();
 		this.controlify = Controlify.instance();
-		this.gyroToggledOn = false;
+		this.lookPipeline = new LookPipeline(controller, LookRegistryImpl.INSTANCE, new CameraLookSink(this.minecraft));
 	}
 
 	public void fixedUpdate() {
@@ -322,139 +302,15 @@ public class InGameInputHandler {
 		LocalPlayer player = this.minecraft.player;
 
 		if (!ControllerPlayerMovement.shouldBeControllerInput() || !canProcessLookInput()) {
-			return;
-		}
-
-		boolean aiming = isAiming(player);
-
-		Vector2d lookImpulse = new Vector2d();
-		controller.gyro().ifPresent(gyro -> handleGyroLook(gyro, lookImpulse, aiming));
-
-		if (controller.gyro().map(gyro -> gyro.settings().lookSensitivity > 0 && gyro.settings().flickStick).orElse(false)) {
-			handleFlickStick(player);
-		} else {
-			handleRegularLook(controller.input(), lookImpulse, aiming, player, deltaTime);
-		}
-
-		var modifier = new LookInputModifier(new Vector2f((float) lookImpulse.x, (float) lookImpulse.y), controller);
-		Events.LOOK_INPUT_MODIFIER.emit(modifier);
-		lookImpulse.set(modifier.lookInput());
-
-		double velX = lookImpulse.x / 0.15;
-		double velY = lookImpulse.y / 0.15;
-		player.turn(velX, velY);
-		minecraft.getTutorial().onMouse(velX, velY);
-
-		wasAiming = aiming;
-	}
-
-	protected void handleRegularLook(InputComponentImpl input, Vector2d impulse, boolean aiming, LocalPlayer player, float deltaTime) {
-		InputSettings settings = input.settings();
-
-		// normal look input
-		Vector2d regularImpulse = new Vector2d(
-				ControlifyActions.LOOK_RIGHT.on(controller).continuous().getContinuous()
-						- ControlifyActions.LOOK_LEFT.on(controller).continuous().getContinuous(),
-				ControlifyActions.LOOK_DOWN.on(controller).continuous().getContinuous()
-						- ControlifyActions.LOOK_UP.on(controller).continuous().getContinuous()
-		);
-		if (settings.sensitivity.hLookInvert) {
-			regularImpulse.x *= -1;
-		}
-		if (settings.sensitivity.vLookInvert) {
-			regularImpulse.y *= -1;
-		}
-
-		if (!settings.sensitivity.isLCE) {
-			// apply the easing on its length to preserve circularity
-			regularImpulse = ControllerUtils.applyEasingToLength(
-					regularImpulse,
-					settings.sensitivity.lookInputCurve::apply
-			);
-		} else {
-			// LCE uses a quadratic curve on each axis independently,
-			// and its default turn speed was 7.5 degrees per tick at 100% sensitivity
-			regularImpulse.x = regularImpulse.x * Math.abs(regularImpulse.x) * 0.75f;
-			regularImpulse.y = regularImpulse.y * Math.abs(regularImpulse.y) * 0.75f;
-		}
-
-		if (settings.sensitivity.reduceAimingSensitivity && player.isUsingItem()) {
-			float aimMultiplier = settings.sensitivity.isLCE
-					? switch (player.getUseItem().getUseAnimation()) {
-						case BOW, CROSSBOW, SPEAR, SPYGLASS -> 0.15f;
-						default -> 1f;
-					}
-					: switch (player.getUseItem().getUseAnimation()) {
-						case BOW, CROSSBOW, SPEAR -> 0.6f;
-						case SPYGLASS -> 0.2f;
-						default -> 1f;
-					};
-			regularImpulse.mul(aimMultiplier);
-		}
-
-		// 10 degrees per tick at 100% sensitivity
-		regularImpulse.x *= settings.sensitivity.hLookSensitivity * 10f;
-		regularImpulse.y *= settings.sensitivity.vLookSensitivity * 10f;
-
-		impulse.add(regularImpulse.mul(deltaTime));
-	}
-
-	protected void handleGyroLook(GyroComponentImpl gyro, Vector2d impulse, boolean aiming) {
-		GyroSettings settings = gyro.settings();
-		var gyroButton = ControlifyActions.GYRO_BUTTON.on(controller);
-		var gyroInput = new Vector3f(gyro.getState());
-
-		if (settings.buttonMode.equals(GyroButtonMode.ON) && (!gyroButton.latch().isLatchActive() && !aiming)) {
-			gyroInput.set(0);
-		} else if(settings.buttonMode.equals(GyroButtonMode.INVERT) && (gyroButton.latch().isLatchActive() && !aiming)) {
-			gyroInput.set(0);
-		} else if(settings.buttonMode.equals(GyroButtonMode.TOGGLE) && (!gyroToggledOn && !aiming)) {
-			gyroInput.set(0);
-		}
-
-		while (gyroButton.pulse().consumePulse()) {
-			if (settings.buttonMode.equals(GyroButtonMode.TOGGLE)) {
-				gyroToggledOn = !gyroToggledOn;
+			if (this.lookWasPossible) {
+				this.lookPipeline.reset();
+				this.lookWasPossible = false;
 			}
-		}
-
-		// The latest gyro sample is already accumulated over this frame, in radians.
-		var thisInput = gyroInput
-				.mul(Mth.RAD_TO_DEG)
-				.mul(settings.lookSensitivity);
-
-		impulse.y += -thisInput.x() * (settings.invertPitch ? -1 : 1);
-		impulse.x += switch (settings.yawMode) {
-			case YAW -> -thisInput.y();
-			case ROLL -> -thisInput.z();
-			case BOTH -> -thisInput.y() - thisInput.z();
-		} * (settings.invertYaw ? -1 : 1);
-	}
-
-	protected void handleFlickStick(LocalPlayer player) {
-		float y = ControlifyActions.LOOK_DOWN.on(controller).continuous().getContinuous()
-				- ControlifyActions.LOOK_UP.on(controller).continuous().getContinuous();
-		float x = ControlifyActions.LOOK_RIGHT.on(controller).continuous().getContinuous()
-				- ControlifyActions.LOOK_LEFT.on(controller).continuous().getContinuous();
-
-		float flickAngle = Mth.wrapDegrees((float) Mth.atan2(y, x) * Mth.RAD_TO_DEG + 90f);
-
-		if (!ControlifyActions.LOOK_DOWN.on(controller).pulse().consumeAllPulses()
-				& !ControlifyActions.LOOK_UP.on(controller).pulse().consumeAllPulses()
-				& !ControlifyActions.LOOK_LEFT.on(controller).pulse().consumeAllPulses()
-				& !ControlifyActions.LOOK_RIGHT.on(controller).pulse().consumeAllPulses()
-		) {
 			return;
 		}
+		this.lookWasPossible = true;
 
-		if (flickAnimation != null && flickAnimation.isPlaying()) {
-			flickAnimation.skipToEnd();
-		}
-
-		flickAnimation = Animation.of(8)
-				.easing(EasingFunction.EASE_OUT_EXPO)
-				.deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
-				.play();
+		this.lookPipeline.process(player, deltaTime);
 	}
 
 	public boolean shouldShowPlayerList() {
@@ -491,13 +347,6 @@ public class InGameInputHandler {
 
 			player.setDeltaMovement(x, y, z);
 		}
-	}
-
-	private boolean isAiming(Player player) {
-		return player.isUsingItem() && switch (player.getUseItem().getUseAnimation()) {
-			case BOW, CROSSBOW, SPEAR, SPYGLASS -> true;
-			default -> false;
-		};
 	}
 
 	private boolean canProcessLookInput() {

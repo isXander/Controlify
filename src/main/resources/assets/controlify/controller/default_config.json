@@ -70,13 +70,29 @@
     "enabled": true
   },
   "gyro": {
-    "look_sensitivity": 0.0,
+    "enabled": false,
+    "space": "local_yaw",
+    "sensitivity": 1.0,
+    "vertical_ratio": 1.0,
+    "fast_sensitivity": 1.0,
+    "accel_slow_threshold": 0.0,
+    "accel_fast_threshold": 0.0,
+    "smooth_threshold": 0.0,
+    "smooth_time": 0.1,
+    "tighten_threshold": 0.0,
+    "activation": "hold_on",
+    "active_while_aiming": true,
+    "aim_multiplier": 1.0,
+    "touch_activators": [],
     "invert_pitch": false,
-    "invert_yaw": false,
-    "button_mode": "on",
-    "yaw_mode": "yaw",
-    "flick_stick": false,
-    "low_pass_cutoff_hz": 0
+    "invert_yaw": false
+  },
+  "flick_stick": {
+    "enabled": false,
+    "flick_time": 0.4,
+    "forward_deadzone": 0.0,
+    "snap": "none",
+    "rotate": true
   },
   "bluetooth_device": {
     "dont_show_warning": false

@@ -50,4 +50,19 @@ public sealed interface LogicalSignal {
 	/// The data is expected to be tick-integrated deltas. They are not individual IMU samples.
 	/// @see SensorAccumulatorStage
 	record SensorInterval(long timeNanos, long deltaTimeNanos, SensorType sensorType, float x, float y, float z) implements LogicalSignal {}
+
+	/// Gyro motion processed per sensor sample and integrated over a frame.
+	/// Look amounts are in degrees and already include sensitivity, in the look impulse convention:
+	/// positive yaw looks right, positive pitch looks down.
+	///
+	/// @param deltaTimeNanos the duration of gyro data integrated into this interval
+	/// @param gravityX x of the unit vector pointing up in the controller frame (the direction an accelerometer reads at rest)
+	/// @param hasGravity whether the gravity components are meaningful; false when no accelerometer data exists
+	/// @see dev.isxander.controlify.impl.input.pipeline.MotionStage
+	record MotionInterval(
+			long timeNanos, long deltaTimeNanos,
+			float lookYawDeg, float lookPitchDeg,
+			float gravityX, float gravityY, float gravityZ,
+			boolean hasGravity
+	) implements LogicalSignal {}
 }

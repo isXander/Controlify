@@ -24,6 +24,7 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 	private final EventTap<PhysicalSignal> tapProcessedPhysicalSignals;
 
 	private final SensorAccumulatorStage stageSensorAccumulator;
+	private final MotionStage stageMotion;
 	private final PhysicalToLogicalStage stagePhysicalToLogical;
 	private final EventTap<LogicalSignal> tapLogicalSignals;
 
@@ -38,7 +39,8 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 		this.stageInputDomainExpansion = new InputDomainExpansionStage(0.5f, 0.49f, 1f, 0f);
 		this.tapProcessedPhysicalSignals = new EventTap<>();
 		this.stageSensorAccumulator = new SensorAccumulatorStage();
-		this.stagePhysicalToLogical = new PhysicalToLogicalStage(this.stageSensorAccumulator);
+		this.stageMotion = new MotionStage();
+		this.stagePhysicalToLogical = new PhysicalToLogicalStage(this.stageSensorAccumulator, this.stageMotion);
 		this.tapLogicalSignals = new EventTap<>();
 
 		this.fullPipeline = this.tapRawPhysicalSignals
@@ -97,6 +99,10 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 
 	public SensorAccumulatorStage stageSensorAccumulator() {
 		return this.stageSensorAccumulator;
+	}
+
+	public MotionStage stageMotion() {
+		return this.stageMotion;
 	}
 
 	public PhysicalToLogicalStage stagePhysicalToLogical() {

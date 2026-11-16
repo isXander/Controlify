@@ -36,7 +36,7 @@ public class GyroLowPassFix extends DataFix {
 	private <T> Dynamic<T> rewriteProfile(Dynamic<T> root) {
 		var gyro = root.get("gyro").orElseEmptyMap();
 
-		gyro = gyro.set("low_pass_cutoff_hz", root.createFloat(profileDefaults.gyro.lowPassCutoffHz));
+		gyro = gyro.set("low_pass_cutoff_hz", root.createFloat(0f));
 
 		return root.set("gyro", gyro);
 	}

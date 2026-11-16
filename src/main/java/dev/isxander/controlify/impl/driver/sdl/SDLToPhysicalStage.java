@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.driver.sdl;
 
+import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
 import dev.isxander.controlify.impl.input.mapping.JoystickInputs;
 import dev.isxander.controlify.impl.input.SensorType;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
@@ -19,6 +20,10 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static dev.isxander.sdl.SdlJoystick.*;
@@ -29,6 +34,7 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 	private final float[] prevGamepadAxisValues = new float[256];
 	private final float[] prevJoystickAxisValues = new float[256];
 	private final byte[] prevHatValues = new byte[256];
+	private final Map<Integer, Set<Integer>> touchpadFingers = new HashMap<>();
 
 	// because the pipeline is synchronous we can allocate this once and re-use it
 	// for each invocation of onEvent
@@ -98,6 +104,34 @@ public class SDLToPhysicalStage implements EventStage<SDLControllerEvent, Physic
 				Identifier input = SDLInputConversions.getGamepadButton(button);
 				if (input != null) {
 					downstream.accept(new PhysicalInputSignal.ButtonChanged(timeNanos, input, down));
+				}
+			}
+
+			case SDLControllerEvent.GamepadCapSense(_, long timeNanos, byte capsense, boolean down) -> {
+				Identifier input = SDLInputConversions.getGamepadCapSense(Byte.toUnsignedInt(capsense));
+				if (input != null) {
+					downstream.accept(new PhysicalInputSignal.CapSenseChanged(timeNanos, input, down));
+				}
+			}
+
+			case SDLControllerEvent.GamepadTouchpad(_, long timeNanos, var action, int touchpad, int finger, _, _, _) -> {
+				// Touchpad touch is a capsense sensor: touched while at least one finger is down.
+				Set<Integer> fingers = this.touchpadFingers.computeIfAbsent(touchpad, _ -> new HashSet<>());
+				switch (action) {
+					case DOWN -> {
+						boolean wasEmpty = fingers.isEmpty();
+						if (fingers.add(finger) && wasEmpty) {
+							downstream.accept(new PhysicalInputSignal.CapSenseChanged(
+									timeNanos, GamepadInputs.touchpadCapSense(touchpad), true));
+						}
+					}
+					case UP -> {
+						if (fingers.remove(finger) && fingers.isEmpty()) {
+							downstream.accept(new PhysicalInputSignal.CapSenseChanged(
+									timeNanos, GamepadInputs.touchpadCapSense(touchpad), false));
+						}
+					}
+					case MOTION -> {}
 				}
 			}
 

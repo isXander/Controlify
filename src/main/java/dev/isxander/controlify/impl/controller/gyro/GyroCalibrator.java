@@ -33,6 +33,51 @@ public class GyroCalibrator {
 	private final Vector3f windowMin = new Vector3f();
 	private final Vector3f windowMax = new Vector3f();
 
+	// Maximum accelerometer spread per axis (m/s^2) for a window to count as stationary.
+	private static final float ACCEL_STEADY_THRESHOLD = 0.5f;
+	private boolean hasAccelData;
+	private final Vector3f latestAccel = new Vector3f();
+	private boolean accelWindowValid;
+	private final Vector3f accelWindowMin = new Vector3f();
+	private final Vector3f accelWindowMax = new Vector3f();
+
+	/**
+	 * Feeds a raw accelerometer sample (m/s^2). Once any has been received, a gyro window
+	 * only counts as stationary while the accelerometer is steady over the same window.
+	 */
+	public void updateAccel(float x, float y, float z) {
+		if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)) {
+			return;
+		}
+		this.hasAccelData = true;
+		this.latestAccel.set(x, y, z);
+		if (!this.accelWindowValid) {
+			this.accelWindowMin.set(x, y, z);
+			this.accelWindowMax.set(x, y, z);
+			this.accelWindowValid = true;
+		} else {
+			this.accelWindowMin.min(this.latestAccel);
+			this.accelWindowMax.max(this.latestAccel);
+		}
+	}
+
+	/**
+	 * Restarts the accelerometer window alongside the gyro window, keeping the latest reading
+	 * so ongoing accelerometer movement is not forgotten.
+	 */
+	private void resetAccelWindow() {
+		this.accelWindowValid = this.hasAccelData;
+		this.accelWindowMin.set(this.latestAccel);
+		this.accelWindowMax.set(this.latestAccel);
+	}
+
+	private boolean isAccelSteady() {
+		return !this.hasAccelData
+				|| this.accelWindowMax.x - this.accelWindowMin.x < ACCEL_STEADY_THRESHOLD
+				&& this.accelWindowMax.y - this.accelWindowMin.y < ACCEL_STEADY_THRESHOLD
+				&& this.accelWindowMax.z - this.accelWindowMin.z < ACCEL_STEADY_THRESHOLD;
+	}
+
 	public void update(float x, float y, float z) {
 		if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)) {
 			this.stationarySampleCount = 0;
@@ -57,6 +102,7 @@ public class GyroCalibrator {
 			this.stationarySampleCount = 1;
 			this.windowMin.set(x, y, z);
 			this.windowMax.set(x, y, z);
+			this.resetAccelWindow();
 		}
 	}
 
@@ -67,10 +113,12 @@ public class GyroCalibrator {
 		if (this.stationarySampleCount == 0) {
 			this.windowMin.set(x, y, z);
 			this.windowMax.set(x, y, z);
+			this.resetAccelWindow();
 		}
 		this.windowMin.min(new Vector3f(x, y, z));
 		this.windowMax.max(new Vector3f(x, y, z));
-		return this.windowMax.x - this.windowMin.x < STATIONARY_THRESHOLD
+		return this.isAccelSteady()
+				&& this.windowMax.x - this.windowMin.x < STATIONARY_THRESHOLD
 				&& this.windowMax.y - this.windowMin.y < STATIONARY_THRESHOLD
 				&& this.windowMax.z - this.windowMin.z < STATIONARY_THRESHOLD;
 	}
@@ -90,5 +138,7 @@ public class GyroCalibrator {
 	public void reset() {
 		this.biasEstimate.set(0, 0, 0);
 		this.stationarySampleCount = 0;
+		this.hasAccelData = false;
+		this.accelWindowValid = false;
 	}
 }

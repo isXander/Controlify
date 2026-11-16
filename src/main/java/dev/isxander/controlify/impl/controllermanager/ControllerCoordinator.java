@@ -235,7 +235,8 @@ public class ControllerCoordinator implements AutoCloseable {
 			previous.close();
 		}
 		this.inputSubscriptions.put(controller, controller.input().inputPipeline().sourceProcessedPhysicalSignals()
-				.filter(signal -> signal instanceof PhysicalInputSignal)
+				.filter(signal -> signal instanceof PhysicalInputSignal
+						&& !(signal instanceof PhysicalInputSignal.CapSenseChanged))
 				.subscribe(_ -> this.controllersWithInput.add(controller)));
 
 		DeviceSettings rememberedDevice = this.config.getSettings().getOrCreateDeviceSettings(controller.uid());

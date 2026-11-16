@@ -19,6 +19,7 @@ public record ProfileConfig(
 		RumbleConfig rumble,
 		HDHapticConfig hdHaptic,
 		GyroConfig gyro,
+		FlickStickConfig flickStick,
 		BluetoothDeviceConfig bluetoothDevice,
 		DualsenseConfig dualsense
 ) {
@@ -30,6 +31,7 @@ public record ProfileConfig(
 			RumbleConfig.CODEC.fieldOf("rumble").forGetter(ProfileConfig::rumble),
 			HDHapticConfig.CODEC.fieldOf("hd_haptic").forGetter(ProfileConfig::hdHaptic),
 			GyroConfig.CODEC.fieldOf("gyro").forGetter(ProfileConfig::gyro),
+			FlickStickConfig.CODEC.fieldOf("flick_stick").forGetter(ProfileConfig::flickStick),
 			BluetoothDeviceConfig.CODEC.fieldOf("bluetooth_device").forGetter(ProfileConfig::bluetoothDevice),
 			DualsenseConfig.CODEC.fieldOf("dualsense").forGetter(ProfileConfig::dualsense)
 	).apply(instance, ProfileConfig::new));

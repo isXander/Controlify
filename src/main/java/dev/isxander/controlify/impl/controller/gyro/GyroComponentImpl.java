@@ -13,6 +13,7 @@ import dev.isxander.controlify.impl.config.settings.profile.GyroSettings;
 import dev.isxander.controlify.impl.controller.ControllerComponent;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.input.pipeline.InputPipeline;
+import dev.isxander.controlify.impl.input.pipeline.MotionParams;
 import dev.isxander.controlify.impl.input.pipeline.SensorProcessorStage;
 import dev.isxander.controlify.impl.input.SensorType;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
@@ -22,10 +23,13 @@ import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.List;
 
 public class GyroComponentImpl extends ControllerComponent implements GyroComponent {
@@ -36,6 +40,9 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 	private DeviceSettings deviceSettings;
 
 	private Vector3fc gyroState = new Vector3f();
+	private Vector2fc lookDelta = new Vector2f();
+	private @Nullable Vector3fc gravity;
+	private long lastMotionTimeNanos;
 	private static final long MAX_SAMPLE_AGE_NANOS = 50_000_000L;
 	private long lastStateTimeNanos;
 	private final GyroCalibrator calibrator = new GyroCalibrator();
@@ -64,9 +71,10 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 		this.lastCalibrationSaveTimeNanos = System.nanoTime();
 
 		this.inputPipeline.stageSensorProcessor().setProcessors(SensorType.GYROSCOPE, List.of(
-				new SensorProcessorStage.BiasCorrection(() -> this.deviceSettings.gyroCalibration.offset),
-				new SensorProcessorStage.LowPassFilter(() -> this.settings().lowPassCutoffHz)
+				new SensorProcessorStage.BiasCorrection(() -> this.deviceSettings.gyroCalibration.offset)
 		));
+
+		this.inputPipeline.stageMotion().setParamsSupplier(() -> this.settings().toMotionParams());
 
 		this.calibrationSubscription = this.inputPipeline.sourceRawPhysicalSignals().subscribe(this::onRawSignal);
 		this.sensorSubscription = this.inputPipeline.sourceLogicalSignals().subscribe(this::onSignal);
@@ -75,14 +83,18 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 	private void onRawSignal(PhysicalSignal signal) {
 		if (signal instanceof PhysicalSignal.Frame) {
 			this.gyroState = new Vector3f();
+			this.lookDelta = new Vector2f();
 		}
-		if (signal instanceof PhysicalSensorSignal(_, _, SensorType sensorType, float x, float y, float z)
-				&& sensorType == SensorType.GYROSCOPE) {
-			this.updateCalibration(x, y, z);
+		if (signal instanceof PhysicalSensorSignal(_, _, SensorType sensorType, float x, float y, float z)) {
+			if (sensorType == SensorType.GYROSCOPE) {
+				this.updateBiasCalibration(x, y, z);
+			} else if (sensorType == SensorType.ACCELEROMETER) {
+				this.calibrator.updateAccel(x, y, z);
+			}
 		}
 	}
 
-	private void updateCalibration(float x, float y, float z) {
+	private void updateBiasCalibration(float x, float y, float z) {
 		this.calibrator.update(x, y, z);
 		// The raw tap runs before SensorProcessorStage, so its bias supplier sees this update immediately.
 		this.deviceSettings.gyroCalibration.offset = this.calibrator.getCurrentBias();
@@ -100,7 +112,27 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 			// The pipeline has already calibrated, filtered and integrated these values into radians.
 			this.gyroState = new Vector3f(x, y, z);
 			this.lastStateTimeNanos = System.nanoTime();
+		} else if (signal instanceof LogicalSignal.MotionInterval motion) {
+			this.lookDelta = new Vector2f(motion.lookYawDeg(), motion.lookPitchDeg());
+			this.gravity = motion.hasGravity()
+					? new Vector3f(motion.gravityX(), motion.gravityY(), motion.gravityZ())
+					: null;
+			this.lastMotionTimeNanos = System.nanoTime();
 		}
+	}
+
+	/// Returns this frame's processed gyro look in degrees, with sensitivity already applied:
+	/// x is yaw (positive looks right) and y is pitch (positive looks down), before any inversion.
+	/// Zero when no motion arrived recently, and cleared at the start of each frame.
+	public Vector2fc lookDelta() {
+		return System.nanoTime() - this.lastMotionTimeNanos > MAX_SAMPLE_AGE_NANOS
+				? new Vector2f() : this.lookDelta;
+	}
+
+	/// Returns the unit vector pointing up in the controller frame, if an accelerometer is providing one.
+	public Optional<Vector3fc> gravity() {
+		return System.nanoTime() - this.lastMotionTimeNanos > MAX_SAMPLE_AGE_NANOS
+				? Optional.empty() : Optional.ofNullable(this.gravity);
 	}
 
 	/// Returns the latest integrated gyro interval in radians.
@@ -149,6 +181,7 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 			this.sensorSubscription.close();
 			this.sensorSubscription = null;
 		}
+		this.inputPipeline.stageMotion().setParamsSupplier(() -> MotionParams.DEFAULT);
 		// The installed processors capture this component; the pipeline may outlive it.
 		this.inputPipeline.stageSensorProcessor().setProcessors(SensorType.GYROSCOPE, List.of());
 		if (this.deviceSettings != null) {

@@ -39,9 +39,10 @@ import java.util.function.Supplier;
 /// Button gestures use event timestamps, with holds emitted once on a tick.
 /// A tap is emitted immediately after the release if the press was short enough and not held.
 /// Call {@link #onGuiNavigate()} when GUI navigation consumes a pending press.
-/// Sensor integration is delegated to {@link SensorAccumulatorStage}.
+/// Sensor integration is delegated to {@link SensorAccumulatorStage}, and gyro look processing to {@link MotionStage}.
 public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, LogicalSignal> {
 	private final SensorAccumulatorStage sensorAccumulatorStage;
+	private final MotionStage motionStage;
 	private Supplier<GestureTimings> timingsSupplier;
 	/// Read once per event so a settings change never splits one event's decisions.
 	private GestureTimings timings;
@@ -56,7 +57,20 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 	}
 
 	public PhysicalToLogicalStage(SensorAccumulatorStage sensorAccumulatorStage, GestureTimings timings) {
+		this(sensorAccumulatorStage, new MotionStage(), timings);
+	}
+
+	public PhysicalToLogicalStage(SensorAccumulatorStage sensorAccumulatorStage, MotionStage motionStage) {
+		this(sensorAccumulatorStage, motionStage, GestureTimings.DEFAULT);
+	}
+
+	public PhysicalToLogicalStage(
+			SensorAccumulatorStage sensorAccumulatorStage,
+			MotionStage motionStage,
+			GestureTimings timings
+	) {
 		this.sensorAccumulatorStage = Objects.requireNonNull(sensorAccumulatorStage);
+		this.motionStage = Objects.requireNonNull(motionStage);
 		this.setTimingsSupplier(() -> timings);
 	}
 
@@ -84,6 +98,7 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 		switch (event) {
 			case PhysicalSignal.Frame(long timeNanos, long deltaTimeNanos) -> {
 				this.sensorAccumulatorStage.onEvent(event, downstream);
+				this.motionStage.onEvent(event, downstream);
 				// Holds must fire even without new input events, before downstream actions process this frame's tick.
 				this.activeButtons.forEach((input, state) -> {
 					if (!state.held && timeNanos - state.pressedAt >= this.timings.longPressNanos()) {
@@ -93,12 +108,16 @@ public class PhysicalToLogicalStage implements EventStage<PhysicalSignal, Logica
 				});
 				downstream.accept(new LogicalSignal.Frame(timeNanos, deltaTimeNanos));
 			}
-			case PhysicalSensorSignal sensorSignal ->
-					this.sensorAccumulatorStage.onEvent(sensorSignal, downstream);
+			case PhysicalSensorSignal sensorSignal -> {
+				this.sensorAccumulatorStage.onEvent(sensorSignal, downstream);
+				this.motionStage.onEvent(sensorSignal, downstream);
+			}
 			case PhysicalInputSignal.ButtonChanged(long timeNanos, Identifier input, boolean state) ->
 					this.onButton(timeNanos, input, state, downstream);
 			case PhysicalInputSignal.AxisMoved(long timeNanos, Identifier input, float value) ->
 					this.onAxis(timeNanos, input, value, downstream);
+			// touch sensors are device state, not bindable inputs
+			case PhysicalInputSignal.CapSenseChanged _ -> {}
 		}
 	}
 

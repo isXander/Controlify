@@ -28,7 +28,7 @@ public class MappingStage implements UnaryEventStage<PhysicalSignal> {
 
 	@Override
 	public void onEvent(@NonNull PhysicalSignal event, @NonNull EventSink<? super PhysicalSignal> downstream) {
-		if (event instanceof PhysicalInputSignal inputSignal) {
+		if (event instanceof PhysicalInputSignal inputSignal && !(event instanceof PhysicalInputSignal.CapSenseChanged)) {
 			MappingEntry mapping = this.mappingByInput.get(inputSignal.input());
 
 			if (mapping != null) {

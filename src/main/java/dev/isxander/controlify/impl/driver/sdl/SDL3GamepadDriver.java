@@ -11,13 +11,17 @@ import dev.isxander.controlify.impl.controllermanager.ControllerType;
 import dev.isxander.controlify.impl.controller.touchpad.TouchpadComponent;
 import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.touchpad.Touchpads;
+import dev.isxander.controlify.impl.controller.capsense.CapSenseComponent;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
+import dev.isxander.controlify.impl.input.mapping.GamepadInputs;
+import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
 import dev.isxander.sdl.*;
 import net.minecraft.resources.Identifier;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -32,11 +36,16 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	private final Set<Identifier> supportedButtons;
 	private final Set<Identifier> supportedAxes;
+	private final Set<Identifier> supportedCapSensors;
+
+	private boolean seededCapSense;
 
 	private final int numTouchpads;
 
 	public SDL3GamepadDriver(Sdl sdl, SdlGamepadHandle ptrController, EventSource<SDLControllerEvent> eventSource, SdlJoystickId jid, ControllerType type, ControlifyLogger logger) {
 		super(sdl, ptrController, jid, eventSource, type, logger);
+
+		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
 
 		this.supportedButtons = IntStream.range(0, SDL_GAMEPAD_BUTTON_COUNT)
 				.filter(i -> this.sdl.gamepad().SDL_GamepadHasButton(this.ptrController, i))
@@ -48,7 +57,13 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 				.flatMap(i -> Stream.of(SDLInputConversions.getGamepadAxis(i, true), SDLInputConversions.getGamepadAxis(i, false)))
 				.collect(Collectors.toSet());
 
-		this.numTouchpads = sdl.gamepad().SDL_GetNumGamepadTouchpads(ptrController);
+		this.supportedCapSensors = Stream.concat(
+				IntStream.range(0, SDL_GAMEPAD_CAPSENSE_COUNT)
+						.filter(i -> this.sdl.gamepad().SDL_GamepadHasCapSense(this.ptrController, i))
+						.mapToObj(SDLInputConversions::getGamepadCapSense)
+						.filter(Objects::nonNull),
+				IntStream.range(0, this.numTouchpads).mapToObj(GamepadInputs::touchpadCapSense)
+		).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -64,6 +79,10 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 						true
 				)
 		);
+
+		if (!this.supportedCapSensors.isEmpty()) {
+			controller.addComponent(new CapSenseComponent(this.inputPipeline, this.supportedCapSensors));
+		}
 
 		if (this.numTouchpads > 0) {
 			controller.addComponent(this.touchpadComponent = new TouchpadComponent(
@@ -84,6 +103,20 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 		// filter out joystick input events if we are a gamepad
 		if (event instanceof SDLControllerEvent.JoystickEvent && !(event instanceof SDLControllerEvent.DeviceEvent)) {
 			return;
+		}
+
+		// SDL only sends capsense events on change, so a thumb already resting on a stick
+		// at connect time would be missed. Seed the initial state on the first frame,
+		// using the frame's timestamp to stay on the same clock as other signals.
+		if (!this.seededCapSense && event instanceof SDLControllerEvent.Frame frame) {
+			this.seededCapSense = true;
+			for (int i = 0; i < SDL_GAMEPAD_CAPSENSE_COUNT; i++) {
+				Identifier id = SDLInputConversions.getGamepadCapSense(i);
+				if (id != null && this.supportedCapSensors.contains(id)
+						&& this.sdl.gamepad().SDL_GetGamepadCapSense(this.ptrController, i)) {
+					this.inputPipeline.accept(new PhysicalInputSignal.CapSenseChanged(frame.timeNanos(), id, true));
+				}
+			}
 		}
 
 		super.onEvent(event);
@@ -171,7 +204,7 @@ public class SDL3GamepadDriver extends SDLCommonDriver<SdlGamepadHandle> {
 
 	@Override
 	protected boolean SDL_ControllerHasSensor(SdlGamepadHandle ptrController, int type) {
-		 return sdl.gamepad().SDL_GamepadHasSensor(ptrController, type);
+		return sdl.gamepad().SDL_GamepadHasSensor(ptrController, type);
 	}
 
 	@Override

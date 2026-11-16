@@ -7,57 +7,116 @@
 package dev.isxander.controlify.impl.config.settings.profile;
 
 import dev.isxander.controlify.impl.config.dto.profile.GyroConfig;
-import dev.isxander.controlify.impl.controller.gyro.GyroButtonMode;
-import dev.isxander.controlify.impl.controller.gyro.GyroYawMode;
+import dev.isxander.controlify.impl.controller.gyro.GyroActivation;
+import dev.isxander.controlify.impl.controller.gyro.GyroSpace;
+import dev.isxander.controlify.impl.input.pipeline.MotionParams;
+import net.minecraft.resources.Identifier;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class GyroSettings {
-	public float lookSensitivity;
+	public boolean enabled;
+	public GyroSpace space;
+	public float sensitivity;
+	public float verticalRatio;
+	public float fastSensitivity;
+	public float accelSlowThreshold;
+	public float accelFastThreshold;
+	public float smoothThreshold;
+	public float smoothTime;
+	public float tightenThreshold;
+	public GyroActivation activation;
+	public boolean activeWhileAiming;
+	public float aimMultiplier;
+	public Set<Identifier> touchActivators;
 	public boolean invertPitch;
 	public boolean invertYaw;
-	public GyroButtonMode buttonMode;
-	public GyroYawMode yawMode;
-	public boolean flickStick;
-	public float lowPassCutoffHz;
 
 	public GyroSettings(
-			float lookSensitivity,
+			boolean enabled,
+			GyroSpace space,
+			float sensitivity,
+			float verticalRatio,
+			float fastSensitivity,
+			float accelSlowThreshold,
+			float accelFastThreshold,
+			float smoothThreshold,
+			float smoothTime,
+			float tightenThreshold,
+			GyroActivation activation,
+			boolean activeWhileAiming,
+			float aimMultiplier,
+			Set<Identifier> touchActivators,
 			boolean invertPitch,
-			boolean invertYaw,
-			GyroButtonMode buttonMode,
-			GyroYawMode yawMode,
-			boolean flickStick,
-			float lowPassCutoffHz
+			boolean invertYaw
 	) {
-		this.lookSensitivity = lookSensitivity;
+		this.enabled = enabled;
+		this.space = space;
+		this.sensitivity = sensitivity;
+		this.verticalRatio = verticalRatio;
+		this.fastSensitivity = fastSensitivity;
+		this.accelSlowThreshold = accelSlowThreshold;
+		this.accelFastThreshold = accelFastThreshold;
+		this.smoothThreshold = smoothThreshold;
+		this.smoothTime = smoothTime;
+		this.tightenThreshold = tightenThreshold;
+		this.activation = activation;
+		this.activeWhileAiming = activeWhileAiming;
+		this.aimMultiplier = aimMultiplier;
+		this.touchActivators = touchActivators;
 		this.invertPitch = invertPitch;
 		this.invertYaw = invertYaw;
-		this.buttonMode = buttonMode;
-		this.yawMode = yawMode;
-		this.flickStick = flickStick;
-		this.lowPassCutoffHz = lowPassCutoffHz;
+	}
+
+	/// The motion processing parameters these settings describe.
+	public MotionParams toMotionParams() {
+		return new MotionParams(
+				space, sensitivity, verticalRatio, fastSensitivity,
+				accelSlowThreshold, accelFastThreshold, smoothThreshold, smoothTime, tightenThreshold
+		);
 	}
 
 	public static GyroSettings fromDTO(GyroConfig dto) {
 		return new GyroSettings(
-				dto.lookSensitivity(),
+				dto.enabled(),
+				dto.space(),
+				dto.sensitivity(),
+				dto.verticalRatio(),
+				dto.fastSensitivity(),
+				dto.accelSlowThreshold(),
+				dto.accelFastThreshold(),
+				dto.smoothThreshold(),
+				dto.smoothTime(),
+				dto.tightenThreshold(),
+				dto.activation(),
+				dto.activeWhileAiming(),
+				dto.aimMultiplier(),
+				new LinkedHashSet<>(dto.touchActivators()),
 				dto.invertPitch(),
-				dto.invertYaw(),
-				dto.buttonMode(),
-				dto.yawMode(),
-				dto.flickStick(),
-				dto.lowPassCutoffHz()
+				dto.invertYaw()
 		);
 	}
 
 	public GyroConfig toDTO() {
 		return new GyroConfig(
-				lookSensitivity,
+				enabled,
+				space,
+				sensitivity,
+				verticalRatio,
+				fastSensitivity,
+				accelSlowThreshold,
+				accelFastThreshold,
+				smoothThreshold,
+				smoothTime,
+				tightenThreshold,
+				activation,
+				activeWhileAiming,
+				aimMultiplier,
+				List.copyOf(touchActivators),
 				invertPitch,
-				invertYaw,
-				buttonMode,
-				yawMode,
-				flickStick,
-				lowPassCutoffHz
+				invertYaw
 		);
 	}
 }

@@ -129,6 +129,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 			case LogicalSignal.ButtonPress press -> this.processPress(press);
 			case LogicalSignal.InputSignal gesture -> this.processGesture(gesture);
 			case LogicalSignal.SensorInterval _ -> {} // ignore sensor data
+			case LogicalSignal.MotionInterval _ -> {} // ignore motion data
 		}
 	}
 

@@ -66,6 +66,17 @@ public final class GamepadInputs {
 	public static final Identifier TOUCHPAD_1_BUTTON = button("touchpad_1");
 	public static final Identifier TOUCHPAD_2_BUTTON = button("touchpad_2");
 
+	// CAPACITIVE TOUCH SENSORS - separate id domain from buttons, never logical inputs
+	public static final Identifier LEFT_STICK_CAPSENSE = capsense("left_stick");
+	public static final Identifier RIGHT_STICK_CAPSENSE = capsense("right_stick");
+	public static final Identifier LEFT_GRIP_CAPSENSE = capsense("left_grip");
+	public static final Identifier RIGHT_GRIP_CAPSENSE = capsense("right_grip");
+
+	/// Touchpad touch is reported as a capsense sensor.
+	public static Identifier touchpadCapSense(int touchpadIndex) {
+		return capsense("touchpad_" + (touchpadIndex + 1));
+	}
+
 	public static final Set<DeadzoneGroup> DEADZONE_GROUPS = Sets.newLinkedHashSet(List.of(
 			new DeadzoneGroup(CUtil.rl("left_stick"), List.of(
 					new DeadzoneGroup.Dimension(LEFT_STICK_AXIS_UP, LEFT_STICK_AXIS_DOWN),
@@ -79,6 +90,9 @@ public final class GamepadInputs {
 
 	private static Identifier button(String id) {
 		return CUtil.rl("button/" + id);
+	}
+	private static Identifier capsense(String id) {
+		return CUtil.rl("capsense/" + id);
 	}
 	private static Identifier axis(String id) {
 		return CUtil.rl("axis/" + id);

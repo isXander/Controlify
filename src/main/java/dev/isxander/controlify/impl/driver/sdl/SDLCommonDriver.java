@@ -47,6 +47,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static dev.isxander.sdl.SdlAudio.*;
+import static dev.isxander.sdl.SdlGamepad.SDL_SENSOR_ACCEL;
 import static dev.isxander.sdl.SdlGamepad.SDL_SENSOR_GYRO;
 import static dev.isxander.sdl.SdlInit.*;
 import static dev.isxander.sdl.SdlProperties.*;
@@ -78,6 +79,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	protected final boolean isDualsense;
 	protected final boolean isRGBLedSupported;
 	protected final boolean isGyroSupported;
+	protected final boolean isAccelSupported;
 
 	protected final SdlGuid guid;
 	protected final String guidString;
@@ -128,6 +130,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		this.isTriggerRumbleSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_TRIGGER_RUMBLE_BOOLEAN, false);
 		this.isRGBLedSupported = sdl.properties().SDL_GetBooleanProperty(props, SDL_PROP_GAMEPAD_CAP_RGB_LED_BOOLEAN, false);
 		this.isGyroSupported = SDL_ControllerHasSensor(this.ptrController, SDL_SENSOR_GYRO);
+		this.isAccelSupported = SDL_ControllerHasSensor(this.ptrController, SDL_SENSOR_ACCEL);
 
 		DecodedGUID decodedGuid = DecodedGUID.fromGUID(this.guid);
 		logger.log("SDL GUID driver signature: {}", decodedGuid.getDriverHint());
@@ -326,6 +329,9 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		this.active = active;
 		if (this.isGyroSupported && !SDL_SetControllerSensorEnabled(this.ptrController, SDL_SENSOR_GYRO, active)) {
 			this.logger.warn("Failed to {} gyro sensor: {}", active ? "enable" : "disable", this.sdl.error().SDL_GetError());
+		}
+		if (this.isAccelSupported && !SDL_SetControllerSensorEnabled(this.ptrController, SDL_SENSOR_ACCEL, active)) {
+			this.logger.warn("Failed to {} accel sensor: {}", active ? "enable" : "disable", this.sdl.error().SDL_GetError());
 		}
 	}
 

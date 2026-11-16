@@ -20,6 +20,7 @@ public class ProfileSettings {
 	public final RumbleSettings rumble;
 	public final HDHapticSettings hdHaptic;
 	public final GyroSettings gyro;
+	public final FlickStickSettings flickStick;
 	public final BluetoothDeviceSettings bluetoothDevice;
 	public final DualsenseSettings dualsense;
 
@@ -31,6 +32,7 @@ public class ProfileSettings {
 			RumbleSettings rumble,
 			HDHapticSettings hdHaptic,
 			GyroSettings gyro,
+			FlickStickSettings flickStick,
 			BluetoothDeviceSettings bluetoothDevice,
 			DualsenseSettings dualsense
 	) {
@@ -41,6 +43,7 @@ public class ProfileSettings {
 		this.rumble = rumble;
 		this.hdHaptic = hdHaptic;
 		this.gyro = gyro;
+		this.flickStick = flickStick;
 		this.bluetoothDevice = bluetoothDevice;
 		this.dualsense = dualsense;
 	}
@@ -54,6 +57,7 @@ public class ProfileSettings {
 				RumbleSettings.fromDTO(dto.rumble()),
 				HDHapticSettings.fromDTO(dto.hdHaptic()),
 				GyroSettings.fromDTO(dto.gyro()),
+				FlickStickSettings.fromDTO(dto.flickStick()),
 				BluetoothDeviceSettings.fromDTO(dto.bluetoothDevice()),
 				DualsenseSettings.fromDTO(dto.dualsense())
 		);
@@ -68,6 +72,7 @@ public class ProfileSettings {
 				rumble.toDTO(),
 				hdHaptic.toDTO(),
 				gyro.toDTO(),
+				flickStick.toDTO(),
 				bluetoothDevice.toDTO(),
 				dualsense.toDTO()
 		);

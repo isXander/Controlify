@@ -229,17 +229,17 @@ public final class TheHolyMigrationFix extends DataFix {
 	}
 
 	private <T> Dynamic<T> rewriteGyroConfig(Dynamic<T> old, Dynamic<T> root) {
-		var defaults = controllerDefaults.gyro;
+		// the old gyro config shape; its defaults are fixed here so later settings changes do not alter this migration
 
 		return root.createMap(Map.of(
 				root.createString("look_sensitivity"), old.get("look_sensitivity")
-						.result().orElse(root.createFloat(defaults.lookSensitivity)),
+						.result().orElse(root.createFloat(0f)),
 				root.createString("relative_mode"), old.get("relative_gyro_mode")
 						.result().orElse(root.createBoolean(false)),
 				root.createString("invert_pitch"), old.get("invert_y")
-						.result().orElse(root.createBoolean(defaults.invertPitch)),
+						.result().orElse(root.createBoolean(false)),
 				root.createString("invert_yaw"), old.get("invert_x")
-						.result().orElse(root.createBoolean(defaults.invertYaw)),
+						.result().orElse(root.createBoolean(false)),
 				root.createString("button_mode"), root.createString(
 						old.get("requires_button").asString().result().orElse("ON").toLowerCase()
 				),
@@ -247,7 +247,7 @@ public final class TheHolyMigrationFix extends DataFix {
 						old.get("yaw_mode").asString().result().orElse("YAW").toLowerCase()
 				),
 				root.createString("flick_stick"), old.get("flick_stick")
-						.result().orElse(root.createBoolean(defaults.flickStick))
+						.result().orElse(root.createBoolean(false))
 		));
 	}
 

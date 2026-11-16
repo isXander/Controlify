@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.controller;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
+import dev.isxander.controlify.impl.controller.capsense.CapSenseComponent;
 import dev.isxander.controlify.impl.controller.dualsense.DualsenseComponentImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroComponentImpl;
 import dev.isxander.controlify.impl.controller.haptic.PcmHapticsComponent;
@@ -181,6 +182,10 @@ public final class ControllerImpl implements Controller {
 	@Override
 	public @NonNull Optional<GyroComponentImpl> gyro() {
 		return this.getComponent(GyroComponentImpl.ID);
+	}
+
+	public @NonNull Optional<CapSenseComponent> capSense() {
+		return this.getComponent(CapSenseComponent.ID);
 	}
 
 	public @NonNull Optional<LEDComponent> led() {
