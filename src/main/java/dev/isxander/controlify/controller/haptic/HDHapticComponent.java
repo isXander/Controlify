@@ -47,7 +47,7 @@ public class HDHapticComponent extends ECSComponentImpl {
 		if (!settings().enabled || playHapticConsumer == null) return;
 
 		getSoundData(haptic,  hapticBufferLibrary.getCompleteBuffer(haptic))
-				.thenAccept(playHapticConsumer)
+				.thenAccept(this::acceptOnClientThread)
 				.exceptionally(throwable -> {
 					throwable.printStackTrace();
 					return null;
@@ -66,11 +66,19 @@ public class HDHapticComponent extends ECSComponentImpl {
 		Identifier soundId = location.withPrefix("sounds/").withSuffix(".ogg");
 
 		getSoundData(soundId, bufferLibrary.getCompleteBuffer(soundId))
-				.thenAccept(playHapticConsumer)
+				.thenAccept(this::acceptOnClientThread)
 				.exceptionally(throwable -> {
 					throwable.printStackTrace();
 					return null;
 				});
+	}
+
+	// uncached buffers load off-thread, but the driver must only be used from the client thread
+	private void acceptOnClientThread(CompleteSoundData data) {
+		Minecraft.getInstance().execute(() -> {
+			Consumer<CompleteSoundData> consumer = this.playHapticConsumer;
+			if (consumer != null) consumer.accept(data);
+		});
 	}
 
 	public void acceptPlayHaptic(Consumer<CompleteSoundData> consumer) {
