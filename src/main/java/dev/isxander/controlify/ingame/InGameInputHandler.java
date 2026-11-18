@@ -64,6 +64,8 @@ public class InGameInputHandler {
 	private boolean gyroToggledOn;
 	private boolean wasAiming;
 	private Animation flickAnimation;
+	private final MouseCountQuantizer mouseLook = new MouseCountQuantizer();
+	private LocalPlayer lookPlayer;
 
 	private boolean shouldShowPlayerList;
 
@@ -335,9 +337,12 @@ public class InGameInputHandler {
 		LocalPlayer player = this.minecraft.player;
 
 		if (!isController || !canProcessLookInput()) {
-			lookInputX = 0;
-			lookInputY = 0;
+			resetLookInput();
 			return;
+		}
+		if (lookPlayer != player) {
+			resetLookInput();
+			lookPlayer = player;
 		}
 
 		boolean aiming = isAiming(player);
@@ -469,17 +474,37 @@ public class InGameInputHandler {
 
 		flickAnimation = Animation.of(8)
 				.easing(EasingFunction.EASE_OUT_EXPO)
-				.deltaConsumerD(angle -> player.turn(angle, 0), 0, flickAngle / 0.15)
+				.deltaConsumerD(angle -> turnPlayer(player, angle, 0), 0, flickAngle / 0.15)
 				.play();
 	}
 
 	public void processPlayerLook(float deltaTime) {
-		if (minecraft.player != null) {
-			double velX = lookInputX / 0.15 * deltaTime;
-			double velY = lookInputY / 0.15 * deltaTime;
-			//noinspection SuspiciousNameCombination
-			minecraft.player.turn(velX, velY);
-			minecraft.getTutorial().onMouse(velX, velY);
+		turnPlayer(minecraft.player, lookInputX / 0.15 * deltaTime, lookInputY / 0.15 * deltaTime);
+	}
+
+	private void turnPlayer(LocalPlayer player, double x, double y) {
+		// Input is sampled on ticks; focus and screens can change before the next render frame.
+		if (player == null || player != minecraft.player || player != lookPlayer
+				|| controlify.inGameInputHandler().orElse(null) != this
+				|| !ControllerPlayerMovement.shouldBeControllerInput() || !canProcessLookInput()) {
+			resetLookInput();
+			return;
+		}
+		boolean scoping = !minecraft.options.smoothCamera
+				&& minecraft.options.getCameraType().isFirstPerson() && player.isScoping();
+		double scale = MouseCountQuantizer.mouseScale(minecraft.options.sensitivity().get(), scoping);
+		var turn = mouseLook.quantize(x, y, scale, player.getXRot());
+		player.turn(turn.x(), turn.y());
+		minecraft.getTutorial().onMouse(turn.x(), turn.y());
+	}
+
+	private void resetLookInput() {
+		lookInputX = lookInputY = 0;
+		lookPlayer = null;
+		mouseLook.reset();
+		if (flickAnimation != null) {
+			flickAnimation.abort();
+			flickAnimation = null;
 		}
 	}
 
