@@ -49,6 +49,7 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 	private boolean shifted, shiftLocked;
 
 	private @Nullable KeyWidget focused;
+	private @Nullable KeyWidget initialFocus;
 	private boolean isDragging;
 
 	private final HoldRepeatHelper fwdCursorHelper = new HoldRepeatHelper(10, 2);
@@ -73,9 +74,10 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 		this.previousLayout = this.currentLayout;
 		this.currentLayout = layout.id();
 
+		boolean hadFocus = this.focused != null;
 		this.arrangeKeys(layout.layout());
 
-		findKey(
+		KeyWidget target = findKey(
 				identifierToFocus != null,
 				k -> Objects.equals(k.getKey().identifier(), identifierToFocus)
 		).or(() -> findKey(
@@ -87,7 +89,31 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 							&& specialFunc.action() == KeyboardLayout.KeyFunction.SpecialFunc.Action.PREVIOUS_LAYOUT;
 					return isOldLayout || isPrevLayout;
 				})
-		);
+		).orElseGet(this::centreKey);
+
+		if (hadFocus) {
+			this.setFocused(target);
+		} else {
+			this.initialFocus = target;
+		}
+	}
+
+	/** The key nearest the middle of the keyboard, so every key is a short move away. */
+	private @Nullable KeyWidget centreKey() {
+		double cx = this.getX() + this.getWidth() / 2.0;
+		double cy = this.getY() + this.getHeight() / 2.0;
+		KeyWidget best = null;
+		double bestDistance = Double.MAX_VALUE;
+		for (KeyWidget key : this.keys) {
+			double dx = key.getX() + key.getWidth() / 2.0 - cx;
+			double dy = key.getY() + key.getHeight() / 2.0 - cy;
+			double distance = dx * dx + dy * dy;
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				best = key;
+			}
+		}
+		return best;
 	}
 
 	private void arrangeKeys(KeyboardLayout layout) {
@@ -283,6 +309,16 @@ public class KeyboardWidget extends AbstractWidget implements ContainerEventHand
 
 	@Nullable @Override
 	public ComponentPath nextFocusPath(@NonNull FocusNavigationEvent event) {
+		// entering by initial focus or tab starts in the middle; arrows still pick the nearest key
+		boolean entering = this.focused == null || !this.keys.contains(this.focused);
+		if (entering && !(event instanceof FocusNavigationEvent.ArrowNavigation)) {
+			KeyWidget key = this.initialFocus != null && this.keys.contains(this.initialFocus)
+					? this.initialFocus
+					: this.centreKey();
+			if (key != null) {
+				return ComponentPath.path(this, ComponentPath.leaf(key));
+			}
+		}
 		return ContainerEventHandler.super.nextFocusPath(event);
 	}
 
