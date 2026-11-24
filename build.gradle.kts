@@ -338,6 +338,10 @@ dependencies {
 
 tasks.test {
 	useJUnitPlatform()
+
+	val testRunDir = layout.buildDirectory.dir("junit-run")
+	workingDir = testRunDir.get().asFile
+	doFirst { testRunDir.get().asFile.mkdirs() }
 }
 
 /// Publishing
