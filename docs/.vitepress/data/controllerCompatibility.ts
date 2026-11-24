@@ -11,7 +11,8 @@ export enum Connection {
   NotApplicable = 'Not applicable',
   USB = 'USB',
   Bluetooth = 'Bluetooth',
-  BuiltIn = 'Built in'
+	Receiver = 'Receiver', // Usually 2.4GHz USB receiver
+  BuiltIn = 'Built in',
 }
 
 export enum OperatingSystem {
@@ -36,7 +37,8 @@ export const compatibilityFeatures = [
   'Gyro',
   'Touchpad',
   'HD haptics',
-  'Adaptive triggers'
+  'Adaptive triggers',
+	'LED'
 ] as const
 
 export type FeatureSupport = readonly [
@@ -46,7 +48,8 @@ export type FeatureSupport = readonly [
   gyro: SupportStatus,
   touchpad: SupportStatus,
   hdHaptics: SupportStatus,
-  adaptiveTriggers: SupportStatus
+  adaptiveTriggers: SupportStatus,
+	led: SupportStatus,
 ]
 
 export interface CompatibilityEntry {
@@ -63,8 +66,15 @@ export const controllerGuides: Partial<Record<Controller, string>> = {
   [Controller.SteamController]: '/users/controller-support/valve-hardware#steam-controller-2026'
 }
 
-const { XInput, XboxEliteSeries2: Elite, SonyDualSense: DualSense, SteamDeck: Deck, GoogleStadia: Stadia } = Controller
-const { NotApplicable: NoConnection, USB, Bluetooth, BuiltIn } = Connection
+const {
+	XInput,
+	XboxEliteSeries2: Elite,
+	SonyDualSense: DualSense,
+	SteamDeck: Deck,
+	GoogleStadia: Stadia,
+	SteamController
+} = Controller
+const { NotApplicable: NoConnection, USB, Bluetooth, Receiver, BuiltIn } = Connection
 const { Windows, Linux, MacOS, SteamOS } = OperatingSystem
 const { Works: Y, SetupRequired: S, Unsupported: N, NotApplicable: NA } = SupportStatus
 
@@ -76,25 +86,39 @@ const row = (
 ): CompatibilityEntry => ({ controller, connection, operatingSystem, support })
 
 export const compatibilityMatrix = [
-  row(XInput, NoConnection, Windows, [Y, Y, NA, NA, NA, NA, NA]),
-  row(Elite, USB, Windows, [Y, Y, N, NA, NA, NA, NA]),
-  row(Elite, USB, Linux, [Y, Y, Y, NA, NA, NA, NA]),
-  row(Elite, USB, MacOS, [Y, Y, Y, NA, NA, NA, NA]),
+  row(XInput, NoConnection, Windows, [Y, Y, NA, NA, NA, NA, NA, NA]),
 
-  row(DualSense, USB, Windows, [Y, Y, Y, Y, Y, Y, Y]),
-  row(DualSense, Bluetooth, Windows, [Y, Y, Y, Y, Y, N, Y]),
-  row(DualSense, USB, Linux, [Y, Y, Y, Y, S, Y, Y]),
-  row(DualSense, Bluetooth, Linux, [Y, Y, Y, Y, S, N, Y]),
-  row(DualSense, USB, MacOS, [Y, Y, Y, Y, Y, N, Y]),
-  row(DualSense, Bluetooth, MacOS, [Y, Y, Y, Y, Y, N, Y]),
+  row(Elite, USB, Windows, [Y, Y, N, NA, NA, NA, NA, N]),
+  row(Elite, USB, Linux,   [Y, Y, Y, NA, NA, NA, NA, N]),
+  row(Elite, USB, MacOS,   [Y, Y, Y, NA, NA, NA, NA, N]),
 
-  row(Deck, BuiltIn, SteamOS, [Y, Y, N, N, N, NA, NA]),
-  row(Deck, BuiltIn, Windows, [Y, Y, Y, Y, Y, NA, NA]),
+  row(DualSense, USB,       Windows, [Y, Y, Y, Y, Y, Y, Y, Y]),
+  row(DualSense, Bluetooth, Windows, [Y, Y, Y, Y, Y, N, Y, Y]),
+  row(DualSense, USB,       Linux,   [Y, Y, Y, Y, S, Y, Y, Y]),
+  row(DualSense, Bluetooth, Linux,   [Y, Y, Y, Y, S, N, Y, Y]),
+  row(DualSense, USB,       MacOS,   [Y, Y, Y, Y, Y, N, Y, Y]),
+  row(DualSense, Bluetooth, MacOS,   [Y, Y, Y, Y, Y, N, Y, Y]),
 
-  row(Stadia, USB, Windows, [Y, Y, Y, NA, NA, NA, NA]),
-  row(Stadia, USB, Linux, [Y, Y, Y, NA, NA, NA, NA]),
-  row(Stadia, USB, MacOS, [Y, Y, Y, NA, NA, NA, NA]),
-  row(Stadia, Bluetooth, Windows, [S, N, S, NA, NA, NA, NA]),
-  row(Stadia, Bluetooth, Linux, [S, S, S, NA, NA, NA, NA]),
-  row(Stadia, Bluetooth, MacOS, [S, S, S, NA, NA, NA, NA])
+  row(Deck, BuiltIn, SteamOS, [Y, Y, Y, Y, Y, NA, NA, NA]),
+  row(Deck, BuiltIn, Windows, [Y, Y, Y, Y, Y, NA, NA, NA]),
+
+	row(SteamController, USB,       Windows, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Receiver,  Windows, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Bluetooth, Windows, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, USB,       Linux,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Receiver,  Linux,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Bluetooth, Linux,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, USB,       SteamOS, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Receiver,  SteamOS, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Bluetooth, SteamOS, [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, USB,       MacOS,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Receiver,  MacOS,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+	row(SteamController, Bluetooth, MacOS,   [Y, Y, Y, Y, Y, Y, NA, NA]),
+
+	row(Stadia, USB,       Windows, [Y, Y, Y, NA, NA, NA, NA, NA]),
+  row(Stadia, USB,       Linux,   [Y, Y, Y, NA, NA, NA, NA, NA]),
+  row(Stadia, USB,       MacOS,   [Y, Y, Y, NA, NA, NA, NA, NA]),
+  row(Stadia, Bluetooth, Windows, [S, N, S, NA, NA, NA, NA, NA]),
+  row(Stadia, Bluetooth, Linux,   [S, S, S, NA, NA, NA, NA, NA]),
+  row(Stadia, Bluetooth, MacOS,   [S, S, S, NA, NA, NA, NA, NA])
 ] as const satisfies readonly CompatibilityEntry[]
