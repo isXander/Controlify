@@ -25,6 +25,12 @@ public class GyroCalibrator {
 	// Minimum number of consecutive stationary samples before updating bias
 	private static final int MIN_STATIONARY_SAMPLES = 10;
 
+	// Minimum time the gyro must have been stationary before updating bias, so a high sample rate
+	// cannot satisfy the sample count within a few milliseconds.
+	private static final long MIN_STATIONARY_NANOS = 100_000_000L;
+
+	private long stationaryStartNanos;
+
 	// Current bias estimate (offset to subtract from raw readings)
 	private final Vector3f biasEstimate = new Vector3f(0, 0, 0);
 
@@ -78,7 +84,7 @@ public class GyroCalibrator {
 				&& this.accelWindowMax.z - this.accelWindowMin.z < ACCEL_STEADY_THRESHOLD;
 	}
 
-	public void update(float x, float y, float z) {
+	public void update(long timeNanos, float x, float y, float z) {
 		if (!Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)) {
 			this.stationarySampleCount = 0;
 			return;
@@ -87,10 +93,14 @@ public class GyroCalibrator {
 		boolean isStationary = isStationary(x, y, z);
 
 		if (isStationary) {
+			if (this.stationarySampleCount == 0) {
+				this.stationaryStartNanos = timeNanos;
+			}
 			this.stationarySampleCount++;
 
 			// Only update bias estimate if we've been stationary long enough
-			if (this.stationarySampleCount >= MIN_STATIONARY_SAMPLES) {
+			if (this.stationarySampleCount >= MIN_STATIONARY_SAMPLES
+					&& timeNanos - this.stationaryStartNanos >= MIN_STATIONARY_NANOS) {
 				// Update bias estimate using exponential moving average
 				// New bias = (1 - alpha) * old_bias + alpha * current_reading
 				this.biasEstimate.x = (1 - EMA_ALPHA) * this.biasEstimate.x + EMA_ALPHA * x;
@@ -99,7 +109,7 @@ public class GyroCalibrator {
 			}
 		} else {
 			// Reset stationary counter when motion is detected
-			this.stationarySampleCount = 1;
+			this.stationarySampleCount = 0;
 			this.windowMin.set(x, y, z);
 			this.windowMax.set(x, y, z);
 			this.resetAccelWindow();
@@ -107,9 +117,16 @@ public class GyroCalibrator {
 	}
 
 	/**
-	 * Check the spread of raw samples, so hardware bias does not prevent calibration.
+	 * Checks that the rate is near the current bias estimate and that the spread of raw samples is small.
+	 * The spread alone is not enough: the accelerometer cannot see a smooth constant-rate rotation
+	 * about the gravity axis (e.g. yaw while lying flat), which would otherwise be learned as bias.
 	 */
 	private boolean isStationary(float x, float y, float z) {
+		if (Math.abs(x - this.biasEstimate.x) >= STATIONARY_THRESHOLD
+				|| Math.abs(y - this.biasEstimate.y) >= STATIONARY_THRESHOLD
+				|| Math.abs(z - this.biasEstimate.z) >= STATIONARY_THRESHOLD) {
+			return false;
+		}
 		if (this.stationarySampleCount == 0) {
 			this.windowMin.set(x, y, z);
 			this.windowMax.set(x, y, z);

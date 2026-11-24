@@ -7,7 +7,6 @@
 package dev.isxander.controlify.impl.controllermanager;
 
 import dev.isxander.controlify.api.ControlifyApi;
-import dev.isxander.controlify.api.InputMode;
 import dev.isxander.controlify.api.controllermanager.ControllerEvents;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
@@ -73,6 +72,8 @@ public class ControllerCoordinator implements AutoCloseable {
 	private boolean closed;
 
 	private boolean requireActionPulseConsume;
+	/// Set while a controller is replaced in place, which is not a disconnect or connect.
+	private boolean reinitializing;
 
 	public ControllerCoordinator(Controlify controlify, SetupWizardManager setupWizardManager) {
 		this.controlify = controlify;
@@ -214,19 +215,22 @@ public class ControllerCoordinator implements AutoCloseable {
 			throw new IllegalArgumentException("Controller is not registered with this coordinator");
 		}
 		ControllerImpl previousSelection = this.currentController;
-		InputMode previousInputMode = this.controlify.currentInputMode();
-		this.controllerManager.removeController(info.ucid());
+		this.reinitializing = true;
 		try {
+			this.controllerManager.removeController(info.ucid());
 			this.backend.createAndAddController(new ControllerInfo(info.ucid(), newType, info.hid()), false);
 		} finally {
-			// Adding an auto-selected controller must not steal selection from another device.
+			this.reinitializing = false;
+			// The swap is invisible to the player: selection and input mode are carried over to the replacement.
+			Optional<ControllerImpl> replacement = this.controllerManager.getControllerByUcid(info.ucid());
 			if (previousSelection == controller) {
-				this.controllerManager.getControllerByUcid(info.ucid())
-						.ifPresent(replacement -> this.setCurrentController(replacement, false));
-			} else {
-				this.setCurrentController(previousSelection, false);
+				if (replacement.isPresent()) {
+					this.setCurrentController(replacement.get(), false);
+				} else {
+					// recreation failed, behave as if the controller was unplugged
+					this.applyControllerSelection(true);
+				}
 			}
-			this.controlify.setInputMode(previousInputMode);
 		}
 	}
 
@@ -252,6 +256,10 @@ public class ControllerCoordinator implements AutoCloseable {
 		rememberedDevice.lastSeen = System.currentTimeMillis();
 		rememberedDevice.controllerType = controller.info().type().id();
 		this.config.markDirty();
+
+		if (this.reinitializing) {
+			return;
+		}
 
 		String selectedUid = this.config.getActiveProfile().controllerUid;
 		if (selectedUid == null || selectedUid.equals(controller.uid())) {
@@ -307,6 +315,9 @@ public class ControllerCoordinator implements AutoCloseable {
 		}
 		this.controllersWithInput.remove(controller);
 		this.heldInputs.remove(controller);
+		if (this.reinitializing) {
+			return;
+		}
 		if (this.currentController == controller) {
 			ControllerImpl fallback = this.config.getActiveProfile().controllerUid == null
 					? this.controllerManager.getAllControllers().stream()

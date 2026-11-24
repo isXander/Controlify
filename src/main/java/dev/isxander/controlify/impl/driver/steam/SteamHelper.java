@@ -19,6 +19,15 @@ public final class SteamHelper {
 	/// without Steam launching it. This is because without initialization,
 	/// the Steam Client forces keyboard/mouse emulation for Steam Controller/Deck.
 	public static void initializeSteam() {
+		try {
+			initializeSteamUnsafe();
+		} catch (Throwable e) {
+			// a malformed SteamGameId or unsupported platform must never stop the game starting
+			CUtil.LOGGER.error("Failed to initialise Steam API", e);
+		}
+	}
+
+	private static void initializeSteamUnsafe() {
 		boolean shouldInitialiseSteam = true;
 		boolean useSpacewar = false;
 

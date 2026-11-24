@@ -163,6 +163,8 @@ public class SDLNativesLoader {
 		// Steam sets these if the game is launched via the client.
 		// It's intended to make sure the game sees Steam Input instead of the raw device. We don't want that.
 		sdl.hints().SDL_SetHintWithPriority(SDL_HINT_GAMECONTROLLER_IGNORE_DEVICES, "", SDL_HINT_OVERRIDE);
+		// This works even though SDL has its own environment cache: the joystick code reads this
+		// variable directly from the process environment, so unsetting it here bypasses the cache.
 		sdl.stdinc().SDL_unsetenv_unsafe("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD");
 
 		// initialise SDL with just joystick and gamecontroller subsystems

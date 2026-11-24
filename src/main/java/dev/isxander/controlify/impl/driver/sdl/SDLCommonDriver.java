@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static dev.isxander.sdl.SdlAudio.*;
 import static dev.isxander.sdl.SdlGamepad.SDL_SENSOR_ACCEL;
@@ -211,6 +213,13 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			controller.addComponent(new BluetoothDeviceComponent());
 		}
 
+		// SDL only sends battery events on change, so read the level that is already known at connect
+		SdlRefs.IntRef percent = new SdlRefs.IntRef();
+		var initialState = SDLInputConversions.getPowerState(this.SDL_GetControllerPowerInfo(this.ptrController, percent));
+		if (initialState != null) {
+			this.applyBatteryState(initialState, percent.value);
+		}
+
 		this.eventSubscription = this.sdlEventSource.subscribe(this::onEvent);
 	}
 
@@ -226,11 +235,15 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 	}
 
 	private void onBatteryEvent(SDLControllerEvent.Battery event) {
-		PowerState level = switch (event.state()) {
+		this.applyBatteryState(event.state(), event.percent());
+	}
+
+	private void applyBatteryState(SDLControllerEvent.Battery.PowerState state, int percent) {
+		PowerState level = switch (state) {
 			case ERROR, UNKNOWN -> new PowerState.Unknown();
-			case ON_BATTERY -> new PowerState.Depleting(event.percent());
+			case ON_BATTERY -> percent < 0 ? new PowerState.Unknown() : new PowerState.Depleting(percent);
 			case NO_BATTERY -> new PowerState.WiredOnly();
-			case CHARGING -> new PowerState.Charging(event.percent());
+			case CHARGING -> percent < 0 ? new PowerState.Unknown() : new PowerState.Charging(percent);
 			case CHARGED -> new PowerState.Full();
 		};
 
@@ -472,17 +485,19 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 		String uid = CUtil.createUIDFromBytes(bytes.toArray(new byte[0][]));
 
-		String nonDuplicateUid = uid;
-		int duplicateCount = (int) Controlify.instance().getControllerManager().orElseThrow()
+		// pick the first suffix not already in use, so removing a middle duplicate and
+		// reconnecting cannot collide with a controller that is still connected
+		Set<String> usedUids = Controlify.instance().getControllerManager().orElseThrow()
 				.getAllControllers()
 				.stream()
-				.filter(controller -> controller.uid().startsWith(nonDuplicateUid))
-				.count();
-		if (duplicateCount > 0) {
-			uid += "-" + duplicateCount;
+				.map(ControllerImpl::uid)
+				.collect(Collectors.toSet());
+		String candidate = uid;
+		for (int suffix = 1; usedUids.contains(candidate); suffix++) {
+			candidate = uid + "-" + suffix;
 		}
 
-		return uid;
+		return candidate;
 	}
 
 	protected boolean isBluetooth() {

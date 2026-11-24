@@ -88,17 +88,17 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 			this.gyroState = new Vector3f();
 			this.lookDelta = new Vector2f();
 		}
-		if (signal instanceof PhysicalSensorSignal(_, _, SensorType sensorType, float x, float y, float z)) {
+		if (signal instanceof PhysicalSensorSignal(long timeNanos, _, SensorType sensorType, float x, float y, float z)) {
 			if (sensorType == SensorType.GYROSCOPE) {
-				this.updateBiasCalibration(x, y, z);
+				this.updateBiasCalibration(timeNanos, x, y, z);
 			} else if (sensorType == SensorType.ACCELEROMETER) {
 				this.calibrator.updateAccel(x, y, z);
 			}
 		}
 	}
 
-	private void updateBiasCalibration(float x, float y, float z) {
-		this.calibrator.update(x, y, z);
+	private void updateBiasCalibration(long timeNanos, float x, float y, float z) {
+		this.calibrator.update(timeNanos, x, y, z);
 		// The raw tap runs before SensorProcessorStage, so its bias supplier sees this update immediately.
 		this.deviceSettings.gyroCalibration.offset = this.calibrator.getCurrentBias();
 

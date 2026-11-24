@@ -22,6 +22,8 @@ import dev.isxander.sdl.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.packs.resources.Resource;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Optional;
@@ -168,30 +170,62 @@ public class SDLControllerBackend extends ControllerBackend {
 				.filter(event -> event instanceof SDLControllerEvent.Frame
 						|| event instanceof SDLControllerEvent.DeviceScopedEvent scoped && scoped.which().equals(jid));
 
-		Driver driver;
-		if (isGamepad) {
-			SdlGamepadHandle gamepadHandle = SDLUtil.openGamepad(this.sdl, jid);
-			driver = new SDL3GamepadDriver(this.sdl, gamepadHandle, controllerEventSource, jid, type, controllerLogger);
-		} else {
-			SdlJoystickHandle joystickHandle = SDLUtil.openJoystick(this.sdl, jid);
-			driver = new SDL3JoystickDriver(this.sdl, joystickHandle, controllerEventSource, jid, type, controllerLogger);
-		}
+		Driver driver = null;
+		ControllerImpl controller = null;
+		try {
+			if (isGamepad) {
+				SdlGamepadHandle gamepadHandle = SDLUtil.openGamepad(this.sdl, jid);
+				try {
+					driver = new SDL3GamepadDriver(this.sdl, gamepadHandle, controllerEventSource, jid, type, controllerLogger);
+				} catch (Throwable e) {
+					this.sdl.gamepad().SDL_CloseGamepad(gamepadHandle);
+					throw e;
+				}
+			} else {
+				SdlJoystickHandle joystickHandle = SDLUtil.openJoystick(this.sdl, jid);
+				try {
+					driver = new SDL3JoystickDriver(this.sdl, joystickHandle, controllerEventSource, jid, type, controllerLogger);
+				} catch (Throwable e) {
+					this.sdl.joystick().SDL_CloseJoystick(joystickHandle);
+					throw e;
+				}
+			}
 
-		var controllerInfo = new ControllerInfo(ucid, type, hidId);
-		var controller = new ControllerImpl(
-				controllerInfo,
-				driver,
-				controllerLogger,
-				Controlify.instance().config().getActiveProfile(),
-				ProfileSettings.createDefault()
-		);
+			var controllerInfo = new ControllerInfo(ucid, type, hidId);
+			controller = new ControllerImpl(
+					controllerInfo,
+					driver,
+					controllerLogger,
+					Controlify.instance().config().getActiveProfile(),
+					ProfileSettings.createDefault()
+			);
+		} catch (Throwable e) {
+			// A controller that fails to open must not take the game down, especially when hotplugged.
+			controllerLogger.error("Failed to create controller #{}!", e, ucid);
+			this.closeFailedController(driver, controller, controllerLogger);
+			return;
+		}
 
 		this.controllerManager.addController(controller, hotplugged);
 	}
 
+	/// Releases whatever a failed construction managed to allocate: the handle, event subscriptions and components.
+	private void closeFailedController(@Nullable Driver driver, @Nullable ControllerImpl controller, ControlifyLogger logger) {
+		try {
+			if (controller != null) {
+				controller.close();
+			} else if (driver != null) {
+				driver.close();
+			}
+		} catch (Throwable e) {
+			logger.error("Failed to clean up controller that failed to create", e);
+		}
+	}
+
 	private HIDID getJoystickHIDID(SdlJoystickId jid) {
-		int vid = this.sdl.joystick().SDL_GetJoystickVendorForID(jid);
-		int pid = this.sdl.joystick().SDL_GetJoystickProductForID(jid);
+		// these are unsigned 16-bit values, don't let the sign extend
+		int vid = this.sdl.joystick().SDL_GetJoystickVendorForID(jid) & 0xFFFF;
+		int pid = this.sdl.joystick().SDL_GetJoystickProductForID(jid) & 0xFFFF;
 
 		return new HIDID(vid, pid);
 	}
