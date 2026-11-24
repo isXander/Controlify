@@ -21,6 +21,7 @@ import dev.isxander.controlify.impl.driver.sdl.SDLNativesLoader;
 import dev.isxander.controlify.impl.gui.screen.AskToMapControllerScreen;
 import dev.isxander.controlify.impl.gui.screen.BluetoothWarningScreen;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
+import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import dev.isxander.controlify.impl.utils.CUtil;
 import dev.isxander.controlify.impl.utils.DebugLog;
 import dev.isxander.controlify.impl.utils.MinecraftUtil;
@@ -29,10 +30,12 @@ import dev.isxander.controlify.impl.utils.SetupWizardManager;
 import dev.isxander.controlify.impl.utils.event.EventBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import static dev.isxander.controlify.impl.utils.ControllerUtils.wrapControllerError;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +62,10 @@ public class ControllerCoordinator implements AutoCloseable {
 	private final ControllerManager controllerManager;
 	private final Map<ControllerImpl, EventSource.Subscription> inputSubscriptions = new HashMap<>();
 	private final Set<ControllerImpl> controllersWithInput = new LinkedHashSet<>();
+	/// Physical buttons held and axes beyond {@link #GIVING_INPUT_AXIS_THRESHOLD}, per controller.
+	private final Map<ControllerImpl, Set<Identifier>> heldInputs = new HashMap<>();
+	/// An axis only counts as deliberate input beyond this, so stick jitter does not switch input mode.
+	private static final float GIVING_INPUT_AXIS_THRESHOLD = 0.5f;
 
 	private @Nullable ControllerBackend backend;
 	private @Nullable ControllerImpl currentController;
@@ -139,6 +146,9 @@ public class ControllerCoordinator implements AutoCloseable {
 
 		for (var controller : this.controllerManager.getAllControllers()) {
 			controller.update();
+			if (!this.heldInputs.getOrDefault(controller, Set.of()).isEmpty()) {
+				this.controllersWithInput.add(controller);
+			}
 		}
 
 		if (!outOfFocus && this.config.getActiveProfile().controllerUid == null
@@ -235,9 +245,7 @@ public class ControllerCoordinator implements AutoCloseable {
 			previous.close();
 		}
 		this.inputSubscriptions.put(controller, controller.input().inputPipeline().sourceProcessedPhysicalSignals()
-				.filter(signal -> signal instanceof PhysicalInputSignal
-						&& !(signal instanceof PhysicalInputSignal.CapSenseChanged))
-				.subscribe(_ -> this.controllersWithInput.add(controller)));
+				.subscribe(signal -> this.trackInput(controller, signal)));
 
 		DeviceSettings rememberedDevice = this.config.getSettings().getOrCreateDeviceSettings(controller.uid());
 		rememberedDevice.name = controller.name();
@@ -269,6 +277,26 @@ public class ControllerCoordinator implements AutoCloseable {
 		Events.CONTROLLER_CONNECTED.emit(new ControllerEvents.ControllerConnected(this.controlify, controller, hotplugged));
 	}
 
+	/// A controller is giving input while a button is held or an axis is pushed beyond the threshold.
+	private void trackInput(ControllerImpl controller, PhysicalSignal signal) {
+		switch (signal) {
+			case PhysicalInputSignal.ButtonChanged button -> this.setHeld(controller, button.input(), button.state());
+			case PhysicalInputSignal.AxisMoved axis ->
+					this.setHeld(controller, axis.input(), Math.abs(axis.value()) > GIVING_INPUT_AXIS_THRESHOLD);
+			default -> {}
+		}
+	}
+
+	private void setHeld(ControllerImpl controller, Identifier input, boolean held) {
+		Set<Identifier> inputs = this.heldInputs.computeIfAbsent(controller, _ -> new HashSet<>());
+		if (held) {
+			inputs.add(input);
+			this.controllersWithInput.add(controller);
+		} else {
+			inputs.remove(input);
+		}
+	}
+
 	private void onControllerRemoved(ControllerImpl controller) {
 		if (this.closed) {
 			return;
@@ -278,6 +306,7 @@ public class ControllerCoordinator implements AutoCloseable {
 			subscription.close();
 		}
 		this.controllersWithInput.remove(controller);
+		this.heldInputs.remove(controller);
 		if (this.currentController == controller) {
 			ControllerImpl fallback = this.config.getActiveProfile().controllerUid == null
 					? this.controllerManager.getAllControllers().stream()
@@ -300,6 +329,7 @@ public class ControllerCoordinator implements AutoCloseable {
 		this.inputSubscriptions.values().forEach(EventSource.Subscription::close);
 		this.inputSubscriptions.clear();
 		this.controllersWithInput.clear();
+		this.heldInputs.clear();
 		this.currentController = null;
 		this.controllerManager.close();
 	}

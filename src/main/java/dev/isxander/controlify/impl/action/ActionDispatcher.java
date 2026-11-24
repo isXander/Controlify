@@ -212,6 +212,8 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 			this.claims.values().removeIf(input::equals);
 			if (owners != null) {
 				this.tapOwners.put(input, new TreeSet<>(owners));
+				// The press is finished; leaving it would let a later claim cancel it.
+				this.pressOwners.remove(input);
 			} else {
 				this.tapOwners.remove(input);
 			}

@@ -47,6 +47,13 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 			}
 		}
 
+		if (event instanceof PhysicalSignal.Frame) {
+			// The deadzone setting may have changed while the axes were still; apply it without waiting for movement.
+			for (RadialDeadzoneState state : this.stateByAxis.values()) {
+				state.refresh(event.timeNanos(), downstream);
+			}
+		}
+
 		downstream.accept(event);
 	}
 
@@ -85,7 +92,11 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 		@Override
 		public void onEvent(PhysicalInputSignal.@NonNull AxisMoved event, @NonNull EventSink<? super PhysicalInputSignal.AxisMoved> downstream) {
 			this.rawAxes.put(event.input(), event.value());
+			this.refresh(event.timeNanos(), downstream);
+		}
 
+		/// Recomputes the output from the last raw values, emitting only what changed.
+		void refresh(long timeNanos, EventSink<? super PhysicalInputSignal.AxisMoved> downstream) {
 			float deadzone = DeadzoneStage.this.deadzoneByGroupName.getFloat(this.deadzoneGroup.name());
 
 			float magnitudeSqr = 0.0f;
@@ -118,7 +129,7 @@ public class DeadzoneStage implements UnaryEventStage<PhysicalSignal> {
 				float oldValue = this.outputAxes.put(axis, newValue);
 
 				if (newValue != oldValue) {
-					downstream.accept(new PhysicalInputSignal.AxisMoved(event.timeNanos(), axis, newValue));
+					downstream.accept(new PhysicalInputSignal.AxisMoved(timeNanos, axis, newValue));
 				}
 			}
 		}

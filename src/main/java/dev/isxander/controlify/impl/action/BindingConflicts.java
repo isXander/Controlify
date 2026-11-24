@@ -91,6 +91,8 @@ public final class BindingConflicts {
 								conflicts.add(new Conflict(Kind.CONFLICT, a.action(), i, b.action(), j));
 							} else if (shadows(b.contexts(), a.contexts(), position, layers, reach)) {
 								conflicts.add(new Conflict(Kind.SHADOWED, a.action(), i, b.action(), j));
+							} else if (shareTransparently(a.contexts(), b.contexts(), position, layers)) {
+								conflicts.add(new Conflict(Kind.CONFLICT, a.action(), i, b.action(), j));
 							}
 						} else if (shareContext
 								&& bindingA.input() instanceof LogicalInput.Single(Identifier button)
@@ -129,6 +131,45 @@ public final class BindingConflicts {
 
 	private static boolean firesBeforeRelease(Optional<Gesture> gesture) {
 		return gesture.map(Gesture::firesBeforeRelease).orElse(true);
+	}
+
+	/// Whether two distinct layers can be active together with the upper one passing inputs down to the lower.
+	/// Layers are only known to coexist when one requires the other. Sharing a requirement is not enough:
+	/// siblings such as the virtual mouse and regular screen layers both require any screen but never coexist.
+	private static boolean shareTransparently(
+			Set<Identifier> contextsA, Set<Identifier> contextsB,
+			Map<Identifier, Integer> position, Map<Identifier, ActionLayer> layers
+	) {
+		for (Identifier idA : contextsA) {
+			for (Identifier idB : contextsB) {
+				ActionLayer layerA = layers.get(idA);
+				ActionLayer layerB = layers.get(idB);
+				if (layerA == null || layerB == null || idA.equals(idB)) {
+					continue;
+				}
+				ActionLayer upper = position.get(idA) < position.get(idB) ? layerA : layerB;
+				if (upper.mode() == ActionLayerMode.TRANSPARENT
+						&& (requiredClosure(layerA, layers).contains(idB) || requiredClosure(layerB, layers).contains(idA))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/// The layer and everything it transitively requires.
+	private static Set<Identifier> requiredClosure(ActionLayer layer, Map<Identifier, ActionLayer> layers) {
+		Set<Identifier> closure = new HashSet<>(Set.of(layer.id()));
+		Deque<ActionLayer> pending = new ArrayDeque<>(List.of(layer));
+		while (!pending.isEmpty()) {
+			for (Identifier requiredId : pending.pop().requires()) {
+				ActionLayer required = layers.get(requiredId);
+				if (required != null && closure.add(requiredId)) {
+					pending.push(required);
+				}
+			}
+		}
+		return closure;
 	}
 
 	/// Whether some upper context consumes inputs that some lower context would otherwise receive.

@@ -183,6 +183,22 @@ class ActionDispatcherTest {
 	}
 
 	@Test
+	void finishedPressIsNotCancelledByALaterChordClaim() {
+		ActionImpl toggle = action("toggle", BASE, SOUTH, new dev.isxander.controlify.impl.action.activator.ToggleLatchActivator.Config(PulseLeafConfig.DEFAULT));
+		action("chord", BASE, LB_A, PulseLeafConfig.DEFAULT);
+		this.dispatcher.setCurrentContexts(List.of(BASE));
+
+		this.physical(1, A, true);
+		this.physical(2, A, false);
+		assertTrue(toggle.state().isLatchActive());
+
+		// The chord claims A; the finished press of A must not be cancelled by it.
+		this.physical(3, LB, true);
+		this.physical(4, A, true);
+		assertTrue(toggle.state().isLatchActive());
+	}
+
+	@Test
 	void unboundChordLeavesSinglesAlone() {
 		ActionImpl jump = action("jump", BASE, SOUTH, PulseLeafConfig.DEFAULT);
 		ActionImpl aim = action("aim", BASE, LB_SINGLE, SpanLeafConfig.DEFAULT);

@@ -94,6 +94,23 @@ class DeadzoneStageTest {
 				() -> "Unexpected button edge while crossing centre: " + output);
 	}
 
+	@Test
+	void changedDeadzoneAppliesOnNextFrameWithoutAxisMovement() {
+		float[] threshold = {0.5f};
+		var stage = stage(0.5f);
+		stage.setDeadzoneSupplier(_ -> threshold[0]);
+		List<PhysicalSignal> output = new ArrayList<>();
+		stage.onEvent(new PhysicalInputSignal.AxisMoved(1, UP, 0.4f), output::add);
+		output.clear();
+
+		threshold[0] = 0.1f;
+		stage.onEvent(new PhysicalSignal.Frame(2, 1), output::add);
+
+		assertEquals(2, output.size());
+		assertEquals(0.3f / 0.9f, ((PhysicalInputSignal.AxisMoved) output.get(0)).value(), 0.0001f);
+		assertTrue(output.get(1) instanceof PhysicalSignal.Frame);
+	}
+
 	private static DeadzoneStage stage(float threshold) {
 		var stage = new DeadzoneStage(Set.of(new DeadzoneGroup(id("right_stick"), List.of(
 				new DeadzoneGroup.Dimension(UP, DOWN),

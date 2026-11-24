@@ -7,6 +7,7 @@
 package dev.isxander.controlify.impl.input.mapping;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 
@@ -21,15 +22,23 @@ public record DeadzoneGroup(
 ) {
 	public static final Codec<DeadzoneGroup> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Identifier.CODEC.fieldOf("name").forGetter(DeadzoneGroup::name),
-			Dimension.CODEC.listOf().fieldOf("dimensions").forGetter(DeadzoneGroup::dimensions)
+			Dimension.CODEC.listOf()
+					.validate(dimensions -> hasDuplicateAxes(dimensions)
+							? DataResult.error(() -> "A deadzone group must not contain an axis more than once")
+							: DataResult.success(dimensions))
+					.fieldOf("dimensions").forGetter(DeadzoneGroup::dimensions)
 	).apply(instance, DeadzoneGroup::new));
 
 	public DeadzoneGroup {
 		dimensions = List.copyOf(dimensions);
-		List<Identifier> axes = axesOf(dimensions);
-		if (axes.size() != axes.stream().distinct().count()) {
+		if (hasDuplicateAxes(dimensions)) {
 			throw new IllegalArgumentException("Deadzone group " + name + " contains an axis more than once");
 		}
+	}
+
+	private static boolean hasDuplicateAxes(List<Dimension> dimensions) {
+		List<Identifier> axes = axesOf(dimensions);
+		return axes.size() != axes.stream().distinct().count();
 	}
 
 	/// Every half-axis in this group, in dimension order: positive then negative for each dimension.

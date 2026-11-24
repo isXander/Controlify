@@ -18,6 +18,7 @@ import dev.isxander.controlify.impl.action.activator.LeafConfig;
 import dev.isxander.controlify.impl.action.activator.NoopActivator;
 import dev.isxander.controlify.impl.utils.CUtil;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 		this.spec = spec;
 		this.defaultBindings = List.copyOf(defaultBindings);
 		this.activatorConfig = activator;
+		this.reportUnappliedDefaultGestures(this.defaultBindings);
 		this.state = new ActionState();
 		this.actionDispatcher = actionDispatcher;
 		this.setBindingsSilently(bindings);
@@ -83,21 +85,41 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 
 	/// A binding's gesture is ignored unless the activator has an editable leaf of the same kind.
 	private void warnUnappliedGestures(List<ActionBinding> bindings) {
-		Optional<LeafConfig> editableLeaf = this.activatorConfig.editableLeaf();
 		for (ActionBinding binding : bindings) {
-			if (binding.gesture().isEmpty()) {
-				continue;
-			}
-			Gesture gesture = binding.gesture().get();
-			if (editableLeaf.isEmpty()) {
-				CUtil.LOGGER.warn("Ignoring gesture '{}' on {} for action {}: its activator has no editable gesture",
-						gesture.getSerializedName(), binding.input(), this.spec.id());
-			} else if (editableLeaf.get().gestureFor(binding).orElse(null) != gesture) {
-				CUtil.LOGGER.warn("Ignoring gesture '{}' on {} for action {}: its editable activator only accepts {} gestures",
-						gesture.getSerializedName(), binding.input(), this.spec.id(),
-						editableLeaf.get().gesture().map(leafGesture -> leafGesture.kind().name().toLowerCase(Locale.ROOT)).orElse("no"));
+			String problem = this.unappliedGestureProblem(binding);
+			if (problem != null) {
+				CUtil.LOGGER.warn("Ignoring gesture '{}' on {} for action {}: {}",
+						binding.gesture().orElseThrow().getSerializedName(), binding.input(), this.spec.id(), problem);
 			}
 		}
+	}
+
+	/// A default binding with a gesture the action cannot use is a data error, so it is reported loudly.
+	private void reportUnappliedDefaultGestures(List<ActionBinding> defaultBindings) {
+		for (ActionBinding binding : defaultBindings) {
+			String problem = this.unappliedGestureProblem(binding);
+			if (problem != null) {
+				CUtil.LOGGER.error("Default binding of action {} on {} has gesture '{}' which is ignored: {}",
+						this.spec.id(), binding.input(), binding.gesture().orElseThrow().getSerializedName(), problem);
+			}
+		}
+	}
+
+	private @Nullable String unappliedGestureProblem(ActionBinding binding) {
+		if (binding.gesture().isEmpty()) {
+			return null;
+		}
+		Gesture gesture = binding.gesture().get();
+		Optional<LeafConfig> editableLeaf = this.activatorConfig.editableLeaf();
+		if (editableLeaf.isEmpty()) {
+			return "its activator has no editable gesture";
+		}
+		if (editableLeaf.get().gestureFor(binding).orElse(null) != gesture) {
+			return "its editable activator only accepts "
+					+ editableLeaf.get().gesture().map(leafGesture -> leafGesture.kind().name().toLowerCase(Locale.ROOT)).orElse("no")
+					+ " gestures";
+		}
+		return null;
 	}
 
 	@Override
@@ -108,6 +130,7 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	/// Refreshes resource-defined defaults without changing the current bindings or activator state.
 	public void setDefaultBindings(List<ActionBinding> defaultBindings) {
 		this.defaultBindings = List.copyOf(defaultBindings);
+		this.reportUnappliedDefaultGestures(this.defaultBindings);
 	}
 
 	public ActivatorConfig<?> activatorConfig() {

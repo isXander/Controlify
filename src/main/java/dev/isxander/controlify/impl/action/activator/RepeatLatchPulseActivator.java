@@ -16,7 +16,7 @@ import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import java.util.List;
 
 /// Emits a pulse immediately when the source latch becomes active, then repeats while held.
-/// initialDelayMs delays the first repeat, not the initial pulse.
+/// initialDelayMs delays the first repeat, not the initial pulse; a delay of zero starts repeating after one repeat delay.
 /// Do not combine with a press-pulse activator unless two initial pulses are intended.
 public class RepeatLatchPulseActivator implements Activator {
 
@@ -72,7 +72,8 @@ public class RepeatLatchPulseActivator implements Activator {
 			}
 			if (active) {
 				down = true;
-				nextDue = time + initialDelayNs;
+				// the pulse below is the first one; a zero delay must not repeat on the very next frame
+				nextDue = time + (initialDelayNs > 0 ? initialDelayNs : repeatDelayNs);
 				target.firePulse();
 			} else {
 				down = false;

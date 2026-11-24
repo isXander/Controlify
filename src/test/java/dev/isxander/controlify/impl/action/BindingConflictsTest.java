@@ -23,10 +23,11 @@ class BindingConflictsTest {
 
 	private static final ActionLayer MENU = layer("menu", ActionLayerMode.OVERLAY, "screen");
 	private static final ActionLayer HUD = layer("hud", ActionLayerMode.OVERLAY);
+	private static final ActionLayer CURSOR = layer("cursor", ActionLayerMode.TRANSPARENT, "screen");
 	private static final ActionLayer WIDGET = layer("widget", ActionLayerMode.TRANSPARENT, "screen");
 	private static final ActionLayer SCREEN = layer("screen", ActionLayerMode.BLOCKING);
 	private static final ActionLayer GAME = layer("game", ActionLayerMode.OVERLAY);
-	private static final List<ActionLayer> ORDER = List.of(MENU, HUD, WIDGET, SCREEN, GAME);
+	private static final List<ActionLayer> ORDER = List.of(MENU, HUD, CURSOR, WIDGET, SCREEN, GAME);
 
 
 	@Test
@@ -35,6 +36,17 @@ class BindingConflictsTest {
 		assertEquals(List.of(BindingConflicts.Kind.SHADOWED), kinds(SCREEN, MENU));
 		// Nothing says a screen is open while the HUD layer is active.
 		assertEquals(List.of(BindingConflicts.Kind.SHADOWED), kinds(GAME, HUD));
+	}
+
+	@Test
+	void transparentLayerConflictsWithTheLayerItRequires() {
+		// WIDGET passes inputs down to SCREEN, which it requires.
+		assertEquals(List.of(BindingConflicts.Kind.CONFLICT), kinds(SCREEN, WIDGET));
+		assertEquals(List.of(BindingConflicts.Kind.CONFLICT), kinds(WIDGET, SCREEN));
+		// Layers with nothing in common are never known to be active together.
+		assertEquals(List.of(), kinds(GAME, WIDGET));
+		// Siblings that only share a requirement may be mutually exclusive, so they are not reported.
+		assertEquals(List.of(), kinds(CURSOR, WIDGET));
 	}
 
 	@Test

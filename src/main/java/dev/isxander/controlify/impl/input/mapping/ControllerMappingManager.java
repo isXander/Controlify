@@ -17,7 +17,6 @@ import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.Util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,21 +40,28 @@ public class ControllerMappingManager implements SimpleControlifyReloadListener<
 	public CompletableFuture<Preparations> load(ResourceManager manager, Executor executor) {
 		return CompletableFuture.supplyAsync(() -> {
 			Map<Identifier, Resource> resources = converter.listMatchingResources(manager);
-			Map<Identifier, ControllerMapping> mappingById = resources.entrySet().stream()
-					.map(entry -> Map.entry(converter.fileToId(entry.getKey()), parseFile(entry.getValue())))
-					.collect(Util.toMap());
+			Map<Identifier, ControllerMapping> mappingById = new HashMap<>();
+			resources.forEach((fileId, resource) -> {
+				Identifier id = converter.fileToId(fileId);
+				// A malformed mapping must not stop the others, or the rest of the reload, from loading.
+				parseFile(resource).ifPresentOrElse(
+						mapping -> mappingById.put(id, mapping),
+						() -> CUtil.LOGGER.error("Skipping invalid controller mapping {} (from {})", id, fileId));
+			});
 
 			return new Preparations(mappingById);
 		}, executor);
 	}
 
-	private static ControllerMapping parseFile(Resource resource) {
+	private static Optional<ControllerMapping> parseFile(Resource resource) {
 		try (BufferedReader reader = resource.openAsReader()) {
 			JsonElement json = JsonParser.parseReader(reader);
 			DataResult<ControllerMapping> mappingResult = ControllerMapping.CODEC.parse(JsonOps.INSTANCE, json);
-			return mappingResult.getOrThrow();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			mappingResult.error().ifPresent(error -> CUtil.LOGGER.error("Invalid controller mapping: {}", error.message()));
+			return mappingResult.result();
+		} catch (IOException | RuntimeException e) {
+			CUtil.LOGGER.error("Failed to read controller mapping", e);
+			return Optional.empty();
 		}
 	}
 
