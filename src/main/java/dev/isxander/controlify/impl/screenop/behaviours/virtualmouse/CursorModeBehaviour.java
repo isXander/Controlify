@@ -63,7 +63,8 @@ public final class CursorModeBehaviour implements ScreenBehaviour {
 			}
 			var screens = Controlify.instance().config().getSettings().globalSettings().virtualMouseScreens;
 			var type = context.screen().getClass();
-			boolean enabled = !screens.remove(type);
+			// isRequired matches by isInstance, so disabling must remove every matching entry.
+			boolean enabled = !screens.removeIf(entry -> entry.isAssignableFrom(type));
 			if (enabled) {
 				screens.add(type);
 			}

@@ -23,9 +23,18 @@ public final class DefaultContainerBehaviour implements ElementBehaviour {
 
 	@Override
 	public void collectSnapPoints(ScreenContext<?> screen, Consumer<SnapPoint> output, Runnable next) {
+		boolean[] any = {false};
+		Consumer<SnapPoint> counting = point -> {
+			any[0] = true;
+			output.accept(point);
+		};
 		for (var child : List.copyOf(container.children())) {
-			screen.elementBehaviour(child).collectSnapPoints(screen, output, () -> {});
+			screen.elementBehaviour(child).collectSnapPoints(screen, counting, () -> {});
 		}
-		// Child targets replace the generic centre target of the container itself.
+		// Child targets replace the generic centre target of the container itself, but a
+		// container whose children offer none (e.g. selection list rows) keeps its own.
+		if (!any[0]) {
+			next.run();
+		}
 	}
 }

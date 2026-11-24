@@ -45,7 +45,7 @@
     "controlify:vmouse_move_down": ["controlify:axis/left_stick_down"],
     "controlify:vmouse_move_left": ["controlify:axis/left_stick_left"],
     "controlify:vmouse_move_right": ["controlify:axis/left_stick_right"],
-    "controlify:vmouse_lclick": ["controlify:button/south"],
+    "controlify:vmouse_lclick": ["controlify:button/south", "controlify:button/touchpad_1"],
     "controlify:vmouse_rclick": ["controlify:button/west"],
     "controlify:vmouse_shift_click": ["controlify:button/north"],
     "controlify:vmouse_snap_up": ["controlify:button/dpad_up"],

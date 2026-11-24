@@ -54,17 +54,22 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 			return;
 		}
 		var slot = geometry.controlify$getHoveredSlot();
+		boolean slotActionTaken = false;
 		if (slot != null) {
 			if (slot.hasItem() && access.controlify$handleItemSlotActions((ControllerImpl) controller)) {
+				// Handled pulses are consumed; still continue so back/tab are not swallowed.
+				next.run();
 				return;
 			}
 			if (ControlifyActions.INV_SELECT.on(controller).pulse().consumeAllPulses()) {
 				access.controlify$clickSlot(slot, slot.index, 0, ContainerInput.PICKUP);
 				context.playNavigationHaptic(controller);
 			}
+			boolean slotHasItem = slot.hasItem();
 			while (MinecraftUtil.getScreen() == screen && ControlifyActions.INV_QUICK_MOVE.on(controller).pulse().consumePulse()) {
 				access.controlify$clickSlot(slot, slot.index, 0, ContainerInput.QUICK_MOVE);
 				context.playNavigationHaptic(controller);
+				slotActionTaken |= slotHasItem;
 			}
 			if (ControlifyActions.INV_TAKE_HALF.on(controller).pulse().consumeAllPulses()) {
 				access.controlify$clickSlot(slot, slot.index, 1, ContainerInput.PICKUP);
@@ -73,10 +78,13 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 		} else {
 			context.virtualMouse().emulateClicks(controller);
 		}
-		if (MinecraftUtil.getScreen() == screen && !screen.getMenu().getCarried().isEmpty()
-			&& ControlifyActions.DROP_INVENTORY.on(controller).pulse().consumeAllPulses()) {
-			access.controlify$clickSlot(null, -999, 0, ContainerInput.PICKUP);
-			context.playNavigationHaptic(controller);
+		if (MinecraftUtil.getScreen() == screen && !screen.getMenu().getCarried().isEmpty()) {
+			// Quick move shares a button with drop: a quick move this tick must not also drop the carried stack.
+			boolean drop = ControlifyActions.DROP_INVENTORY.on(controller).pulse().consumeAllPulses();
+			if (drop && !slotActionTaken) {
+				access.controlify$clickSlot(null, -999, 0, ContainerInput.PICKUP);
+				context.playNavigationHaptic(controller);
+			}
 		}
 		next.run();
 	}
@@ -89,7 +97,9 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 		}
 		var slot = geometry.controlify$getHoveredSlot();
 		if (slot != previousSlot) {
-			context.playNavigationHaptic(controller);
+			if (slot != null) {
+				context.playNavigationHaptic(controller);
+			}
 			previousSlot = slot;
 		}
 		var settings = ((ControllerImpl) controller).settings().generic.guide;

@@ -189,6 +189,13 @@ public final class VirtualMouseState implements VirtualMouse {
 	}
 
 	public void updatePosition(float delta) {
+		if (Math.round(targetX * 100) / 100.0 == Math.round(currentX * 100) / 100.0
+				&& Math.round(targetY * 100) / 100.0 == Math.round(currentY * 100) / 100.0) {
+			// close enough: snap to the target instead of lerping forever
+			currentX = targetX;
+			currentY = targetY;
+			return;
+		}
 		double newX = Mth.lerp(Math.clamp(delta, 0, 1), currentX, targetX);
 		double newY = Mth.lerp(Math.clamp(delta, 0, 1), currentY, targetY);
 		if (newX != currentX || newY != currentY) {
@@ -242,6 +249,9 @@ public final class VirtualMouseState implements VirtualMouse {
 		}
 
 		if (ControlifyActions.VMOUSE_LCLICK.on(controller).pulse().consumeAllPulses()) {
+			if (leftClickDown) {
+				this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.RELEASE, 0);
+			}
 			leftClickDown = true;
 			this.simulateMousePress(InputConstants.MOUSE_BUTTON_LEFT, InputConstants.PRESS, 0);
 		} else if (leftClickDown && !ControlifyActions.VMOUSE_LCLICK.on(controller).latch().isLatchActive()) {
@@ -253,6 +263,9 @@ public final class VirtualMouseState implements VirtualMouse {
 			return;
 		}
 		if (ControlifyActions.VMOUSE_RCLICK.on(controller).pulse().consumeAllPulses()) {
+			if (rightClickDown) {
+				this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.RELEASE, 0);
+			}
 			rightClickDown = true;
 			this.simulateMousePress(InputConstants.MOUSE_BUTTON_RIGHT, InputConstants.PRESS, 0);
 		} else if (rightClickDown && !ControlifyActions.VMOUSE_RCLICK.on(controller).latch().isLatchActive()) {

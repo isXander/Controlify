@@ -49,15 +49,15 @@ public final class SliderBehaviour implements ElementBehaviour {
 			return;
 		}
 
-		boolean handled = adjustPulses(screen, controller, ControlifyActions.GUI_SECONDARY_NAVI_LEFT, -1);
-		handled |= adjustPulses(screen, controller, ControlifyActions.GUI_SECONDARY_NAVI_RIGHT, 1);
+		adjustPulses(screen, controller, ControlifyActions.GUI_SECONDARY_NAVI_LEFT, -1);
+		adjustPulses(screen, controller, ControlifyActions.GUI_SECONDARY_NAVI_RIGHT, 1);
 		if (isEditing.getAsBoolean()) {
-			handled |= adjustPulses(screen, controller, ControlifyActions.GUI_NAVI_LEFT, -1);
-			handled |= adjustPulses(screen, controller, ControlifyActions.GUI_NAVI_RIGHT, 1);
+			adjustPulses(screen, controller, ControlifyActions.GUI_NAVI_LEFT, -1);
+			adjustPulses(screen, controller, ControlifyActions.GUI_NAVI_RIGHT, 1);
 		}
-		if (!handled) {
-			next.run();
-		}
+		// Handled pulses are consumed, so continuing cannot double-handle them and
+		// other actions this tick (tab switching, d-pad) are not swallowed.
+		next.run();
 	}
 
 	private boolean adjustPulses(ScreenContext<?> screen, Controller controller, ActionAccessor action, int direction) {
@@ -80,18 +80,22 @@ public final class SliderBehaviour implements ElementBehaviour {
 			// Back wins if both were pressed, so Press cannot immediately reopen editing.
 			ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses();
 			setEditing.accept(false);
+			next.run();
 			return;
 		}
 		if (ControlifyActions.GUI_PRESS.on(controller).pulse().consumeAllPulses()) {
 			setEditing.accept(!isEditing.getAsBoolean());
 			screen.playNavigationHaptic(controller);
-			return;
 		}
 		next.run();
 	}
 
 	@Override
 	public void onFocusChanged(ScreenContext<?> screen, boolean focused) {
-		setEditing.accept(false);
+		// Vanilla enables value changing itself when keyboard focus lands on a slider,
+		// so only reset on focus loss or controller-driven focus.
+		if (!focused || screen.inputMode().isController()) {
+			setEditing.accept(false);
+		}
 	}
 }

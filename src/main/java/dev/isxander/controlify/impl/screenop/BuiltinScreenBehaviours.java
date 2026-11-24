@@ -102,6 +102,8 @@ public final class BuiltinScreenBehaviours {
 			if (context.screen() instanceof SelectWorldScreen screen) {
 				screen.setFocused(((SelectWorldScreenAccessor) screen).controlify$getPlayWorldButton());
 			}
+		}, entry -> {
+			// only moves focus to the play button; silent like before
 		}));
 		registry.register(ServerSelectionList.Entry.class, entry -> {
 			if (entry instanceof ServerSelectionList.LANHeader) {
@@ -111,6 +113,8 @@ public final class BuiltinScreenBehaviours {
 				if (context.screen() instanceof JoinMultiplayerScreen screen) {
 					screen.setFocused(((JoinMultiplayerScreenAccessor) screen).controlify$getJoinButton());
 				}
+			}, ignored -> {
+				// only moves focus to the join button; silent like before
 			}).create(entry);
 		});
 		registerLanguageEntries(registry);

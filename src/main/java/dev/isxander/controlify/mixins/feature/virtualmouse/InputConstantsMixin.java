@@ -26,6 +26,13 @@ public class InputConstantsMixin {
 				return keyDown;
 			}
 
+			// A latch can outlive the virtual mouse (layer change, screen close); never leak it as a global shift.
+			var screen = dev.isxander.controlify.impl.utils.MinecraftUtil.getScreen();
+			var context = screen == null ? null : ((dev.isxander.controlify.impl.screenop.ScreenContextHolder) screen).controlify$existingScreenContext();
+			if (context == null || !context.virtualMouse().isEnabled()) {
+				return keyDown;
+			}
+
 			return keyDown
 					|| ControlifyActions.VMOUSE_SHIFT_CLICK.on(controller).latch().isLatchActive()
 					|| ControlifyActions.VMOUSE_SHIFT.on(controller).latch().isLatchActive();

@@ -26,21 +26,20 @@ public final class FocusManagementBehaviour implements ScreenBehaviour {
 
 	@Override
 	public void update(float delta, Runnable next) {
-		synchronizeInputMode();
+		synchronizeInputMode(false);
 		next.run();
 	}
 
 	@Override
 	public void handleNavigation(Controller controller, Runnable next) {
-		synchronizeInputMode();
+		synchronizeInputMode(false);
 		next.run();
 	}
 
 	@Override
 	public void onScreenActiveChanged(boolean active) {
 		if (active) {
-			previousMode = null;
-			synchronizeInputMode();
+			synchronizeInputMode(true);
 		}
 	}
 
@@ -49,24 +48,30 @@ public final class FocusManagementBehaviour implements ScreenBehaviour {
 		if (context.inputMode().isController() && !context.isVirtualMouseEnabled()) {
 			Minecraft.getInstance().setLastInputType(InputType.KEYBOARD_ARROW);
 		}
-		previousMode = null;
-		synchronizeInputMode();
+		synchronizeInputMode(true);
 		next.run();
 	}
 
-	private void synchronizeInputMode() {
+	/// @param refresh the screen was just opened or rebuilt, so focus may have been repopulated
+	private void synchronizeInputMode(boolean refresh) {
 		if (!context.isCurrentScreen()) {
 			return;
 		}
 		InputMode mode = context.inputMode();
 		boolean mouse = context.isVirtualMouseEnabled();
-		if (mode == previousMode && mouse == previousVirtualMouse) {
+		boolean changed = mode != previousMode || mouse != previousVirtualMouse;
+		boolean firstSync = previousMode == null;
+		if (!changed && !refresh) {
 			return;
 		}
 		previousMode = mode;
 		previousVirtualMouse = mouse;
-		if (mouse || mode == InputMode.KEYBOARD_MOUSE) {
-			if (mouse || context.focusPath().stream().noneMatch(EditBox.class::isInstance)) {
+		if (mouse) {
+			context.clearFocus();
+		} else if (mode == InputMode.KEYBOARD_MOUSE) {
+			// Only a real switch to KB/M clears focus; opening or rebuilding a screen
+			// in KB/M must keep whatever keyboard focus it has.
+			if (changed && !firstSync && context.focusPath().stream().noneMatch(EditBox.class::isInstance)) {
 				context.clearFocus();
 			}
 		} else if (context.screen().getFocused() == null) {
