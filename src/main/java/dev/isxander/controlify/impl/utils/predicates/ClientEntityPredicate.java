@@ -9,17 +9,10 @@ package dev.isxander.controlify.impl.utils.predicates;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.isxander.controlify.impl.utils.CUtil;
-//? if >=26.2 {
-import net.minecraft.advancements.predicates.*;
-import net.minecraft.advancements.predicates.entity.*;
-//?} else {
-//import net.minecraft.advancements.criterion.*;
-//?}
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -29,6 +22,13 @@ import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+
+//? if >=26.2 {
+import net.minecraft.advancements.predicates.*;
+import net.minecraft.advancements.predicates.entity.*;
+//?} else {
+//import net.minecraft.advancements.criterion.*;
+//?}
 
 /// A subset of vanilla's entity predicate that works
 /// for all entities on the client. The vanilla one requires server-side-only data.
@@ -75,7 +75,15 @@ public record ClientEntityPredicate(
 					Codec.STRING.optionalFieldOf("team").forGetter(ClientEntityPredicate::team),
 					SlotsPredicate.CODEC.optionalFieldOf("slots").forGetter(ClientEntityPredicate::slots),
 					GameTypePredicate.CODEC.optionalFieldOf("game_mode").forGetter(ClientEntityPredicate::gameMode),
-					RegistryCodecs.holderSet(Registries.BIOME).optionalFieldOf("biome").forGetter(ClientEntityPredicate::biome)
+					//? if >=26.3 {
+					net.minecraft.core.registries.codec.RegistryCodecs.holderSet(Registries.BIOME)
+							.optionalFieldOf("biome")
+							.forGetter(ClientEntityPredicate::biome)
+					//?} else {
+					/*net.minecraft.core.RegistryCodecs.homogeneousList(Registries.BIOME)
+							.optionalFieldOf("biome")
+							.forGetter(ClientEntityPredicate::biome)
+					*///?}
 			).apply(instance, ClientEntityPredicate::new))
 	);
 
