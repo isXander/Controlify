@@ -1261,7 +1261,8 @@ public class ControllerConfigScreenFactory {
 				.description(description.build())
 				.binding(action.defaultBindings(), action::bindings, bindings -> {
 					action.setBindings(bindings);
-					if (bindings.equals(action.defaultBindings())) {
+					// when keepDefaultBindings is off, default-equal bindings are not stored so later default changes apply
+					if (!settings.input.keepDefaultBindings && bindings.equals(action.defaultBindings())) {
 						settings.input.bindings.bindings.remove(action.spec().id());
 					} else {
 						settings.input.bindings.bindings.put(action.spec().id(), bindings);

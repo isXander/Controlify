@@ -24,7 +24,7 @@ public final class InitialiseSteamApiFix extends DataFix {
 
 	@Override
 	protected TypeRewriteRule makeRule() {
-		var type = getInputSchema().getType(ControlifyTypeReferences.USER_STATE);
+		var type = getInputSchema().getType(ControlifyTypeReferences.SHARED_CONFIG);
 
 		return fixTypeEverywhereTyped(
 				"Controlify: add initialise steam api global setting",

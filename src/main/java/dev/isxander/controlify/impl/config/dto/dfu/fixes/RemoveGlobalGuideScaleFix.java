@@ -21,7 +21,7 @@ public final class RemoveGlobalGuideScaleFix extends DataFix {
 
 	@Override
 	protected TypeRewriteRule makeRule() {
-		var type = getInputSchema().getType(ControlifyTypeReferences.USER_STATE);
+		var type = getInputSchema().getType(ControlifyTypeReferences.SHARED_CONFIG);
 
 		return fixTypeEverywhereTyped(
 				"Controlify: remove global ingame button guide scale",

@@ -124,4 +124,10 @@ public final class ControlifySchemas {
 			super(versionKey, parent);
 		}
 	}
+
+	public static class V15 extends Schema {
+		public V15(int versionKey, Schema parent) {
+			super(versionKey, parent);
+		}
+	}
 }

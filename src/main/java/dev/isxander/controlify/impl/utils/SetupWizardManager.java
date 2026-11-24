@@ -25,7 +25,7 @@ public class SetupWizardManager {
 				this.currentSetupWizard = null;
 			}
 
-			if (!this.setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInterruptScreen)) {
+			if (this.currentSetupWizard == null && !this.setupWizards.isEmpty() && !(MinecraftUtil.getScreen() instanceof DontInterruptScreen)) {
 				this.currentSetupWizard = this.setupWizards.poll();
 				MinecraftUtil.setScreen(this.currentSetupWizard.start(MinecraftUtil.getScreen()));
 			}

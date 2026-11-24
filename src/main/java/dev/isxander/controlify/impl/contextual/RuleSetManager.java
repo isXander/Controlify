@@ -190,7 +190,7 @@ public class RuleSetManager<K, R extends Rule<K>> implements SimpleControlifyRel
 
 	@Override
 	public Identifier getReloadId() {
-		return CUtil.rl("reload/" + this.directory);
+		return this.reloadId;
 	}
 
 	public record Preparations<K, R extends Rule<K>>(

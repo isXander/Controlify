@@ -1,0 +1,97 @@
+{
+  "schema_version": 8,
+  "generic": {
+    "auto_jump": true,
+    "toggle_sprint": false,
+    "toggle_sneak": true,
+    "disable_fly_drifting": false,
+    "guide": {
+      "verbosity": "full",
+      "show_ingame_guide": true,
+      "ingame_guide_bottom": false,
+      "show_screen_guides": true,
+      "ingame_gui_scale": 0,
+      "screen_gui_scale": 0
+    },
+    "keyboard": {
+      "show_on_screen_keyboard": true,
+      "hint_cursor": true,
+      "hint_command_suggester": true,
+      "hint_sign_line": true
+    }
+  },
+  "input": {
+    "bindings": {
+      "controlify:jump": {
+        "type": "button",
+        "button": "controlify:button/east"
+      },
+      "controlify:attack": {
+        "type": "axis",
+        "axis": "controlify:axis/right_trigger"
+      },
+      "controlify:use": {
+        "axis": "controlify:axis/left_trigger"
+      },
+      "controlify:inventory": {
+        "type": "hat",
+        "hat": "controlify:hat/0",
+        "target_state": "up"
+      },
+      "controlify:swap_hands": {
+        "type": "hat",
+        "hat": "controlify:hat/0",
+        "target_state": "right_down"
+      },
+      "controlify:drop": {
+        "type": "hat",
+        "hat": "controlify:hat/0",
+        "target_state": "centered"
+      },
+      "controlify:take_screenshot": {
+        "type": "empty"
+      }
+    },
+    "sensitivity": {
+      "horizontal": 1.4,
+      "vertical": 1.1,
+      "horizontal_invert": false,
+      "vertical_invert": true,
+      "virtual_mouse": 1.0,
+      "reduce_aiming": true,
+      "look_curve": "standard",
+      "is_lce": false,
+      "default_deadzone": 0.15
+    },
+    "radial_menu": {
+      "actions": [
+        "controlify:toggle_hud_visibility",
+        "controlify:change_perspective"
+      ],
+      "button_focus_timeout_ticks": 20
+    },
+    "button_activation_threshold": 0.5,
+    "keep_default_bindings": false
+  },
+  "rumble": {
+    "enabled": true
+  },
+  "hd_haptic": {
+    "enabled": true
+  },
+  "gyro": {
+    "look_sensitivity": 0.75,
+    "relative_mode": false,
+    "invert_pitch": false,
+    "invert_yaw": true,
+    "button_mode": "toggle",
+    "yaw_mode": "both",
+    "flick_stick": true
+  },
+  "bluetooth_device": {
+    "dont_show_warning": false
+  },
+  "dualsense": {
+    "trigger_effects": true
+  }
+}
