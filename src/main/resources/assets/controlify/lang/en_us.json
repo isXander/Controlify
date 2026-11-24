@@ -31,6 +31,8 @@
   "controlify.gui.global_settings.title": "Global Settings",
   "controlify.gui.preferred_profile": "Preferred startup profile",
   "controlify.gui.preferred_profile.tooltip": "The profile index Controlify should try to use the next time the game starts.",
+  "controlify.gui.initialise_steam_api": "Initialise Steam API",
+  "controlify.gui.initialise_steam_api.tooltip": "Initialises the Steam API when the game is not launched through Steam, so the Steam Client stops forcing keyboard/mouse emulation on Steam Controller and Steam Deck. Requires a restart.",
   "controlify.gui.config.group.profile": "Profile",
   "controlify.gui.profile_name": "Profile name",
   "controlify.gui.profile_name.tooltip": "An optional display name for this profile.",

@@ -35,6 +35,7 @@ public class GlobalSettings {
 	public final Set<String> seenServers;
 	public boolean showSplitscreenAd;
 	public int preferredProfile;
+	public boolean initialiseSteamApi;
 
 	private GlobalSettings() {
 		this.virtualMouseScreens = Sets.newHashSet(
@@ -52,6 +53,7 @@ public class GlobalSettings {
 		this.seenServers = new HashSet<>();
 		this.showSplitscreenAd = true;
 		this.preferredProfile = 0;
+		this.initialiseSteamApi = true;
 	}
 
 	public GlobalSettings(
@@ -67,7 +69,8 @@ public class GlobalSettings {
 			List<String> analogueMovementWhitelist,
 			Set<String> seenServers,
 			boolean showSplitscreenAd,
-			int preferredProfile
+			int preferredProfile,
+			boolean initialiseSteamApi
 	) {
 		this.virtualMouseScreens = new HashSet<>(virtualMouseScreens);
 		this.mixedInput = mixedInput;
@@ -82,6 +85,7 @@ public class GlobalSettings {
 		this.seenServers = new HashSet<>(seenServers);
 		this.showSplitscreenAd = showSplitscreenAd;
 		this.preferredProfile = Math.max(0, preferredProfile);
+		this.initialiseSteamApi = initialiseSteamApi;
 	}
 
 	public boolean shouldUseKeyboardMovement() {
@@ -128,7 +132,8 @@ public class GlobalSettings {
 				List.copyOf(dto.analogueMovementWhitelist()),
 				Set.copyOf(dto.seenServers()),
 				dto.showSplitscreenAd(),
-				dto.preferredProfile()
+				dto.preferredProfile(),
+				dto.initialiseSteamApi()
 		);
 	}
 
@@ -149,7 +154,8 @@ public class GlobalSettings {
 				List.copyOf(analogueMovementWhitelist),
 				List.copyOf(seenServers),
 				showSplitscreenAd,
-				preferredProfile
+				preferredProfile,
+				initialiseSteamApi
 		);
 	}
 }

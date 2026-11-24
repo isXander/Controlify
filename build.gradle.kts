@@ -57,6 +57,9 @@ dependencies {
     commonApi(libs.sdl.java.backend.ffm)
     commonInclude(libs.sdl.java.backend.ffm)
 
+	commonApi(libs.steamworks)
+	commonInclude(libs.steamworks)
+
     commonApi(libs.quilt.parsers.json)
 
     compileOnlyApi("dev.isxander:yet-another-config-lib:${property("dep.yacl")}") {

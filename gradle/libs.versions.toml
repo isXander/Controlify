@@ -3,6 +3,7 @@ fabric_loader = "0.19.3"
 sdl_natives = "fda4ece2775c"
 sdl_java = "fda4ece2775c-12"
 quilt_parsers = "0.3.0"
+steamworks = "1.65-2"
 
 modstitch_manifests = "0.1.5"
 modstitch_multiloader = "0.1.9"
@@ -19,6 +20,7 @@ fabric_loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_l
 fabric_loader_junit = { module = "net.fabricmc:fabric-loader-junit", version.ref = "fabric_loader" }
 sdl_java_api = { module = "dev.isxander.sdl:sdl-api", version.ref = "sdl_java" }
 sdl_java_backend_ffm = { module = "dev.isxander.sdl:sdl-backend-ffm", version.ref = "sdl_java" }
+steamworks = { module = "dev.isxander.steam:controlify-steamworks", version.ref = "steamworks" }
 quilt_parsers_json = { module = "org.quiltmc.parsers:json", version.ref = "quilt_parsers" }
 
 [plugins]
