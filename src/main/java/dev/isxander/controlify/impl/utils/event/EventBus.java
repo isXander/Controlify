@@ -8,6 +8,7 @@ package dev.isxander.controlify.impl.utils.event;
 
 import dev.isxander.controlify.api.utils.event.EventSink;
 import dev.isxander.controlify.api.utils.event.EventSource;
+import dev.isxander.controlify.impl.utils.CUtil;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Objects;
@@ -21,7 +22,11 @@ public class EventBus<T> implements EventSource<T> {
 	/// Notifies subscribers without forwarding to another stage.
 	public void emit(T event) {
 		for (Registration registration : this.listeners) {
-			registration.listener.accept(event);
+			try {
+				registration.listener.accept(event);
+			} catch (Exception e) {
+				CUtil.LOGGER.error("Listener threw an exception when emitting an event.", e);
+			}
 		}
 	}
 

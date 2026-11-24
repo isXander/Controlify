@@ -30,7 +30,7 @@ import java.util.function.Predicate;
 /// @param name the display name for the action
 /// @param description the display description for the action
 /// @param category the category for the action
-/// @param contexts the set of context IDs that this action should work in
+/// @param layers the set of layer IDs that this action should work in
 /// @param shouldExpose predicate deciding if the action should be visible in the settings and available
 ///                     to bind for the current controller. even if this predicate resolves to false the action
 ///                     will be created for the given controller, the only difference is that it is not visible
@@ -40,12 +40,12 @@ public record ActionSpec(
 		Component name,
 		Component description,
 		Component category,
-		Set<Identifier> contexts,
+		Set<Identifier> layers,
 		Predicate<Controller> shouldExpose
 ) implements Comparable<ActionSpec> {
 	@ApiStatus.Internal
 	public ActionSpec {
-		contexts = Set.copyOf(contexts);
+		layers = Set.copyOf(layers);
 	}
 
 	@Override

@@ -63,7 +63,7 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 				.requires(BuiltinActionLayers.ANY_SCREEN)
 				.above(BuiltinActionLayers.V_MOUSE_CURSOR)
 				.register();
-		// Screen sub-contexts overlap on purpose: which of their actions applies depends on what is
+		// Screen sub-layers overlap on purpose: which of their actions applies depends on what is
 		// hovered or focused, so they consume nothing and the screen behaviours decide.
 		this.layer(BuiltinActionLayers.V_MOUSE_CURSOR)
 				.mode(ActionLayerMode.TRANSPARENT)
@@ -98,10 +98,10 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 				.register();
 	}
 
-	/// @return the active contexts, ordered from top to bottom
+	/// @return the active layers, ordered from top to bottom
 	public List<ActionLayer> getActiveContexts(Minecraft minecraft) {
 		if (!this.locked) {
-			throw new IllegalStateException("Action contexts must be registered before evaluating them");
+			throw new IllegalStateException("Action layers must be registered before evaluating them");
 		}
 		List<ActionLayer> active = new ArrayList<>(this.orderedContexts.size());
 		Map<Identifier, Boolean> evaluated = new HashMap<>();
@@ -214,7 +214,7 @@ public final class ActionLayerRegistryImpl implements ActionLayerRegistry {
 			}
 			var placement = new LayerOrdering.Placement(this.above, this.below, this.top, this.bottom);
 			if (placement.isEmpty()) {
-				throw new IllegalStateException("Action context " + this.id + " needs a placement relative to other contexts");
+				throw new IllegalStateException("Action context " + this.id + " needs a placement relative to other layers");
 			}
 			if (registry.contexts.containsKey(this.id)) {
 				throw new IllegalArgumentException("Action context is already registered: " + this.id);

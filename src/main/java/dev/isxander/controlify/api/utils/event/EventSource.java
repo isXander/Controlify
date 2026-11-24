@@ -10,7 +10,10 @@ import java.util.function.Predicate;
 
 /// Subscription-only source. Controlify events dispatch synchronously in subscription
 /// order on the emitting thread, without replay. Subscribe in ControlifyEntrypoint for
-/// one-shot lifecycle events. Listener exceptions propagate and stop that emission.
+/// one-shot lifecycle events.
+/// 
+/// Listener exceptions do not prevent other subscribers from receiving the event.
+/// Any exceptions are suppressed as error logs.
 public interface EventSource<T> {
 	Subscription subscribe(EventSink<? super T> listener);
 

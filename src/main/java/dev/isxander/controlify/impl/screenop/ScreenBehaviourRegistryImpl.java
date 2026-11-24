@@ -61,7 +61,7 @@ public final class ScreenBehaviourRegistryImpl implements ScreenBehaviourRegistr
 
 	List<ScreenBehaviour> create(ScreenContext<?> context) {
 		if (!ready) {
-			throw new IllegalStateException("Screen contexts are available after REGISTER_SCREEN_BEHAVIOURS completes");
+			throw new IllegalStateException("Screen layers are available after REGISTER_SCREEN_BEHAVIOURS completes");
 		}
 		return registry.factories(context.screen()).stream()
 				.map(factory -> create(factory, context))

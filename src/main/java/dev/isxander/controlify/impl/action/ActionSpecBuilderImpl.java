@@ -24,7 +24,7 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 	private @Nullable Component name;
 	private @Nullable Component description;
 	private @Nullable Component category;
-	private final Set<Identifier> contexts = new TreeSet<>();
+	private final Set<Identifier> layers = new TreeSet<>();
 	private Predicate<Controller> shouldExpose = _ -> true;
 
 	@Override
@@ -52,8 +52,8 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 	}
 
 	@Override
-	public @NonNull ActionSpecBuilder layer(Identifier @NonNull ... contexts) {
-		this.contexts.addAll(List.of(contexts));
+	public @NonNull ActionSpecBuilder layer(Identifier @NonNull ... layers) {
+		this.layers.addAll(List.of(layers));
 		return this;
 	}
 
@@ -67,7 +67,7 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 	public @NonNull ActionSpec build() {
 		Validate.notNull(this.id, "An action spec needs an id");
 		Validate.notNull(this.category, "An action spec needs a category");
-		Validate.isTrue(!this.contexts.isEmpty(), "An action spec needs at least one context");
+		Validate.isTrue(!this.layers.isEmpty(), "An action spec needs at least one layer");
 
 		Component name = Optional.ofNullable(this.name)
 				.orElseGet(() -> Component.translatable(this.id.toLanguageKey("controlify.action")));
@@ -87,7 +87,7 @@ public class ActionSpecBuilderImpl implements ActionSpecBuilder {
 				name,
 				description,
 				this.category,
-				Collections.unmodifiableSet(this.contexts),
+				Collections.unmodifiableSet(this.layers),
 				this.shouldExpose
 		);
 	}

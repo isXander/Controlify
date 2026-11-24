@@ -54,7 +54,6 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -1142,7 +1141,7 @@ public class ControllerConfigScreenFactory {
 		List<BindingConflicts.Entry> entries = new ArrayList<>();
 		for (OptionActionPair pair : all) {
 			byAction.put(pair.action().spec().id(), pair);
-			entries.add(new BindingConflicts.Entry(pair.action().spec().id(), pair.action().spec().contexts(),
+			entries.add(new BindingConflicts.Entry(pair.action().spec().id(), pair.action().spec().layers(),
 					pair.option().pendingValue(), pair.action().activatorConfig()));
 		}
 

@@ -16,7 +16,7 @@ public final class ScreenopEvents {
 
 	/// Fires once during client initialization to register factories by screen type.
 	/// All matching registrations compose. The supplied registry closes when dispatch
-	/// finishes; factories run later as individual screen contexts are created.
+	/// finishes; factories run later as individual screen layers are created.
 	public static final EventSource<ScreenBehaviourRegistry> REGISTER_SCREEN_BEHAVIOURS = ScreenBehaviourRegistryImpl.Events.REGISTER_SCREEN_BEHAVIOURS;
 
 	/// Fires once for each new screen context, after its screen behaviour factories run.

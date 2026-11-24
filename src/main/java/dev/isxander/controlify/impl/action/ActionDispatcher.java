@@ -34,12 +34,12 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 	private final Set<ActionImpl> allActions = new TreeSet<>();
 
 	// Context ID -> Logical Input -> set of ActionImpl
-	// the same compiled binding can be registered for multiple contexts and inputs
+	// the same compiled binding can be registered for multiple layers and inputs
 	private final Map<Identifier, Map<LogicalInput, Set<ActionImpl>>> bindings = new HashMap<>();
 
-	/// Active contexts, top to bottom.
+	/// Active layers, top to bottom.
 	private List<ActionLayer> currentContexts = List.of();
-	/// Logical input -> actions that receive it given the current contexts.
+	/// Logical input -> actions that receive it given the current layers.
 	private Map<LogicalInput, Set<ActionImpl>> dispatch = Map.of();
 	private boolean dispatchDirty = true;
 
@@ -56,7 +56,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		if (!this.allActions.add(action)) {
 			throw new IllegalArgumentException("This action has already been added");
 		}
-		for (var contextId : action.spec().contexts()) {
+		for (var contextId : action.spec().layers()) {
 			var byInputMap = this.bindings.computeIfAbsent(contextId, _ -> new HashMap<>());
 			for (LogicalInput input : action.boundInputs()) {
 				byInputMap.computeIfAbsent(input, _ -> new TreeSet<>()).add(action);
@@ -66,7 +66,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 	}
 
 	public void removeAction(ActionImpl action) {
-		for (var contextId : action.spec().contexts()) {
+		for (var contextId : action.spec().layers()) {
 			var byInputMap = this.bindings.getOrDefault(contextId, Map.of());
 			byInputMap.values().removeIf(set -> set.remove(action) && set.isEmpty());
 		}
@@ -90,7 +90,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		this.addAction(action);
 	}
 
-	/// @param contexts the active contexts, ordered from top to bottom
+	/// @param contexts the active layers, ordered from top to bottom
 	public void setCurrentContexts(List<ActionLayer> contexts) {
 		if (contexts.equals(this.currentContexts)) {
 			return;
@@ -283,7 +283,7 @@ public class ActionDispatcher implements EventSink<LogicalSignal> {
 		}
 	}
 
-	/// Walks the contexts from top to bottom, collecting the actions each input reaches.
+	/// Walks the layers from top to bottom, collecting the actions each input reaches.
 	static Map<LogicalInput, Set<ActionImpl>> resolveDispatch(
 			List<ActionLayer> contexts,
 			Map<Identifier, Map<LogicalInput, Set<ActionImpl>>> bindings

@@ -23,7 +23,7 @@ import net.minecraft.resources.Identifier;
 public final class BuiltinActionLayers {
 	/// A world is loaded. Overlay, at the bottom; hidden whenever a screen is open.
 	public static final Identifier IN_GAME = CUtil.rl("in_game");
-	/// Any screen is open. Blocking, so gameplay contexts below it receive nothing.
+	/// Any screen is open. Blocking, so gameplay layers below it receive nothing.
 	public static final Identifier ANY_SCREEN = CUtil.rl("screen");
 	/// A screen is open and the virtual mouse is off. Transparent.
 	public static final Identifier REGULAR_SCREEN = CUtil.rl("regular_screen");
@@ -31,7 +31,7 @@ public final class BuiltinActionLayers {
 	public static final Identifier CONTAINER = CUtil.rl("container");
 	/// The virtual mouse is on. Transparent.
 	public static final Identifier V_MOUSE_CURSOR = CUtil.rl("vmouse_cursor");
-	/// The radial menu is open. Overlay, so its inputs shadow the screen contexts below.
+	/// The radial menu is open. Overlay, so its inputs shadow the screen layers below.
 	public static final Identifier RADIAL_MENU = CUtil.rl("radial_menu");
 
 	private BuiltinActionLayers() {
