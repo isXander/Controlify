@@ -28,7 +28,6 @@ import java.util.Locale;
 public final class ControlifyActions {
 	public static final String MODDED_ACTION_NAMESPACE = "controlify_modded";
 
-	private static final Options options = Minecraft.getInstance().options;
 
 	public static final Component MOVEMENT_CATEGORY = KeyMapping.Category.MOVEMENT.label();
 	public static final Component GAMEPLAY_CATEGORY = KeyMapping.Category.GAMEPLAY.label();
@@ -435,6 +434,8 @@ public final class ControlifyActions {
 	}
 
 	private static void registerProxies(ActionProxyManager proxies) {
+		// read when the proxies register rather than at class init, when options may not exist yet
+		Options options = Minecraft.getInstance().options;
 		proxies.proxyKeyMapping(SPRINT, options.keySprint,
 				controller -> ((ControllerImpl) controller).settings().generic.toggleSprint);
 		proxies.proxyKeyMapping(ATTACK, options.keyAttack);

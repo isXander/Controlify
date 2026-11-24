@@ -50,6 +50,9 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 	private static final long CALIBRATION_SAVE_INTERVAL_NANOS = 5_000_000_000L;
 	private long lastCalibrationSaveTimeNanos;
 	private Vector3fc lastSavedBias = new Vector3f();
+	/// Whether gyro look is toggled on, for [dev.isxander.controlify.impl.config.settings.profile.GyroSettings] toggle activation.
+	/// Kept here because it is the user's choice and must outlive the in-game handler, which is rebuilt on input mode changes.
+	private boolean toggledOn;
 
 	public GyroComponentImpl(InputPipeline inputPipeline) {
 		super(ID);
@@ -157,6 +160,14 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 
 			lastSavedBias = new Vector3f(currentBias);
 		}
+	}
+
+	public boolean isToggledOn() {
+		return this.toggledOn;
+	}
+
+	public void setToggledOn(boolean toggledOn) {
+		this.toggledOn = toggledOn;
 	}
 
 	public GyroCalibrator getCalibrator() {

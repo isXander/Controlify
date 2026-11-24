@@ -65,16 +65,11 @@ public final class StickLook implements LookSource {
 
 		if (settings.sensitivity.reduceAimingSensitivity) {
 			ItemUseAnimation animation = ctx.player().getUseItem().getUseAnimation();
-			float aimMultiplier = settings.sensitivity.isLCE
-					? switch (animation) {
-						case BOW, CROSSBOW, SPEAR, SPYGLASS -> 0.15f;
-						default -> 1f;
-					}
-					: switch (animation) {
-						case BOW, CROSSBOW, SPEAR -> 0.6f;
-						case SPYGLASS -> 0.2f;
-						default -> 1f;
-					};
+			float aimMultiplier = !AimingItems.isAiming(animation)
+					? 1f
+					: settings.sensitivity.isLCE
+							? 0.15f
+							: animation == ItemUseAnimation.SPYGLASS ? 0.2f : 0.6f;
 			impulse.mul(aimMultiplier);
 		}
 

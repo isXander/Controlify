@@ -25,8 +25,6 @@ import java.util.Optional;
 public final class GyroLook implements LookSource {
 	private final ControllerImpl controller;
 
-	private boolean toggledOn;
-
 	public GyroLook(ControllerImpl controller) {
 		this.controller = controller;
 	}
@@ -43,7 +41,7 @@ public final class GyroLook implements LookSource {
 		var gyroButton = ControlifyActions.GYRO_BUTTON.on(controller);
 		while (gyroButton.pulse().consumePulse()) {
 			if (settings.activation == GyroActivation.TOGGLE) {
-				this.toggledOn = !this.toggledOn;
+				gyro.setToggledOn(!gyro.isToggledOn());
 			}
 		}
 
@@ -51,12 +49,9 @@ public final class GyroLook implements LookSource {
 			return;
 		}
 
-		boolean aiming = switch (ctx.player().getUseItem().getUseAnimation()) {
-			case BOW, TRIDENT, SPYGLASS -> true;
-			default -> false;
-		};
+		boolean aiming = AimingItems.isAiming(ctx.player().getUseItem().getUseAnimation());
 		boolean held = gyroButton.latch().isLatchActive() || this.anyTouched(settings);
-		if (!isActive(settings.activation, held, this.toggledOn, aiming, settings.activeWhileAiming)) {
+		if (!isActive(settings.activation, held, gyro.isToggledOn(), aiming, settings.activeWhileAiming)) {
 			return;
 		}
 
@@ -105,5 +100,6 @@ public final class GyroLook implements LookSource {
 		};
 	}
 
-	// reset() deliberately keeps the toggle state: it is the user's choice, not transient input.
+	// reset() deliberately keeps the toggle state, which lives on the gyro component so it also
+	// survives the in-game input handler being rebuilt: it is the user's choice, not transient input.
 }

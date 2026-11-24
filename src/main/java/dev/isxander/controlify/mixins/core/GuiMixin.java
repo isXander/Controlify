@@ -48,7 +48,9 @@ public class GuiMixin implements InitialScreenRegistryDuck {
 	// otherwise restore on-screen coordinates and make widgets appear hovered.
 	@Inject(method = "setScreen", at = @At("RETURN"))
 	private void hideMouseAfterRelease(Screen screen, CallbackInfo ci) {
-		if (Controlify.instance().currentInputMode().isController()) {
+		// Closing to the game re-grabs the mouse; hiding the cursor then would replace the disabled cursor mode.
+		if (screen != null && !Minecraft.getInstance().mouseHandler.isMouseGrabbed()
+				&& Controlify.instance().currentInputMode().isController()) {
 			Controlify.instance().hideMouse(true, true);
 		}
 	}
