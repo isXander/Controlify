@@ -29,7 +29,6 @@ public class GlobalSettings {
 	public boolean allowServerRumble;
 	public boolean extraUiSounds;
 	public boolean notifyLowBattery;
-	public float ingameButtonGuideScale;
 	public boolean alwaysKeyboardMovement;
 	public List<String> analogueMovementWhitelist;
 	public final Set<String> seenServers;
@@ -47,7 +46,6 @@ public class GlobalSettings {
 		this.allowServerRumble = true;
 		this.extraUiSounds = true;
 		this.notifyLowBattery = true;
-		this.ingameButtonGuideScale = 1f;
 		this.alwaysKeyboardMovement = false;
 		this.analogueMovementWhitelist = new ArrayList<>();
 		this.seenServers = new HashSet<>();
@@ -64,7 +62,6 @@ public class GlobalSettings {
 			boolean allowServerRumble,
 			boolean extraUiSounds,
 			boolean notifyLowBattery,
-			float ingameButtonGuideScale,
 			boolean alwaysKeyboardMovement,
 			List<String> analogueMovementWhitelist,
 			Set<String> seenServers,
@@ -79,7 +76,6 @@ public class GlobalSettings {
 		this.allowServerRumble = allowServerRumble;
 		this.extraUiSounds = extraUiSounds;
 		this.notifyLowBattery = notifyLowBattery;
-		this.ingameButtonGuideScale = ingameButtonGuideScale;
 		this.alwaysKeyboardMovement = alwaysKeyboardMovement;
 		this.analogueMovementWhitelist = new ArrayList<>(analogueMovementWhitelist);
 		this.seenServers = new HashSet<>(seenServers);
@@ -127,7 +123,6 @@ public class GlobalSettings {
 				dto.allowServerRumble(),
 				dto.extraUiSounds(),
 				dto.notifyLowBattery(),
-				dto.ingameButtonGuideScale(),
 				dto.alwaysAllowKeyboardMovement(),
 				List.copyOf(dto.analogueMovementWhitelist()),
 				Set.copyOf(dto.seenServers()),
@@ -149,7 +144,6 @@ public class GlobalSettings {
 				allowServerRumble,
 				extraUiSounds,
 				notifyLowBattery,
-				ingameButtonGuideScale,
 				alwaysKeyboardMovement,
 				List.copyOf(analogueMovementWhitelist),
 				List.copyOf(seenServers),
