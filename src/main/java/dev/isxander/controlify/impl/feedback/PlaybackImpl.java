@@ -21,8 +21,10 @@ public final class PlaybackImpl implements Playback<Object> {
 	final Identifier eventId;
 	final Identifier effectId;
 	final FeedbackEffect<Object> effect;
-	final FeedbackSource fallbackSource;
+	final FeedbackGroup fallbackGroup;
 	final boolean held;
+	/// Increases with every playback an engine starts, so newer playbacks draw on top.
+	final long sequence;
 	final float range;
 
 	private final List<String> paramNames;
@@ -31,6 +33,8 @@ public final class PlaybackImpl implements Playback<Object> {
 	@Nullable Supplier<Vec3> pos;
 	/// Seconds since `hold` was last called for this playback.
 	float idleSeconds;
+	/// Refreshed every frame before sampling, since resources and settings can change.
+	FeedbackServices.Mixing mixing = new FeedbackServices.Mixing(1f, 0);
 
 	private float seconds;
 	private float previousSeconds = -1f;
@@ -41,8 +45,9 @@ public final class PlaybackImpl implements Playback<Object> {
 			Identifier eventId,
 			Identifier effectId,
 			FeedbackEffect<Object> effect,
-			FeedbackSource fallbackSource,
+			FeedbackGroup fallbackGroup,
 			boolean held,
+			long sequence,
 			List<String> paramNames,
 			@Nullable Supplier<Vec3> pos,
 			float range
@@ -50,8 +55,9 @@ public final class PlaybackImpl implements Playback<Object> {
 		this.eventId = eventId;
 		this.effectId = effectId;
 		this.effect = effect;
-		this.fallbackSource = fallbackSource;
+		this.fallbackGroup = fallbackGroup;
 		this.held = held;
+		this.sequence = sequence;
 		this.paramNames = paramNames;
 		this.paramValues = new float[paramNames.size()];
 		this.pos = pos;
@@ -134,6 +140,6 @@ public final class PlaybackImpl implements Playback<Object> {
 			return;
 		}
 
-		mixed.mix(scratch, services.gain(this.effectId, this.eventId, this.fallbackSource) * falloff);
+		mixed.mix(scratch, this.mixing.gain() * falloff);
 	}
 }

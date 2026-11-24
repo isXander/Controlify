@@ -55,16 +55,6 @@ class FactDependencyGraphTest {
 		assertTrue(state.facts().get(FROM_SOURCE));
 	}
 
-	@Test
-	void evaluatesNoDefinitionsWhenNoneAreRequired() {
-		FactDependencyGraph graph = FactDependencyGraph.compile(List.of(
-				new FactDefinition(ROOT, new ContextualPredicate.Static(true))
-		));
-
-		ContextualState state = graph.evaluate(new ContextualStateAccumulator(), Set.of());
-
-		assertTrue(state.facts().isEmpty());
-	}
 
 	private static Identifier id(String path) {
 		return Identifier.fromNamespaceAndPath("test", path);

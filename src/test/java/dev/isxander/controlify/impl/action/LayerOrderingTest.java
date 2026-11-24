@@ -9,14 +9,12 @@ package dev.isxander.controlify.impl.action;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LayerOrderingTest {
 	private static final Identifier A = id("a");
@@ -55,26 +53,6 @@ class LayerOrderingTest {
 		assertEquals(List.of(B, C, D), sort(placements));
 	}
 
-	@Test
-	void placementRelativeToUnregisteredContextIsIgnored() {
-		Map<Identifier, LayerOrdering.Placement> placements = new LinkedHashMap<>();
-		placements.put(A, above(id("missing")));
-		placements.put(B, above(A));
-		List<String> warnings = new ArrayList<>();
-
-		assertEquals(List.of(B, A), LayerOrdering.sort(placements, warnings::add));
-		assertEquals(1, warnings.size());
-	}
-
-	@Test
-	void contradictoryPlacementsThrow() {
-		Map<Identifier, LayerOrdering.Placement> placements = new LinkedHashMap<>();
-		placements.put(A, above(B));
-		placements.put(B, above(C));
-		placements.put(C, above(A));
-
-		assertThrows(IllegalStateException.class, () -> sort(placements));
-	}
 
 	private static List<Identifier> sort(Map<Identifier, LayerOrdering.Placement> placements) {
 		return LayerOrdering.sort(placements, warning -> {

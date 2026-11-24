@@ -135,6 +135,7 @@ FeedbackEvents.REGISTER.subscribeForever(registry -> {
 | `rumble(low, high)` | Both bands on the whole controller |
 | `voice(site, hz, amp)` | A tone at a frequency, for HD haptics |
 | `click(site, intensity, sharpness)` | A single transient |
+| `light(rgb, alpha)` | A layer over the controller's RGB light, in sRGB |
 | `hd()` | Whether the controller reproduces voices and clicks faithfully |
 
 Call `click` once, on the frame it should happen. `playback.crossed(seconds)` is true for exactly one frame:
@@ -144,6 +145,10 @@ if (playback.crossed(0.1f)) {
     out.click(Site.BODY, 0.8f, 0.7f);
 }
 ```
+
+Light layers do not add up like vibration: each covers what is beneath it by `alpha`, and higher-priority playbacks
+cover lower ones (see [groups and ordering](../resource-packs/feedback-effects.md#groups-and-ordering)). The user's
+strength settings make a layer more transparent rather than darker.
 
 How each controller plays a frame:
 

@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +24,20 @@ import java.util.function.Supplier;
 ///
 /// Every frame it samples every active playback, mixes the results, applies the user's gain
 /// and hands the mixed frame to each renderer.
+///
+/// Playbacks are mixed in [#DRAW_ORDER], from lowest to highest priority, so renderers that
+/// layer or drop outputs (light, limited voices) favour the higher-priority ones.
 public final class FeedbackEngine {
+	/// The event that ambient effects play for. Its playbacks draw below other held ones.
+	static final Identifier AMBIENT_EVENT = Identifier.fromNamespaceAndPath("controlify", "ambient");
+
+	/// Lowest priority first: by the rank of the playback's groups, then fired over held over
+	/// ambient, then newer over older.
+	public static final Comparator<PlaybackImpl> DRAW_ORDER = Comparator
+			.comparingInt((PlaybackImpl playback) -> playback.mixing.rank())
+			.thenComparingInt(FeedbackEngine::triggerPriority)
+			.thenComparingLong(playback -> playback.sequence);
+
 	/// A held playback is released when its event has not been held for this long. Emit
 	/// sites call `hold` once per game tick (50 ms), so this tolerates two missed ticks.
 	public static final float HOLD_TIMEOUT_SECONDS = 0.15f;
@@ -43,6 +57,7 @@ public final class FeedbackEngine {
 	private final MixedFrame mixed = new MixedFrame();
 
 	private boolean silent;
+	private long nextSequence;
 
 	public FeedbackEngine(FeedbackServices services, List<? extends FeedbackRenderer> renderers) {
 		this.services = services;
@@ -53,17 +68,17 @@ public final class FeedbackEngine {
 	/// runtime, such as vibrations sent by a server.
 	///
 	/// @param id     identifies what is playing, for gain lookup
-	/// @param source the gain source to use if no resource pack assigns `id` one
+	/// @param group  the group to use if no resource pack assigns `id` one
 	/// @param pos    if not null, the playback is attenuated by distance from the camera to it
 	/// @param range  the falloff range in blocks, ignored without `pos`
 	public PlaybackImpl play(
 			Identifier id,
-			FeedbackSource source,
+			FeedbackGroup group,
 			FeedbackEffect<Object> effect,
 			@Nullable Supplier<Vec3> pos,
 			float range
 	) {
-		PlaybackImpl playback = new PlaybackImpl(id, id, effect, source, false, List.of(), pos, range);
+		PlaybackImpl playback = new PlaybackImpl(id, id, effect, group, false, this.nextSequence++, List.of(), pos, range);
 		this.playbacks.add(playback);
 		return playback;
 	}
@@ -136,7 +151,7 @@ public final class FeedbackEngine {
 			boolean held
 	) {
 		return new PlaybackImpl(
-				event.id(), effectId, effect, FeedbackSource.MASTER, held,
+				event.id(), effectId, effect, FeedbackGroup.UNGROUPED, held, this.nextSequence++,
 				event.paramNames(), null, event.falloffRange()
 		);
 	}
@@ -174,6 +189,11 @@ public final class FeedbackEngine {
 				return held.isEmpty();
 			});
 		}
+
+		for (PlaybackImpl playback : this.playbacks) {
+			playback.mixing = this.services.mixing(playback.effectId, playback.fallbackGroup);
+		}
+		this.playbacks.sort(DRAW_ORDER);
 
 		this.mixed.reset(this.services.hd());
 		// playbacks are only ever added by emit sites, never while sampling
@@ -214,6 +234,14 @@ public final class FeedbackEngine {
 
 	public boolean isPlaying() {
 		return !this.playbacks.isEmpty();
+	}
+
+	/// 0 for ambient playbacks, 1 for other held ones, 2 for fired ones.
+	private static int triggerPriority(PlaybackImpl playback) {
+		if (!playback.held) {
+			return 2;
+		}
+		return playback.eventId.equals(AMBIENT_EVENT) ? 0 : 1;
 	}
 
 	private void silenceRenderers() {

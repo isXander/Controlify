@@ -27,7 +27,7 @@ import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.gyro.GyroActivation;
 import dev.isxander.controlify.impl.controller.gyro.GyroSpace;
 import dev.isxander.controlify.impl.controller.input.InputComponentImpl;
-import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.feedback.FeedbackGroup;
 import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import dev.isxander.controlify.impl.feedback.FeedbackRegistryImpl;
 import dev.isxander.controlify.impl.controllermanager.ControllerType;
@@ -712,16 +712,20 @@ public class ControllerConfigScreenFactory {
 				.controller(TickBoxControllerBuilder::create)
 				.build());
 
-		for (FeedbackSource source : Controlify.instance().feedbackSourceManager().sources()) {
+		// master first: it applies on top of every group
+		List<Identifier> strengthIds = new ArrayList<>();
+		strengthIds.add(FeedbackGroup.MASTER_STRENGTH);
+		Controlify.instance().feedbackGroupManager().groups().all().forEach(group -> strengthIds.add(group.id()));
+		for (Identifier strengthId : strengthIds) {
 			var option = Option.<Float>createBuilder()
-					.name(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath()))
+					.name(Component.translatable("controlify.vibration_strength." + strengthId.getNamespace() + "." + strengthId.getPath()))
 					.description(OptionDescription.createBuilder()
-							.text(Component.translatable("controlify.vibration_strength." + source.id().getNamespace() + "." + source.id().getPath() + ".tooltip"))
+							.text(Component.translatable("controlify.vibration_strength." + strengthId.getNamespace() + "." + strengthId.getPath() + ".tooltip"))
 							.build())
 					.binding(
-							defaults.rumble.vibrationStrengths.getOrDefault(source.id(), 1f),
-							() -> settings.rumble.vibrationStrengths.getOrDefault(source.id(), 1f),
-							v -> settings.rumble.vibrationStrengths.put(source.id(), v)
+							defaults.rumble.vibrationStrengths.getOrDefault(strengthId, 1f),
+							() -> settings.rumble.vibrationStrengths.getOrDefault(strengthId, 1f),
+							v -> settings.rumble.vibrationStrengths.put(strengthId, v)
 					)
 					.controller(opt -> FloatSliderControllerBuilder.create(opt)
 							.range(0f, 2f)
@@ -742,7 +746,7 @@ public class ControllerConfigScreenFactory {
 						if (effect != null) {
 							testController.feedback().play(
 									BuiltinFeedback.TEST_VIBRATION,
-									FeedbackSource.MASTER,
+									FeedbackGroup.UNGROUPED,
 									// stops as soon as the settings screen is left
 									(playback, out) -> MinecraftUtil.getScreen() == screen && effect.sample(playback, out),
 									null, 0f

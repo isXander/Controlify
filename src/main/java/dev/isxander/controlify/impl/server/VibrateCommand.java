@@ -10,7 +10,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import dev.isxander.controlify.impl.platform.network.SidedNetworkApi;
-import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.feedback.FeedbackGroup;
 import dev.isxander.controlify.impl.controller.rumble.RumbleState;
 import dev.isxander.controlify.impl.server.packets.EntityVibrationPacket;
 import dev.isxander.controlify.impl.server.packets.OriginVibrationPacket;
@@ -49,7 +49,7 @@ public class VibrateCommand {
 																												FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																												FloatArgumentType.getFloat(context, "high_freq_vibration"),
 																												IntegerArgumentType.getInteger(context, "duration"),
-																												FeedbackSource.MASTER
+																												FeedbackGroup.UNGROUPED
 																										))
 																						)
 																						.then(
@@ -66,7 +66,7 @@ public class VibrateCommand {
 																																				IntegerArgumentType.getInteger(context, "duration"),
 																																				FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																																				FloatArgumentType.getFloat(context, "high_freq_vibration"),
-																																				FeedbackSource.MASTER
+																																				FeedbackGroup.UNGROUPED
 																																		))
 																														)
 																														.then(
@@ -79,7 +79,7 @@ public class VibrateCommand {
 																																				IntegerArgumentType.getInteger(context, "duration"),
 																																				FloatArgumentType.getFloat(context, "low_freq_vibration"),
 																																				FloatArgumentType.getFloat(context, "high_freq_vibration"),
-																																				FeedbackSource.MASTER
+																																				FeedbackGroup.UNGROUPED
 																																		))
 																														)
 																										)
@@ -97,12 +97,12 @@ public class VibrateCommand {
 			Collection<ServerPlayer> targets,
 			float lowFreqMagnitude, float highFreqMagnitude,
 			int durationTicks,
-			FeedbackSource rumbleSource
+			FeedbackGroup group
 	) {
 		RumbleState[] frames = new RumbleState[durationTicks];
 		Arrays.fill(frames, new RumbleState(lowFreqMagnitude, highFreqMagnitude));
 
-		VibrationPacket packet = new VibrationPacket(rumbleSource, frames);
+		VibrationPacket packet = new VibrationPacket(group, frames);
 		for (var player : targets) {
 			SidedNetworkApi.S2C().sendPacket(player, VibrationPacket.CHANNEL, packet);
 		}
@@ -123,11 +123,11 @@ public class VibrateCommand {
 			Vec3 origin,
 			float effectRange, int duration,
 			float lowFreqMagnitude, float highFreqMagnitude,
-			FeedbackSource rumbleSource
+			FeedbackGroup group
 	) {
 		RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
-		OriginVibrationPacket packet = new OriginVibrationPacket(origin.toVector3f(), effectRange, duration, state, rumbleSource);
+		OriginVibrationPacket packet = new OriginVibrationPacket(origin.toVector3f(), effectRange, duration, state, group);
 		for (var player : targets) {
 			SidedNetworkApi.S2C().sendPacket(player, OriginVibrationPacket.CHANNEL, packet);
 		}
@@ -148,11 +148,11 @@ public class VibrateCommand {
 			Entity origin,
 			float effectRange, int duration,
 			float lowFreqMagnitude, float highFreqMagnitude,
-			FeedbackSource rumbleSource
+			FeedbackGroup group
 	) {
 		RumbleState state = new RumbleState(lowFreqMagnitude, highFreqMagnitude);
 
-		EntityVibrationPacket packet = new EntityVibrationPacket(origin.getId(), effectRange, duration, state, rumbleSource);
+		EntityVibrationPacket packet = new EntityVibrationPacket(origin.getId(), effectRange, duration, state, group);
 		for (var player : targets) {
 			SidedNetworkApi.S2C().sendPacket(player, EntityVibrationPacket.CHANNEL, packet);
 		}

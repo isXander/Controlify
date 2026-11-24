@@ -10,6 +10,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,8 @@ public record Envelope(List<Point> points) {
 
 		Point a = this.points.get(from);
 		Point b = this.points.get(from + 1);
-		float progress = (seconds - a.time()) / (b.time() - a.time());
+
+		float progress = Mth.inverseLerp(seconds, a.time(), b.time());
 		return b.easing().lerp(a.strength(), b.strength(), progress);
 	}
 

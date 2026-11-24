@@ -57,7 +57,7 @@ public final class BuiltinFeedback {
 			double dy = player.getY() - player.yo;
 			double dz = player.getZ() - player.zo;
 			return new Ambient(
-					(float) Math.sqrt(dx * dx + dz * dz) * TICKS_PER_SECOND,
+					(float) Mth.length(dx, dz) * TICKS_PER_SECOND,
 					(float) Math.max(-dy, 0.0) * TICKS_PER_SECOND,
 					(float) player.fallDistance,
 					Mth.clamp(player.getHealth() / player.getMaxHealth(), 0f, 1f),

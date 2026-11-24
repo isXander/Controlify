@@ -8,6 +8,7 @@ package dev.isxander.controlify.impl.utils.predicates;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.isxander.controlify.impl.utils.CUtil;
 //? if >=26.2 {
 import net.minecraft.advancements.predicates.*;
 import net.minecraft.advancements.predicates.entity.*;
@@ -15,9 +16,14 @@ import net.minecraft.advancements.predicates.entity.*;
 //import net.minecraft.advancements.criterion.*;
 //?}
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.core.registries.codec.RegistryCodecs;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Team;
 import org.jetbrains.annotations.Nullable;
@@ -38,6 +44,7 @@ import java.util.Optional;
 ///
 /// This predicate has additional conditions which its server-sided counterpart doesn't have:
 /// - `game_mode`
+/// - `biome`
 public record ClientEntityPredicate(
 		Optional<EntityTypePredicate> entityType,
 		Optional<DistancePredicate> distanceToPlayer,
@@ -50,7 +57,8 @@ public record ClientEntityPredicate(
 		Optional<ClientEntityPredicate> passenger,
 		Optional<String> team,
 		Optional<SlotsPredicate> slots,
-		Optional<GameTypePredicate> gameMode
+		Optional<GameTypePredicate> gameMode,
+		Optional<HolderSet<Biome>> biome
 ) {
 	public static final Codec<ClientEntityPredicate> CODEC = Codec.recursive(
 			"ClientEntityPredicate",
@@ -66,7 +74,8 @@ public record ClientEntityPredicate(
 					subCodec.optionalFieldOf("passenger").forGetter(ClientEntityPredicate::passenger),
 					Codec.STRING.optionalFieldOf("team").forGetter(ClientEntityPredicate::team),
 					SlotsPredicate.CODEC.optionalFieldOf("slots").forGetter(ClientEntityPredicate::slots),
-					GameTypePredicate.CODEC.optionalFieldOf("game_mode").forGetter(ClientEntityPredicate::gameMode)
+					GameTypePredicate.CODEC.optionalFieldOf("game_mode").forGetter(ClientEntityPredicate::gameMode),
+					RegistryCodecs.holderSet(Registries.BIOME).optionalFieldOf("biome").forGetter(ClientEntityPredicate::biome)
 			).apply(instance, ClientEntityPredicate::new))
 	);
 
@@ -144,6 +153,13 @@ public record ClientEntityPredicate(
 				return false;
 			}
 			if (!this.gameMode.get().matches(gameType)) {
+				return false;
+			}
+		}
+
+		if (this.biome.isPresent()) {
+			Holder<Biome> biomeHolder = entity.level().getBiome(entity.blockPosition());
+			if (!CUtil.isInWithLocalFallback(biomeHolder, this.biome.get())) {
 				return false;
 			}
 		}

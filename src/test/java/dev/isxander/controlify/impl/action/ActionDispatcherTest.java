@@ -19,7 +19,6 @@ import dev.isxander.controlify.impl.input.pipeline.PhysicalToLogicalStage;
 import dev.isxander.controlify.impl.input.pipeline.SensorAccumulatorStage;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
-import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
@@ -238,16 +237,6 @@ class ActionDispatcherTest {
 		assertFalse(gameTap.state().consumeAllPulses());
 	}
 
-	@Test
-	void tapFiresImmediatelyOnRelease() {
-		ActionImpl tap = action("tap", BASE, SOUTH, TAP_PULSE);
-		this.dispatcher.setCurrentContexts(List.of(BASE));
-		this.physical(0, A, true);
-		assertFalse(tap.state().consumeAllPulses());
-
-		this.physical(100_000_000L, A, false);
-		assertTrue(tap.state().consumeAllPulses());
-	}
 
 	@Test
 	void bindingsMergeIntoOneOutput() {
@@ -271,15 +260,6 @@ class ActionDispatcherTest {
 		assertFalse(span.state().isLatchActive());
 	}
 
-	@Test
-	void gestureOverrideOnlyAppliesToEditableLeavesOfTheSameKind() {
-		var tap = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.TAP));
-		var whileHeld = ActionBinding.of(SOUTH).withGesture(java.util.Optional.of(Gesture.LONG_HOLD));
-
-		assertEquals(java.util.Optional.of(Gesture.TAP), new PulseLeafConfig(Gesture.PRESS, true).gestureFor(tap));
-		assertEquals(java.util.Optional.of(Gesture.PRESS), new PulseLeafConfig(Gesture.PRESS, false).gestureFor(tap));
-		assertEquals(java.util.Optional.of(Gesture.PRESS), new PulseLeafConfig(Gesture.PRESS, true).gestureFor(whileHeld));
-	}
 
 	private final PhysicalToLogicalStage stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
 

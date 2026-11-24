@@ -23,8 +23,10 @@ import java.util.Optional;
 /// - `band`: a rumble band (`low` or `high`), which every controller can play
 /// - `hz`: a tone at that frequency, for HD controllers
 /// - `click`: a single transient, which happens at `delay`
+/// - `color`: a layer of the controller's light, colored by a [ColorGradient] at the
+///   track's strength
 ///
-/// at a `site` (default `body`). Its strength is
+/// at a `site` (default `body`; lights ignore it). Its strength is
 /// `envelope(t) x level x lfo(t) x scale`, where every part is optional and defaults to 1,
 /// and `t` counts from `delay`.
 ///
@@ -35,6 +37,7 @@ public record Track(
 		Optional<Band> band,
 		Optional<Float> hz,
 		Optional<Click> click,
+		Optional<ColorGradient> color,
 		Optional<Envelope> envelope,
 		float level,
 		Optional<Lfo> lfo,
@@ -50,6 +53,7 @@ public record Track(
 			BAND_CODEC.optionalFieldOf("band").forGetter(Track::band),
 			Codec.FLOAT.optionalFieldOf("hz").forGetter(Track::hz),
 			Click.CODEC.optionalFieldOf("click").forGetter(Track::click),
+			ColorGradient.CODEC.optionalFieldOf("color").forGetter(Track::color),
 			Envelope.CODEC.optionalFieldOf("envelope").forGetter(Track::envelope),
 			Codec.FLOAT.optionalFieldOf("level", 1f).forGetter(Track::level),
 			Lfo.CODEC.optionalFieldOf("lfo").forGetter(Track::lfo),
@@ -57,9 +61,10 @@ public record Track(
 			Codec.FLOAT.optionalFieldOf("delay", 0f).forGetter(Track::delay),
 			Requirement.CODEC.optionalFieldOf("requires").forGetter(Track::requires)
 	).apply(instance, Track::new)).validate(track -> {
-		int targets = (track.band.isPresent() ? 1 : 0) + (track.hz.isPresent() ? 1 : 0) + (track.click.isPresent() ? 1 : 0);
+		int targets = (track.band.isPresent() ? 1 : 0) + (track.hz.isPresent() ? 1 : 0)
+				+ (track.click.isPresent() ? 1 : 0) + (track.color.isPresent() ? 1 : 0);
 		if (targets != 1) {
-			return DataResult.error(() -> "A track needs exactly one of 'band', 'hz' or 'click'");
+			return DataResult.error(() -> "A track needs exactly one of 'band', 'hz', 'click' or 'color'");
 		}
 		if (track.hz.isPresent() && !(track.hz.get() > 0f && Float.isFinite(track.hz.get()))) {
 			return DataResult.error(() -> "A track's 'hz' must be positive");
@@ -99,6 +104,14 @@ public record Track(
 		if (local < 0f) {
 			return;
 		}
+		if (this.color.isPresent()) {
+			// strength picks the color; fading and the user's strength make it more transparent
+			float[] rgba = new float[4];
+			this.color.get().sample(Math.clamp(this.strengthAt(local, playback), 0f, 1f), rgba);
+			out.light(rgba[0], rgba[1], rgba[2], rgba[3] * fade);
+			return;
+		}
+
 		float value = this.strengthAt(local, playback) * fade;
 		if (this.band.isPresent()) {
 			out.band(this.site, this.band.get(), value);

@@ -52,9 +52,10 @@ public final class LiveFeedbackServices implements FeedbackServices {
 	}
 
 	@Override
-	public float gain(Identifier effectId, Identifier eventId, FeedbackSource fallback) {
-		FeedbackSource source = Controlify.instance().feedbackSourceManager().getSource(effectId, eventId, fallback);
-		return this.controller.settings().rumble.strengthMultiplier(source);
+	public Mixing mixing(Identifier effectId, FeedbackGroup fallback) {
+		FeedbackGroups.Membership membership = Controlify.instance().feedbackGroupManager().groups()
+				.membership(effectId, fallback);
+		return new Mixing(this.controller.settings().rumble.strengthMultiplier(membership.groups()), membership.rank());
 	}
 
 	@Override
@@ -75,9 +76,8 @@ public final class LiveFeedbackServices implements FeedbackServices {
 		if (camera == null) {
 			return -1f;
 		}
-		float distance = (float) Math.sqrt(camera.distanceToSqr(pos));
-		float proximity = 1f - Mth.clamp(distance / range, 0f, 1f);
-		return proximity * proximity;
+		float distance = (float) camera.position().distanceTo(pos);
+		return Mth.square(Mth.clampedMap(distance, 0f, range, 1f, 0f));
 	}
 
 	@Override

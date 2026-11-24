@@ -34,7 +34,7 @@ public enum Easing implements StringRepresentable {
 	IN_OUT_QUAD("in_out_quad") {
 		@Override
 		public float apply(float t) {
-			return t < 0.5f ? 2f * t * t : 1f - (float) Math.pow(-2f * t + 2f, 2) / 2f;
+			return t < 0.5f ? 2f * Mth.square(t) : 1f - Mth.square(-2f * t + 2f) / 2f;
 		}
 	},
 	IN_SINE("in_sine") {

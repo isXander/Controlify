@@ -313,10 +313,6 @@ sourceSets.named { it in listOf("gametest", "test") }.configureEach {
 	compileClasspath += sourceSets.fabric.get().output
 	runtimeClasspath += sourceSets.fabric.get().output
 }
-sourceSets.named("gametest") {
-	compileClasspath += sourceSets.test.get().output
-	runtimeClasspath += sourceSets.test.get().output
-}
 configurations.named("testCompileClasspath") {
 	extendsFrom(configurations.named("fabricCompileClasspath"))
 }

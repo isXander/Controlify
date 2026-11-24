@@ -8,31 +8,31 @@ package dev.isxander.controlify.impl.server.packets;
 
 import dev.isxander.controlify.api.feedback.FeedbackEffect;
 import dev.isxander.controlify.impl.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.feedback.FeedbackGroup;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
-public record VibrationPacket(FeedbackSource source, RumbleState[] frames) {
+public record VibrationPacket(FeedbackGroup group, RumbleState[] frames) {
 	public static final Identifier CHANNEL = CUtil.rl("vibration");
 
 	public static final StreamCodec<FriendlyByteBuf, VibrationPacket> CODEC = StreamCodec.of(
 		(buf, packet) -> {
-			buf.writeIdentifier(packet.source().id());
+			buf.writeIdentifier(packet.group().id());
 			buf.writeInt(packet.frames().length);
 			for (RumbleState frame : packet.frames()) {
 				buf.writeInt(RumbleState.packToInt(frame));
 			}
 		},
 		buf -> {
-			FeedbackSource source = new FeedbackSource(buf.readIdentifier());
+			FeedbackGroup group = new FeedbackGroup(buf.readIdentifier());
 			RumbleState[] frames = new RumbleState[buf.readInt()];
 			for (int i = 0; i < frames.length; i++) {
 				frames[i] = RumbleState.unpackFromInt(buf.readInt());
 			}
-			return new VibrationPacket(source, frames);
+			return new VibrationPacket(group, frames);
 		}
 	);
 

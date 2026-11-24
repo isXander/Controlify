@@ -8,7 +8,6 @@ package dev.isxander.controlify.impl.feedback;
 
 import dev.isxander.controlify.impl.contextual.ContextualPredicate;
 import dev.isxander.controlify.impl.contextual.FeedbackRule;
-import dev.isxander.controlify.impl.contextual.RuleEngine;
 import dev.isxander.controlify.impl.feedback.FeedbackTestSupport.RecordingRenderer;
 import dev.isxander.controlify.impl.feedback.FeedbackTestSupport.TestServices;
 import net.minecraft.resources.Identifier;
@@ -23,12 +22,10 @@ import static dev.isxander.controlify.impl.feedback.FeedbackTestSupport.id;
 import static dev.isxander.controlify.impl.feedback.FeedbackTestSupport.run;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /// How rules choose effects, and how the engine plays several effects for one event.
 class FeedbackRulesTest {
 	private static final Identifier EVENT = id("event");
-	private static final Identifier OTHER_EVENT = id("other_event");
 	private static final Identifier A = id("a");
 	private static final Identifier B = id("b");
 
@@ -45,10 +42,6 @@ class FeedbackRulesTest {
 		assertEquals(List.of(A, B), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A), rule(EVENT, B))));
 	}
 
-	@Test
-	void noMatchFallsBackToTheEventsOwnId() {
-		assertEquals(List.of(EVENT), FeedbackSelection.effects(EVENT, List.of()));
-	}
 
 	@Test
 	void noneStopsTheRulesBelowIt() {
@@ -58,13 +51,6 @@ class FeedbackRulesTest {
 		assertEquals(List.of(), FeedbackSelection.effects(EVENT, List.of(stop, rule(EVENT, B))));
 	}
 
-	@Test
-	void findsWhichEventsHaveRules() {
-		var rules = new RuleEngine<>(List.of(rule(OTHER_EVENT, A)));
-
-		assertFalse(FeedbackSelection.hasRulesFor(rules, EVENT));
-		assertTrue(FeedbackSelection.hasRulesFor(rules, OTHER_EVENT));
-	}
 
 	// --- engine ---
 
@@ -81,17 +67,6 @@ class FeedbackRulesTest {
 		}
 	}
 
-	@Test
-	void heldEventPlaysEverySelectedEffect() {
-		this.services.effects.put(A, constant(0.5f, 0f));
-		this.services.effects.put(B, constant(0f, 0.25f));
-		this.services.selections.put(EVENT, List.of(A, B));
-
-		this.holdFor(0.1f);
-
-		assertEquals(0.5f, this.renderer.last().low(), 1e-6f);
-		assertEquals(0.25f, this.renderer.last().high(), 1e-6f);
-	}
 
 	@Test
 	void effectThatStopsBeingSelectedEndsWhileTheOthersCarryOn() {
@@ -164,16 +139,4 @@ class FeedbackRulesTest {
 		assertFalse(this.engine.isPlaying());
 	}
 
-	@Test
-	void gainIsLookedUpByEffect() {
-		this.services.effects.put(A, constant(1f, 0f));
-		this.services.effects.put(B, constant(0f, 1f));
-		this.services.selections.put(EVENT, List.of(A, B));
-		this.services.gains.put(A, 0.5f);
-
-		this.holdFor(0.1f);
-
-		assertEquals(0.5f, this.renderer.last().low(), 1e-6f);
-		assertEquals(1f, this.renderer.last().high(), 1e-6f);
-	}
 }

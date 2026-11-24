@@ -4,8 +4,9 @@ title: Feedback Effects
 
 # Feedback Effects
 
-Feedback is everything the player feels through the controller: rumble, trigger rumble and HD haptics. A resource pack
-can change what any feedback feels like, add feedback for new situations, and decide which strength slider controls it.
+Feedback is everything the player feels through the controller: rumble, trigger rumble and HD haptics, and the light
+on controllers that have one. A resource pack can change what any feedback feels like, add feedback for new situations,
+and decide which strength sliders control it.
 
 There are three kinds of file:
 
@@ -13,7 +14,7 @@ There are three kinds of file:
 |------|-----------------|
 | `assets/<namespace>/controller/feedback/effect/<path>.json` | What an effect feels like |
 | `assets/<namespace>/controller/contextual/feedback/in_game.json` | Which effect plays, and when |
-| `assets/controlify/controller/feedback/sources.json` | Which strength slider controls each effect |
+| `assets/controlify/controller/feedback/groups.json` | Which strength sliders control each effect, and which effects draw on top |
 
 ## Events and effects
 
@@ -58,6 +59,7 @@ A track has exactly one of these:
 | `"band": "high"` | Light, high buzz. Works on every controller. |
 | `"hz": 120` | A tone at that frequency. Controllers without HD haptics fold it into the nearest band. |
 | `"click": { "sharpness": 0.7 }` | A single transient. `sharpness` 0 is a dull thud, 1 is a crisp tick. |
+| `"color": "#ff0000"` | The controller's light. See [`color`](#color). |
 
 and may say where it is felt with `"site"`:
 
@@ -66,6 +68,34 @@ and may say where it is felt with `"site"`:
 | `body` (default) | The whole controller |
 | `left`, `right` | One grip. Ordinary rumble motors cannot tell these apart and play both. |
 | `left_trigger`, `right_trigger` | The motors inside the triggers, on controllers that have them |
+
+### `color`
+
+A color track paints the controller's light, on controllers that have an RGB light (the DualShock 4 and DualSense
+lightbars). `site` is ignored.
+
+The track's strength picks a color from a gradient: a list of `[color, position]` stops, with positions from 0 to 1.
+Colors are `#RRGGBB`, or `#RRGGBBAA` for a partly transparent color.
+
+```json
+"color": [["#00ff00", 0], ["#ffff00", 0.5], ["#ff0000", 1]]
+```
+
+- A single color is shorthand for that color fading in from fully transparent: `"#ff0000"` is
+  `[["#ff000000", 0], ["#ff0000", 1]]`. The strength then works as opacity.
+- A third value eases the change arriving at a stop, as in an [envelope](#envelope): `["#ff0000", 1, "in_quad"]`.
+- Two stops at the same position make a sudden step.
+- Below the first stop the first color is used, and above the last stop the last.
+
+Light does not add up like vibration. Each color track is a layer that covers what is beneath it by its opacity: a
+damage flash that is fully red hides a blue underwater tint entirely, and fades back to blue as it becomes transparent.
+Which layer is on top is decided by [groups and ordering](#groups-and-ordering). Beneath every layer is the light's
+default color, a dim blue, so an effect that fades out fades back to it.
+
+Transparent and dark are different. To pulse a layer without letting what is beneath show through, keep every stop
+opaque and fade towards a darker color instead: `[["#000040", 0], ["#0000ff", 1]]`.
+
+Turning a strength slider down makes a layer more transparent, not darker.
 
 ### `envelope`
 
@@ -237,20 +267,69 @@ A heartbeat that grows as health drops below 30%, played by the rule
 }
 ```
 
-## Strength sliders
+## Groups and ordering
 
-`assets/controlify/controller/feedback_sources.json` groups effects under the strength sliders in Controlify's
-settings.
+`assets/controlify/controller/feedback/groups.json` puts effects into groups. Every group has a strength slider in
+Controlify's settings, and groups can be ordered to decide which effects draw on top of others.
 
 ```json
 {
-  "controlify:world": ["controlify:explosion", "controlify:lightning"],
-  "mypack:mounts": ["mypack:climbing"]
+  "groups": {
+    "controlify:interaction": ["controlify:use_item/bow", "controlify:use_item/consume"],
+    "mypack:aiming": ["controlify:use_item/bow", "controlify:use_item/crossbow"]
+  },
+  "ordering": {
+    "controlify:player": { "above": ["controlify:world"] },
+    "mypack:ambience": { "below": ["controlify:world"] }
+  }
 }
 ```
 
-- Every pack's file is merged. Listing an effect under a different source moves it.
-- A source that is new gets its own slider.
-- An effect that is not listed uses the slider of the event's default effect, the one with the event's own id. So
-  listing `controlify:use_item` covers every `controlify:use_item/...` variant, unless a variant is listed itself.
-- Anything else is controlled by the master strength only. This includes ambient effects that are not listed.
+Every pack's file is merged, from the lowest-priority pack to the highest. In both `groups` and `ordering`, the key
+says what to do:
+
+| Key | What it does |
+|-----|--------------|
+| `"mypack:aiming"` | Adds to what lower packs said |
+| `"=mypack:aiming"` | Replaces everything lower packs said about this group |
+| `"-mypack:aiming"` | Removes |
+
+Within one file, replacements apply first, then removals, then additions.
+
+### Groups
+
+- An effect can be in several groups. Its strength is the **lowest** of its groups, times the master strength, so a
+  player who turns "aiming" off silences the bow even though it is also in "interaction". The master strength is not a
+  group: it always applies on top.
+- A group that is new gets its own slider. `"=mypack:aiming": []` empties a group but keeps its slider.
+- `"-controlify:interaction": ["controlify:use_item/bow"]` takes the bow out of the group.
+- Groups list effects, not events. An effect is in the same groups whichever event plays it, so a pack that adds an
+  effect, including a new variant like `mypack:use_item/boomerang`, should list it in the groups it belongs in. An
+  event's id only groups the effect with that same id.
+- An effect in no group is in `controlify:ungrouped`. That group cannot be changed and has no slider, so these
+  effects are controlled by the master strength only, but it can be used in `ordering` like any other group.
+
+### Ordering
+
+Ordering decides which effect is on top when two play at once. It matters for outputs that cannot simply be added
+together: [light layers](#color), and HD haptics when there are more tones than the controller can play, where the
+lowest ones are dropped. Vibration is unaffected.
+
+`"controlify:player": { "above": ["controlify:world"] }` draws player effects over world effects. It is the same
+ordering as `"controlify:world": { "below": ["controlify:player"] }`, so removing either form removes it.
+`"=controlify:player": { ... }` replaces every ordering involving `controlify:player`, including ones other groups
+declared about it.
+
+When two effects play at once, the one on top is:
+
+1. The one whose groups are ranked higher. A group's rank is how many groups are stacked below it, and an effect ranks
+   as its highest group. Groups that are not ordered against each other can tie.
+2. A fired event over a held one, and a held one over `controlify:ambient`.
+3. The newer one.
+
+Mistakes never stop the pack from loading. They are logged and skipped:
+
+- Orderings that contradict each other, like `a` above `b` and `b` above `a`: the higher-priority pack's ordering is
+  kept, and the log names both packs.
+- An ordering that names a group no pack defines, or orders a group against itself.
+- Anything malformed, like an invalid id: just that entry is skipped.

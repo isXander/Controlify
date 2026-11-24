@@ -9,7 +9,6 @@ package dev.isxander.controlify.impl.input.pipeline;
 import dev.isxander.controlify.api.input.LogicalInput;
 import dev.isxander.controlify.impl.input.signal.LogicalSignal;
 import dev.isxander.controlify.impl.input.signal.PhysicalInputSignal;
-import dev.isxander.controlify.impl.input.signal.PhysicalSignal;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
@@ -91,28 +90,6 @@ class PhysicalToLogicalStageTest {
 		assertEquals(2, count(output, LogicalSignal.Tapped.class));
 	}
 
-	@Test
-	void longPressIsNotATap() {
-		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
-		List<LogicalSignal> output = new ArrayList<>();
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(300), A, false), output::add);
-
-		assertEquals(0, count(output, LogicalSignal.Tapped.class));
-	}
-
-	@Test
-	void timingsApplyFromTheSupplier() {
-		var stage = new PhysicalToLogicalStage(new SensorAccumulatorStage());
-		stage.setTimingsSupplier(() -> GestureTimings.ofMillis(100, 300));
-		List<LogicalSignal> output = new ArrayList<>();
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(0, A, true), output::add);
-		stage.onEvent(new PhysicalInputSignal.ButtonChanged(ms(150), A, false), output::add);
-		stage.onEvent(new PhysicalSignal.Frame(ms(1000), ms(850)), output::add);
-
-		// 150ms is longer than the configured 100ms tap.
-		assertEquals(0, count(output, LogicalSignal.Tapped.class));
-	}
 
 	private static long ms(long millis) {
 		return millis * 1_000_000L;

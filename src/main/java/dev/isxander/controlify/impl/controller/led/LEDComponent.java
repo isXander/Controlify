@@ -10,71 +10,37 @@ import dev.isxander.controlify.impl.controller.ControllerComponent;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
 
-import java.util.Arrays;
-
+/// The controller's RGB light. Every common controller with one has exactly one: the
+/// DualShock 4 and DualSense lightbars.
+///
+/// It starts at [#DEFAULT_COLOR], so the driver sets it as soon as the controller connects
+/// and the first light effect does not appear on top of whatever the controller showed
+/// before. Setting a color only stores it: the driver sends it at its own pace.
 public class LEDComponent extends ControllerComponent {
 	public static final Identifier ID = CUtil.rl("led");
 
-	private final int[] ledColors;
-	private boolean dirty = false;
+	/// Off by default. SDL pre-initializes this to a dim blue or something.
+	public static final int DEFAULT_COLOR = 0x000000;
 
-	public LEDComponent(int ledCount) {
+	private int color = DEFAULT_COLOR;
+	private boolean dirty = true;
+
+	public LEDComponent() {
 		super(ID);
-		this.ledColors = new int[ledCount];
 	}
 
-	/**
-	 * Sets the color of all LEDs to a single color.
-	 * This method updates the internal array of LED colors and marks the component as dirty.
-	 * @param color the color to set for all LEDs, represented as an RGB format integer (0xRRGGBB).
-	 */
-	public void setAll(int color) {
-		Arrays.fill(ledColors, color);
-		dirty = true;
-	}
-
-	/**
-	 * Gets the current color of all LEDs.
-	 * This method returns a copy of the internal array of LED colors.
-	 * @return an array of colors for each LED, represented as RGB format integers (0xRRGGBB).
-	 */
-	public int[] getAll() {
-		return Arrays.copyOf(ledColors, ledColors.length);
-	}
-
-	/**
-	 * Sets the color of a specific LED.
-	 * @param index the index of the LED to set, must be within bounds of the array.
-	 * @param color the color to set, represented as an RGB format integer (0xRRGGBB).
-	 */
-	public void set(int index, int color) {
-		if (index < 0 || index >= ledColors.length) {
-			throw new IndexOutOfBoundsException("LED index out of bounds: " + index);
-		}
-		if (ledColors[index] != color) {
-			ledColors[index] = color;
-			dirty = true;
+	/// @param color an sRGB `0xRRGGBB` color
+	public void setColor(int color) {
+		color &= 0xFFFFFF;
+		if (this.color != color) {
+			this.color = color;
+			this.dirty = true;
 		}
 	}
 
-	/**
-	 * Gets the color of a specific LED.
-	 * @param index the index of the LED to get, must be within bounds of the array.
-	 * @return the color of the LED at the specified index, represented as an RGB format integer (0xRRGGBB).
-	 */
-	public int get(int index) {
-		if (index < 0 || index >= ledColors.length) {
-			throw new IndexOutOfBoundsException("LED index out of bounds: " + index);
-		}
-		return ledColors[index];
-	}
-
-	/**
-	 * Gets the number of LEDs in this component.
-	 * @return the count of LEDs.
-	 */
-	public int getCount() {
-		return ledColors.length;
+	/// The sRGB `0xRRGGBB` color to show.
+	public int color() {
+		return this.color;
 	}
 
 	public boolean consumeDirty() {

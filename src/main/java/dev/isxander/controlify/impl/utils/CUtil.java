@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.utils;
 import com.mojang.blaze3d.Blaze3D;
 import dev.isxander.controlify.impl.platform.client.PlatformClientUtil;
 import dev.isxander.controlify.impl.utils.log.ControlifyLogger;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.TypedInstance;
 import net.minecraft.util.Util;
@@ -107,9 +108,15 @@ public class CUtil {
 		return (short) Math.round(value * scale);
 	}
 
-	public static <T> boolean isInWithLocalFallback(TypedInstance<T> type, HolderSet<T> items) {
+	public static <T> boolean isInWithLocalFallback(TypedInstance<T> instance, HolderSet<T> items) {
 		return items.unwrapKey()
-			.map(tag -> PlatformClientUtil.isInWithLocalFallback(tag, type.typeHolder()))
-			.orElseGet(() -> type.is(items));
+			.map(tag -> PlatformClientUtil.isInWithLocalFallback(tag, instance.typeHolder()))
+			.orElseGet(() -> instance.is(items));
+	}
+
+	public static <T> boolean isInWithLocalFallback(Holder<T> holder, HolderSet<T> items) {
+		return items.unwrapKey()
+			.map(tag -> PlatformClientUtil.isInWithLocalFallback(tag, holder))
+			.orElseGet(() -> items.contains(holder));
 	}
 }

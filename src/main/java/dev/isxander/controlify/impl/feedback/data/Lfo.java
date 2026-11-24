@@ -9,6 +9,7 @@ package dev.isxander.controlify.impl.feedback.data;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.Optional;
@@ -39,14 +40,14 @@ public record Lfo(float period, Shape shape, Optional<Float> on, float min, floa
 	});
 
 	public float at(float seconds) {
-		float phase = (seconds % this.period) / this.period;
+		float phase = Mth.frac(seconds / this.period);
 		float wave = switch (this.shape) {
 			case SQUARE -> phase * this.period < this.on.orElse(this.period / 2f) ? 1f : 0f;
 			case SAW -> phase;
 			case TRIANGLE -> 1f - Math.abs(phase * 2f - 1f);
 			case SINE -> 0.5f - 0.5f * (float) Math.cos(phase * 2d * Math.PI);
 		};
-		return this.min + (this.max - this.min) * wave;
+		return Mth.lerp(wave, this.min, this.max);
 	}
 
 	public enum Shape implements StringRepresentable {

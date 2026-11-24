@@ -24,7 +24,7 @@ import dev.isxander.controlify.impl.contextual.ContextualDomains;
 import dev.isxander.controlify.impl.contextual.RuleSetManager;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
 import dev.isxander.controlify.impl.controller.dualsense.TriggerEffectManager;
-import dev.isxander.controlify.impl.feedback.FeedbackSourceManager;
+import dev.isxander.controlify.impl.feedback.FeedbackGroupManager;
 import dev.isxander.controlify.impl.feedback.BuiltinFeedback;
 import dev.isxander.controlify.impl.feedback.FeedbackEngine;
 import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
@@ -100,7 +100,7 @@ public class Controlify implements ControlifyApi {
 	private RadialIconManager radialIconManager;
 	private ActivatorConfigManager activatorConfigManager;
 	private ControllerMappingManager controllerMappingManager;
-	private FeedbackSourceManager feedbackSourceManager;
+	private FeedbackGroupManager feedbackGroupManager;
 	private long lastFeedbackUpdateNanos;
 	private long fixedUpdateCount;
 
@@ -149,7 +149,7 @@ public class Controlify implements ControlifyApi {
 		this.radialIconManager = new RadialIconManager();
 		this.activatorConfigManager = new ActivatorConfigManager();
 		this.controllerMappingManager = new ControllerMappingManager();
-		this.feedbackSourceManager = new FeedbackSourceManager();
+		this.feedbackGroupManager = new FeedbackGroupManager();
 
 		PlatformClientUtil.registerAssetReloadListener(this.inputFontMapper);
 		PlatformClientUtil.registerAssetReloadListener(this.defaultBindManager);
@@ -159,7 +159,7 @@ public class Controlify implements ControlifyApi {
 		PlatformClientUtil.registerAssetReloadListener(this.radialIconManager);
 		PlatformClientUtil.registerAssetReloadListener(this.activatorConfigManager);
 		PlatformClientUtil.registerAssetReloadListener(this.controllerMappingManager);
-		PlatformClientUtil.registerAssetReloadListener(this.feedbackSourceManager);
+		PlatformClientUtil.registerAssetReloadListener(this.feedbackGroupManager);
 		PlatformClientUtil.registerAssetReloadListener(new FeedbackEffectManager(FeedbackRegistryImpl.INSTANCE));
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.GUIDE_RULES);
 		PlatformClientUtil.registerAssetReloadListener(RuleSetManager.TRIGGER_EFFECT_RULES);
@@ -182,19 +182,19 @@ public class Controlify implements ControlifyApi {
 		SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
 				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(VibrationPacket.CHANNEL, packet.source(), packet.createEffect(), null, 0f));
+						.play(VibrationPacket.CHANNEL, packet.group(), packet.createEffect(), null, 0f));
 			}
 		});
 		SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
 				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(OriginVibrationPacket.CHANNEL, packet.source(), packet.createEffect(), packet.position(), packet.effectRange()));
+						.play(OriginVibrationPacket.CHANNEL, packet.group(), packet.createEffect(), packet.position(), packet.effectRange()));
 			}
 		});
 		SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
 				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(EntityVibrationPacket.CHANNEL, packet.source(), packet.createEffect(), packet.position(), packet.range()));
+						.play(EntityVibrationPacket.CHANNEL, packet.group(), packet.createEffect(), packet.position(), packet.range()));
 			}
 		});
 		SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
@@ -645,8 +645,8 @@ public class Controlify implements ControlifyApi {
 		return this.controllerMappingManager;
 	}
 
-	public FeedbackSourceManager feedbackSourceManager() {
-		return this.feedbackSourceManager;
+	public FeedbackGroupManager feedbackGroupManager() {
+		return this.feedbackGroupManager;
 	}
 
 	public TriggerEffectManager triggerEffectManager() {

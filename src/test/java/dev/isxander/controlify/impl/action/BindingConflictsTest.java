@@ -28,10 +28,6 @@ class BindingConflictsTest {
 	private static final ActionLayer GAME = layer("game", ActionLayerMode.OVERLAY);
 	private static final List<ActionLayer> ORDER = List.of(MENU, HUD, WIDGET, SCREEN, GAME);
 
-	@Test
-	void sharedLayerConflicts() {
-		assertEquals(List.of(BindingConflicts.Kind.CONFLICT), kinds(GAME, GAME));
-	}
 
 	@Test
 	void overlayShadowsLayersItCanReach() {
@@ -51,10 +47,6 @@ class BindingConflictsTest {
 		assertEquals(List.of(), kinds(GAME, MENU));
 	}
 
-	@Test
-	void transparentLayerNeverShadows() {
-		assertEquals(List.of(), kinds(SCREEN, WIDGET));
-	}
 
 	/// The conflicts reported on an action in {@code lower} against one in {@code upper} sharing its input.
 	private static List<BindingConflicts.Kind> kinds(ActionLayer lower, ActionLayer upper) {

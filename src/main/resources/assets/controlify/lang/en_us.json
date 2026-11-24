@@ -313,7 +313,7 @@
   "controlify.new_features.1.5.0": "Added a radial menu that can be configured to any action you want. You can find it in your controller settings.",
 
   "controlify.vibration_strength.controlify.master": "Master",
-  "controlify.vibration_strength.controlify.master.tooltip": "The strength of all vibrations. Will also affect the strength of all other sources.",
+  "controlify.vibration_strength.controlify.master.tooltip": "The strength of all vibrations. Will also affect the strength of all other groups.",
   "controlify.vibration_strength.controlify.player": "Player",
   "controlify.vibration_strength.controlify.player.tooltip": "Effects that are specific to the player, such as taking damage or eating food.",
   "controlify.vibration_strength.controlify.world": "World",

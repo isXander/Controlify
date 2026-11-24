@@ -192,7 +192,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 			controller.addComponent(this.triggerRumbleComponent = new TriggerRumbleComponent());
 		}
 		if (this.isRGBLedSupported) {
-			controller.addComponent(this.ledComponent = new LEDComponent(1));
+			controller.addComponent(this.ledComponent = new LEDComponent());
 		}
 		if (this.isDualsense) {
 			controller.addComponent(this.dualSenseComponent = new DualsenseComponentImpl());
@@ -274,7 +274,7 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 		if (ledComponent == null) return;
 
 		if (ledComponent.consumeDirty()) {
-			int color = ledComponent.get(0); // SDL only supports one LED
+			int color = ledComponent.color();
 
 			byte red = (byte) ((color >> 16) & 0xFF);
 			byte green = (byte) ((color >> 8) & 0xFF);
@@ -282,8 +282,6 @@ public abstract class SDLCommonDriver<SdlController> implements Driver {
 
 			if (!SDL_SetControllerLED(ptrController, red, green, blue)) {
 				logger.error("Could not set controller LED: {}", sdl.error().SDL_GetError());
-			} else {
-				logger.debugLog("Set controller LED to color: R={}, G={}, B={}", red, green, blue);
 			}
 		}
 	}

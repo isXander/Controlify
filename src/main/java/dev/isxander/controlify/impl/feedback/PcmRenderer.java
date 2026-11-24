@@ -8,6 +8,7 @@ package dev.isxander.controlify.impl.feedback;
 
 import dev.isxander.controlify.api.feedback.Band;
 import dev.isxander.controlify.api.feedback.Site;
+import net.minecraft.util.Mth;
 
 import java.util.Arrays;
 
@@ -132,8 +133,8 @@ public final class PcmRenderer implements FeedbackRenderer {
 				this.burstActive[i] = true;
 				this.burstSite[i] = site;
 				// a dull thud is low and rings on; a crisp tick is high and short
-				this.burstHz[i] = lerp(sharpness, 50f, 250f);
-				this.burstDecay[i] = lerp(sharpness, 0.03f, 0.006f);
+				this.burstHz[i] = Mth.clampedLerp(sharpness, 50f, 250f);
+				this.burstDecay[i] = Mth.clampedLerp(sharpness, 0.03f, 0.006f);
 				this.burstAmp[i] = intensity;
 				this.burstTime[i] = 0f;
 				return;
@@ -179,7 +180,7 @@ public final class PcmRenderer implements FeedbackRenderer {
 
 			for (int i = 0; i < frames; i++) {
 				// ramp the amplitude across the block so level changes never click
-				float amp = from + (to - from) * (i + 1) / frames;
+				float amp = Mth.lerp((float) (i + 1) / frames, from, to);
 				float sample = amp * (float) Math.sin(phase);
 				phase += step;
 				this.buffer[i * 2] += sample * left;
@@ -222,9 +223,5 @@ public final class PcmRenderer implements FeedbackRenderer {
 		}
 
 		this.sink.write(this.buffer, frames);
-	}
-
-	private static float lerp(float t, float from, float to) {
-		return from + (to - from) * Math.clamp(t, 0f, 1f);
 	}
 }

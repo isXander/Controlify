@@ -8,7 +8,7 @@ package dev.isxander.controlify.impl.server.packets;
 
 import dev.isxander.controlify.api.feedback.FeedbackEffect;
 import dev.isxander.controlify.impl.controller.rumble.RumbleState;
-import dev.isxander.controlify.impl.feedback.FeedbackSource;
+import dev.isxander.controlify.impl.feedback.FeedbackGroup;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,7 +18,7 @@ import org.joml.Vector3f;
 
 import java.util.function.Supplier;
 
-public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, FeedbackSource source) {
+public record OriginVibrationPacket(Vector3f origin, float effectRange, int duration, RumbleState state, FeedbackGroup group) {
 	public static final Identifier CHANNEL = CUtil.rl("vibrate_from_origin");
 
 	public static final StreamCodec<FriendlyByteBuf, OriginVibrationPacket> CODEC = StreamCodec.of(
@@ -27,14 +27,14 @@ public record OriginVibrationPacket(Vector3f origin, float effectRange, int dura
 			buf.writeFloat(packet.effectRange());
 			buf.writeVarInt(packet.duration());
 			buf.writeInt(RumbleState.packToInt(packet.state()));
-			buf.writeIdentifier(packet.source().id());
+			buf.writeIdentifier(packet.group().id());
 		},
 		buf -> new OriginVibrationPacket(
 			buf.readVector3f(),
 			buf.readFloat(),
 			buf.readVarInt(),
 			RumbleState.unpackFromInt(buf.readInt()),
-			new FeedbackSource(buf.readIdentifier())
+			new FeedbackGroup(buf.readIdentifier())
 		)
 	);
 

@@ -15,12 +15,16 @@ import java.util.List;
 
 /// Everything the engine needs from the game, so it can run without a Minecraft client.
 public interface FeedbackServices {
-	/// The user's strength multiplier for a playback.
+	/// How a playback is mixed, from the groups it belongs to.
 	///
 	/// @param effectId the effect playing
-	/// @param eventId  the event playing it (or the effect's own id if it is played directly)
-	/// @param fallback the source to use if no resource pack assigns one
-	float gain(Identifier effectId, Identifier eventId, FeedbackSource fallback);
+	/// @param fallback the group to use if no resource pack assigns one
+	Mixing mixing(Identifier effectId, FeedbackGroup fallback);
+
+	/// @param gain the user's strength multiplier
+	/// @param rank the rank of the playback's groups; higher ranks draw on top
+	record Mixing(float gain, int rank) {
+	}
 
 	/// Whether the user has vibration enabled. If not, all renderers are silenced.
 	boolean enabled();

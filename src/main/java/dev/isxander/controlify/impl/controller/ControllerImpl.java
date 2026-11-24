@@ -28,6 +28,7 @@ import dev.isxander.controlify.impl.driver.Driver;
 import dev.isxander.controlify.impl.feedback.DualMotorRenderer;
 import dev.isxander.controlify.impl.feedback.FeedbackEngine;
 import dev.isxander.controlify.impl.feedback.FeedbackRenderer;
+import dev.isxander.controlify.impl.feedback.LightRenderer;
 import dev.isxander.controlify.impl.feedback.LiveFeedbackServices;
 import dev.isxander.controlify.impl.feedback.PcmRenderer;
 import dev.isxander.controlify.impl.feedback.SwitchingRenderer;
@@ -161,6 +162,7 @@ public final class ControllerImpl implements Controller {
 		}
 
 		this.triggerRumble().ifPresent(triggers -> renderers.add(new TriggerMotorRenderer(triggers::queueTriggerRumble)));
+		this.led().ifPresent(led -> renderers.add(new LightRenderer(led::setColor, LEDComponent.DEFAULT_COLOR)));
 
 		return new FeedbackEngine(new LiveFeedbackServices(this), renderers);
 	}
