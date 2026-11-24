@@ -33,8 +33,7 @@ public class KeybindContentsMixin {
 	@Final
 	private String name;
 
-	@Unique
-	private @Nullable Identifier nameAsIdentifier;
+	@Unique private @Nullable Identifier nameAsIdentifier;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void parseNameAsIdentifier(String name, CallbackInfo ci) {
@@ -44,7 +43,7 @@ public class KeybindContentsMixin {
 	@WrapMethod(method = "visit(Lnet/minecraft/network/chat/FormattedText$StyledContentConsumer;Lnet/minecraft/network/chat/Style;)Ljava/util/Optional;")
 	private <T> Optional<T> replaceWrapperFont(FormattedText.StyledContentConsumer<T> output, Style currentStyle, Operation<Optional<T>> original) {
 		boolean wrapperFont = currentStyle.getFont() instanceof FontDescription.Resource(Identifier font)
-							  && ActionGlyphsImpl.WRAPPER_FONT.equals(font);
+							&& ActionGlyphsImpl.WRAPPER_FONT.equals(font);
 
 		if (wrapperFont) {
 			Style styleWithoutWrapper = currentStyle.withFont(null);
