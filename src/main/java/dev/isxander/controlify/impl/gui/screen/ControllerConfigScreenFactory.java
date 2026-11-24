@@ -96,7 +96,7 @@ public class ControllerConfigScreenFactory {
 		var aimingCategory = createAimingCategory(settings, defaults, controller);
 		var bindsCategory = makeBindsCategory(settings, defaults, controller);
 		var interfaceCategory = createInterfaceCategory(settings, defaults, controller);
-		var hapticsCategory = createHapticsCategory(settings, defaults, controller);
+		var feedbackCategory = createFeedbackCategory(settings, defaults, controller);
 		var hardwareCategory = createHardwareCategory(settings, defaults, controller);
 		var generalCategory = createGeneralCategory(settings, defaults, controller); // must be last for new options
 
@@ -113,7 +113,7 @@ public class ControllerConfigScreenFactory {
 
 		bindsCategory.ifPresent(yacl::category);
 		yacl.category(interfaceCategory);
-		yacl.category(hapticsCategory);
+		yacl.category(feedbackCategory);
 		hardwareCategory.ifPresent(yacl::category);
 
 		return yacl.build().generateScreen(parent);
@@ -172,15 +172,16 @@ public class ControllerConfigScreenFactory {
 		return builder.build();
 	}
 
-	private ConfigCategory createHapticsCategory(
+	private ConfigCategory createFeedbackCategory(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
 	) {
 		var builder = ConfigCategory.createBuilder()
-				.name(Component.translatable("controlify.gui.config.category.haptics"));
+				.name(Component.translatable("controlify.gui.config.category.feedback"));
 
-		makeVibrationGroup(settings, defaults, controller).ifPresent(builder::group);
+		makeVibrationGroups(settings, defaults, controller).forEach(builder::group);
+		makeLightGroup(settings, defaults, controller).ifPresent(builder::group);
 		makeTriggerEffectsGroup(settings, defaults, controller).ifPresent(builder::group);
 
 		return builder.build();
@@ -672,7 +673,7 @@ public class ControllerConfigScreenFactory {
 				.build());
 	}
 
-	private Optional<OptionGroup> makeVibrationGroup(
+	private List<OptionGroup> makeVibrationGroups(
 			ProfileSettings settings,
 			ProfileSettings defaults,
 			Optional<ControllerImpl> controller
@@ -683,9 +684,13 @@ public class ControllerConfigScreenFactory {
 						.text(Component.translatable("controlify.gui.group.vibration.tooltip"))
 						.build());
 
-		if (controller.isPresent() && controller.get().rumble().isEmpty()) {
-			vibrationGroup.option(LabelOption.create(notSupportedText(Component.translatable("controlify.gui.group.vibration"))));
-		}
+		var groupsGroup = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.feedback_groups"))
+				.description(OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.group.feedback_groups.tooltip"))
+						.build());
+
+		boolean rumbleNotSupported = controller.isPresent() && controller.get().rumble().isEmpty();
 
 		List<Option<Float>> strengthOptions = new ArrayList<>();
 		Option<Boolean> allowVibrationOption;
@@ -693,6 +698,7 @@ public class ControllerConfigScreenFactory {
 				.name(Component.translatable("controlify.gui.allow_vibrations"))
 				.description(OptionDescription.createBuilder()
 						.text(Component.translatable("controlify.gui.allow_vibrations.tooltip"))
+						.text(rumbleNotSupported ? notSupportedText(Component.translatable("controlify.gui.allow_vibrations")) : Component.empty())
 						.build())
 				.binding(defaults.rumble.enabled, () -> settings.rumble.enabled, v -> settings.rumble.enabled = v)
 				.addListener((opt, event) -> strengthOptions.forEach(so -> so.setAvailable(opt.pendingValue())))
@@ -734,7 +740,7 @@ public class ControllerConfigScreenFactory {
 					.available(allowVibrationOption.pendingValue())
 					.build();
 			strengthOptions.add(option);
-			vibrationGroup.option(option);
+			groupsGroup.option(option);
 		}
 		if (controller.isPresent() && controller.get().rumble().isPresent()) {
 			ControllerImpl testController = controller.get();
@@ -756,7 +762,30 @@ public class ControllerConfigScreenFactory {
 					.build());
 		}
 
-		return Optional.of(vibrationGroup.build());
+		return List.of(vibrationGroup.build(), groupsGroup.build());
+	}
+
+	private Optional<OptionGroup> makeLightGroup(
+			ProfileSettings settings,
+			ProfileSettings defaults,
+			Optional<ControllerImpl> controller
+	) {
+		var lightGroup = OptionGroup.createBuilder()
+				.name(Component.translatable("controlify.gui.group.lights"))
+				.description(OptionDescription.of(Component.translatable("controlify.gui.group.lights.tooltip")));
+
+		boolean notSupported = controller.isPresent() && controller.get().led().isEmpty();
+		lightGroup.option(Option.<Boolean>createBuilder()
+				.name(Component.translatable("controlify.gui.led_effects"))
+				.description(OptionDescription.createBuilder()
+						.text(Component.translatable("controlify.gui.led_effects.tooltip"))
+						.text(notSupported ? notSupportedText(Component.translatable("controlify.gui.led_effects")) : Component.empty())
+						.build())
+				.binding(defaults.light.enabled, () -> settings.light.enabled, v -> settings.light.enabled = v)
+				.controller(TickBoxControllerBuilder::create)
+				.build());
+
+		return Optional.of(lightGroup.build());
 	}
 
 	private List<OptionGroup> makeGyroGroups(

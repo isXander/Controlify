@@ -70,6 +70,7 @@ public final class ControlifyDataFixer {
 
 		var v14 = builder.addSchema(14, ControlifySchemas.V14::new);
 		builder.addFixer(new InitialiseSteamApiFix(v14, globalDefaults));
+		builder.addFixer(new LedEffectsFix(v14, profileDefaults));
 
 		return builder.build().fixer();
 	}

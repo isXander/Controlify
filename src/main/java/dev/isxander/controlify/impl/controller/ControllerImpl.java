@@ -162,7 +162,11 @@ public final class ControllerImpl implements Controller {
 		}
 
 		this.triggerRumble().ifPresent(triggers -> renderers.add(new TriggerMotorRenderer(triggers::queueTriggerRumble)));
-		this.led().ifPresent(led -> renderers.add(new LightRenderer(led::setColor, LEDComponent.DEFAULT_COLOR)));
+		this.led().ifPresent(led -> renderers.add(new SwitchingRenderer(
+				() -> this.settings().light.enabled,
+				new LightRenderer(led::setColor, LEDComponent.DEFAULT_COLOR),
+				FeedbackRenderer.NONE
+		)));
 
 		return new FeedbackEngine(new LiveFeedbackServices(this), renderers);
 	}
