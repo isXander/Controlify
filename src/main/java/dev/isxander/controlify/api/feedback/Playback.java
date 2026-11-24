@@ -6,10 +6,13 @@
  */
 package dev.isxander.controlify.api.feedback;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /// The state of one running playback of a [FeedbackEffect], owned by the engine.
 /// Playbacks are sampled once per rendered frame, not once per game tick.
 ///
 /// @param <P> the params type of the event the effect is playing for
+@ApiStatus.NonExtendable
 public interface Playback<P> {
 	/// Seconds since the playback started. Zero on the first sample.
 	float seconds();

@@ -7,6 +7,7 @@
 package dev.isxander.controlify.api.action;
 
 import dev.isxander.controlify.api.input.LogicalInput;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
@@ -23,7 +24,7 @@ public record ActionBinding(LogicalInput input, Optional<Gesture> gesture) {
 		return new ActionBinding(input);
 	}
 
-	public ActionBinding withGesture(Optional<Gesture> gesture) {
-		return new ActionBinding(this.input, gesture);
+	public ActionBinding withGesture(@Nullable Gesture gesture) {
+		return new ActionBinding(this.input, Optional.ofNullable(gesture));
 	}
 }

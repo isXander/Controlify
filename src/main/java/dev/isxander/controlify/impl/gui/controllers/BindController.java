@@ -120,7 +120,7 @@ public class BindController implements Controller<List<ActionBinding>> {
 		ActionBinding binding = this.slot(slot).orElseThrow();
 		Gesture current = leaf.gestureFor(binding).orElse(defaultGesture);
 		Gesture next = choices.get((choices.indexOf(current) + 1) % choices.size());
-		this.setSlot(slot, Optional.of(binding.withGesture(next == defaultGesture ? Optional.empty() : Optional.of(next))));
+		this.setSlot(slot, Optional.of(binding.withGesture(next == defaultGesture ? null : next)));
 	}
 
 	private Component slotText(int slot) {

@@ -7,12 +7,14 @@
 package dev.isxander.controlify.api.screenop;
 
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import org.jetbrains.annotations.ApiStatus;
 
 /// Registers additive element behaviour factories during
 /// [ScreenopEvents#REGISTER_ELEMENT_BEHAVIOURS].
 /// This registry belongs to one screen context, so the same element type can receive different support on different screens.
 /// Matching registrations compose rather than replace one another. Registration is
 /// only allowed while the event is being dispatched.
+@ApiStatus.NonExtendable
 public interface ElementBehaviourRegistry {
 	/// Adds a factory for the supplied type and its subtypes at an explicit priority.
 	/// Higher priorities run first. Within a priority, more specific assignable types run

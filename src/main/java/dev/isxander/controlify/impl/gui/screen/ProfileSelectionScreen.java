@@ -486,7 +486,7 @@ public class ProfileSelectionScreen extends Screen {
 		}
 
 		@Override
-		public void handleInteraction(Controller controller, Runnable next) {
+		public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
 			if (this.screen.selectedProfileIndex >= 0
 				&& ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
 				this.screen.switchProfile(this.screen.selectedProfileIndex, false);

@@ -10,6 +10,7 @@ import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.action.ActionSpecBuilderImpl;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Comparator;
 import java.util.Set;
@@ -42,6 +43,7 @@ public record ActionSpec(
 		Set<Identifier> contexts,
 		Predicate<Controller> shouldExpose
 ) implements Comparable<ActionSpec> {
+	@ApiStatus.Internal
 	public ActionSpec {
 		contexts = Set.copyOf(contexts);
 	}

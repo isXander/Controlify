@@ -12,6 +12,8 @@ import dev.isxander.controlify.impl.contextual.ContextualDomains;
 public final class BuiltinContextualDomains {
 
 	public static final ContextualDomain<InGameContext> IN_GAME = ContextualDomains.INSTANCE.inGame();
-
 	public static final ContextualDomain<ContainerContext> CONTAINER = ContextualDomains.INSTANCE.container();
+
+	private BuiltinContextualDomains() {
+	}
 }

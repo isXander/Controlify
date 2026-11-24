@@ -101,7 +101,7 @@ public final class ContainerScreenBehaviour implements ScreenBehaviour {
 				Minecraft.getInstance().player, slot, screen.getMenu().getCarried(),
 				geometry.controlify$invokeHasClickedOutside(mouse.getCurrentX(1f), mouse.getCurrentY(1f),
 						geometry.controlify$getLeftPos(), geometry.controlify$getTopPos()),
-				(ControllerImpl) controller, settings.verbosity
+				controller
 		));
 		guideRenderer.setGuiScale(settings.screenGuiScale);
 		guideRenderer.extractRenderState(graphics, (int) mouse.getCurrentX(tickDelta), (int) mouse.getCurrentY(tickDelta), tickDelta);

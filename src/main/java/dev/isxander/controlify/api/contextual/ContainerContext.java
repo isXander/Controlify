@@ -7,6 +7,7 @@
 package dev.isxander.controlify.api.contextual;
 
 import dev.isxander.controlify.api.controller.Controller;
+import dev.isxander.controlify.impl.controller.ControllerImpl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +18,10 @@ public record ContainerContext(
 		@Nullable Slot hoveredSlot,
 		ItemStack holdingItem,
 		boolean cursorOutsideContainer,
-		Controller controller,
-		GuideVerbosity verbosity
+		Controller controller
 ) implements Context {
+	@Override
+	public GuideVerbosity verbosity() {
+		return ((ControllerImpl) controller).settings().generic.guide.verbosity;
+	}
 }

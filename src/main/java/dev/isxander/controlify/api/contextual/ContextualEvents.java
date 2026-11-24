@@ -15,5 +15,6 @@ public final class ContextualEvents {
 	/// closes afterwards; the registry and existing domains may be retained.
 	public static final EventSource<ContextualDomainRegistry> REGISTER_DOMAINS = ContextualDomains.Events.REGISTER_DOMAINS;
 
-	private ContextualEvents() {}
+	private ContextualEvents() {
+	}
 }

@@ -9,12 +9,14 @@ package dev.isxander.controlify.api.action;
 import dev.isxander.controlify.api.controller.Controller;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Predicate;
 
 /// Configures how existing actions proxy operations in Minecraft.
 /// Supplied by {@link ActionEvents#REGISTER_PROXIES}, immediately after action-spec registration.
 /// Configure proxies and automatic-proxy exclusions in that event; registrations close after startup setup.
+@ApiStatus.NonExtendable
 public interface ActionProxyManager {
 	/// Prevents automatic creation of an action for this key mapping.
 	/// Does not prevent explicitly proxying it through an existing action.

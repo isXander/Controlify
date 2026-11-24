@@ -11,6 +11,7 @@ import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.gui.ButtonGuideApi;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 /// [ScreenBehaviour#onWidgetRebuild] instead.
 ///
 /// @param <T> the screen type exposed to this behaviour
+@ApiStatus.NonExtendable
 public interface ScreenContext<T extends Screen> {
 	/// Returns the screen owning this context.
 	///

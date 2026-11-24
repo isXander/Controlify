@@ -7,12 +7,14 @@
 package dev.isxander.controlify.api.action;
 
 import dev.isxander.controlify.api.input.LogicalInput;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
 /// An action is bound to any number of logical inputs and has an activator tree
 /// that determines how its output channels respond to them.
+@ApiStatus.NonExtendable
 public interface Action {
 	ActionSpec spec();
 

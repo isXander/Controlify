@@ -6,9 +6,11 @@
  */
 package dev.isxander.controlify.api.controller.gyro;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3fc;
 
 /// Gyroscope input. Presence in Controller.gyro() indicates gyro support.
+@ApiStatus.NonExtendable
 public interface GyroComponent {
 	/// The latest calibrated, filtered and integrated gyro interval in radians.
 	/// Returns zero when the latest interval is older than 50ms. Read-only;

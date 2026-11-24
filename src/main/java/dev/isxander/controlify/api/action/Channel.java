@@ -6,15 +6,19 @@
  */
 package dev.isxander.controlify.api.action;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /// A channel is a way of interpreting the output state of a given {@link Action}.
 /// An {@link Action action's} bindings sends output to any of these channels.
 public sealed interface Channel {
 	/// A channel which gives a continuous float value, such as an axis/joystick.
+	@ApiStatus.NonExtendable
 	non-sealed interface Continuous extends Channel {
 		float getContinuous();
 	}
 
 	/// A channel which gives single pulses, for example a button press causing a jump.
+	@ApiStatus.NonExtendable
 	non-sealed interface Pulse extends Channel {
 		/// Consumes one available pulse
 		/// Typically you would use this with a `while` statement.
@@ -28,6 +32,7 @@ public sealed interface Channel {
 	}
 
 	/// A channel which gives a stateful digital output of the action, for example a physical switch's state.
+	@ApiStatus.NonExtendable
 	non-sealed interface Latch extends Channel {
 		boolean isLatchActive();
 	}

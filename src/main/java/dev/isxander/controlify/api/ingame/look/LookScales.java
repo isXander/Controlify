@@ -6,7 +6,10 @@
  */
 package dev.isxander.controlify.api.ingame.look;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /// Where a [LookScaler] multiplies the look contributions for the frame.
+@ApiStatus.NonExtendable
 public interface LookScales {
 	/// Multiplies rate contributions.
 	void rate(double yaw, double pitch);

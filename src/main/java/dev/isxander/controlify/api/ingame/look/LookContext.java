@@ -8,6 +8,7 @@ package dev.isxander.controlify.api.ingame.look;
 
 import dev.isxander.controlify.api.controller.Controller;
 import net.minecraft.client.player.LocalPlayer;
+import org.jetbrains.annotations.ApiStatus;
 
 /// What a look frame knows. Built once per frame and shared by every source and scaler.
 ///
@@ -23,4 +24,7 @@ public record LookContext(
 		float yaw,
 		float pitch
 ) {
+	@ApiStatus.Internal
+	public LookContext {
+	}
 }

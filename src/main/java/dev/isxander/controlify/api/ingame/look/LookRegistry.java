@@ -7,9 +7,11 @@
 package dev.isxander.controlify.api.ingame.look;
 
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 /// Where addons register look sources and scalers. See [LookEvents#REGISTER].
 /// Each controller gets its own instance, created from the factory.
+@ApiStatus.NonExtendable
 public interface LookRegistry {
 	/// @throws IllegalStateException if registration has closed or the id is already a source
 	void registerSource(Identifier id, LookSourceFactory factory);

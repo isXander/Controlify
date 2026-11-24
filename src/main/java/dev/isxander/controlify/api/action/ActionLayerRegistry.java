@@ -8,6 +8,7 @@ package dev.isxander.controlify.api.action;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 import java.util.function.Predicate;
@@ -18,10 +19,12 @@ import java.util.function.Predicate;
 /// Layers form an ordered stack. Input is delivered from the top of the stack down,
 /// and each active layer's {@link ActionLayerMode} decides what reaches the layers below it.
 /// Order is declared relative to other layers, so layers may reference ones registered later.
+@ApiStatus.NonExtendable
 public interface ActionLayerRegistry {
 	/// Starts registering a layer. Nothing is registered until {@link Builder#register()} is called.
 	Builder layer(Identifier id);
 
+	@ApiStatus.NonExtendable
 	interface Builder {
 		/// Defaults to {@link ActionLayerMode#OVERLAY}.
 		@Contract("_ -> this")

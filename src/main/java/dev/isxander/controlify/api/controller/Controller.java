@@ -10,10 +10,12 @@ import dev.isxander.controlify.api.controller.dualsense.DualsenseComponent;
 import dev.isxander.controlify.api.controller.input.InputComponent;
 import dev.isxander.controlify.api.controller.gyro.GyroComponent;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Optional;
 
 /// The API-safe controller instance.
+@ApiStatus.NonExtendable
 public interface Controller {
 	/// The unique identifier of this controller.
 	/// The same physical controller should have the same

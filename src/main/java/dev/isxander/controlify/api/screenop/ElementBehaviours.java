@@ -32,8 +32,6 @@ import java.util.function.Predicate;
 /// virtual mouse is enabled. They do not check arbitrary element availability; use
 /// [#conditional] or [#enabledWidget] when an enabled or visible check is needed.
 public final class ElementBehaviours {
-	private ElementBehaviours() {
-	}
 
 	/// Composes a fixed ordered group without assigning priorities to individual members.
 	/// Each member's `next` invokes the following member; the last `next` resumes the
@@ -227,5 +225,8 @@ public final class ElementBehaviours {
 	/// @return the layout-based snap point behaviour
 	public static ElementBehaviour snapPoint(LayoutElement element) {
 		return new LayoutElementSnapBehaviour(element);
+	}
+
+	private ElementBehaviours() {
 	}
 }

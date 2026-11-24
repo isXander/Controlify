@@ -10,6 +10,7 @@ import dev.isxander.controlify.api.ControlifyApi;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.controllermanager.ControllerCoordinator;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 public final class ControllerEvents {
@@ -27,9 +28,19 @@ public final class ControllerEvents {
 	/// Fires after activation, input-mode and handler updates. Null means selection was cleared.
 	public static final EventSource<CurrentControllerChanged> CURRENT_CONTROLLER_CHANGED = ControllerCoordinator.Events.CURRENT_CONTROLLER_CHANGED;
 
-	public record ControllerConnected(ControlifyApi controlify, Controller controller, boolean hotplugged) {}
-	public record ControllerDisconnected(ControlifyApi controlify, Controller controller) {}
-	public record CurrentControllerChanged(ControlifyApi controlify, @Nullable Controller controller) {}
+	public record ControllerConnected(ControlifyApi controlify, Controller controller, boolean hotplugged) {
+		@ApiStatus.Internal
+		public ControllerConnected {}
+	}
+	public record ControllerDisconnected(ControlifyApi controlify, Controller controller) {
+		@ApiStatus.Internal
+		public ControllerDisconnected {}
+	}
+	public record CurrentControllerChanged(ControlifyApi controlify, @Nullable Controller controller) {
+		@ApiStatus.Internal
+		public CurrentControllerChanged {}
+	}
 
-	private ControllerEvents() {}
+	private ControllerEvents() {
+	}
 }

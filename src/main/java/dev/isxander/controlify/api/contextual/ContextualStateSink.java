@@ -11,8 +11,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+@ApiStatus.NonExtendable
 public interface ContextualStateSink {
 	void contributeFact(Identifier id, boolean value);
 

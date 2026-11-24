@@ -6,16 +6,16 @@
  */
 package dev.isxander.controlify.api;
 
-import dev.isxander.controlify.api.contextual.BuiltinContextualDomains;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.Controlify;
-import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
 import java.util.Optional;
 
 /// Live client queries and operations. Access through {@link #get()} or event payloads;
 /// consumers do not need to retain the API or reconstruct state from notifications.
+@ApiStatus.NonExtendable
 public interface ControlifyApi {
 	/// Returns the shared client API without initializing its subsystems. Action-spec and
 	/// contextual-domain registries must still be obtained through their registration events; INITIALIZED

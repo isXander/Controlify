@@ -9,10 +9,12 @@ package dev.isxander.controlify.api.action;
 import dev.isxander.controlify.api.controller.Controller;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 
 import java.util.function.Predicate;
 
+@ApiStatus.NonExtendable
 public interface ActionSpecBuilder {
 	@Contract("_ -> this")
 	ActionSpecBuilder id(Identifier id);

@@ -17,8 +17,6 @@ import java.util.function.BooleanSupplier;
 /// between invocations. Composition controls propagation within each callback;
 /// it does not consume action pulses or merge navigation and interaction into one stage.
 public final class ScreenBehaviours {
-	private ScreenBehaviours() {
-	}
 
 	/// Composes a fixed ordered group of behaviours without assigning member priorities.
 	/// For callbacks with a continuation, each member's `next` invokes the following member;
@@ -77,5 +75,8 @@ public final class ScreenBehaviours {
 	/// @return the branch behaviour
 	public static ScreenBehaviour branch(ScreenBehaviour behaviour) {
 		return CompositeScreenBehaviour.branch(behaviour);
+	}
+
+	private ScreenBehaviours() {
 	}
 }

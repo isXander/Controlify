@@ -9,12 +9,14 @@ package dev.isxander.controlify.api.action;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.controller.input.InputComponent;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Optional;
 
 /// Resolves the current action on a controller or input component. Retain this accessor;
 /// profile changes may replace resolved action instances.
+@ApiStatus.NonExtendable
 public interface ActionAccessor {
 	/// The identifier of the action this accessor tries to retrieve
 	Identifier actionId();

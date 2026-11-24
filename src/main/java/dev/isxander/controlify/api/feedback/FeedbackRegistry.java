@@ -7,11 +7,13 @@
 package dev.isxander.controlify.api.feedback;
 
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
 /// Where addons register their own events and code effects. See [FeedbackEvents#REGISTER].
 ///
 /// Most effects should be data: a file at `assets/<namespace>/controller/feedback/<path>.json`
 /// needs no registration and always wins over a code effect with the same id.
+@ApiStatus.NonExtendable
 public interface FeedbackRegistry {
 	/// Registers an event so it appears in diagnostics. Events work without registration.
 	///

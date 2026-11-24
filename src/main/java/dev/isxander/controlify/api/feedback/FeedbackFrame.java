@@ -6,11 +6,14 @@
  */
 package dev.isxander.controlify.api.feedback;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /// The neutral output signal of one sample of an effect.
 ///
 /// Effects describe *what* should be felt; renderers decide how a given controller can
 /// reproduce it. Amplitudes are 0 to 1. Writing the same band twice in one sample keeps the
 /// larger value. Light is the exception: see [#light(float, float, float, float)].
+@ApiStatus.NonExtendable
 public interface FeedbackFrame {
 	/// Drives a vibration band at a site. Every controller can reproduce this.
 	void band(Site site, Band band, float amp);

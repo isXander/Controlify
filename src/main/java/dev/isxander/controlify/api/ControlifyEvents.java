@@ -8,6 +8,7 @@ package dev.isxander.controlify.api;
 
 import dev.isxander.controlify.api.utils.event.EventSource;
 import dev.isxander.controlify.impl.Controlify;
+import org.jetbrains.annotations.ApiStatus;
 
 public final class ControlifyEvents {
 	/// Fires once when runtime managers and queries are usable, before backend setup
@@ -17,7 +18,10 @@ public final class ControlifyEvents {
 	/// Fires after Controlify has applied the new input mode and updated its handlers.
 	public static final EventSource<InputModeChanged> INPUT_MODE_CHANGED = Controlify.Events.INPUT_MODE_CHANGED;
 
-	public record InputModeChanged(ControlifyApi controlify, InputMode mode) {}
+	public record InputModeChanged(ControlifyApi controlify, InputMode mode) {
+		@ApiStatus.Internal
+		public InputModeChanged {}
+	}
 
 	private ControlifyEvents() {}
 }

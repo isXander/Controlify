@@ -6,11 +6,9 @@
  */
 package dev.isxander.controlify.api.gui.keyboard;
 
-/**
- * Represents a target/consumer for keyboard input.
- * A target accepts input from the on-screen keyboard.
- * It can have various capabilities, all of which are optional to implement.
- */
+/// Represents a target/consumer for keyboard input.
+/// A target accepts input from the on-screen keyboard.
+/// It can have various capabilities, all of which are optional to implement.
 public interface InputTarget {
 	InputTarget EMPTY = new InputTarget() {
 	};

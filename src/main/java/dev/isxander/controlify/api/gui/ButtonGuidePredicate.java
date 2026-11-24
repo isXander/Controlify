@@ -16,8 +16,8 @@ public interface ButtonGuidePredicate<T> {
 		return AbstractWidget::isFocused;
 	}
 
-	/** Always display the button guide. */
+	/// Always display the button guide.
 	static <T> ButtonGuidePredicate<T> always() {
-		return btn -> true;
+		return _ -> true;
 	}
 }

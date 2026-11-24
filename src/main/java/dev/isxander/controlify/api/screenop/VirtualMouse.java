@@ -8,6 +8,7 @@ package dev.isxander.controlify.api.screenop;
 
 import dev.isxander.controlify.api.controller.Controller;
 import net.minecraft.client.gui.navigation.ScreenDirection;
+import org.jetbrains.annotations.ApiStatus;
 
 /// Shared cursor state and operations for one [ScreenContext].
 /// The [mode][#mode()] is the screen's policy; [#isEnabled()] reports
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.navigation.ScreenDirection;
 /// Cursor positions returned here use window mouse coordinates, before GUI scaling.
 /// [SnapPoint] positions instead use scaled GUI coordinates; snapping performs the
 /// conversion. Automatic movement, scrolling, and clicks are provided by screen behaviours.
+@ApiStatus.NonExtendable
 public interface VirtualMouse {
 	/// Returns the configured policy, which can differ from the current enabled state.
 	/// [VirtualMouseMode#DEFAULT] is a distinct policy that follows the saved screen

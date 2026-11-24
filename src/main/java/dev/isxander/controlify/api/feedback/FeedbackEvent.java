@@ -9,6 +9,7 @@ package dev.isxander.controlify.api.feedback;
 import dev.isxander.controlify.impl.feedback.FeedbackEventImpl;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.Nullable;
 
 /// Something that happens in the game that the player should feel ("when").
@@ -25,6 +26,7 @@ import org.jspecify.annotations.Nullable;
 /// use [#fire()] and [#hold()].
 ///
 /// @param <P> the type the emit site passes its game-derived numbers in
+@ApiStatus.NonExtendable
 public interface FeedbackEvent<P> {
 	Identifier id();
 
@@ -60,11 +62,13 @@ public interface FeedbackEvent<P> {
 
 	/// Extracts one named float from the emit site's params.
 	@FunctionalInterface
+	@ApiStatus.NonExtendable
 	interface ParamSource<P> {
 		float get(P params);
 	}
 
 	/// A builder for an event with no params declared yet.
+	@ApiStatus.NonExtendable
 	interface Builder {
 		<P> TypedBuilder<P> param(String name, ParamSource<P> source);
 
@@ -74,6 +78,7 @@ public interface FeedbackEvent<P> {
 		FeedbackEvent<Void> build();
 	}
 
+	@ApiStatus.NonExtendable
 	interface TypedBuilder<P> {
 		TypedBuilder<P> param(String name, ParamSource<P> source);
 

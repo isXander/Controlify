@@ -8,7 +8,9 @@ package dev.isxander.controlify.api.contextual;
 
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.ApiStatus;
 
+@ApiStatus.NonExtendable
 public interface ContextualDomain<C extends Context> {
 	Identifier id();
 

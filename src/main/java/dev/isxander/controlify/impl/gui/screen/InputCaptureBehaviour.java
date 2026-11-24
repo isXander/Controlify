@@ -10,6 +10,7 @@ import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.api.screenop.ScreenBehaviour;
 import dev.isxander.controlify.api.screenop.ScreenContext;
 import dev.isxander.controlify.api.screenop.VirtualMouseMode;
+import org.jspecify.annotations.NonNull;
 
 /// Physical input is handled by a dedicated subscription rather than GUI actions.
 public final class InputCaptureBehaviour implements ScreenBehaviour {
@@ -18,12 +19,12 @@ public final class InputCaptureBehaviour implements ScreenBehaviour {
 	}
 
 	@Override
-	public void handleNavigation(Controller controller, Runnable next) {
+	public void handleNavigation(@NonNull Controller controller, @NonNull Runnable next) {
 		// Captured input must not also navigate the screen.
 	}
 
 	@Override
-	public void handleInteraction(Controller controller, Runnable next) {
+	public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
 		// Captured input must not also activate controls.
 	}
 }

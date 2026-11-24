@@ -23,8 +23,6 @@ import net.minecraft.resources.Identifier;
 /// They preserve the component's action reference across vanilla component serialization.
 /// Use a fallback variant for components that may reach clients without Controlify.
 public final class ActionGlyphs {
-	private ActionGlyphs() {
-	}
 
 	/// Creates a glyph component for an action, regardless of the client's current input mode.
 	/// Without a selected controller or Controlify, the keybind text is displayed instead;
@@ -64,5 +62,8 @@ public final class ActionGlyphs {
 	/// Equivalent to {@link #actionWithActiveFallback(Identifier, Component)}, using the accessor's identifier.
 	public static Component actionWithActiveFallback(ActionAccessor action, Component fallback) {
 		return actionWithActiveFallback(action.actionId(), fallback);
+	}
+
+	private ActionGlyphs() {
 	}
 }

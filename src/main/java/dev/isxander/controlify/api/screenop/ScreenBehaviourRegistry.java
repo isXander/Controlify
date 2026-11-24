@@ -7,12 +7,14 @@
 package dev.isxander.controlify.api.screenop;
 
 import net.minecraft.client.gui.screens.Screen;
+import org.jetbrains.annotations.ApiStatus;
 
 /// Registers additive screen behaviour factories during
 /// [ScreenopEvents#REGISTER_SCREEN_BEHAVIOURS].
 /// This registry is global to screen types.
 /// Matching registrations compose rather than replace one another. Registration is
 /// only allowed while the event is being dispatched.
+@ApiStatus.NonExtendable
 public interface ScreenBehaviourRegistry {
 	/// Adds a factory for the supplied type and its subtypes at an explicit priority.
 	/// Higher priorities run first. Within a priority, more specific assignable types run
