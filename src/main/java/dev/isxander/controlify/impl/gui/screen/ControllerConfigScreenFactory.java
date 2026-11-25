@@ -626,6 +626,10 @@ public class ControllerConfigScreenFactory {
 						.range(50, 500).step(10)
 						.formatValue(millisFormatter))
 				.addListener((opt, event) -> {
+					// YACL fires listeners while each option is still being built, before both exist.
+					if (gestureOptions.size() < 2) {
+						return;
+					}
 					Option<Integer> longPress = gestureOptions.get(1);
 					if (longPress.pendingValue() <= opt.pendingValue()) {
 						longPress.requestSet(Math.min(1500, (opt.pendingValue() / 50 + 1) * 50));
@@ -642,6 +646,10 @@ public class ControllerConfigScreenFactory {
 						.range(200, 1500).step(50)
 						.formatValue(millisFormatter))
 				.addListener((opt, event) -> {
+					// YACL fires listeners while each option is still being built, before both exist.
+					if (gestureOptions.size() < 2) {
+						return;
+					}
 					Option<Integer> tapMax = gestureOptions.get(0);
 					if (tapMax.pendingValue() >= opt.pendingValue()) {
 						tapMax.requestSet(Math.max(50, (opt.pendingValue() - 1) / 10 * 10));

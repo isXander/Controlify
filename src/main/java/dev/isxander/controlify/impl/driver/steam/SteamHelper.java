@@ -51,6 +51,9 @@ public final class SteamHelper {
 			int res = steam.SteamAPI_InitFlat(errorMessage);
 			if (res == SteamApi.k_ESteamAPIInitResult_OK) {
 				CUtil.LOGGER.log("Successfully initialised Steam API");
+			} else if (res == SteamApi.k_ESteamAPIInitResult_NoSteamClient) {
+				// the common case of Steam simply not running; nothing needs initialising
+				CUtil.LOGGER.log("Steam is not running, skipping Steam API initialisation");
 			} else {
 				CUtil.LOGGER.error("Failed to initialise Steam API: {} / {}", res, errorMessage[0]);
 			}
