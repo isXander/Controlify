@@ -45,22 +45,24 @@ public class SimpleVoiceChatCompat {
 
 	private static void registerActions(ActionSpecRegistry registry) {
 		Component category = Component.translatable("key.categories.voicechat");
-		pttHoldSupplier = register(registry, category, "ptt_hold", Component.translatable("controlify.action.voicechat.ptt_hold"));
-		pttToggleSupplier = register(registry, category, "ptt_toggle", Component.translatable("controlify.action.voicechat.ptt_toggle"));
+		// Voice chat keeps working while a screen is open, so these are also active on screens.
+		pttHoldSupplier = register(registry, category, "ptt_hold", Component.translatable("controlify.action.voicechat.ptt_hold"), true);
+		pttToggleSupplier = register(registry, category, "ptt_toggle", Component.translatable("controlify.action.voicechat.ptt_toggle"), true);
 		whisperHoldSupplier = register(registry, category, "whisper_hold", Component.translatable("key.whisper")
-				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")));
+				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.hold")), true);
 		whisperToggleSupplier = register(registry, category, "whisper_toggle", Component.translatable("key.whisper")
-				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")));
-		muteMicrophoneSupplier = register(registry, category, "mute_microphone", Component.translatable("controlify.action.voicechat.mute_microphone"));
+				.append(CommonComponents.SPACE).append(Component.translatable("controlify.compat.svc.toggle")), true);
+		muteMicrophoneSupplier = register(registry, category, "mute_microphone", Component.translatable("controlify.action.voicechat.mute_microphone"), false);
 	}
 
-	private static ActionAccessor register(ActionSpecRegistry registry, Component category, String path, Component name) {
-		return registry.register(ActionSpec.builder()
+	private static ActionAccessor register(ActionSpecRegistry registry, Component category, String path, Component name, boolean onScreens) {
+		var builder = ActionSpec.builder()
 				.id(Identifier.fromNamespaceAndPath("voicechat", path))
 				.name(name)
-				.category(category)
-				.layer(BuiltinActionLayers.IN_GAME)
-				.build());
+				.category(category);
+		return registry.register((onScreens
+				? builder.layer(BuiltinActionLayers.IN_GAME, BuiltinActionLayers.ANY_SCREEN)
+				: builder.layer(BuiltinActionLayers.IN_GAME)).build());
 	}
 
 	private static void registerProxies(ActionProxyManager proxies) {
@@ -89,9 +91,13 @@ public class SimpleVoiceChatCompat {
 		}
 		if (!controlify.currentInputMode().isController()) {
 			// Discard ineligible toggle presses so they cannot replay when focus/input returns.
+			// A toggled-on state is kept, so switching to keyboard and mouse does not cut the voice off;
+			// holds cannot be held without the controller.
 			pttToggle.pulse().consumeAllPulses();
 			whisperToggle.pulse().consumeAllPulses();
-			clearState();
+			previousPttHold = previousWhisperHold = false;
+			pttDown = pttToggleDown;
+			whisperDown = whisperToggleDown;
 			return;
 		}
 		if (pttToggle != previousPttAction || whisperToggle != previousWhisperAction) {

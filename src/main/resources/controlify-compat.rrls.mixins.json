@@ -11,8 +11,6 @@
   "plugin": "dev.isxander.controlify.compat.rrls.RrlsMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-  ],
-  "mixins": [
     "HideTypeMixin"
   ]
 }

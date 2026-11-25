@@ -6,7 +6,7 @@
     "minVersion": "0.5.0"
   },
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   },
   "overwrites": {
     "requireAnnotations": true
@@ -14,8 +14,6 @@
   "plugin": "dev.isxander.controlify.compat.simplevoicechat.SVCMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-  ],
-  "mixins": [
     "KeyEventsAccessor",
     "PTTKeyHandlerMixin"
   ]

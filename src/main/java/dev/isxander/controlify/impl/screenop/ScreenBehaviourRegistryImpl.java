@@ -14,7 +14,9 @@ import dev.isxander.controlify.api.screenop.ScreenopEvents;
 import dev.isxander.controlify.impl.screenop.behaviours.screen.*;
 import dev.isxander.controlify.impl.screenop.behaviours.virtualmouse.*;
 import dev.isxander.controlify.impl.utils.event.EventBus;
+import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.client.gui.screens.Screen;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -65,12 +67,19 @@ public final class ScreenBehaviourRegistryImpl implements ScreenBehaviourRegistr
 		}
 		return registry.factories(context.screen()).stream()
 				.map(factory -> create(factory, context))
+				.filter(Objects::nonNull)
 				.toList();
 	}
 
 	@SuppressWarnings("unchecked")
-	private static <T extends Screen> ScreenBehaviour create(ScreenBehaviourFactory<T> factory, ScreenContext<?> context) {
-		// The registry selected this factory using its registered screen class.
-		return Objects.requireNonNull(factory.create((ScreenContext<? extends T>) context), "Screen behaviour factory returned null");
+	private static <T extends Screen> @Nullable ScreenBehaviour create(ScreenBehaviourFactory<T> factory, ScreenContext<?> context) {
+		try {
+			// The registry selected this factory using its registered screen class.
+			return Objects.requireNonNull(factory.create((ScreenContext<? extends T>) context), "Screen behaviour factory returned null");
+		} catch (Exception | LinkageError e) {
+			// a faulty addon or compat factory must not break the screen for every other behaviour
+			CUtil.LOGGER.error("Screen behaviour factory failed for {}; skipping it.", e, context.screen().getClass().getName());
+			return null;
+		}
 	}
 }

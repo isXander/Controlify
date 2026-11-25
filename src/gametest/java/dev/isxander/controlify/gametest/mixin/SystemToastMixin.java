@@ -25,10 +25,10 @@ import java.util.List;
 @Mixin(SystemToast.class)
 public class SystemToastMixin implements SystemToastDuck {
 
-	@Unique private Component controlify_test$cachedMessage;
+	@Unique private volatile Component controlify_test$cachedMessage;
 
 	//? if >=26.2 {
-	@Unique private Component controlify_test$cachedTitle;
+	@Unique private volatile Component controlify_test$cachedTitle;
 
 	@Inject(
 		method = "update(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V",

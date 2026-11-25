@@ -6,7 +6,7 @@
     "minVersion": "0.5.0"
   },
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   },
   "overwrites": {
     "requireAnnotations": true
@@ -14,12 +14,10 @@
   "plugin": "dev.isxander.controlify.compat.yacl.YACLMixinPlugin",
   "compatibilityLevel": "JAVA_25",
   "client": [
+    "ControllerWidgetAccessor",
     "GroupSeparatorEntryAccessor",
+    "StringControllerElementAccessor",
     "YACLScreenCategoryTabAccessor",
     "YACLScreenCategoryTabMixin"
-  ],
-  "mixins": [
-    "ControllerWidgetAccessor",
-    "StringControllerElementAccessor"
   ]
 }

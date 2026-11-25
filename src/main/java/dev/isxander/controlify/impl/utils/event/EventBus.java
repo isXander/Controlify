@@ -15,7 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /// Synchronous subscription-order dispatch with a snapshot of listeners per emission.
-/// Subscription changes apply to later emissions; listener exceptions propagate.
+/// Subscription changes apply to later emissions; a listener that throws is logged and does not stop the others.
 public class EventBus<T> implements EventSource<T> {
 	private final CopyOnWriteArrayList<Registration> listeners = new CopyOnWriteArrayList<>();
 
@@ -24,7 +24,7 @@ public class EventBus<T> implements EventSource<T> {
 		for (Registration registration : this.listeners) {
 			try {
 				registration.listener.accept(event);
-			} catch (Exception e) {
+			} catch (Exception | LinkageError e) {
 				CUtil.LOGGER.error("Listener threw an exception when emitting an event.", e);
 			}
 		}

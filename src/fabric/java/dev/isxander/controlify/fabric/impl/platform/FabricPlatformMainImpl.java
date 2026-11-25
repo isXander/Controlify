@@ -8,6 +8,7 @@ package dev.isxander.controlify.fabric.impl.platform;
 
 import dev.isxander.controlify.api.ControlifyEntrypoint;
 import dev.isxander.controlify.impl.utils.CUtil;
+import dev.isxander.controlify.impl.utils.ServiceUtil;
 import dev.isxander.controlify.fabric.impl.platform.network.C2SNetworkApiFabric;
 import dev.isxander.controlify.fabric.impl.platform.network.S2CNetworkApiFabric;
 import dev.isxander.controlify.impl.platform.Environment;
@@ -34,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.ServiceLoader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -73,15 +73,15 @@ public class FabricPlatformMainImpl implements PlatformMainUtilImpl {
 				CUtil.LOGGER.error("Failed to load Controlify addon from mod: {}", container.getProvider().getMetadata().getId(), throwable);
 			}
 		});
-		ServiceLoader.load(ControlifyEntrypoint.class).stream().forEach(provider -> {
+		for (ControlifyEntrypoint entrypoint : ServiceUtil.loadAll(ControlifyEntrypoint.class)) {
 			try {
-				if (loaded.add(provider.type())) {
-					entrypointConsumer.accept(provider.get());
+				if (loaded.add(entrypoint.getClass())) {
+					entrypointConsumer.accept(entrypoint);
 				}
 			} catch (Throwable throwable) {
-				CUtil.LOGGER.error("Failed to load Controlify addon provider: {}", provider.type().getName(), throwable);
+				CUtil.LOGGER.error("Failed to load Controlify addon provider: {}", entrypoint.getClass().getName(), throwable);
 			}
-		});
+		}
 	}
 
 	@Override

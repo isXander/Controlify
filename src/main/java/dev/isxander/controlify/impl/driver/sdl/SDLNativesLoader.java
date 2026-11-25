@@ -15,13 +15,14 @@ import dev.isxander.sdl.SdlLoader;
 import dev.isxander.sdl.SdlVersion;
 import org.apache.commons.io.function.IOSupplier;
 
+import dev.isxander.controlify.impl.utils.ServiceUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.List;
 
 import static dev.isxander.sdl.SdlHints.*;
 import static dev.isxander.sdl.SdlInit.*;
@@ -36,7 +37,7 @@ public class SDLNativesLoader {
 	private static final ControlifyLogger LOGGER = CUtil.LOGGER.createSubLogger("SDLNativesLoader");
 
 	public static Sdl load() {
-		ServiceLoader<SdlLoader> serviceLoader = ServiceLoader.load(SdlLoader.class);
+		List<SdlLoader> serviceLoader = ServiceUtil.loadAll(SdlLoader.class);
 
 		LOGGER.debugLog("Using in-jar SDL path {}", NATIVE_SDL_PATH);
 
@@ -51,9 +52,8 @@ public class SDLNativesLoader {
 		return sdl;
 	}
 
-	private static Optional<Sdl> loadFromControlifyNatives(ServiceLoader<SdlLoader> serviceLoader) {
+	private static Optional<Sdl> loadFromControlifyNatives(List<SdlLoader> serviceLoader) {
 		SdlLoader sdlLoader = serviceLoader.stream()
-			.map(ServiceLoader.Provider::get)
 			.filter(loader -> loader.name().equals("ffm"))
 			.findAny().orElse(null);
 
@@ -69,7 +69,7 @@ public class SDLNativesLoader {
 		return sdl;
 	}
 
-	private static Optional<Sdl> loadFromLwjgl(ServiceLoader<SdlLoader> serviceLoader) {
+	private static Optional<Sdl> loadFromLwjgl(List<SdlLoader> serviceLoader) {
 		if (!LWJGL_SDL_AVAILABLE) {
 			return Optional.empty();
 		}
@@ -77,13 +77,12 @@ public class SDLNativesLoader {
 		return Optional.empty();
 	}
 
-	private static Optional<Sdl> loadFromNativesInJar(ServiceLoader<SdlLoader> serviceLoader) {
+	private static Optional<Sdl> loadFromNativesInJar(List<SdlLoader> serviceLoader) {
 		if (!NATIVES_IN_JAR) {
 			return Optional.empty();
 		}
 
 		SdlLoader sdlLoader = serviceLoader.stream()
-			.map(ServiceLoader.Provider::get)
 			.filter(loader -> loader.name().equals("ffm"))
 			.findAny().orElse(null);
 
@@ -124,9 +123,8 @@ public class SDLNativesLoader {
 		}
 	}
 
-	private static Optional<Sdl> loadFromSystem(ServiceLoader<SdlLoader> serviceLoader) {
+	private static Optional<Sdl> loadFromSystem(List<SdlLoader> serviceLoader) {
 		SdlLoader sdlLoader = serviceLoader.stream()
-			.map(ServiceLoader.Provider::get)
 			.filter(loader -> loader.name().equals("ffm"))
 			.findAny().orElse(null);
 

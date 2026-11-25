@@ -165,6 +165,7 @@ val commonManifest = manifests.manifest {
 }
 manifests {
     val rrlsData = mapOf<String, Any>("rrls" to mapOf(
+        // must match the getReloadId() of every ControlifyReloadListener
         "force_load" to listOf(
             "controlify:default_config",
             "controlify:controller_type",
@@ -173,10 +174,14 @@ manifests {
             "controlify:contextual/domain/container",
             "controlify:contextual/ruleset/guide",
             "controlify:contextual/ruleset/trigger_effect",
+            "controlify:contextual/ruleset/feedback",
             "controlify:activators",
             "controlify:controller_mapping",
-            "controlify:rumble_sources",
+            "controlify:feedback_groups",
+            "controlify:feedback_effects",
             "controlify:radial_icons",
+            "controlify:font_mappings",
+            "controlify:keyboard_layout",
         )
     ))
 
