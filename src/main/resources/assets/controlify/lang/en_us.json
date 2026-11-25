@@ -695,12 +695,9 @@
   "controlify.guide_verbosity.reduced": "Reduced",
   "controlify.guide_verbosity.minimal": "Minimal",
 
-  "controlify.command.vibratecontroller.static.single": "Vibrated controller of 1 player.",
-  "controlify.command.vibratecontroller.static.multiple": "Vibrated controller of %s players.",
-  "controlify.command.vibratecontroller.pos.single": "Vibrated controller of 1 player at %s, %s, %s.",
-  "controlify.command.vibratecontroller.pos.multiple": "Vibrated controller of %s players at %s, %s, %s.",
-  "controlify.command.vibratecontroller.entity.single": "Vibrated controller of 1 player from %s's position.",
-  "controlify.command.vibratecontroller.entity.multiple": "Vibrated controller of %s players from %s's position.",
+  "controlify.command.feedback.play.single": "Played feedback effect %s on 1 player's controller.",
+  "controlify.command.feedback.play.multiple": "Played feedback effect %s on %s players' controllers.",
+  "controlify.command.feedback.no_targets": "No players to play the feedback effect on. Specify them with 'to'.",
 
   "controlify.gui.mapping_maker.title": "Mapping Creator",
   "controlify.gui.mapping_maker.go_back": "I made a mistake",

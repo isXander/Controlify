@@ -73,6 +73,13 @@ public final class LiveFeedbackServices implements FeedbackServices {
 	}
 
 	@Override
+	public Mixing mixing(List<FeedbackGroup> groups) {
+		FeedbackGroups known = Controlify.instance().feedbackGroupManager().groups();
+		int rank = groups.stream().mapToInt(known::rank).max().orElse(0);
+		return new Mixing(this.controller.settings().rumble.strengthMultiplier(groups), rank);
+	}
+
+	@Override
 	public boolean enabled() {
 		return this.controller.settings().rumble.enabled;
 	}

@@ -89,6 +89,42 @@ public final class FeedbackEngine {
 		return playback;
 	}
 
+	/// Plays an effect by id, the way an event that is not tied to anything in the game would.
+	/// Only a data effect (or a code effect registered for [#AMBIENT_EVENT]) can be played this way.
+	///
+	/// @param groups the groups to mix as, or empty to use the ones resource packs give the effect
+	/// @param params the named values the effect reads
+	/// @param pos    if not null, attenuates by distance to it; a supplier that returns null ends the playback
+	/// @return the playback, or null if there is no such effect
+	public @Nullable PlaybackImpl playEffect(
+			Identifier effectId,
+			List<FeedbackGroup> groups,
+			Map<String, Float> params,
+			@Nullable Supplier<Vec3> pos,
+			float range
+	) {
+		FeedbackEffect<Object> effect = this.services.findEffect(effectId, AMBIENT_EVENT);
+		if (effect == null) {
+			CUtil.LOGGER.debugLog("Ignoring request to play unknown feedback effect '{}'", effectId);
+			return null;
+		}
+		if (effect instanceof DataFeedbackEffect data && data.holdOnly()) {
+			CUtil.LOGGER.warn("Feedback effect '{}' never ends on its own, so it cannot be played on request. Add an envelope or a duration.", effectId);
+			return null;
+		}
+
+		List<String> names = List.copyOf(params.keySet());
+		PlaybackImpl playback = new PlaybackImpl(
+				AMBIENT_EVENT, effectId, effect, FeedbackGroup.UNGROUPED, false, this.nextSequence++, names, pos, range
+		);
+		for (int i = 0; i < names.size(); i++) {
+			playback.paramValues()[i] = params.get(names.get(i));
+		}
+		playback.groupsOverride = groups.isEmpty() ? null : List.copyOf(groups);
+		this.playbacks.add(playback);
+		return playback;
+	}
+
 	public <P> void fire(FeedbackEventImpl<P> event, @Nullable P params, @Nullable Vec3 pos) {
 		if (pos != null && this.services.falloff(pos, event.falloffRange()) <= 0f) {
 			return;
@@ -197,6 +233,10 @@ public final class FeedbackEngine {
 		}
 
 		for (PlaybackImpl playback : this.playbacks) {
+			if (playback.groupsOverride != null) {
+				playback.mixing = this.services.mixing(playback.groupsOverride);
+				continue;
+			}
 			playback.mixing = this.services.mixing(playback.effectId, playback.fallbackGroup);
 			playback.feltWhilePaused = this.services.feltWhilePaused(playback.effectId, playback.fallbackGroup);
 		}

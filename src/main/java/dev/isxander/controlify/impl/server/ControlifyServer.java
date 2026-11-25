@@ -28,13 +28,11 @@ public class ControlifyServer {
 	public void onInitialize() {
 		ControlifyHandshake.setupOnServer();
 
-		SidedNetworkApi.S2C().registerPacket(VibrationPacket.CHANNEL, VibrationPacket.CODEC);
-		SidedNetworkApi.S2C().registerPacket(OriginVibrationPacket.CHANNEL, OriginVibrationPacket.CODEC);
-		SidedNetworkApi.S2C().registerPacket(EntityVibrationPacket.CHANNEL, EntityVibrationPacket.CODEC);
+		SidedNetworkApi.S2C().registerPacket(FeedbackEffectPacket.CHANNEL, FeedbackEffectPacket.CODEC);
 		SidedNetworkApi.S2C().registerPacket(ServerPolicyPacket.CHANNEL, ServerPolicyPacket.CODEC);
 
 		PlatformMainUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
-			VibrateCommand.register(dispatcher);
+			FeedbackCommand.register(dispatcher);
 		});
 	}
 

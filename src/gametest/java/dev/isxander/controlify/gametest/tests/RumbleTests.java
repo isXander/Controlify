@@ -19,6 +19,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -66,6 +67,7 @@ public class RumbleTests implements FabricClientGameTest {
 				runTest(context, controlify, controller, world, "Wither spawn", this::testWitherSpawn);
 				runTest(context, controlify, controller, world, "Block breaking", this::testBlockBreaking);
 				runTest(context, controlify, controller, world, "Block breaking (creative)", this::testBlockBreakingCreative);
+				runTest(context, controlify, controller, world, "Feedback command", this::testFeedbackCommand);
 				runTest(context, controlify, controller, world, "Use item", this::testUseItem);
 				runTest(context, controlify, controller, world, "Item break", this::testItemBreak);
 			}
@@ -299,6 +301,23 @@ public class RumbleTests implements FabricClientGameTest {
 				controller.releaseAxis(SdlGamepad.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
 				region.runOnServer((_, player) -> player.setGameMode(GameType.SURVIVAL));
 			}
+		}
+	}
+
+	/// The server command chains its clauses in any order, and the packet plays a resource pack effect by id.
+	private void testFeedbackCommand(
+		ClientGameTestContext context,
+		ControlifyGameTestContext controlify,
+		TestControllerContext<?> controller,
+		TestUnitWorldContext world
+	) {
+		try (var region = world.allocateRegion(5, 5, 5)) {
+			region.runOnServer((level, player) -> level.getServer().getCommands().performPrefixedCommand(
+					player.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS),
+					"feedback play controlify:explosion to @s param power 6 groups controlify:world origin entity @s"
+			));
+
+			waitForRumble(context, controller);
 		}
 	}
 

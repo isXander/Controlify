@@ -21,6 +21,11 @@ public interface FeedbackServices {
 	/// @param fallback the group to use if no resource pack assigns one
 	Mixing mixing(Identifier effectId, FeedbackGroup fallback);
 
+	/// How a playback is mixed when its groups are given explicitly, as for effects a server plays.
+	default Mixing mixing(List<FeedbackGroup> groups) {
+		return new Mixing(1f, 0);
+	}
+
 	/// @param gain the user's strength multiplier
 	/// @param rank the rank of the playback's groups; higher ranks draw on top
 	record Mixing(float gain, int rank) {

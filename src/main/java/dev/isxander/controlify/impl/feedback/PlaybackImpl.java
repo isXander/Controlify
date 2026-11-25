@@ -35,6 +35,8 @@ public final class PlaybackImpl implements Playback<Object> {
 	float idleSeconds;
 	/// Refreshed every frame before sampling, since resources and settings can change.
 	FeedbackServices.Mixing mixing = new FeedbackServices.Mixing(1f, 0);
+	/// The groups to mix as instead of the ones resource packs give the effect, e.g. when a server picks them.
+	@Nullable List<FeedbackGroup> groupsOverride;
 	/// Whether this is still felt while the engine is game-silent. Refreshed with `mixing`.
 	boolean feltWhilePaused;
 
@@ -125,7 +127,9 @@ public final class PlaybackImpl implements Playback<Object> {
 
 		float falloff = 1f;
 		if (this.pos != null) {
-			falloff = services.falloff(this.pos.get(), this.range);
+			Vec3 at = this.pos.get();
+			// a position that cannot be found any more, such as an entity that unloaded, ends the playback
+			falloff = at == null ? -1f : services.falloff(at, this.range);
 			if (falloff < 0f) {
 				// there is nothing to measure the distance from, so the playback ends
 				this.finished = true;

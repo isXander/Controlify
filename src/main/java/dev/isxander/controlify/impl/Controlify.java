@@ -180,22 +180,15 @@ public class Controlify implements ControlifyApi {
 
 		ControlifyHandshake.setupOnClient();
 
-		SidedNetworkApi.S2C().<VibrationPacket>listenForPacket(VibrationPacket.CHANNEL, packet -> {
+		SidedNetworkApi.S2C().<FeedbackEffectPacket>listenForPacket(FeedbackEffectPacket.CHANNEL, packet -> {
 			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(VibrationPacket.CHANNEL, packet.group(), packet.createEffect(), null, 0f));
-			}
-		});
-		SidedNetworkApi.S2C().<OriginVibrationPacket>listenForPacket(OriginVibrationPacket.CHANNEL, packet -> {
-			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(OriginVibrationPacket.CHANNEL, packet.group(), packet.createEffect(), packet.position(), packet.effectRange()));
-			}
-		});
-		SidedNetworkApi.S2C().<EntityVibrationPacket>listenForPacket(EntityVibrationPacket.CHANNEL, packet -> {
-			if (config().getSettings().globalSettings().allowServerRumble) {
-				getCurrentController().ifPresent(controller -> controller.feedback()
-						.play(EntityVibrationPacket.CHANNEL, packet.group(), packet.createEffect(), packet.position(), packet.range()));
+				getCurrentController().ifPresent(controller -> controller.feedback().playEffect(
+						packet.effect(),
+						packet.feedbackGroups(),
+						packet.params(),
+						packet.position(),
+						FeedbackEventImpl.DEFAULT_FALLOFF_RANGE
+				));
 			}
 		});
 		SidedNetworkApi.S2C().<ServerPolicyPacket>listenForPacket(ServerPolicyPacket.CHANNEL, packet -> {
