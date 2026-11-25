@@ -314,7 +314,7 @@ public class RumbleTests implements FabricClientGameTest {
 		try (var region = world.allocateRegion(5, 5, 5)) {
 			region.runOnServer((level, player) -> level.getServer().getCommands().performPrefixedCommand(
 					player.createCommandSourceStack().withPermission(PermissionSet.ALL_PERMISSIONS),
-					"feedback play controlify:explosion to @s param power 6 groups controlify:world origin entity @s"
+					"controlify feedback play controlify:explosion to @s param power 6 groups controlify:world origin entity @s"
 			));
 
 			waitForRumble(context, controller);

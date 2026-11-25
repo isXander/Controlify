@@ -32,7 +32,7 @@ public class ControlifyServer {
 		SidedNetworkApi.S2C().registerPacket(ServerPolicyPacket.CHANNEL, ServerPolicyPacket.CODEC);
 
 		PlatformMainUtil.registerCommandRegistrationCallback((dispatcher, registry, env) -> {
-			FeedbackCommand.register(dispatcher);
+			ControlifyCommand.register(dispatcher);
 		});
 	}
 

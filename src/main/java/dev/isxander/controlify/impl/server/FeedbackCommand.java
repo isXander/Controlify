@@ -6,7 +6,7 @@
  */
 package dev.isxander.controlify.impl.server;
 
-import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/// `/feedback play <effect> [origin <pos>|origin entity <entity>] [groups <group>...] [param <name> <value>]... [to <targets>]`
+/// `/controlify feedback play <effect> [origin <pos>|origin entity <entity>] [groups <group>...] [param <name> <value>]... [to <targets>]`
 ///
 /// Built like vanilla's `/execute`: every clause is a literal that redirects back to the same set
 /// of clauses, so they can be chained in any order and each is optional. Brigadier gives the
@@ -57,7 +57,8 @@ public final class FeedbackCommand {
 	private FeedbackCommand() {
 	}
 
-	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+	/// The `feedback` subcommand of [ControlifyCommand].
+	public static LiteralArgumentBuilder<CommandSourceStack> build() {
 		// The clauses redirect back here. It is never registered: only its children are used.
 		CommandNode<CommandSourceStack> clauses = Commands.literal("clauses").build();
 		// After a group, another group can follow without repeating `groups`.
@@ -121,18 +122,16 @@ public final class FeedbackCommand {
 				.redirect(moreGroups, FeedbackCommand::addGroup)
 				.build());
 
-		dispatcher.register(
-				Commands.literal("feedback")
-						.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-						.then(Commands.literal("play")
-								.then(Commands.argument("effect", IdentifierArgument.id())
-										.executes(FeedbackCommand::run)
-										.redirect(clauses, context -> {
-											current = new Pending();
-											current.effect = IdentifierArgument.getId(context, "effect");
-											return context.getSource();
-										})))
-		);
+		return Commands.literal("feedback")
+				.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+				.then(Commands.literal("play")
+						.then(Commands.argument("effect", IdentifierArgument.id())
+								.executes(FeedbackCommand::run)
+								.redirect(clauses, context -> {
+									current = new Pending();
+									current.effect = IdentifierArgument.getId(context, "effect");
+									return context.getSource();
+								})));
 	}
 
 	private static CommandSourceStack addGroup(CommandContext<CommandSourceStack> context) {
