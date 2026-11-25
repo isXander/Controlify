@@ -89,14 +89,6 @@ dependencies {
         neoforgeCompileOnly("maven.modrinth:iris:$it")
     }
 
-    ifPresent("dep.rso") {
-        compileOnly("maven.modrinth:reeses-sodium-options:$it")
-        fabricModDependency("maven.modrinth:reeses-sodium-options:$it")
-    }
-    ifPresent("dep.rso-neoforge") {
-        neoforgeModDependency("maven.modrinth:reeses-sodium-options:$it")
-    }
-
     ifPresent("dep.svc") {
         compileOnly("maven.modrinth:simple-voice-chat:$it")
         fabricCompileOnly("maven.modrinth:simple-voice-chat:$it")
@@ -122,7 +114,6 @@ stonecutter {
         put("mod_menu", hasProperty("dep.mod-menu"))
         put("sodium", hasProperty("dep.sodium"))
         put("simple_voice_chat", hasProperty("dep.svc"))
-        put("reeses_sodium_options", hasProperty("dep.rso"))
         put("fancy_menu", hasProperty("dep.fancy-menu"))
     }
 }
@@ -156,7 +147,6 @@ val commonManifest = manifests.manifest {
     mixin("controlify-compat.yacl.mixins.json")
     ifPresent("dep.iris") { mixin("controlify-compat.iris.mixins.json") }
     ifPresent("dep.sodium") { mixin("controlify-compat.sodium.mixins.json") }
-    ifPresent("dep.rso") { mixin("controlify-compat.reeses-sodium-options.mixins.json") }
     ifPresent("dep.svc") { mixin("controlify-compat.simple-voice-chat.mixins.json") }
     mixin("controlify-compat.rrls.mixins.json")
 

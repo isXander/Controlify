@@ -23,11 +23,6 @@ public final class SodiumScreenBehaviours {
 	public static void initialize() {
 		ScreenopEvents.REGISTER_SCREEN_BEHAVIOURS.subscribeForever(registry -> {
 			registry.register(VideoSettingsScreen.class, context -> new SodiumScreenBehaviour(context, (SodiumScreenOperations) context.screen()));
-			//? if reeses_sodium_options {
-			/*if (dev.isxander.controlify.impl.platform.main.PlatformMainUtil.isModLoaded("reeses-sodium-options")) {
-				registry.register(me.flashyreese.mods.reeses_sodium_options.client.gui.SodiumVideoOptionsScreen.class, context -> new SodiumScreenBehaviour(context, (SodiumScreenOperations) context.screen()));
-			}
-			*///?}
 		});
 		ScreenopEvents.REGISTER_ELEMENT_BEHAVIOURS.subscribeForever(event -> {
 			registerControl(event.registry(), "CyclingControl$CyclingControlElement", ElementBehaviours.cycle(
