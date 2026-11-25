@@ -76,6 +76,7 @@ public final class ControlifyDataFixer {
 		var v15 = builder.addSchema(15, ControlifySchemas.V15::new);
 		builder.addFixer(new BindingListsFix(v15));
 		builder.addFixer(new GyroReworkFix(v15));
+		builder.addFixer(new XboxControllerTypeFix(v15));
 
 		return builder.build().fixer();
 	}

@@ -374,7 +374,7 @@
   "controlify.downloading_sdl.info": "Downloading an update to the native library Controlify uses. You are seeing this because you have chosen to download natives on first-launch.\nThis will only take a few seconds.",
 
   "controlify.controller_theme.default": "Default",
-  "controlify.controller_theme.xbox_one": "Xbox",
+  "controlify.controller_theme.xbox": "Xbox",
   "controlify.controller_theme.dualshock4": "PS4",
   "controlify.controller_theme.steam_deck": "Steam Deck",
 
@@ -439,7 +439,6 @@
   "controlify.action.controlify.toggle_debug_menu_fps": "Toggle Debug Menu (F3) with FPS",
   "controlify.action.controlify.toggle_debug_menu_prof": "Toggle Debug Menu (F3) with Profiler",
   "controlify.action.controlify.toggle_debug_menu_net": "Toggle Debug Menu (F3) with Net Graph",
-  "controlify.action.controlify.toggle_debug_menu_chart": "Toggle Debug Menu (F3) with Charts",
   "controlify.action.controlify.toggle_hud_visibility": "Toggle HUD Visibility",
   "controlify.action.controlify.show_player_list": "Show Player List",
   "controlify.action.controlify.radial_menu": "Radial Menu",
@@ -461,7 +460,6 @@
   "controlify.action.controlify.vmouse_snap_right": "Snap Mouse Right",
   "controlify.action.controlify.vmouse_scroll_up": "VMouse Scroll Up",
   "controlify.action.controlify.vmouse_scroll_down": "VMouse Scroll Down",
-  "controlify.action.controlify.vmouse_escape": "VMouse Key Escape",
   "controlify.action.controlify.vmouse_shift": "VMouse Key Shift",
   "controlify.action.controlify.vmouse_page_next": "VMouse Page Next",
   "controlify.action.controlify.vmouse_page_prev": "VMouse Page Prev",
@@ -476,7 +474,6 @@
   "controlify.action.controlify.gui_secondary_navi_up": "GUI Secondary Navi Up",
   "controlify.action.controlify.gui_secondary_navi_left": "GUI Secondary Navi Left",
   "controlify.action.controlify.gui_secondary_navi_right": "GUI Secondary Navi Right",
-  "controlify.action.controlify.clear_binding": "Clear Binding",
 
   "controlify.action.voicechat.ptt_hold": "Push-To-Talk (Hold)",
   "controlify.action.voicechat.ptt_toggle": "Push-To-Talk (Toggle)",

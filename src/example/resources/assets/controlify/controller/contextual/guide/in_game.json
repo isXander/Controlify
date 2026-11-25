@@ -1,0 +1,16 @@
+{
+  "rules": [
+    {
+      "for": "examplemod:horn",
+      "where": "left",
+      "if": "examplemod:in_boat",
+      "then": { "translate": "examplemod.guide.horn" }
+    },
+    {
+      "for": "examplemod:boost",
+      "where": "left",
+      "if": { "all_of": ["examplemod:in_boat", "controlify:verbosity_reduced"] },
+      "then": { "translate": "examplemod.guide.boost" }
+    }
+  ]
+}

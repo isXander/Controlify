@@ -1,0 +1,15 @@
+{
+  "rules": [
+    {
+      "for": "examplemod:throttle",
+      "if": "examplemod:in_boat",
+      "then": {
+        "type": "feedback_slope",
+        "start_position": 1,
+        "end_position": 9,
+        "start_strength": 1,
+        "end_strength": 6
+      }
+    }
+  ]
+}

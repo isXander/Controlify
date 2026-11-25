@@ -12,7 +12,6 @@ fabric_loom = "1.19.3"
 neoforged_gradle = "7.1.39"
 spotless = "8.6.0"
 undercouch_download = "5.6.0"
-wiki_toolkit = "0.4.1"
 mod_publish_plugin = "2.1.1"
 
 [libraries]
@@ -29,6 +28,5 @@ modstitch_multiloader = { id = "dev.isxander.mtk.multiloader", version.ref = "mo
 fabric_loom = { id = "net.fabricmc.fabric-loom", version.ref = "fabric_loom" }
 neoforged_gradle_userdev = { id = "net.neoforged.gradle.userdev", version.ref = "neoforged_gradle" }
 undercouch_download = { id = "de.undercouch.download", version.ref = "undercouch_download" }
-wiki_toolkit = { id = "org.moddedmc.wiki.toolkit", version.ref = "wiki_toolkit" }
 mod_publish_plugin = { id = "me.modmuss50.mod-publish-plugin", version.ref = "mod_publish_plugin" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

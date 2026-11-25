@@ -118,14 +118,6 @@ stonecutter {
     }
 }
 
-/// Run configurations
-
-ifPresent("dep.neoforge") {
-	runs.register("neoforgeClient") {
-		runType("client")
-	}
-}
-
 /// Metadata file generation
 
 val minecraftRange = property("meta.minecraft-range")!!.toString()
@@ -282,18 +274,6 @@ if (includeNatives) {
     }
 }
 
-// Run configs
-
-// Fabric
-loom.runConfigs.configureEach {
-	runDirectory = layout.projectDirectory.dir("run")
-}
-
-// NeoForge
-runs.configureEach {
-	workingDirectory = layout.projectDirectory.dir("run")
-}
-
 /// Testing
 
 fabricApi {
@@ -334,12 +314,60 @@ dependencies {
 	gametestImplementation("net.fabricmc.fabric-api:fabric-client-gametest-api-v1")
 }
 
+/// Example addon
+///
+/// A Fabric mod that uses the public API the way the docs describe it.
+/// Docs pages import its snippets by `// #region` markers, so the snippets always compile.
+
+val example = sourceSets.create("example") {
+	compileClasspath += sourceSets.fabric.get().output
+	runtimeClasspath += sourceSets.fabric.get().output
+}
+configurations.named(example.compileClasspathConfigurationName) {
+	extendsFrom(configurations.named("fabricCompileClasspath").get())
+}
+configurations.named(example.runtimeClasspathConfigurationName) {
+	extendsFrom(configurations.named("fabricRuntimeClasspath").get())
+}
+
 tasks.test {
 	useJUnitPlatform()
 
 	val testRunDir = layout.buildDirectory.dir("junit-run")
 	workingDir = testRunDir.get().asFile
 	doFirst { testRunDir.get().asFile.mkdirs() }
+
+	// ResourceFormatsTest decodes every shipped resource file, including the example addon's
+	val resourceRoots = listOf("src/main/resources", "src/example/resources").map { rootProject.file(it) }
+	inputs.files(resourceRoots).withPropertyName("resourceRoots")
+	systemProperty("controlify.test.resourceRoots", resourceRoots.joinToString(File.pathSeparator) { it.absolutePath })
+}
+
+/// Run configs
+
+// Fabric
+loom.runConfigs {
+	configureEach {
+		runDirectory = layout.projectDirectory.dir("run")
+	}
+
+	register("exampleClient") {
+		client()
+		sourceSet = example.name
+	}
+}
+
+// NeoForge
+runs {
+	configureEach {
+		workingDirectory = layout.projectDirectory.dir("run")
+	}
+
+	ifPresent("dep.neoforge") {
+		register("neoforgeClient") {
+			runType("client")
+		}
+	}
 }
 
 /// Publishing

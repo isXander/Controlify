@@ -143,7 +143,7 @@ public class DefaultBindManager implements SimpleControlifyReloadListener<Defaul
 		return CUtil.rl("default_binds");
 	}
 
-	private record ControllerDefault(boolean clearBelow, MapBackedDefaultBindProvider provider) {
+	public record ControllerDefault(boolean clearBelow, MapBackedDefaultBindProvider provider) {
 		public static final Codec<ControllerDefault> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 				Codec.BOOL.optionalFieldOf("clear_below", false).forGetter(ControllerDefault::clearBelow),
 				MapBackedDefaultBindProvider.MAP_CODEC.fieldOf("defaults").forGetter(ControllerDefault::provider)

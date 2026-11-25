@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.controller;
 
+import dev.isxander.controlify.api.contextual.GuideVerbosity;
 import dev.isxander.controlify.api.controller.Controller;
 import dev.isxander.controlify.impl.config.settings.profile.ProfileSettings;
 import dev.isxander.controlify.impl.controller.battery.BatteryLevelComponent;
@@ -107,6 +108,11 @@ public final class ControllerImpl implements Controller {
 	@Override
 	public @NonNull Identifier typeId() {
 		return this.info.type().id();
+	}
+
+	@Override
+	public @NonNull GuideVerbosity guideVerbosity() {
+		return this.settings().generic.guide.verbosity;
 	}
 
 	public @NonNull ControllerInfo info() {

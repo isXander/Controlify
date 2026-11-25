@@ -20,12 +20,14 @@
       "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
       "dev.isxander.controlify.gametest.tests.RumbleTests",
       "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests",
-      "dev.isxander.controlify.gametest.tests.ButtonGuideTests"
+      "dev.isxander.controlify.gametest.tests.ButtonGuideTests",
+      "dev.isxander.controlify.gametest.tests.LightFeedbackTests"
     ],
     "client": [
       "dev.isxander.controlify.gametest.tests.ButtonGuideTests",
       "dev.isxander.controlify.gametest.tests.KeyboardLayoutTests",
-      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests"
+      "dev.isxander.controlify.gametest.tests.AdaptiveTriggerTests",
+      "dev.isxander.controlify.gametest.tests.LightFeedbackTests"
     ]
   }
 }

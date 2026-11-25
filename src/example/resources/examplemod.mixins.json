@@ -1,0 +1,12 @@
+{
+  "package": "dev.isxander.controlify.example.mixin",
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_25",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "CameraMixin"
+  ]
+}

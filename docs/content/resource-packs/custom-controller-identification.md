@@ -4,81 +4,91 @@ title: Custom Controller Identification
 
 # Custom Controller Identification
 
-## What is it?
+Controlify identifies a controller by its USB vendor ID (VID) and product ID (PID). Each VID and PID pair belongs to
+a **controller type**, and the type's ID, also called its namespace, decides:
 
-Controlify allows you to create custom definitions for your controller.
+- the name shown for the controller;
+- its icon in Controlify's settings, a GUI sprite at `assets/<namespace>/textures/gui/sprites/controllers/<path>.png`;
+- its [default bindings](../developers/actions#default-bindings);
+- its [input glyph set](input-glyphs).
 
-Creating a custom definition allows you to define a **specific name** for your controller model,
-**a sprite texture** (like the ones you see in the controller select screen),
-[**default bindings**](default-binds) specific to your controller,
-an [**input glyph set**](input-glyphs),
-and special input mappings for controllers like flight sticks.
+A type can also give the controller a [joystick mapping](joystick-mappings), or change how Controlify loads it.
+
+A controller that matches no entry gets the type `controlify:default`.
 
 ## Creating the definition
 
-In your resource pack, create the file `/assets/controlify/controllers/controller_identification.json5`.
-Unlike most resources in Minecraft, this file is **additive** and **does not overwrite** the base definitions
-provided by Controlify. All resource packs are loaded and their definitions are *added* to the definition
-list.
+Create the file `assets/controlify/controller/controller_identification.json5` in your resource pack. It must be in
+the `controlify` namespace, whatever your pack's own namespace is.
+
+This file is **additive**. Controlify reads the file from every resource pack and combines the entries, so your file
+doesn't replace the built-in definitions. When two entries list the same VID and PID, the one from the
+higher-priority resource pack is used.
 
 ::: info
-Ensure the file extension is **.json5**, and NOT `.json`.
-If you don't know what JSON5 is, don't worry, it's compatible with regular json,
-so use it as you normally would JSON.
+The file extension must be `.json5`, not `.json`. JSON5 is a superset of JSON, so plain JSON works too. JSON5 is
+what lets you write VIDs and PIDs as hex numbers like `0x57e`.
 :::
 
-Here is a definition for Switch Pro controllers.
+This file adds a type for Switch Pro controllers:
+
 ```json5
 [
   {
-    "name": "Switch Controller",
-    "namespace": "my_resource_pack:switch",
-
+    "friendly_name": "Switch Controller",
+    "id": "my_resource_pack:switch",
     "hids": [
-      [0x57e, 0x2009], // this array must contain exactly two elements: VID and PID
+      [0x57e, 0x2009] // [VID, PID]
     ]
   }
 ]
 ```
-Here you can see that the name of the controller is defined as `Switch Controller`, and a namespace
-has been defined for this controller `my_resource_pack:switch`. This is used elsewhere in resource pack features
-so take note of what you call it. You should set `my_resource_pack` to a string that will be unique to your resource
-pack, to prevent conflicts with other resource packs.
 
-`"hids"` is the most important part. Each USB and Bluetooth device model have unique identifiers:
-**Vendor ID (VID)** and **Product ID (PID)**. Each manufacturer reserves a specific VID, and each of their
-devices have their own PID. In the case of a Switch Pro Controller, Nintendo's VID is `0x57e` and the
-controller's PID is `0x2009`. This is defined as a json array: `[0x57e, 0x2009]`.
+The file is a list of entries. Each entry takes these fields:
+
+| Field | Default | Description |
+|---|---|---|
+| `hids` | required | A list of `[VID, PID]` pairs. Each pair has exactly two numbers, and the list needs at least one. |
+| `id` | `controlify:default` | The controller type ID. Use your pack's own namespace for new types, so they don't clash with other packs. |
+| `friendly_name` | none | The name shown for the controller. Without it, Controlify shows the name the controller's driver reports. |
+| `mapping_id` | none | The ID of a [joystick mapping](joystick-mappings), loaded from `assets/<namespace>/controller/mapping/<path>.json`. A mapping the player has made for that controller takes priority. |
+| `force_joystick` | `false` | Treat the controller as a generic joystick, even if SDL recognises it as a gamepad. Its inputs then use the [generic joystick IDs](../reference/builtin-inputs#generic-joystick-inputs). |
+| `prevent_loading` | `false` | Don't load the controller at all. |
+
+You don't need a new type to give a controller its own name. Controlify's entry for the Thrustmaster T16000M flight
+stick only sets `friendly_name`, so it keeps the `controlify:default` type, glyphs and bindings.
+
+An entry can also reuse an existing type. Controlify maps the 8BitDo SN30 Pro in DInput mode to `controlify:switch`,
+so it gets the Switch glyphs and default bindings.
+
+Reload resources (F3 + T) to apply your changes. Connected controllers whose type changed are reloaded.
 
 ### Finding your controller's VID and PID
 
-Even without a custom definition, Controlify will still attempt to load your controller.
-When it does so, it adds the VID and PID information into a *debug dump* that you can retrieve from the
-**Global Settings** of Controlify. Inside, you will find the information you need.
+Controlify loads a controller even when no entry matches it. To find its VID and PID:
 
-## Done!
+1. Connect the controller.
+2. Open Controlify's **Global Settings** and press **Copy Debug Dump To Clipboard**.
+3. Paste the dump somewhere. Under **Connected Controllers**, the `HID:` line for your controller looks like
+   `HID[VID=0x057e, PID=0x2009]`.
 
-You have now successfully created a custom controller definition!
-Restart the game to see that your controller is now using your custom name!
+## Adding to built-in types
 
-If you'd like to customise your custom controller further with features mentioned at the start of this page,
-check the sidebar for pages on how to do so.
-
-## Adding to built-in namespaces
-
-Your resource pack can extend these definitions and add additional VID and PIDs to them. Exclude the `"name"` property
-for the definition for Controlify to use the built-in name.
+To identify more controllers as a built-in type, add an entry with that type's `id`:
 
 ```json5
 [
   {
-    "namespace": "controlify:xbox_one",
+    "friendly_name": "Xbox Controller",
+    "id": "controlify:xbox",
     "hids": [
-      [0x01, 0x10] // additional HID added to xbox_one
+      [0x01, 0x10] // an extra controller identified as controlify:xbox
     ]
   }
 ]
 ```
 
-For a list of all the built-in definitions,
-see the [Built-in Controller Namespaces](../reference/builtin-controller-namespaces) page.
+Each entry defines the whole type for the HIDs it lists, so set `friendly_name` here too. Without it, these
+controllers show the name their driver reports, not the built-in name.
+
+For the built-in types, see [Built-in Controller Namespaces](../reference/builtin-controller-namespaces).

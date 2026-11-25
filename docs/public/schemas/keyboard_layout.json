@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://controlify.isxander.dev/schemas/keyboard-layout.json",
+  "$id": "https://controlify.isxander.dev/schemas/keyboard_layout.json",
   "title": "Controlify Keyboard Layout",
   "type": "object",
   "additionalProperties": false,

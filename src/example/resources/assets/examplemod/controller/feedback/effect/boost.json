@@ -1,0 +1,7 @@
+{
+  "release": 0.3,
+  "tracks": [
+    { "band": "high", "level": 0.25 },
+    { "color": "#ff8000", "level": 0.8 }
+  ]
+}

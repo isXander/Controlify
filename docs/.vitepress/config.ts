@@ -51,7 +51,7 @@ export default defineConfig({
       { text: 'Players', link: '/users/controller-support' },
       { text: 'Resource Packs', link: '/resource-packs/custom-controller-identification' },
       { text: 'Developers', link: '/developers/getting-started' },
-      { text: 'Reference', link: '/reference/builtin-bindings' },
+      { text: 'Reference', link: '/reference/builtin-actions' },
       {
         text: 'Download',
         items: [
@@ -81,13 +81,19 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'Controller Identification', link: '/resource-packs/custom-controller-identification' },
-          { text: 'Default Binds', link: '/resource-packs/default-binds' },
+          { text: 'Joystick Mappings', link: '/resource-packs/joystick-mappings' },
           { text: 'Input Glyphs', link: '/resource-packs/input-glyphs' },
-          { text: 'Button Guides', link: '/resource-packs/guides' },
           { text: 'Keyboard Layouts', link: '/resource-packs/keyboard-layouts' },
-          { text: 'Radial Menu Icons', link: '/resource-packs/radial-icons' },
-          { text: 'Adaptive Trigger Effects', link: '/resource-packs/adaptive-trigger-effects' },
-          { text: 'Feedback Effects', link: '/resource-packs/feedback-effects' }
+          // these formats are documented alongside the API they serve
+          { text: 'Contextual Facts', link: '/developers/contextual-api#adding-facts' },
+          { text: 'Button Guides', link: '/developers/contextual-api#button-guides' },
+          { text: 'Adaptive Trigger Effects', link: '/developers/contextual-api#adaptive-trigger-effects' },
+          { text: 'Activators', link: '/developers/actions#activators' },
+          { text: 'Default Binds', link: '/developers/actions#default-bindings' },
+          { text: 'Radial Menu Icons', link: '/developers/actions#radial-menu-icon' },
+          { text: 'Feedback Effects', link: '/developers/feedback-api#effects' },
+          { text: 'Feedback Rules', link: '/developers/feedback-api#selecting-effects-with-rules' },
+          { text: 'Feedback Groups', link: '/developers/feedback-api#groups-and-ordering' }
         ]
       },
       {
@@ -96,10 +102,19 @@ export default defineConfig({
         items: [
           { text: 'Getting Started', link: '/developers/getting-started' },
           { text: 'Controlify Entrypoint', link: '/developers/controlify-entrypoint' },
-          { text: 'Bindings API', link: '/developers/bindings-api' },
+          { text: 'Actions', link: '/developers/actions' },
           { text: 'Screen Operation API', link: '/developers/screen-operation-api' },
           { text: 'Contextual API', link: '/developers/contextual-api' },
-          { text: 'Feedback API', link: '/developers/feedback-api' }
+          { text: 'Feedback', link: '/developers/feedback-api' },
+          { text: 'Look API', link: '/developers/look-api' },
+          { text: 'Controllers', link: '/developers/controllers' }
+        ]
+      },
+      {
+        text: 'Upgrading',
+        collapsed: false,
+        items: [
+          { text: 'Migrating to v4', link: '/developers/migrating-to-v4' }
         ]
       },
 			{
@@ -111,14 +126,23 @@ export default defineConfig({
         text: 'Reference',
         collapsed: false,
         items: [
-          { text: 'Built-in Bindings', link: '/reference/builtin-bindings' },
+          { text: 'Built-in Actions', link: '/reference/builtin-actions' },
           { text: 'Built-in Inputs', link: '/reference/builtin-inputs' },
-          { text: 'Controller Namespaces', link: '/reference/builtin-controller-namespaces' }
+          { text: 'Controller Namespaces', link: '/reference/builtin-controller-namespaces' },
+          // these tables live on the pages for the API they belong to
+          { text: 'Action Layers', link: '/developers/actions#built-in-layers' },
+          { text: 'Activator Types', link: '/developers/actions#activators' },
+          { text: 'Gestures', link: '/developers/actions#gestures' },
+          { text: 'Feedback Events', link: '/developers/feedback-api#controlify-s-events' },
+          { text: 'Ambient Feedback Params', link: '/developers/feedback-api#ambient-params' },
+          { text: 'In-game State', link: '/developers/contextual-api#in-game' },
+          { text: 'Container State', link: '/developers/contextual-api#container' },
+          { text: 'Trigger Effect Types', link: '/developers/contextual-api#effect-types' },
+          { text: 'Element Behaviours', link: '/developers/screen-operation-api#using-a-built-in-behaviour' },
+          { text: 'Virtual Mouse Modes', link: '/developers/screen-operation-api#virtual-mouse' },
+          { text: 'Registration Events', link: '/developers/controlify-entrypoint#registration-events' },
+          { text: 'State Events', link: '/developers/controlify-entrypoint#state-events' }
         ]
-      },
-      {
-        text: 'Architecture',
-        items: [{ text: 'Controllers', link: '/architecture/controllers' }]
       }
     ],
     outline: { level: [2, 3], label: 'On this page' },

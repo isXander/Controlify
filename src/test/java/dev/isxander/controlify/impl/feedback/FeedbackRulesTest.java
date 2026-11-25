@@ -39,7 +39,7 @@ class FeedbackRulesTest {
 
 	@Test
 	void everyMatchedRulePlays() {
-		assertEquals(List.of(A, B), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A), rule(EVENT, B))));
+		assertEquals(List.of(A, B), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A), rule(EVENT, B)), List.of(rule(EVENT, A), rule(EVENT, B))));
 	}
 
 
@@ -47,8 +47,29 @@ class FeedbackRulesTest {
 	void noneStopsTheRulesBelowIt() {
 		FeedbackRule stop = rule(EVENT, FeedbackRegistryImpl.NONE);
 
-		assertEquals(List.of(A), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A), stop, rule(EVENT, B))));
-		assertEquals(List.of(), FeedbackSelection.effects(EVENT, List.of(stop, rule(EVENT, B))));
+		assertEquals(List.of(A), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A), stop, rule(EVENT, B)), List.of(rule(EVENT, A), stop, rule(EVENT, B))));
+		assertEquals(List.of(), FeedbackSelection.effects(EVENT, List.of(stop, rule(EVENT, B)), List.of(stop, rule(EVENT, B))));
+	}
+
+
+	@Test
+	void withNoRulesTheEventPlaysItsOwnEffect() {
+		assertEquals(List.of(EVENT), FeedbackSelection.effects(EVENT, List.of(), List.of()));
+	}
+
+
+	@Test
+	void unmatchedRulesForOtherEffectsLeaveTheOwnEffectPlaying() {
+		assertEquals(List.of(EVENT), FeedbackSelection.effects(EVENT, List.of(rule(EVENT, A)), List.of()));
+	}
+
+
+	@Test
+	void aRuleForTheOwnEffectDecidesWhenItPlays() {
+		FeedbackRule own = rule(EVENT, EVENT);
+
+		assertEquals(List.of(), FeedbackSelection.effects(EVENT, List.of(own), List.of()));
+		assertEquals(List.of(EVENT), FeedbackSelection.effects(EVENT, List.of(own), List.of(own)));
 	}
 
 

@@ -28,10 +28,6 @@ public final class BuiltinFeedback {
 	public record BlockBreak(float destroyTime) {
 	}
 
-	/// @param amount the length of the player's move input vector, 0 to 1
-	public record Movement(float amount) {
-	}
-
 	/// @param impact 0 to 1, how hard the player hit the water
 	public record WaterImpact(float impact) {
 	}
@@ -85,9 +81,6 @@ public final class BuiltinFeedback {
 	public static final FeedbackEvent<WaterImpact> WATER_LAND = FeedbackEvent.builder(CUtil.rl("water_land"))
 			.param("impact", WaterImpact::impact)
 			.build();
-	public static final FeedbackEvent<Movement> SLOW_BLOCK = FeedbackEvent.builder(CUtil.rl("slow_block"))
-			.param("movement", Movement::amount)
-			.build();
 	public static final FeedbackEvent<BlockBreak> BLOCK_BREAK = FeedbackEvent.builder(CUtil.rl("block_break"))
 			.param("destroy_time", BlockBreak::destroyTime)
 			.build();
@@ -120,7 +113,7 @@ public final class BuiltinFeedback {
 	static void register(FeedbackRegistryImpl registry) {
 		for (FeedbackEvent<?> event : new FeedbackEvent<?>[] {
 				INCOMING_DAMAGE, OUTGOING_DAMAGE, EXPLOSION, LIGHTNING, FISHING_BITE, ITEM_BREAK, ANVIL,
-				DRAGON_DEATH, WITHER_SPAWN, WATER_LAND, SLOW_BLOCK, BLOCK_BREAK, USE_ITEM, UI_NAVIGATE, AMBIENT
+				DRAGON_DEATH, WITHER_SPAWN, WATER_LAND, BLOCK_BREAK, USE_ITEM, UI_NAVIGATE, AMBIENT
 		}) {
 			registry.registerEvent(event);
 		}

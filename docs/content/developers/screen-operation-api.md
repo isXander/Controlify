@@ -4,293 +4,188 @@ title: Screen Operation API
 
 # Screen Operation API
 
-_Add controller compatibility to GUIs._
-
-You can add explicit controller support to your UI if necessary with the various APIs in Controlify.
-
-To make sure that your GUI classes don't _depend_ on Controlify to load, all controller handling is done in a separate class, namely the `ScreenProcessor`, that is registered in [Controlify's pre-init entrypoint](controlify-entrypoint#using-the-entrypoint).
-
-## Making a screen
-
-Before we get to handling a Screen, first we need to make an example screen:
-
-```java
-public class MyAmazingScreen extends Screen {
-    public Button button1, button2;
-
-    public MyAmazingScreen() {
-        super(Component.literal("My Amazing Screen"));
-    }
-
-    @Override
-    protected void init() {
-        this.addDrawableWidget(button1 = Button.builder(Component.literal("Button 1"), this::doButton1Action).build());
-        this.addDrawableWidget(button2 = Button.builder(Component.literal("Button 2"), this::doButton2Action).build());
-    }
+_Make your mod's screens work with a controller._
 
-    public void doButton1Action(Button btn) {
-        System.out.println("This is a really cool button!");
-    }
+Controlify already works with most screens. On any screen it moves focus between widgets, presses buttons, adjusts
+sliders, goes back, switches tabs, and opens the on-screen keyboard for text boxes. Players can also turn on a
+virtual mouse cursor for screens that don't work with focus.
 
-    public void doButton2Action(Button btm) {
-        System.out.println("This is also a really cool button!");
-    }
-}
-```
-
-In this basic example, there is a screen with two buttons that execute a function upon pressed. Even without a custom `ScreenProcessor`, this screen will work well out of the box.
-
-However, we can enhance the experience using shortcuts using the GUI Abstract Actions 1 and 2 provided in the Controlify bindings.
-
-To do this, we need to add create a `ScreenProcessor`.
+You add to this with **behaviours**: classes that Controlify attaches to screens or to the elements on them, matched
+by class. Because they're matched by class, you can add behaviours to any screen or element, including vanilla ones
+and other mods' ones, without a mixin.
 
-## Creating a `ScreenProcessor`
-
-```java
-public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
-    public MyAmazingScreenProcessor(MyAmazingScreen screen) {
-        super(screen);
-    }
-
-    @Override
-    protected void handleButtons(Controller<?, ?> controller) {
-        super.handleButtons(controller);
-        // handle binds and other button actions here.
-        // THIS IS ONLY CALLED WHEN VMOUSE IS OFF
-    }
-
-    @Override
-    protected void handleVMouse(Controller<?, ?> controller, VMouseHandler vmouse) {
-        // do what you want here, called every tick only if vmouse is enabled
-    }
+Behaviours only run while Controlify is in use. That makes them the place for controller-only parts of your UI too:
+shortcuts using the GUI abstract actions, [button guides](#button-guides), or rendering a
+[contextual guide](contextual-api#custom-domains).
 
-    @Override
-    protected void handleTabNavigation(Controller<?, ?> controller) {
-        super.handleTabNavigation(controller);
-        // handles the vanilla tab widget found in the create new world screen
-        // called regardless of vmouse state
-    }
+This page adds controller support to the example addon's boat settings screen, which has a custom text field, a
+custom slider and a reset button. None of the screen's own classes reference Controlify; the
+[entrypoint](controlify-entrypoint) registers the behaviours.
 
-    @Override
-    public void onWidgetRebuild() {
-        super.onWidgetRebuild();
-        // called after the Screen#init() method
-    }
+## Element behaviours
 
-    @Override
-    protected void render(Controller<?, ?> controller, GuiGraphicsExtractor graphics, float tickDelta, Optional<VirtualMouseHandler> vmouse) {
-        // called after the screen has rendered.
-    }
-
-    @Override
-    public VirtualMouseBehaviour virtualMouseBehaviour() {
-        // specifies how the vmouse should be used in this screen.
-        // options are: DEFAULT, DISABLED, ENABLED, CURSOR_ONLY
-        // DEFAULT allows the user to turn on/off, and is off by default.
-        return VirtualMouseBehaviour.DEFAULT;
-    }
-}
-```
+An element behaviour handles one element, such as a widget. Most mods need these more than screen behaviours: any
+custom element that Controlify doesn't know how to use, like a slider that isn't a vanilla slider, needs one.
 
-If a custom processor is not provided for a screen, the parent class `ScreenProcessor` is just used. This provides the basic functionality for controller operation for screens. You can choose to completely override this functionality, or extend from it using `super` calls.
-
-The above screen processor doesn't actually do anything, so let's add some functionality:
+When no behaviour handles a press, Controlify sends Enter to the screen. So a custom widget that already activates
+on Enter works without one.
 
-```java
-public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
-    public MyAmazingScreenProcessor(MyAmazingScreen screen) {
-        super(screen);
-    }
-
-    @Override
-    protected void handleButtons(Controller<?, ?> controller) {
-        super.handleButtons(controller);
+Register element behaviours in `ScreenopEvents.REGISTER_ELEMENT_BEHAVIOURS`. It fires for each screen, with that
+screen's context, so you can give the same element class different behaviours on different screens:
 
-        if (ControlifyBindings.GUI_ABSTRACT_ACTION_1.on(controller).guiPressed().get()) {
-            this.screen.button1.onPress();
-        }
-
-        if (ControlifyBindings.GUI_ABSTRACT_ACTION_2.on(controller).guiPressed().get()) {
-            this.screen.button2.onPress();
-        }
-    }
-}
-```
+<<< @/../../src/example/java/dev/isxander/controlify/example/screen/BoatSettingsBehaviours.java#register-elements
 
-In the above example, I removed most of the methods and just left `handleButtons`, then added a simple if statement to check if the bindings were pressed, then told the button to press. You could even use your own bindings using `BindingSupplier` that you learnt about in [the other wiki page](bindings-api).
+A registration matches its class and every subclass. The factory runs the first time Controlify needs the element's
+behaviour, and that behaviour instance is kept for as long as the element is on the screen.
 
-## Attaching the `ScreenProcessor`
+### Using a built-in behaviour
 
-There are two ways to attach a processor; you can do it through a mixin, or the registry.
+`ElementBehaviours` has factories for the common kinds of control. Give them a callback into your widget.
 
-### Using the registry
+Build your elements' and screens' support out of these wherever you can, instead of one behaviour that handles
+everything itself. Then Controlify implements the standard controls, and your slider works the same as every other
+slider, in every mod.
 
-Inside the pre-init entrypoint, add the following code...
+| Factory | Controller handling |
+|---|---|
+| `button(press)` | Press activates it, with a click sound. |
+| `slider(adjust)` | Press starts editing. While editing, left and right call `adjust` with `-1` or `+1`, and back stops editing. Secondary left and right adjust it without editing. |
+| `slider(adjust, isEditing, setEditing)` | The same, using editing state that your widget already has, so it can render it. |
+| `secondarySlider(adjust)` | Secondary left and right adjust it. Press still activates it normally. |
+| `cycle(cycle)` | Press, or secondary left and right, step through options. |
 
-```java
-@Override
-public void onControlifyPreInit(PreInitContext ctx) {
-    // ...
-    ScreenProcessorProvider.REGISTRY.register(
-        MyAmazingScreen.class,
-        MyAmazingScreenProcessor::new
-    );
-}
-```
+These don't check whether the widget is active or visible. Wrap a factory in `enabledWidget` to skip the widget
+while it's inactive or hidden, as the example does.
 
-### Using Mixin
+### Text input
 
-You can make your screen implement the `ScreenProcessorProvider` interface which does as it says on the tin.
+Every element that takes text input needs a keyboard behaviour, so that players can type into it with the on-screen
+keyboard. Controlify provides one for `EditBox` and chat. Any other text field, like the example's name field, needs
+its own:
 
-```java
-@Mixin(MyAmazingScreen.class)
-public class MyAmazingScreenMixin implements ScreenProcessorProvider {
-    @Unique private final ScreenProcessor<?> processor =
-            new MyAmazingScreenProcessor((MyAmazingScreen) (Object) this);
+<<< @/../../src/example/java/dev/isxander/controlify/example/screen/NameFieldBehaviour.java#keyboard
 
-    @Override
-    public ScreenProcessor<?> screenProcessor() {
-        return this.processor;
-    }
-}
-```
+When the player presses on the focused element, Controlify opens the on-screen keyboard with the
+`ElementKeyboardBehaviour` you return, if the player has the on-screen keyboard turned on.
 
-::: warning
-Make sure to store a reference to the processor in a field, and not initialise it inside the getter function.
-:::
+- `Handled(layout, inputTarget, positioner)` opens it. The layout is one of `KeyboardLayouts`: `FULL`, `SIMPLE` or
+  `SERVER_IP`, or [your own](../resource-packs/keyboard-layouts). The positioner places it on the screen.
+- `DoNothing()` stops the keyboard from opening, for an element that already provides its own way to type.
+- `Optional.empty()` leaves the decision to the element's other behaviours.
 
-It is not inherently bad to mixin into your own classes, so don't feel that this in an 'improper' way. However using the registry is probably better. This method is useful when adding processors to vanilla screens, where you have easier access to fields and functions with `@Shadow` that you can pass into your processor.
+The `InputTarget` receives what the player types. Implement the parts your element supports:
 
-## Using `ComponentProcessor`
+<<< @/../../src/example/java/dev/isxander/controlify/example/screen/NameFieldBehaviour.java#input-target
 
-The screen processors work great for handling global actions within the screen, but don't provide any way to control the interaction behaviour of individual GUI components. This is where component processors come in.&#x20;
+| Capability | Methods |
+|---|---|
+| Characters | `supportsCharInput`, `acceptChar` |
+| Keys, like backspace and enter | `supportsKeyCodeInput`, `acceptKeyCode` |
+| Copying | `supportsCopying`, `copy` |
+| Moving the cursor | `supportsCursorMovement`, `moveCursor` |
 
-For the example, we will create a processor for the vanilla button widget. For all intensive purposes, all we need to know about `AbstractButton` is that it has an abstract `onPress()` method:
+### Writing your own
 
-```java
-public abstract class AbstractButton implements GuiEventListener {
-    public abstract void onPress();
-}
-```
+Implement `ElementBehaviour` for what no built-in behaviour covers. Keep it to that one job and register it
+alongside the built-in ones, rather than replacing them. Every method has a default, so override only what you need:
 
-Now we create our component processor:
+| Method | Called |
+|---|---|
+| `handleNavigation(screen, controller, next)` | With directional input, before interaction. Focused elements receive it from the deepest one outwards, before the screen does. |
+| `handleInteraction(screen, controller, next)` | With every other input, such as pressing the element. |
+| `onFocusChanged(screen, focused)` | When the element gains or loses focus. |
+| `keyboardBehaviour(screen)` | When Controlify needs to know whether the element takes text input. |
+| `collectSnapPoints(screen, output, next)` | When the [virtual mouse](#virtual-mouse) gathers points to snap to. |
 
-```java
-public class AbstractButtonProcessor implements ComponentProcessor {
-    @Override
-    public boolean overrideControllerNavigation(ScreenProcessor<?> screen, ControllerEntity controller) {
-        return false;
-    }
-
-    @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        return false;
-    }
-
-    @Override
-    public void onFocusGained(ScreenProcessor<?> screen, ControllerEntity controller) {
+## Screen behaviours
 
-    }
-}
-```
+A screen behaviour handles things that belong to the whole screen, like shortcuts and button guides. Register it
+in `ScreenopEvents.REGISTER_SCREEN_BEHAVIOURS`:
 
-Notice how both the 'override' methods return boolean. The return value dictates whether the corresponding screen processor methods are ran. This processor doesn't do much, so let's add the functionality to run the `onPress()` method.
+<<< @/../../src/example/java/dev/isxander/controlify/example/screen/BoatSettingsBehaviours.java#register-screen
 
-```java
-public record AbstractButtonProcessor(AbstractButton button) implements ComponentProcessor {
-    @Override
-    public boolean overrideControllerButtons(ScreenProcessor<?> screen, ControllerEntity controller) {
-        if (controller.bindings().GUI_PRESS.justReleased()) {
-            this.button.onPress();
-            return true; // override - now ScreenProcessor#handleButtons will not run
-        }
+Java can't infer the screen type when you pass a constructor reference, so give it explicitly, like
+`registry.<BoatSettingsScreen>register`.
 
-        return false; // nothing happens! screen processor runs as usual
-    }
-}
-```
+The factory runs once for each screen instance, and receives its `ScreenContext`. Keep the context: it gives you
+the screen, its virtual mouse, its focus, sounds and button guides. The behaviour is kept while the screen is open,
+including when its widgets are rebuilt and when the player returns to it from another screen.
 
-Here we added a constructor so we have access to the button, removed the unneeded overrides and added yet another quick binding check to press the button. Again, this can be switched out for your own binding that you created in [the other wiki page](bindings-api).
+The example resets the settings with the first GUI abstract action, and shows that on the reset button:
 
-::: info
-The use case of a component processor shown above will actually not behave any differently to if it wasn't there. This is because if there is no component processor, `GUI_PRESS` will just emulate the enter key, which buttons already handle for. However, it is always best to have explicit compatibility to not rely on emulation.
-:::
+<<< @/../../src/example/java/dev/isxander/controlify/example/screen/BoatSettingsScreenBehaviour.java#screen-behaviour
 
-## Attaching a `ComponentProcessor`
+`BuiltinActions.GUI_ABSTRACT_ACTION_1` to `3` are general-purpose screen actions, for shortcuts like this one. Each
+screen decides what they do.
 
-You attach a component processor no differently from [how you attach a screen processor](#attaching-the-screenprocessor). You have two options: the registry, or a mixin.
+| Method | Called |
+|---|---|
+| `handleNavigation(controller, next)` | With directional input, before interaction. |
+| `handleInteraction(controller, next)` | With every other input, after navigation. |
+| `onWidgetRebuild(next)` | After the screen creates its widgets, including when it's resized. |
+| `extractRenderState(graphics, tickDelta, controller, next)` | When the screen renders, to draw controller-only content. |
+| `update(delta, next)` | Every frame, for smooth movement or animation. |
+| `collectSnapPoints(output, next)` | When the [virtual mouse](#virtual-mouse) gathers points to snap to. |
+| `onScreenActiveChanged(active)` | When the screen becomes, or stops being, the current screen. |
 
-### Using the registry
+Navigation and interaction run on each tick. Navigation runs first, and interaction then uses the focus that
+navigation left behind.
 
-Inside of the pre-init entrypoint, add the following code...
+### Button guides
 
-```java
-@Override
-public void onControlifyPreInit(PreInitContext ctx) {
-    // ...
-    ComponentProcessorProvider.REGISTRY.register(
-        AbstractButtton.class,
-        AbstractButtonProcessor::new
-    );
-    // ...
-}
-```
+A button guide shows an action's button next to a widget. Add guides in `onWidgetRebuild`, because the screen
+creates new widgets each time it rebuilds them.
 
-### Using Mixin
+The last argument, a `ButtonGuidePredicate`, decides when the guide shows. `ButtonGuidePredicate.always()` and
+`focusOnly()` cover the common cases. It's a functional interface, so you can also pass a lambda that takes the
+widget, like the example's, which only shows the guide while there are settings to reset.
 
-You can make your component implement the `ComponentProcessorProvider` interface which does as it says on the tin.
+## Chains
 
-```java
-@Mixin(AbstractButton.class)
-public class AbstractButtonMixin implements ComponentProcessorProvider {
-    @Unique private final ComponentProcessor processor =
-            new AbstractButtonProcessor((AbstractButton) (Object) this);
+Every behaviour that matches a screen or element runs, in a chain. Each method that takes `next` passes the call on
+to the next behaviour when you call `next.run()`. Leave it out to stop the rest of the chain, for that call only:
 
-    @Override
-    public ComponentProcessor componentProcessor() {
-        return this.processor;
-    }
-}
-```
+- Stopping navigation doesn't stop interaction, and stopping interaction doesn't undo navigation.
+- Stopping the chain doesn't consume any action's pulses. Consume them yourself when you handle an action.
+- Call `next` at most once, during the method. Code after `next.run()` runs after the rest of the chain.
 
-::: warning
-Make sure to store a reference to the processor in a field, and not initialise it inside the getter function.
-:::
+Behaviours run from the highest priority to the lowest. Within a priority, more specific classes run first, then
+newer registrations. Leave the priority at its default of `0` unless you need to run before or after a particular
+behaviour. Controlify registers its own as follows:
 
-## Using button guides
+| Priority | Screen behaviours | Element behaviours |
+|---|---|---|
+| `100` | The virtual mouse, focus, and passing input to the focused elements | Skipping snap points of hidden or inactive widgets |
+| `0` | Behaviours for specific screens | Behaviours for specific elements |
+| `-100` | Pressing the focused element, switching tabs and going back | Passing input to a container's children |
+| `-200` | | The centre snap point of every widget |
 
-The screen now fully works with a controller, but it is not clear what buttons press what on your screen. This is where the button guide API comes in; you can easily add binding previews to buttons.
+To combine several behaviours yourself, `ScreenBehaviours` and `ElementBehaviours` provide:
 
-To add a button guide, we need to modify our screen processor and add an override for the `onWidgetRebuild` method. Since this runs after our buttons have initialised.
+- `chain(...)` runs behaviours in a fixed order, without giving each its own priority.
+- `conditional(condition, behaviour)` skips a behaviour while the condition is false.
+- `branch(behaviour)` limits leaving out `next` to the behaviour inside it. Use it for a group of behaviours that
+  are meant to stop each other: without `branch`, one of them leaving out `next` also stops every behaviour after
+  the group.
 
-```java
-public class MyAmazingScreenProcessor extends ScreenProcessor<MyAmazingScreen> {
-    // ...
+## Virtual mouse
 
-    @Override
-    public void onWidgetRebuild() {
-        super.onWidgetRebuild();
+Each screen has a virtual mouse, with a mode that decides what it does:
 
-        ButtonGuideApi.addGuideToButton(
-                this.screen.button1,
-                ControlifyBindings.GUI_ABSTRACT_ACTION_1,
-                ButtonRenderPredicate.ALWAYS
-        );
-        ButtonGuideApi.addGuideToButton(
-                screen.button2,
-                ControlifyBindings.GUI_ABSTRACT_ACTION_2,
-                ButtonRenderPredicate.ALWAYS
-        );
-    }
-}
-```
+| Mode | Cursor |
+|---|---|
+| `DEFAULT` | Off, unless the player turns it on for this screen. |
+| `ENABLED` | On. It moves, snaps, scrolls and clicks. |
+| `DISABLED` | Off. |
+| `CURSOR_ONLY` | On, but it only moves and snaps. Your behaviours handle clicks. |
+| `CURSOR_SCROLL` | Like `CURSOR_ONLY`, but it also scrolls. |
 
-If you want to use a custom binding, replace `ControlifyBindings.GUI_ABSTRACT_ACTION_1` with your own binding supplier, like `MyModControlifyEntrypoint.action1Binding`.
+Leave screens on `DEFAULT` when they work with focus. The player's toggle exists for modded screens that don't.
+Choosing any other mode removes that toggle for the screen. Container screens use `CURSOR_SCROLL`: the cursor moves
+between slots, and their behaviours decide what pressing does.
 
-## More examples
+Set the mode in your screen behaviour factory, with `context.virtualMouse().setMode(...)`. When the cursor doesn't
+click for you, `virtualMouse().emulateClicks(controller)` performs mouse clicks from the cursor's actions.
 
-If you want to see some more advanced examples, have a look at the Controlify source in your IDE. The following packages will be very helpful:
-
-* `dev.isxander.controlify.screenop.compat`
-* `dev.isxander.controlify.mixins.feature.screenop.impl`
-* `dev.isxander.controlify.compatibility`
+The cursor snaps to snap points. Every widget already has one at its centre. Add more in `collectSnapPoints`, for
+targets that aren't widgets, such as inventory slots.

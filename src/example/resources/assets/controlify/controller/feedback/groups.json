@@ -1,0 +1,13 @@
+{
+  "groups": {
+    "examplemod:boat": [
+      "examplemod:horn",
+      "examplemod:boost",
+      "examplemod:engine"
+    ],
+    "examplemod:ambience": ["examplemod:boat_tint"]
+  },
+  "ordering": {
+    "examplemod:ambience": { "below": ["controlify:player"] }
+  }
+}

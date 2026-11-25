@@ -3,12 +3,12 @@
     {
       "band": "low",
       "level": 0.3,
-      "scale": "movement"
+      "scale": { "param": "speed", "from": [0, 1.7] }
     },
     {
       "band": "high",
       "level": 0.5,
-      "scale": "movement"
+      "scale": { "param": "speed", "from": [0, 1.7] }
     }
   ]
 }

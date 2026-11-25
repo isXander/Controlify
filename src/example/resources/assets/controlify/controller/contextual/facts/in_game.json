@@ -1,0 +1,6 @@
+{
+  "examplemod:in_boat": {
+    "slot": "controlify:self",
+    "entity": { "vehicle": { "type": "#minecraft:boat" } }
+  }
+}

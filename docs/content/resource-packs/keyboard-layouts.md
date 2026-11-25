@@ -4,180 +4,225 @@ title: Keyboard Layouts
 
 # Keyboard Layouts
 
-Design, data format, and examples for Controlify's on‑screen keyboard layouts.
+A keyboard layout is a data file that sets the rows and keys of Controlify's on-screen keyboard. A resource pack
+can change the built-in layouts, translate them for other languages, or add new layouts that other layouts switch
+to.
 
-## What is it?
-A keyboard layout is a data file that describes the rows and keys shown by the on‑screen keyboard. Layouts are column‑aligned grids: each row’s key widths must sum to the same total “unit width.” Keys have an optional shifted function to support Shift and Caps‑style behavior.
+## Where layouts go
 
-Layouts are discovered from resource packs and selected per language with a fallback to en_us.
+A layout lives at `assets/<namespace>/controller/keyboard_layout/<layout>/<language>.json`, and its ID is
+`<namespace>:<layout>`. `<layout>` is a single folder name, and `<language>` is a Minecraft language code like
+`en_us` or `fr_fr`.
 
-- Location: `assets/<namespace>/keyboard_layout/<layout_id>/<language_code>.json`
-- Resolved id: `<namespace>:<layout_id>`
-- Language fallback: if `<language_code>.json` is missing, `en_us.json` is used
-- Built‑ins: `controlify:full`, `controlify:simple`, `controlify:server_ip` (see KeyboardLayouts)
-- Fallback: if a requested layout can’t be found/parsed, an internal QWERTY fallback is used
+Controlify picks the file for the player's current language. If there isn't one, it uses `en_us.json`. If the
+layout doesn't exist at all, or its file failed to load, the keyboard shows a built-in QWERTY layout instead. A file
+that fails to load is skipped, with an error in the log.
 
-::: warning
-Row widths are validated. If any row’s key widths don’t add up to the layout width, the file won’t load.
-:::
+Controlify has three built-in layouts:
+
+| Layout | Used for |
+|---|---|
+| `controlify:full` | The chat screen |
+| `controlify:simple` | Other text boxes, and sign editing |
+| `controlify:server_ip` | The server address box |
+
+To replace a built-in layout, add a file at the same path, like
+`assets/controlify/controller/keyboard_layout/simple/en_us.json`. To translate one, add a file for your language
+next to it, like `assets/controlify/controller/keyboard_layout/simple/fr_fr.json`.
 
 ## File format
-Top level
-- `width` (number ≥ 1): the unit width of the keyboard; every row must sum to this
-- `keys` (array of rows): each row is an array of Key entries; rows are rendered top‑to‑bottom
 
-A Key can be specified in multiple forms:
-- Short: a single KeyFunction (e.g. a string like "a"), meaning regular=shifted=createShifted()
-- Pair: `[regular, shifted]` array
-- Object: `{ regular, shifted?, width?, shortcut?, identifier? }`
-
-Key object fields
-- `regular` (KeyFunction): action when not shifted
-- `shifted` (KeyFunction, optional): action when shifted; default is `regular.createShifted()` (may return itself if not supported)
-- `width` (number ≥ 0.1, default 1): unit width of this key
-- `shortcut` (ResourceLocation, optional): binding id whose glyph is shown on the key and which can trigger this key directly (see [Built-in Bindings](../reference/builtin-bindings))
-- `identifier` (string, optional): stable id used to preserve focus when switching layouts
-
-### KeyFunction types
-You can mix any of these in a row.
-
-#### String insert
-A KeyFunction that inserts a string of characters. It can be specified in two forms:
-
-1. Short form: a JSON string value (e.g. `"a"`)
-2. Object form: `{ chars: string, display_name: Component? }`
-
-Shifted behavior: by default, the shifted variant uses `toUpperCase()` of `chars` unless you provide an explicit `shifted` KeyFunction.
-
-#### Key codes
-A KeyFunction that sends one or more key codes ([GLFW/Minecraft `InputConstants` values](https://www.glfw.org/docs/latest/group__keys.html)).
-A key code is a numeric identifier for a key on a keyboard, such as `GLFW_KEY_A (65)` or `GLFW_KEY_ENTER (257)`.
-They represent a physical key on your keyboard, rather than a printable character.
-
-::: info
-Common key codes used in keyboards can be replaced with [special actions](#special-actions) for better readability and
-localisation benefits.
-:::
-
-It can be specified in two forms:
-
-1. Short form: a JSON array of integer key codes (e.g. `[257, 259]`)
-2. Object form: a JSON array of key code objects, each with:
-   - `keycode` (integer): the key code
-   - `scancode` (integer, optional, default 0): the physical scancode (if applicable)
-   - `modifier` (integer, optional, default 0): [modifier bitflags](https://www.glfw.org/docs/latest/group__mods.html) (e.g. `GLFW_MOD_SHIFT`)
-
-There is no default shifted variant for key codes; if you need a shifted version, provide it explicitly using the `shifted` KeyFunction.
-
-```json
-{ "codes": [
-    257,
-    { "keycode": 259, "scancode": 0, "modifier": 0 }
-]}
-```
-
-#### Special actions
-A KeyFunction that performs a predefined action, such as pressing Enter, Shift Key, copying text, etc.
-
-```json
-{ "action": "shift" }
-```
-Available actions
-- `shift`, `shift_lock`
-- `enter`, `backspace`, `tab`
-- `left_arrow`, `right_arrow`, `up_arrow`, `down_arrow`
-- `copy_all`, `paste`
-- `previous_layout`
-
-Display names are translatable via `controlify.keyboard.special.<name>`,
-e.g. `controlify.keyboard.special.enter`.
-
-#### Change layout
-A KeyFunction that switches to another layout by id. It can be specified as:
-1. Object form: `{ layout: ResourceLocation, display_name: Component }`
-
-```json
-{ "layout": "my_pack:emojis", "display_name": { "text": "Emoji" } }
-```
-
-### Display names
-Where a display name is supported, use a [Minecraft Component](https://minecraft.wiki/w/Text_component_format#Java_Edition).
-Examples:
-```json
-{ "text": "Enter" }
-{ "translate": "my.lang.key" }
-```
-
-## Examples
-Minimal keyboard
 ```json
 {
   "width": 10,
   "keys": [
-    [ "q", "w", "e", "r", "t", "y", "u", "i", "o", "p" ],
-    [ "a", "s", "d", "f", "g", "h", "j", "k", "l", [".", ","] ],
-    [ "z", "x", "c", "v", "b", "n", "m", ["-", "_"], { "regular": { "action": "enter" }, "width": 2.0 } ]
+    ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+    ["a", "s", "d", "f", "g", "h", "j", "k", "l", [".", ","]],
+    ["z", "x", "c", "v", "b", "n", "m", ["-", "_"], { "regular": { "action": "enter" }, "width": 2 }]
   ]
 }
 ```
 
-Explicit shifted with width and shortcut glyphs
-```json
-{
-  "width": 13,
-  "keys": [
-    [
-      { "regular": { "action": "tab" }, "width": 1 },
-      [ ["a", "A"] ],
-      { "regular": { "chars": "b" }, "shifted": { "chars": "B" }, "width": 2, "shortcut": "controlify:gui_abstract_action_1", "identifier": "big-b" },
-      { "action": "enter" }
-    ]
-  ]
-}
-```
+| Field | Description |
+|---|---|
+| `width` | The width of the keyboard, in key units. At least `1`. |
+| `keys` | A list of rows, drawn from top to bottom. Each row is a list of [keys](#keys), drawn from left to right. |
 
-Switch to another layout and back
-```json
-{
-  "width": 5,
-  "keys": [
-    [
-      { "layout": "my_pack:numeric", "display_name": { "text": "123" }, "identifier": "to-numeric" },
-      { "action": "previous_layout" }
-    ]
-  ]
-}
-```
-
-## Behavior notes
-- Keys are column‑aligned; spanning multiple columns isn’t supported. Use `width` to vary sizes.
-- Shift toggles the shifted layer for the next press; Shift‑lock keeps it engaged until toggled off.
-- Paste inserts clipboard text as characters; Copy‑all calls the target’s copy handler.
-- When changing layouts, focus is preserved using `identifier` if possible, or by focusing a `previous_layout` key.
-
-::: info
-If you only provide a single KeyFunction (e.g. a string), the key uses that for both layers, with the string’s uppercase form as the shifted display by default.
+::: warning
+The widths of the keys in every row must add up to `width` exactly. If any row doesn't, the file doesn't load.
 :::
 
-## Common conventions
+## Keys
 
-It's recommended to follow these conventions when creating your own keyboard layouts:
+A key has a regular function and a shifted function, used while Shift is on. It can be written in three ways:
 
-- Backspace key (if present) should have a shortcut of `controlify:gui_abstract_action_1`.
-- Space key (if present) should have a shortcut of `controlify:gui_abstract_action_2`.
-- Shift key (if present) should have a shortcut of `controlify:gui_abstract_action_3`.
-- Enter key (if present) should have a shortcut of `controlify:pause`.
-- The user expects `controlify:gui_next_tab` and `controlify:gui_prev_tab` should not be used as shortcuts,
-  as the user expects them to be used to move the text cursor.
-- Prefer using [special actions](#special-actions) for common keys like Enter, Shift, and Backspace,
-  as opposed to using key codes, for better readability and localisation.
-- When localising keyboards, prefer to keep the same special actions in the same order where possible.
-- When localising keyboards, prefer the most standard layout for the language, such as QWERTY for English, AZERTY for French, etc.
-- It is not necessary to localise the display names, as they're already in a localised keyboard layout file.
+| Form | Example | Shifted function |
+|---|---|---|
+| A [key function](#key-functions) | `"a"` | Made from the regular one |
+| A `[regular, shifted]` pair | `["1", "?"]` | The second function |
+| An object | `{ "regular": "b", "width": 2 }` | `shifted`, or made from the regular one |
 
-## JSON Schema
+The object form takes these fields:
 
-Add the following to the top of your keyboard layout JSON file to get schema validation in your IDE:
+| Field | Default | Description |
+|---|---|---|
+| `regular` | required | The [key function](#key-functions) used while Shift is off. |
+| `shifted` | made from `regular` | The key function used while Shift is on. |
+| `width` | `1` | The key's width, in key units. At least `0.1`. |
+| `shortcut` | none | The ID of an [action](../reference/builtin-actions) that also presses this key. Its glyph is shown on the key, and holding the action repeats the key. |
+| `identifier` | none | A name used to keep focus on this key when the layout changes. See [Changing layouts](#changing-layouts). |
+
+Only a string key function can make its own shifted version: it uses the upper case of its characters. Every other
+function stays the same when shifted, so give it a `shifted` function if it needs one.
+
+To use `shortcut`, `width` or `identifier`, you need the object form, even for a single function. A field next to a
+key function, like `{ "action": "enter", "width": 2 }`, is ignored.
+
+## Key functions
+
+A key function says what a key does and what it shows. There are four kinds, and a row can mix them.
+
+### Insert characters
+
+Types its characters into the text box.
+
+| Form | Example |
+|---|---|
+| A string | `"a"` |
+| An object | `{ "chars": " ", "display_name": "Space" }` |
+
+`display_name` is optional. Without it, the key shows its characters. It's a [text component](#display-names).
+
+### Key codes
+
+Sends one or more key presses, using [GLFW key codes](https://www.glfw.org/docs/latest/group__keys.html). A key
+code stands for a physical key, not a character: `257` is Enter, and `259` is Backspace.
+
+```json
+{
+  "codes": [
+    257,
+    { "keycode": 259, "scancode": 0, "modifier": 0 }
+  ],
+  "display_name": "Enter, then Backspace"
+}
+```
+
+| Field | Description |
+|---|---|
+| `codes` | A list of key codes, sent in order. Each one is a number, or an object with `keycode` and optional `scancode` and `modifier`, both default `0`. `modifier` takes [GLFW modifier flags](https://www.glfw.org/docs/latest/group__mods.html), like `1` for Shift. |
+| `display_name` | Required. The key's label, as a [text component](#display-names). |
+
+Prefer a [special action](#special-actions) for keys it covers, like Enter or Backspace. Its label is already
+translated.
+
+### Special actions
+
+Does a built-in job.
+
+```json
+{ "action": "shift" }
+```
+
+| Action | What it does |
+|---|---|
+| `shift` | Turns Shift on or off. Shift turns off by itself after the next key that has a different shifted function. Pressing `shift` while Shift lock is on turns both off. |
+| `shift_lock` | Turns Shift on, and keeps it on until `shift_lock` is pressed again. |
+| `enter` | Presses Enter. |
+| `backspace` | Presses Backspace. |
+| `tab` | Presses Tab. |
+| `left_arrow`<br>`right_arrow`<br>`up_arrow`<br>`down_arrow` | Presses an arrow key. |
+| `copy_all` | Copies all the text in the text box. |
+| `paste` | Types the clipboard's contents. |
+| `previous_layout` | Changes back to the layout that was open before this one. |
+
+The label is the translation key `controlify.keyboard.special.<action>`, like `controlify.keyboard.special.enter`.
+
+A key is disabled when the text box doesn't support what it does. For example, `copy_all` only works in a text
+box that supports copying.
+
+### Change layout
+
+Changes the keyboard to another layout.
+
+```json
+{ "layout": "my_pack:numbers", "display_name": "123" }
+```
+
+| Field | Description |
+|---|---|
+| `layout` | The ID of the layout to change to. |
+| `display_name` | Required. The key's label, as a [text component](#display-names). |
+
+## Changing layouts
+
+When the layout changes, Controlify chooses the key to focus in this order:
+
+1. the key whose `identifier` matches the key that was focused;
+2. a key that changes back to the old layout, or a `previous_layout` key;
+3. the first key.
+
+When the keyboard first opens, it focuses the key with the `identifier` `initial_focus`, if there is one.
+
+This pair of layouts uses identifiers so focus stays on the same corner key when the player switches:
+
+```json
+{
+  "width": 2,
+  "keys": [
+    [
+      { "regular": { "layout": "my_pack:numbers", "display_name": "123" }, "identifier": "switch" },
+      { "regular": { "action": "backspace" }, "shortcut": "controlify:gui_abstract_action_1" }
+    ]
+  ]
+}
+```
+
+```json
+{
+  "width": 2,
+  "keys": [
+    [
+      { "regular": { "action": "previous_layout" }, "identifier": "switch" },
+      "1"
+    ]
+  ]
+}
+```
+
+## Display names
+
+A display name is a [text component](https://minecraft.wiki/w/Text_component_format#Java_Edition). A plain string
+works, as do objects:
+
+```json
+"Enter"
+{ "text": "Enter" }
+{ "translate": "my_pack.keyboard.enter" }
+```
+
+You don't need to translate display names. Each language can have its own layout file.
+
+## Conventions
+
+The built-in layouts use these shortcuts. Follow them so the keyboard behaves the same everywhere:
+
+| Key | Shortcut |
+|---|---|
+| Backspace | `controlify:gui_abstract_action_1` |
+| Space | `controlify:gui_abstract_action_2` |
+| Shift | `controlify:gui_abstract_action_3` |
+| Enter | `controlify:pause` |
+
+Don't use `controlify:gui_next_tab` or `controlify:gui_prev_tab` as shortcuts. In a text box that has a cursor,
+the keyboard uses them to move the cursor.
+
+When you translate a layout, keep the special actions in the same places where you can, and use the most common
+layout for the language, like AZERTY for French.
+
+## JSON schema
+
+To get validation in your editor, add this to the top of your layout file:
 
 ```json
 {

@@ -32,6 +32,11 @@
     },
     {
       "for": "controlify:ambient",
+      "if": { "all_of": ["controlify:on_slow_block", "controlify:input_moving"] },
+      "then": "controlify:slow_block"
+    },
+    {
+      "for": "controlify:ambient",
       "if": "controlify:has_hearts",
       "then": "controlify:heartbeat"
     }

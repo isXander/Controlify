@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.impl.contextual;
 
+import dev.isxander.controlify.impl.utils.DebugLog;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.DataResult;
@@ -91,7 +92,8 @@ public final class ContextualDomainImpl<C extends Context> implements Contextual
 			List<Resource> resources = manager.getResourceStack(file);
 
 			if (resources.isEmpty()) {
-				CUtil.LOGGER.error("Found 0 entries in resource stack {} while loading contextual domain {}", file, this.id);
+				// a domain does not need data-defined facts, such as an addon's domain whose state is all contributed
+				DebugLog.log("No facts found at {} for contextual domain {}", file, this.id);
 			}
 
 			var lookup = new PlaceholderLookupProvider(RegistryAccess.EMPTY);

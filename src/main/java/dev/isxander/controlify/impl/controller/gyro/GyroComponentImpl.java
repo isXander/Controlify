@@ -132,7 +132,7 @@ public class GyroComponentImpl extends ControllerComponent implements GyroCompon
 				? new Vector2f() : this.lookDelta;
 	}
 
-	/// Returns the unit vector pointing up in the controller frame, if an accelerometer is providing one.
+	@Override
 	public Optional<Vector3fc> gravity() {
 		return System.nanoTime() - this.lastMotionTimeNanos > MAX_SAMPLE_AGE_NANOS
 				? Optional.empty() : Optional.ofNullable(this.gravity);

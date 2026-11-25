@@ -1,7 +1,7 @@
 [
   {
     "friendly_name": "Xbox Controller",
-    "id": "controlify:xbox_one",
+    "id": "controlify:xbox",
 
     "hids": [
       [0x45e, 0x202], // Xbox Controller
@@ -89,8 +89,6 @@
       [0x28de, 0x1303], // BLE
       [0x28de, 0x1304], // Proteus Dongle
       [0x28de, 0x1305], // Nereid Dongle
-
-      [0x28de, 0x11ff], // Steam Input Virtual Gamepad
     ]
   },
   {

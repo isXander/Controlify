@@ -1,0 +1,10 @@
+{
+  "defaults": {
+    "examplemod:horn": ["controlify:button/south"],
+    "examplemod:boost": ["controlify:button/left_stick"],
+    "examplemod:throttle": ["controlify:axis/right_trigger"],
+    "examplemod:zoom": [
+      { "modifiers": ["controlify:button/west"], "trigger": "controlify:button/north" }
+    ]
+  }
+}

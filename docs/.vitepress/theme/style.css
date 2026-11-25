@@ -37,3 +37,8 @@ h3,
   height: 30px;
   border-radius: 8px;
 }
+
+/* example addon sources are tab-indented */
+.vp-doc div[class*="language-"] pre {
+  tab-size: 4;
+}

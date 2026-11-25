@@ -156,6 +156,31 @@ class ConfigMigrationTest {
 		assertFalse(fixedGlobal.has("ingame_button_guide_scale"));
 	}
 
+	@Test
+	void sharedConfigRenamesXboxOneControllerType() throws IOException {
+		JsonObject shared = new JsonObject();
+		shared.add("global", new JsonObject());
+		JsonObject devices = new JsonObject();
+		JsonObject xbox = new JsonObject();
+		xbox.addProperty("controller_type", "controlify:xbox_one");
+		devices.add("xbox", xbox);
+		JsonObject dualsense = new JsonObject();
+		dualsense.addProperty("controller_type", "controlify:dualsense");
+		devices.add("dualsense", dualsense);
+		shared.add("devices", devices);
+
+		Dynamic<?> fixed = ControlifyDataFixer.createFixer(defaults()).update(
+				ControlifyTypeReferences.SHARED_CONFIG,
+				new Dynamic<>(JsonOps.INSTANCE, shared),
+				14,
+				ControlifyDataFixer.CURRENT_VERSION
+		);
+
+		JsonObject fixedDevices = ((JsonObject) fixed.getValue()).getAsJsonObject("devices");
+		assertEquals("controlify:xbox", fixedDevices.getAsJsonObject("xbox").get("controller_type").getAsString());
+		assertEquals("controlify:dualsense", fixedDevices.getAsJsonObject("dualsense").get("controller_type").getAsString());
+	}
+
 	private static ActionBinding single(String path) {
 		return ActionBinding.of(new LogicalInput.Single(id(path)));
 	}

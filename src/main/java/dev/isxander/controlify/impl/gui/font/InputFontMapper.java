@@ -46,10 +46,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 	/// One or more characters of the glyph set's font, rendered in sequence.
 	private static final Codec<String> GLYPHS_CODEC = ExtraCodecs.NON_EMPTY_STRING;
 
-	private static final Codec<Pair<String, Map<Identifier, String>>> FONT_MAP_CODEC = Codec.pair(
-			GLYPHS_CODEC.fieldOf("unknown").codec(),
-			Codec.unboundedMap(Identifier.CODEC, GLYPHS_CODEC)
-	);
+	private static final Codec<Map<Identifier, String>> FONT_MAP_CODEC = Codec.unboundedMap(Identifier.CODEC, GLYPHS_CODEC);
 
 	private static final FileToIdConverter fileToIdConverter = FileToIdConverter.json("controller/font_mapping");
 
@@ -66,7 +63,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 					JsonElement element = JsonParser.parseReader(reader);
 					FontMap map = FONT_MAP_CODEC.parse(JsonOps.INSTANCE, element)
 							.resultOrPartial(CUtil.LOGGER::error)
-							.map(pair -> new FontMap(namespace, pair.getFirst(), pair.getSecond()))
+							.map(glyphs -> new FontMap(namespace, glyphs))
 							.orElse(null);
 					if (map != null) {
 						return Stream.of(Pair.of(namespace, map));
@@ -97,7 +94,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 	}
 
 	private static FontMap emptyFontMap() {
-		return new FontMap(ControllerType.DEFAULT.id(), "?", Map.of());
+		return new FontMap(ControllerType.DEFAULT.id(), Map.of());
 	}
 
 	public FontMap getMappings(Identifier namespace) {
@@ -234,7 +231,7 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 	public record Preparations(Map<Identifier, FontMap> mappings) {
 	}
-	public record FontMap(Identifier namespace, String unknown, Map<Identifier, String> glyphs) {
+	public record FontMap(Identifier namespace, Map<Identifier, String> glyphs) {
 	}
 
 	private record MappedGlyphs(String glyphs, FontMap fontMap) {

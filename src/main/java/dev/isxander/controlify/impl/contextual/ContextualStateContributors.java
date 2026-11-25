@@ -8,6 +8,7 @@ package dev.isxander.controlify.impl.contextual;
 
 import dev.isxander.controlify.api.contextual.*;
 import dev.isxander.controlify.impl.controller.ControllerImpl;
+import dev.isxander.controlify.mixins.feature.guide.ingame.EntityAccessor;
 import dev.isxander.controlify.mixins.feature.guide.ingame.PlayerAccessor;
 import dev.isxander.controlify.impl.utils.CUtil;
 import net.minecraft.resources.Identifier;
@@ -34,6 +35,8 @@ public final class ContextualStateContributors {
 	private static final Identifier FACT_OFF_HAND_IS_BLOCK_ITEM = CUtil.rl("off_hand_is_block_item");
 	private static final Identifier FACT_FISHING_HOOK_CAST = CUtil.rl("fishing_hook_cast");
 	private static final Identifier FACT_ON_CLIMBABLE = CUtil.rl("on_climbable");
+	/// Standing on a block that slows movement, like soul sand or honey.
+	private static final Identifier FACT_ON_SLOW_BLOCK = CUtil.rl("on_slow_block");
 
 	private static final Identifier SLOT_HOVERING_SLOT = CUtil.rl("hovering_slot");
 	private static final Identifier SLOT_HOLDING_ITEM = CUtil.rl("holding_item");
@@ -87,6 +90,7 @@ public final class ContextualStateContributors {
 		);
 		sink.contributeFact(FACT_FISHING_HOOK_CAST, context.player().fishing != null);
 		sink.contributeFact(FACT_ON_CLIMBABLE, context.player().onClimbable());
+		sink.contributeFact(FACT_ON_SLOW_BLOCK, ((EntityAccessor) context.player()).controlify$callGetBlockSpeedFactor() < 1f);
 
 		sink.contributeFact(
 				CUtil.rl("can_elytra_fly"),

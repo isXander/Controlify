@@ -8,7 +8,7 @@ import pspController from '../../../../src/main/resources/assets/controlify/text
 import steamController from '../../../../src/main/resources/assets/controlify/textures/gui/sprites/controllers/steam_controller.png'
 import steamDeckController from '../../../../src/main/resources/assets/controlify/textures/gui/sprites/controllers/steam_deck.png'
 import switchController from '../../../../src/main/resources/assets/controlify/textures/gui/sprites/controllers/switch.png'
-import xboxController from '../../../../src/main/resources/assets/controlify/textures/gui/sprites/controllers/xbox_one.png'
+import xboxController from '../../../../src/main/resources/assets/controlify/textures/gui/sprites/controllers/xbox.png'
 
 const controllers = [
   { name: 'Xbox', image: xboxController },

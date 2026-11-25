@@ -20,19 +20,26 @@ public final class FeedbackSelection {
 	///
 	/// Every rule for the event whose predicate matches plays its effect. A matching rule that
 	/// names `controlify:none` stops there: no rule below it plays. If no rule matches at all,
-	/// the event plays the effect with its own id.
+	/// the event plays the effect with its own id, unless a rule for the event selects that
+	/// effect: then it only plays while such a rule matches.
 	public static List<Identifier> select(
 			RuleEngine<Identifier, FeedbackRule> rules,
 			Identifier eventId,
 			ContextualState state
 	) {
-		return effects(eventId, rules.evaluate(state, rule -> rule.event().equals(eventId), "feedback/" + eventId));
+		List<FeedbackRule> eventRules = rules.rules().stream()
+				.filter(rule -> rule.event().equals(eventId))
+				.toList();
+		return effects(eventId, eventRules, rules.evaluate(state, rule -> rule.event().equals(eventId), "feedback/" + eventId));
 	}
 
-	/// @param matched the event's rules whose predicates matched, in rule order
-	static List<Identifier> effects(Identifier eventId, List<FeedbackRule> matched) {
+	/// @param eventRules every rule for the event, matched or not
+	/// @param matched    the event's rules whose predicates matched, in rule order
+	static List<Identifier> effects(Identifier eventId, List<FeedbackRule> eventRules, List<FeedbackRule> matched) {
 		if (matched.isEmpty()) {
-			return List.of(eventId);
+			// a rule that selects the event's own effect decides when it plays
+			boolean ownEffectHasRule = eventRules.stream().anyMatch(rule -> rule.effect().equals(eventId));
+			return ownEffectHasRule ? List.of() : List.of(eventId);
 		}
 
 		List<Identifier> effects = new ArrayList<>(matched.size());

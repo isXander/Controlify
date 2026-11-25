@@ -4,7 +4,6 @@ import org.gradle.kotlin.dsl.register
 plugins {
     id("dev.kikugie.stonecutter")
     alias(libs.plugins.undercouch.download)
-    alias(libs.plugins.wiki.toolkit)
     alias(libs.plugins.mod.publish.plugin)
 	alias(libs.plugins.spotless)
 }
@@ -133,12 +132,4 @@ spotless {
 		formatAnnotations()
 		leadingSpacesToTabs(4)
 	}
-}
-
-wiki {
-    docs {
-        register("controlify") {
-            root = file("docs/")
-        }
-    }
 }

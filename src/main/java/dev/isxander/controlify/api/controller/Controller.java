@@ -6,6 +6,7 @@
  */
 package dev.isxander.controlify.api.controller;
 
+import dev.isxander.controlify.api.contextual.GuideVerbosity;
 import dev.isxander.controlify.api.controller.dualsense.DualsenseComponent;
 import dev.isxander.controlify.api.controller.input.InputComponent;
 import dev.isxander.controlify.api.controller.gyro.GyroComponent;
@@ -43,6 +44,10 @@ public interface Controller {
 	/// The identifier of this controller's type.
 	/// This is the same ID defined by `controller_identification.json5`.
 	Identifier typeId();
+
+	/// How much the player has chosen for button guides to show with this controller.
+	/// Return it from [dev.isxander.controlify.api.contextual.Context#verbosity()] in a custom context.
+	GuideVerbosity guideVerbosity();
 
 	/// Input capabilities and current actions.
 	InputComponent input();
