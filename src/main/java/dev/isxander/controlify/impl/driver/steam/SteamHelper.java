@@ -47,6 +47,11 @@ public final class SteamHelper {
 		if (shouldInitialiseSteam) {
 			SteamApi steam = useSpacewar ? new SteamApiFfm(480) : new SteamApiFfm();
 
+			if (!steam.SteamAPI_IsSteamRunning()) {
+				CUtil.LOGGER.log("Steam is not running, skipping Steam API initialisation");
+				return;
+			}
+
 			var errorMessage = new String[1];
 			int res = steam.SteamAPI_InitFlat(errorMessage);
 			if (res == SteamApi.k_ESteamAPIInitResult_OK) {
