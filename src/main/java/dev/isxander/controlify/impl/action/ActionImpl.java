@@ -76,11 +76,28 @@ public class ActionImpl implements Action, Comparable<ActionImpl> {
 	}
 
 	private void setBindingsSilently(List<ActionBinding> bindings) {
+		bindings = this.dropDeadChords(bindings);
 		this.warnUnappliedGestures(bindings);
 		this.bindings = List.copyOf(bindings);
 		this.boundInputs = this.bindings.stream()
 				.map(ActionBinding::input)
 				.collect(Collectors.toUnmodifiableSet());
+	}
+
+	/// A chord never produces axis values, so on an action with a continuous leaf it could only
+	/// be dead while still claiming its modifier's inputs. Hand-edited configs can contain one.
+	private List<ActionBinding> dropDeadChords(List<ActionBinding> bindings) {
+		if (!this.activatorConfig.leaves().stream().anyMatch(leaf -> leaf.kind() == LeafConfig.Kind.CONTINUOUS)) {
+			return bindings;
+		}
+		return bindings.stream().filter(binding -> {
+			if (binding.input() instanceof LogicalInput.ModifiedChord) {
+				CUtil.LOGGER.error("Dropping chord binding {} on action {}: continuous actions cannot be bound to chords",
+						binding.input(), this.spec.id());
+				return false;
+			}
+			return true;
+		}).toList();
 	}
 
 	/// A binding's gesture is ignored unless the activator has an editable leaf of the same kind.

@@ -137,7 +137,7 @@ public abstract class ChatScreenMixin extends Screen implements ChatScreenBehavi
 				InputConstants.KEY_ESCAPE
 		).contains(keycode);
 
-		Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(new KeyEvent(keycode, scancode, modifiers));
+		Predicate<GuiEventListener> keyPress = listener -> listener.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, scancode, modifiers));
 
 		if (bypassInput) {
 			return keyPress.test((ChatScreen) (Object) this);

@@ -23,6 +23,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +44,10 @@ public class BindConsumerScreen extends Screen {
 	/// Focus is lost while this screen covers the background, so it is put back on return.
 	private final @Nullable ComponentPath backgroundFocus;
 	private final BindController.BindControllerElement widgetToFocus;
+	/// Chords never carry axis values, so continuous actions cannot be bound to one.
+	private final boolean allowChords;
 
+	private boolean closing;
 	private int ticksTillClose;
 	private int ticksTillInput;
 
@@ -52,7 +56,8 @@ public class BindConsumerScreen extends Screen {
 			Optional<ActionBinding> current,
 			Consumer<Optional<ActionBinding>> onResult,
 			BindController.BindControllerElement widgetToFocus,
-			Screen backgroundScreen
+			Screen backgroundScreen,
+			boolean allowChords
 	) {
 		super(Component.empty());
 		this.controller = controller;
@@ -60,16 +65,16 @@ public class BindConsumerScreen extends Screen {
 		this.onResult = onResult;
 		this.widgetToFocus = widgetToFocus;
 		this.backgroundScreen = backgroundScreen;
+		this.allowChords = allowChords;
 		this.backgroundFocus = backgroundScreen.getCurrentFocusPath();
 		this.ticksTillInput = 5;
 	}
 
 	@Override
 	protected void init() {
-		if (inputSubscription != null) {
-			inputSubscription.close();
-		}
-		if (controller == null) {
+		closeSubscription();
+		// A resize while closing must not subscribe again: removed() never runs for this screen.
+		if (controller == null || closing) {
 			return;
 		}
 		inputSubscription = controller.input().inputPipeline().sourceLogicalSignals().subscribe(signal -> {
@@ -77,7 +82,9 @@ public class BindConsumerScreen extends Screen {
 				return;
 			}
 			if (signal instanceof LogicalSignal.ButtonPress press) {
-				eligibleInputs.add(press.input());
+				if (isAllowed(press.input())) {
+					eligibleInputs.add(press.input());
+				}
 			} else if (signal instanceof LogicalSignal.ButtonRelease release && eligibleInputs.remove(release.input())) {
 				// Chords release before singles; releases also capture presses longer than a tap.
 				capturedInput = release.input();
@@ -85,10 +92,27 @@ public class BindConsumerScreen extends Screen {
 		});
 	}
 
+	private boolean isAllowed(LogicalInput input) {
+		if (!(input instanceof LogicalInput.ModifiedChord chord)) {
+			return true;
+		}
+		// A stick pushed diagonally reads as two half-axes; it must not turn the other direction into a chord.
+		return allowChords && chord.modifiers().stream().noneMatch(BindConsumerScreen::isStickAxis);
+	}
+
+	private static boolean isStickAxis(Identifier input) {
+		return input.getPath().startsWith("axis/") && !input.getPath().endsWith("_trigger");
+	}
+
 	@Override
 	public void removed() {
+		closeSubscription();
+	}
+
+	private void closeSubscription() {
 		if (inputSubscription != null) {
 			inputSubscription.close();
+			inputSubscription = null;
 		}
 	}
 
@@ -120,6 +144,7 @@ public class BindConsumerScreen extends Screen {
 			ticksTillClose--;
 			if (ticksTillClose == 0) {
 				widgetToFocus.awaitingControllerInput = false;
+				closeSubscription();
 				// don't call setScreen because will cause background to re-init
 				MinecraftUtil.forceSetScreen(backgroundScreen);
 				// Restore before the screen context reactivates, which would otherwise focus the first element.
@@ -226,9 +251,8 @@ public class BindConsumerScreen extends Screen {
 	}
 
 	private void returnToBackground() {
-		if (inputSubscription != null) {
-			inputSubscription.close();
-		}
+		closing = true;
+		closeSubscription();
 		ticksTillClose = 5;
 	}
 }

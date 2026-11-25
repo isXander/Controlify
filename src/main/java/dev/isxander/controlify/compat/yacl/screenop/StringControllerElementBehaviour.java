@@ -57,7 +57,7 @@ public class StringControllerElementBehaviour implements ElementBehaviour {
 
 		@Override
 		public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-			return element.keyPressed(new KeyEvent(keycode, scancode, modifiers));
+			return element.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, scancode, modifiers));
 		}
 
 		@Override
@@ -69,7 +69,7 @@ public class StringControllerElementBehaviour implements ElementBehaviour {
 		public boolean moveCursor(int amount) {
 			int keycode = amount > 0 ? InputConstants.KEY_RIGHT : InputConstants.KEY_LEFT;
 			for (int i = 0; i < Math.abs(amount); i++) {
-				element.keyPressed(new KeyEvent(keycode, 0, 0));
+				element.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, 0, 0));
 			}
 			return true;
 		}

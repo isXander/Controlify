@@ -61,7 +61,7 @@ public final class FocusInputBehaviour implements ScreenBehaviour {
 			boolean unavailable = focused.stream().anyMatch(element ->
 					element instanceof AbstractWidget widget && (!widget.active || !widget.visible));
 			if (!unavailable && !context.tryOpenKeyboard(controller, focused.isEmpty() ? null : focused.getFirst())) {
-				context.screen().keyPressed(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+				context.screen().keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(InputConstants.KEY_RETURN, 0, 0));
 			}
 		}
 		next.run();

@@ -44,6 +44,10 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 	private final ControllerImpl controller;
 	private final Map<Identifier, MappingEntry> capturedMappings = new LinkedHashMap<>();
 	private final Set<Identifier> activeInputs = new HashSet<>();
+	/// Axes whose first reading was already past the press threshold (e.g. triggers resting at -1),
+	/// so they are at rest rather than pressed until they have moved back below the release threshold.
+	private final Set<Identifier> seenAxes = new HashSet<>();
+	private final Set<Identifier> restingAxes = new HashSet<>();
 	private EventSource.Subscription inputSubscription;
 	private final ControllerMapping.Builder mappingBuilder = new ControllerMapping.Builder();
 
@@ -125,7 +129,7 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 
 		int nextIndex = currentStage == null ? 0 : stages.indexOf(currentStage) + 1;
 		if (nextIndex >= stages.size()) {
-			onClose();
+			finish();
 			return;
 		}
 		this.setStage(stages.get(nextIndex));
@@ -166,6 +170,16 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 			case PhysicalInputSignal.AxisMoved axis -> {
 				input = axis.input();
 				inputType = MapType.AXIS;
+				if (this.seenAxes.add(input) && axis.value() >= AXIS_PRESS_THRESHOLD) {
+					this.restingAxes.add(input);
+				}
+				if (this.restingAxes.contains(input)) {
+					if (axis.value() < AXIS_RELEASE_THRESHOLD) {
+						this.restingAxes.remove(input);
+						this.activeInputs.remove(input);
+					}
+					return;
+				}
 				// Hysteresis prevents stick noise around the capture threshold from retriggering.
 				pressed = axis.value() >= (this.activeInputs.contains(input)
 						? AXIS_RELEASE_THRESHOLD : AXIS_PRESS_THRESHOLD);
@@ -219,8 +233,13 @@ public class ControllerMappingMakerScreen extends Screen implements DontInterrup
 		delayTillNextStage = 0;
 	}
 
+	/// Escape or any other abort: keeps the previous mapping rather than saving a partial one.
 	@Override
 	public void onClose() {
+		MinecraftUtil.setScreen(lastScreen);
+	}
+
+	private void finish() {
 		MinecraftUtil.setScreen(lastScreen);
 		DeviceSettings deviceSettings = Controlify.instance().config().getSettings()
 				.getOrCreateDeviceSettings(controller.uid());

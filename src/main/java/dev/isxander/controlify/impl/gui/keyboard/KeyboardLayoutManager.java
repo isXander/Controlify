@@ -59,16 +59,16 @@ public class KeyboardLayoutManager implements SimpleControlifyReloadListener<Key
 			Identifier file, Resource resource, Executor executor
 	) {
 		return CompletableFuture.supplyAsync(() -> {
-			KeyboardLayoutKey key = fileToKey(file);
-
+			KeyboardLayoutKey key = null;
 			try (BufferedReader reader = resource.openAsReader()) {
+				key = fileToKey(file);
 				JsonElement json = JsonParser.parseReader(reader);
 				KeyboardLayout layout = KeyboardLayout.CODEC.parse(JsonOps.INSTANCE, json)
-						.getOrThrow(reason -> new RuntimeException("Failed to parse keyboard layout " + key + ": " + reason));
+						.getOrThrow(reason -> new RuntimeException("Failed to parse keyboard layout " + file + ": " + reason));
 
 				return Stream.of(Map.entry(key, layout));
 			} catch (Exception e) {
-				LOGGER.error("Failed to read keyboard layout {}", e, key);
+				LOGGER.error("Failed to read keyboard layout {}", e, file);
 				return Stream.empty();
 			}
 		}, executor);

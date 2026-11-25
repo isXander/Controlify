@@ -85,7 +85,7 @@ public final class BuiltinScreenBehaviours {
 		registry.register(ContainerEventHandler.class, -100, DefaultContainerBehaviour::new);
 		registry.register(AbstractWidget.class, -200, ElementBehaviours::snapPoint);
 		registry.register(AbstractButton.class, ElementBehaviours.enabledWidget(ElementBehaviours.button(
-				button -> button.onPress(new KeyEvent(InputConstants.KEY_RETURN, 0, 0)),
+				button -> button.onPress(dev.isxander.controlify.impl.utils.KeyEvents.of(InputConstants.KEY_RETURN, 0, 0)),
 				button -> button.playDownSound(Minecraft.getInstance().getSoundManager())
 		)));
 		registry.register(AbstractSliderButton.class, ElementBehaviours.enabledWidget(ElementBehaviours.slider(
@@ -173,7 +173,7 @@ public final class BuiltinScreenBehaviours {
 			// Secondary navigation adjusts without entering the widget's editing mode.
 			accessor.controlify$setCanChangeValue(true);
 			int key = direction < 0 ? InputConstants.KEY_LEFT : InputConstants.KEY_RIGHT;
-			slider.keyPressed(new KeyEvent(key, 0, 0));
+			slider.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(key, 0, 0));
 		} finally {
 			accessor.controlify$setCanChangeValue(editing && slider.isFocused());
 		}

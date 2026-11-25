@@ -464,7 +464,7 @@ public class ControlifySettingsScreen extends Screen {
 		@Override
 		public void handleInteraction(@NonNull Controller controller, @NonNull Runnable next) {
 			if (ControlifyActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
-				this.screen.globalSettingsButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+				this.screen.globalSettingsButton.onPress(dev.isxander.controlify.impl.utils.KeyEvents.of(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
 			}
 
 			next.run();

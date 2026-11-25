@@ -258,7 +258,8 @@ public class BindController implements Controller<List<ActionBinding>> {
 					control.slot(slot),
 					binding -> control.setSlot(slot, binding),
 					this,
-					MinecraftUtil.getScreen()
+					MinecraftUtil.getScreen(),
+					control.activator.leaves().stream().noneMatch(leaf -> leaf.kind() == LeafConfig.Kind.CONTINUOUS)
 			));
 		}
 

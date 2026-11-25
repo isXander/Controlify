@@ -614,7 +614,9 @@ public class ControllerConfigScreenFactory {
 
 		InputSettings.GestureSettings gestures = config.gestures;
 		InputSettings.GestureSettings gestureDefaults = def.gestures;
-		group.option(Option.<Integer>createBuilder()
+		// A tap must end before a long press begins, so each slider pushes the other out of the way.
+		List<Option<Integer>> gestureOptions = new ArrayList<>(2);
+		Option<Integer> tapMaxOption = Option.<Integer>createBuilder()
 				.name(Component.translatable("controlify.gui.gesture_tap_max"))
 				.description(OptionDescription.createBuilder()
 						.text(Component.translatable("controlify.gui.gesture_tap_max.tooltip"))
@@ -623,8 +625,14 @@ public class ControllerConfigScreenFactory {
 				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
 						.range(50, 500).step(10)
 						.formatValue(millisFormatter))
-				.build());
-		group.option(Option.<Integer>createBuilder()
+				.addListener((opt, event) -> {
+					Option<Integer> longPress = gestureOptions.get(1);
+					if (longPress.pendingValue() <= opt.pendingValue()) {
+						longPress.requestSet(Math.min(1500, (opt.pendingValue() / 50 + 1) * 50));
+					}
+				})
+				.build();
+		Option<Integer> longPressOption = Option.<Integer>createBuilder()
 				.name(Component.translatable("controlify.gui.gesture_long_press"))
 				.description(OptionDescription.createBuilder()
 						.text(Component.translatable("controlify.gui.gesture_long_press.tooltip"))
@@ -633,7 +641,17 @@ public class ControllerConfigScreenFactory {
 				.controller(opt -> IntegerSliderControllerBuilder.create(opt)
 						.range(200, 1500).step(50)
 						.formatValue(millisFormatter))
-				.build());
+				.addListener((opt, event) -> {
+					Option<Integer> tapMax = gestureOptions.get(0);
+					if (tapMax.pendingValue() >= opt.pendingValue()) {
+						tapMax.requestSet(Math.max(50, (opt.pendingValue() - 1) / 10 * 10));
+					}
+				})
+				.build();
+		gestureOptions.add(tapMaxOption);
+		gestureOptions.add(longPressOption);
+		group.option(tapMaxOption);
+		group.option(longPressOption);
 
 		return Optional.of(group.build());
 	}
@@ -666,6 +684,7 @@ public class ControllerConfigScreenFactory {
 						.action((screen, button) -> {
 							config.mapping = def.mapping;
 							controller.input().reloadControllerMapping();
+							Controlify.instance().config().saveSafely();
 						})
 						.build())
 				.collapsed(true)

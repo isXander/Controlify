@@ -40,7 +40,8 @@ import java.util.stream.Stream;
 
 public class InputFontMapper implements SimpleControlifyReloadListener<InputFontMapper.Preparations> {
 	private ImmutableMap<Identifier, FontMap> mappings = ImmutableMap.of();
-	private FontMap defaultFontMap;
+	/// Never null: an empty map stands in until, or if, the default font mapping is missing.
+	private FontMap defaultFontMap = emptyFontMap();
 
 	/// One or more characters of the glyph set's font, rendered in sequence.
 	private static final Codec<String> GLYPHS_CODEC = ExtraCodecs.NON_EMPTY_STRING;
@@ -87,8 +88,16 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 			ImmutableMap.Builder<Identifier, FontMap> builder = ImmutableMap.builder();
 			data.mappings().forEach(builder::put);
 			mappings = builder.build();
-			defaultFontMap = mappings.get(ControllerType.DEFAULT.id());
+			FontMap loadedDefault = mappings.get(ControllerType.DEFAULT.id());
+			if (loadedDefault == null) {
+				CUtil.LOGGER.error("No default input font mapping ({}) was loaded; input glyphs will be unknown", ControllerType.DEFAULT.id());
+			}
+			defaultFontMap = loadedDefault != null ? loadedDefault : emptyFontMap();
 		}, executor);
+	}
+
+	private static FontMap emptyFontMap() {
+		return new FontMap(ControllerType.DEFAULT.id(), "?", Map.of());
 	}
 
 	public FontMap getMappings(Identifier namespace) {
@@ -140,39 +149,60 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 
 		FontMap fontMap = getMappings(namespace);
 		return switch (input) {
-			case LogicalInput.Single(var physicalInput) -> {
-				MappedGlyphs mapped = getGlyphs(fontMap, physicalInput);
-				yield createComponent(mapped.glyphs(), mapped.fontMap());
-			}
+			case LogicalInput.Single(var physicalInput) -> inputComponent(fontMap, physicalInput);
 			case LogicalInput.ModifiedChord(var modifiers, var trigger) -> {
 				MutableComponent component = Component.empty();
-				StringBuilder literal = new StringBuilder();
-				FontMap currentFontMap = null;
-
-				// Coalesce adjacent modifiers using the same font into a single literal.
+				boolean previousWasText = false;
+				boolean first = true;
 				for (Identifier modifier : modifiers) {
-					MappedGlyphs mapped = getGlyphs(fontMap, modifier);
-					if (currentFontMap != null && currentFontMap != mapped.fontMap()) {
-						MutableComponent run = createComponent(literal.toString(), currentFontMap);
-						component.append(run);
-						literal.setLength(0);
+					boolean text = findGlyphs(fontMap, modifier).isEmpty();
+					if (!first && (text || previousWasText)) {
+						component.append(plus());
 					}
-					currentFontMap = mapped.fontMap();
-					literal.append(mapped.glyphs());
+					component.append(inputComponent(fontMap, modifier));
+					previousWasText = text;
+					first = false;
 				}
-
-				if (currentFontMap != null) {
-					MutableComponent run = createComponent(literal.toString(), currentFontMap);
-					// Use the first run as the root to avoid an empty wrapper component.
-					component.append(run);
-					component.append(Component.literal("+").withStyle(style -> style.withFont(FontDescription.DEFAULT)));
-				}
-
-				MappedGlyphs mappedTrigger = getGlyphs(fontMap, trigger);
-				MutableComponent triggerComponent = createComponent(mappedTrigger.glyphs(), mappedTrigger.fontMap());
-				yield component.append(triggerComponent);
+				component.append(plus());
+				yield component.append(inputComponent(fontMap, trigger));
 			}
 		};
+	}
+
+	private static MutableComponent plus() {
+		return Component.literal("+").withStyle(style -> style.withFont(FontDescription.DEFAULT));
+	}
+
+	/// The input's glyph, or a short text label for inputs no font mapping covers.
+	private MutableComponent inputComponent(FontMap fontMap, Identifier input) {
+		return findGlyphs(fontMap, input)
+				.map(mapped -> createComponent(mapped.glyphs(), mapped.fontMap()))
+				.orElseGet(() -> Component.literal(fallbackLabel(input)).withStyle(style -> style.withFont(FontDescription.DEFAULT)));
+	}
+
+	/// `button/3` is `B3`, `axis/1/positive` is `A1+`, `axis/1/negative` is `A1-`, `hat/0/up` is `H0` plus an arrow.
+	static String fallbackLabel(Identifier input) {
+		String[] parts = input.getPath().split("/");
+		try {
+			if (parts.length == 2 && parts[0].equals("button")) {
+				return "B" + Integer.parseInt(parts[1]);
+			}
+			if (parts.length == 3 && parts[0].equals("axis")) {
+				return "A" + Integer.parseInt(parts[1]) + (parts[2].equals("negative") ? "-" : "+");
+			}
+			if (parts.length == 3 && parts[0].equals("hat")) {
+				String arrow = switch (parts[2]) {
+					case "up" -> "\u2191";
+					case "right" -> "\u2192";
+					case "down" -> "\u2193";
+					case "left" -> "\u2190";
+					default -> parts[2];
+				};
+				return "H" + Integer.parseInt(parts[1]) + arrow;
+			}
+		} catch (NumberFormatException ignored) {
+		}
+		return input.getPath();
 	}
 
 	private MutableComponent createComponent(String literal, FontMap fontMap) {
@@ -180,10 +210,6 @@ public class InputFontMapper implements SimpleControlifyReloadListener<InputFont
 				.withFont(new FontDescription.Resource(fontMap.namespace().withPrefix("controller/")))
 				.withShadowColor(0x00000000) // remove shadow
 				.withColor(0xFFFFFFFF)); // override color of font renderer so the glyph always renders properly
-	}
-
-	private MappedGlyphs getGlyphs(FontMap fontMap, Identifier input) {
-		return findGlyphs(fontMap, input).orElseGet(() -> new MappedGlyphs(fontMap.unknown(), fontMap));
 	}
 
 	private Optional<MappedGlyphs> findGlyphs(FontMap fontMap, Identifier key) {

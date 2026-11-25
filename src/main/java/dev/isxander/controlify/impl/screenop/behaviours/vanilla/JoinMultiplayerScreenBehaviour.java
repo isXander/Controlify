@@ -39,7 +39,7 @@ public final class JoinMultiplayerScreenBehaviour implements ScreenBehaviour {
 			Button directConnectButton = access.controlify$getDirectConnectButton();
 			if (directConnectButton != null) {
 				context.playClickSound();
-				directConnectButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+				directConnectButton.onPress(dev.isxander.controlify.impl.utils.KeyEvents.of(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
 				return;
 			}
 		}
@@ -48,7 +48,7 @@ public final class JoinMultiplayerScreenBehaviour implements ScreenBehaviour {
 			Button addServerButton = access.controlify$getAddServerButton();
 			if (addServerButton != null) {
 				context.playClickSound();
-				addServerButton.onPress(new net.minecraft.client.input.KeyEvent(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
+				addServerButton.onPress(dev.isxander.controlify.impl.utils.KeyEvents.of(com.mojang.blaze3d.platform.InputConstants.KEY_RETURN, 0, 0));
 				return;
 			}
 		}

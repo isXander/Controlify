@@ -29,7 +29,7 @@ public final class YACLScreenBehaviour implements ScreenBehaviour {
 	public void handleInteraction(Controller controller, Runnable next) {
 		if (BuiltinActions.GUI_ABSTRACT_ACTION_1.on(controller).pulse().consumeAllPulses()) {
 			if (screen.tabManager.getCurrentTab() instanceof YACLScreen.CategoryTab categoryTab) {
-				((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(new KeyEvent(InputConstants.KEY_RETURN, 0, 0));
+				((YACLScreenCategoryTabAccessor) categoryTab).getSaveFinishedButton().onPress(dev.isxander.controlify.impl.utils.KeyEvents.of(InputConstants.KEY_RETURN, 0, 0));
 			}
 			context.playClickSound();
 		}

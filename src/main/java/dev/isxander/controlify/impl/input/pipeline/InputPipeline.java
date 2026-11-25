@@ -18,6 +18,7 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 	private final EventTap<PhysicalSignal> tapRawPhysicalSignals;
 	private final SensorProcessorStage stageSensorProcessor;
 	private final MappingStage stageMapping;
+	private final EventTap<PhysicalSignal> tapMappedPhysicalSignals;
 	private final DeadzoneStage stageDeadzone;
 	private final GestureRecogniserStage stageGestureRecogniser;
 	private final InputDomainExpansionStage stageInputDomainExpansion;
@@ -34,6 +35,7 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 		this.tapRawPhysicalSignals = new EventTap<>();
 		this.stageSensorProcessor = new SensorProcessorStage();
 		this.stageMapping = new MappingStage(ControllerMapping.NO_MAPPING);
+		this.tapMappedPhysicalSignals = new EventTap<>();
 		this.stageDeadzone = new DeadzoneStage();
 		this.stageGestureRecogniser = new GestureRecogniserStage();
 		this.stageInputDomainExpansion = new InputDomainExpansionStage(0.5f, 0.49f, 1f, 0f);
@@ -46,6 +48,7 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 		this.fullPipeline = this.tapRawPhysicalSignals
 				.andThen(this.stageSensorProcessor)
 				.andThen(this.stageMapping)
+				.andThen(this.tapMappedPhysicalSignals)
 				.andThen(this.stageDeadzone)
 				.andThen(this.stageGestureRecogniser)
 				.andThen(this.stageInputDomainExpansion)
@@ -71,6 +74,11 @@ public class InputPipeline implements EventSink<PhysicalSignal> {
 
 	public EventSource<PhysicalSignal> sourceRawPhysicalSignals() {
 		return this.tapRawPhysicalSignals;
+	}
+
+	/// Signals after the controller mapping but before deadzones are applied.
+	public EventSource<PhysicalSignal> sourceMappedPhysicalSignals() {
+		return this.tapMappedPhysicalSignals;
 	}
 
 	public SensorProcessorStage stageSensorProcessor() {

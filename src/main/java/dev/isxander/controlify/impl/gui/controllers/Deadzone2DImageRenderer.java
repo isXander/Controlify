@@ -18,6 +18,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -27,18 +28,43 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 	private final Supplier<Option<Float>> deadzoneOption;
 
 	private final float[] directions;
-	private final EventSource.Subscription pipelineSubscription;
+	private final InputComponentImpl input;
+	private EventSource.Subscription pipelineSubscription;
 
 	public Deadzone2DImageRenderer(InputComponentImpl input, DeadzoneGroup deadzoneGroup, Supplier<Option<Float>> deadzoneOption) {
 		this.deadzoneGroup = deadzoneGroup;
 		this.deadzoneOption = deadzoneOption;
 		this.directions = new float[4];
 		Arrays.fill(this.directions, 0f);
-		this.pipelineSubscription = input.inputPipeline().sourceRawPhysicalSignals().subscribe(this::onSignal);
+		this.input = input;
+	}
+
+	/// Subscribed on first render rather than on construction, because a renderer is built for every
+	/// config screen build but only rendered while visible. The listener holds the renderer weakly and
+	/// unsubscribes itself once the renderer is gone, even if close() is never called.
+	private void ensureSubscribed() {
+		if (this.pipelineSubscription != null) {
+			return;
+		}
+		WeakReference<Deadzone2DImageRenderer> self = new WeakReference<>(this);
+		EventSource.Subscription[] subscription = new EventSource.Subscription[1];
+		// Mapped, pre-deadzone values: ids match the deadzone group's axes, and the preview shows the raw stick position.
+		subscription[0] = this.input.inputPipeline().sourceMappedPhysicalSignals().subscribe(signal -> {
+			Deadzone2DImageRenderer renderer = self.get();
+			if (renderer == null) {
+				if (subscription[0] != null) {
+					subscription[0].close();
+				}
+				return;
+			}
+			renderer.onSignal(signal);
+		});
+		this.pipelineSubscription = subscription[0];
 	}
 
 	@Override
 	public int render(GuiGraphicsExtractor graphics, int x, int y, int renderWidth, float tickDelta) {
+		this.ensureSubscribed();
 		float radius = renderWidth / 4f;
 		int renderHeight = (int) (radius * 2f);
 
@@ -98,6 +124,9 @@ public class Deadzone2DImageRenderer implements ImageRenderer {
 
 	@Override
 	public void close() {
-		this.pipelineSubscription.close();
+		if (this.pipelineSubscription != null) {
+			this.pipelineSubscription.close();
+			this.pipelineSubscription = null;
+		}
 	}
 }

@@ -32,7 +32,7 @@ public record EditBoxInputTarget(EditBox editBox) implements InputTarget {
 
 	@Override
 	public boolean acceptKeyCode(int keycode, int scancode, int modifiers) {
-		this.editBox.keyPressed(new KeyEvent(keycode, scancode, modifiers));
+		this.editBox.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, scancode, modifiers));
 		return true;
 	}
 

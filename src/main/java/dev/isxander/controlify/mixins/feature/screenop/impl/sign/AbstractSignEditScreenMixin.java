@@ -127,7 +127,7 @@ public abstract class AbstractSignEditScreenMixin extends Screen implements Sign
 		}
 		if (this.signField == null) return false;
 
-		return this.signField.keyPressed(new KeyEvent(keycode, scancode, modifiers));
+		return this.signField.keyPressed(dev.isxander.controlify.impl.utils.KeyEvents.of(keycode, scancode, modifiers));
 	}
 
 	@Override
