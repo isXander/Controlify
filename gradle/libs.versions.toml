@@ -1,5 +1,5 @@
 [versions]
-fabric_loader = "0.19.3"
+fabric_loader = "0.19.5"
 sdl_natives = "fda4ece2775c"
 sdl_java = "fda4ece2775c-12"
 quilt_parsers = "0.3.0"
